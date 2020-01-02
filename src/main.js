@@ -11,6 +11,14 @@ import VueCodemirror from 'vue-codemirror'
 import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/lib/codemirror.css'
 
+
+import Explorer from "./views/Explorer.vue"
+Vue.component('explorer', Explorer);
+
+import ExplorerNode from "./views/ExplorerNode.vue"
+Vue.component('explorer-node', ExplorerNode);
+
+
 Vue.use(VueCodemirror, {
   options: {
     tabSize: 4,
