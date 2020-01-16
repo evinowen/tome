@@ -12,10 +12,10 @@ import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/lib/codemirror.css'
 
 
-import Explorer from "./views/Explorer.vue"
+import Explorer from "./components/Explorer.vue"
 Vue.component('explorer', Explorer);
 
-import ExplorerNode from "./views/ExplorerNode.vue"
+import ExplorerNode from "./components/ExplorerNode.vue"
 Vue.component('explorer-node', ExplorerNode);
 
 

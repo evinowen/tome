@@ -733,7 +733,7 @@ html {
   import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly';
   import marked from 'marked'
 
-  import Explorer from "./views/Explorer.vue"
+  import Explorer from "./components/Explorer.vue"
   import EmptyContent from "./views/Empty.vue"
   import ActionContent from "./views/Action.vue"
 
