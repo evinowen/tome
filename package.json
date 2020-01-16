@@ -18,6 +18,7 @@
     "vue": "^2.6.10",
     "vue-codemirror": "^4.0.6",
     "vue-router": "^3.1.3",
+    "vue-scrolly": "^0.9.3",
     "vue-splitpane": "^1.0.6",
     "vuetify": "^2.1.0",
     "vuex": "^3.1.2"

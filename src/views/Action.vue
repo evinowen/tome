@@ -4,8 +4,7 @@
         justify="center">
         <v-col class="text-center grey--text text--lighten-2">
           <v-icon x-large class=" grey--text text--lighten-2" style="font-size: 120px;">mdi-bookshelf</v-icon>
-          <h1><slot></slot></h1>
-          <!-- <hr /> -->
+          <slot></slot>
           <br />
           <p v-for="action in actions" :key="action.name">
             <v-btn dense @click.stop="action.action"><v-icon class="mr-2">{{ action.icon }}</v-icon> {{ action.name }}</v-btn>
