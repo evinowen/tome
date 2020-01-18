@@ -92,226 +92,17 @@
 
 
             <!-- PUSH WINDOW -->
-            <template v-else-if="tome_push">
-              <v-container style="height: 100%; padding: 0px;">
-                <v-container class="pa-4" style="height: 100%; overflow: auto;">
-                  <v-row no-gutters>
-                    <v-col>
-                      <h1>Push</h1>
-                    </v-col>
-                    <v-col col=1 class="text-right">
-                      <v-btn tile icon color="red" @click.stop="close_push">
-                        <v-icon>mdi-window-close</v-icon>
-                      </v-btn>
-                    </v-col>
-                  </v-row>
+            <push-view
+              v-else-if="tome_push"
+              @close="tome_push = false"
+              :repository="tome_repo"
+              :branch="tome_branch"
+              :default_private_key="tome_config.private_key"
+              :default_public_key="tome_config.public_key"
+              :default_passphrase="tome_config.passphrase"
 
-                  <hr />
+            />
 
-                  <v-row no-gutters>
-                    <v-col>
-
-                      <v-card dense class="my-2">
-                        <v-row no-gutters>
-                          <v-col>
-                            <input ref="tome_key" type="file" style="display: none" @change="set_key" />
-                            <v-btn tile icon small dark :color="tome_key ? 'green' : 'red'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="choose_key">
-                              <v-icon small>{{ tome_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-                              {{ tome_key }}
-                            </v-btn>
-                          </v-col>
-                          <v-col cols=1>
-                            <v-btn tile icon small dark :color="tome_config.private_key ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="tome_key = tome_config.private_key || tome_key">
-                              <v-icon small>mdi-key</v-icon>
-                            </v-btn>
-                          </v-col>
-
-                        </v-row>
-
-
-                        <v-row no-gutters>
-                          <v-col>
-                            <input ref="tome_key_public" type="file" style="display: none" @change="set_key_public" />
-                            <v-btn tile icon small dark :color="tome_key_public ? 'green' : 'red'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="choose_key_public">
-                              <v-icon small>{{ tome_key_public ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-                              {{ tome_key_public }}
-                            </v-btn>
-                          </v-col>
-                          <v-col cols=1>
-                            <v-btn tile icon small dark :color="tome_config.public_key ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="tome_key_public = tome_config.public_key || tome_key_public">
-                              <v-icon small>mdi-key</v-icon>
-                            </v-btn>
-                          </v-col>
-
-                        </v-row>
-
-
-                        <v-row no-gutters>
-                          <v-col>
-                            <v-text-field
-                              v-model="tome_key_passphrase"
-                              :append-icon="tome_key_passphrase_show ? 'mdi-eye' : 'mdi-eye-off'"
-                              :type="tome_key_passphrase_show ? 'text' : 'password'"
-                              hint="passphrase"
-                              solo dense filled flat x-small clearable
-                              height=28
-                              class="passphrase" style="min-height: 0px;"
-                              @click:append="tome_key_passphrase_show = !tome_key_passphrase_show"
-                            />
-                          </v-col>
-                          <v-col cols=1>
-                            <v-btn tile icon small dark :color="tome_config.passphrase ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="tome_key_passphrase = tome_config.passphrase || tome_key_passphrase">
-                              <v-icon small>mdi-key</v-icon>
-                            </v-btn>
-                          </v-col>
-
-                        </v-row>
-
-                        <v-card-actions>
-                          <v-select
-                            :items="tome_repo_remotes_data"
-                            label="Remote"
-                            @change="select_remote"
-                            :disabled="tome_key && tome_key_public ? false : true"
-                            dense clearable class="mt-4"
-                          >
-                            <template v-slot:selection="data">
-                              {{ data.item.name }}
-                              <v-spacer />
-                              <small>{{ data.item.url }}</small>
-                            </template>
-                            <template v-slot:item="data">
-                              {{ data.item.name }}
-                              <v-spacer />
-                              {{ data.item.url }}
-                            </template>
-                            <template v-slot:append-outer>
-                              <v-btn icon :color="tome_repo_remotes_edit ? 'orange' : 'grey'" @click.stop="tome_repo_remotes_edit = !tome_repo_remotes_edit">
-                                <v-icon>mdi-square-edit-outline</v-icon>
-                              </v-btn>
-                            </template>
-                          </v-select>
-                        </v-card-actions>
-
-                        <v-expand-transition>
-                          <div v-show="tome_repo_remotes_edit" class="px-6">
-                            <form>
-                              <v-row dense background="red">
-                                  <v-col cols="12" sm="3">
-                                    <v-text-field
-                                      v-model="tome_push_data.new_remote_name"
-                                      label="Name"
-                                      required dense
-                                    />
-                                  </v-col>
-                                  <v-col cols="12" sm="9">
-                                    <v-text-field
-                                      v-model="tome_push_data.new_remote_url"
-                                      label="URL"
-                                      required dense
-                                      append-outer-icon="mdi-plus-thick"
-                                    >
-                                      <template v-slot:append-outer>
-                                        <v-btn icon color="green" @click.stop="add_remote">
-                                          <v-icon>mdi-plus-thick</v-icon>
-                                        </v-btn>
-                                      </template>
-                                    </v-text-field>
-                                  </v-col>
-                              </v-row>
-                            </form>
-                          </div>
-                        </v-expand-transition>
-                      </v-card>
-
-                    </v-col>
-                  </v-row>
-
-                  <v-row align="center" justify="center">
-                    <v-col>
-                      <v-card  class="text-center">
-                        <v-card-text>
-                          <div class="title text--primary">&mdash;</div>
-                          <hr/>
-                          <div class="display-1 text--primary">{{ tome_branch }}</div>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-
-                    <v-col cols=1 class="text-center pa-0" align-center>
-                      <v-icon align-center x-large>mdi-chevron-right</v-icon>
-                    </v-col>
-
-                    <v-col>
-                      <v-card class="text-center" :loading="tome_branch_reference_loading" :disabled="!tome_branch_reference">
-                        <v-card-text v-if="tome_branch_reference">
-                          <div class="title text--primary">{{ this.tome_branch_reference.name }}</div>
-                          <hr/>
-                          <div class="display-1 text--primary">{{ this.tome_branch_reference.short }}</div>
-                        </v-card-text>
-                        <v-card-text v-else>
-                          <div class="title text--primary">&mdash;</div>
-                          <hr/>
-                          <div class="display-1 text--primary">&mdash;</div>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-
-                  </v-row>
-
-                  <v-divider class="mt-4 mb-2"></v-divider>
-
-                  <v-row>
-                    <v-col>
-                      <v-dialog v-model="tome_push_confirm" persistent max-width="1200px">
-                        <template v-slot:activator="{ on }">
-                          <v-btn class="mr-4" v-on="on"
-                            :disabled="(tome_key && tome_key_public && tome_repo_remotes_selected) ? false : true"
-                          >
-                            <v-icon class="mr-2">mdi-upload-multiple</v-icon>
-                            Push
-                          </v-btn>
-                        </template>
-                        <v-card>
-                          <v-card-title class="headline">Push</v-card-title>
-                          <v-card-actions>
-                            <v-btn
-                              color="orange darken-1"
-                              text @click="push_tome"
-                              :disabled="tome_push_working"
-                            >
-                              <v-progress-circular
-                                :indeterminate="tome_push_working"
-                                :size="12"
-                                :width="2"
-                                color="orange darken-1"
-                                class="mr-2"
-                              ></v-progress-circular>
-                              Proceed
-                            </v-btn>
-                            <v-spacer></v-spacer>
-                            <v-btn color="darken-1" text @click="tome_push_confirm = false" :disabled="tome_push_working">
-                              <v-icon class="mr-2">mdi-exit-to-app</v-icon>
-                              Back
-                            </v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
-                    </v-col>
-
-                    <v-col class="text-right">
-                      <v-btn color="red" @click.stop="close_push">
-                        <v-icon class="mr-2">mdi-cancel</v-icon>
-                        Cancel
-                      </v-btn>
-
-                    </v-col>
-                  </v-row>
-
-                </v-container>
-              </v-container>
-
-            </template>
 
             <!-- OPEN FILE WINDOW -->
             <template v-else-if="tome_file">
@@ -464,7 +255,7 @@
               </v-btn>
 
               <!-- PUSH BUTTON -->
-              <v-btn tile small icon color="accent" class="pa-0" @click.stop="open_push" :disabled="tome_commit || tome_push">
+              <v-btn tile small icon color="accent" class="pa-0" @click.stop="tome_push = true" :disabled="tome_commit || tome_push">
                 <v-icon small>mdi-upload-multiple</v-icon>
               </v-btn>
 
@@ -562,6 +353,7 @@ html {
   import marked from 'marked'
 
   import CommitView from "./views/Commit.vue";
+  import PushView from "./views/Push.vue";
   import NewFileService from "./components/NewFileService.vue";
 
   import Explorer from "./components/Explorer.vue"
@@ -585,10 +377,6 @@ html {
       tome_config: null,
       tome_name: '',
       tome_path: '',
-      tome_key: null,
-      tome_key_public: null,
-      tome_key_passphrase: null,
-      tome_key_passphrase_show: false,
       tome_file: '',
       tome_file_selected: '',
       tome_file_path: '',
@@ -642,14 +430,6 @@ html {
       tome_commits_ahead: 0,
       tome_commit_working: false,
       tome_push: false,
-      tome_push_working: false,
-      tome_push_data: {
-        new_remote_name: '',
-        new_remote_url: '',
-
-      },
-      tome_push_confirm: false,
-      tome_push_working: false,
       tome_add_file: false,
       tome_add_file_val: '',
       tome_add_file_path_rel: '',
@@ -833,145 +613,6 @@ html {
       publish_commit: function (event) {
 
       },
-      open_push: async function (event) {
-
-        this.tome_repo_remotes = await this.tome_repo.getRemotes();
-
-        console.log("loaded remotes", this.tome_repo_remotes);
-
-        this.tome_push = true;
-
-      },
-      close_push: function (event) {
-        this.tome_push = false;
-      },
-      add_remote: async function (event) {
-        console.log("add_remote", event);
-        console.log(this.tome_push_data.new_remote_name, this.tome_push_data.new_remote_url);
-
-        let remote = await git.Remote.create(this.tome_repo, this.tome_push_data.new_remote_name, this.tome_push_data.new_remote_url);
-
-        this.tome_repo_remotes = await this.tome_repo.getRemotes();
-
-        console.log("loaded remotes", this.tome_repo_remotes);
-
-      },
-      remove_remote: function (event) {
-        console.log("remove_remote", event);
-      },
-      choose_key: function (event) {
-        this.$refs.tome_key.click();
-      },
-      set_key: async function (event) {
-        console.log('set_key', event);
-        let files = event.target.files || event.dataTransfer.files;
-
-        console.log(files);
-
-        if (!files.length) {
-          this.tome_key = null;
-          return;
-        }
-
-        if (!files[0].path) {
-          return;
-        }
-
-        this.tome_key = files[0].path;
-
-      },
-      choose_key_public: function (event) {
-        this.$refs.tome_key_public.click();
-      },
-      set_key_public: async function (event) {
-        console.log('set_key', event);
-        let files = event.target.files || event.dataTransfer.files;
-
-        console.log(files);
-
-        if (!files.length) {
-          this.tome_key_public = null;
-          return;
-        }
-
-        if (!files[0].path) {
-          return;
-        }
-
-        this.tome_key_public = files[0].path;
-
-      },
-      select_remote: async function (remote) {
-        console.log("select_remote", remote);
-
-        this.tome_repo_remotes_selected = null;
-
-        this.tome_branch_reference = null;
-        this.tome_branch_reference_loading = true;
-
-        // await new Promise(resolve => setTimeout(resolve, 5000));
-
-        if (remote) {
-          try {
-            let credentials = { private_key: this.tome_key, public_key: this.tome_key_public, passphrase: this.tome_key_passphrase || '' };
-            let result = await remote.object.connect(
-              git.Enums.DIRECTION.FETCH,
-              {
-                credentials: function(url, username) {
-                  console.log('credentials', username, credentials.public_key, credentials.private_key, credentials.passphrase);
-                  return git.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase);
-                },
-
-                certificateCheck: () => 0,
-
-              }
-            );
-
-            if (result) {
-              console.error('remote connect error', result);
-
-            }
-
-            console.log("getFetchRefspecs?", await remote.object.getFetchRefspecs());
-            console.log("getPushRefspecs?", await remote.object.getPushRefspecs());
-
-            console.log("referenceList?", (await remote.object.referenceList()).map(reference => {
-              let object = {
-                name: reference.name(),
-                object: reference,
-
-              };
-
-              let head_parsed = reference.name().match(/^refs\/heads\/(.*)$/m);
-              console.log(head_parsed);
-
-              if (head_parsed) {
-                object.short = head_parsed[1];
-
-                if (object.short == this.tome_branch) {
-                  this.tome_branch_reference = object;
-                }
-
-              }
-
-              return object;
-
-            }));
-
-            this.tome_repo_remotes_selected = remote;
-
-          } catch (err) {
-              console.error('remote connect error!!!', err);
-
-          }
-
-        }
-
-        this.tome_branch_reference_loading = false;
-
-        return true;
-
-      },
       set_tome: async function (event) {
         let files = event.target.files || event.dataTransfer.files;
 
@@ -1065,57 +706,6 @@ html {
           console.log(this.tome_branch);
 
         }
-
-      },
-      push_tome: async function (event) {
-        console.debug("[Push Tome] Begin");
-        this.tome_push_working = true;
-
-        await new Promise(resolve => setTimeout(resolve, 5000));
-
-
-        if (!this.tome_repo_remotes_selected) {
-          console.debug("[Push Tome] No Remote Selected!", this.tome_repo_remotes_selected);
-          this.tome_push_confirm = false;
-          this.tome_push_working = false;
-
-          return false;
-
-        }
-
-        let references = (await this.tome_repo.getReferences()).map(reference => ({
-          name: reference.name(),
-          object: reference,
-
-        }));
-
-        console.log("[Push Tome] List local references:", references);
-
-        let refspec = `refs/heads/${this.tome_branch}:refs/heads/${this.tome_branch}`;
-        let credentials = { private_key: this.tome_key, public_key: this.tome_key_public, passphrase: this.tome_key_passphrase || '' };
-
-        console.debug("[Push Tome] Collect Data", refspec, credentials);
-
-        let result = await this.tome_repo_remotes_selected.object.push(
-          [refspec],
-          {
-            callbacks: {
-              credentials: function(url, username) {
-                console.log('credentials', username, credentials.public_key, credentials.private_key, credentials.passphrase);
-                return git.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase);
-              },
-
-            }
-          }
-        );
-
-        console.debug("[Push Tome] Clear Flags");
-        this.tome_push_confirm = false;
-        this.tome_push_working = false;
-        this.tome_push = false;
-
-        console.debug("[Push Tome] Complete");
-        return true;
 
       },
       resize: function (event) {
@@ -1463,13 +1053,6 @@ html {
       tome_path_comp: function () {
         return this.tome_path;
       },
-      tome_repo_remotes_data: function () {
-        return this.tome_repo_remotes.map(remote => ({
-          name: remote.name(),
-          url: remote.url(),
-          object: remote,
-        }))
-      },
     },
     components: {
       Explorer,
@@ -1479,6 +1062,7 @@ html {
       ScrollyViewport,
       ScrollyBar,
       CommitView,
+      PushView,
       NewFileService,
     },
   }
