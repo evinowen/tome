@@ -223,31 +223,18 @@
         <v-expand-x-transition>
           <div v-show="tome_edit" style="overflow: hidden; ">
             <div class="grey darken-4" style="height: 28px">
-                <!-- STAGE BUTTON -->
-                <v-btn
-                  tile small icon
-                  class="px-2 grey--text text--lighten-1"
-                   @click.stop=""
-                >
-                  <v-progress-circular
-                    :value="(reload_counter * 100) / reload_max"
-                    :size="12"
-                    :width="2"
-                    color="orange darken-1"
-                    class="mr-2"
-                  ></v-progress-circular>
-                  <strong v-if="tome_status_staged_additions" class="green--text">{{ tome_status_staged_additions }}</strong>
-                  <strong v-else>0</strong>
-                  <strong>/</strong>
-                  <strong v-if="tome_status.staged.deleted" class="red--text">{{ tome_status.staged.deleted }}</strong>
-                  <strong v-else>0</strong>
-                  <strong>&bull;</strong>
-                  <strong v-if="tome_status_available_additions" class="lime--text">{{ tome_status_available_additions }}</strong>
-                  <strong v-else>0</strong>
-                  <strong>/</strong>
-                  <strong v-if="tome_status.available.deleted" class="orange--text">{{ tome_status.available.deleted }}</strong>
-                  <strong v-else>0</strong>
-                </v-btn>
+              <!-- STAGE BUTTON -->
+              <status-button
+                :waiting="reload_counter"
+                :available_new="tome_status.available.new"
+                :available_renamed="tome_status.available.renamed"
+                :available_modified="tome_status.available.modified"
+                :available_removed="tome_status.available.deleted"
+                :staged_new="tome_status.staged.new"
+                :staged_renamed="tome_status.staged.renamed"
+                :staged_modified="tome_status.staged.modified"
+                :staged_removed="tome_status.staged.deleted"
+              />
 
               <!-- SAVE BUTTON -->
               <v-btn tile small icon color="primary" class="pa-0" @click.stop="open_commit" :disabled="tome_commit || tome_push">
@@ -355,6 +342,7 @@ html {
   import CommitView from "./views/Commit.vue";
   import PushView from "./views/Push.vue";
   import NewFileService from "./components/NewFileService.vue";
+  import StatusButton from "./components/StatusButton.vue";
 
   import Explorer from "./components/Explorer.vue"
   import EmptyContent from "./views/Empty.vue"
@@ -1004,22 +992,6 @@ html {
       tome_file_rendered: function () {
         return marked(this.tome_file_data);
       },
-      tome_status_available_additions: function () {
-        if (this.tome_status) {
-          return this.tome_status.available.new + this.tome_status.available.renamed + this.tome_status.available.modified;
-        }
-
-        return 0;
-
-      },
-      tome_status_staged_additions: function () {
-        if (this.tome_status) {
-          return this.tome_status.staged.new + this.tome_status.staged.renamed + this.tome_status.staged.modified;
-        }
-
-        return 0;
-
-      },
       tome_file_path_rel: function () {
         return this.tome_file_path ? `${path.relative(this.tome_path, this.tome_file_path)}${path.sep}` : '';
       },
@@ -1034,6 +1006,7 @@ html {
       CommitView,
       PushView,
       NewFileService,
+      StatusButton,
     },
   }
 </script>
