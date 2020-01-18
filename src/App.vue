@@ -1374,39 +1374,6 @@ html {
           })
           .catch(err => console.warn(err));
       },
-      create_file: async function (data) {
-        let base_path = this.tome_file_selected.path;
-        let file_path = path.join(this.tome_path, this.tome_add_file_path_rel || this.tome_file_path_rel, this.tome_add_file_val);
-
-        if (!this.tome_add_file_as_directory) {
-          file_path = `${file_path}.md`;
-
-        }
-
-        console.log(file_path);
-
-
-        if (this.tome_add_file_as_directory) {
-
-          let err = await new Promise((resolve, reject) => fs.mkdir(file_path, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
-
-          if (err) {
-            console.error(`Failure to create folder at ${file_path}`);
-
-          }
-
-        } else {
-          let fd = await new Promise((resolve, reject) => fs.open(file_path, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
-          await new Promise((resolve, reject) => fs.close(fd, (err) => err ? reject(err) : resolve(true)));
-
-        }
-
-        this.tome_add_file = false;
-
-        console.log(this.tome_file_selected);
-        this.tome_file_selected.load();
-
-      },
       action_new_file:  async function (target_path) {
         console.log("new file", target_path);
         this.tome_add_file_val = '';
