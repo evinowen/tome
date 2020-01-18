@@ -362,7 +362,6 @@ html {
 
   import git from 'nodegit'
 
-
   const fs = remote.require('fs');
   const crypto = remote.require('crypto');
   const path = remote.require('path');
@@ -386,23 +385,11 @@ html {
       tome_file_actions_root: null,
       tome_branch: '',
       tome_branch_error: 'No Branch!',
-      tome_branch_reference: null,
-      tome_branch_reference_loading: false,
       tome_repo: null,
-      tome_repo_remotes: [],
-      tome_repo_remotes_edit: false,
-      tome_repo_remotes_selected: null,
       tome_edit: false,
-      tome_auto_stage: true,
       reload_triggered: false,
       reload_counter: 0,
       reload_max: 3,
-      tome_filetree: null,
-      tome_status_headers: [
-        { text: 'File', value: 'path' },
-        { text: 'Type', value: 'type', align: 'right' },
-        { text: '', value: 'action', align: 'right'},
-      ],
       tome_status: {
         staged: {
           new: 0,
@@ -421,14 +408,6 @@ html {
       },
       tome_ready: false,
       tome_commit: false,
-      tome_commit_confirm: false,
-      tome_commit_data: {
-        name: '',
-        email: '',
-        message: '',
-      },
-      tome_commits_ahead: 0,
-      tome_commit_working: false,
       tome_push: false,
       tome_add_file: false,
       tome_add_file_val: '',
@@ -606,12 +585,6 @@ html {
       open_commit: async function (event) {
         await this.reload_run();
         this.tome_commit = true;
-      },
-      close_commit: function (event) {
-        this.tome_commit = false;
-      },
-      publish_commit: function (event) {
-
       },
       set_tome: async function (event) {
         let files = event.target.files || event.dataTransfer.files;
@@ -1049,9 +1022,6 @@ html {
       },
       tome_file_path_rel: function () {
         return this.tome_file_path ? `${path.relative(this.tome_path, this.tome_file_path)}${path.sep}` : '';
-      },
-      tome_path_comp: function () {
-        return this.tome_path;
       },
     },
     components: {
