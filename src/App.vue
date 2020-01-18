@@ -80,175 +80,16 @@
 
 
             <!-- COMMIT WINDOW -->
-            <template v-else-if="tome_commit">
-              <v-container style="height: 100%; padding: 0px;">
-                <v-container class="pa-4" style="height: 100%; overflow: auto;">
-                  <v-row no-gutters>
-                    <v-col>
-                      <h1>Commit</h1>
-                    </v-col>
-                    <v-col col=1 class="text-right">
-                      <v-btn tile icon color="red" @click.stop="close_commit">
-                        <v-icon>mdi-window-close</v-icon>
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                  <hr />
-                  <v-row>
-                    <v-col>
-                      <v-card>
-                        <v-card-title class="pa-2">
-                          Available
-                        </v-card-title>
-                        <v-data-table dense
-                          :headers="tome_status_headers"
-                          :items="tome_status.available"
-                          :sort-by="['file']"
-                          :hide-default-footer="true"
-                          :items-per-page="tome_status.available.length"
-                          class="my-2"
-                        >
-                          <template v-slot:item.type="{ item }">
-                            <v-chip label small
-                              class="ma-1 px-2 text-center"
-                              :color="item.color"
-                              text-color="white"
-                              style="width: 100%;"
-                            >
-                              <v-icon small class="mr-1">{{ item.icon }}</v-icon>
-                              {{ item.type }}
-                            </v-chip>
+            <commit-view
+              v-else-if="tome_commit"
+              @close="tome_commit = false"
+              :repository="tome_repo"
+              :available="tome_status.available"
+              :staged="tome_status.staged"
+              :default_name="tome_config.name"
+              :default_email="tome_config.email"
+            />
 
-                          </template>
-
-                          <template v-slot:item.action="{ item }">
-                            <v-btn tile icon @click.stop="stage_path(item.path)">
-                              <v-icon>mdi-plus-thick</v-icon>
-                            </v-btn>
-
-                          </template>
-                        </v-data-table>
-                      </v-card>
-                    </v-col>
-
-                    <v-col>
-                      <v-card>
-                        <v-card-title class="pa-2">
-                          Staged
-                        </v-card-title>
-                        <v-data-table
-                          :headers="tome_status_headers"
-                          :items="tome_status.staged"
-                          :items-per-page="tome_status.staged.length"
-                          :sort-by="['file']"
-                          :hide-default-footer="true"
-                          dense class="my-2"
-                        >
-                          <template v-slot:item.type="{ item }">
-                            <v-chip label small
-                              class="ma-1 px-2 text-center"
-                              :color="item.color"
-                              text-color="white"
-                              style="width: 100%;"
-                            >
-                              <v-icon small class="mr-1">{{ item.icon }}</v-icon>
-                              {{ item.type }}
-                            </v-chip>
-
-                          </template>
-
-
-                          <template v-slot:item.action="{ item }">
-                            <v-btn tile x-small icon @click.stop="reset_path(item.path)">
-                              <v-icon>mdi-cancel</v-icon>
-                            </v-btn>
-
-                          </template>
-                        </v-data-table>
-                      </v-card>
-                    </v-col>
-
-                  </v-row>
-
-
-                  <v-row>
-                    <v-col>
-
-                    <v-text-field
-                      v-model="tome_commit_data.name"
-                      label="Name"
-                      :placeholder="tome_config.name"
-                      required
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="tome_commit_data.email"
-                      label="E-mail"
-                      :placeholder="tome_config.email"
-                      required
-                    ></v-text-field>
-                    <v-textarea
-                      v-model="tome_commit_data.message"
-                      :counter="50"
-                      label="Message"
-                      required
-                      clearable
-                      auto-grow
-                      rows=1
-                      style="font-size: 2.5em; line-height: 1.2em !important;"
-                    ></v-textarea>
-
-                    </v-col>
-                  </v-row>
-
-                  <v-divider class="mt-4 mb-2"></v-divider>
-
-                  <v-row>
-                    <v-col>
-                      <v-dialog v-model="tome_commit_confirm" persistent max-width="1200px">
-                        <template v-slot:activator="{ on }">
-                          <v-btn class="mr-4" v-on="on">
-                            <v-icon class="mr-2">mdi-content-save</v-icon>
-                            Save
-                          </v-btn>
-                        </template>
-                        <v-card>
-                          <v-card-title class="headline">{{ tome_commit_data.message }}</v-card-title>
-                          <v-card-text class="text-right">{{ tome_commit_data.name || tome_config.name }} &lt;{{ tome_commit_data.email || tome_config.email }}&gt;</v-card-text>
-                          <v-card-actions>
-                            <v-btn
-                              color="orange darken-1"
-                              text @click="commit_tome"
-                              :disabled="tome_commit_working"
-                            >
-                              <v-progress-circular
-                                :indeterminate="tome_commit_working"
-                                :size="12"
-                                :width="2"
-                                color="orange darken-1"
-                                class="mr-2"
-                              ></v-progress-circular>
-                              Proceed
-                            </v-btn>
-                            <v-spacer></v-spacer>
-                            <v-btn color="darken-1" text @click="tome_commit_confirm = false" :disabled="tome_commit_working">
-                              <v-icon class="mr-2">mdi-exit-to-app</v-icon>
-                              Back
-                            </v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
-                    </v-col>
-                    <v-col class="text-right">
-                      <v-btn color="red" @click.stop="close_commit">
-                        <v-icon class="mr-2">mdi-cancel</v-icon>
-                        Cancel
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-container>
-
-            </template>
 
             <!-- PUSH WINDOW -->
             <template v-else-if="tome_push">
@@ -720,6 +561,7 @@ html {
   import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly';
   import marked from 'marked'
 
+  import CommitView from "./views/Commit.vue";
   import NewFileService from "./components/NewFileService.vue";
 
   import Explorer from "./components/Explorer.vue"
@@ -1225,46 +1067,6 @@ html {
         }
 
       },
-      commit_tome: async function (event) {
-        console.debug("[Commit Tome] Begin");
-        this.tome_commit_working = true;
-
-        if (!this.tome_repo) {
-          console.debug("Attempting to commit on non-existent repository.");
-
-        }
-
-        console.debug("[Commit Tome] Load Prerequisites.");
-        let index = await this.tome_repo.refreshIndex();
-        let oid = await index.writeTree();
-        let parents = []
-
-        if (!this.tome_repo.headUnborn()) {
-          console.debug("[Commit Tome] Head born, fetch as parent.");
-          let head = await git.Reference.nameToId(this.tome_repo, "HEAD");
-          let parent = await this.tome_repo.getCommit(head);
-
-          parents.push(parent);
-
-        }
-
-        console.debug("[Commit Tome] Create Signature");
-        let signature = git.Signature.now(this.tome_commit_data.name || this.tome_config.name,  this.tome_commit_data.email || this.tome_config.email);
-
-        console.debug("[Commit Tome] Await commit ... ");
-        let commit = await this.tome_repo.createCommit("HEAD", signature, signature, this.tome_commit_data.message, oid, parents);
-
-        console.debug("[Commit Tome] Committed", commit);
-
-        console.debug("[Commit Tome] Clear Flags");
-        this.tome_commit_confirm = false;
-        this.tome_commit_working = false;
-        this.tome_commit = false;
-
-        console.debug("[Commit Tome] Complete");
-        return true;
-
-      },
       push_tome: async function (event) {
         console.debug("[Push Tome] Begin");
         this.tome_push_working = true;
@@ -1478,68 +1280,6 @@ html {
 
 
       },
-      stage_path: async function (target_path) {
-        let file_path = path.join(this.tome_path, target_path);
-        console.log(`stage path ${file_path}`);
-
-        let index = await this.tome_repo.refreshIndex();
-
-        {
-          let result = await index.addByPath(target_path);
-
-          if (result) {
-            console.error(`Failed to add ${target_path} to index`, result);
-            return;
-
-          }
-
-        }
-
-        {
-          let result = await index.write();
-
-          if (result) {
-            console.error(`Failed to write ${target_path} index`, result);
-            return;
-
-          }
-
-        }
-
-        return await this.reload_run();
-
-      },
-      reset_path: async function (target_path) {
-        let file_path = path.join(this.tome_path, target_path);
-        console.log(`reset path ${file_path}`);
-
-        let index = await this.tome_repo.refreshIndex();
-
-        {
-          let result = await index.removeByPath(target_path);
-
-          if (result) {
-            console.error(`Failed to reset ${target_path}`, result);
-            return;
-
-          }
-
-        }
-
-        {
-          let result = await index.write();
-
-          if (result) {
-            console.error(`Failed to write ${target_path} index`, result);
-            return;
-
-          }
-
-        }
-
-        return await this.reload_run();
-
-      },
       reload_start: function () {
         clearTimeout(this.reload_timeout);
 
@@ -1738,6 +1478,7 @@ html {
       Scrolly,
       ScrollyViewport,
       ScrollyBar,
+      CommitView,
       NewFileService,
     },
   }
