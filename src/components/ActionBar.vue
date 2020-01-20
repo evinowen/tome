@@ -94,7 +94,7 @@
   </v-footer>
 </template>
 
-<style scoped>
+<style>
 .edit_switch {
   padding-top: 2px !important;
   margin: 0 !important;
