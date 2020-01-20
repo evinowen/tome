@@ -1,48 +1,7 @@
 <template>
   <v-app id="inspire">
-    <v-system-bar window dark
-      color="grey darken-3"
-      class="white--text pa-0"
-      height=28
-      style="user-select: none;"
-    >
-
-      <v-btn tile icon small
-        @click.stop="settings = !settings"
-      >
-        <v-icon small>mdi-settings</v-icon>
-      </v-btn>
-
-      <v-spacer></v-spacer>
-      <span>tome</span>
-      <v-spacer></v-spacer>
-
-      <v-btn tile icon small
-        @click.stop="minimize_window"
-      >
-        <v-icon small>mdi-window-minimize</v-icon>
-      </v-btn>
-
-      <v-btn tile icon small
-        @click.stop="maximize_window"
-      >
-        <v-icon small>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
-      </v-btn>
-
-      <v-btn tile icon small
-        @click.stop="close_window"
-      >
-        <v-icon small>mdi-window-close</v-icon>
-      </v-btn>
-
-    </v-system-bar>
-
-
-    <v-navigation-drawer
-      v-model="settings"
-      fixed
-      temporary
-    />
+    <system-bar title="tome" @settings="settings = true" />
+    <v-navigation-drawer v-model="settings" fixed temporary/>
 
     <split-pane v-if="tome.path" v-on:resize="resize" :min-percent='5' :default-percent='25' split="vertical">
       <template slot="paneL">
@@ -176,12 +135,6 @@ html {
   font-size: 18px;
 
 }
-/*
-.v-system-bar .v-icon {
-  font-size: 18px !important;
-
-} */
-
 
 .v-treeview {
   font-size: 0.75em;
@@ -190,18 +143,6 @@ html {
 .v-treeview-node,
 .v-treeview-node__root {
   min-height: 10px !important;
-}
-
-.v-system-bar {
-  -webkit-app-region: drag;
-}
-
-.v-system-bar button {
-  -webkit-app-region: no-drag;
-}
-
-.v-system-bar .v-icon {
-  margin: 0 !important;
 }
 
 .splitter-paneL,
@@ -239,6 +180,7 @@ html {
   import PushView from "./views/Push.vue";
 
   import NewFileService from "./components/NewFileService.vue";
+  import SystemBar from "./components/SystemBar.vue";
   import ActionBar from "./components/ActionBar.vue";
 
   import Explorer from "./components/Explorer.vue"
@@ -256,7 +198,6 @@ html {
       source: String,
     },
     data: () => ({
-      maximized: true,
       settings: false,
       tome: {
         name: '',
@@ -324,10 +265,6 @@ html {
 
     }),
     mounted: async function() {
-      let window = remote.getCurrentWindow();
-
-      this.maximized = window.isMaximized();
-
       this.tome_file_actions_root = [
         {
           name: "New File",
@@ -442,34 +379,6 @@ html {
 
         console.log('configuration complete', this.tome_config);
         return true;
-
-      },
-      minimize_window: function (event) {
-        let window = remote.BrowserWindow.getFocusedWindow();
-
-        window.minimize();
-
-      },
-      maximize_window: function (event) {
-        let window = remote.BrowserWindow.getFocusedWindow();
-
-        if (window.isMaximized()) {
-          window.restore();
-
-          this.maximized = false;
-
-        } else {
-          window.maximize();
-
-          this.maximized = true;
-
-        }
-
-      },
-      close_window: function (event) {
-        let window = remote.BrowserWindow.getFocusedWindow();
-
-        window.close();
 
       },
       choose_tome: function (event) {
@@ -892,6 +801,7 @@ html {
       CommitView,
       PushView,
       NewFileService,
+      SystemBar,
       ActionBar,
     },
   }
