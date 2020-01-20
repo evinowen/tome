@@ -3,105 +3,18 @@
     <system-bar title="tome" @settings="settings = true" />
     <v-navigation-drawer v-model="settings" fixed temporary/>
 
-    <split-pane v-if="tome.path" v-on:resize="resize" :min-percent='5' :default-percent='25' split="vertical">
-      <template slot="paneL">
-        <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
-          <scrolly-viewport>
-            <explorer
-              :name=tome.name
-              :path=tome.path
-              :populate=load_path
-              v-on:selected=load_file
-              :new_file=action_new_file
-              :new_folder=action_new_folder
-              :open_folder=action_open_folder
-            />
-          </scrolly-viewport>
-          <scrolly-bar axis="y" style="margin-right: 2px;"></scrolly-bar>
-          <scrolly-bar axis="x" style="margin-bottom: 2px;"></scrolly-bar>
-        </scrolly>
-      </template>
-
-      <template slot="paneR">
-        <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
-          <scrolly-viewport>
-
-            <template v-if="false" />
-
-            <template v-else-if="!tome_edit">
-              <div v-if="tome_file" style="height: 100%; padding: 0px;" >
-                <div v-html="tome_file_rendered" class="pa-2" />
-              </div>
-              <template v-else>
-                <EmptyContent></EmptyContent>
-              </template>
-            </template>
-
-
-            <!-- COMMIT WINDOW -->
-            <commit-view
-              v-else-if="tome_commit"
-              @close="tome_commit = false"
-              :repository="tome.repository"
-              :available="tome_status.available"
-              :staged="tome_status.staged"
-              :default_name="tome_config.name"
-              :default_email="tome_config.email"
-            />
-
-
-            <!-- PUSH WINDOW -->
-            <push-view
-              v-else-if="tome_push"
-              @close="tome_push = false"
-              :repository="tome.repository"
-              :branch="tome.branch.name"
-              :default_private_key="tome_config.private_key"
-              :default_public_key="tome_config.public_key"
-              :default_passphrase="tome_config.passphrase"
-
-            />
-
-
-            <!-- OPEN FILE WINDOW -->
-            <template v-else-if="tome_file">
-              <codemirror
-                :value="tome_file_data"
-                style="height: 100%;"
-                @input="save_file"
-              />
-
-            </template>
-
-            <!-- ACTION OR ERROR MENUS -->
-            <v-content v-else style="height: 100%; padding: 0px;">
-              <template v-if="tome_file_actions">
-                <ActionContent :actions="tome_file_actions">
-                  <div class="display-2">{{ tome.name }}</div>
-                  <hr />
-                  <div class="title">{{ tome_file_path_rel }}</div>
-
-                </ActionContent>
-
-              </template>
-              <template v-else>
-                <EmptyContent>{{ tome_file_error }}</EmptyContent>
-              </template>
-
-            </v-content>
-
-          </scrolly-viewport>
-          <scrolly-bar axis="y"></scrolly-bar>
-          <scrolly-bar axis="x"></scrolly-bar>
-        </scrolly>
-
-
-      </template>
-    </split-pane>
-
-    <v-content v-else>
-      <EmptyContent>{{ tome_file_error || "" }}</EmptyContent>
-    </v-content>
+    <editor-interface
+      :tome=tome
+      :configuration=tome_config
+      :edit=tome_edit
+      :commit=tome_commit
+      :push=tome_push
+      :new_file=action_new_file
+      :new_folder=action_new_folder
+      :open_folder=action_open_folder
+      @commit:close="tome_commit = false"
+      @push:close="tome_push = false"
+    />
 
     <new-file-service
       :active="tome_add_file"
@@ -145,25 +58,6 @@ html {
   min-height: 10px !important;
 }
 
-.splitter-paneL,
-.splitter-paneR {
-  overflow: hidden;
-  height: auto !important;
-  top: 0;
-  bottom: 0;
-  padding: 0!important;
-  margin-bottom: 28px;
-}
-
-.splitter-pane-resizer {
-  border-color: transparent !important;
-}
-
-.CodeMirror {
-  border: 1px solid #eee;
-  height: 100% !important;
-}
-
 .passphrase.v-input .v-input__slot {
   min-height: 0px !important;
   border-radius: 0px;
@@ -173,19 +67,11 @@ html {
 
 <script>
   import { remote, shell } from 'electron'
-  import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly';
-  import marked from 'marked'
-
-  import CommitView from "./views/Commit.vue";
-  import PushView from "./views/Push.vue";
 
   import NewFileService from "./components/NewFileService.vue";
   import SystemBar from "./components/SystemBar.vue";
+  import EditorInterface from "./components/EditorInterface.vue"
   import ActionBar from "./components/ActionBar.vue";
-
-  import Explorer from "./components/Explorer.vue"
-  import EmptyContent from "./views/Empty.vue"
-  import ActionContent from "./views/Action.vue"
 
   import git from 'nodegit'
 
@@ -467,64 +353,6 @@ html {
         }
 
       },
-      resize: function (event) {
-      },
-      load_path: async function (item) {
-        console.log('load_path', item);
-        console.log('load_path directory?', item.directory);
-        console.log('load_path path?', item.path);
-        console.log('load_path children?', item.children);
-
-        let file_ext = function(ext) {
-          switch (ext) {
-            case '.md':
-              return { icon: 'mdi-file-code', disabled: false, color: 'blue' };
-
-            case '.gif':
-            case '.jpg':
-            case '.jpeg':
-            case '.png':
-              return { icon: 'mdi-file-image', disabled: true, color: 'green' };
-              return 'mdi-file-image';
-
-            default:
-              return { icon: 'mdi-file-remove', disabled: true };
-          }
-        }
-
-        return !item.directory ? true : new Promise((resolve, reject) => fs.readdir(
-            item.path,
-            { withFileTypes: true },
-            (err, files) => err ? reject(err) : resolve(files)
-          ))
-          .then(children => children.map(
-              child => ({
-                name: child.name,
-                path: path.join(item.path, child.name),
-                directory: child.isDirectory(),
-                ...file_ext(path.extname(child.name).toLowerCase()),
-              })
-            )
-          )
-          .then(children => {
-            children.forEach(child => {
-              if (child.directory) {
-                child.children = [];
-                if (!['.git'].includes(child.name)) {
-                  child.disabled = false;
-
-                }
-              }
-
-            });
-
-            item.children.push(...children);
-
-            return true;
-
-          })
-          .catch(err => console.warn(err));
-      },
       action_new_file:  async function (target_path) {
         console.log("new file", target_path);
         this.tome_add_file_val = '';
@@ -547,88 +375,7 @@ html {
         shell.openItem(path);
 
       },
-      load_file: async function (node) {
-        this.tome_file_error = '';
 
-        this.tome_file = null;
-        this.tome_file_path = null;
-        this.tome_file_actions = null;
-        this.tome_file_selected = null;
-
-        console.log('load_file', node);
-
-        if (!node) {
-          this.tome_file_actions = this.tome_file_actions_root;
-          return;
-
-        }
-
-        this.tome_file_selected = node;
-        this.tome_file_path = this.tome_file_selected.path;
-
-        let status = await new Promise((resolve, reject) => fs.lstat(this.tome_file_path, (err, status) => err ? reject(err) : resolve(status)));
-
-        if (status.isDirectory()) {
-          this.tome_file_error = path.basename(this.tome_file_path);
-          this.tome_file_actions = [
-            {
-              name: "New File",
-              icon: "mdi-file-star",
-              action: (event) => {
-                console.log("new file", event);
-                this.tome_add_file_val = '';
-                this.tome_add_file_path_rel = '';
-                this.tome_add_file_as_directory = false;
-                this.tome_add_file = true;
-
-              },
-            },
-            {
-              name: "New Folder",
-              icon: "mdi-folder-star",
-              action: (event) => {
-                console.log("new folder", event);
-                this.tome_add_file_val = '';
-                this.tome_add_file_path_rel = '';
-                this.tome_add_file_as_directory = true;
-                this.tome_add_file = true;
-
-              },
-            },
-            {
-              name: "Open Folder",
-              icon: "mdi-folder-move",
-              action: (event) => {
-                console.log("open folder", event);
-                shell.openItem(this.tome_file_path);
-
-              },
-            },
-          ];
-          return;
-
-        }
-
-        let ext = path.extname(this.tome_file_path).toLowerCase();
-
-        if (ext != '.md') {
-          this.tome_file_error = `File has invalid ${ext} extension.`;
-          return;
-        }
-
-        this.tome_file = this.tome_file_path;
-
-        this.tome_file_data = fs.readFileSync(this.tome_file_path, 'utf8');
-
-      },
-      save_file: async function (value) {
-        fs.writeFileSync(this.tome_file, value);
-        this.tome_file_data = value;
-
-        this.reload_start();
-
-
-      },
       reload_start: function () {
         clearTimeout(this.reload_timeout);
 
@@ -792,17 +539,10 @@ html {
       },
     },
     components: {
-      Explorer,
-      ActionContent,
-      EmptyContent,
-      Scrolly,
-      ScrollyViewport,
-      ScrollyBar,
-      CommitView,
-      PushView,
-      NewFileService,
       SystemBar,
+      EditorInterface,
       ActionBar,
+      NewFileService,
     },
   }
 </script>
