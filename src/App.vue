@@ -44,13 +44,13 @@
       temporary
     />
 
-    <split-pane v-if="folder_selected" v-on:resize="resize" :min-percent='5' :default-percent='25' split="vertical">
+    <split-pane v-if="tome.path" v-on:resize="resize" :min-percent='5' :default-percent='25' split="vertical">
       <template slot="paneL">
         <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
           <scrolly-viewport>
             <explorer
-              :name=tome_name
-              :path=tome_path
+              :name=tome.name
+              :path=tome.path
               :populate=load_path
               v-on:selected=load_file
               :new_file=action_new_file
@@ -83,7 +83,7 @@
             <commit-view
               v-else-if="tome_commit"
               @close="tome_commit = false"
-              :repository="tome_repo"
+              :repository="tome.repository"
               :available="tome_status.available"
               :staged="tome_status.staged"
               :default_name="tome_config.name"
@@ -95,8 +95,8 @@
             <push-view
               v-else-if="tome_push"
               @close="tome_push = false"
-              :repository="tome_repo"
-              :branch="tome_branch"
+              :repository="tome.repository"
+              :branch="tome.branch.name"
               :default_private_key="tome_config.private_key"
               :default_public_key="tome_config.public_key"
               :default_passphrase="tome_config.passphrase"
@@ -118,7 +118,7 @@
             <v-content v-else style="height: 100%; padding: 0px;">
               <template v-if="tome_file_actions">
                 <ActionContent :actions="tome_file_actions">
-                  <div class="display-2">{{ tome_name }}</div>
+                  <div class="display-2">{{ tome.name }}</div>
                   <hr />
                   <div class="title">{{ tome_file_path_rel }}</div>
 
@@ -148,111 +148,21 @@
       :active="tome_add_file"
       @close="tome_add_file = false"
       @create="tome_file_selected.load()"
-      :base="tome_path" :target="tome_add_file_path_rel || tome_file_path"
+      :base="tome.path" :target="tome_add_file_path_rel || tome_file_path"
       :extension="tome_add_file_as_directory ? null : 'md'"
       :folder="tome_add_file_as_directory"
     />
 
-    <v-footer app dark
-      color="grey darken-3" class="pa-0"
-      height=28
-    >
-      <input ref="tome" type="file" style="display: none" webkitdirectory @change="set_tome" />
-      <v-btn tile icon small dark color="red" class="pa-0" @click.stop="choose_tome">
-        <v-icon small>mdi-bookshelf</v-icon>
-      </v-btn>
-      <v-divider
-        inset
-        vertical
-      ></v-divider>
-
-      <template v-if="tome_path">
-        <v-menu top offset-y transition="slide-y-reverse-transition">
-          <template v-slot:activator="{ on: on_click }">
-            <v-tooltip top>
-              <template v-slot:activator="{ on: on_hover }">
-                <v-btn tile icon small class="pa-0 px-2" v-on="{ ...on_hover, ...on_click }">
-                  {{ tome_name }}
-                </v-btn>
-
-              </template>
-              <span>{{ tome_path }}</span>
-            </v-tooltip>
-
-          </template>
-
-          <v-list dark dense>
-            <v-list-item
-              v-for="(item, index) in [{
-                name: 'Open Folder',
-                text: 'Open Tome folder in a native file browser.',
-                action: 'open_folder',
-              }]"
-              :key="index" dense dark
-              @click.stop="run_repository_menu(item)"
-            >
-              <v-list-item-title>{{ item.name }}</v-list-item-title>
-              <v-list-item-subtitle>{{ item.text }}</v-list-item-subtitle>
-            </v-list-item>
-          </v-list>
-
-        </v-menu>
-
-        <v-divider
-          inset
-          vertical
-        ></v-divider>
-        <v-btn v-if="tome_branch" tile small icon class="px-2" color="primary">{{ tome_branch }}</v-btn>
-        <v-btn v-else-if="tome_branch_error" tile small icon class="pl-1 pr-2" color="error">
-          <v-icon small dark class="pr-1">mdi-alert-box</v-icon>
-          {{ tome_branch_error }}
-        </v-btn>
-        <v-spacer></v-spacer>
-
-
-        <v-divider
-          inset
-          vertical
-        ></v-divider>
-        <v-switch v-model="tome_edit" dense x-small inset hide-details class="edit_switch"></v-switch>
-        <v-divider
-          inset
-          vertical
-        ></v-divider>
-
-        <v-expand-x-transition>
-          <div v-show="tome_edit" style="overflow: hidden; ">
-            <div class="grey darken-4" style="height: 28px">
-              <!-- STAGE BUTTON -->
-              <status-button
-                :waiting="reload_counter"
-                :available_new="tome_status.available.new"
-                :available_renamed="tome_status.available.renamed"
-                :available_modified="tome_status.available.modified"
-                :available_removed="tome_status.available.deleted"
-                :staged_new="tome_status.staged.new"
-                :staged_renamed="tome_status.staged.renamed"
-                :staged_modified="tome_status.staged.modified"
-                :staged_removed="tome_status.staged.deleted"
-              />
-
-              <!-- SAVE BUTTON -->
-              <v-btn tile small icon color="primary" class="pa-0" @click.stop="open_commit" :disabled="tome_commit || tome_push">
-                <v-icon small>mdi-content-save</v-icon>
-              </v-btn>
-
-              <!-- PUSH BUTTON -->
-              <v-btn tile small icon color="accent" class="pa-0" @click.stop="tome_push = true" :disabled="tome_commit || tome_push">
-                <v-icon small>mdi-upload-multiple</v-icon>
-              </v-btn>
-
-            </div>
-          </div>
-        </v-expand-x-transition>
-
-      </template>
-
-    </v-footer>
+    <action-bar
+      :tome=tome
+      :waiting=reload_counter
+      :commit=tome_commit
+      :push=tome_push
+      @open=set_tome
+      @edit="tome_edit = $event"
+      @commit="tome_commit = true"
+      @push="tome_push = true"
+    />
   </v-app>
 </template>
 
@@ -294,20 +204,6 @@ html {
   margin: 0 !important;
 }
 
-.edit_switch {
-  padding-top: 2px !important;
-  margin: 0 !important;
-}
-
-.edit_switch .v-input--selection-controls__input {
-  margin-left: 10px !important;
-  margin-right: 0 !important;
-}
-
-.window-handle {
-  -webkit-app-region: drag;
-}
-
 .splitter-paneL,
 .splitter-paneR {
   overflow: hidden;
@@ -341,8 +237,9 @@ html {
 
   import CommitView from "./views/Commit.vue";
   import PushView from "./views/Push.vue";
+
   import NewFileService from "./components/NewFileService.vue";
-  import StatusButton from "./components/StatusButton.vue";
+  import ActionBar from "./components/ActionBar.vue";
 
   import Explorer from "./components/Explorer.vue"
   import EmptyContent from "./views/Empty.vue"
@@ -361,9 +258,32 @@ html {
     data: () => ({
       maximized: true,
       settings: false,
+      tome: {
+        name: '',
+        path: '',
+        repository: null,
+        branch: {
+          name: '',
+          error: '',
+        },
+        status: {
+          staged: {
+            new: 0,
+            renamed: 0,
+            modified: 0,
+            deleted: 0,
+          },
+          available: {
+            new: 0,
+            renamed: 0,
+            modified: 0,
+            deleted: 0,
+          },
+          available: [],
+          staged: [],
+        },
+      },
       tome_config: null,
-      tome_name: '',
-      tome_path: '',
       tome_file: '',
       tome_file_selected: '',
       tome_file_path: '',
@@ -371,9 +291,6 @@ html {
       tome_file_error: '',
       tome_file_actions: null,
       tome_file_actions_root: null,
-      tome_branch: '',
-      tome_branch_error: 'No Branch!',
-      tome_repo: null,
       tome_edit: false,
       reload_triggered: false,
       reload_counter: 0,
@@ -441,7 +358,7 @@ html {
           icon: "mdi-folder-move",
           action: (event) => {
             console.log("open folder", event);
-            shell.openItem(this.tome_path);
+            shell.openItem(this.tome.path);
 
           },
         },
@@ -558,71 +475,43 @@ html {
       choose_tome: function (event) {
         this.$refs.tome.click();
       },
-      run_repository_menu: function (item, event) {
-        console.log(item);
-        console.log(event);
-
-        switch (item.action) {
-        case 'open_folder':
-          shell.openItem(this.tome_path);
-          break;
-
-        }
-
-      },
-      open_commit: async function (event) {
-        await this.reload_run();
+      open_commit: async function (event, test) { console.log('test!', event, test);
+        // await this.reload_run();
         this.tome_commit = true;
       },
-      set_tome: async function (event) {
-        let files = event.target.files || event.dataTransfer.files;
+      set_tome: async function (file_path) {
+        this.tome.path = file_path;
+        this.tome.name = path.basename(this.tome.path);
+        console.log(`Set Tome path to ${this.tome.path}`);
 
-        console.log(files);
-
-        if (!files.length) {
-          this.tome_path = '';
-          this.tome_repo = null;
-          return;
-        }
-
-        if (!files[0].path) {
-          return;
-        }
-
-        this.tome_branch_error = "Unknown Repo Error";
-
-        this.tome_path = files[0].path;
-        this.tome_name = path.basename(this.tome_path);
-        console.log(`Set Tome path to ${this.tome_path}`);
-
-        if (fs.existsSync(path.join(this.tome_path, ".git"))) {
-            this.tome_repo = await git.Repository.open(this.tome_path).catch(err => console.error(err));
+        if (fs.existsSync(path.join(this.tome.path, ".git"))) {
+            this.tome.repository = await git.Repository.open(this.tome.path).catch(err => console.error(err));
 
         } else {
-            this.tome_repo = await git.Repository.init(this.tome_path, 0);
+            this.tome.repository = await git.Repository.init(this.tome.path, 0);
 
         }
 
-        if (!this.tome_repo) {
-          this.tome_branch_error = "No Repository!";
+        if (!this.tome.repository) {
+          this.tome.branch.error = "No Repository!";
           return;
 
         }
 
-        if (this.tome_repo.headDetached()) {
-          this.tome_branch_error = "Head Detached";
+        if (this.tome.repository.headDetached()) {
+          this.tome.branch.error = "Head Detached";
           return;
 
         }
 
-        if (this.tome_repo.isMerging()) {
-          this.tome_branch_error = "Merging";
+        if (this.tome.repository.isMerging()) {
+          this.tome.branch.error = "Merging";
           return;
 
         }
 
-        if (this.tome_repo.isRebasing()) {
-          this.tome_branch_error = "Rebasing";
+        if (this.tome.repository.isRebasing()) {
+          this.tome.branch.error = "Rebasing";
           return;
 
         }
@@ -630,9 +519,9 @@ html {
 
         console.log(`Pass checks for repo.`);
 
-        if (this.tome_repo.headUnborn()) {
+        if (this.tome.repository.headUnborn()) {
           console.log(`Unborn repo.`);
-          let head_raw = fs.readFileSync(path.join(this.tome_path, ".git", "HEAD"), 'utf8');
+          let head_raw = fs.readFileSync(path.join(this.tome.path, ".git", "HEAD"), 'utf8');
           console.log(head_raw);
 
           let head_line_index = head_raw.length;
@@ -654,17 +543,17 @@ html {
           console.log(head_parsed);
 
           if (head_parsed) {
-            this.tome_branch = head_parsed[1];
+            this.tome.branch.name = head_parsed[1];
 
           }
 
         } else {
           console.log(`Existing repo.`);
-          let branch = await this.tome_repo.head();
+          let branch = await this.tome.repository.head();
 
           console.log(branch);
-          this.tome_branch = branch.shorthand();
-          console.log(this.tome_branch);
+          this.tome.branch.name = branch.shorthand();
+          console.log(this.tome.branch.name);
 
         }
 
@@ -884,7 +773,7 @@ html {
 
         console.debug("[Git Repository Status Reload] Load Index");
         ops.show = git.Status.SHOW.INDEX_ONLY;
-        let load_index = this.tome_repo.getStatus(ops)
+        let load_index = this.tome.repository.getStatus(ops)
           .then(res => res.forEach(repo_status => {
             console.debug("[Git Repository Status Reload] Index File", repo_status);
 
@@ -929,7 +818,7 @@ html {
         console.debug("[Git Repository Status Reload] Load Working Tree");
         ops.show = git.Status.SHOW.WORKDIR_ONLY;
         ops.flags = git.Status.OPT.INCLUDE_UNTRACKED + git.Status.OPT.RECURSE_UNTRACKED_DIRS;
-        let load_working_tree = this.tome_repo.getStatus(ops)
+        let load_working_tree = this.tome.repository.getStatus(ops)
           .then(res => res.forEach(repo_status => {
             console.debug("[Git Repository Status Reload] Working Tree File", repo_status);
 
@@ -986,14 +875,11 @@ html {
       },
     },
     computed: {
-      folder_selected: function () {
-        return this.tome_path != '';
-      },
       tome_file_rendered: function () {
         return marked(this.tome_file_data);
       },
       tome_file_path_rel: function () {
-        return this.tome_file_path ? `${path.relative(this.tome_path, this.tome_file_path)}${path.sep}` : '';
+        return this.tome_file_path ? `${path.relative(this.tome.path, this.tome_file_path)}${path.sep}` : '';
       },
     },
     components: {
@@ -1006,7 +892,7 @@ html {
       CommitView,
       PushView,
       NewFileService,
-      StatusButton,
+      ActionBar,
     },
   }
 </script>
