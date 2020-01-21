@@ -49,15 +49,6 @@ html {
 
 }
 
-.v-treeview {
-  font-size: 0.75em;
-}
-
-.v-treeview-node,
-.v-treeview-node__root {
-  min-height: 10px !important;
-}
-
 </style>
 
 <script>
