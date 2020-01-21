@@ -219,6 +219,11 @@
 </template>
 
 <style>
+.passphrase.v-input .v-input__slot {
+  min-height: 0px !important;
+  border-radius: 0px;
+}
+
 </style>
 
 <script>
