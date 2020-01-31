@@ -2,10 +2,10 @@
   <v-container class="pa-0" style="user-select: none;">
     <template v-if="directory">
       <v-container v-if="disabled" class="explorer-node explorer-node-disabled">
-        <v-row no-gutters align="end">
+        <div class="explorer-node">
           <v-icon class="mr-1">mdi-folder</v-icon>
           {{ name }}
-        </v-row>
+        </div>
       </v-container>
       <explorer
         v-else
@@ -25,12 +25,12 @@
         v-bind:class="['explorer-node', 'explorer-node-hover', {'explorer-node-selected': path == active }]"
         @click.stop="select(null)"
       >
-        <v-row no-gutters align="end">
+        <div class="explorer-node">
           <v-btn tile text x-small @click.stop="select(null)" class="explorer-node-button mr-1">
             <v-icon>mdi-file</v-icon>
           </v-btn>
           {{ name }}
-        </v-row>
+        </div>
       </v-container>
 
     </template>

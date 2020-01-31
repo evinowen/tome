@@ -4,7 +4,7 @@
       v-bind:class="['explorer-folder', {'explorer-folder-selected': path == (child ? active : upstream) }]"
       @click.stop="select(null)"
     >
-      <v-row no-gutters align="end">
+      <div class="explorer-folder">
         <v-btn tile text x-small @click.stop="toggle" class="explorer-folder-button mr-1">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
@@ -20,7 +20,7 @@
             <v-icon>mdi-folder-move</v-icon>
           </v-btn>
         </div>
-      </v-row>
+      </div>
     </v-container>
 
     <v-container v-if="expanded" class="explorer-folder-container" >
