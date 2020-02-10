@@ -12,19 +12,19 @@
 
     <v-spacer></v-spacer>
 
-    <span>{{ title }}</span>
+    <span system-bar-title>{{ title }}</span>
 
     <v-spacer></v-spacer>
 
-    <v-btn tile icon small @click.stop="minimize">
+    <v-btn tile icon small @click.stop="minimize" system-bar-minimize>
       <v-icon small>mdi-window-minimize</v-icon>
     </v-btn>
 
-    <v-btn tile icon small @click.stop="maximize">
+    <v-btn tile icon small @click.stop="maximize" system-bar-maximize>
       <v-icon small>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
     </v-btn>
 
-    <v-btn tile icon small @click.stop="close">
+    <v-btn tile icon small @click.stop="close" system-bar-close>
       <v-icon small>mdi-window-close</v-icon>
     </v-btn>
 
@@ -57,6 +57,7 @@
 
     data: () => ({
       maximized: false,
+
     }),
 
     mounted: async function() {
