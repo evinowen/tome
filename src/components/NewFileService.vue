@@ -27,9 +27,6 @@
 <script>
   import { remote } from 'electron';
 
-  const fs = remote.require('fs');
-  const path = remote.require('path');
-
   export default {
     props: {
       active: { type: Boolean },
@@ -38,14 +35,21 @@
       extension: { type: String, default: '' },
       folder: { type: Boolean },
     },
+
     data: () => ({
       label: '',
     }),
+
+    created: function() {
+      this.fs = remote.require('fs');
+      this.path = remote.require('path');
+
+    },
+
     computed: {
       relative: function() {
-        console.log(this.base, this.target);
-        if (path.isAbsolute(this.target)) {
-          return path.relative(this.base, this.target);
+        if (this.path.isAbsolute(this.target)) {
+          return this.path.relative(this.base, this.target);
         }
 
         return this.target;
@@ -57,27 +61,20 @@
     },
     methods: {
       create: async function (data) {
-        let file = path.join(this.base, this.relative, this.label);
+        let file = this.path.join(this.base, this.relative, this.label);
 
         if (this.extension_formatted) {
           file = `${file}${this.extension_formatted}`;
 
         }
 
-        console.log("[New File] Creating File", file);
-
         if (this.folder) {
-
-          let err = await new Promise((resolve, reject) => fs.mkdir(file, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
-
-          if (err) {
-            console.log("[New File] Failure to Create Folder", file);
-
-          }
+          let err = await new Promise((resolve, reject) => this.fs.mkdir(file, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
 
         } else {
-          let fd = await new Promise((resolve, reject) => fs.open(file, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
-          await new Promise((resolve, reject) => fs.close(fd, (err) => err ? reject(err) : resolve(true)));
+          let fd = await new Promise((resolve, reject) => this.fs.open(file, 'w', (err, fd) => err ? reject(err) : resolve(fd)));
+
+          await new Promise((resolve, reject) => this.fs.close(fd, (err) => err ? reject(err) : resolve(true)));
 
         }
 
