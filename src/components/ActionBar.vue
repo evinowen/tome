@@ -76,12 +76,12 @@
             />
 
             <!-- SAVE BUTTON -->
-            <v-btn tile small icon color="primary" class="pa-0" @click.stop="$emit('commit')" :disabled="commit || push">
+            <v-btn action-bar-commit tile small icon color="primary" class="pa-0" @click.stop="$emit('commit')" :disabled="commit || push">
               <v-icon small>mdi-content-save</v-icon>
             </v-btn>
 
             <!-- PUSH BUTTON -->
-            <v-btn tile small icon color="accent" class="pa-0" @click.stop="$emit('push')" :disabled="commit || push">
+            <v-btn action-bar-push tile small icon color="accent" class="pa-0" @click.stop="$emit('push')" :disabled="commit || push">
               <v-icon small>mdi-upload-multiple</v-icon>
             </v-btn>
 
