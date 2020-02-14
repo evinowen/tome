@@ -42,19 +42,11 @@
     }),
     computed: {
       available_added: function () {
-        if (this.tome_status) {
-          return this.available_new + this.available_renamed + this.available_modified;
-        }
-
-        return 0;
+        return this.available_new + this.available_renamed + this.available_modified;
 
       },
       staged_added: function () {
-        if (this.tome_status) {
-          return this.staged_new + this.staged_renamed + this.staged_modified;
-        }
-
-        return 0;
+        return this.staged_new + this.staged_renamed + this.staged_modified;
 
       },
     }
