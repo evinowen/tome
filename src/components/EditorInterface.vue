@@ -28,7 +28,7 @@
             <div v-if="absolute_path" style="height: 100%; padding: 0px;" >
               <div v-html="rendered" class="pa-2" />
             </div>
-            <empty-view v-else />
+            <empty-view editor-interface-empty v-else />
           </template>
 
 
@@ -124,13 +124,10 @@
 
   import Explorer from "./Explorer.vue"
 
-  import EmptyView from "../views/Empty.vue"
-  import ActionView from "../views/Action.vue"
-  import CommitView from "../views/Commit.vue";
-  import PushView from "../views/Push.vue";
-
-  const fs = remote.require('fs');
-  const path = remote.require('path');
+  import EmptyView from "@/views/Empty.vue"
+  import ActionView from "@/views/Action.vue"
+  import CommitView from "@/views/Commit.vue";
+  import PushView from "@/views/Push.vue";
 
   export default {
     props: {
@@ -151,6 +148,12 @@
       error: 'Error Test',
       selected: null,
     }),
+
+    created: function() {
+      this.fs = remote.require('fs');
+      this.path = remote.require('path');
+
+    },
 
     mounted: async function() {
 
@@ -181,7 +184,7 @@
           }
         }
 
-        return !item.directory ? true : new Promise((resolve, reject) => fs.readdir(
+        return !item.directory ? true : new Promise((resolve, reject) => this.fs.readdir(
             item.path,
             { withFileTypes: true },
             (err, files) => err ? reject(err) : resolve(files)
@@ -189,9 +192,9 @@
           .then(children => children.map(
               child => ({
                 name: child.name,
-                path: path.join(item.path, child.name),
+                path: this.path.join(item.path, child.name),
                 directory: child.isDirectory(),
-                ...file_ext(path.extname(child.name).toLowerCase()),
+                ...file_ext(this.path.extname(child.name).toLowerCase()),
               })
             )
           )
@@ -234,10 +237,10 @@
         this.selected = node;
         this.absolute_path = this.selected.path;
 
-        let status = await new Promise((resolve, reject) => fs.lstat(this.absolute_path, (err, status) => err ? reject(err) : resolve(status)));
+        let status = await new Promise((resolve, reject) => this.fs.lstat(this.absolute_path, (err, status) => err ? reject(err) : resolve(status)));
 
         if (status.isDirectory()) {
-          this.error = path.basename(this.absolute_path);
+          this.error = this.path.basename(this.absolute_path);
           this.actions = [
             {
               name: "New File",
@@ -277,20 +280,20 @@
 
         }
 
-        let ext = path.extname(this.absolute_path).toLowerCase();
+        let ext = this.path.extname(this.absolute_path).toLowerCase();
 
         if (ext != '.md') {
           this.error = `File has invalid ${ext} extension.`;
           return;
         }
 
-        this.content = fs.readFileSync(this.absolute_path, 'utf8');
+        this.content = this.fs.readFileSync(this.absolute_path, 'utf8');
 
       },
 
 
       save_file: async function (value) {
-        fs.writeFileSync(this.absolute_path, value);
+        this.fs.writeFileSync(this.absolute_path, value);
 
         this.content = value;
 
@@ -303,7 +306,7 @@
 
     computed: {
       relative_path: function () {
-        return this.absolute_path ? `${path.relative(this.tome.path, this.absolute_path)}` : '';
+        return this.absolute_path ? `${this.path.relative(this.tome.path, this.absolute_path)}` : '';
       },
 
       rendered: function () {

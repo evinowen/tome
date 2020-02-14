@@ -230,9 +230,6 @@
   import { remote } from 'electron';
   import NodeGit from 'nodegit'
 
-  const fs = remote.require('fs');
-  const path = remote.require('path');
-
   export default {
     props: {
       repository: { type: NodeGit.Repository },

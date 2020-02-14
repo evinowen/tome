@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit",
+    "test:unit": "electron ./node_modules/@vue/cli-service/bin/vue-cli-service.js test:unit",
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
@@ -15,7 +15,7 @@
   "dependencies": {
     "core-js": "^3.4.3",
     "marked": "^0.8.0",
-    "nodegit": "^0.26.3",
+    "nodegit": "^0.26.4",
     "vue": "^2.6.10",
     "vue-codemirror": "^4.0.6",
     "vue-router": "^3.1.3",
