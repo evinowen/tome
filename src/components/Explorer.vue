@@ -1,7 +1,7 @@
 <template>
   <v-container class="pa-0" style="user-select: none;">
     <v-container class="explorer-folder"
-      v-bind:class="['explorer-folder', {'explorer-folder-selected': path == (child ? active : upstream) }]"
+      v-bind:class="['explorer-folder', {'explorer-folder-selected': path == (is_child ? active : upstream) }]"
       @click.stop="select(null)"
     >
       <div class="explorer-folder">
@@ -24,7 +24,7 @@
     </v-container>
 
     <v-container v-if="expanded" class="explorer-folder-container" >
-      <template v-if=child>
+      <template v-if=is_child>
         <explorer-node
           v-for="child in children"
           v-on:selected="select"
@@ -135,7 +135,7 @@
       new_file: { type: Function },
       new_folder: { type: Function },
       open_folder: { type: Function },
-      child: { type: Boolean }
+      is_child: { type: Boolean }
     },
     data: () => ({
       selected: null,
@@ -147,7 +147,7 @@
     }),
     computed: {
       icon: function() {
-        if (this.child) {
+        if (this.is_child) {
           return this.expanded ? "mdi-folder-open" : "mdi-folder";
 
         }
