@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    tile small icon
+    tile small
     class="px-2 grey--text text--lighten-1"
   >
     <v-progress-circular

@@ -17,7 +17,7 @@
         <template v-slot:activator="{ on: on_click }">
           <v-tooltip top>
             <template v-slot:activator="{ on: on_hover }">
-              <v-btn tile icon small class="pa-0 px-2" v-on="{ ...on_hover, ...on_click }">
+              <v-btn tile small class="pa-0 px-2" v-on="{ ...on_hover, ...on_click }">
                 {{ tome.name }}
               </v-btn>
             </template>
@@ -42,7 +42,7 @@
 
       <v-divider inset vertical />
 
-      <v-btn v-if="tome.branch.name" tile small icon class="px-2" color="primary">{{ tome.branch.name }}</v-btn>
+      <v-btn v-if="tome.branch.name" tile small class="px-2" color="primary">{{ tome.branch.name }}</v-btn>
       <v-btn v-else-if="tome.branch.error" tile small icon class="pl-1 pr-2" color="error">
         <v-icon small dark class="pr-1">mdi-alert-box</v-icon>
         {{ tome.branch.error }}

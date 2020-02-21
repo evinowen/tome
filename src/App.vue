@@ -39,8 +39,9 @@
 </template>
 
 <style>
-html {
+html, body {
   font-size: 12px !important;
+  overflow: hidden !important;
 
 }
 
