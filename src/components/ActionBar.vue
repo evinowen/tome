@@ -4,8 +4,7 @@
     color="grey darken-3" class="pa-0"
     height=28
   >
-    <input ref="tome" type="file" style="display: none" webkitdirectory @change="open" />
-    <v-btn tile icon small dark color="red" class="pa-0" @click.stop="$refs.tome.click();">
+    <v-btn tile icon small dark color="red" class="pa-0" @click.stop="open">
       <v-icon small>mdi-bookshelf</v-icon>
     </v-btn>
 
@@ -108,6 +107,7 @@
 </style>
 
 <script>
+  import { remote } from 'electron';
   import StatusButton from "./StatusButton.vue";
 
   export default {
@@ -129,22 +129,34 @@
     },
 
     methods: {
-      open: function (event) {
+      open: async function (event) {
+        let result = await remote.dialog.showOpenDialog({
+          title: 'Select Tome Directory',
+          properties: ['openDirectory'],
+
+        });
+
+        console.log('result!', result);
+
+        if (result.canceled) {
+          console.log('[Select Tome Directory] Cancelled');
+          return;
+
+        }
+
+        if (!result.filePaths.length) {
+          console.log('[Select Tome Directory] Closed :: !result.filePaths.length'), result.filePaths.length;
+          this.$emit('close');
+          return;
+
+        }
+
+        this.$emit('open', result.filePaths[0]);
+
+      },
+      old_open: function (event) {
         let files = event.target.files || event.dataTransfer.files;
 
-        if (!files.length) {
-          this.$emit('close');
-          return;
-
-        }
-
-        if (!files[0].path) {
-          this.$emit('close');
-          return;
-
-        }
-
-        this.$emit('open', files[0].path);
 
       },
 
