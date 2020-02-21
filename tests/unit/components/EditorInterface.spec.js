@@ -39,7 +39,7 @@ remote.require = jest.fn((target) => {
 
 });
 
-jest.mock('nodegit');
+jest.mock('nodegit', () => ({}));
 
 const localVue = createLocalVue();
 
