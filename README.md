@@ -9,7 +9,7 @@ npm run electron:build
 Building for development can be tricky, primarily because `nodegit` (https://github.com/nodegit/nodegit) is a native node module.
 
 ### Windows
-Using an Administrative (or elevated) PowerShell, install the `windows-build-tool` package globally using the following command:
+Using an Administrative (or elevated) PowerShell, install the `windows-build-tools` package globally using the following command:
 ```
 npm install --global node-gyp
 npm install --global --production windows-build-tools@4.0.0
