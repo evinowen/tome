@@ -21,7 +21,7 @@
             <v-row no-gutters>
               <v-col>
                 <input ref="private_key" type="file" style="display: none" @change="assign_private_key" />
-                <v-btn tile icon small dark :color="input.private_key.value ? 'green' : 'red'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="$refs.private_key.click();">
+                <v-btn tile icon small dark :color="input.private_key.value ? 'green' : 'red'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="$refs.private_key.click()">
                   <v-icon small>{{ input.private_key.value ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
                   {{ input.private_key.value }}
                 </v-btn>
@@ -38,7 +38,7 @@
             <v-row no-gutters>
               <v-col>
                 <input ref="public_key" type="file" style="display: none" @change="assign_public_key" />
-                <v-btn tile icon small dark :color="input.public_key.value ? 'green' : 'red'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="$refs.public_key.click();">
+                <v-btn tile icon small dark :color="input.public_key.value ? 'green' : 'red'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="$refs.public_key.click()">
                   <v-icon small>{{ input.public_key.value ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
                   {{ input.public_key.value }}
                 </v-btn>
@@ -227,7 +227,7 @@
 </style>
 
 <script>
-  import { remote } from 'electron';
+  import { remote } from 'electron'
   import NodeGit from 'nodegit'
 
   export default {
@@ -277,164 +277,164 @@
     computed: {
     },
     mounted: async function() {
-        await this.load_remotes();
+        await this.load_remotes()
     },
     methods: {
       assign_private_key: async function (event) {
-        return this.assign_key('private_key', event);
+        return this.assign_key('private_key', event)
 
       },
       assign_public_key: async function (event) {
-        return this.assign_key('public_key', event);
+        return this.assign_key('public_key', event)
 
       },
       assign_key: async function (name, event) {
-        console.log('assign_key', name, event);
-        let files = event.target.files || event.dataTransfer.files;
+        console.log('assign_key', name, event)
+        let files = event.target.files || event.dataTransfer.files
 
-        console.log(files);
+        console.log(files)
 
         if (!files.length) {
-          this[name] = null;
-          return;
+          this[name] = null
+          return
 
         }
 
         if (!files[0].path) {
-          return;
+          return
 
         }
 
-        this.input[name].value = files[0].path;
+        this.input[name].value = files[0].path
 
-        console.log('private_key', this.input.private_key.value);
-        console.log('public_key', this.input.public_key.value);
+        console.log('private_key', this.input.private_key.value)
+        console.log('public_key', this.input.public_key.value)
 
       },
 
       credentials: function () {
-        console.log('private_key', this.input.private_key.value);
-        console.log('public_key', this.input.public_key.value);
-        console.log('passphrase', this.input.passphrase.value);
+        console.log('private_key', this.input.private_key.value)
+        console.log('public_key', this.input.public_key.value)
+        console.log('passphrase', this.input.passphrase.value)
 
         return {
           private_key: this.input.private_key.value,
           public_key: this.input.public_key.value,
           passphrase: this.input.passphrase.value || '',
-        };
+        }
 
       },
 
       callbacks: function () {
-        let credentials = this.credentials();
+        let credentials = this.credentials()
 
         return {
           credentials: function(url, username) {
-            console.log('credentials', username, credentials.public_key, credentials.private_key, credentials.passphrase);
-            return NodeGit.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase);
+            console.log('credentials', username, credentials.public_key, credentials.private_key, credentials.passphrase)
+            return NodeGit.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase)
           },
 
           certificateCheck: () => 0,
 
-        };
+        }
 
       },
 
       load_remotes: async function () {
-        let items = await this.repository.getRemotes();
+        let items = await this.repository.getRemotes()
 
-        console.log("loaded remotes", items);
+        console.log("loaded remotes", items)
 
         this.input.remotes.list = items.map(remote => ({
           name: remote.name(),
           url: remote.url(),
           object: remote,
-        }));
+        }))
 
-        console.log("compiled remotes", this.input.remotes.list);
+        console.log("compiled remotes", this.input.remotes.list)
 
       },
       add_remote: async function (event) {
-        console.log("add_remote", event);
-        console.log(this.input.remotes.input.name, this.input.remotes.input.url);
+        console.log("add_remote", event)
+        console.log(this.input.remotes.input.name, this.input.remotes.input.url)
 
-        let remote = await NodeGit.Remote.create(this.repository, this.input.remotes.input.name, this.input.remotes.input.url);
+        let remote = await NodeGit.Remote.create(this.repository, this.input.remotes.input.name, this.input.remotes.input.url)
 
-        await this.load_remotes();
+        await this.load_remotes()
 
       },
       remove_remote: function (event) {
-        console.log("remove_remote", event);
+        console.log("remove_remote", event)
 
       },
       select_remote: async function (remote) {
-        console.log("select_remote", remote);
+        console.log("select_remote", remote)
 
-        this.input.remotes.value = null;
+        this.input.remotes.value = null
 
-        this.input.branch.reference = null;
-        this.input.branch.loading = true;
+        this.input.branch.reference = null
+        this.input.branch.loading = true
 
         if (remote) {
           try {
-            let result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks());
+            let result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
 
             if (result) {
-              console.error('remote connect error', result);
+              console.error('remote connect error', result)
 
             }
 
-            console.log("getFetchRefspecs?", await remote.object.getFetchRefspecs());
-            console.log("getPushRefspecs?", await remote.object.getPushRefspecs());
+            console.log("getFetchRefspecs?", await remote.object.getFetchRefspecs())
+            console.log("getPushRefspecs?", await remote.object.getPushRefspecs())
 
             console.log("referenceList?", (await remote.object.referenceList()).map(reference => {
               let object = {
                 name: reference.name(),
                 object: reference,
 
-              };
+              }
 
-              let parsed = reference.name().match(/^refs\/heads\/(.*)$/m);
-              console.log(parsed);
+              let parsed = reference.name().match(/^refs\/heads\/(.*)$/m)
+              console.log(parsed)
 
               if (parsed) {
-                object.short = parsed[1];
+                object.short = parsed[1]
 
                 if (object.short == this.branch) {
-                  this.input.branch.reference = object;
+                  this.input.branch.reference = object
                 }
 
               }
 
-              return object;
+              return object
 
-            }));
+            }))
 
-            this.input.remotes.value = remote;
+            this.input.remotes.value = remote
 
           } catch (err) {
-              console.error('remote connect error!!!', err);
+              console.error('remote connect error!!!', err)
 
           }
 
         }
 
-        this.input.branch.loading = false;
+        this.input.branch.loading = false
 
-        return true;
+        return true
 
       },
 
       push: async function (event) {
-        console.debug("[Push Tome] Begin");
-        this.working = true;
+        console.debug("[Push Tome] Begin")
+        this.working = true
 
         if (!this.input.remotes.value) {
-          console.debug("[Push Tome] No Remote Selected!", this.input.remotes.value);
-          this.confirm = false;
-          this.working = false;
+          console.debug("[Push Tome] No Remote Selected!", this.input.remotes.value)
+          this.confirm = false
+          this.working = false
 
-          return false;
+          return false
 
         }
 
@@ -442,24 +442,24 @@
           name: reference.name(),
           object: reference,
 
-        }));
+        }))
 
-        console.log("[Push Tome] List local references:", references);
+        console.log("[Push Tome] List local references:", references)
 
-        let refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`;
+        let refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`
 
-        console.debug("[Push Tome] Collect Data", refspec);
+        console.debug("[Push Tome] Collect Data", refspec)
 
-        let result = await this.input.remotes.value.object.push([refspec], { callbacks: this.callbacks() });
+        let result = await this.input.remotes.value.object.push([refspec], { callbacks: this.callbacks() })
 
-        console.debug("[Push Tome] Clear Flags");
-        this.confirm = false;
-        this.working = false;
+        console.debug("[Push Tome] Clear Flags")
+        this.confirm = false
+        this.working = false
 
-        console.debug("[Push Tome] Complete");
-        this.$emit('close');
+        console.debug("[Push Tome] Complete")
+        this.$emit('close')
 
-        return true;
+        return true
 
       },
 

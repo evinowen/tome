@@ -172,7 +172,7 @@
 </style>
 
 <script>
-  import { remote } from 'electron';
+  import { remote } from 'electron'
   import NodeGit from 'nodegit'
 
   export default {
@@ -202,106 +202,106 @@
     },
     methods: {
       stage: async function (file_path) {
-        console.log(`stage path ${file_path}`);
+        console.log(`stage path ${file_path}`)
 
-        let index = await this.repository.refreshIndex();
+        let index = await this.repository.refreshIndex()
 
         {
-          let result = await index.addByPath(file_path);
+          let result = await index.addByPath(file_path)
 
           if (result) {
-            console.error(`Failed to add ${file_path} to index`, result);
-            return;
+            console.error(`Failed to add ${file_path} to index`, result)
+            return
 
           }
 
         }
 
         {
-          let result = await index.write();
+          let result = await index.write()
 
           if (result) {
-            console.error(`Failed to write ${file_path} index`, result);
-            return;
+            console.error(`Failed to write ${file_path} index`, result)
+            return
 
           }
 
         }
 
-        return true;
+        return true
 
       },
 
       reset: async function (file_path) {
-        console.log(`reset path ${file_path}`);
+        console.log(`reset path ${file_path}`)
 
-        let index = await this.repository.refreshIndex();
+        let index = await this.repository.refreshIndex()
 
         {
-          let result = await index.removeByPath(file_path);
+          let result = await index.removeByPath(file_path)
 
           if (result) {
-            console.error(`Failed to reset ${file_path}`, result);
-            return;
+            console.error(`Failed to reset ${file_path}`, result)
+            return
 
           }
 
         }
 
         {
-          let result = await index.write();
+          let result = await index.write()
 
           if (result) {
-            console.error(`Failed to write ${file_path} index`, result);
-            return;
+            console.error(`Failed to write ${file_path} index`, result)
+            return
 
           }
 
         }
 
-        return await this.reload_run();
+        return await this.reload_run()
 
       },
 
       commit: async function () {
-        console.debug("[Commit Tome] Begin");
-        this.working = true;
+        console.debug("[Commit Tome] Begin")
+        this.working = true
 
         if (!this.repository) {
-          console.debug("Attempting to commit on non-existent repository.");
+          console.debug("Attempting to commit on non-existent repository.")
 
         }
 
-        console.debug("[Commit Tome] Load Prerequisites.");
-        let index = await this.repository.refreshIndex();
-        let oid = await index.writeTree();
+        console.debug("[Commit Tome] Load Prerequisites.")
+        let index = await this.repository.refreshIndex()
+        let oid = await index.writeTree()
         let parents = []
 
         if (!this.repository.headUnborn()) {
-          console.debug("[Commit Tome] Head born, fetch as parent.");
-          let head = await NodeGit.Reference.nameToId(this.repository, "HEAD");
-          let parent = await this.repository.getCommit(head);
+          console.debug("[Commit Tome] Head born, fetch as parent.")
+          let head = await NodeGit.Reference.nameToId(this.repository, "HEAD")
+          let parent = await this.repository.getCommit(head)
 
-          parents.push(parent);
+          parents.push(parent)
 
         }
 
-        console.debug("[Commit Tome] Create Signature");
-        let signature = NodeGit.Signature.now(this.input.name || this.default_name,  this.input.email || this.default_email);
+        console.debug("[Commit Tome] Create Signature")
+        let signature = NodeGit.Signature.now(this.input.name || this.default_name,  this.input.email || this.default_email)
 
-        console.debug("[Commit Tome] Await commit ... ");
-        let commit = await this.repository.createCommit("HEAD", signature, signature, this.input.message, oid, parents);
+        console.debug("[Commit Tome] Await commit ... ")
+        let commit = await this.repository.createCommit("HEAD", signature, signature, this.input.message, oid, parents)
 
-        console.debug("[Commit Tome] Committed", commit);
+        console.debug("[Commit Tome] Committed", commit)
 
-        console.debug("[Commit Tome] Clear Flags");
-        this.confirm = false;
-        this.working = false;
+        console.debug("[Commit Tome] Clear Flags")
+        this.confirm = false
+        this.working = false
 
-        console.debug("[Commit Tome] Complete");
-        this.$emit('close');
+        console.debug("[Commit Tome] Complete")
+        this.$emit('close')
 
-        return true;
+        return true
 
       },
 

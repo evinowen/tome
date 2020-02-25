@@ -97,14 +97,14 @@
       disabled: function() {
         return [
           '.git'
-        ].indexOf(this.name) > -1;
+        ].indexOf(this.name) > -1
       },
     },
     methods: {
       select:  function(node) {
-        let selected = node || this;
-        console.log('explorer-node', selected);
-        return this.$emit('selected', selected);
+        let selected = node || this
+        console.log('explorer-node', selected)
+        return this.$emit('selected', selected)
 
       },
     },

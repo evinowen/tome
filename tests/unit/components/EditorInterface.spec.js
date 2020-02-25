@@ -4,8 +4,8 @@ import Vuetify from 'vuetify'
 
 Vue.use(Vuetify)
 
-import SplitPane from 'vue-splitpane';
-Vue.component('split-pane', SplitPane);
+import SplitPane from 'vue-splitpane'
+Vue.component('split-pane', SplitPane)
 
 import { createLocalVue, mount } from '@vue/test-utils'
 import EditorInterface from '@/components/EditorInterface.vue'
@@ -16,36 +16,36 @@ jest.mock('electron', () => ({
 
   },
 
-}));
+}))
 
 const fs = {
   open: jest.fn(),
   close: jest.fn(),
   mkdir: jest.fn(),
-};
+}
 
 const path = {
   join: jest.fn(),
   relative: jest.fn(),
   isAbsolute: jest.fn(),
-};
+}
 
 remote.require = jest.fn((target) => {
   switch (target) {
-    case 'fs': return fs;
-    case 'path': return path;
+    case 'fs': return fs
+    case 'path': return path
 
-  };
+  }
 
-});
+})
 
-jest.mock('nodegit', () => ({}));
+jest.mock('nodegit', () => ({}))
 
-const localVue = createLocalVue();
+const localVue = createLocalVue()
 
 describe('ExplorerNode.vue', () => {
-  let vuetify;
-  let wrapper;
+  let vuetify
+  let wrapper
 
   let tome = {
     path: '/pa/th/to/to/me',
@@ -63,7 +63,7 @@ describe('ExplorerNode.vue', () => {
 
     },
 
-  };
+  }
 
   function wrap(object) {
     wrapper = mount(
@@ -91,25 +91,26 @@ describe('ExplorerNode.vue', () => {
 
         },
       }
-    );
 
-  };
+    )
+
+  }
 
   beforeEach(() => {
-    vuetify = new Vuetify();
+    vuetify = new Vuetify()
 
-  });
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks()
 
-  });
+  })
 
   it('should render empty view if not editing and no file is loaded', async () => {
-    wrap();
+    wrap()
 
     expect(wrapper.find('[editor-interface-empty]').isVisible()).toBe(true)
 
-  });
+  })
 
-});
+})

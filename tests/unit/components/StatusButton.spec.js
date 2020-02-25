@@ -1,20 +1,20 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
-Vue.use(Vuetify);
+Vue.use(Vuetify)
 
 import StatusButton from '@/components/StatusButton.vue'
 
 import { createLocalVue, mount } from '@vue/test-utils'
 
-const localVue = createLocalVue();
+const localVue = createLocalVue()
 
 describe('StatusButton.vue', () => {
-  let vuetify;
-  let wrapper;
+  let vuetify
+  let wrapper
 
   beforeEach(() => {
-    vuetify = new Vuetify();
+    vuetify = new Vuetify()
 
     wrapper = mount(
       StatusButton,
@@ -35,28 +35,28 @@ describe('StatusButton.vue', () => {
           staged_removed: 5,
         },
       }
-    );
 
-  });
+    )
+
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks()
 
-  });
+  })
 
   it('should calculate updated available files', async () => {
-    await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.available_added).toEqual(14);
+    expect(wrapper.vm.available_added).toEqual(14)
 
-  });
+  })
 
   it('should calculate updated staged files', async () => {
-    await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.staged_added).toEqual(27);
+    expect(wrapper.vm.staged_added).toEqual(27)
 
-  });
+  })
 
-});
-
+})

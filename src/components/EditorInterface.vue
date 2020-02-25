@@ -120,15 +120,15 @@
 
 <script>
   import { remote } from 'electron'
-  import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly';
+  import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
   import marked from 'marked'
 
   import Explorer from "./Explorer.vue"
 
   import EmptyView from "@/views/Empty.vue"
   import ActionView from "@/views/Action.vue"
-  import CommitView from "@/views/Commit.vue";
-  import PushView from "@/views/Push.vue";
+  import CommitView from "@/views/Commit.vue"
+  import PushView from "@/views/Push.vue"
 
   export default {
     props: {
@@ -151,8 +151,8 @@
     }),
 
     created: function() {
-      this.fs = remote.require('fs');
-      this.path = remote.require('path');
+      this.fs = remote.require('fs')
+      this.path = remote.require('path')
 
     },
 
@@ -163,25 +163,25 @@
     methods: {
 
       load_path: async function (item) {
-        console.log('load_path', item);
-        console.log('load_path directory?', item.directory);
-        console.log('load_path path?', item.path);
-        console.log('load_path children?', item.children);
+        console.log('load_path', item)
+        console.log('load_path directory?', item.directory)
+        console.log('load_path path?', item.path)
+        console.log('load_path children?', item.children)
 
         let file_ext = function(ext) {
           switch (ext) {
             case '.md':
-              return { icon: 'mdi-file-code', disabled: false, color: 'blue' };
+              return { icon: 'mdi-file-code', disabled: false, color: 'blue' }
 
             case '.gif':
             case '.jpg':
             case '.jpeg':
             case '.png':
-              return { icon: 'mdi-file-image', disabled: true, color: 'green' };
-              return 'mdi-file-image';
+              return { icon: 'mdi-file-image', disabled: true, color: 'green' }
+              return 'mdi-file-image'
 
             default:
-              return { icon: 'mdi-file-remove', disabled: true };
+              return { icon: 'mdi-file-remove', disabled: true }
           }
         }
 
@@ -202,56 +202,56 @@
           .then(children => {
             children.forEach(child => {
               if (child.directory) {
-                child.children = [];
+                child.children = []
                 if (!['.git'].includes(child.name)) {
-                  child.disabled = false;
+                  child.disabled = false
 
                 }
               }
 
-            });
+            })
 
-            item.children.push(...children);
+            item.children.push(...children)
 
-            return true;
+            return true
 
           })
-          .catch(err => console.warn(err));
+          .catch(err => console.warn(err))
       },
 
       load_file: async function (node) {
-        this.error = '';
+        this.error = ''
 
-        this.absolute_path = null;
+        this.absolute_path = null
 
-        this.actions = null;
-        this.selected = null;
+        this.actions = null
+        this.selected = null
 
-        console.log('load_file', node);
+        console.log('load_file', node)
 
         if (!node) {
-          this.actions = [];
-          return;
+          this.actions = []
+          return
 
         }
 
-        this.selected = node;
-        this.absolute_path = this.selected.path;
+        this.selected = node
+        this.absolute_path = this.selected.path
 
-        let status = await new Promise((resolve, reject) => this.fs.lstat(this.absolute_path, (err, status) => err ? reject(err) : resolve(status)));
+        let status = await new Promise((resolve, reject) => this.fs.lstat(this.absolute_path, (err, status) => err ? reject(err) : resolve(status)))
 
         if (status.isDirectory()) {
-          this.error = this.path.basename(this.absolute_path);
+          this.error = this.path.basename(this.absolute_path)
           this.actions = [
             {
               name: "New File",
               icon: "mdi-file-star",
               action: (event) => {
-                console.log("new file", event);
-                // this.tome_add_file_val = '';
-                // this.tome_add_file_path_rel = '';
-                // this.tome_add_file_as_directory = false;
-                // this.tome_add_file = true;
+                console.log("new file", event)
+                // this.tome_add_file_val = ''
+                // this.tome_add_file_path_rel = ''
+                // this.tome_add_file_as_directory = false
+                // this.tome_add_file = true
 
               },
             },
@@ -259,11 +259,11 @@
               name: "New Folder",
               icon: "mdi-folder-star",
               action: (event) => {
-                console.log("new folder", event);
-                // this.tome_add_file_val = '';
-                // this.tome_add_file_path_rel = '';
-                // this.tome_add_file_as_directory = true;
-                // this.tome_add_file = true;
+                console.log("new folder", event)
+                // this.tome_add_file_val = ''
+                // this.tome_add_file_path_rel = ''
+                // this.tome_add_file_as_directory = true
+                // this.tome_add_file = true
 
               },
             },
@@ -271,34 +271,34 @@
               name: "Open Folder",
               icon: "mdi-folder-move",
               action: (event) => {
-                console.log("open folder", event);
-                shell.openItem(this.absolute_path);
+                console.log("open folder", event)
+                shell.openItem(this.absolute_path)
 
               },
             },
-          ];
-          return;
+          ]
+          return
 
         }
 
-        let ext = this.path.extname(this.absolute_path).toLowerCase();
+        let ext = this.path.extname(this.absolute_path).toLowerCase()
 
         if (ext != '.md') {
-          this.error = `File has invalid ${ext} extension.`;
-          return;
+          this.error = `File has invalid ${ext} extension.`
+          return
         }
 
-        this.content = this.fs.readFileSync(this.absolute_path, 'utf8');
+        this.content = this.fs.readFileSync(this.absolute_path, 'utf8')
 
       },
 
 
       save_file: async function (value) {
-        this.fs.writeFileSync(this.absolute_path, value);
+        this.fs.writeFileSync(this.absolute_path, value)
 
-        this.content = value;
+        this.content = value
 
-        this.reload_start();
+        this.reload_start()
 
       },
 
@@ -307,11 +307,11 @@
 
     computed: {
       relative_path: function () {
-        return this.absolute_path ? `${this.path.relative(this.tome.path, this.absolute_path)}` : '';
+        return this.absolute_path ? `${this.path.relative(this.tome.path, this.absolute_path)}` : ''
       },
 
       rendered: function () {
-        return marked(this.content);
+        return marked(this.content)
       },
 
     },

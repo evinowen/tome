@@ -2,10 +2,10 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import vuetify from './plugins/vuetify';
+import vuetify from './plugins/vuetify'
 
-import SplitPane from 'vue-splitpane';
-Vue.component('split-pane', SplitPane);
+import SplitPane from 'vue-splitpane'
+Vue.component('split-pane', SplitPane)
 
 import VueCodemirror from 'vue-codemirror'
 import 'codemirror/mode/markdown/markdown.js'
@@ -13,10 +13,10 @@ import 'codemirror/lib/codemirror.css'
 
 
 import Explorer from "./components/Explorer.vue"
-Vue.component('explorer', Explorer);
+Vue.component('explorer', Explorer)
 
 import ExplorerNode from "./components/ExplorerNode.vue"
-Vue.component('explorer-node', ExplorerNode);
+Vue.component('explorer-node', ExplorerNode)
 
 
 Vue.use(VueCodemirror, {
@@ -27,7 +27,7 @@ Vue.use(VueCodemirror, {
     lineNumbers: true,
     line: true,
   }
-});
+})
 
 Vue.config.productionTip = false
 
@@ -36,4 +36,4 @@ new Vue({
   store,
   vuetify,
   render: h => h(App)
-}).$mount('#app');
+}).$mount('#app')
