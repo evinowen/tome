@@ -11,6 +11,7 @@
             :new_file=new_file
             :new_folder=new_folder
             :open_folder=open_folder
+            v-on="$listeners"
           />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;"></scrolly-bar>
