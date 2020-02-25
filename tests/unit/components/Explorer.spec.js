@@ -6,10 +6,10 @@ Vue.use(Vuetify)
 import { createLocalVue, mount } from '@vue/test-utils'
 import Explorer from '@/components/Explorer.vue'
 
-const localVue = createLocalVue();
+const localVue = createLocalVue()
 
 describe('Explorer.vue', () => {
-  let vuetify;
+  let vuetify
 
   function wrap(object) {
     return mount(
@@ -33,34 +33,34 @@ describe('Explorer.vue', () => {
 
       },
 
-    );
+    )
 
-  };
+  }
 
   beforeEach(() => {
-    vuetify = new Vuetify();
+    vuetify = new Vuetify()
 
-  });
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks()
 
-  });
+  })
 
   it('should compute closed root icon instance is not a child or expanded', async () => {
-    let wrapper = wrap({ is_child: false });
-    wrapper.vm.$nextTick();
+    let wrapper = wrap({ is_child: false })
+    wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.icon).toEqual('mdi-book');
+    expect(wrapper.vm.icon).toEqual('mdi-book')
 
-  });
+  })
 
   it('should compute closed folder icon instance is a child but not expanded', async () => {
-    let wrapper = wrap({ is_child: true });
-    wrapper.vm.$nextTick();
+    let wrapper = wrap({ is_child: true })
+    wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.icon).toEqual('mdi-folder');
+    expect(wrapper.vm.icon).toEqual('mdi-folder')
 
-  });
+  })
 
-});
+})

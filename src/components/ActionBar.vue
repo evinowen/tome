@@ -107,8 +107,8 @@
 </style>
 
 <script>
-  import { remote } from 'electron';
-  import StatusButton from "./StatusButton.vue";
+  import { remote } from 'electron'
+  import StatusButton from "./StatusButton.vue"
 
   export default {
     props: {
@@ -125,7 +125,7 @@
     }),
 
     watch: {
-      edit: function(value) { this.$emit('edit', value); },
+      edit: function(value) { this.$emit('edit', value) },
     },
 
     methods: {
@@ -134,28 +134,28 @@
           title: 'Select Tome Directory',
           properties: ['openDirectory'],
 
-        });
+        })
 
-        console.log('result!', result);
+        console.log('result!', result)
 
         if (result.canceled) {
-          console.log('[Select Tome Directory] Cancelled');
-          return;
+          console.log('[Select Tome Directory] Cancelled')
+          return
 
         }
 
         if (!result.filePaths.length) {
-          console.log('[Select Tome Directory] Closed :: !result.filePaths.length'), result.filePaths.length;
-          this.$emit('close');
-          return;
+          console.log('[Select Tome Directory] Closed :: !result.filePaths.length'), result.filePaths.length
+          this.$emit('close')
+          return
 
         }
 
-        this.$emit('open', result.filePaths[0]);
+        this.$emit('open', result.filePaths[0])
 
       },
       old_open: function (event) {
-        let files = event.target.files || event.dataTransfer.files;
+        let files = event.target.files || event.dataTransfer.files
 
 
       },

@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify'
-import { remote } from 'electron';
+import { remote } from 'electron'
 
-Vue.use(Vuetify);
+Vue.use(Vuetify)
 
 import { createLocalVue, mount } from '@vue/test-utils'
 import NewFileService from '@/components/NewFileService.vue'
@@ -13,34 +13,34 @@ jest.mock('electron', () => ({
 
   },
 
-}));
+}))
 
 const fs = {
   open: jest.fn(),
   close: jest.fn(),
   mkdir: jest.fn(),
-};
+}
 
 const path = {
   join: jest.fn(),
   relative: jest.fn(),
   isAbsolute: jest.fn(),
-};
+}
 
 remote.require = jest.fn((target) => {
   switch (target) {
-    case 'fs': return fs;
-    case 'path': return path;
+    case 'fs': return fs
+    case 'path': return path
 
-  };
+  }
 
-});
+})
 
-const localVue = createLocalVue();
+const localVue = createLocalVue()
 
 describe('NewFileService.vue', () => {
-  let vuetify;
-  let wrapper;
+  let vuetify
+  let wrapper
 
   function wrap(object) {
     wrapper = mount(
@@ -61,61 +61,62 @@ describe('NewFileService.vue', () => {
 
         },
       }
-    );
 
-  };
+    )
+
+  }
 
   beforeEach(() => {
-    vuetify = new Vuetify();
+    vuetify = new Vuetify()
 
-  });
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks()
 
-  });
+  })
 
   it('should use target for relative if path is not absolute', async () => {
-    path.isAbsolute.mockReturnValue(false);
+    path.isAbsolute.mockReturnValue(false)
 
-    wrap();
-    wrapper.vm.$nextTick();
+    wrap()
+    wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.relative).toEqual('test');
+    expect(wrapper.vm.relative).toEqual('test')
 
-  });
+  })
 
   it('should calculate relative if path is absolute', async () => {
-    path.isAbsolute.mockReturnValue(true);
-    path.relative.mockReturnValue('test-relative');
+    path.isAbsolute.mockReturnValue(true)
+    path.relative.mockReturnValue('test-relative')
 
-    wrap();
-    wrapper.vm.$nextTick();
+    wrap()
+    wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.relative).toEqual('test-relative');
+    expect(wrapper.vm.relative).toEqual('test-relative')
 
-  });
+  })
 
   it('should calculate the correct formatted extension that begins with a dot even if it already has one', async () => {
-    path.isAbsolute.mockReturnValue(true);
-    path.relative.mockReturnValue('test-relative');
+    path.isAbsolute.mockReturnValue(true)
+    path.relative.mockReturnValue('test-relative')
 
-    wrap({ extension: '.test' });
-    wrapper.vm.$nextTick();
+    wrap({ extension: '.test' })
+    wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.extension_formatted).toEqual('.test');
+    expect(wrapper.vm.extension_formatted).toEqual('.test')
 
-  });
+  })
 
   it('should calculate extension that has a dot if it does not have one', async () => {
-    path.isAbsolute.mockReturnValue(true);
-    path.relative.mockReturnValue('test-relative');
+    path.isAbsolute.mockReturnValue(true)
+    path.relative.mockReturnValue('test-relative')
 
-    wrap({ extension: 'test' });
-    wrapper.vm.$nextTick();
+    wrap({ extension: 'test' })
+    wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.extension_formatted).toEqual('.test');
+    expect(wrapper.vm.extension_formatted).toEqual('.test')
 
-  });
+  })
 
-});
+})

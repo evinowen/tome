@@ -151,11 +151,11 @@
     computed: {
       icon: function() {
         if (this.is_child) {
-          return this.expanded ? "mdi-folder-open" : "mdi-folder";
+          return this.expanded ? "mdi-folder-open" : "mdi-folder"
 
         }
 
-        return this.expanded ? "mdi-book-open-page-variant" : "mdi-book";
+        return this.expanded ? "mdi-book-open-page-variant" : "mdi-book"
 
       },
     },
@@ -163,7 +163,7 @@
       toggle: async function(event) {
         if (this.expanded) {
           this.$emit('collapsing', this)
-          this.expanded = false;
+          this.expanded = false
           this.$emit('collapsed', this)
 
         } else {
@@ -171,37 +171,37 @@
           console.log('expanding', this.loaded, this.populate)
 
           if (!this.loaded && this.populate) {
-            await this.load();
+            await this.load()
 
           }
 
-          this.loaded = false;
+          this.loaded = false
 
-          this.expanded = true;
+          this.expanded = true
           this.$emit('expanded', this)
 
         }
       },
       load: async function() {
-        this.loaded = false;
+        this.loaded = false
 
-        while (this.children.pop());
+        while (this.children.pop())
 
-        console.log('await populate ... ');
-        this.loaded = (await this.populate(this)) == true;
-        console.log('done populate!');
+        console.log('await populate ... ')
+        this.loaded = (await this.populate(this)) == true
+        console.log('done populate!')
 
         if (!this.loaded) {
-          console.error(`Failed to load ${this.path}`);
+          console.error(`Failed to load ${this.path}`)
 
         }
 
       },
       select:  function(node) {
-        this.selected = node || this;
-        console.log('explorer-folder', this.selected);
-        this.upstream = this.selected.path;
-        return this.$emit('selected', this.selected);
+        this.selected = node || this
+        console.log('explorer-folder', this.selected)
+        this.upstream = this.selected.path
+        return this.$emit('selected', this.selected)
 
       },
     }

@@ -1,20 +1,20 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
-Vue.use(Vuetify);
+Vue.use(Vuetify)
 
 import ActionBar from '@/components/ActionBar.vue'
 
 import { createLocalVue, mount } from '@vue/test-utils'
 
-const localVue = createLocalVue();
+const localVue = createLocalVue()
 
 describe('ActionBar.vue', () => {
-  let vuetify;
-  let wrapper;
+  let vuetify
+  let wrapper
 
   beforeEach(() => {
-    vuetify = new Vuetify();
+    vuetify = new Vuetify()
 
     let tome = {
       path: '/pa/th/to/to/me',
@@ -32,11 +32,11 @@ describe('ActionBar.vue', () => {
 
       },
 
-    };
+    }
 
-    let waiting = 0;
-    let commit = false;
-    let push = false;
+    let waiting = 0
+    let commit = false
+    let push = false
 
     wrapper = mount(
       ActionBar,
@@ -53,39 +53,39 @@ describe('ActionBar.vue', () => {
           push,
         },
       }
-    );
+    )
 
-  });
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks()
 
-  });
+  })
 
   it('emits a commit event when the commit button is clicked', () => {
-    const event = jest.fn();
+    const event = jest.fn()
 
-    wrapper.vm.$on('commit', event);
+    wrapper.vm.$on('commit', event)
 
-    expect(event).toHaveBeenCalledTimes(0);
+    expect(event).toHaveBeenCalledTimes(0)
 
-    wrapper.find('[action-bar-commit]').trigger('click');
+    wrapper.find('[action-bar-commit]').trigger('click')
 
-    expect(event).toHaveBeenCalledTimes(1);
+    expect(event).toHaveBeenCalledTimes(1)
 
-  });
+  })
 
   it('emits a push event when the push button is clicked', () => {
-    const event = jest.fn();
+    const event = jest.fn()
 
-    wrapper.vm.$on('push', event);
+    wrapper.vm.$on('push', event)
 
-    expect(event).toHaveBeenCalledTimes(0);
+    expect(event).toHaveBeenCalledTimes(0)
 
-    wrapper.find('[action-bar-push]').trigger('click');
+    wrapper.find('[action-bar-push]').trigger('click')
 
-    expect(event).toHaveBeenCalledTimes(1);
+    expect(event).toHaveBeenCalledTimes(1)
 
-  });
+  })
 
-});
+})
