@@ -14,6 +14,7 @@
       :open_folder=action_open_folder
       @commit:close="tome_commit = false"
       @push:close="tome_push = false"
+      @context=open_context
     />
 
     <new-file-service
@@ -23,6 +24,14 @@
       :base="tome.path" :target="tome_add_file_path_rel || tome_file_path"
       :extension="tome_add_file_as_directory ? null : 'md'"
       :folder="tome_add_file_as_directory"
+    />
+
+    <context-menu-service
+      v-model=context_menu_visible
+      :title=context_menu_title
+      :items=context_menu_items
+      :position_x=context_menu_position_x
+      :position_y=context_menu_position_y
     />
 
     <action-bar
@@ -56,6 +65,8 @@ html, body {
   import { remote, shell } from 'electron'
 
   import NewFileService from "./components/NewFileService.vue";
+  import ContextMenuService from "./components/ContextMenuService.vue";
+
   import SystemBar from "./components/SystemBar.vue";
   import EditorInterface from "./components/EditorInterface.vue"
   import ActionBar from "./components/ActionBar.vue";
@@ -135,6 +146,12 @@ html, body {
 
       tome_app_config_path: '',
       tome_app_config_path_dir: '',
+
+      context_menu_visible: false,
+      context_menu_title: null,
+      context_menu_items: [],
+      context_menu_position_x: 0,
+      context_menu_position_y: 0,
 
     }),
     mounted: async function() {
@@ -516,6 +533,28 @@ html, body {
         });
 
       },
+      open_context: async function (e, type, path) {
+        console.log("open_context", e, type, path);
+
+        this.context_menu_visible = true;
+        this.context_menu_title = `${type} - ${path}`;
+        this.context_menu_items = [
+          {
+            title: 'New File',
+            action: () => { console.log('New File Action!'); }
+          },
+          {
+            title: 'New Folder',
+            action: () => { console.log('New Folder Action!'); }
+          },
+          {
+            title: 'Open Folder',
+            action: () => { console.log('Open Folder Action!'); }
+          }
+        ];
+        this.context_menu_position_x = e.clientX;
+        this.context_menu_position_y = e.clientY;
+      },
     },
     computed: {
       tome_file_rendered: function () {
@@ -530,6 +569,7 @@ html, body {
       EditorInterface,
       ActionBar,
       NewFileService,
+      ContextMenuService,
     },
   }
 </script>
