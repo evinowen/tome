@@ -101,7 +101,7 @@
   height: auto !important;
   top: 0;
   bottom: 0;
-  padding: 0!important;
+  padding: 0 !important;
   margin-bottom: 28px;
 }
 
