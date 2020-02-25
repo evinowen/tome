@@ -29,8 +29,3 @@ Optionally, open another PowerShell terminal and start jest:
 ```
 npm run test:unit -- --watch
 ```
-
-####
-```
-npm install -g npm-windows-upgrade
-```
