@@ -17,13 +17,15 @@
         :open_folder=open_folder
         v-on:selected="select"
         :active=active child
+        v-on="$listeners"
       />
     </template>
 
-    <template v-else>
+    <template v-else v-on="$listeners">
       <v-container
         v-bind:class="['explorer-node', 'explorer-node-hover', {'explorer-node-selected': path == active }]"
-        @click.stop="select(null)"
+        @click.left.stop="select(null)"
+        @click.right="$emit('context', $event, 'file', path)"
       >
         <div class="explorer-node">
           <v-btn tile text x-small @click.stop="select(null)" class="explorer-node-button mr-1">

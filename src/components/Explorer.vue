@@ -2,7 +2,8 @@
   <v-container class="pa-0" style="user-select: none;">
     <v-container class="explorer-folder"
       v-bind:class="['explorer-folder', {'explorer-folder-selected': path == (is_child ? active : upstream) }]"
-      @click.stop="select(null)"
+      @click.left.stop="select(null)"
+      @click.right.stop="$emit('context', $event, 'folder', path)"
     >
       <div class="explorer-folder">
         <v-btn tile text x-small @click.stop="toggle" class="explorer-folder-button mr-1">
@@ -23,11 +24,12 @@
       </div>
     </v-container>
 
-    <v-container v-if="expanded" class="explorer-folder-container" >
+    <v-container v-if="expanded" class="explorer-folder-container">
       <template v-if=is_child>
         <explorer-node
           v-for="child in children"
           v-on:selected="select"
+          v-on="$listeners"
           :key=child.path
           :name=child.name
           :path=child.path
@@ -44,6 +46,7 @@
         <explorer-node
           v-for="child in children"
           v-on:selected="select"
+          v-on="$listeners"
           :key=child.path
           :name=child.name
           :path=child.path
