@@ -7,13 +7,16 @@
       :position-y="position_y"
     >
       <v-list>
-        <v-list-item
-          v-for="(item, index) in items"
-          :key="index"
-          @click="item.action"
-        >
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
-        </v-list-item>
+        <v-subheader v-if=title>{{ title }}</v-subheader>
+        <v-list-item-group>
+          <v-list-item
+            v-for="(item, index) in items"
+            :key="index"
+            @click="item.action"
+          >
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
       </v-list>
     </v-menu>
 
@@ -29,6 +32,7 @@
   export default {
     props: {
       value: { type: Boolean, default: false },
+      title: { type: String, default: null },
       items: { type: Array },
       position_x: { type: Number, default: 0 },
       position_y: { type: Number, default: 0 },
