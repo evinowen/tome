@@ -9,9 +9,6 @@
       :edit=tome_edit
       :commit=tome_commit
       :push=tome_push
-      :new_file=action_new_file
-      :new_folder=action_new_folder
-      :open_folder=action_open_folder
       @commit:close="tome_commit = false"
       @push:close="tome_push = false"
       @context=open_context
@@ -29,6 +26,7 @@
     <context-menu-service
       v-model=context_menu_visible
       :title=context_menu_title
+      :target=context_menu_target
       :items=context_menu_items
       :position_x=context_menu_position_x
       :position_y=context_menu_position_y
@@ -149,6 +147,7 @@ html, body {
 
       context_menu_visible: false,
       context_menu_title: null,
+      context_menu_target: null,
       context_menu_items: [],
       context_menu_position_x: 0,
       context_menu_position_y: 0,
@@ -540,22 +539,37 @@ html, body {
 
         this.context_menu_visible = true
         this.context_menu_title = `${type} - ${path}`
-        this.context_menu_items = [
-          {
-            title: 'New File',
-            action: () => { console.log('New File Action!') }
-          },
-          {
-            title: 'New Folder',
-            action: () => { console.log('New Folder Action!') }
-          },
-          {
-            title: 'Open Folder',
-            action: () => { console.log('Open Folder Action!') }
-          }
-        ]
+        this.context_menu_target = path
+        this.context_menu_items = [];
         this.context_menu_position_x = e.clientX
         this.context_menu_position_y = e.clientY
+
+        switch (type) {
+          case 'folder':
+            this.context_menu_items.push({
+              title: 'Expand',
+              action: () => { console.log('Expand Action!') }
+            });
+
+          case 'file':
+            this.context_menu_items.push({
+              title: 'New File',
+              action: this.action_new_file,
+            });
+
+            this.context_menu_items.push({
+              title: 'New Folder',
+              action: this.action_new_folder,
+            });
+
+            this.context_menu_items.push({
+              title: 'Open Folder',
+              action: this.action_open_folder,
+            });
+
+            break;
+
+        }
       },
     },
     computed: {

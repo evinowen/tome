@@ -8,9 +8,6 @@
             :path=tome.path
             :populate=load_path
             v-on:selected=load_file
-            :new_file=new_file
-            :new_folder=new_folder
-            :open_folder=open_folder
             v-on="$listeners"
           />
         </scrolly-viewport>
@@ -137,9 +134,6 @@
       edit: { type: Boolean, default: false },
       commit: { type: Boolean, default: false },
       push: { type: Boolean, default: false },
-      new_file: { type: Function },
-      new_folder: { type: Function },
-      open_folder: { type: Function },
     },
 
     data: () => ({

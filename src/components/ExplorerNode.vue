@@ -12,9 +12,6 @@
         :name=name
         :path=path
         :populate=populate
-        :new_file=new_file
-        :new_folder=new_folder
-        :open_folder=open_folder
         v-on:selected="select"
         :active=active child
         v-on="$listeners"
@@ -81,9 +78,6 @@
       path: { type: String, default: '' },
       active: { type: String },
       populate: { type: Function },
-      new_file: { type: Function },
-      new_folder: { type: Function },
-      open_folder: { type: Function },
       highlight: { type: String, default: '' },
       directory: { type: Boolean, default: false },
       parent: { type: Object },
