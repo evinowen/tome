@@ -26,6 +26,7 @@
     <context-menu-service
       v-model=context_menu_visible
       :title=context_menu_title
+      :target=context_menu_target
       :items=context_menu_items
       :position_x=context_menu_position_x
       :position_y=context_menu_position_y
@@ -146,6 +147,7 @@ html, body {
 
       context_menu_visible: false,
       context_menu_title: null,
+      context_menu_target: null,
       context_menu_items: [],
       context_menu_position_x: 0,
       context_menu_position_y: 0,
@@ -537,6 +539,7 @@ html, body {
 
         this.context_menu_visible = true
         this.context_menu_title = `${type} - ${path}`
+        this.context_menu_target = path
         this.context_menu_items = [];
         this.context_menu_position_x = e.clientX
         this.context_menu_position_y = e.clientY

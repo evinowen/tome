@@ -14,7 +14,7 @@
           <v-list-item
             v-for="(item, index) in items"
             :key="index"
-            @click="item.action"
+            @click="item.action(target)"
           >
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
@@ -58,6 +58,7 @@
     props: {
       value: { type: Boolean, default: false },
       title: { type: String, default: null },
+      target: { type: String, default: null },
       items: { type: Array },
       position_x: { type: Number, default: 0 },
       position_y: { type: Number, default: 0 },
