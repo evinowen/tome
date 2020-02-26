@@ -9,9 +9,6 @@
       :edit=tome_edit
       :commit=tome_commit
       :push=tome_push
-      :new_file=action_new_file
-      :new_folder=action_new_folder
-      :open_folder=action_open_folder
       @commit:close="tome_commit = false"
       @push:close="tome_push = false"
       @context=open_context

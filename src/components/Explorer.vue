@@ -10,17 +10,6 @@
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <div style="display: inline-block;">{{ name }}</div>
-        <div class="explorer-folder-options pr-5">
-          <v-btn tile text x-small @click.stop="new_file(path)" class="explorer-folder-button">
-            <v-icon>mdi-file-star</v-icon>
-          </v-btn>
-          <v-btn tile text x-small @click.stop="new_folder(path)" class="explorer-folder-button">
-            <v-icon>mdi-folder-star</v-icon>
-          </v-btn>
-          <v-btn tile text x-small @click.stop="open_folder(path)" class="explorer-folder-button">
-            <v-icon>mdi-folder-move</v-icon>
-          </v-btn>
-        </div>
       </div>
     </v-container>
 
@@ -36,9 +25,6 @@
           :parent=this
           :directory=child.directory
           :populate=populate
-          :new_file=new_file
-          :new_folder=new_folder
-          :open_folder=open_folder
           :active=active
         />
       </template>
@@ -53,9 +39,6 @@
           :parent=this
           :directory=child.directory
           :populate=populate
-          :new_file=new_file
-          :new_folder=new_folder
-          :open_folder=open_folder
           :active=upstream
         />
       </template>
@@ -91,32 +74,6 @@
 
 }
 
-.explorer-folder-options {
-  display: inline-block;
-  visibility: hidden;
-  position: absolute;
-  height: 100%;
-  text-align: right;
-  padding: 0;
-  right: 0;
-
-}
-
-.explorer-folder-options .v-icon {
-  color: rgba(0, 0, 0, 0.2) !important;
-
-}
-
-.explorer-folder-options .v-icon:hover {
-  color: rgba(0, 0, 0, 0.6) !important;
-
-}
-
-.explorer-folder:hover .explorer-folder-options {
-  visibility: visible;
-
-}
-
 .explorer-folder-container {
   border: solid #C8C8C8;
   border-width: 0 0 0 1px;
@@ -135,9 +92,6 @@
       path: { type: String },
       active: { type: String },
       populate: { type: Function },
-      new_file: { type: Function },
-      new_folder: { type: Function },
-      open_folder: { type: Function },
       is_child: { type: Boolean }
     },
     data: () => ({
