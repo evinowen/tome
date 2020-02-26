@@ -537,22 +537,36 @@ html, body {
 
         this.context_menu_visible = true
         this.context_menu_title = `${type} - ${path}`
-        this.context_menu_items = [
-          {
-            title: 'New File',
-            action: () => { console.log('New File Action!') }
-          },
-          {
-            title: 'New Folder',
-            action: () => { console.log('New Folder Action!') }
-          },
-          {
-            title: 'Open Folder',
-            action: () => { console.log('Open Folder Action!') }
-          }
-        ]
+        this.context_menu_items = [];
         this.context_menu_position_x = e.clientX
         this.context_menu_position_y = e.clientY
+
+        switch (type) {
+          case 'folder':
+            this.context_menu_items.push({
+              title: 'Expand',
+              action: () => { console.log('Expand Action!') }
+            });
+
+          case 'file':
+            this.context_menu_items.push({
+              title: 'New File',
+              action: this.action_new_file,
+            });
+
+            this.context_menu_items.push({
+              title: 'New Folder',
+              action: this.action_new_folder,
+            });
+
+            this.context_menu_items.push({
+              title: 'Open Folder',
+              action: this.action_open_folder,
+            });
+
+            break;
+
+        }
       },
     },
     computed: {
