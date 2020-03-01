@@ -6,17 +6,23 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
+    "test:style": "standard --plugin html \"**/*.{js,vue}\"",
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
     "electron:test": "electron ./node_modules/@vue/cli-service/bin/vue-cli-service.js test:unit",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
+  "standard": {
+    "env": [ "jest" ]
+  },
   "main": "background.js",
   "dependencies": {
     "core-js": "^3.6.4",
+    "eslint-plugin-html": "^6.0.0",
     "marked": "^0.8.0",
     "nodegit": "^0.26.4",
+    "standard": "^14.3.1",
     "vue": "^2.6.11",
     "vue-codemirror": "^4.0.6",
     "vue-router": "^3.1.5",
