@@ -4,7 +4,7 @@ module.exports = {
   collectCoverage: true,
   collectCoverageFrom: [
     'src/**/*.{js,vue}',
-    '!src/main.js',
-  ],
+    '!**/node_modules/**'
+  ]
 
 }
