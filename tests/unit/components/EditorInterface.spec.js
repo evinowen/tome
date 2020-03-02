@@ -2,41 +2,39 @@ import { remote } from 'electron'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
-Vue.use(Vuetify)
-
 import SplitPane from 'vue-splitpane'
-Vue.component('split-pane', SplitPane)
 
 import { createLocalVue, mount } from '@vue/test-utils'
 import EditorInterface from '@/components/EditorInterface.vue'
 
+Vue.use(Vuetify)
+Vue.component('split-pane', SplitPane)
+
 jest.mock('electron', () => ({
   remote: {
-    require: jest.fn(),
+    require: jest.fn()
 
-  },
+  }
 
 }))
 
 const fs = {
   open: jest.fn(),
   close: jest.fn(),
-  mkdir: jest.fn(),
+  mkdir: jest.fn()
 }
 
 const path = {
   join: jest.fn(),
   relative: jest.fn(),
-  isAbsolute: jest.fn(),
+  isAbsolute: jest.fn()
 }
 
 remote.require = jest.fn((target) => {
   switch (target) {
     case 'fs': return fs
     case 'path': return path
-
   }
-
 })
 
 jest.mock('nodegit', () => ({}))
@@ -47,25 +45,25 @@ describe('ExplorerNode.vue', () => {
   let vuetify
   let wrapper
 
-  let tome = {
+  const tome = {
     path: '/pa/th/to/to/me',
     name: 'Name',
 
     branch: {
       name: 'master',
-      error: null,
+      error: null
 
     },
 
     status: {
       available: { new: 0, renamed: 0, modified: 0, deleted: 0 },
-      staged: { new: 0, renamed: 0, modified: 0, deleted: 0 },
+      staged: { new: 0, renamed: 0, modified: 0, deleted: 0 }
 
-    },
+    }
 
   }
 
-  function wrap(object) {
+  function wrap (object) {
     wrapper = mount(
       EditorInterface,
       {
@@ -75,7 +73,7 @@ describe('ExplorerNode.vue', () => {
           EmptyView: true,
           ActionView: true,
           CommitView: true,
-          PushView: true,
+          PushView: true
         },
         propsData: {
           tome: tome,
@@ -89,28 +87,23 @@ describe('ExplorerNode.vue', () => {
 
           ...(object || {})
 
-        },
+        }
       }
 
     )
-
   }
 
   beforeEach(() => {
     vuetify = new Vuetify()
-
   })
 
   afterEach(() => {
     jest.clearAllMocks()
-
   })
 
   it('should render empty view if not editing and no file is loaded', async () => {
     wrap()
 
     expect(wrapper.find('[editor-interface-empty]').isVisible()).toBe(true)
-
   })
-
 })

@@ -2,23 +2,22 @@ import Vue from 'vue'
 import Vuetify from 'vuetify'
 import { remote } from 'electron'
 
-Vue.use(Vuetify)
-
 import { mount } from '@vue/test-utils'
 import SystemBar from '@/components/SystemBar.vue'
 
+Vue.use(Vuetify)
+
 afterEach(() => {
   jest.clearAllMocks()
-
 })
 
 jest.mock('electron', () => ({
   remote: {
     getCurrentWindow: jest.fn(),
     BrowserWindow: {
-      getFocusedWindow: jest.fn(),
-    },
-  },
+      getFocusedWindow: jest.fn()
+    }
+  }
 
 }))
 
@@ -27,7 +26,7 @@ const window = {
   restore: jest.fn(),
   minimize: jest.fn(),
   maximize: jest.fn(),
-  close: jest.fn(),
+  close: jest.fn()
 }
 
 remote.getCurrentWindow.mockImplementation(() => window)
@@ -45,7 +44,6 @@ describe('SystemBar.vue', () => {
     )
 
     expect(mock.find('[system-bar-title]').text()).toEqual(title)
-
   })
 
   it('calls method to close the application window when close button is clicked', () => {
@@ -61,7 +59,6 @@ describe('SystemBar.vue', () => {
     mock.find('[system-bar-close]').trigger('click')
 
     expect(window.close).toHaveBeenCalledTimes(1)
-
   })
 
   it('calls method to minimize the application window when minimize button is clicked', () => {
@@ -77,7 +74,6 @@ describe('SystemBar.vue', () => {
     mock.find('[system-bar-minimize]').trigger('click')
 
     expect(window.minimize).toHaveBeenCalledTimes(1)
-
   })
 
   it('calls method to maximize the application window when maximize button is clicked and window is not maximized', () => {
@@ -96,7 +92,6 @@ describe('SystemBar.vue', () => {
 
     expect(window.restore).toHaveBeenCalledTimes(0)
     expect(window.maximize).toHaveBeenCalledTimes(1)
-
   })
 
   it('calls method to restore the application window when maximize button is clicked and window is maximized', () => {
@@ -115,7 +110,5 @@ describe('SystemBar.vue', () => {
 
     expect(window.maximize).toHaveBeenCalledTimes(0)
     expect(window.restore).toHaveBeenCalledTimes(1)
-
   })
-
 })

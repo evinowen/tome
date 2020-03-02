@@ -75,7 +75,6 @@
 
               </template>
 
-
               <template v-slot:item.action="{ item }">
                 <v-btn tile x-small icon @click.stop="reset(item.path)">
                   <v-icon>mdi-cancel</v-icon>
@@ -87,7 +86,6 @@
         </v-col>
 
       </v-row>
-
 
       <v-row>
         <v-col>
@@ -172,139 +170,126 @@
 </style>
 
 <script>
-  import { remote } from 'electron'
-  import NodeGit from 'nodegit'
+import { remote } from 'electron'
+import NodeGit from 'nodegit'
 
-  export default {
-    props: {
-      repository: { type: NodeGit.Repository },
-      staged: { type: Array },
-      available: { type: Array },
-      default_name: { type: String, default: '' },
-      default_email: { type: String, default: '' },
+export default {
+  props: {
+    repository: { type: NodeGit.Repository },
+    staged: { type: Array },
+    available: { type: Array },
+    default_name: { type: String, default: '' },
+    default_email: { type: String, default: '' }
+  },
+  data: () => ({
+    confirm: false,
+    working: false,
+    input: {
+      name: '',
+      email: '',
+      message: ''
     },
-    data: () => ({
-      confirm: false,
-      working: false,
-      input: {
-        name: '',
-        email: '',
-        message: '',
-      },
-      headers: [
-        { text: 'File', value: 'path' },
-        { text: 'Type', value: 'type', align: 'right' },
-        { text: '', value: 'action', align: 'right'},
-      ],
+    headers: [
+      { text: 'File', value: 'path' },
+      { text: 'Type', value: 'type', align: 'right' },
+      { text: '', value: 'action', align: 'right' }
+    ]
 
-    }),
-    computed: {
+  }),
+  computed: {
+  },
+  methods: {
+    stage: async function (file_path) {
+      console.log(`stage path ${file_path}`)
+
+      const index = await this.repository.refreshIndex()
+
+      {
+        const result = await index.addByPath(file_path)
+
+        if (result) {
+          console.error(`Failed to add ${file_path} to index`, result)
+          return
+        }
+      }
+
+      {
+        const result = await index.write()
+
+        if (result) {
+          console.error(`Failed to write ${file_path} index`, result)
+          return
+        }
+      }
+
+      return true
     },
-    methods: {
-      stage: async function (file_path) {
-        console.log(`stage path ${file_path}`)
 
-        let index = await this.repository.refreshIndex()
+    reset: async function (file_path) {
+      console.log(`reset path ${file_path}`)
 
-        {
-          let result = await index.addByPath(file_path)
+      const index = await this.repository.refreshIndex()
 
-          if (result) {
-            console.error(`Failed to add ${file_path} to index`, result)
-            return
+      {
+        const result = await index.removeByPath(file_path)
 
-          }
-
+        if (result) {
+          console.error(`Failed to reset ${file_path}`, result)
+          return
         }
+      }
 
-        {
-          let result = await index.write()
+      {
+        const result = await index.write()
 
-          if (result) {
-            console.error(`Failed to write ${file_path} index`, result)
-            return
-
-          }
-
+        if (result) {
+          console.error(`Failed to write ${file_path} index`, result)
+          return
         }
+      }
 
-        return true
+      return await this.reload_run()
+    },
 
-      },
+    commit: async function () {
+      console.debug('[Commit Tome] Begin')
+      this.working = true
 
-      reset: async function (file_path) {
-        console.log(`reset path ${file_path}`)
+      if (!this.repository) {
+        console.debug('Attempting to commit on non-existent repository.')
+      }
 
-        let index = await this.repository.refreshIndex()
+      console.debug('[Commit Tome] Load Prerequisites.')
+      const index = await this.repository.refreshIndex()
+      const oid = await index.writeTree()
+      const parents = []
 
-        {
-          let result = await index.removeByPath(file_path)
+      if (!this.repository.headUnborn()) {
+        console.debug('[Commit Tome] Head born, fetch as parent.')
+        const head = await NodeGit.Reference.nameToId(this.repository, 'HEAD')
+        const parent = await this.repository.getCommit(head)
 
-          if (result) {
-            console.error(`Failed to reset ${file_path}`, result)
-            return
+        parents.push(parent)
+      }
 
-          }
+      console.debug('[Commit Tome] Create Signature')
+      const signature = NodeGit.Signature.now(this.input.name || this.default_name, this.input.email || this.default_email)
 
-        }
+      console.debug('[Commit Tome] Await commit ... ')
+      const commit = await this.repository.createCommit('HEAD', signature, signature, this.input.message, oid, parents)
 
-        {
-          let result = await index.write()
+      console.debug('[Commit Tome] Committed', commit)
 
-          if (result) {
-            console.error(`Failed to write ${file_path} index`, result)
-            return
+      console.debug('[Commit Tome] Clear Flags')
+      this.confirm = false
+      this.working = false
 
-          }
+      console.debug('[Commit Tome] Complete')
+      this.$emit('close')
 
-        }
-
-        return await this.reload_run()
-
-      },
-
-      commit: async function () {
-        console.debug("[Commit Tome] Begin")
-        this.working = true
-
-        if (!this.repository) {
-          console.debug("Attempting to commit on non-existent repository.")
-
-        }
-
-        console.debug("[Commit Tome] Load Prerequisites.")
-        let index = await this.repository.refreshIndex()
-        let oid = await index.writeTree()
-        let parents = []
-
-        if (!this.repository.headUnborn()) {
-          console.debug("[Commit Tome] Head born, fetch as parent.")
-          let head = await NodeGit.Reference.nameToId(this.repository, "HEAD")
-          let parent = await this.repository.getCommit(head)
-
-          parents.push(parent)
-
-        }
-
-        console.debug("[Commit Tome] Create Signature")
-        let signature = NodeGit.Signature.now(this.input.name || this.default_name,  this.input.email || this.default_email)
-
-        console.debug("[Commit Tome] Await commit ... ")
-        let commit = await this.repository.createCommit("HEAD", signature, signature, this.input.message, oid, parents)
-
-        console.debug("[Commit Tome] Committed", commit)
-
-        console.debug("[Commit Tome] Clear Flags")
-        this.confirm = false
-        this.working = false
-
-        console.debug("[Commit Tome] Complete")
-        this.$emit('close')
-
-        return true
-
-      },
-
+      return true
     }
+
   }
+}
 </script>

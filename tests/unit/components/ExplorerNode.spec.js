@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
-Vue.use(Vuetify)
-
 import { createLocalVue, mount } from '@vue/test-utils'
 import ExplorerNode from '@/components/ExplorerNode.vue'
+
+Vue.use(Vuetify)
 
 const localVue = createLocalVue()
 
@@ -12,7 +12,7 @@ describe('ExplorerNode.vue', () => {
   let vuetify
   let wrapper
 
-  function wrap(object) {
+  function wrap (object) {
     wrapper = mount(
       ExplorerNode,
       {
@@ -34,21 +34,18 @@ describe('ExplorerNode.vue', () => {
 
           ...(object || {})
 
-        },
+        }
       }
 
     )
-
   }
 
   beforeEach(() => {
     vuetify = new Vuetify()
-
   })
 
   afterEach(() => {
     jest.clearAllMocks()
-
   })
 
   it('should be disabled if the filename equals .git', async () => {
@@ -56,7 +53,5 @@ describe('ExplorerNode.vue', () => {
     wrapper.vm.$nextTick()
 
     expect(wrapper.vm.disabled).toEqual(true)
-
   })
-
 })

@@ -72,35 +72,34 @@
 </style>
 
 <script>
-  export default {
-    props: {
-      name: { type: String, default: '' },
-      path: { type: String, default: '' },
-      active: { type: String },
-      populate: { type: Function },
-      highlight: { type: String, default: '' },
-      directory: { type: Boolean, default: false },
-      parent: { type: Object },
-    },
-    data: () => ({
-      expanded: false,
-      loaded: false,
-      children: [],
-    }),
-    computed: {
-      disabled: function() {
-        return [
-          '.git'
-        ].indexOf(this.name) > -1
-      },
-    },
-    methods: {
-      select:  function(node) {
-        let selected = node || this
-        console.log('explorer-node', selected)
-        return this.$emit('selected', selected)
-
-      },
-    },
+export default {
+  props: {
+    name: { type: String, default: '' },
+    path: { type: String, default: '' },
+    active: { type: String },
+    populate: { type: Function },
+    highlight: { type: String, default: '' },
+    directory: { type: Boolean, default: false },
+    parent: { type: Object }
+  },
+  data: () => ({
+    expanded: false,
+    loaded: false,
+    children: []
+  }),
+  computed: {
+    disabled: function () {
+      return [
+        '.git'
+      ].indexOf(this.name) > -1
+    }
+  },
+  methods: {
+    select: function (node) {
+      const selected = node || this
+      console.log('explorer-node', selected)
+      return this.$emit('selected', selected)
+    }
   }
+}
 </script>

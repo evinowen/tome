@@ -107,64 +107,59 @@
 </style>
 
 <script>
-  import { remote } from 'electron'
-  import StatusButton from "./StatusButton.vue"
+import { remote } from 'electron'
+import StatusButton from './StatusButton.vue'
 
-  export default {
-    props: {
-      tome: { type: Object },
-      menu: { type: Array, default: () => [] },
-      waiting: { type: Number, default: 0 },
-      waiting_max: { type: Number, default: 3 },
-      commit: { type: Boolean, default: false },
-      push: { type: Boolean, default: false },
+export default {
+  props: {
+    tome: { type: Object },
+    menu: { type: Array, default: () => [] },
+    waiting: { type: Number, default: 0 },
+    waiting_max: { type: Number, default: 3 },
+    commit: { type: Boolean, default: false },
+    push: { type: Boolean, default: false }
+  },
+
+  data: () => ({
+    edit: false
+  }),
+
+  watch: {
+    edit: function (value) { this.$emit('edit', value) }
+  },
+
+  methods: {
+    open: async function (event) {
+      const result = await remote.dialog.showOpenDialog({
+        title: 'Select Tome Directory',
+        properties: ['openDirectory']
+
+      })
+
+      console.log('result!', result)
+
+      if (result.canceled) {
+        console.log('[Select Tome Directory] Cancelled')
+        return
+      }
+
+      if (!result.filePaths.length) {
+        console.log('[Select Tome Directory] Closed :: !result.filePaths.length'), result.filePaths.length
+        this.$emit('close')
+        return
+      }
+
+      this.$emit('open', result.filePaths[0])
     },
+    old_open: function (event) {
+      const files = event.target.files || event.dataTransfer.files
+    }
 
-    data: () => ({
-      edit: false,
-    }),
+  },
 
-    watch: {
-      edit: function(value) { this.$emit('edit', value) },
-    },
+  components: {
+    StatusButton
 
-    methods: {
-      open: async function (event) {
-        let result = await remote.dialog.showOpenDialog({
-          title: 'Select Tome Directory',
-          properties: ['openDirectory'],
-
-        })
-
-        console.log('result!', result)
-
-        if (result.canceled) {
-          console.log('[Select Tome Directory] Cancelled')
-          return
-
-        }
-
-        if (!result.filePaths.length) {
-          console.log('[Select Tome Directory] Closed :: !result.filePaths.length'), result.filePaths.length
-          this.$emit('close')
-          return
-
-        }
-
-        this.$emit('open', result.filePaths[0])
-
-      },
-      old_open: function (event) {
-        let files = event.target.files || event.dataTransfer.files
-
-
-      },
-
-    },
-
-    components: {
-      StatusButton,
-
-    },
   }
+}
 </script>

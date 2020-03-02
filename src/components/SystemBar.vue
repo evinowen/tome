@@ -48,66 +48,60 @@
 </style>
 
 <script>
-  import { remote } from 'electron'
+import { remote } from 'electron'
 
-  export default {
-    props: {
-      title: { type: String, default: '' },
+export default {
+  props: {
+    title: { type: String, default: '' }
+  },
+
+  data: () => ({
+    maximized: false
+
+  }),
+
+  mounted: async function () {
+    const window = remote.getCurrentWindow()
+
+    this.maximized = window.isMaximized()
+  },
+
+  methods: {
+    minimize: function (event) {
+      const window = remote.BrowserWindow.getFocusedWindow()
+
+      window.minimize()
+
+      this.$emit('minimized')
     },
 
-    data: () => ({
-      maximized: false,
+    maximize: function (event) {
+      const window = remote.BrowserWindow.getFocusedWindow()
 
-    }),
+      if (window.isMaximized()) {
+        window.restore()
 
-    mounted: async function() {
-      let window = remote.getCurrentWindow()
+        this.maximized = false
 
-      this.maximized = window.isMaximized()
+        this.$emit('restored')
+      } else {
+        window.maximize()
 
+        this.maximized = true
+
+        this.$emit('maximized')
+      }
     },
 
-    methods: {
-      minimize: function (event) {
-        let window = remote.BrowserWindow.getFocusedWindow()
+    close: function (event) {
+      const window = remote.BrowserWindow.getFocusedWindow()
 
-        window.minimize()
+      window.close()
 
-        this.$emit('minimized')
-
-      },
-
-      maximize: function (event) {
-        let window = remote.BrowserWindow.getFocusedWindow()
-
-        if (window.isMaximized()) {
-          window.restore()
-
-          this.maximized = false
-
-          this.$emit('restored')
-
-        } else {
-          window.maximize()
-
-          this.maximized = true
-
-          this.$emit('maximized')
-
-        }
-
-      },
-
-      close: function (event) {
-        let window = remote.BrowserWindow.getFocusedWindow()
-
-        window.close()
-
-        this.$emit('closed')
-
-      },
-
-    },
+      this.$emit('closed')
+    }
 
   }
+
+}
 </script>

@@ -1,17 +1,17 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
-Vue.use(Vuetify)
-
 import { createLocalVue, mount } from '@vue/test-utils'
 import Explorer from '@/components/Explorer.vue'
+
+Vue.use(Vuetify)
 
 const localVue = createLocalVue()
 
 describe('Explorer.vue', () => {
   let vuetify
 
-  function wrap(object) {
+  function wrap (object) {
     return mount(
       Explorer,
       {
@@ -29,38 +29,32 @@ describe('Explorer.vue', () => {
 
           ...(object || {})
 
-        },
+        }
 
-      },
+      }
 
     )
-
   }
 
   beforeEach(() => {
     vuetify = new Vuetify()
-
   })
 
   afterEach(() => {
     jest.clearAllMocks()
-
   })
 
   it('should compute closed root icon instance is not a child or expanded', async () => {
-    let wrapper = wrap({ is_child: false })
+    const wrapper = wrap({ is_child: false })
     wrapper.vm.$nextTick()
 
     expect(wrapper.vm.icon).toEqual('mdi-book')
-
   })
 
   it('should compute closed folder icon instance is a child but not expanded', async () => {
-    let wrapper = wrap({ is_child: true })
+    const wrapper = wrap({ is_child: true })
     wrapper.vm.$nextTick()
 
     expect(wrapper.vm.icon).toEqual('mdi-folder')
-
   })
-
 })
