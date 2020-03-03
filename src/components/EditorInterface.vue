@@ -263,7 +263,7 @@ export default {
 
       const ext = this.path.extname(this.absolute_path).toLowerCase()
 
-      if (ext != '.md') {
+      if (ext !== '.md') {
         this.error = `File has invalid ${ext} extension.`
         return
       }

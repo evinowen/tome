@@ -386,7 +386,7 @@ export default {
             if (parsed) {
               object.short = parsed[1]
 
-              if (object.short == this.branch) {
+              if (object.short === this.branch) {
                 this.input.branch.reference = object
               }
             }

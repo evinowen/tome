@@ -135,7 +135,7 @@ export default {
       this.loaded = false
 
       while (this.children.pop()) { console.log('await populate ... ') }
-      this.loaded = (await this.populate(this)) == true
+      this.loaded = (await this.populate(this)) === true
       console.log('done populate!')
 
       if (!this.loaded) {

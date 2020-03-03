@@ -54,7 +54,7 @@ export default {
       return this.target
     },
     extension_formatted: function () {
-      return String(this.extension ? (this.extension[0] == '.' ? '' : '.') : '').concat(this.extension || '')
+      return String(this.extension ? (this.extension[0] === '.' ? '' : '.') : '').concat(this.extension || '')
     }
   },
   methods: {
