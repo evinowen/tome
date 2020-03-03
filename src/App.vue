@@ -100,9 +100,7 @@ export default {
           renamed: 0,
           modified: 0,
           deleted: 0
-        },
-        available: [],
-        staged: []
+        }
       }
     },
     tome_config: null,
@@ -129,9 +127,7 @@ export default {
         renamed: 0,
         modified: 0,
         deleted: 0
-      },
-      available: [],
-      staged: []
+      }
     },
     tome_ready: false,
     tome_commit: false,
@@ -387,9 +383,7 @@ export default {
           renamed: 0,
           modified: 0,
           deleted: 0
-        },
-        available: [],
-        staged: []
+        }
       }
 
       var ops = new git.StatusOptions()
