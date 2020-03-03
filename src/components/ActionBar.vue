@@ -150,9 +150,6 @@ export default {
       }
 
       this.$emit('open', result.filePaths[0])
-    },
-    old_open: function (event) {
-      const files = event.target.files || event.dataTransfer.files
     }
 
   },
