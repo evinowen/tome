@@ -247,7 +247,7 @@ export default {
         }
       }
 
-      return await this.reload_run()
+      return this.reload_run()
     },
 
     commit: async function () {

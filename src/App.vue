@@ -356,7 +356,7 @@ export default {
     },
     reload_update: async function () {
       if (!this.reload_counter) {
-        return await this.reload_run()
+        return this.reload_run()
       }
 
       this.reload_counter = this.reload_counter - 1
