@@ -513,7 +513,7 @@ export default {
   },
   computed: {
     tome_file_rendered: function () {
-      return marked(this.tome_file_data)
+      return ''
     },
     tome_file_path_rel: function () {
       return this.tome_file_path ? `${path.relative(this.tome.path, this.tome_file_path)}${path.sep}` : ''
