@@ -144,7 +144,7 @@ export default {
       }
 
       if (!result.filePaths.length) {
-        console.log('[Select Tome Directory] Closed :: !result.filePaths.length'), result.filePaths.length
+        console.log('[Select Tome Directory] Closed :: !result.filePaths.length', result.filePaths.length)
         this.$emit('close')
         return
       }
