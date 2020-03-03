@@ -66,7 +66,7 @@ export default {
       }
 
       if (this.folder) {
-        const err = await new Promise((resolve, reject) => this.fs.mkdir(file, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
+        await new Promise((resolve, reject) => this.fs.mkdir(file, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
       } else {
         const fd = await new Promise((resolve, reject) => this.fs.open(file, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
 

@@ -347,7 +347,7 @@ export default {
       console.log('add_remote', event)
       console.log(this.input.remotes.input.name, this.input.remotes.input.url)
 
-      const remote = await NodeGit.Remote.create(this.repository, this.input.remotes.input.name, this.input.remotes.input.url)
+      await NodeGit.Remote.create(this.repository, this.input.remotes.input.name, this.input.remotes.input.url)
 
       await this.load_remotes()
     },
@@ -429,7 +429,7 @@ export default {
 
       console.debug('[Push Tome] Collect Data', refspec)
 
-      const result = await this.input.remotes.value.object.push([refspec], { callbacks: this.callbacks() })
+      await this.input.remotes.value.object.push([refspec], { callbacks: this.callbacks() })
 
       console.debug('[Push Tome] Clear Flags')
       this.confirm = false

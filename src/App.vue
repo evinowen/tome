@@ -189,7 +189,7 @@ export default {
     let create_directory = false
 
     try {
-      const status = await new Promise((resolve, reject) => fs.lstat(this.tome_app_config_path_dir, (err, status) => err ? reject(err) : resolve(status)))
+      await new Promise((resolve, reject) => fs.lstat(this.tome_app_config_path_dir, (err, status) => err ? reject(err) : resolve(status)))
     } catch (err) {
       create_directory = true
     }
@@ -207,7 +207,7 @@ export default {
     let create_file = false
 
     try {
-      const status = await new Promise((resolve, reject) => fs.lstat(this.tome_app_config_path, (err, status) => err ? reject(err) : resolve(status)))
+      await new Promise((resolve, reject) => fs.lstat(this.tome_app_config_path, (err, status) => err ? reject(err) : resolve(status)))
     } catch (err) {
       create_file = true
     }
