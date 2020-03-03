@@ -489,6 +489,7 @@ export default {
             title: 'Expand',
             action: () => { console.log('Expand Action!') }
           })
+          // fall through
 
         case 'file':
           this.context_menu_items.push({
