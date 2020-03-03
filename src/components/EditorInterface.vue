@@ -166,7 +166,6 @@ export default {
           case '.jpeg':
           case '.png':
             return { icon: 'mdi-file-image', disabled: true, color: 'green' }
-            return 'mdi-file-image'
 
           default:
             return { icon: 'mdi-file-remove', disabled: true }
