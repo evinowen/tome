@@ -221,7 +221,7 @@ export default {
   },
   methods: {
     configure: async function (input) {
-      const data = await new Promise(resolve => fs.readFile(this.tome_app_config_path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
+      const data = await new Promise((resolve, reject) => fs.readFile(this.tome_app_config_path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
 
       let parsed = {}
 
