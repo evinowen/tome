@@ -52,8 +52,6 @@
 </style>
 
 <script>
-import { remote } from 'electron'
-
 export default {
   props: {
     value: { type: Boolean, default: false },

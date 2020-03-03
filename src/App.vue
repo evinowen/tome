@@ -72,7 +72,6 @@ import ActionBar from './components/ActionBar.vue'
 import git from 'nodegit'
 
 const fs = remote.require('fs')
-const crypto = remote.require('crypto')
 const path = remote.require('path')
 
 export default {

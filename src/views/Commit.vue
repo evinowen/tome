@@ -170,7 +170,6 @@
 </style>
 
 <script>
-import { remote } from 'electron'
 import NodeGit from 'nodegit'
 
 export default {
