@@ -253,7 +253,6 @@ export default {
             icon: 'mdi-folder-move',
             action: (event) => {
               console.log('open folder', event)
-              shell.openItem(this.absolute_path)
             }
           }
         ]
