@@ -86,78 +86,68 @@
 </style>
 
 <script>
-  export default {
-    props: {
-      name: { type: String, default: '' },
-      path: { type: String },
-      active: { type: String },
-      populate: { type: Function },
-      is_child: { type: Boolean }
-    },
-    data: () => ({
-      selected: null,
-      directory: true,
-      expanded: false,
-      loaded: false,
-      children: [],
-      upstream: '',
-    }),
-    computed: {
-      icon: function() {
-        if (this.is_child) {
-          return this.expanded ? "mdi-folder-open" : "mdi-folder"
+export default {
+  props: {
+    name: { type: String, default: '' },
+    path: { type: String },
+    active: { type: String },
+    populate: { type: Function },
+    is_child: { type: Boolean }
+  },
+  data: () => ({
+    selected: null,
+    directory: true,
+    expanded: false,
+    loaded: false,
+    children: [],
+    upstream: ''
+  }),
+  computed: {
+    icon: function () {
+      if (this.is_child) {
+        return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
+      }
 
+      return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+    }
+  },
+  methods: {
+    toggle: async function (event) {
+      if (this.expanded) {
+        this.$emit('collapsing', this)
+        this.expanded = false
+        this.$emit('collapsed', this)
+      } else {
+        this.$emit('expanding', this)
+        console.log('expanding', this.loaded, this.populate)
+
+        if (!this.loaded && this.populate) {
+          await this.load()
         }
 
-        return this.expanded ? "mdi-book-open-page-variant" : "mdi-book"
-
-      },
-    },
-    methods: {
-      toggle: async function(event) {
-        if (this.expanded) {
-          this.$emit('collapsing', this)
-          this.expanded = false
-          this.$emit('collapsed', this)
-
-        } else {
-          this.$emit('expanding', this)
-          console.log('expanding', this.loaded, this.populate)
-
-          if (!this.loaded && this.populate) {
-            await this.load()
-
-          }
-
-          this.loaded = false
-
-          this.expanded = true
-          this.$emit('expanded', this)
-
-        }
-      },
-      load: async function() {
         this.loaded = false
 
-        while (this.children.pop())
+        this.expanded = true
+        this.$emit('expanded', this)
+      }
+    },
+    load: async function () {
+      this.loaded = false
 
-        console.log('await populate ... ')
-        this.loaded = (await this.populate(this)) == true
-        console.log('done populate!')
+      while (this.children.pop()) { console.log('await populate ... ') }
+      this.loaded = (await this.populate(this)) === true
+      console.log('done populate!')
 
-        if (!this.loaded) {
-          console.error(`Failed to load ${this.path}`)
-
-        }
-
-      },
-      select:  function(node) {
-        this.selected = node || this
-        console.log('explorer-folder', this.selected)
-        this.upstream = this.selected.path
-        return this.$emit('selected', this.selected)
-
-      },
+      if (!this.loaded) {
+        console.error(`Failed to load ${this.path}`)
+      }
+    },
+    select: function (node) {
+      this.selected = node || this
+      console.log('explorer-folder', this.selected)
+      this.upstream = this.selected.path
+      return this.$emit('selected', this.selected)
     }
   }
+}
 </script>

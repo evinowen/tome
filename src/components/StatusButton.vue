@@ -25,30 +25,28 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      waiting: { type: Number, default: 0 },
-      waiting_max: { type: Number, default: 3 },
-      available_new: { type: Number, default: 0 },
-      available_renamed: { type: Number, default: 0 },
-      available_modified: { type: Number, default: 0 },
-      available_removed: { type: Number, default: 0 },
-      staged_new: { type: Number, default: 0 },
-      staged_renamed: { type: Number, default: 0 },
-      staged_modified: { type: Number, default: 0 },
-      staged_removed: { type: Number, default: 0 },
+export default {
+  props: {
+    waiting: { type: Number, default: 0 },
+    waiting_max: { type: Number, default: 3 },
+    available_new: { type: Number, default: 0 },
+    available_renamed: { type: Number, default: 0 },
+    available_modified: { type: Number, default: 0 },
+    available_removed: { type: Number, default: 0 },
+    staged_new: { type: Number, default: 0 },
+    staged_renamed: { type: Number, default: 0 },
+    staged_modified: { type: Number, default: 0 },
+    staged_removed: { type: Number, default: 0 }
+  },
+  data: () => ({
+  }),
+  computed: {
+    available_added: function () {
+      return this.available_new + this.available_renamed + this.available_modified
     },
-    data: () => ({
-    }),
-    computed: {
-      available_added: function () {
-        return this.available_new + this.available_renamed + this.available_modified
-
-      },
-      staged_added: function () {
-        return this.staged_new + this.staged_renamed + this.staged_modified
-
-      },
+    staged_added: function () {
+      return this.staged_new + this.staged_renamed + this.staged_modified
     }
   }
+}
 </script>

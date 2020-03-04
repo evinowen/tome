@@ -6,7 +6,6 @@
           <v-icon x-large class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-bookshelf</v-icon>
           <p><slot></slot></p>
 
-
         </v-col>
     </v-row>
   </v-container>
@@ -93,11 +92,11 @@
 </style>
 
 <script>
-  export default {
-    props: {
-      error: String,
-    },
-    data: () => ({
-    }),
-  }
+export default {
+  props: {
+    error: String
+  },
+  data: () => ({
+  })
+}
 </script>

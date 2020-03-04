@@ -5,19 +5,17 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 
 import SplitPane from 'vue-splitpane'
-Vue.component('split-pane', SplitPane)
 
 import VueCodemirror from 'vue-codemirror'
 import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/lib/codemirror.css'
 
+import Explorer from './components/Explorer.vue'
 
-import Explorer from "./components/Explorer.vue"
+import ExplorerNode from './components/ExplorerNode.vue'
+Vue.component('split-pane', SplitPane)
 Vue.component('explorer', Explorer)
-
-import ExplorerNode from "./components/ExplorerNode.vue"
 Vue.component('explorer-node', ExplorerNode)
-
 
 Vue.use(VueCodemirror, {
   options: {
@@ -25,7 +23,7 @@ Vue.use(VueCodemirror, {
     mode: 'text/x-markdown',
     theme: 'base16-dark',
     lineNumbers: true,
-    line: true,
+    line: true
   }
 })
 

@@ -29,7 +29,6 @@
             <empty-view editor-interface-empty v-else />
           </template>
 
-
           <!-- COMMIT WINDOW -->
           <commit-view
             v-else-if="commit"
@@ -40,7 +39,6 @@
             :default_name="configuration.name"
             :default_email="configuration.email"
           />
-
 
           <!-- PUSH WINDOW -->
           <push-view
@@ -53,7 +51,6 @@
             :default_passphrase="configuration.passphrase"
 
           />
-
 
           <!-- OPEN FILE WINDOW -->
           <codemirror v-else-if="absolute_path" :value="content" style="height: 100%;" @input="save_file" />
@@ -80,14 +77,12 @@
         <scrolly-bar axis="x"></scrolly-bar>
       </scrolly>
 
-
     </template>
   </split-pane>
 
   <v-content v-else>
     <empty-view>{{ error || "" }}</empty-view>
   </v-content>
-
 
 </template>
 
@@ -116,213 +111,198 @@
 </style>
 
 <script>
-  import { remote } from 'electron'
-  import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
-  import marked from 'marked'
+import { remote } from 'electron'
+import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
+import marked from 'marked'
 
-  import Explorer from "./Explorer.vue"
+import Explorer from './Explorer.vue'
 
-  import EmptyView from "@/views/Empty.vue"
-  import ActionView from "@/views/Action.vue"
-  import CommitView from "@/views/Commit.vue"
-  import PushView from "@/views/Push.vue"
+import EmptyView from '@/views/Empty.vue'
+import ActionView from '@/views/Action.vue'
+import CommitView from '@/views/Commit.vue'
+import PushView from '@/views/Push.vue'
 
-  export default {
-    props: {
-      tome: { type: Object },
-      configuration: { type: Object },
-      edit: { type: Boolean, default: false },
-      commit: { type: Boolean, default: false },
-      push: { type: Boolean, default: false },
-    },
+export default {
+  props: {
+    tome: { type: Object },
+    configuration: { type: Object },
+    edit: { type: Boolean, default: false },
+    commit: { type: Boolean, default: false },
+    push: { type: Boolean, default: false }
+  },
 
-    data: () => ({
-      absolute_path: '',
-      content: '',
-      actions: [],
-      error: 'Error Test',
-      selected: null,
-    }),
+  data: () => ({
+    absolute_path: '',
+    content: '',
+    actions: [],
+    error: 'Error Test',
+    selected: null
+  }),
 
-    created: function() {
-      this.fs = remote.require('fs')
-      this.path = remote.require('path')
+  created: function () {
+    this.fs = remote.require('fs')
+    this.path = remote.require('path')
+  },
 
-    },
+  mounted: async function () {
 
-    mounted: async function() {
+  },
 
-    },
+  methods: {
 
-    methods: {
+    load_path: async function (item) {
+      console.log('load_path', item)
+      console.log('load_path directory?', item.directory)
+      console.log('load_path path?', item.path)
+      console.log('load_path children?', item.children)
 
-      load_path: async function (item) {
-        console.log('load_path', item)
-        console.log('load_path directory?', item.directory)
-        console.log('load_path path?', item.path)
-        console.log('load_path children?', item.children)
+      const file_ext = function (ext) {
+        switch (ext) {
+          case '.md':
+            return { icon: 'mdi-file-code', disabled: false, color: 'blue' }
 
-        let file_ext = function(ext) {
-          switch (ext) {
-            case '.md':
-              return { icon: 'mdi-file-code', disabled: false, color: 'blue' }
+          case '.gif':
+          case '.jpg':
+          case '.jpeg':
+          case '.png':
+            return { icon: 'mdi-file-image', disabled: true, color: 'green' }
 
-            case '.gif':
-            case '.jpg':
-            case '.jpeg':
-            case '.png':
-              return { icon: 'mdi-file-image', disabled: true, color: 'green' }
-              return 'mdi-file-image'
-
-            default:
-              return { icon: 'mdi-file-remove', disabled: true }
-          }
+          default:
+            return { icon: 'mdi-file-remove', disabled: true }
         }
+      }
 
-        return !item.directory ? true : new Promise((resolve, reject) => this.fs.readdir(
-            item.path,
-            { withFileTypes: true },
-            (err, files) => err ? reject(err) : resolve(files)
-          ))
-          .then(children => children.map(
-              child => ({
-                name: child.name,
-                path: this.path.join(item.path, child.name),
-                directory: child.isDirectory(),
-                ...file_ext(this.path.extname(child.name).toLowerCase()),
-              })
-            )
-          )
-          .then(children => {
-            children.forEach(child => {
-              if (child.directory) {
-                child.children = []
-                if (!['.git'].includes(child.name)) {
-                  child.disabled = false
-
-                }
-              }
-
-            })
-
-            item.children.push(...children)
-
-            return true
-
+      return !item.directory ? true : new Promise((resolve, reject) => this.fs.readdir(
+        item.path,
+        { withFileTypes: true },
+        (err, files) => err ? reject(err) : resolve(files)
+      ))
+        .then(children => children.map(
+          child => ({
+            name: child.name,
+            path: this.path.join(item.path, child.name),
+            directory: child.isDirectory(),
+            ...file_ext(this.path.extname(child.name).toLowerCase())
           })
-          .catch(err => console.warn(err))
-      },
+        )
+        )
+        .then(children => {
+          children.forEach(child => {
+            if (child.directory) {
+              child.children = []
+              if (!['.git'].includes(child.name)) {
+                child.disabled = false
+              }
+            }
+          })
 
-      load_file: async function (node) {
-        this.error = ''
+          item.children.push(...children)
 
-        this.absolute_path = null
-
-        this.actions = null
-        this.selected = null
-
-        console.log('load_file', node)
-
-        if (!node) {
-          this.actions = []
-          return
-
-        }
-
-        this.selected = node
-        this.absolute_path = this.selected.path
-
-        let status = await new Promise((resolve, reject) => this.fs.lstat(this.absolute_path, (err, status) => err ? reject(err) : resolve(status)))
-
-        if (status.isDirectory()) {
-          this.error = this.path.basename(this.absolute_path)
-          this.actions = [
-            {
-              name: "New File",
-              icon: "mdi-file-star",
-              action: (event) => {
-                console.log("new file", event)
-                // this.tome_add_file_val = ''
-                // this.tome_add_file_path_rel = ''
-                // this.tome_add_file_as_directory = false
-                // this.tome_add_file = true
-
-              },
-            },
-            {
-              name: "New Folder",
-              icon: "mdi-folder-star",
-              action: (event) => {
-                console.log("new folder", event)
-                // this.tome_add_file_val = ''
-                // this.tome_add_file_path_rel = ''
-                // this.tome_add_file_as_directory = true
-                // this.tome_add_file = true
-
-              },
-            },
-            {
-              name: "Open Folder",
-              icon: "mdi-folder-move",
-              action: (event) => {
-                console.log("open folder", event)
-                shell.openItem(this.absolute_path)
-
-              },
-            },
-          ]
-          return
-
-        }
-
-        let ext = this.path.extname(this.absolute_path).toLowerCase()
-
-        if (ext != '.md') {
-          this.error = `File has invalid ${ext} extension.`
-          return
-        }
-
-        this.content = this.fs.readFileSync(this.absolute_path, 'utf8')
-
-      },
-
-
-      save_file: async function (value) {
-        this.fs.writeFileSync(this.absolute_path, value)
-
-        this.content = value
-
-        this.reload_start()
-
-      },
-
-
+          return true
+        })
+        .catch(err => console.warn(err))
     },
 
-    computed: {
-      relative_path: function () {
-        return this.absolute_path ? `${this.path.relative(this.tome.path, this.absolute_path)}` : ''
-      },
+    load_file: async function (node) {
+      this.error = ''
 
-      rendered: function () {
-        return marked(this.content)
-      },
+      this.absolute_path = null
 
+      this.actions = null
+      this.selected = null
+
+      console.log('load_file', node)
+
+      if (!node) {
+        this.actions = []
+        return
+      }
+
+      this.selected = node
+      this.absolute_path = this.selected.path
+
+      const status = await new Promise((resolve, reject) => this.fs.lstat(this.absolute_path, (err, status) => err ? reject(err) : resolve(status)))
+
+      if (status.isDirectory()) {
+        this.error = this.path.basename(this.absolute_path)
+        this.actions = [
+          {
+            name: 'New File',
+            icon: 'mdi-file-star',
+            action: (event) => {
+              console.log('new file', event)
+              // this.tome_add_file_val = ''
+              // this.tome_add_file_path_rel = ''
+              // this.tome_add_file_as_directory = false
+              // this.tome_add_file = true
+            }
+          },
+          {
+            name: 'New Folder',
+            icon: 'mdi-folder-star',
+            action: (event) => {
+              console.log('new folder', event)
+              // this.tome_add_file_val = ''
+              // this.tome_add_file_path_rel = ''
+              // this.tome_add_file_as_directory = true
+              // this.tome_add_file = true
+            }
+          },
+          {
+            name: 'Open Folder',
+            icon: 'mdi-folder-move',
+            action: (event) => {
+              console.log('open folder', event)
+            }
+          }
+        ]
+        return
+      }
+
+      const ext = this.path.extname(this.absolute_path).toLowerCase()
+
+      if (ext !== '.md') {
+        this.error = `File has invalid ${ext} extension.`
+        return
+      }
+
+      this.content = this.fs.readFileSync(this.absolute_path, 'utf8')
     },
 
-    components: {
-      Explorer,
+    save_file: async function (value) {
+      this.fs.writeFileSync(this.absolute_path, value)
 
-      Scrolly,
-      ScrollyViewport,
-      ScrollyBar,
+      this.content = value
 
-      EmptyView,
-      ActionView,
-      CommitView,
-      PushView,
+      this.reload_start()
+    }
 
+  },
+
+  computed: {
+    relative_path: function () {
+      return this.absolute_path ? `${this.path.relative(this.tome.path, this.absolute_path)}` : ''
     },
+
+    rendered: function () {
+      return marked(this.content)
+    }
+
+  },
+
+  components: {
+    Explorer,
+
+    Scrolly,
+    ScrollyViewport,
+    ScrollyBar,
+
+    EmptyView,
+    ActionView,
+    CommitView,
+    PushView
 
   }
+
+}
 </script>

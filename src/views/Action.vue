@@ -33,11 +33,11 @@
 </style>
 
 <script>
-  export default {
-    props: {
-      actions: Array,
-    },
-    data: () => ({
-    }),
-  }
+export default {
+  props: {
+    actions: Array
+  },
+  data: () => ({
+  })
+}
 </script>

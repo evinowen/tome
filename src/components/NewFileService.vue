@@ -25,65 +25,59 @@
 </style>
 
 <script>
-  import { remote } from 'electron'
+import { remote } from 'electron'
 
-  export default {
-    props: {
-      active: { type: Boolean },
-      target: { type: String, default: '' },
-      base: { type: String, default: '' },
-      extension: { type: String, default: '' },
-      folder: { type: Boolean },
+export default {
+  props: {
+    active: { type: Boolean },
+    target: { type: String, default: '' },
+    base: { type: String, default: '' },
+    extension: { type: String, default: '' },
+    folder: { type: Boolean }
+  },
+
+  data: () => ({
+    label: ''
+  }),
+
+  created: function () {
+    this.fs = remote.require('fs')
+    this.path = remote.require('path')
+  },
+
+  computed: {
+    relative: function () {
+      if (this.path.isAbsolute(this.target)) {
+        return this.path.relative(this.base, this.target)
+      }
+
+      return this.target
     },
+    extension_formatted: function () {
+      return String(this.extension ? (this.extension[0] === '.' ? '' : '.') : '').concat(this.extension || '')
+    }
+  },
+  methods: {
+    create: async function (data) {
+      let file = this.path.join(this.base, this.relative, this.label)
 
-    data: () => ({
-      label: '',
-    }),
+      if (this.extension_formatted) {
+        file = `${file}${this.extension_formatted}`
+      }
 
-    created: function() {
-      this.fs = remote.require('fs')
-      this.path = remote.require('path')
+      if (this.folder) {
+        await new Promise((resolve, reject) => this.fs.mkdir(file, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
+      } else {
+        const fd = await new Promise((resolve, reject) => this.fs.open(file, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
 
-    },
+        await new Promise((resolve, reject) => this.fs.close(fd, (err) => err ? reject(err) : resolve(true)))
+      }
 
-    computed: {
-      relative: function() {
-        if (this.path.isAbsolute(this.target)) {
-          return this.path.relative(this.base, this.target)
-        }
+      this.$emit('create')
+      this.$emit('close')
 
-        return this.target
-
-      },
-      extension_formatted: function () {
-        return String(this.extension ? (this.extension[0] == '.' ? '' : '.') : '').concat(this.extension || '')
-      },
-    },
-    methods: {
-      create: async function (data) {
-        let file = this.path.join(this.base, this.relative, this.label)
-
-        if (this.extension_formatted) {
-          file = `${file}${this.extension_formatted}`
-
-        }
-
-        if (this.folder) {
-          let err = await new Promise((resolve, reject) => this.fs.mkdir(file, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
-
-        } else {
-          let fd = await new Promise((resolve, reject) => this.fs.open(file, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
-
-          await new Promise((resolve, reject) => this.fs.close(fd, (err) => err ? reject(err) : resolve(true)))
-
-        }
-
-        this.$emit('create')
-        this.$emit('close')
-
-        this.label = ''
-
-      },
+      this.label = ''
     }
   }
+}
 </script>

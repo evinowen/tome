@@ -9,7 +9,7 @@ const routes = [
     path: '/',
     name: 'EmptyContent',
     component: EmptyContent
-  },
+  }
 ]
 
 const router = new VueRouter({

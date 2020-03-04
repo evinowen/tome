@@ -34,7 +34,6 @@
 
             </v-row>
 
-
             <v-row no-gutters>
               <v-col>
                 <input ref="public_key" type="file" style="display: none" @change="assign_public_key" />
@@ -50,7 +49,6 @@
               </v-col>
 
             </v-row>
-
 
             <v-row no-gutters>
               <v-col>
@@ -227,242 +225,222 @@
 </style>
 
 <script>
-  import { remote } from 'electron'
-  import NodeGit from 'nodegit'
+import NodeGit from 'nodegit'
 
-  export default {
-    props: {
-      repository: { type: NodeGit.Repository },
-      branch: { type: String, default: '' },
-      default_private_key: { type: String, default: '' },
-      default_public_key: { type: String, default: '' },
-      default_passphrase: { type: String, default: '' },
+export default {
+  props: {
+    repository: { type: NodeGit.Repository },
+    branch: { type: String, default: '' },
+    default_private_key: { type: String, default: '' },
+    default_public_key: { type: String, default: '' },
+    default_passphrase: { type: String, default: '' }
+  },
+  data: () => ({
+    confirm: false,
+    working: false,
+    input: {
+      remotes: {
+        value: null,
+        list: [],
+        edit: false,
+        input: {
+          name: '',
+          url: ''
+        }
+      },
+      private_key: {
+        value: '',
+        obscured: false
+      },
+      public_key: {
+        value: '',
+        obscured: false
+      },
+      passphrase: {
+        value: '',
+        obscured: false
+      },
+      branch: {
+        loading: false
+      }
     },
-    data: () => ({
-      confirm: false,
-      working: false,
-      input: {
-        remotes: {
-          value: null,
-          list: [],
-          edit: false,
-          input: {
-            name: '',
-            url: '',
-          },
-        },
-        private_key: {
-          value: '',
-          obscured: false,
-        },
-        public_key: {
-          value: '',
-          obscured: false,
-        },
-        passphrase: {
-          value: '',
-          obscured: false,
-        },
-        branch: {
-          loading: false,
-        },
-      },
-      headers: [
-        { text: 'File', value: 'path' },
-        { text: 'Type', value: 'type', align: 'right' },
-        { text: '', value: 'action', align: 'right'},
-      ],
+    headers: [
+      { text: 'File', value: 'path' },
+      { text: 'Type', value: 'type', align: 'right' },
+      { text: '', value: 'action', align: 'right' }
+    ]
 
-    }),
-    computed: {
+  }),
+  computed: {
+  },
+  mounted: async function () {
+    await this.load_remotes()
+  },
+  methods: {
+    assign_private_key: async function (event) {
+      return this.assign_key('private_key', event)
     },
-    mounted: async function() {
-        await this.load_remotes()
+    assign_public_key: async function (event) {
+      return this.assign_key('public_key', event)
     },
-    methods: {
-      assign_private_key: async function (event) {
-        return this.assign_key('private_key', event)
+    assign_key: async function (name, event) {
+      console.log('assign_key', name, event)
+      const files = event.target.files || event.dataTransfer.files
 
-      },
-      assign_public_key: async function (event) {
-        return this.assign_key('public_key', event)
+      console.log(files)
 
-      },
-      assign_key: async function (name, event) {
-        console.log('assign_key', name, event)
-        let files = event.target.files || event.dataTransfer.files
+      if (!files.length) {
+        this[name] = null
+        return
+      }
 
-        console.log(files)
+      if (!files[0].path) {
+        return
+      }
 
-        if (!files.length) {
-          this[name] = null
-          return
+      this.input[name].value = files[0].path
 
-        }
+      console.log('private_key', this.input.private_key.value)
+      console.log('public_key', this.input.public_key.value)
+    },
 
-        if (!files[0].path) {
-          return
+    credentials: function () {
+      console.log('private_key', this.input.private_key.value)
+      console.log('public_key', this.input.public_key.value)
+      console.log('passphrase', this.input.passphrase.value)
 
-        }
+      return {
+        private_key: this.input.private_key.value,
+        public_key: this.input.public_key.value,
+        passphrase: this.input.passphrase.value || ''
+      }
+    },
 
-        this.input[name].value = files[0].path
+    callbacks: function () {
+      const credentials = this.credentials()
 
-        console.log('private_key', this.input.private_key.value)
-        console.log('public_key', this.input.public_key.value)
+      return {
+        credentials: function (url, username) {
+          console.log('credentials', username, credentials.public_key, credentials.private_key, credentials.passphrase)
+          return NodeGit.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase)
+        },
 
-      },
+        certificateCheck: () => 0
 
-      credentials: function () {
-        console.log('private_key', this.input.private_key.value)
-        console.log('public_key', this.input.public_key.value)
-        console.log('passphrase', this.input.passphrase.value)
+      }
+    },
 
-        return {
-          private_key: this.input.private_key.value,
-          public_key: this.input.public_key.value,
-          passphrase: this.input.passphrase.value || '',
-        }
+    load_remotes: async function () {
+      const items = await this.repository.getRemotes()
 
-      },
+      console.log('loaded remotes', items)
 
-      callbacks: function () {
-        let credentials = this.credentials()
+      this.input.remotes.list = items.map(remote => ({
+        name: remote.name(),
+        url: remote.url(),
+        object: remote
+      }))
 
-        return {
-          credentials: function(url, username) {
-            console.log('credentials', username, credentials.public_key, credentials.private_key, credentials.passphrase)
-            return NodeGit.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase)
-          },
+      console.log('compiled remotes', this.input.remotes.list)
+    },
+    add_remote: async function (event) {
+      console.log('add_remote', event)
+      console.log(this.input.remotes.input.name, this.input.remotes.input.url)
 
-          certificateCheck: () => 0,
+      await NodeGit.Remote.create(this.repository, this.input.remotes.input.name, this.input.remotes.input.url)
 
-        }
+      await this.load_remotes()
+    },
+    remove_remote: function (event) {
+      console.log('remove_remote', event)
+    },
+    select_remote: async function (remote) {
+      console.log('select_remote', remote)
 
-      },
+      this.input.remotes.value = null
 
-      load_remotes: async function () {
-        let items = await this.repository.getRemotes()
+      this.input.branch.reference = null
+      this.input.branch.loading = true
 
-        console.log("loaded remotes", items)
+      if (remote) {
+        try {
+          const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
 
-        this.input.remotes.list = items.map(remote => ({
-          name: remote.name(),
-          url: remote.url(),
-          object: remote,
-        }))
+          if (result) {
+            console.error('remote connect error', result)
+          }
 
-        console.log("compiled remotes", this.input.remotes.list)
+          console.log('getFetchRefspecs?', await remote.object.getFetchRefspecs())
+          console.log('getPushRefspecs?', await remote.object.getPushRefspecs())
 
-      },
-      add_remote: async function (event) {
-        console.log("add_remote", event)
-        console.log(this.input.remotes.input.name, this.input.remotes.input.url)
-
-        let remote = await NodeGit.Remote.create(this.repository, this.input.remotes.input.name, this.input.remotes.input.url)
-
-        await this.load_remotes()
-
-      },
-      remove_remote: function (event) {
-        console.log("remove_remote", event)
-
-      },
-      select_remote: async function (remote) {
-        console.log("select_remote", remote)
-
-        this.input.remotes.value = null
-
-        this.input.branch.reference = null
-        this.input.branch.loading = true
-
-        if (remote) {
-          try {
-            let result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
-
-            if (result) {
-              console.error('remote connect error', result)
+          console.log('referenceList?', (await remote.object.referenceList()).map(reference => {
+            const object = {
+              name: reference.name(),
+              object: reference
 
             }
 
-            console.log("getFetchRefspecs?", await remote.object.getFetchRefspecs())
-            console.log("getPushRefspecs?", await remote.object.getPushRefspecs())
+            const parsed = reference.name().match(/^refs\/heads\/(.*)$/m)
+            console.log(parsed)
 
-            console.log("referenceList?", (await remote.object.referenceList()).map(reference => {
-              let object = {
-                name: reference.name(),
-                object: reference,
+            if (parsed) {
+              object.short = parsed[1]
 
+              if (object.short === this.branch) {
+                this.input.branch.reference = object
               }
+            }
 
-              let parsed = reference.name().match(/^refs\/heads\/(.*)$/m)
-              console.log(parsed)
+            return object
+          }))
 
-              if (parsed) {
-                object.short = parsed[1]
-
-                if (object.short == this.branch) {
-                  this.input.branch.reference = object
-                }
-
-              }
-
-              return object
-
-            }))
-
-            this.input.remotes.value = remote
-
-          } catch (err) {
-              console.error('remote connect error!!!', err)
-
-          }
-
+          this.input.remotes.value = remote
+        } catch (err) {
+          console.error('remote connect error!!!', err)
         }
+      }
 
-        this.input.branch.loading = false
+      this.input.branch.loading = false
 
-        return true
+      return true
+    },
 
-      },
+    push: async function (event) {
+      console.debug('[Push Tome] Begin')
+      this.working = true
 
-      push: async function (event) {
-        console.debug("[Push Tome] Begin")
-        this.working = true
-
-        if (!this.input.remotes.value) {
-          console.debug("[Push Tome] No Remote Selected!", this.input.remotes.value)
-          this.confirm = false
-          this.working = false
-
-          return false
-
-        }
-
-        let references = (await this.repository.getReferences()).map(reference => ({
-          name: reference.name(),
-          object: reference,
-
-        }))
-
-        console.log("[Push Tome] List local references:", references)
-
-        let refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`
-
-        console.debug("[Push Tome] Collect Data", refspec)
-
-        let result = await this.input.remotes.value.object.push([refspec], { callbacks: this.callbacks() })
-
-        console.debug("[Push Tome] Clear Flags")
+      if (!this.input.remotes.value) {
+        console.debug('[Push Tome] No Remote Selected!', this.input.remotes.value)
         this.confirm = false
         this.working = false
 
-        console.debug("[Push Tome] Complete")
-        this.$emit('close')
+        return false
+      }
 
-        return true
+      const references = (await this.repository.getReferences()).map(reference => ({
+        name: reference.name(),
+        object: reference
 
-      },
+      }))
 
+      console.log('[Push Tome] List local references:', references)
+
+      const refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`
+
+      console.debug('[Push Tome] Collect Data', refspec)
+
+      await this.input.remotes.value.object.push([refspec], { callbacks: this.callbacks() })
+
+      console.debug('[Push Tome] Clear Flags')
+      this.confirm = false
+      this.working = false
+
+      console.debug('[Push Tome] Complete')
+      this.$emit('close')
+
+      return true
     }
+
   }
+}
 </script>
