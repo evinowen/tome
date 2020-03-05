@@ -24,7 +24,7 @@ jobs:
                 paths:
                   - ~/.cache/yarn
 
-            - run: yarn list
+            - run: yarn lint
 
             - run: yarn test:unit
 
