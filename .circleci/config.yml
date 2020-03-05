@@ -16,7 +16,9 @@ jobs:
                 keys:
                   - yarn-packages-{{ checksum "yarn.lock" }}
 
-            - run: yarn install
+            - run:
+                name: Install
+                command: yarn install
 
             - save_cache:
                 name: Save Yarn Package Cache
@@ -24,9 +26,13 @@ jobs:
                 paths:
                   - ~/.cache/yarn
 
-            - run: yarn lint
+            - run:
+                name: Run Lint
+                command: yarn lint
 
-            - run: yarn test:unit
+            - run:
+                name: Run Unit Tests
+                command: yarn test:unit
 
 workflows:
     build-and-test:
