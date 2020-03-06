@@ -2,7 +2,7 @@
   <v-footer
     app dark
     color="grey darken-3" class="pa-0"
-    height=28
+    height=18
   >
     <v-btn tile icon small dark color="red" class="pa-0" @click.stop="open">
       <v-icon small>mdi-bookshelf</v-icon>
@@ -59,7 +59,7 @@
 
       <v-expand-x-transition>
         <div v-show="edit" style="overflow: hidden;">
-          <div class="grey darken-4" style="height: 28px">
+          <div class="grey darken-4" style="height: 18px">
 
             <!-- STAGE BUTTON -->
             <status-button
