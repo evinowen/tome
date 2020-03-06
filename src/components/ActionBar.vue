@@ -100,8 +100,32 @@
 }
 
 .edit_switch .v-input--selection-controls__input {
-  margin-left: 10px !important;
+  height: 16px;
+  margin-left: 5px !important;
   margin-right: 0 !important;
+}
+
+.edit_switch .v-input--selection-controls__ripple {
+  top: calc(50% - 7px) !important;
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0px 11px !important;
+}
+
+.edit_switch .v-input--selection-controls__input {
+  width: 36px !important;
+}
+
+.edit_switch .v-input--switch__track {
+  top: calc(50% - 8px) !important;
+  height: 14px !important;
+  width: 36px !important;
+}
+
+.edit_switch .v-input--switch__thumb {
+  top: calc(50% - 6px) !important;
+  width: 10px !important;
+  height: 10px !important;
 }
 
 .v-divider--vertical.v-divider--inset {
