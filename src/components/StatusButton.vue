@@ -2,6 +2,7 @@
   <v-btn
     tile small
     class="px-2 grey--text text--lighten-1"
+    style="height: 18px;"
   >
     <v-progress-circular
       :value="(waiting * 100) / waiting_max"

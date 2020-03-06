@@ -1,6 +1,6 @@
 <template>
   <v-system-bar
-    window dark height=28
+    window dark height=25
     color="grey darken-3"
     class="white--text pa-0"
     style="user-select: none;"

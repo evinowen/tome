@@ -94,7 +94,7 @@
   top: 0;
   bottom: 0;
   padding: 0 !important;
-  margin-bottom: 28px;
+  margin-bottom: 18px;
 }
 
 .splitter-pane-resizer {

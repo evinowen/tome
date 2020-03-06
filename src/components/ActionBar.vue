@@ -2,7 +2,7 @@
   <v-footer
     app dark
     color="grey darken-3" class="pa-0"
-    height=28
+    height=18
   >
     <v-btn tile icon small dark color="red" class="pa-0" @click.stop="open">
       <v-icon small>mdi-bookshelf</v-icon>
@@ -16,7 +16,7 @@
         <template v-slot:activator="{ on: on_click }">
           <v-tooltip top>
             <template v-slot:activator="{ on: on_hover }">
-              <v-btn tile small class="pa-0 px-2" v-on="{ ...on_hover, ...on_click }">
+              <v-btn tile small class="button pa-0 px-2" v-on="{ ...on_hover, ...on_click }">
                 {{ tome.name }}
               </v-btn>
             </template>
@@ -41,8 +41,8 @@
 
       <v-divider inset vertical />
 
-      <v-btn v-if="tome.branch.name" tile small class="px-2" color="primary">{{ tome.branch.name }}</v-btn>
-      <v-btn v-else-if="tome.branch.error" tile small icon class="pl-1 pr-2" color="error">
+      <v-btn v-if="tome.branch.name" tile small class="button px-2" color="primary">{{ tome.branch.name }}</v-btn>
+      <v-btn v-else-if="tome.branch.error" tile small icon class="button pl-1 pr-2" color="error">
         <v-icon small dark class="pr-1">mdi-alert-box</v-icon>
         {{ tome.branch.error }}
       </v-btn>
@@ -59,7 +59,7 @@
 
       <v-expand-x-transition>
         <div v-show="edit" style="overflow: hidden;">
-          <div class="grey darken-4" style="height: 28px">
+          <div class="grey darken-4" style="height: 18px">
 
             <!-- STAGE BUTTON -->
             <status-button
@@ -75,12 +75,12 @@
             />
 
             <!-- SAVE BUTTON -->
-            <v-btn action-bar-commit tile small icon color="primary" class="pa-0" @click.stop="$emit('commit')" :disabled="commit || push">
+            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop="$emit('commit')" :disabled="commit || push">
               <v-icon small>mdi-content-save</v-icon>
             </v-btn>
 
             <!-- PUSH BUTTON -->
-            <v-btn action-bar-push tile small icon color="accent" class="pa-0" @click.stop="$emit('push')" :disabled="commit || push">
+            <v-btn action-bar-push tile small icon color="accent" class="button pa-0" @click.stop="$emit('push')" :disabled="commit || push">
               <v-icon small>mdi-upload-multiple</v-icon>
             </v-btn>
 
@@ -100,8 +100,49 @@
 }
 
 .edit_switch .v-input--selection-controls__input {
-  margin-left: 10px !important;
+  height: 16px;
+  margin-left: 5px !important;
   margin-right: 0 !important;
+}
+
+.edit_switch .v-input--selection-controls__ripple {
+  top: calc(50% - 7px) !important;
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0px 11px !important;
+}
+
+.edit_switch .v-input--selection-controls__input {
+  width: 36px !important;
+}
+
+.edit_switch .v-input--switch__track {
+  top: calc(50% - 8px) !important;
+  height: 14px !important;
+  width: 36px !important;
+}
+
+.edit_switch .v-input--switch__thumb {
+  top: calc(50% - 6px) !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.v-divider--vertical.v-divider--inset {
+  margin-top: 3px;
+  max-height: calc(100% - 8px) !important;
+
+}
+
+.v-btn--icon.v-size--small,
+.v-btn--icon.v-size--small .v-icon {
+  height: 18px;
+
+}
+
+.button {
+  height: 18px !important;
+
 }
 
 </style>
