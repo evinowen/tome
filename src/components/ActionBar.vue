@@ -104,6 +104,12 @@
   margin-right: 0 !important;
 }
 
+.v-divider--vertical.v-divider--inset {
+  margin-top: 3px;
+  max-height: calc(100% - 8px) !important;
+
+}
+
 .v-btn--icon.v-size--small,
 .v-btn--icon.v-size--small .v-icon {
   height: 18px;
