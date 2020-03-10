@@ -102,6 +102,11 @@ export default {
     children: [],
     upstream: ''
   }),
+  mounted: function () {
+    if (!this.leaf) {
+      this.toggle()
+    }
+  },
   computed: {
     icon: function () {
       if (this.leaf) {
@@ -112,7 +117,7 @@ export default {
     }
   },
   methods: {
-    toggle: async function (event) {
+    toggle: async function () {
       if (this.expanded) {
         this.$emit('collapsing', this)
         this.expanded = false
