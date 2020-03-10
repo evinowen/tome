@@ -25,7 +25,7 @@ describe('Explorer.vue', () => {
           new_file: null,
           new_folder: null,
           open_folder: null,
-          is_child: false,
+          leaf: false,
 
           ...(object || {})
 
@@ -45,14 +45,14 @@ describe('Explorer.vue', () => {
   })
 
   it('should compute closed root icon instance is not a child or expanded', async () => {
-    const wrapper = wrap({ is_child: false })
+    const wrapper = wrap({ leaf: false })
     wrapper.vm.$nextTick()
 
     expect(wrapper.vm.icon).toEqual('mdi-book')
   })
 
   it('should compute closed folder icon instance is a child but not expanded', async () => {
-    const wrapper = wrap({ is_child: true })
+    const wrapper = wrap({ leaf: true })
     wrapper.vm.$nextTick()
 
     expect(wrapper.vm.icon).toEqual('mdi-folder')
