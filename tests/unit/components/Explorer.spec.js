@@ -44,14 +44,14 @@ describe('Explorer.vue', () => {
     jest.clearAllMocks()
   })
 
-  it('should compute expanded root icon when instance is not a child or closed', async () => {
+  it('should compute expanded root icon when instance is not a leaf or closed', async () => {
     const wrapper = wrap({ leaf: false })
     wrapper.vm.$nextTick()
 
     expect(wrapper.vm.icon).toEqual('mdi-book-open-page-variant')
   })
 
-  it('should compute closed folder icon instance is a child but not expanded', async () => {
+  it('should compute closed folder icon when instance is a leaf but not expanded', async () => {
     const wrapper = wrap({ leaf: true })
     wrapper.vm.$nextTick()
 
