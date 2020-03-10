@@ -1,7 +1,7 @@
 <template>
   <v-container class="pa-0" style="user-select: none;">
     <v-container class="explorer-folder"
-      v-bind:class="['explorer-folder', {'explorer-folder-selected': path == (is_child ? active : upstream) }]"
+      v-bind:class="['explorer-folder', {'explorer-folder-selected': path == (leaf ? active : upstream)}]"
       @click.left.stop="select(null)"
       @click.right.stop="$emit('context', $event, 'folder', path)"
     >
@@ -14,7 +14,7 @@
     </v-container>
 
     <v-container v-if="expanded" class="explorer-folder-container">
-      <template v-if=is_child>
+      <template v-if=leaf>
         <explorer-node
           v-for="child in children"
           v-on:selected="select"
@@ -92,7 +92,7 @@ export default {
     path: { type: String },
     active: { type: String },
     populate: { type: Function },
-    is_child: { type: Boolean }
+    leaf: { type: Boolean }
   },
   data: () => ({
     selected: null,
@@ -102,9 +102,14 @@ export default {
     children: [],
     upstream: ''
   }),
+  mounted: function () {
+    if (!this.leaf) {
+      this.toggle()
+    }
+  },
   computed: {
     icon: function () {
-      if (this.is_child) {
+      if (this.leaf) {
         return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
       }
 
@@ -112,7 +117,7 @@ export default {
     }
   },
   methods: {
-    toggle: async function (event) {
+    toggle: async function () {
       if (this.expanded) {
         this.$emit('collapsing', this)
         this.expanded = false
