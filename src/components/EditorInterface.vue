@@ -5,6 +5,7 @@
         <scrolly-viewport>
           <explorer
             :name=tome.name
+            :key=tome.path
             :path=tome.path
             :populate=load_path
             v-on:selected=load_file
