@@ -5,12 +5,10 @@
       @click.left.stop="select(null)"
       @click.right.stop="$emit('context', $event, 'folder', path)"
     >
-      <div class="explorer-folder">
         <v-btn tile text x-small @click.stop="toggle" class="explorer-folder-button mr-1">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <div style="display: inline-block;">{{ name }}</div>
-      </div>
     </v-container>
 
     <v-container v-if="expanded" class="explorer-folder-container">
@@ -70,7 +68,12 @@
 }
 
 .explorer-folder-selected {
-  background: #F44336 !important;
+  background: #F44336;
+
+}
+
+.explorer-folder-selected:hover {
+  background: #F66055;
 
 }
 

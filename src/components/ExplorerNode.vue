@@ -66,7 +66,12 @@
 }
 
 .explorer-node-selected {
-  background: #F44336 !important;
+  background: #F44336;
+
+}
+
+.explorer-node-selected:hover {
+  background: #F66055;
 
 }
 
