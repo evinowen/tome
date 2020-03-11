@@ -4,8 +4,6 @@
     <v-navigation-drawer v-model="settings" fixed temporary/>
 
     <editor-interface
-      :tome=tome
-      :configuration=tome_config
       :edit=tome_edit
       :commit=tome_commit
       :push=tome_push
@@ -18,7 +16,7 @@
       :active="tome_add_file"
       @close="tome_add_file = false"
       @create="tome_file_selected.load()"
-      :base="tome.path" :target="tome_add_file_path_rel || tome_file_path"
+      :base="tome.path" :target="tome_add_target"
       :extension="tome_add_file_as_directory ? null : 'md'"
       :folder="tome_add_file_as_directory"
     />
@@ -33,7 +31,6 @@
     />
 
     <action-bar
-      :tome=tome
       :waiting=reload_counter
       :commit=tome_commit
       :push=tome_push
@@ -60,6 +57,7 @@ html, body {
 </style>
 
 <script>
+import store from './store'
 import { remote, shell } from 'electron'
 
 import NewFileService from './components/NewFileService.vue'
@@ -80,65 +78,20 @@ export default {
   },
   data: () => ({
     settings: false,
-    tome: {
-      name: '',
-      path: '',
-      repository: null,
-      branch: {
-        name: '',
-        error: ''
-      },
-      status: {
-        staged: {
-          new: 0,
-          renamed: 0,
-          modified: 0,
-          deleted: 0
-        },
-        available: {
-          new: 0,
-          renamed: 0,
-          modified: 0,
-          deleted: 0
-        }
-      }
-    },
-    tome_config: null,
-    tome_file: '',
-    tome_file_selected: '',
-    tome_file_path: '',
-    tome_file_data: '',
-    tome_file_error: '',
-    tome_file_actions: null,
-    tome_file_actions_root: null,
+
     tome_edit: false,
+
     reload_triggered: false,
     reload_counter: 0,
     reload_max: 3,
-    tome_status: {
-      staged: {
-        new: 0,
-        renamed: 0,
-        modified: 0,
-        deleted: 0
-      },
-      available: {
-        new: 0,
-        renamed: 0,
-        modified: 0,
-        deleted: 0
-      }
-    },
-    tome_ready: false,
+
     tome_commit: false,
     tome_push: false,
+
     tome_add_file: false,
     tome_add_file_val: '',
     tome_add_file_path_rel: '',
     tome_add_file_as_directory: false,
-
-    tome_app_config_path: '',
-    tome_app_config_path_dir: '',
 
     context_menu_visible: false,
     context_menu_title: null,
@@ -149,7 +102,7 @@ export default {
 
   }),
   mounted: async function () {
-    this.tome_file_actions_root = [
+    store.state.tome_file_actions_root = [
       {
         name: 'New File',
         icon: 'mdi-file-star',
@@ -177,43 +130,43 @@ export default {
         icon: 'mdi-folder-move',
         action: (event) => {
           console.log('open folder', event)
-          shell.openItem(this.tome.path)
+          shell.openItem(store.state.tome.path)
         }
       }
     ]
 
-    this.tome_file_actions = this.tome_file_actions_root
+    store.state.tome_file_actions = store.state.tome_file_actions_root
 
-    this.tome_app_config_path_dir = path.join(remote.app.getPath('appData'), 'tome')
+    store.state.tome_app_config_path_dir = path.join(remote.app.getPath('appData'), 'tome')
 
     let create_directory = false
 
     try {
-      await new Promise((resolve, reject) => fs.lstat(this.tome_app_config_path_dir, (err, status) => err ? reject(err) : resolve(status)))
+      await new Promise((resolve, reject) => fs.lstat(store.state.tome_app_config_path_dir, (err, status) => err ? reject(err) : resolve(status)))
     } catch (err) {
       create_directory = true
     }
 
     if (create_directory) {
-      const err = await new Promise((resolve, reject) => fs.mkdir(this.tome_app_config_path_dir, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
+      const err = await new Promise((resolve, reject) => fs.mkdir(store.state.tome_app_config_path_dir, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
 
       if (err) {
-        console.error(`Failure to create Tome configuration folder at ${this.tome_app_config_path_dir}`)
+        console.error(`Failure to create Tome configuration folder at ${store.state.tome_app_config_path_dir}`)
       }
     }
 
-    this.tome_app_config_path = path.join(this.tome_app_config_path_dir, 'config.json')
+    store.state.tome_app_config_path = path.join(store.state.tome_app_config_path_dir, 'config.json')
 
     let create_file = false
 
     try {
-      await new Promise((resolve, reject) => fs.lstat(this.tome_app_config_path, (err, status) => err ? reject(err) : resolve(status)))
+      await new Promise((resolve, reject) => fs.lstat(store.state.tome_app_config_path, (err, status) => err ? reject(err) : resolve(status)))
     } catch (err) {
       create_file = true
     }
 
     if (create_file) {
-      const fd = await new Promise((resolve, reject) => fs.open(this.tome_app_config_path, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
+      const fd = await new Promise((resolve, reject) => fs.open(store.state.tome_app_config_path, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
       await new Promise((resolve, reject) => fs.close(fd, (err) => err ? reject(err) : resolve(true)))
     }
 
@@ -221,7 +174,7 @@ export default {
   },
   methods: {
     configure: async function (input) {
-      const data = await new Promise((resolve, reject) => fs.readFile(this.tome_app_config_path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
+      const data = await new Promise((resolve, reject) => fs.readFile(store.state.tome_app_config_path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
 
       let parsed = {}
 
@@ -237,7 +190,7 @@ export default {
         parsed = {}
       }
 
-      this.tome_config = {
+      store.state.tome_config = {
         name: '',
         email: '',
         private_key: '',
@@ -248,7 +201,7 @@ export default {
 
       }
 
-      console.log('configuration complete', this.tome_config)
+      console.log('configuration complete', store.state.tome_config)
       return true
     },
     choose_tome: function (event) {
@@ -260,41 +213,41 @@ export default {
       this.tome_commit = true
     },
     set_tome: async function (file_path) {
-      this.tome.path = file_path
-      this.tome.name = path.basename(this.tome.path)
-      console.log(`Set Tome path to ${this.tome.path}`)
+      store.state.tome.path = file_path
+      store.state.tome.name = path.basename(store.state.tome.path)
+      console.log(`Set Tome path to ${store.state.tome.path}`)
 
-      if (fs.existsSync(path.join(this.tome.path, '.git'))) {
-        this.tome.repository = await git.Repository.open(this.tome.path).catch(err => console.error(err))
+      if (fs.existsSync(path.join(store.state.tome.path, '.git'))) {
+        store.state.tome.repository = await git.Repository.open(store.state.tome.path).catch(err => console.error(err))
       } else {
-        this.tome.repository = await git.Repository.init(this.tome.path, 0)
+        store.state.tome.repository = await git.Repository.init(store.state.tome.path, 0)
       }
 
-      if (!this.tome.repository) {
-        this.tome.branch.error = 'No Repository!'
+      if (!store.state.tome.repository) {
+        store.state.tome.branch.error = 'No Repository!'
         return
       }
 
-      if (this.tome.repository.headDetached()) {
-        this.tome.branch.error = 'Head Detached'
+      if (store.state.tome.repository.headDetached()) {
+        store.state.tome.branch.error = 'Head Detached'
         return
       }
 
-      if (this.tome.repository.isMerging()) {
-        this.tome.branch.error = 'Merging'
+      if (store.state.tome.repository.isMerging()) {
+        store.state.tome.branch.error = 'Merging'
         return
       }
 
-      if (this.tome.repository.isRebasing()) {
-        this.tome.branch.error = 'Rebasing'
+      if (store.state.tome.repository.isRebasing()) {
+        store.state.tome.branch.error = 'Rebasing'
         return
       }
 
       console.log('Pass checks for repo.')
 
-      if (this.tome.repository.headUnborn()) {
+      if (store.state.tome.repository.headUnborn()) {
         console.log('Unborn repo.')
-        const head_raw = fs.readFileSync(path.join(this.tome.path, '.git', 'HEAD'), 'utf8')
+        const head_raw = fs.readFileSync(path.join(store.state.tome.path, '.git', 'HEAD'), 'utf8')
         console.log(head_raw)
 
         let head_line_index = head_raw.length
@@ -316,15 +269,15 @@ export default {
         console.log(head_parsed)
 
         if (head_parsed) {
-          this.tome.branch.name = head_parsed[1]
+          store.state.tome.branch.name = head_parsed[1]
         }
       } else {
         console.log('Existing repo.')
-        const branch = await this.tome.repository.head()
+        const branch = await store.state.tome.repository.head()
 
         console.log(branch)
-        this.tome.branch.name = branch.shorthand()
-        console.log(this.tome.branch.name)
+        store.state.tome.branch.name = branch.shorthand()
+        console.log(store.state.tome.branch.name)
       }
     },
     action_new_file: async function (target_path) {
@@ -388,11 +341,11 @@ export default {
 
       var ops = new git.StatusOptions()
 
-      this.tome_ready = false
+      store.state.tome_ready = false
 
       console.debug('[Git Repository Status Reload] Load Index')
       ops.show = git.Status.SHOW.INDEX_ONLY
-      const load_index = this.tome.repository.getStatus(ops)
+      const load_index = store.state.tome.repository.getStatus(ops)
         .then(res => res.forEach(repo_status => {
           console.debug('[Git Repository Status Reload] Index File', repo_status)
 
@@ -429,7 +382,7 @@ export default {
       console.debug('[Git Repository Status Reload] Load Working Tree')
       ops.show = git.Status.SHOW.WORKDIR_ONLY
       ops.flags = git.Status.OPT.INCLUDE_UNTRACKED + git.Status.OPT.RECURSE_UNTRACKED_DIRS
-      const load_working_tree = this.tome.repository.getStatus(ops)
+      const load_working_tree = store.state.tome.repository.getStatus(ops)
         .then(res => res.forEach(repo_status => {
           console.debug('[Git Repository Status Reload] Working Tree File', repo_status)
 
@@ -464,12 +417,12 @@ export default {
         }))
 
       return Promise.all([load_index, load_working_tree]).then(() => {
-        this.tome_status = tome_status
-        console.debug('[Git Repository Status Reload] Status Loaded', this.tome_status)
+        store.state.tome.status = tome_status
+        console.debug('[Git Repository Status Reload] Status Loaded', store.state.tome.status)
 
         if (tome_status.staged.new || tome_status.staged.modified || tome_status.staged.renamed || tome_status.staged.deleted) {
           console.debug('[Git Repository Status Reload] Flag Tome Ready')
-          this.tome_ready = true
+          store.state.tome_ready = true
         }
       })
     },
@@ -516,7 +469,16 @@ export default {
       return ''
     },
     tome_file_path_rel: function () {
-      return this.tome_file_path ? `${path.relative(this.tome.path, this.tome_file_path)}${path.sep}` : ''
+      return store.state.tome_file_path ? `${path.relative(store.state.tome.path, store.state.tome_file_path)}${path.sep}` : ''
+    },
+    tome_path: function () {
+      return store.state.tome.path
+    },
+    tome_add_target: function () {
+      return this.tome_add_file_path_rel || this.tome_file_path
+    },
+    tome: function () {
+      return store.state.tome
     }
   },
   components: {

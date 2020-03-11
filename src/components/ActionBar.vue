@@ -148,12 +148,12 @@
 </style>
 
 <script>
+import store from '@/store'
 import { remote } from 'electron'
 import StatusButton from './StatusButton.vue'
 
 export default {
   props: {
-    tome: { type: Object },
     menu: { type: Array, default: () => [] },
     waiting: { type: Number, default: 0 },
     waiting_max: { type: Number, default: 3 },
@@ -187,6 +187,13 @@ export default {
       }
 
       this.$emit('open', result.filePaths[0])
+    }
+
+  },
+
+  computed: {
+    tome: function () {
+      return store.state.tome
     }
 
   },

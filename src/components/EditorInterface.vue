@@ -112,6 +112,7 @@
 </style>
 
 <script>
+import store from '@/store'
 import { remote } from 'electron'
 import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
@@ -125,8 +126,6 @@ import PushView from '@/views/Push.vue'
 
 export default {
   props: {
-    tome: { type: Object },
-    configuration: { type: Object },
     edit: { type: Boolean, default: false },
     commit: { type: Boolean, default: false },
     push: { type: Boolean, default: false }
@@ -260,11 +259,19 @@ export default {
 
   computed: {
     relative_path: function () {
-      return this.absolute_path ? `${this.path.relative(this.tome.path, this.absolute_path)}` : ''
+      return this.absolute_path ? `${this.path.relative(store.state.tome.path, this.absolute_path)}` : ''
     },
 
     rendered: function () {
       return marked(this.content)
+    },
+
+    tome: function () {
+      return store.state.tome
+    },
+
+    configuration: function () {
+      return store.state.tome_config
     }
 
   },
