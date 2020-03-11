@@ -22,12 +22,12 @@
     />
 
     <context-menu-service
-      v-model=context_menu_visible
-      :title=context_menu_title
-      :target=context_menu_target
-      :items=context_menu_items
-      :position_x=context_menu_position_x
-      :position_y=context_menu_position_y
+      v-model=context.visible
+      :title=context.title
+      :target=context.target
+      :items=context.items
+      :position_x=context.position.x
+      :position_y=context.position.y
     />
 
     <action-bar
@@ -94,12 +94,13 @@ export default {
       as_directory: false
     },
 
-    context_menu_visible: false,
-    context_menu_title: null,
-    context_menu_target: null,
-    context_menu_items: [],
-    context_menu_position_x: 0,
-    context_menu_position_y: 0
+    context: {
+      visible: false,
+      title: null,
+      target: null,
+      items: [],
+      position: { x: 0, y: 0 }
+    }
 
   }),
   mounted: async function () {
@@ -430,33 +431,33 @@ export default {
     open_context: async function (e, type, path) {
       console.log('open_context', e, type, path)
 
-      this.context_menu_visible = true
-      this.context_menu_title = `${type} - ${path}`
-      this.context_menu_target = path
-      this.context_menu_items = []
-      this.context_menu_position_x = e.clientX
-      this.context_menu_position_y = e.clientY
+      this.context.visible = true
+      this.context.title = `${type} - ${path}`
+      this.context.target = path
+      this.context.items = []
+      this.context.position.x = e.clientX
+      this.context.position.y = e.clientY
 
       switch (type) {
         case 'folder':
-          this.context_menu_items.push({
+          this.context.items.push({
             title: 'Expand',
             action: () => { console.log('Expand Action!') }
           })
           // fall through
 
         case 'file':
-          this.context_menu_items.push({
+          this.context.items.push({
             title: 'New File',
             action: this.action_new_file
           })
 
-          this.context_menu_items.push({
+          this.context.items.push({
             title: 'New Folder',
             action: this.action_new_folder
           })
 
-          this.context_menu_items.push({
+          this.context.items.push({
             title: 'Open Folder',
             action: this.action_open_folder
           })
