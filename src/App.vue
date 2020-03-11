@@ -13,12 +13,12 @@
     />
 
     <new-file-service
-      :active="tome_add_file"
-      @close="tome_add_file = false"
-      @create="tome_file_selected.load()"
-      :base="tome.path" :target="tome_add_target"
-      :extension="tome_add_file_as_directory ? null : 'md'"
-      :folder="tome_add_file_as_directory"
+      :active="add.active"
+      @close="add.active = false"
+      @create="reload_selected_explorer"
+      :base="tome.path" :target="add_target"
+      :extension="add.as_directory ? null : 'md'"
+      :folder="add.as_directory"
     />
 
     <context-menu-service
@@ -87,10 +87,12 @@ export default {
     commit: false,
     push: false,
 
-    tome_add_file: false,
-    tome_add_file_val: '',
-    tome_add_file_path_rel: '',
-    tome_add_file_as_directory: false,
+    add: {
+      active: false,
+      value: '',
+      relative_path: '',
+      as_directory: false
+    },
 
     context_menu_visible: false,
     context_menu_title: null,
@@ -107,10 +109,10 @@ export default {
         icon: 'mdi-file-star',
         action: (event) => {
           console.log('new file', event)
-          this.tome_add_file_val = ''
-          this.tome_add_file_path_rel = ''
-          this.tome_add_file_as_directory = false
-          this.tome_add_file = true
+          this.add.value = ''
+          this.add.relative_path = ''
+          this.add.as_directory = false
+          this.add.active = true
         }
       },
       {
@@ -118,10 +120,10 @@ export default {
         icon: 'mdi-folder-star',
         action: (event) => {
           console.log('new folder', event)
-          this.tome_add_file_val = ''
-          this.tome_add_file_path_rel = ''
-          this.tome_add_file_as_directory = true
-          this.tome_add_file = true
+          this.add.value = ''
+          this.add.relative_path = ''
+          this.add.as_directory = true
+          this.add.active = true
         }
       },
       {
@@ -281,17 +283,17 @@ export default {
     },
     action_new_file: async function (target_path) {
       console.log('new file', target_path)
-      this.tome_add_file_val = ''
-      this.tome_add_file_path_rel = target_path
-      this.tome_add_file_as_directory = false
-      this.tome_add_file = true
+      this.add.value = ''
+      this.add.relative_path = target_path
+      this.add.as_directory = false
+      this.add.active = true
     },
     action_new_folder: async function (target_path) {
       console.log('new folder', target_path)
-      this.tome_add_file_val = ''
-      this.tome_add_file_path_rel = target_path
-      this.tome_add_file_as_directory = true
-      this.tome_add_file = true
+      this.add.value = ''
+      this.add.relative_path = target_path
+      this.add.as_directory = true
+      this.add.active = true
     },
     action_open_folder: async function (path) {
       console.log('action_open_folder', path)
@@ -461,6 +463,9 @@ export default {
 
           break
       }
+    },
+    reload_selected_explorer: function () {
+      // TODO: Reimplement reload behavior for explorer
     }
   },
   computed: {
@@ -473,8 +478,8 @@ export default {
     tome_path: function () {
       return store.state.tome.path
     },
-    tome_add_target: function () {
-      return this.tome_add_file_path_rel || this.tome_file_path
+    add_target: function () {
+      return this.add.relative_path || store.state.tome_file_path
     },
     tome: function () {
       return store.state.tome
