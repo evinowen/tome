@@ -31,7 +31,7 @@
     />
 
     <action-bar
-      :waiting=reload_counter
+      :waiting=reload.counter
       :commit=commit
       :push=push
       @open=set_tome
@@ -79,9 +79,11 @@ export default {
   data: () => ({
     settings: false,
 
-    reload_triggered: false,
-    reload_counter: 0,
-    reload_max: 3,
+    reload: {
+      triggered: false,
+      counter: 0,
+      max: 3
+    },
 
     edit: false,
     commit: false,
@@ -211,7 +213,6 @@ export default {
     },
     open_commit: async function (event, test) {
       console.log('test!', event, test)
-      // await this.reload_run()
       this.commit = true
     },
     set_tome: async function (file_path) {
@@ -302,29 +303,29 @@ export default {
     },
 
     reload_start: function () {
-      clearTimeout(this.reload_timeout)
+      clearTimeout(this.reload.timeout)
 
-      this.reload_triggered = true
-      this.reload_counter = this.reload_max
+      this.reload.triggered = true
+      this.reload.counter = this.reload.max
 
-      this.reload_timeout = setTimeout(this.reload_update, 500)
+      this.reload.timeout = setTimeout(this.reload.update, 500)
     },
     reload_update: async function () {
-      if (!this.reload_counter) {
-        return this.reload_run()
+      if (!this.reload.counter) {
+        return this.reload.run()
       }
 
-      this.reload_counter = this.reload_counter - 1
+      this.reload.counter = this.reload.counter - 1
 
-      if (this.reload_counter >= 0) {
-        this.reload_timeout = setTimeout(this.reload_update, 1000)
+      if (this.reload.counter >= 0) {
+        this.reload.timeout = setTimeout(this.reload.update, 1000)
       }
     },
     reload_run: async function () {
       console.debug('[Git Repository Status Reload] Begin')
 
-      clearTimeout(this.reload_timeout)
-      this.reload_triggered = false
+      clearTimeout(this.reload.timeout)
+      this.reload.triggered = false
 
       const tome_status = {
         staged: {
