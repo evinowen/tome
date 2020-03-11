@@ -4,11 +4,11 @@
     <v-navigation-drawer v-model="settings" fixed temporary/>
 
     <editor-interface
-      :edit=tome_edit
-      :commit=tome_commit
-      :push=tome_push
-      @commit:close="tome_commit = false"
-      @push:close="tome_push = false"
+      :edit=edit
+      :commit=commit
+      :push=push
+      @commit:close="commit = false"
+      @push:close="push = false"
       @context=open_context
     />
 
@@ -32,12 +32,12 @@
 
     <action-bar
       :waiting=reload_counter
-      :commit=tome_commit
-      :push=tome_push
+      :commit=commit
+      :push=push
       @open=set_tome
-      @edit="tome_edit = $event"
-      @commit="tome_commit = true"
-      @push="tome_push = true"
+      @edit="edit = $event"
+      @commit="commit = true"
+      @push="push = true"
     />
   </v-app>
 </template>
@@ -79,14 +79,13 @@ export default {
   data: () => ({
     settings: false,
 
-    tome_edit: false,
-
     reload_triggered: false,
     reload_counter: 0,
     reload_max: 3,
 
-    tome_commit: false,
-    tome_push: false,
+    edit: false,
+    commit: false,
+    push: false,
 
     tome_add_file: false,
     tome_add_file_val: '',
@@ -210,7 +209,7 @@ export default {
     open_commit: async function (event, test) {
       console.log('test!', event, test)
       // await this.reload_run()
-      this.tome_commit = true
+      this.commit = true
     },
     set_tome: async function (file_path) {
       store.state.tome.path = file_path
