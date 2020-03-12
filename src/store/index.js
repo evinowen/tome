@@ -3,31 +3,38 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
+const tome = {
+  state: {
+    name: '',
+    path: '',
+    repository: null,
+    branch: {
+      name: '',
+      error: ''
+    },
+    status: {
+      staged: {
+        new: 0,
+        renamed: 0,
+        modified: 0,
+        deleted: 0
+      },
+      available: {
+        new: 0,
+        renamed: 0,
+        modified: 0,
+        deleted: 0
+      }
+    }
+  },
+  mutations: {
+  },
+  actions: {
+  }
+}
+
 export default new Vuex.Store({
   state: {
-    tome: {
-      name: '',
-      path: '',
-      repository: null,
-      branch: {
-        name: '',
-        error: ''
-      },
-      status: {
-        staged: {
-          new: 0,
-          renamed: 0,
-          modified: 0,
-          deleted: 0
-        },
-        available: {
-          new: 0,
-          renamed: 0,
-          modified: 0,
-          deleted: 0
-        }
-      }
-    },
     tome_config: null,
     tome_file: '',
     tome_file_selected: '',
@@ -42,8 +49,7 @@ export default new Vuex.Store({
   },
   mutations: {
   },
-  actions: {
-  },
   modules: {
+    tome: tome
   }
 })
