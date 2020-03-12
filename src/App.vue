@@ -215,73 +215,8 @@ export default {
       console.log('test!', event, test)
       this.commit = true
     },
-    set_tome: async function (file_path) {
-      store.state.tome.path = file_path
-      store.state.tome.name = path.basename(store.state.tome.path)
-      console.log(`Set Tome path to ${store.state.tome.path}`)
-
-      if (fs.existsSync(path.join(store.state.tome.path, '.git'))) {
-        store.state.tome.repository = await git.Repository.open(store.state.tome.path).catch(err => console.error(err))
-      } else {
-        store.state.tome.repository = await git.Repository.init(store.state.tome.path, 0)
-      }
-
-      if (!store.state.tome.repository) {
-        store.state.tome.branch.error = 'No Repository!'
-        return
-      }
-
-      if (store.state.tome.repository.headDetached()) {
-        store.state.tome.branch.error = 'Head Detached'
-        return
-      }
-
-      if (store.state.tome.repository.isMerging()) {
-        store.state.tome.branch.error = 'Merging'
-        return
-      }
-
-      if (store.state.tome.repository.isRebasing()) {
-        store.state.tome.branch.error = 'Rebasing'
-        return
-      }
-
-      console.log('Pass checks for repo.')
-
-      if (store.state.tome.repository.headUnborn()) {
-        console.log('Unborn repo.')
-        const head_raw = fs.readFileSync(path.join(store.state.tome.path, '.git', 'HEAD'), 'utf8')
-        console.log(head_raw)
-
-        let head_line_index = head_raw.length
-
-        const head_line_index_n = head_raw.indexOf('\n')
-        const head_line_index_r = head_raw.indexOf('\r')
-
-        if (head_line_index_n >= 0) {
-          head_line_index = Math.min(head_line_index_n, head_line_index)
-        }
-
-        if (head_line_index_r >= 0) {
-          head_line_index = Math.min(head_line_index_r, head_line_index)
-        }
-
-        const head_trimmed = head_raw.substring(0, head_line_index)
-
-        const head_parsed = head_trimmed.match(/^ref: refs\/heads\/(.*)$/m)
-        console.log(head_parsed)
-
-        if (head_parsed) {
-          store.state.tome.branch.name = head_parsed[1]
-        }
-      } else {
-        console.log('Existing repo.')
-        const branch = await store.state.tome.repository.head()
-
-        console.log(branch)
-        store.state.tome.branch.name = branch.shorthand()
-        console.log(store.state.tome.branch.name)
-      }
+    set_tome: function (file_path) {
+      store.dispatch('load', file_path)
     },
     action_new_file: async function (target_path) {
       console.log('new file', target_path)
