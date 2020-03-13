@@ -21,7 +21,8 @@ jest.mock('electron', () => ({
 const fs = {
   open: jest.fn(),
   close: jest.fn(),
-  mkdir: jest.fn()
+  mkdir: jest.fn(),
+  readdir: jest.fn()
 }
 
 const path = {
