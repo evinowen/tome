@@ -98,7 +98,6 @@ export default {
   methods: {
     select: function (node) {
       const selected = node || this
-      console.log('explorer-node', selected)
       return this.$emit('selected', selected)
     }
   }

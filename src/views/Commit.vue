@@ -199,8 +199,6 @@ export default {
   },
   methods: {
     stage: async function (file_path) {
-      console.log(`stage path ${file_path}`)
-
       const index = await this.repository.refreshIndex()
 
       {
@@ -225,8 +223,6 @@ export default {
     },
 
     reset: async function (file_path) {
-      console.log(`reset path ${file_path}`)
-
       const index = await this.repository.refreshIndex()
 
       {
