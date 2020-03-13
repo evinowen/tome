@@ -177,15 +177,11 @@ export default {
 
       })
 
-      console.log('result!', result)
-
       if (result.canceled) {
-        console.log('[Select Tome Directory] Cancelled')
         return
       }
 
       if (!result.filePaths.length) {
-        console.log('[Select Tome Directory] Closed :: !result.filePaths.length', result.filePaths.length)
         this.$emit('close')
         return
       }

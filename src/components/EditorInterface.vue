@@ -152,11 +152,6 @@ export default {
   methods: {
 
     load_path: async function (item) {
-      console.log('load_path', item)
-      console.log('load_path directory?', item.directory)
-      console.log('load_path path?', item.path)
-      console.log('load_path children?', item.children)
-
       const file_ext = function (ext) {
         switch (ext) {
           case '.md':
@@ -201,7 +196,7 @@ export default {
 
           return true
         })
-        .catch(err => console.warn(err))
+        .catch(err => {})
     },
 
     load_file: async function (node) {
@@ -211,8 +206,6 @@ export default {
 
       this.actions = null
       this.selected = null
-
-      console.log('load_file', node)
 
       if (!node) {
         this.actions = []
@@ -230,31 +223,17 @@ export default {
           {
             name: 'New File',
             icon: 'mdi-file-star',
-            action: (event) => {
-              console.log('new file', event)
-              // this.tome_add_file_val = ''
-              // this.tome_add_file_path_rel = ''
-              // this.tome_add_file_as_directory = false
-              // this.tome_add_file = true
-            }
+            action: (event) => { }
           },
           {
             name: 'New Folder',
             icon: 'mdi-folder-star',
-            action: (event) => {
-              console.log('new folder', event)
-              // this.tome_add_file_val = ''
-              // this.tome_add_file_path_rel = ''
-              // this.tome_add_file_as_directory = true
-              // this.tome_add_file = true
-            }
+            action: (event) => { }
           },
           {
             name: 'Open Folder',
             icon: 'mdi-folder-move',
-            action: (event) => {
-              console.log('open folder', event)
-            }
+            action: (event) => { }
           }
         ]
         return

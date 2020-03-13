@@ -127,7 +127,6 @@ export default {
         this.$emit('collapsed', this)
       } else {
         this.$emit('expanding', this)
-        console.log('expanding', this.loaded, this.populate)
 
         if (!this.loaded && this.populate) {
           await this.load()
@@ -142,17 +141,11 @@ export default {
     load: async function () {
       this.loaded = false
 
-      while (this.children.pop()) { console.log('await populate ... ') }
+      while (this.children.pop()) { }
       this.loaded = (await this.populate(this)) === true
-      console.log('done populate!')
-
-      if (!this.loaded) {
-        console.error(`Failed to load ${this.path}`)
-      }
     },
     select: function (node) {
       this.selected = node || this
-      console.log('explorer-folder', this.selected)
       this.upstream = this.selected.path
       return this.$emit('selected', this.selected)
     }
