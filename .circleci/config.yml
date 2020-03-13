@@ -32,7 +32,7 @@ jobs:
 
             - run:
                 name: Run Unit Tests
-                command: yarn test:unit
+                command: yarn electron:test:unit
 
 workflows:
     build-and-test:
