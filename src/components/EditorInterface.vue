@@ -196,7 +196,6 @@ export default {
 
           return true
         })
-        .catch(err => {})
     },
 
     load_file: async function (node) {
