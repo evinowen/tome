@@ -48,6 +48,7 @@ describe('Explorer.vue', () => {
     const wrapper = wrap({ leaf: false })
     await wrapper.vm.$nextTick()
 
+    expect(wrapper.vm.icon).toEqual('mdi-book-open-page-variant')
   })
 
   it('should compute closed folder icon when instance is a leaf but not expanded', async () => {
