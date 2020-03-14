@@ -388,10 +388,9 @@ export default {
         return false
       }
 
-      const references = (await this.repository.getReferences()).map(reference => ({
+      (await this.repository.getReferences()).map(reference => ({
         name: reference.name(),
         object: reference
-
       }))
 
       const refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`
