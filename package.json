@@ -36,7 +36,7 @@
     "@vue/eslint-config-standard": "^5.1.0",
     "@vue/test-utils": "1.0.0-beta.31",
     "babel-eslint": "^10.0.3",
-    "cross-env": "^7.0.2",
+    "cross-env": "^6.0.3",
     "electron": "^8.0.1",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.1",

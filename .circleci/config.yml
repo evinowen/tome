@@ -1,15 +1,40 @@
 version: 2.1
 orbs:
-  cypress: cypress-io/cypress@1.19.1
+  node: circleci/node@1.1.6
+
+jobs:
+  build-and-test:
+    docker:
+    - image: circleci/node:13.7.0-browsers
+
+    steps:
+      - checkout
+      - node/with-cache:
+          steps:
+            - restore_cache:
+                name: Restore Yarn Package Cache
+                keys:
+                  - yarn-packages-{{ checksum "yarn.lock" }}
+
+            - run:
+                name: Install
+                command: yarn install --frozen-lockfile
+
+            - save_cache:
+                name: Save Yarn Package Cache
+                key: yarn-packages-{{ checksum "yarn.lock" }}
+                paths:
+                  - ~/.cache/yarn
+
+            - run:
+                name: Run Lint
+                command: yarn lint
+
+            - run:
+                name: Run Unit Tests
+                command: yarn electron:test:unit
+
 workflows:
-  build:
-    jobs:
-    - cypress/run:
-        yarn: true
-        no-workspace: true
-
-        command: yarn test:unit
-
-        post-steps:
-          - store_artifacts:
-              path: coverage
+    build-and-test:
+      jobs:
+        - build-and-test
