@@ -27,7 +27,7 @@
             <div v-if="absolute_path" style="height: 100%; padding: 0px;" >
               <div v-html="rendered" class="pa-2" />
             </div>
-            <empty-view editor-interface-empty v-else />
+            <empty-view v-else />
           </template>
 
           <!-- COMMIT WINDOW -->
@@ -82,7 +82,7 @@
   </split-pane>
 
   <v-content v-else>
-    <empty-view>{{ error || "" }}</empty-view>
+    <empty-view editor-interface-empty>{{ error || "" }}</empty-view>
   </v-content>
 
 </template>
