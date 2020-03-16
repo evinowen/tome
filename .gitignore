@@ -25,3 +25,6 @@ yarn-error.log*
 
 # Jest coverage folder
 /coverage
+
+# Jest JUnit Report
+junit.xml
