@@ -23,8 +23,5 @@ yarn-error.log*
 #Electron-builder output
 /dist_electron
 
-# Jest coverage folder
-/coverage
-
-# Jest JUnit Report
-junit.xml
+# Report Output
+reports

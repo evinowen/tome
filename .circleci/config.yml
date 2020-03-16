@@ -36,11 +36,11 @@ jobs:
 
             - store_test_results:
                 name: Store Test Results
-                path: junit.xml
+                path: reports/junit
 
             - store_artifacts:
-                name: Store Coverage Artifact
-                path: coverage
+                name: Store Coverage Reports
+                path: reports/coverage/lcov-report
                 destination: coverage
 
 workflows:

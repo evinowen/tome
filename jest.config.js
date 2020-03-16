@@ -5,5 +5,14 @@ module.exports = {
     'src/**/*.{js,vue}',
     '!**/node_modules/**'
   ],
-  reporters: ['default', 'jest-junit']
+  coverageDirectory: './reports/coverage',
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: './reports/junit/jest'
+      }
+    ]
+  ]
 }
