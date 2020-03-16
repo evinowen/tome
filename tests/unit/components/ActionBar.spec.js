@@ -2,10 +2,15 @@ import Vue from 'vue'
 import Vuetify from 'vuetify'
 
 import ActionBar from '@/components/ActionBar.vue'
+import store from '@/store'
 
 import { createLocalVue, mount } from '@vue/test-utils'
 
 Vue.use(Vuetify)
+
+jest.mock('@/store', () => ({
+  state: {}
+}))
 
 const localVue = createLocalVue()
 
@@ -16,22 +21,32 @@ describe('ActionBar.vue', () => {
   beforeEach(() => {
     vuetify = new Vuetify()
 
-    const tome = {
-      path: '/pa/th/to/to/me',
-      name: 'Name',
+    store.state = {
+      tome: {
+        path: '/pa/th/to/to/me',
+        name: 'Name',
+        branch: {
+          name: 'master',
+          error: null
 
-      branch: {
-        name: 'master',
-        error: null
+        },
+        status: {
+          available: { new: 0, renamed: 0, modified: 0, deleted: 0 },
+          staged: { new: 0, renamed: 0, modified: 0, deleted: 0 }
 
+        }
       },
-
-      status: {
-        available: { new: 0, renamed: 0, modified: 0, deleted: 0 },
-        staged: { new: 0, renamed: 0, modified: 0, deleted: 0 }
-
-      }
-
+      tome_config: null,
+      tome_file: '',
+      tome_file_selected: '',
+      tome_file_path: '',
+      tome_file_data: '',
+      tome_file_error: '',
+      tome_file_actions: null,
+      tome_file_actions_root: null,
+      tome_ready: false,
+      tome_app_config_path: '',
+      tome_app_config_path_dir: ''
     }
 
     const waiting = 0
@@ -47,7 +62,6 @@ describe('ActionBar.vue', () => {
           StatusButton: true
         },
         propsData: {
-          tome,
           waiting,
           commit,
           push
