@@ -5,5 +5,5 @@ module.exports = {
     'src/**/*.{js,vue}',
     '!**/node_modules/**'
   ],
-  reporters: [ 'default', 'jest-junit' ]
+  reporters: ['default', 'jest-junit']
 }
