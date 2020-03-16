@@ -21,7 +21,8 @@ jest.mock('electron', () => ({
 const fs = {
   open: jest.fn(),
   close: jest.fn(),
-  mkdir: jest.fn()
+  mkdir: jest.fn(),
+  readdir: jest.fn()
 }
 
 const path = {
@@ -101,7 +102,7 @@ describe('ExplorerNode.vue', () => {
     jest.clearAllMocks()
   })
 
-  it('should render empty view if not editing and no file is loaded', async () => {
+  it('should render empty view if not editing and no file is loaded', () => {
     wrap()
 
     expect(wrapper.find('[editor-interface-empty]').isVisible()).toBe(true)

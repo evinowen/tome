@@ -50,7 +50,7 @@ describe('ExplorerNode.vue', () => {
 
   it('should be disabled if the filename equals .git', async () => {
     wrap({ name: '.git' })
-    wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.disabled).toEqual(true)
   })

@@ -284,10 +284,7 @@ export default {
       return this.assign_key('public_key', event)
     },
     assign_key: async function (name, event) {
-      console.log('assign_key', name, event)
       const files = event.target.files || event.dataTransfer.files
-
-      console.log(files)
 
       if (!files.length) {
         this[name] = null
@@ -299,16 +296,9 @@ export default {
       }
 
       this.input[name].value = files[0].path
-
-      console.log('private_key', this.input.private_key.value)
-      console.log('public_key', this.input.public_key.value)
     },
 
     credentials: function () {
-      console.log('private_key', this.input.private_key.value)
-      console.log('public_key', this.input.public_key.value)
-      console.log('passphrase', this.input.passphrase.value)
-
       return {
         private_key: this.input.private_key.value,
         public_key: this.input.public_key.value,
@@ -321,7 +311,6 @@ export default {
 
       return {
         credentials: function (url, username) {
-          console.log('credentials', username, credentials.public_key, credentials.private_key, credentials.passphrase)
           return NodeGit.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase)
         },
 
@@ -333,30 +322,20 @@ export default {
     load_remotes: async function () {
       const items = await this.repository.getRemotes()
 
-      console.log('loaded remotes', items)
-
       this.input.remotes.list = items.map(remote => ({
         name: remote.name(),
         url: remote.url(),
         object: remote
       }))
-
-      console.log('compiled remotes', this.input.remotes.list)
     },
     add_remote: async function (event) {
-      console.log('add_remote', event)
-      console.log(this.input.remotes.input.name, this.input.remotes.input.url)
-
       await NodeGit.Remote.create(this.repository, this.input.remotes.input.name, this.input.remotes.input.url)
 
       await this.load_remotes()
     },
     remove_remote: function (event) {
-      console.log('remove_remote', event)
     },
     select_remote: async function (remote) {
-      console.log('select_remote', remote)
-
       this.input.remotes.value = null
 
       this.input.branch.reference = null
@@ -366,12 +345,7 @@ export default {
         try {
           const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
 
-          if (result) {
-            console.error('remote connect error', result)
-          }
-
-          console.log('getFetchRefspecs?', await remote.object.getFetchRefspecs())
-          console.log('getPushRefspecs?', await remote.object.getPushRefspecs())
+          if (result) { }
 
           console.log('referenceList?', (await remote.object.referenceList()).map(reference => {
             const object = {
@@ -381,7 +355,6 @@ export default {
             }
 
             const parsed = reference.name().match(/^refs\/heads\/(.*)$/m)
-            console.log(parsed)
 
             if (parsed) {
               object.short = parsed[1]
@@ -395,9 +368,7 @@ export default {
           }))
 
           this.input.remotes.value = remote
-        } catch (err) {
-          console.error('remote connect error!!!', err)
-        }
+        } catch (err) { }
       }
 
       this.input.branch.loading = false
@@ -417,13 +388,10 @@ export default {
         return false
       }
 
-      const references = (await this.repository.getReferences()).map(reference => ({
+      (await this.repository.getReferences()).map(reference => ({
         name: reference.name(),
         object: reference
-
       }))
-
-      console.log('[Push Tome] List local references:', references)
 
       const refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`
 

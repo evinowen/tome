@@ -75,7 +75,7 @@ describe('NewFileService.vue', () => {
     path.isAbsolute.mockReturnValue(false)
 
     wrap()
-    wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.relative).toEqual('test')
   })
@@ -85,7 +85,7 @@ describe('NewFileService.vue', () => {
     path.relative.mockReturnValue('test-relative')
 
     wrap()
-    wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.relative).toEqual('test-relative')
   })
@@ -95,7 +95,7 @@ describe('NewFileService.vue', () => {
     path.relative.mockReturnValue('test-relative')
 
     wrap({ extension: '.test' })
-    wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.extension_formatted).toEqual('.test')
   })
@@ -105,7 +105,7 @@ describe('NewFileService.vue', () => {
     path.relative.mockReturnValue('test-relative')
 
     wrap({ extension: 'test' })
-    wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.extension_formatted).toEqual('.test')
   })

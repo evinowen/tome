@@ -4,8 +4,8 @@ orbs:
 
 jobs:
   build-and-test:
-    executor:
-      name: node/default
+    docker:
+    - image: circleci/node:13.7.0-browsers
 
     steps:
       - checkout
@@ -32,7 +32,16 @@ jobs:
 
             - run:
                 name: Run Unit Tests
-                command: yarn test:unit
+                command: yarn electron:test:unit
+
+            - store_test_results:
+                name: Store Test Results
+                path: reports/junit
+
+            - store_artifacts:
+                name: Store Coverage Reports
+                path: reports/coverage/lcov-report
+                destination: coverage
 
 workflows:
     build-and-test:
