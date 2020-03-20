@@ -263,7 +263,7 @@ export default {
       clearTimeout(this.reload.timeout)
       this.reload.triggered = false
 
-      const tome_status = {
+      const status = {
         staged: {
           new: 0,
           renamed: 0,
@@ -299,25 +299,25 @@ export default {
             item.type = 'New'
             item.color = 'green'
             item.icon = 'mdi-file-star'
-            tome_status.staged.new += 1
+            status.staged.new += 1
           } else if (repo_status.isModified()) {
             item.type = 'Modified'
             item.color = 'green'
             item.icon = 'mdi-file-edit'
-            tome_status.staged.modified += 1
+            status.staged.modified += 1
           } else if (repo_status.isRenamed()) {
             item.type = 'Renamed'
             item.color = 'green'
             item.icon = 'mdi-file-swap'
-            tome_status.staged.renamed += 1
+            status.staged.renamed += 1
           } else if (repo_status.isDeleted()) {
             item.type = 'Deleted'
             item.color = 'red'
             item.icon = 'mdi-file-remove'
-            tome_status.staged.deleted += 1
+            status.staged.deleted += 1
           }
 
-          tome_status.staged.items.push(item)
+          status.staged.items.push(item)
         }))
 
       console.debug('[Git Repository Status Reload] Load Working Tree')
@@ -336,32 +336,32 @@ export default {
             item.type = 'New'
             item.color = 'green'
             item.icon = 'mdi-file-star'
-            tome_status.available.new += 1
+            status.available.new += 1
           } else if (repo_status.isModified()) {
             item.type = 'Modified'
             item.color = 'green'
             item.icon = 'mdi-file-edit'
-            tome_status.available.modified += 1
+            status.available.modified += 1
           } else if (repo_status.isRenamed()) {
             item.type = 'Renamed'
             item.color = 'green'
             item.icon = 'mdi-file-swap'
-            tome_status.available.renamed += 1
+            status.available.renamed += 1
           } else if (repo_status.isDeleted()) {
             item.type = 'Deleted'
             item.color = 'red'
             item.icon = 'mdi-file-remove'
-            tome_status.available.deleted += 1
+            status.available.deleted += 1
           }
 
-          tome_status.available.items.push(item)
+          status.available.items.push(item)
         }))
 
       return Promise.all([load_index, load_working_tree]).then(() => {
-        store.state.tome.status = tome_status
+        store.state.tome.status = status
         console.debug('[Git Repository Status Reload] Status Loaded', store.state.tome.status)
 
-        if (tome_status.staged.new || tome_status.staged.modified || tome_status.staged.renamed || tome_status.staged.deleted) {
+        if (status.staged.new || status.staged.modified || status.staged.renamed || status.staged.deleted) {
           console.debug('[Git Repository Status Reload] Flag Tome Ready')
           store.state.tome_ready = true
         }
