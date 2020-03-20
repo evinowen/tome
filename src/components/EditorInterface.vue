@@ -248,9 +248,9 @@ export default {
     },
 
     save_file: async function (value) {
-      this.fs.writeFileSync(this.absolute_path, value)
-
       this.content = value
+
+      this.fs.writeFileSync(this.absolute_path, value)
 
       this.reload_start()
     }
