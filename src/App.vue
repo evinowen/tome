@@ -268,13 +268,15 @@ export default {
           new: 0,
           renamed: 0,
           modified: 0,
-          deleted: 0
+          deleted: 0,
+          items: []
         },
         available: {
           new: 0,
           renamed: 0,
           modified: 0,
-          deleted: 0
+          deleted: 0,
+          items: []
         }
       }
 
@@ -315,7 +317,7 @@ export default {
             tome_status.staged.deleted += 1
           }
 
-          tome_status.staged.push(item)
+          tome_status.staged.items.push(item)
         }))
 
       console.debug('[Git Repository Status Reload] Load Working Tree')
@@ -352,7 +354,7 @@ export default {
             tome_status.available.deleted += 1
           }
 
-          tome_status.available.push(item)
+          tome_status.available.items.push(item)
         }))
 
       return Promise.all([load_index, load_working_tree]).then(() => {
