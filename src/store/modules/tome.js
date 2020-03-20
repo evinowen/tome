@@ -18,13 +18,15 @@ export default {
         new: 0,
         renamed: 0,
         modified: 0,
-        deleted: 0
+        deleted: 0,
+        items: []
       },
       available: {
         new: 0,
         renamed: 0,
         modified: 0,
-        deleted: 0
+        deleted: 0,
+        items: []
       }
     }
   },

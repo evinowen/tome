@@ -7,6 +7,7 @@
       :edit=edit
       :commit=commit
       :push=push
+      @save=reload_start
       @commit:close="commit = false"
       @push:close="push = false"
       @context=open_context
@@ -215,8 +216,9 @@ export default {
       console.log('test!', event, test)
       this.commit = true
     },
-    set_tome: function (file_path) {
-      store.dispatch('load', file_path)
+    set_tome: async function (file_path) {
+      await store.dispatch('load', file_path)
+      this.reload_run()
     },
     action_new_file: async function (target_path) {
       console.log('new file', target_path)
@@ -243,17 +245,17 @@ export default {
       this.reload.triggered = true
       this.reload.counter = this.reload.max
 
-      this.reload.timeout = setTimeout(this.reload.update, 500)
+      this.reload.timeout = setTimeout(this.reload_update, 500)
     },
     reload_update: async function () {
       if (!this.reload.counter) {
-        return this.reload.run()
+        return this.reload_run()
       }
 
       this.reload.counter = this.reload.counter - 1
 
       if (this.reload.counter >= 0) {
-        this.reload.timeout = setTimeout(this.reload.update, 1000)
+        this.reload.timeout = setTimeout(this.reload_update, 1000)
       }
     },
     reload_run: async function () {
@@ -262,18 +264,20 @@ export default {
       clearTimeout(this.reload.timeout)
       this.reload.triggered = false
 
-      const tome_status = {
+      const status = {
         staged: {
           new: 0,
           renamed: 0,
           modified: 0,
-          deleted: 0
+          deleted: 0,
+          items: []
         },
         available: {
           new: 0,
           renamed: 0,
           modified: 0,
-          deleted: 0
+          deleted: 0,
+          items: []
         }
       }
 
@@ -296,25 +300,25 @@ export default {
             item.type = 'New'
             item.color = 'green'
             item.icon = 'mdi-file-star'
-            tome_status.staged.new += 1
+            status.staged.new += 1
           } else if (repo_status.isModified()) {
             item.type = 'Modified'
             item.color = 'green'
             item.icon = 'mdi-file-edit'
-            tome_status.staged.modified += 1
+            status.staged.modified += 1
           } else if (repo_status.isRenamed()) {
             item.type = 'Renamed'
             item.color = 'green'
             item.icon = 'mdi-file-swap'
-            tome_status.staged.renamed += 1
+            status.staged.renamed += 1
           } else if (repo_status.isDeleted()) {
             item.type = 'Deleted'
             item.color = 'red'
             item.icon = 'mdi-file-remove'
-            tome_status.staged.deleted += 1
+            status.staged.deleted += 1
           }
 
-          tome_status.staged.push(item)
+          status.staged.items.push(item)
         }))
 
       console.debug('[Git Repository Status Reload] Load Working Tree')
@@ -333,32 +337,32 @@ export default {
             item.type = 'New'
             item.color = 'green'
             item.icon = 'mdi-file-star'
-            tome_status.available.new += 1
+            status.available.new += 1
           } else if (repo_status.isModified()) {
             item.type = 'Modified'
             item.color = 'green'
             item.icon = 'mdi-file-edit'
-            tome_status.available.modified += 1
+            status.available.modified += 1
           } else if (repo_status.isRenamed()) {
             item.type = 'Renamed'
             item.color = 'green'
             item.icon = 'mdi-file-swap'
-            tome_status.available.renamed += 1
+            status.available.renamed += 1
           } else if (repo_status.isDeleted()) {
             item.type = 'Deleted'
             item.color = 'red'
             item.icon = 'mdi-file-remove'
-            tome_status.available.deleted += 1
+            status.available.deleted += 1
           }
 
-          tome_status.available.push(item)
+          status.available.items.push(item)
         }))
 
       return Promise.all([load_index, load_working_tree]).then(() => {
-        store.state.tome.status = tome_status
+        store.state.tome.status = status
         console.debug('[Git Repository Status Reload] Status Loaded', store.state.tome.status)
 
-        if (tome_status.staged.new || tome_status.staged.modified || tome_status.staged.renamed || tome_status.staged.deleted) {
+        if (status.staged.new || status.staged.modified || status.staged.renamed || status.staged.deleted) {
           console.debug('[Git Repository Status Reload] Flag Tome Ready')
           store.state.tome_ready = true
         }

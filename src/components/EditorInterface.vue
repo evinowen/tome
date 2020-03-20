@@ -35,8 +35,8 @@
             v-else-if="commit"
             @close="$emit('commit:close')"
             :repository="tome.repository"
-            :available="tome.status.available"
-            :staged="tome.status.staged"
+            :available="tome.status.available.items"
+            :staged="tome.status.staged.items"
             :default_name="configuration.name"
             :default_email="configuration.email"
           />
@@ -248,11 +248,11 @@ export default {
     },
 
     save_file: async function (value) {
-      this.fs.writeFileSync(this.absolute_path, value)
-
       this.content = value
 
-      this.reload_start()
+      this.fs.writeFileSync(this.absolute_path, value)
+
+      this.$emit('save')
     }
 
   },
