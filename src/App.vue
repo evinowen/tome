@@ -243,17 +243,17 @@ export default {
       this.reload.triggered = true
       this.reload.counter = this.reload.max
 
-      this.reload.timeout = setTimeout(this.reload.update, 500)
+      this.reload.timeout = setTimeout(this.reload_update, 500)
     },
     reload_update: async function () {
       if (!this.reload.counter) {
-        return this.reload.run()
+        return this.reload_run()
       }
 
       this.reload.counter = this.reload.counter - 1
 
       if (this.reload.counter >= 0) {
-        this.reload.timeout = setTimeout(this.reload.update, 1000)
+        this.reload.timeout = setTimeout(this.reload_update, 1000)
       }
     },
     reload_run: async function () {
