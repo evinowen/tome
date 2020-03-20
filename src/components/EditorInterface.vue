@@ -252,7 +252,7 @@ export default {
 
       this.fs.writeFileSync(this.absolute_path, value)
 
-      this.reload_start()
+      this.$emit('save')
     }
 
   },
