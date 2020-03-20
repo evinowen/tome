@@ -216,8 +216,8 @@ export default {
       console.log('test!', event, test)
       this.commit = true
     },
-    set_tome: function (file_path) {
-      store.dispatch('load', file_path)
+    set_tome: async function (file_path) {
+      await store.dispatch('load', file_path)
     },
     action_new_file: async function (target_path) {
       console.log('new file', target_path)
