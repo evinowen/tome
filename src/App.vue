@@ -218,6 +218,7 @@ export default {
     },
     set_tome: async function (file_path) {
       await store.dispatch('load', file_path)
+      this.reload_run()
     },
     action_new_file: async function (target_path) {
       console.log('new file', target_path)
