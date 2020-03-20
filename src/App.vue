@@ -7,6 +7,7 @@
       :edit=edit
       :commit=commit
       :push=push
+      @save=reload_start
       @commit:close="commit = false"
       @push:close="push = false"
       @context=open_context
