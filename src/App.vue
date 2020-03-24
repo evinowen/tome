@@ -68,8 +68,6 @@ import SystemBar from './components/SystemBar.vue'
 import EditorInterface from './components/EditorInterface.vue'
 import ActionBar from './components/ActionBar.vue'
 
-import git from 'nodegit'
-
 const fs = remote.require('fs')
 const path = remote.require('path')
 
@@ -259,114 +257,10 @@ export default {
       }
     },
     reload_run: async function () {
-      console.debug('[Git Repository Status Reload] Begin')
-
       clearTimeout(this.reload.timeout)
       this.reload.triggered = false
 
-      const status = {
-        staged: {
-          new: 0,
-          renamed: 0,
-          modified: 0,
-          deleted: 0,
-          items: []
-        },
-        available: {
-          new: 0,
-          renamed: 0,
-          modified: 0,
-          deleted: 0,
-          items: []
-        }
-      }
-
-      var ops = new git.StatusOptions()
-
-      store.state.tome_ready = false
-
-      console.debug('[Git Repository Status Reload] Load Index')
-      ops.show = git.Status.SHOW.INDEX_ONLY
-      const load_index = store.state.tome.repository.getStatus(ops)
-        .then(res => res.forEach(repo_status => {
-          console.debug('[Git Repository Status Reload] Index File', repo_status)
-
-          const item = {
-            path: repo_status.path()
-
-          }
-
-          if (repo_status.isNew()) {
-            item.type = 'New'
-            item.color = 'green'
-            item.icon = 'mdi-file-star'
-            status.staged.new += 1
-          } else if (repo_status.isModified()) {
-            item.type = 'Modified'
-            item.color = 'green'
-            item.icon = 'mdi-file-edit'
-            status.staged.modified += 1
-          } else if (repo_status.isRenamed()) {
-            item.type = 'Renamed'
-            item.color = 'green'
-            item.icon = 'mdi-file-swap'
-            status.staged.renamed += 1
-          } else if (repo_status.isDeleted()) {
-            item.type = 'Deleted'
-            item.color = 'red'
-            item.icon = 'mdi-file-remove'
-            status.staged.deleted += 1
-          }
-
-          status.staged.items.push(item)
-        }))
-
-      console.debug('[Git Repository Status Reload] Load Working Tree')
-      ops.show = git.Status.SHOW.WORKDIR_ONLY
-      ops.flags = git.Status.OPT.INCLUDE_UNTRACKED + git.Status.OPT.RECURSE_UNTRACKED_DIRS
-      const load_working_tree = store.state.tome.repository.getStatus(ops)
-        .then(res => res.forEach(repo_status => {
-          console.debug('[Git Repository Status Reload] Working Tree File', repo_status)
-
-          const item = {
-            path: repo_status.path()
-
-          }
-
-          if (repo_status.isNew()) {
-            item.type = 'New'
-            item.color = 'green'
-            item.icon = 'mdi-file-star'
-            status.available.new += 1
-          } else if (repo_status.isModified()) {
-            item.type = 'Modified'
-            item.color = 'green'
-            item.icon = 'mdi-file-edit'
-            status.available.modified += 1
-          } else if (repo_status.isRenamed()) {
-            item.type = 'Renamed'
-            item.color = 'green'
-            item.icon = 'mdi-file-swap'
-            status.available.renamed += 1
-          } else if (repo_status.isDeleted()) {
-            item.type = 'Deleted'
-            item.color = 'red'
-            item.icon = 'mdi-file-remove'
-            status.available.deleted += 1
-          }
-
-          status.available.items.push(item)
-        }))
-
-      return Promise.all([load_index, load_working_tree]).then(() => {
-        store.state.tome.status = status
-        console.debug('[Git Repository Status Reload] Status Loaded', store.state.tome.status)
-
-        if (status.staged.new || status.staged.modified || status.staged.renamed || status.staged.deleted) {
-          console.debug('[Git Repository Status Reload] Flag Tome Ready')
-          store.state.tome_ready = true
-        }
-      })
+      await store.dispatch('inspect')
     },
     open_context: async function (e, type, path) {
       console.log('open_context', e, type, path)
