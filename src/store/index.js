@@ -15,7 +15,6 @@ export default new Vuex.Store({
     tome_file_error: '',
     tome_file_actions: null,
     tome_file_actions_root: null,
-    tome_ready: false,
     tome_app_config_path: '',
     tome_app_config_path_dir: ''
   },

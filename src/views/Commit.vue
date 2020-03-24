@@ -170,13 +170,11 @@
 </style>
 
 <script>
+import store from '@/store'
 import NodeGit from 'nodegit'
 
 export default {
   props: {
-    repository: { type: NodeGit.Repository },
-    staged: { type: Array },
-    available: { type: Array },
     default_name: { type: String, default: '' },
     default_email: { type: String, default: '' }
   },
@@ -196,6 +194,15 @@ export default {
 
   }),
   computed: {
+    repository: function () {
+      return store.state.tome.repository
+    },
+    staged: function () {
+      return store.state.tome.status.staged.items
+    },
+    available: function () {
+      return store.state.tome.status.available.items
+    }
   },
   methods: {
     stage: async function (file_path) {
@@ -243,7 +250,7 @@ export default {
         }
       }
 
-      return this.reload_run()
+      await store.dispatch('inspect')
     },
 
     commit: async function () {

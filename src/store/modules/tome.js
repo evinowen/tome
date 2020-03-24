@@ -9,6 +9,7 @@ export default {
     name: '',
     path: '',
     repository: null,
+    ready: false,
     branch: {
       name: '',
       error: ''
@@ -39,10 +40,21 @@ export default {
     },
     error: function (state, message) {
       state.branch.error = message
+    },
+    stale: function (state) {
+      state.ready = false
+    },
+    ready: function (state, data) {
+      const { status } = data
+
+      state.ready = true
+      state.status = status
     }
   },
   actions: {
     load: async function (context, target) {
+      context.commit('stale')
+
       let repository = null
       let branch = null
 
@@ -104,6 +116,109 @@ export default {
       }
 
       context.commit('set', { repository, branch })
+    },
+    inspect: async function (context) {
+      context.commit('stale')
+
+      const status = {
+        staged: {
+          new: 0,
+          renamed: 0,
+          modified: 0,
+          deleted: 0,
+          items: []
+        },
+        available: {
+          new: 0,
+          renamed: 0,
+          modified: 0,
+          deleted: 0,
+          items: []
+        }
+      }
+
+      const load_index = context.state.repository.getStatus((() => {
+        const ops = new NodeGit.StatusOptions()
+
+        ops.show = NodeGit.Status.SHOW.INDEX_ONLY
+
+        return ops
+      })())
+        .then(res => res.forEach(repo_status => {
+          const item = {
+            path: repo_status.path()
+
+          }
+
+          if (repo_status.isNew()) {
+            item.type = 'New'
+            item.color = 'green'
+            item.icon = 'mdi-file-star'
+            status.staged.new += 1
+          } else if (repo_status.isModified()) {
+            item.type = 'Modified'
+            item.color = 'green'
+            item.icon = 'mdi-file-edit'
+            status.staged.modified += 1
+          } else if (repo_status.isRenamed()) {
+            item.type = 'Renamed'
+            item.color = 'green'
+            item.icon = 'mdi-file-swap'
+            status.staged.renamed += 1
+          } else if (repo_status.isDeleted()) {
+            item.type = 'Deleted'
+            item.color = 'red'
+            item.icon = 'mdi-file-remove'
+            status.staged.deleted += 1
+          }
+
+          status.staged.items.push(item)
+        }))
+
+      const load_working_tree = context.state.repository.getStatus((() => {
+        const ops = new NodeGit.StatusOptions()
+
+        ops.show = NodeGit.Status.SHOW.WORKDIR_ONLY
+        ops.flags = NodeGit.Status.OPT.INCLUDE_UNTRACKED + NodeGit.Status.OPT.RECURSE_UNTRACKED_DIRS
+
+        return ops
+      })())
+        .then(res => res.forEach(repo_status => {
+          const item = {
+            path: repo_status.path()
+
+          }
+
+          if (repo_status.isNew()) {
+            item.type = 'New'
+            item.color = 'green'
+            item.icon = 'mdi-file-star'
+            status.available.new += 1
+          } else if (repo_status.isModified()) {
+            item.type = 'Modified'
+            item.color = 'green'
+            item.icon = 'mdi-file-edit'
+            status.available.modified += 1
+          } else if (repo_status.isRenamed()) {
+            item.type = 'Renamed'
+            item.color = 'green'
+            item.icon = 'mdi-file-swap'
+            status.available.renamed += 1
+          } else if (repo_status.isDeleted()) {
+            item.type = 'Deleted'
+            item.color = 'red'
+            item.icon = 'mdi-file-remove'
+            status.available.deleted += 1
+          }
+
+          status.available.items.push(item)
+        }))
+
+      await Promise.all([load_index, load_working_tree])
+
+      if (status.staged.new || status.staged.modified || status.staged.renamed || status.staged.deleted) {
+        context.commit('ready', { status })
+      }
     }
   }
 }
