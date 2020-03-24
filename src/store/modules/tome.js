@@ -9,6 +9,7 @@ export default {
     name: '',
     path: '',
     repository: null,
+    ready: false,
     branch: {
       name: '',
       error: ''
@@ -39,6 +40,15 @@ export default {
     },
     error: function (state, message) {
       state.branch.error = message
+    },
+    stale: function (state) {
+      state.ready = false
+    },
+    ready: function (state, data) {
+      const { status } = data
+
+      state.ready = true
+      state.status = status
     }
   },
   actions: {
