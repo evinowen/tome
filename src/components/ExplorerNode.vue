@@ -22,7 +22,7 @@
 
     <template v-else v-on="$listeners">
       <v-container
-        v-bind:class="['explorer-node', 'explorer-node-hover', {'explorer-node-selected': path == active }]"
+        v-bind:class="['explorer-node', 'explorer-node-hover', {'explorer-node-enabled': enabled}, {'explorer-node-selected': path == active }]"
         @click.left.stop="select(null)"
         @click.right="$emit('context', $event, 'file', path)"
       >
@@ -61,17 +61,17 @@
   color: rgba(0, 0, 0, 0.20);
 }
 
-.explorer-node-hover:hover {
+.explorer-node-enabled.explorer-node-hover:hover {
   background: #BBBBBB;
 
 }
 
-.explorer-node-selected {
+.explorer-node-enabled.explorer-node-selected {
   background: #F44336;
 
 }
 
-.explorer-node-selected:hover {
+.explorer-node-enabled.explorer-node-selected:hover {
   background: #F66055;
 
 }
