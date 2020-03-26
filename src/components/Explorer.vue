@@ -91,6 +91,7 @@
 <script>
 export default {
   props: {
+    enabled: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String },
     active: { type: String },
@@ -145,6 +146,10 @@ export default {
       this.loaded = (await this.populate(this)) === true
     },
     select: function (node) {
+      if (!this.enabled) {
+        return
+      }
+
       this.selected = node || this
       this.upstream = this.selected.path
       return this.$emit('selected', this.selected)
