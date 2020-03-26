@@ -225,12 +225,11 @@
 </style>
 
 <script>
+import store from '@/store'
 import NodeGit from 'nodegit'
 
 export default {
   props: {
-    repository: { type: NodeGit.Repository },
-    branch: { type: String, default: '' },
     default_private_key: { type: String, default: '' },
     default_public_key: { type: String, default: '' },
     default_passphrase: { type: String, default: '' }
@@ -272,6 +271,12 @@ export default {
 
   }),
   computed: {
+    repository: function () {
+      return store.state.tome.repository
+    },
+    branch: function () {
+      return store.state.tome.branch.name
+    }
   },
   mounted: async function () {
     await this.load_remotes()

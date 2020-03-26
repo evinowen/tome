@@ -45,8 +45,6 @@
           <push-view
             v-else-if="push"
             @close="$emit('push:close')"
-            :repository="tome.repository"
-            :branch="tome.branch.name"
             :default_private_key="configuration.private_key"
             :default_public_key="configuration.public_key"
             :default_passphrase="configuration.passphrase"
