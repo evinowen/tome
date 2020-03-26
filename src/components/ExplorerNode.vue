@@ -59,12 +59,24 @@
   color: rgba(0, 0, 0, 0.20);
 }
 
+.explorer-node-hover:hover {
+  background: #EEEEEE;
+}
+
 .explorer-node-enabled.explorer-node-hover:hover {
   background: #BBBBBB;
 }
 
+.explorer-node-selected {
+  background: #CCCCCC;
+}
+
 .explorer-node-enabled.explorer-node-selected {
   background: #F44336;
+}
+
+.explorer-node-selected:hover {
+  background: #BBBBBB;
 }
 
 .explorer-node-enabled.explorer-node-selected:hover {

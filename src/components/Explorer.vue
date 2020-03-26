@@ -70,12 +70,24 @@
   margin: 0 0 4px 4px !important;
 }
 
+.explorer-folder:hover {
+  background: #EEEEEE;
+}
+
 .explorer-folder-enabled.explorer-folder:hover {
   background: #BBBBBB;
 }
 
+.explorer-folder-selected {
+  background: #CCCCCC;
+}
+
 .explorer-folder-enabled.explorer-folder-selected {
   background: #F44336;
+}
+
+.explorer-folder-selected:hover {
+  background: #BBBBBB;
 }
 
 .explorer-folder-enabled.explorer-folder-selected:hover {
