@@ -155,12 +155,30 @@
 </template>
 
 <style>
+.v-data-table td {
+  padding: 0 !important;
+  font-size: 10px !important;
+}
+
+.v-data-table td:first-child {
+  padding: 0 6px !important;
+}
+
+.v-data-table th:last-child {
+  padding: 0 !important;
+}
+
 .v-data-table .v-btn {
   width: 100% !important;
   height: 100% !important;
   text-align: left;
   justify-content: left;
   color: white;
+}
+
+.v-data-table td:last-child .v-btn{
+  text-align: center;
+  justify-content: center;
 }
 
 .v-data-table .v-btn .v-icon {
@@ -186,11 +204,10 @@ export default {
       message: ''
     },
     headers: [
-      { text: 'File', value: 'path' },
-      { text: 'Type', value: 'type', align: 'right' },
-      { text: '', value: 'action', align: 'right' }
+      { text: 'File', value: 'path', width: '' },
+      { text: 'Type', value: 'type', width: '70px' },
+      { text: '', value: 'action', width: '23px', sortable: false }
     ]
-
   }),
   computed: {
     repository: function () {
