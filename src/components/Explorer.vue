@@ -24,6 +24,7 @@
           :directory=child.directory
           :populate=populate
           :active=active
+          :enabled=enabled
         />
       </template>
       <template v-else>
@@ -38,6 +39,7 @@
           :directory=child.directory
           :populate=populate
           :active=upstream
+          :enabled=enabled
         />
       </template>
     </v-container>

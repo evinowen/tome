@@ -12,6 +12,7 @@
         :name=name
         :path=path
         :populate=populate
+        :enabled=enabled
         v-on:selected="select"
         :active=active child
         v-on="$listeners"
