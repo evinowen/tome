@@ -55,28 +55,23 @@
   user-select: none;
   padding: 0 !important;
   vertical-align: text-bottom;
-
 }
 
 .explorer-folder-enabled.explorer-folder:hover {
   background: #BBBBBB;
-
 }
 
 .explorer-folder-button {
   min-width: 20px !important;
   padding: 0 !important;
-
 }
 
 .explorer-folder-enabled.explorer-folder-selected {
   background: #F44336;
-
 }
 
 .explorer-folder-enabled.explorer-folder-selected:hover {
   background: #F66055;
-
 }
 
 .explorer-folder-container {
@@ -85,7 +80,6 @@
   width: auto !important;
   padding: 0 0 0 4px !important;
   margin: 0 0 4px 4px !important;
-
 }
 
 </style>

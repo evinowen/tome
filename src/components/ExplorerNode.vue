@@ -47,13 +47,11 @@
   user-select: none;
   padding: 0 !important;
   vertical-align: text-bottom;
-
 }
 
 .explorer-node-button {
   min-width: 20px !important;
   padding: 0 !important;
-
 }
 
 .explorer-node-disabled,
@@ -63,17 +61,14 @@
 
 .explorer-node-enabled.explorer-node-hover:hover {
   background: #BBBBBB;
-
 }
 
 .explorer-node-enabled.explorer-node-selected {
   background: #F44336;
-
 }
 
 .explorer-node-enabled.explorer-node-selected:hover {
   background: #F66055;
-
 }
 
 </style>
