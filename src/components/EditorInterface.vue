@@ -135,7 +135,7 @@ export default {
     absolute_path: '',
     content: '',
     actions: [],
-    error: 'Error Test',
+    error: '',
     selected: null
   }),
 
