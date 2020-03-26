@@ -32,12 +32,7 @@
           </template>
 
           <!-- COMMIT WINDOW -->
-          <commit-view
-            v-else-if="commit"
-            @close="$emit('commit:close')"
-            :default_name="configuration.name"
-            :default_email="configuration.email"
-          />
+          <commit-view v-else-if="commit" @close="$emit('commit:close')" />
 
           <!-- PUSH WINDOW -->
           <push-view
