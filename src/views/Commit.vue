@@ -27,20 +27,14 @@
               class="my-2"
             >
               <template v-slot:item.type="{ item }">
-                <v-chip label small
-                  class="ma-1 px-2 text-center"
-                  :color="item.color"
-                  text-color="white"
-                  style="width: 100%;"
-                >
+                <v-btn tile icon x-small :color="item.color">
                   <v-icon small class="mr-1">{{ item.icon }}</v-icon>
                   {{ item.type }}
-                </v-chip>
-
+                </v-btn>
               </template>
 
               <template v-slot:item.action="{ item }">
-                <v-btn tile icon @click.stop="stage(item.path)">
+                <v-btn tile icon x-small @click.stop="stage(item.path)">
                   <v-icon>mdi-plus-thick</v-icon>
                 </v-btn>
 
@@ -63,20 +57,14 @@
               dense class="my-2"
             >
               <template v-slot:item.type="{ item }">
-                <v-chip label small
-                  class="ma-1 px-2 text-center"
-                  :color="item.color"
-                  text-color="white"
-                  style="width: 100%;"
-                >
+                <v-btn tile icon x-small :color="item.color">
                   <v-icon small class="mr-1">{{ item.icon }}</v-icon>
                   {{ item.type }}
-                </v-chip>
-
+                </v-btn>
               </template>
 
               <template v-slot:item.action="{ item }">
-                <v-btn tile x-small icon @click.stop="reset(item.path)">
+                <v-btn tile icon x-small @click.stop="reset(item.path)">
                   <v-icon>mdi-cancel</v-icon>
                 </v-btn>
 
@@ -167,6 +155,17 @@
 </template>
 
 <style>
+.v-data-table .v-btn {
+  width: 100% !important;
+  height: 100% !important;
+  text-align: left;
+  justify-content: left;
+  color: white;
+}
+
+.v-data-table .v-btn .v-icon {
+  font-size: 14px !important;
+}
 </style>
 
 <script>
