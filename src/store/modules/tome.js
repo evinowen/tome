@@ -230,9 +230,7 @@ export default {
 
       await Promise.all([load_index, load_working_tree])
 
-      if (status.staged.new || status.staged.modified || status.staged.renamed || status.staged.deleted) {
-        context.commit('ready', { status })
-      }
+      context.commit('ready', { status })
     }
   }
 }
