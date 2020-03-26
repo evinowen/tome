@@ -87,13 +87,13 @@
         <v-text-field
           v-model="input.name"
           label="Name"
-          :placeholder="default_name"
+          :placeholder="configuration.name"
           required
         ></v-text-field>
         <v-text-field
           v-model="input.email"
           label="E-mail"
-          :placeholder="default_email"
+          :placeholder="configuration.email"
           required
         ></v-text-field>
         <v-textarea
@@ -123,7 +123,7 @@
             </template>
             <v-card>
               <v-card-title class="headline">{{ input.message }}</v-card-title>
-              <v-card-text class="text-right">{{ input.name || default_name }} &lt;{{ input.email || default_email }}&gt;</v-card-text>
+              <v-card-text class="text-right">{{ input.name || configuration.name }} &lt;{{ input.email || configuration.email }}&gt;</v-card-text>
               <v-card-actions>
                 <v-btn
                   color="orange darken-1"
@@ -197,10 +197,6 @@ import store from '@/store'
 import NodeGit from 'nodegit'
 
 export default {
-  props: {
-    default_name: { type: String, default: '' },
-    default_email: { type: String, default: '' }
-  },
   data: () => ({
     confirm: false,
     working: false,
@@ -224,6 +220,9 @@ export default {
     },
     available: function () {
       return store.state.tome.status.available.items
+    },
+    configuration: function () {
+      return store.state.tome_config
     }
   },
   methods: {
@@ -305,7 +304,7 @@ export default {
       }
 
       console.debug('[Commit Tome] Create Signature')
-      const signature = NodeGit.Signature.now(this.input.name || this.default_name, this.input.email || this.default_email)
+      const signature = NodeGit.Signature.now(this.input.name || this.configuration.name, this.input.email || this.configuration.email)
 
       console.debug('[Commit Tome] Await commit ... ')
       const commit = await this.repository.createCommit('HEAD', signature, signature, this.input.message, oid, parents)
