@@ -256,13 +256,14 @@ export default {
 
     reset: async function (file_path) {
       const index = await this.repository.refreshIndex()
+      const head = await this.repository.getBranchCommit(await this.repository.head())
 
       if (file_path === '*') {
         for (let i = 0; i < this.staged.length; i++) {
-          await index.removeByPath(this.staged[i].path)
+          await NodeGit.Reset.default(this.repository, head, this.staged[i].path)
         }
       } else {
-        const result = await index.removeByPath(file_path)
+        const result = await NodeGit.Reset.default(this.repository, head, file_path)
 
         if (result) {
           console.error(`Failed to reset ${file_path}`, result)
