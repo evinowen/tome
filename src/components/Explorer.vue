@@ -1,7 +1,7 @@
 <template>
   <v-container class="pa-0" style="user-select: none;">
     <v-container class="explorer-folder"
-      v-bind:class="['explorer-folder', {'explorer-folder-selected': path == (leaf ? active : upstream)}]"
+      v-bind:class="['explorer-folder', {'explorer-folder-enabled': enabled}, {'explorer-folder-selected': path == (leaf ? active : upstream)}]"
       @click.left.stop="select(null)"
       @click.right.stop="$emit('context', $event, 'folder', path)"
     >
@@ -58,7 +58,7 @@
 
 }
 
-.explorer-folder:hover {
+.explorer-folder-enabled.explorer-folder:hover {
   background: #BBBBBB;
 
 }
@@ -69,12 +69,12 @@
 
 }
 
-.explorer-folder-selected {
+.explorer-folder-enabled.explorer-folder-selected {
   background: #F44336;
 
 }
 
-.explorer-folder-selected:hover {
+.explorer-folder-enabled.explorer-folder-selected:hover {
   background: #F66055;
 
 }
