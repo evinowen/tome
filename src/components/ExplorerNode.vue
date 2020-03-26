@@ -80,6 +80,7 @@
 <script>
 export default {
   props: {
+    enabled: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String, default: '' },
     active: { type: String },
@@ -102,6 +103,10 @@ export default {
   },
   methods: {
     select: function (node) {
+      if (!this.enabled) {
+        return
+      }
+
       const selected = node || this
       return this.$emit('selected', selected)
     }
