@@ -8,6 +8,7 @@
             :key=tome.path
             :path=tome.path
             :populate=load_path
+            :enabled=explore
             v-on:selected=load_file
             v-on="$listeners"
           />
@@ -256,6 +257,10 @@ export default {
   },
 
   computed: {
+    explore: function () {
+      return !(this.commit || this.push)
+    },
+
     relative_path: function () {
       return this.absolute_path ? `${this.path.relative(store.state.tome.path, this.absolute_path)}` : ''
     },

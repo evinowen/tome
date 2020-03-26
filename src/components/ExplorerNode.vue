@@ -12,6 +12,7 @@
         :name=name
         :path=path
         :populate=populate
+        :enabled=enabled
         v-on:selected="select"
         :active=active child
         v-on="$listeners"
@@ -21,7 +22,7 @@
 
     <template v-else v-on="$listeners">
       <v-container
-        v-bind:class="['explorer-node', 'explorer-node-hover', {'explorer-node-selected': path == active }]"
+        v-bind:class="['explorer-node', 'explorer-node-hover', {'explorer-node-enabled': enabled}, {'explorer-node-selected': path == active }]"
         @click.left.stop="select(null)"
         @click.right="$emit('context', $event, 'file', path)"
       >
@@ -46,13 +47,11 @@
   user-select: none;
   padding: 0 !important;
   vertical-align: text-bottom;
-
 }
 
 .explorer-node-button {
   min-width: 20px !important;
   padding: 0 !important;
-
 }
 
 .explorer-node-disabled,
@@ -61,18 +60,27 @@
 }
 
 .explorer-node-hover:hover {
-  background: #BBBBBB;
+  background: #EEEEEE;
+}
 
+.explorer-node-enabled.explorer-node-hover:hover {
+  background: #BBBBBB;
 }
 
 .explorer-node-selected {
-  background: #F44336;
+  background: #CCCCCC;
+}
 
+.explorer-node-enabled.explorer-node-selected {
+  background: #F44336;
 }
 
 .explorer-node-selected:hover {
-  background: #F66055;
+  background: #BBBBBB;
+}
 
+.explorer-node-enabled.explorer-node-selected:hover {
+  background: #F66055;
 }
 
 </style>
@@ -80,6 +88,7 @@
 <script>
 export default {
   props: {
+    enabled: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String, default: '' },
     active: { type: String },
@@ -102,6 +111,10 @@ export default {
   },
   methods: {
     select: function (node) {
+      if (!this.enabled) {
+        return
+      }
+
       const selected = node || this
       return this.$emit('selected', selected)
     }

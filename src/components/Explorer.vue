@@ -1,7 +1,7 @@
 <template>
   <v-container class="pa-0" style="user-select: none;">
     <v-container class="explorer-folder"
-      v-bind:class="['explorer-folder', {'explorer-folder-selected': path == (leaf ? active : upstream)}]"
+      v-bind:class="['explorer-folder', {'explorer-folder-enabled': enabled}, {'explorer-folder-selected': path == (leaf ? active : upstream)}]"
       @click.left.stop="select(null)"
       @click.right.stop="$emit('context', $event, 'folder', path)"
     >
@@ -24,6 +24,7 @@
           :directory=child.directory
           :populate=populate
           :active=active
+          :enabled=enabled
         />
       </template>
       <template v-else>
@@ -38,6 +39,7 @@
           :directory=child.directory
           :populate=populate
           :active=upstream
+          :enabled=enabled
         />
       </template>
     </v-container>
@@ -53,28 +55,11 @@
   user-select: none;
   padding: 0 !important;
   vertical-align: text-bottom;
-
-}
-
-.explorer-folder:hover {
-  background: #BBBBBB;
-
 }
 
 .explorer-folder-button {
   min-width: 20px !important;
   padding: 0 !important;
-
-}
-
-.explorer-folder-selected {
-  background: #F44336;
-
-}
-
-.explorer-folder-selected:hover {
-  background: #F66055;
-
 }
 
 .explorer-folder-container {
@@ -83,7 +68,30 @@
   width: auto !important;
   padding: 0 0 0 4px !important;
   margin: 0 0 4px 4px !important;
+}
 
+.explorer-folder:hover {
+  background: #EEEEEE;
+}
+
+.explorer-folder-enabled.explorer-folder:hover {
+  background: #BBBBBB;
+}
+
+.explorer-folder-selected {
+  background: #CCCCCC;
+}
+
+.explorer-folder-enabled.explorer-folder-selected {
+  background: #F44336;
+}
+
+.explorer-folder-selected:hover {
+  background: #BBBBBB;
+}
+
+.explorer-folder-enabled.explorer-folder-selected:hover {
+  background: #F66055;
 }
 
 </style>
@@ -91,6 +99,7 @@
 <script>
 export default {
   props: {
+    enabled: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String },
     active: { type: String },
@@ -145,6 +154,10 @@ export default {
       this.loaded = (await this.populate(this)) === true
     },
     select: function (node) {
+      if (!this.enabled) {
+        return
+      }
+
       this.selected = node || this
       this.upstream = this.selected.path
       return this.$emit('selected', this.selected)
