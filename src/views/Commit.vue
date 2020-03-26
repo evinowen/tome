@@ -226,7 +226,7 @@ export default {
         }
       }
 
-      return true
+      await store.dispatch('inspect')
     },
 
     reset: async function (file_path) {
