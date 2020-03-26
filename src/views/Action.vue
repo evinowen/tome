@@ -1,7 +1,6 @@
 <template>
   <v-container fill-height fluid class="main_screen">
-    <v-row align="center"
-        justify="center">
+    <v-row align="center" justify="center">
         <v-col class="text-center grey--text text--lighten-2">
           <v-icon x-large class=" grey--text text--lighten-2" style="font-size: 120px;">mdi-bookshelf</v-icon>
           <slot></slot>
@@ -9,7 +8,6 @@
           <p v-for="action in actions" :key="action.name">
             <v-btn dense @click.stop="action.action"><v-icon class="mr-2">{{ action.icon }}</v-icon> {{ action.name }}</v-btn>
           </p>
-
         </v-col>
     </v-row>
   </v-container>
@@ -27,17 +25,13 @@
       rgba(50,50,50,.8) 3.5px,
       rgba(50,50,50,.5) 7px
     );
-
 }
-
 </style>
 
 <script>
 export default {
   props: {
     actions: Array
-  },
-  data: () => ({
-  })
+  }
 }
 </script>
