@@ -41,6 +41,9 @@
               </template>
             </v-data-table>
           </v-card>
+          <v-btn tile :disabled="available.length < 1" @click.stop="stage('*')">
+            Stage All
+          </v-btn>
         </v-col>
 
         <v-col>
@@ -71,6 +74,9 @@
               </template>
             </v-data-table>
           </v-card>
+          <v-btn tile :disabled="staged.length < 1" @click.stop="reset('*')">
+            Reset All
+          </v-btn>
         </v-col>
 
       </v-row>
@@ -224,7 +230,11 @@ export default {
     stage: async function (file_path) {
       const index = await this.repository.refreshIndex()
 
-      {
+      if (file_path === '*') {
+        for (let i = 0; i < this.available.length; i++) {
+          await index.addByPath(this.available[i].path)
+        }
+      } else {
         const result = await index.addByPath(file_path)
 
         if (result) {
@@ -248,7 +258,11 @@ export default {
     reset: async function (file_path) {
       const index = await this.repository.refreshIndex()
 
-      {
+      if (file_path === '*') {
+        for (let i = 0; i < this.staged.length; i++) {
+          await index.removeByPath(this.staged[i].path)
+        }
+      } else {
         const result = await index.removeByPath(file_path)
 
         if (result) {
