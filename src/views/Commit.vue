@@ -82,41 +82,40 @@
       </v-row>
 
       <v-row>
-        <v-col>
-
-        <v-text-field
-          v-model="input.name"
-          label="Name"
-          :placeholder="configuration.name"
-          required
-        ></v-text-field>
-        <v-text-field
-          v-model="input.email"
-          label="E-mail"
-          :placeholder="configuration.email"
-          required
-        ></v-text-field>
-        <v-textarea
-          v-model="input.message"
-          :counter="50"
-          label="Message"
-          required
-          clearable
-          auto-grow
-          rows=1
-          style="font-size: 2.5em; line-height: 1.2em !important;"
-        ></v-textarea>
-
-        </v-col>
       </v-row>
 
       <v-divider class="mt-4 mb-2"></v-divider>
 
       <v-row>
-        <v-col>
+        <v-col cols=10>
+          <v-text-field
+            v-model="input.name"
+            label="Name"
+            :placeholder="configuration.name"
+            required small
+          ></v-text-field>
+          <v-text-field
+            v-model="input.email"
+            label="E-mail"
+            :placeholder="configuration.email"
+            required small
+          ></v-text-field>
+          <v-textarea
+            v-model="input.message"
+            :counter="50"
+            label="Message"
+            required
+            clearable
+            auto-grow
+            rows=3
+            style="height: 100px; font-size: 2.5em; line-height: 1.2em !important;"
+          ></v-textarea>
+        </v-col>
+        <v-col cols=2 class="text-right">
+          <v-container class="mt-2">
           <v-dialog v-model="confirm" persistent max-width="1200px">
             <template v-slot:activator="{ on }">
-              <v-btn class="mr-4" v-on="on">
+              <v-btn class="mr-4" v-on="on" style="width: 100%">
                 <v-icon class="mr-2">mdi-content-save</v-icon>
                 Save
               </v-btn>
@@ -147,12 +146,13 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-        </v-col>
-        <v-col class="text-right">
-          <v-btn color="red" @click.stop="$emit('close')">
-            <v-icon class="mr-2">mdi-cancel</v-icon>
-            Cancel
-          </v-btn>
+          </v-container>
+          <v-container>
+            <v-btn color="red" @click.stop="$emit('close')" style="width: 100%">
+              <v-icon class="mr-2">mdi-cancel</v-icon>
+              Cancel
+            </v-btn>
+          </v-container>
         </v-col>
       </v-row>
     </v-container>
