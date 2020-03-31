@@ -47,8 +47,22 @@ export default {
     ready: function (state, data) {
       const { status } = data
 
+      Object.keys(status).forEach(function (type) {
+        const source = status[type]
+        const target = state.status[type]
+
+        console.log(type, source, target)
+
+        target.new = source.new || 0
+        target.renamed = source.renamed || 0
+        target.modified = source.modified || 0
+        target.deleted = source.deleted || 0
+
+        target.items.length = 0
+        source.items.forEach(item => target.items.push(item))
+      })
+
       state.ready = true
-      state.status = status
     }
   },
   actions: {
@@ -216,9 +230,7 @@ export default {
 
       await Promise.all([load_index, load_working_tree])
 
-      if (status.staged.new || status.staged.modified || status.staged.renamed || status.staged.deleted) {
-        context.commit('ready', { status })
-      }
+      context.commit('ready', { status })
     }
   }
 }

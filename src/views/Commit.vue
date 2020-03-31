@@ -27,26 +27,23 @@
               class="my-2"
             >
               <template v-slot:item.type="{ item }">
-                <v-chip label small
-                  class="ma-1 px-2 text-center"
-                  :color="item.color"
-                  text-color="white"
-                  style="width: 100%;"
-                >
+                <v-btn tile icon x-small :color="item.color">
                   <v-icon small class="mr-1">{{ item.icon }}</v-icon>
                   {{ item.type }}
-                </v-chip>
-
+                </v-btn>
               </template>
 
               <template v-slot:item.action="{ item }">
-                <v-btn tile icon @click.stop="stage(item.path)">
+                <v-btn tile icon x-small @click.stop="stage(item.path)">
                   <v-icon>mdi-plus-thick</v-icon>
                 </v-btn>
 
               </template>
             </v-data-table>
           </v-card>
+          <v-btn tile :disabled="available.length < 1" @click.stop="stage('*')">
+            Stage All
+          </v-btn>
         </v-col>
 
         <v-col>
@@ -63,73 +60,84 @@
               dense class="my-2"
             >
               <template v-slot:item.type="{ item }">
-                <v-chip label small
-                  class="ma-1 px-2 text-center"
-                  :color="item.color"
-                  text-color="white"
-                  style="width: 100%;"
-                >
+                <v-btn tile icon x-small :color="item.color">
                   <v-icon small class="mr-1">{{ item.icon }}</v-icon>
                   {{ item.type }}
-                </v-chip>
-
+                </v-btn>
               </template>
 
               <template v-slot:item.action="{ item }">
-                <v-btn tile x-small icon @click.stop="reset(item.path)">
+                <v-btn tile icon x-small @click.stop="reset(item.path)">
                   <v-icon>mdi-cancel</v-icon>
                 </v-btn>
 
               </template>
             </v-data-table>
           </v-card>
+          <v-btn tile :disabled="staged.length < 1" @click.stop="reset('*')">
+            Reset All
+          </v-btn>
         </v-col>
 
       </v-row>
 
       <v-row>
-        <v-col>
-
-        <v-text-field
-          v-model="input.name"
-          label="Name"
-          :placeholder="default_name"
-          required
-        ></v-text-field>
-        <v-text-field
-          v-model="input.email"
-          label="E-mail"
-          :placeholder="default_email"
-          required
-        ></v-text-field>
-        <v-textarea
-          v-model="input.message"
-          :counter="50"
-          label="Message"
-          required
-          clearable
-          auto-grow
-          rows=1
-          style="font-size: 2.5em; line-height: 1.2em !important;"
-        ></v-textarea>
-
-        </v-col>
       </v-row>
 
       <v-divider class="mt-4 mb-2"></v-divider>
 
       <v-row>
-        <v-col>
-          <v-dialog v-model="confirm" persistent max-width="1200px">
+        <v-col cols=10>
+          <v-text-field
+            v-model="input.name"
+            label="Name"
+            :placeholder="configuration.name"
+            required small
+          ></v-text-field>
+          <v-text-field
+            v-model="input.email"
+            label="E-mail"
+            :placeholder="configuration.email"
+            required small
+          ></v-text-field>
+          <v-textarea
+            v-model="input.message"
+            :counter="50"
+            label="Message"
+            required
+            clearable
+            auto-grow
+            rows=3
+            class="message"
+          ></v-textarea>
+        </v-col>
+        <v-col cols=2 class="text-right">
+          <v-container class="mt-2">
+          <v-dialog v-model="confirm" persistent max-width="600px">
             <template v-slot:activator="{ on }">
-              <v-btn class="mr-4" v-on="on">
+              <v-btn class="mr-4" v-on="on" style="width: 100%" :disabled="staged.length < 1">
                 <v-icon class="mr-2">mdi-content-save</v-icon>
                 Save
               </v-btn>
             </template>
             <v-card>
-              <v-card-title class="headline">{{ input.message }}</v-card-title>
-              <v-card-text class="text-right">{{ input.name || default_name }} &lt;{{ input.email || default_email }}&gt;</v-card-text>
+              <v-list-item>
+                <v-list-item-avatar color="red">
+                  <v-icon dark>mdi-hammer-wrench</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title class="headline">Commit</v-list-item-title>
+                  <v-list-item-subtitle>Commit is prepared and ready to publish</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider></v-divider>
+              <v-card-text class="commit">
+                {{ input.message }}
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-container class="author text-right">
+              {{ input.name || configuration.name }} &lt;{{ input.email || configuration.email }}&gt;
+              </v-container>
               <v-card-actions>
                 <v-btn
                   color="orange darken-1"
@@ -153,12 +161,13 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-        </v-col>
-        <v-col class="text-right">
-          <v-btn color="red" @click.stop="$emit('close')">
-            <v-icon class="mr-2">mdi-cancel</v-icon>
-            Cancel
-          </v-btn>
+          </v-container>
+          <v-container>
+            <v-btn color="red" @click.stop="$emit('close')" style="width: 100%">
+              <v-icon class="mr-2">mdi-cancel</v-icon>
+              Cancel
+            </v-btn>
+          </v-container>
         </v-col>
       </v-row>
     </v-container>
@@ -167,6 +176,64 @@
 </template>
 
 <style>
+.v-data-table td {
+  padding: 0 !important;
+  font-size: 10px !important;
+}
+
+.v-data-table td:first-child {
+  padding: 0 6px !important;
+}
+
+.v-data-table th:last-child {
+  padding: 0 !important;
+}
+
+.v-data-table .v-btn {
+  width: 100% !important;
+  height: 100% !important;
+  text-align: left;
+  justify-content: left;
+  color: white;
+}
+
+.v-data-table td:last-child .v-btn{
+  text-align: center;
+  justify-content: center;
+}
+
+.v-data-table .v-btn .v-icon {
+  font-size: 14px !important;
+}
+
+.message {
+  height: 100px;
+}
+
+.message.v-textarea textarea {
+  line-height: 1.0em !important;
+  font-size: 2.0em;
+}
+
+.commit {
+  font-family: monospace;
+  min-height: 120px;
+  padding: 0 4px !important;
+  font-size: 24px;
+  line-height: 1.0em !important;
+  background: repeating-linear-gradient(
+    to bottom,
+    #EFEFEF,
+    #EFEFEF 24px,
+    #F8F8F8 24px,
+    #F8F8F8 48px
+  );
+}
+
+.author {
+  font-family: monospace;
+  font-size: 1.2em;
+}
 </style>
 
 <script>
@@ -174,10 +241,6 @@ import store from '@/store'
 import NodeGit from 'nodegit'
 
 export default {
-  props: {
-    default_name: { type: String, default: '' },
-    default_email: { type: String, default: '' }
-  },
   data: () => ({
     confirm: false,
     working: false,
@@ -187,11 +250,10 @@ export default {
       message: ''
     },
     headers: [
-      { text: 'File', value: 'path' },
-      { text: 'Type', value: 'type', align: 'right' },
-      { text: '', value: 'action', align: 'right' }
+      { text: 'File', value: 'path', width: '' },
+      { text: 'Type', value: 'type', width: '70px' },
+      { text: '', value: 'action', width: '23px', sortable: false }
     ]
-
   }),
   computed: {
     repository: function () {
@@ -202,13 +264,20 @@ export default {
     },
     available: function () {
       return store.state.tome.status.available.items
+    },
+    configuration: function () {
+      return store.state.tome_config
     }
   },
   methods: {
     stage: async function (file_path) {
       const index = await this.repository.refreshIndex()
 
-      {
+      if (file_path === '*') {
+        for (let i = 0; i < this.available.length; i++) {
+          await index.addByPath(this.available[i].path)
+        }
+      } else {
         const result = await index.addByPath(file_path)
 
         if (result) {
@@ -226,14 +295,19 @@ export default {
         }
       }
 
-      return true
+      await store.dispatch('inspect')
     },
 
     reset: async function (file_path) {
       const index = await this.repository.refreshIndex()
+      const head = await this.repository.getBranchCommit(await this.repository.head())
 
-      {
-        const result = await index.removeByPath(file_path)
+      if (file_path === '*') {
+        for (let i = 0; i < this.staged.length; i++) {
+          await NodeGit.Reset.default(this.repository, head, this.staged[i].path)
+        }
+      } else {
+        const result = await NodeGit.Reset.default(this.repository, head, file_path)
 
         if (result) {
           console.error(`Failed to reset ${file_path}`, result)
@@ -275,7 +349,7 @@ export default {
       }
 
       console.debug('[Commit Tome] Create Signature')
-      const signature = NodeGit.Signature.now(this.input.name || this.default_name, this.input.email || this.default_email)
+      const signature = NodeGit.Signature.now(this.input.name || this.configuration.name, this.input.email || this.configuration.email)
 
       console.debug('[Commit Tome] Await commit ... ')
       const commit = await this.repository.createCommit('HEAD', signature, signature, this.input.message, oid, parents)
