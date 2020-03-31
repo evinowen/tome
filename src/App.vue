@@ -9,6 +9,35 @@
           <v-list-item>
             <v-text-field small label="E-Mail" v-model="configuration.email" />
           </v-list-item>
+          <v-list-item>
+            <v-container class="pa-0 mb-2">
+              <div class="overline">Private Key</div>
+              <input ref="private_key" type="file" style="display: none" @change="assign_key('private_key', $event)" />
+              <v-btn tile icon small dark :color="configuration.private_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.private_key.click()">
+                <v-icon small>{{ configuration.private_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
+                {{ configuration.private_key }}
+              </v-btn>
+            </v-container>
+          </v-list-item>
+          <v-list-item>
+            <v-container class="pa-0 mb-2">
+              <div class="overline">Public Key</div>
+              <input ref="public_key" type="file" style="display: none" @change="assign_key('public_key', $event)" />
+              <v-btn tile icon small dark :color="configuration.public_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.public_key.click()">
+                <v-icon small>{{ configuration.public_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
+                {{ configuration.public_key }}
+              </v-btn>
+            </v-container>
+          </v-list-item>
+          <v-list-item>
+            <v-text-field
+              v-model="configuration.passphrase"
+              label="passphrase" small clearable
+              :append-icon="settings_obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
+              :type="settings_obscure_passphrase ? 'password' : 'text'"
+              @click:append="settings_obscure_passphrase = !settings_obscure_passphrase"
+            />
+          </v-list-item>
         </v-list>
     </v-navigation-drawer>
 
@@ -64,6 +93,31 @@ html, body {
 
 }
 
+.key-input {
+  width: 100% !important;
+  padding: 0;
+  height: 48px !important;
+  font-size: 0.9em !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.key-input .v-icon {
+  height: 28px !important;
+  width: 28px !important;
+  font-size: 2.0em !important;
+}
+
+.key-input span {
+  width: 100% !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  justify-content: normal;
+}
+
 </style>
 
 <script>
@@ -86,6 +140,7 @@ export default {
   },
   data: () => ({
     settings: false,
+    settings_obscure_passphrase: true,
 
     reload: {
       triggered: false,
@@ -310,6 +365,20 @@ export default {
     },
     reload_selected_explorer: function () {
       // TODO: Reimplement reload behavior for explorer
+    },
+    assign_key: async function (name, event) {
+      const files = event.target.files || event.dataTransfer.files
+
+      if (!files.length) {
+        this[name] = null
+        return
+      }
+
+      if (!files[0].path) {
+        return
+      }
+
+      this.configuration[name] = files[0].path
     }
   },
   computed: {
