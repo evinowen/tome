@@ -7,7 +7,7 @@
   >
 
     <v-btn tile icon small @click.stop="$emit('settings')" >
-      <v-icon small>mdi-settings</v-icon>
+      <v-icon small>mdi-cog</v-icon>
     </v-btn>
 
     <v-spacer></v-spacer>
