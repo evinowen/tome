@@ -113,7 +113,7 @@
         </v-col>
         <v-col cols=2 class="text-right">
           <v-container class="mt-2">
-          <v-dialog v-model="confirm" persistent max-width="1200px">
+          <v-dialog v-model="confirm" persistent max-width="600px">
             <template v-slot:activator="{ on }">
               <v-btn class="mr-4" v-on="on" style="width: 100%" :disabled="staged.length < 1">
                 <v-icon class="mr-2">mdi-content-save</v-icon>
@@ -121,8 +121,23 @@
               </v-btn>
             </template>
             <v-card>
-              <v-card-title class="headline">{{ input.message }}</v-card-title>
-              <v-card-text class="text-right">{{ input.name || configuration.name }} &lt;{{ input.email || configuration.email }}&gt;</v-card-text>
+              <v-list-item>
+                <v-list-item-avatar color="red">
+                  <v-icon dark>mdi-hammer-wrench</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title class="headline">Commit</v-list-item-title>
+                  <v-list-item-subtitle>Commit is prepared and ready to publish</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider></v-divider>
+              <v-card-text class="commit">
+                {{ input.message }}
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-container class="author text-right">
+              {{ input.name || configuration.name }} &lt;{{ input.email || configuration.email }}&gt;
+              </v-container>
               <v-card-actions>
                 <v-btn
                   color="orange darken-1"
@@ -198,6 +213,26 @@
 .message.v-textarea textarea {
   line-height: 1.0em !important;
   font-size: 2.0em;
+}
+
+.commit {
+  font-family: monospace;
+  min-height: 120px;
+  padding: 0 4px !important;
+  font-size: 24px;
+  line-height: 1.0em !important;
+  background: repeating-linear-gradient(
+    to bottom,
+    #EFEFEF,
+    #EFEFEF 24px,
+    #F8F8F8 24px,
+    #F8F8F8 48px
+  );
+}
+
+.author {
+  font-family: monospace;
+  font-size: 1.2em;
 }
 </style>
 
