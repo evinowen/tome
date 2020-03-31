@@ -1,7 +1,16 @@
 <template>
   <v-app id="inspire">
     <system-bar title="tome" @settings="settings = true" />
-    <v-navigation-drawer v-model="settings" fixed temporary/>
+    <v-navigation-drawer v-model="settings" fixed temporary>
+        <v-list dense>
+          <v-list-item>
+            <v-text-field small label="Name" v-model="configuration.name" />
+          </v-list-item>
+          <v-list-item>
+            <v-text-field small label="E-Mail" v-model="configuration.email" />
+          </v-list-item>
+        </v-list>
+    </v-navigation-drawer>
 
     <editor-interface
       :edit=edit
@@ -318,6 +327,9 @@ export default {
     },
     tome: function () {
       return store.state.tome
+    },
+    configuration: function () {
+      return store.state.tome_config
     }
   },
   components: {
