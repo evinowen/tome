@@ -115,7 +115,7 @@
           <v-container class="mt-2">
           <v-dialog v-model="confirm" persistent max-width="1200px">
             <template v-slot:activator="{ on }">
-              <v-btn class="mr-4" v-on="on" style="width: 100%">
+              <v-btn class="mr-4" v-on="on" style="width: 100%" :disabled="staged.length < 1">
                 <v-icon class="mr-2">mdi-content-save</v-icon>
                 Save
               </v-btn>
