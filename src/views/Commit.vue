@@ -108,7 +108,7 @@
             clearable
             auto-grow
             rows=3
-            style="height: 100px; font-size: 2.5em; line-height: 1.2em !important;"
+            class="message"
           ></v-textarea>
         </v-col>
         <v-col cols=2 class="text-right">
@@ -189,6 +189,15 @@
 
 .v-data-table .v-btn .v-icon {
   font-size: 14px !important;
+}
+
+.message {
+  height: 100px;
+}
+
+.message.v-textarea textarea {
+  line-height: 1.0em !important;
+  font-size: 2.0em;
 }
 </style>
 
