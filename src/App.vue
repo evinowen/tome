@@ -2,7 +2,7 @@
   <v-app id="inspire">
     <system-bar title="tome" @settings="settings.open = true" />
     <v-navigation-drawer v-model="settings.open" fixed temporary>
-      <v-list dense>
+      <v-list dense v-if="configuration">
         <v-list-item>
           <v-text-field small label="Name" v-model="configuration.name" @change="counter_start('settings')" />
         </v-list-item>
@@ -40,6 +40,23 @@
           />
         </v-list-item>
       </v-list>
+      <template v-slot:append>
+        <v-divider></v-divider>
+        <v-container class="my-1">
+          <v-layout justify-center align-center>
+            <v-progress-circular
+              v-if="settings.triggered"
+              :value="(settings.counter * 100) / settings.max"
+              :size="32"
+              :width="6"
+              color="orange darken-1"
+            />
+            <v-avatar v-else color="green" size="32">
+              <v-icon dark>mdi-content-save</v-icon>
+            </v-avatar>
+          </v-layout>
+        </v-container>
+      </template>
     </v-navigation-drawer>
 
     <editor-interface
@@ -145,7 +162,7 @@ export default {
       obscure_passphrase: true,
       triggered: false,
       counter: 0,
-      max: 1
+      max: 3
     },
 
     reload: {
@@ -324,13 +341,17 @@ export default {
       this[target].counter = this[target].counter - 1
 
       if (this[target].counter >= 0) {
-        this[target].timeout = setTimeout(() => this.counter_update(target), 500)
+        this[target].timeout = setTimeout(() => this.counter_update(target), 1000)
       }
     },
     counter_run: async function (target) {
       clearTimeout(this[target].timeout)
-      this[target].triggered = false
       this[target].run()
+      this[target].timeout = setTimeout(() => this.counter_clear(target), 1000)
+    },
+    counter_clear: async function (target) {
+      clearTimeout(this[target].timeout)
+      this[target].triggered = false
     },
     reload_start: function () {
       clearTimeout(this.reload.timeout)
