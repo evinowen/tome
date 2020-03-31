@@ -1,7 +1,7 @@
 <template>
   <v-app id="inspire">
-    <system-bar title="tome" @settings="settings = true" />
-    <v-navigation-drawer v-model="settings" fixed temporary>
+    <system-bar title="tome" @settings="settings.open = true" />
+    <v-navigation-drawer v-model="settings.open" fixed temporary>
         <v-list dense>
           <v-list-item>
             <v-text-field small label="Name" v-model="configuration.name" />
@@ -33,9 +33,9 @@
             <v-text-field
               v-model="configuration.passphrase"
               label="passphrase" small clearable
-              :append-icon="settings_obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
-              :type="settings_obscure_passphrase ? 'password' : 'text'"
-              @click:append="settings_obscure_passphrase = !settings_obscure_passphrase"
+              :append-icon="settings.obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
+              :type="settings.obscure_passphrase ? 'password' : 'text'"
+              @click:append="settings.obscure_passphrase = !settings.obscure_passphrase"
             />
           </v-list-item>
         </v-list>
@@ -139,8 +139,11 @@ export default {
     source: String
   },
   data: () => ({
-    settings: false,
-    settings_obscure_passphrase: true,
+    settings: {
+      open: false,
+      obscure_passphrase: true,
+    },
+
 
     reload: {
       triggered: false,
