@@ -2,44 +2,44 @@
   <v-app id="inspire">
     <system-bar title="tome" @settings="settings.open = true" />
     <v-navigation-drawer v-model="settings.open" fixed temporary>
-        <v-list dense>
-          <v-list-item>
-            <v-text-field small label="Name" v-model="configuration.name" @change="counter_start('settings')" />
-          </v-list-item>
-          <v-list-item>
-            <v-text-field small label="E-Mail" v-model="configuration.email" @change="counter_start('settings')" />
-          </v-list-item>
-          <v-list-item>
-            <v-container class="pa-0 mb-2">
-              <div class="overline">Private Key</div>
-              <input ref="private_key" type="file" style="display: none" @change="assign_key('private_key', $event)" />
-              <v-btn tile icon small dark :color="configuration.private_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.private_key.click()">
-                <v-icon small>{{ configuration.private_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-                {{ configuration.private_key }}
-              </v-btn>
-            </v-container>
-          </v-list-item>
-          <v-list-item>
-            <v-container class="pa-0 mb-2">
-              <div class="overline">Public Key</div>
-              <input ref="public_key" type="file" style="display: none" @change="assign_key('public_key', $event)" />
-              <v-btn tile icon small dark :color="configuration.public_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.public_key.click()">
-                <v-icon small>{{ configuration.public_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-                {{ configuration.public_key }}
-              </v-btn>
-            </v-container>
-          </v-list-item>
-          <v-list-item>
-            <v-text-field
-              v-model="configuration.passphrase"
-              label="passphrase" small clearable
-              :append-icon="settings.obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
-              :type="settings.obscure_passphrase ? 'password' : 'text'"
-              @click:append="settings.obscure_passphrase = !settings.obscure_passphrase"
-              @change="counter_run('settings')"
-            />
-          </v-list-item>
-        </v-list>
+      <v-list dense>
+        <v-list-item>
+          <v-text-field small label="Name" v-model="configuration.name" @change="counter_start('settings')" />
+        </v-list-item>
+        <v-list-item>
+          <v-text-field small label="E-Mail" v-model="configuration.email" @change="counter_start('settings')" />
+        </v-list-item>
+        <v-list-item>
+          <v-container class="pa-0 mb-2">
+            <div class="overline">Private Key</div>
+            <input ref="private_key" type="file" style="display: none" @change="assign_key('private_key', $event)" />
+            <v-btn tile icon small dark :color="configuration.private_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.private_key.click()">
+              <v-icon small>{{ configuration.private_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
+              {{ configuration.private_key }}
+            </v-btn>
+          </v-container>
+        </v-list-item>
+        <v-list-item>
+          <v-container class="pa-0 mb-2">
+            <div class="overline">Public Key</div>
+            <input ref="public_key" type="file" style="display: none" @change="assign_key('public_key', $event)" />
+            <v-btn tile icon small dark :color="configuration.public_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.public_key.click()">
+              <v-icon small>{{ configuration.public_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
+              {{ configuration.public_key }}
+            </v-btn>
+          </v-container>
+        </v-list-item>
+        <v-list-item>
+          <v-text-field
+            v-model="configuration.passphrase"
+            label="passphrase" small clearable
+            :append-icon="settings.obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
+            :type="settings.obscure_passphrase ? 'password' : 'text'"
+            @click:append="settings.obscure_passphrase = !settings.obscure_passphrase"
+            @change="counter_run('settings')"
+          />
+        </v-list-item>
+      </v-list>
     </v-navigation-drawer>
 
     <editor-interface
