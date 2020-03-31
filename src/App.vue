@@ -4,10 +4,10 @@
     <v-navigation-drawer v-model="settings.open" fixed temporary>
         <v-list dense>
           <v-list-item>
-            <v-text-field small label="Name" v-model="configuration.name" />
+            <v-text-field small label="Name" v-model="configuration.name" @change="counter_start('settings')" />
           </v-list-item>
           <v-list-item>
-            <v-text-field small label="E-Mail" v-model="configuration.email" />
+            <v-text-field small label="E-Mail" v-model="configuration.email" @change="counter_start('settings')" />
           </v-list-item>
           <v-list-item>
             <v-container class="pa-0 mb-2">
@@ -36,6 +36,7 @@
               :append-icon="settings.obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
               :type="settings.obscure_passphrase ? 'password' : 'text'"
               @click:append="settings.obscure_passphrase = !settings.obscure_passphrase"
+              @change="counter_run('settings')"
             />
           </v-list-item>
         </v-list>
@@ -142,8 +143,10 @@ export default {
     settings: {
       open: false,
       obscure_passphrase: true,
+      triggered: false,
+      counter: 0,
+      max: 1
     },
-
 
     reload: {
       triggered: false,
@@ -172,6 +175,8 @@ export default {
 
   }),
   mounted: async function () {
+    this.settings.run = () => {}
+
     store.state.tome_file_actions_root = [
       {
         name: 'New File',
@@ -303,7 +308,30 @@ export default {
       console.log('action_open_folder', path)
       shell.openItem(path)
     },
+    counter_start: function (target) {
+      clearTimeout(this[target].timeout)
 
+      this[target].triggered = true
+      this[target].counter = this[target].max
+
+      this[target].timeout = setTimeout(() => this.counter_update(target), 500)
+    },
+    counter_update: async function (target) {
+      if (!this[target].counter) {
+        return this.counter_run(target)
+      }
+
+      this[target].counter = this[target].counter - 1
+
+      if (this[target].counter >= 0) {
+        this[target].timeout = setTimeout(() => this.counter_update(target), 500)
+      }
+    },
+    counter_run: async function (target) {
+      clearTimeout(this[target].timeout)
+      this[target].triggered = false
+      this[target].run()
+    },
     reload_start: function () {
       clearTimeout(this.reload.timeout)
 
@@ -382,6 +410,7 @@ export default {
       }
 
       this.configuration[name] = files[0].path
+      this.counter_start('settings')
     }
   },
   computed: {
