@@ -192,7 +192,15 @@ export default {
 
   }),
   mounted: async function () {
-    this.settings.run = () => {}
+    this.settings.run = async () =>
+      new Promise((resolve, reject) =>
+        fs.writeFile(
+          store.state.tome_app_config_path,
+          JSON.stringify(store.state.tome_config),
+          'utf8',
+          (err, data) => err ? reject(err) : resolve(data)
+        )
+      )
 
     store.state.tome_file_actions_root = [
       {
