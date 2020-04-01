@@ -36,7 +36,7 @@
             :append-icon="settings.obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
             :type="settings.obscure_passphrase ? 'password' : 'text'"
             @click:append="settings.obscure_passphrase = !settings.obscure_passphrase"
-            @change="counter_run('settings')"
+            @change="counter_start('settings')"
           />
         </v-list-item>
       </v-list>
