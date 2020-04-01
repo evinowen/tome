@@ -1,7 +1,63 @@
 <template>
   <v-app id="inspire">
-    <system-bar title="tome" @settings="settings = true" />
-    <v-navigation-drawer v-model="settings" fixed temporary/>
+    <system-bar title="tome" @settings="settings.open = true" />
+    <v-navigation-drawer v-model="settings.open" fixed temporary>
+      <v-list dense v-if="configuration">
+        <v-list-item>
+          <v-text-field small label="Name" v-model="configuration.name" @change="counter_start('settings')" />
+        </v-list-item>
+        <v-list-item>
+          <v-text-field small label="E-Mail" v-model="configuration.email" @change="counter_start('settings')" />
+        </v-list-item>
+        <v-list-item>
+          <v-container class="pa-0 mb-2">
+            <div class="overline">Private Key</div>
+            <input ref="private_key" type="file" style="display: none" @change="assign_key('private_key', $event)" />
+            <v-btn tile icon small dark :color="configuration.private_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.private_key.click()">
+              <v-icon small>{{ configuration.private_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
+              {{ configuration.private_key }}
+            </v-btn>
+          </v-container>
+        </v-list-item>
+        <v-list-item>
+          <v-container class="pa-0 mb-2">
+            <div class="overline">Public Key</div>
+            <input ref="public_key" type="file" style="display: none" @change="assign_key('public_key', $event)" />
+            <v-btn tile icon small dark :color="configuration.public_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.public_key.click()">
+              <v-icon small>{{ configuration.public_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
+              {{ configuration.public_key }}
+            </v-btn>
+          </v-container>
+        </v-list-item>
+        <v-list-item>
+          <v-text-field
+            v-model="configuration.passphrase"
+            label="passphrase" small clearable
+            :append-icon="settings.obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
+            :type="settings.obscure_passphrase ? 'password' : 'text'"
+            @click:append="settings.obscure_passphrase = !settings.obscure_passphrase"
+            @change="counter_start('settings')"
+          />
+        </v-list-item>
+      </v-list>
+      <template v-slot:append>
+        <v-divider></v-divider>
+        <v-container class="my-1">
+          <v-layout justify-center align-center>
+            <v-progress-circular
+              v-if="settings.triggered"
+              :value="(settings.counter * 100) / settings.max"
+              :size="32"
+              :width="6"
+              color="orange darken-1"
+            />
+            <v-avatar v-else color="green" size="32">
+              <v-icon dark>mdi-content-save</v-icon>
+            </v-avatar>
+          </v-layout>
+        </v-container>
+      </template>
+    </v-navigation-drawer>
 
     <editor-interface
       :edit=edit
@@ -55,6 +111,31 @@ html, body {
 
 }
 
+.key-input {
+  width: 100% !important;
+  padding: 0;
+  height: 48px !important;
+  font-size: 0.9em !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.key-input .v-icon {
+  height: 28px !important;
+  width: 28px !important;
+  font-size: 2.0em !important;
+}
+
+.key-input span {
+  width: 100% !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  justify-content: normal;
+}
+
 </style>
 
 <script>
@@ -76,7 +157,13 @@ export default {
     source: String
   },
   data: () => ({
-    settings: false,
+    settings: {
+      open: false,
+      obscure_passphrase: true,
+      triggered: false,
+      counter: 0,
+      max: 3
+    },
 
     reload: {
       triggered: false,
@@ -105,6 +192,16 @@ export default {
 
   }),
   mounted: async function () {
+    this.settings.run = async () =>
+      new Promise((resolve, reject) =>
+        fs.writeFile(
+          store.state.tome_app_config_path,
+          JSON.stringify(store.state.tome_config),
+          'utf8',
+          (err, data) => err ? reject(err) : resolve(data)
+        )
+      )
+
     store.state.tome_file_actions_root = [
       {
         name: 'New File',
@@ -236,7 +333,34 @@ export default {
       console.log('action_open_folder', path)
       shell.openItem(path)
     },
+    counter_start: function (target) {
+      clearTimeout(this[target].timeout)
 
+      this[target].triggered = true
+      this[target].counter = this[target].max
+
+      this[target].timeout = setTimeout(() => this.counter_update(target), 500)
+    },
+    counter_update: async function (target) {
+      if (!this[target].counter) {
+        return this.counter_run(target)
+      }
+
+      this[target].counter = this[target].counter - 1
+
+      if (this[target].counter >= 0) {
+        this[target].timeout = setTimeout(() => this.counter_update(target), 1000)
+      }
+    },
+    counter_run: async function (target) {
+      clearTimeout(this[target].timeout)
+      this[target].run()
+      this[target].timeout = setTimeout(() => this.counter_clear(target), 1000)
+    },
+    counter_clear: async function (target) {
+      clearTimeout(this[target].timeout)
+      this[target].triggered = false
+    },
     reload_start: function () {
       clearTimeout(this.reload.timeout)
 
@@ -301,6 +425,21 @@ export default {
     },
     reload_selected_explorer: function () {
       // TODO: Reimplement reload behavior for explorer
+    },
+    assign_key: async function (name, event) {
+      const files = event.target.files || event.dataTransfer.files
+
+      if (!files.length) {
+        this[name] = null
+        return
+      }
+
+      if (!files[0].path) {
+        return
+      }
+
+      this.configuration[name] = files[0].path
+      this.counter_start('settings')
     }
   },
   computed: {
@@ -318,6 +457,9 @@ export default {
     },
     tome: function () {
       return store.state.tome
+    },
+    configuration: function () {
+      return store.state.tome_config
     }
   },
   components: {
