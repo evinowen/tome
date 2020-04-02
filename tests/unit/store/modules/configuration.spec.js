@@ -13,9 +13,13 @@ jest.mock('electron', () => ({
 
 let json
 
+function fs_callback (options, callback) {
+  (options && callback ? callback : options).call(null, null, json)
+}
+
 const fs = {
-  readFile: jest.fn(() => Promise.resolve(json)),
-  writeFile: jest.fn()
+  readFile: jest.fn((path, options, callback) => fs_callback (options, callback) ),
+  writeFile: jest.fn((file, data, options, callback) => fs_callback (options, callback) )
 }
 
 remote.require = jest.fn((target) => {
