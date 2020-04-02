@@ -11,8 +11,10 @@ jest.mock('electron', () => ({
   }
 }))
 
+let json;
+
 const fs = {
-  readFile: jest.fn(),
+  readFile: jest.fn(() => Promise.resolve(json)),
   writeFile: jest.fn()
 }
 
@@ -31,12 +33,32 @@ describe('store/modules/configuration.js', () => {
         configuration
       }
     })
+
+    json = JSON.stringify({
+      name: 'Test User',
+      email: 'testuser@example.com',
+      private_key: 'id_rsa',
+      public_key: 'id_rsa.pub',
+      passphrase: 'password'
+    })
   })
 
   it('should load json from provided file when loadConfiguration is dispatched', async () => {
+    expect(store.state.configuration.name).toBe('')
+    expect(store.state.configuration.email).toBe('')
+    expect(store.state.configuration.private_key).toBe('')
+    expect(store.state.configuration.public_key).toBe('')
+    expect(store.state.configuration.passphrase).toBe('')
+
     await store.dispatch('loadConfiguration', 'config.json')
 
     expect(fs.readFile).toHaveBeenCalledTimes(1)
+
+    expect(store.state.configuration.name).toBe('Test User')
+    expect(store.state.configuration.email).toBe('testuser@example.com')
+    expect(store.state.configuration.private_key).toBe('id_rsa')
+    expect(store.state.configuration.public_key).toBe('id_rsa.pub')
+    expect(store.state.configuration.passphrase).toBe('password')
   })
 
   it('should save json from provided file when writeConfiguration is dispatched', async () => {
