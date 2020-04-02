@@ -43,13 +43,17 @@ describe('store/modules/configuration.js', () => {
     })
   })
 
-  it('should load json from provided file when loadConfiguration is dispatched', async () => {
+  it('should populate empty values when initalized', async () => {
     expect(store.state.configuration.name).toBe('')
     expect(store.state.configuration.email).toBe('')
     expect(store.state.configuration.private_key).toBe('')
     expect(store.state.configuration.public_key).toBe('')
     expect(store.state.configuration.passphrase).toBe('')
 
+    expect(store.state.configuration.undefined).toBeUndefined()
+  })
+
+  it('should load json from provided file when loadConfiguration is dispatched', async () => {
     await store.dispatch('loadConfiguration', 'config.json')
 
     expect(fs.readFile).toHaveBeenCalledTimes(1)
