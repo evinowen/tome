@@ -81,8 +81,17 @@ describe('store/modules/configuration.js', () => {
   })
 
   it('should save json from provided file when writeConfiguration is dispatched', async () => {
+    let json = JSON.stringify({
+      name: '',
+      email: '',
+      private_key: '',
+      public_key: '',
+      passphrase: ''
+    })
+
     await store.dispatch('writeConfiguration', 'config.json')
 
     expect(fs.writeFile).toHaveBeenCalledTimes(1)
+    expect(mockCallback.mock.calls[0][0]).toBe(json);
   })
 })
