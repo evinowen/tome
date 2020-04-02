@@ -23,7 +23,7 @@ remote.require = jest.fn((target) => {
 })
 
 describe('store/modules/configuration.js', () => {
-  let store;
+  let store
 
   beforeEach(() => {
     store = new Vuex.Store({
@@ -44,5 +44,4 @@ describe('store/modules/configuration.js', () => {
 
     expect(fs.writeFile).toHaveBeenCalledTimes(1)
   })
-
 })
