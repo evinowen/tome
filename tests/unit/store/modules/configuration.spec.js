@@ -65,6 +65,21 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.passphrase).toBe('password')
   })
 
+  it('should set values from object when updateConfiguration is dispatched', async () => {
+    const update = {
+      name: 'New Name',
+      passphrase: 'q1h7$u*3~y:}l$:akiKUa&z%:VhDP|'
+    }
+
+    await store.dispatch('updateConfiguration', update)
+
+    expect(store.state.configuration.name).toBe('New Name')
+    expect(store.state.configuration.email).toBe('')
+    expect(store.state.configuration.private_key).toBe('')
+    expect(store.state.configuration.public_key).toBe('')
+    expect(store.state.configuration.passphrase).toBe('q1h7$u*3~y:}l$:akiKUa&z%:VhDP|')
+  })
+
   it('should save json from provided file when writeConfiguration is dispatched', async () => {
     await store.dispatch('writeConfiguration', 'config.json')
 
