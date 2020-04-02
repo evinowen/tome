@@ -81,7 +81,7 @@ describe('store/modules/configuration.js', () => {
   })
 
   it('should save json from provided file when writeConfiguration is dispatched', async () => {
-    let json = JSON.stringify({
+    const json = JSON.stringify({
       name: '',
       email: '',
       private_key: '',
