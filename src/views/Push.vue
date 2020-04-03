@@ -27,7 +27,7 @@
                 </v-btn>
               </v-col>
               <v-col cols=1>
-                <v-btn tile icon small dark :color="default_private_key ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="input.private_key.value = default_private_key">
+                <v-btn tile icon small dark :color="configuration.private_key ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="input.private_key.value = configuration.private_key">
                   <v-icon small>mdi-key</v-icon>
                 </v-btn>
               </v-col>
@@ -43,7 +43,7 @@
                 </v-btn>
               </v-col>
               <v-col cols=1>
-                <v-btn tile icon small dark :color="default_public_key ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="input.public_key.value = default_public_key">
+                <v-btn tile icon small dark :color="configuration.public_key ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="input.public_key.value = configuration.public_key">
                   <v-icon small>mdi-key</v-icon>
                 </v-btn>
               </v-col>
@@ -63,7 +63,7 @@
                 />
               </v-col>
               <v-col cols=1>
-                <v-btn tile icon small dark :color="default_passphrase ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="input.passphrase.value = default_passphrase">
+                <v-btn tile icon small dark :color="configuration.passphrase ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="input.passphrase.value = configuration.passphrase">
                   <v-icon small>mdi-key</v-icon>
                 </v-btn>
               </v-col>
@@ -276,6 +276,9 @@ export default {
     },
     branch: function () {
       return store.state.tome.branch.name
+    },
+    configuration: function () {
+      return store.state.configuration
     }
   },
   mounted: async function () {
