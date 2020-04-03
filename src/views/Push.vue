@@ -18,6 +18,10 @@
         <v-col>
 
           <v-card dense class="my-2">
+            <v-card-title class="pa-2">
+              Credentials
+            </v-card-title>
+
             <v-row no-gutters>
               <v-col>
                 <input ref="private_key" type="file" style="display: none" @change="assign_private_key" />
@@ -72,6 +76,9 @@
           </v-card>
 
           <v-card dense class="my-2">
+            <v-card-title class="pa-2">
+              Remote
+            </v-card-title>
             <v-card-actions>
               <v-select
                 :items="input.remotes.list"
