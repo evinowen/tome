@@ -172,6 +172,57 @@
 
       <v-divider class="mt-4 mb-2"></v-divider>
 
+      <v-row align="center" justify="center">
+        <v-col>
+          <v-card>
+            <template v-if=selected>
+              <template v-if=error>
+                <v-list-item>
+                  <v-list-item-avatar color="red">
+                    <v-icon dark>mdi-alert</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title class="headline">Error</v-list-item-title>
+                    <v-list-item-subtitle>{{ error }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider></v-divider>
+                <v-card-text class="text-center">&mdash;</v-card-text>
+              </template>
+              <template v-else>
+                <v-list-item>
+                  <v-list-item-avatar color="green">
+                    <v-icon dark>mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title class="headline">Compare</v-list-item-title>
+                    <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider></v-divider>
+                <v-card-text class="text-center">&mdash;</v-card-text>
+              </template>
+            </template>
+            <template v-else>
+              <v-list-item>
+                <v-list-item-avatar color="grey">
+                  <v-icon dark>mdi-cursor-pointer</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title class="headline">Select Remote</v-list-item-title>
+                  <v-list-item-subtitle>Choose a remote to compare to the local repository</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider></v-divider>
+              <v-card-text class="text-center">&mdash;</v-card-text>
+            </template>
+          </v-card>
+        </v-col>
+
+      </v-row>
+
+      <v-divider class="mt-4 mb-2"></v-divider>
+
       <v-row>
         <v-col>
           <v-dialog v-model="confirm" persistent max-width="1200px">
@@ -238,6 +289,8 @@ import NodeGit from 'nodegit'
 
 export default {
   data: () => ({
+    selected: false,
+    error: null,
     confirm: false,
     working: false,
     input: {
