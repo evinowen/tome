@@ -1,9 +1,9 @@
 import { remote } from 'electron'
-import Vue from 'vue'
 import Vuex from 'vuex'
-import configuration from '@/store/modules/configuration'
 
-Vue.use(Vuex)
+import { createLocalVue } from '@vue/test-utils'
+import configuration from '@/store/modules/configuration'
+import { cloneDeep } from 'lodash'
 
 jest.mock('electron', () => ({
   remote: {
@@ -29,14 +29,17 @@ remote.require = jest.fn((target) => {
 })
 
 describe('store/modules/configuration.js', () => {
+  let localVue
   let store
 
   beforeEach(() => {
-    store = new Vuex.Store({
+    localVue = createLocalVue()
+    localVue.use(Vuex)
+    store = new Vuex.Store(cloneDeep({
       modules: {
         configuration
       }
-    })
+    }))
 
     json = JSON.stringify({
       name: 'Test User',
