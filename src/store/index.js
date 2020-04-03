@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import tome from './modules/tome'
+import configuration from './modules/configuration'
 
 Vue.use(Vuex)
 
@@ -21,6 +22,7 @@ export default new Vuex.Store({
   mutations: {
   },
   modules: {
-    tome: tome
+    tome: tome,
+    configuration
   }
 })
