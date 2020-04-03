@@ -75,7 +75,6 @@
                 :items="input.remotes.list"
                 label="Remote"
                 @change="select_remote"
-                :disabled="(input.private_key.value && input.public_key.value) ? false : true"
                 dense clearable class="mt-4"
               >
                 <template v-slot:selection="data">
