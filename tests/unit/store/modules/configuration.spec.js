@@ -100,6 +100,6 @@ describe('store/modules/configuration.js', () => {
     await store.dispatch('writeConfiguration', 'config.json')
 
     expect(fs.writeFile).toHaveBeenCalledTimes(1)
-    expect(fs.writeFile.mock.calls[0][0]).toBe(json)
+    expect(fs.writeFile.mock.calls[0][1]).toBe(json)
   })
 })
