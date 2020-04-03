@@ -47,6 +47,10 @@ describe('store/modules/configuration.js', () => {
     })
   })
 
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
   it('should populate empty values when initalized', async () => {
     expect(store.state.configuration.name).toBe('')
     expect(store.state.configuration.email).toBe('')
