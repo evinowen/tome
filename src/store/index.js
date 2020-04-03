@@ -8,7 +8,6 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    tome_config: null,
     tome_file: '',
     tome_file_selected: '',
     tome_file_path: '',
