@@ -69,7 +69,9 @@
               </v-col>
 
             </v-row>
+          </v-card>
 
+          <v-card dense class="my-2">
             <v-card-actions>
               <v-select
                 :items="input.remotes.list"
