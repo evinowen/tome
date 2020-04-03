@@ -256,7 +256,7 @@ export default {
 
     tome: function () {
       return store.state.tome
-    },
+    }
 
   },
 
