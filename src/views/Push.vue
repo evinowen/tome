@@ -229,11 +229,6 @@ import store from '@/store'
 import NodeGit from 'nodegit'
 
 export default {
-  props: {
-    default_private_key: { type: String, default: '' },
-    default_public_key: { type: String, default: '' },
-    default_passphrase: { type: String, default: '' }
-  },
   data: () => ({
     confirm: false,
     working: false,

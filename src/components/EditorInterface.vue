@@ -35,14 +35,7 @@
           <commit-view v-else-if="commit" @close="$emit('commit:close')" />
 
           <!-- PUSH WINDOW -->
-          <push-view
-            v-else-if="push"
-            @close="$emit('push:close')"
-            :default_private_key="configuration.private_key"
-            :default_public_key="configuration.public_key"
-            :default_passphrase="configuration.passphrase"
-
-          />
+          <push-view v-else-if="push" @close="$emit('push:close')" />
 
           <!-- OPEN FILE WINDOW -->
           <codemirror v-else-if="absolute_path" :value="content" style="height: 100%;" @input="save_file" />
@@ -264,10 +257,6 @@ export default {
     tome: function () {
       return store.state.tome
     },
-
-    configuration: function () {
-      return store.state.tome_config
-    }
 
   },
 
