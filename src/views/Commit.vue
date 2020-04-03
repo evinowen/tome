@@ -266,7 +266,7 @@ export default {
       return store.state.tome.status.available.items
     },
     configuration: function () {
-      return store.state.tome_config
+      return store.state.configuration
     }
   },
   methods: {
