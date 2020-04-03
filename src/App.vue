@@ -192,15 +192,7 @@ export default {
 
   }),
   mounted: async function () {
-    this.settings.run = async () =>
-      new Promise((resolve, reject) =>
-        fs.writeFile(
-          store.state.tome_app_config_path,
-          JSON.stringify(store.state.tome_config),
-          'utf8',
-          (err, data) => err ? reject(err) : resolve(data)
-        )
-      )
+    this.settings.run = async () => store.dispatch('writeConfiguration', store.state.tome_app_config_path)
 
     store.state.tome_file_actions_root = [
       {
@@ -270,40 +262,10 @@ export default {
       await new Promise((resolve, reject) => fs.close(fd, (err) => err ? reject(err) : resolve(true)))
     }
 
-    await this.configure()
+    await store.dispatch('loadConfiguration', store.state.tome_app_config_path)
+    console.log('configuration complete', this.configuration)
   },
   methods: {
-    configure: async function (input) {
-      const data = await new Promise((resolve, reject) => fs.readFile(store.state.tome_app_config_path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
-
-      let parsed = {}
-
-      try {
-        parsed = JSON.parse(data)
-        console.log('configuration loaded', parsed)
-      } catch (err) {
-        console.log('configuration load failed', err)
-      }
-
-      if (!parsed || typeof parsed !== 'object') {
-        console.log('configuration parsed format error', parsed)
-        parsed = {}
-      }
-
-      store.state.tome_config = {
-        name: '',
-        email: '',
-        private_key: '',
-        public_key: '',
-        passphrase: '',
-
-        ...parsed
-
-      }
-
-      console.log('configuration complete', store.state.tome_config)
-      return true
-    },
     choose_tome: function (event) {
       this.$refs.tome.click()
     },
@@ -438,7 +400,7 @@ export default {
         return
       }
 
-      this.configuration[name] = files[0].path
+      await store.dispatch('updateConfiguration', { [name]: files[0].path })
       this.counter_start('settings')
     }
   },
@@ -459,7 +421,7 @@ export default {
       return store.state.tome
     },
     configuration: function () {
-      return store.state.tome_config
+      return store.state.configuration
     }
   },
   components: {
