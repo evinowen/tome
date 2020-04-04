@@ -175,15 +175,27 @@
       <v-row align="center" justify="center">
         <v-col>
           <v-card>
-            <template v-if=selected>
-              <template v-if=error>
+            <template v-if=input.remotes.value>
+              <template v-if=input.branch.loading>
+                <v-list-item>
+                  <v-list-item-avatar color="grey">
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title class="headline">&mdash;</v-list-item-title>
+                    <v-list-item-subtitle>Loading ... </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider></v-divider>
+                <v-card-text class="text-center">&mdash;</v-card-text>
+              </template>
+              <template v-else-if=this.input.branch.error>
                 <v-list-item>
                   <v-list-item-avatar color="red">
                     <v-icon dark>mdi-alert</v-icon>
                   </v-list-item-avatar>
                   <v-list-item-content>
                     <v-list-item-title class="headline">Error</v-list-item-title>
-                    <v-list-item-subtitle>{{ error }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{ this.input.branch.error }}</v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
                 <v-divider></v-divider>
@@ -228,7 +240,7 @@
           <v-dialog v-model="confirm" persistent max-width="1200px">
             <template v-slot:activator="{ on }">
               <v-btn class="mr-4" v-on="on"
-                :disabled="(input.private_key.value && input.public_key.value && input.remotes.value ) ? false : true"
+                :disabled="(input.private_key.value && input.public_key.value && input.branch.loaded ) ? false : true"
               >
                 <v-icon class="mr-2">mdi-upload-multiple</v-icon>
                 Push
@@ -289,8 +301,6 @@ import NodeGit from 'nodegit'
 
 export default {
   data: () => ({
-    selected: false,
-    error: null,
     confirm: false,
     working: false,
     input: {
@@ -316,7 +326,9 @@ export default {
         obscured: false
       },
       branch: {
-        loading: false
+        error: null,
+        loading: false,
+        loaded: false
       }
     },
     headers: [
@@ -400,44 +412,51 @@ export default {
     remove_remote: function (event) {
     },
     select_remote: async function (remote) {
-      this.input.remotes.value = null
+      this.input.remotes.value = remote
 
       this.input.branch.reference = null
       this.input.branch.loading = true
+      this.input.branch.loaded = false
 
-      if (remote) {
-        try {
-          const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
-
-          if (result) { }
-
-          console.log('referenceList?', (await remote.object.referenceList()).map(reference => {
-            const object = {
-              name: reference.name(),
-              object: reference
-
-            }
-
-            const parsed = reference.name().match(/^refs\/heads\/(.*)$/m)
-
-            if (parsed) {
-              object.short = parsed[1]
-
-              if (object.short === this.branch) {
-                this.input.branch.reference = object
-              }
-            }
-
-            return object
-          }))
-
-          this.input.remotes.value = remote
-        } catch (err) { }
-      }
+      await this.load_branch()
 
       this.input.branch.loading = false
+    },
+    load_branch: async function () {
+      const remote = this.input.remotes.value
+      this.input.branch.error = 'Loading ... '
+      try {
+        const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
 
-      return true
+        if (result) { }
+
+        console.log('referenceList?', (await remote.object.referenceList()).map(reference => {
+          const object = {
+            name: reference.name(),
+            object: reference
+
+          }
+
+          const parsed = reference.name().match(/^refs\/heads\/(.*)$/m)
+
+          if (parsed) {
+            object.short = parsed[1]
+
+            if (object.short === this.branch) {
+              this.input.branch.reference = object
+            }
+          }
+
+          return object
+        }))
+
+        this.input.branch.loaded = true
+      } catch (error) {
+        this.input.branch.error = error
+        return
+      }
+
+      this.input.branch.error = null
     },
 
     push: async function (event) {
