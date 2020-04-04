@@ -199,7 +199,12 @@
                   </v-list-item-content>
                 </v-list-item>
                 <v-divider></v-divider>
-                <v-card-text class="text-center">&mdash;</v-card-text>
+                <v-card-text class="text-center">
+                  <v-btn @click.stop="load_branch">
+                    <v-icon class="mr-2">mdi-reload</v-icon>
+                    Retry
+                  </v-btn>
+                </v-card-text>
               </template>
               <template v-else>
                 <v-list-item>
