@@ -216,22 +216,21 @@
                     <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
-                <v-divider></v-divider>
-
-                <v-data-table
-                  dense disable-sort class="my-0"
-                  :headers="input.branch.headers"
-                  :items="input.branch.history"
-                  :hide-default-header="true"
-                  :hide-default-footer="true"
-                  :items-per-page="input.branch.history.length"
-                >
-                  <template v-slot:item.oid="{ item }">
-                    <v-btn tile icon x-small color="green">
-                      {{ item.oid.substring(0, 7) }}
-                    </v-btn>
-                  </template>
-                </v-data-table>
+                <v-container class="pa-0 ma-0" style="background: #DDDDDD; min-height: 120px">
+                  <v-data-table
+                    dense disable-sort class="my-0 commit-history"
+                    :headers="input.branch.headers"
+                    :items="input.branch.history"
+                    :hide-default-footer="true"
+                    :items-per-page="input.branch.history.length"
+                  >
+                    <template v-slot:item.oid="{ item }">
+                      <v-btn tile icon x-small color="green">
+                        {{ item.oid.substring(0, 7) }}
+                      </v-btn>
+                    </template>
+                  </v-data-table>
+                </v-container>
               </template>
               <template v-else>
                 <v-list-item>
@@ -288,21 +287,21 @@
                   <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider></v-divider>
-              <v-data-table
-                dense disable-sort class="my-0"
-                :headers="input.branch.headers"
-                :items="input.branch.history"
-                :hide-default-header="true"
-                :hide-default-footer="true"
-                :items-per-page="input.branch.history.length"
-              >
-                <template v-slot:item.oid="{ item }">
-                  <v-btn tile icon x-small color="orange">
-                    {{ item.oid.substring(0, 7) }}
-                  </v-btn>
-                </template>
-              </v-data-table>
+              <v-container class="pa-0 ma-0" style="background: #DDDDDD; min-height: 120px">
+                <v-data-table
+                  dense disable-sort class="my-0 commit-history"
+                  :headers="input.branch.headers"
+                  :items="input.branch.history"
+                  :hide-default-footer="true"
+                  :items-per-page="input.branch.history.length"
+                >
+                  <template v-slot:item.oid="{ item }">
+                    <v-btn tile icon x-small color="orange">
+                      {{ item.oid.substring(0, 7) }}
+                    </v-btn>
+                  </template>
+                </v-data-table>
+              </v-container>
               <v-card-actions>
                 <v-btn
                   color="orange darken-1"
@@ -348,29 +347,34 @@
   border-radius: 0px;
 }
 
-.v-data-table .v-btn {
+.v-data-table.commit-history .v-btn {
   width: 100% !important;
   height: 100% !important;
   text-align: left;
   justify-content: left;
 }
 
-.v-data-table td {
+.v-data-table.commit-history th {
+  height: 1px;
+}
+
+.v-data-table.commit-history td {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  padding: 0 8px !important;
 }
 
-.v-data-table td:first-child {
+.v-data-table.commit-history td:first-child {
   padding: 0px !important;
 }
 
-.v-data-table td:first-child .v-btn {
+.v-data-table.commit-history td:first-child .v-btn {
   text-align: center;
   justify-content: center;
 }
 
-.v-data-table .v-btn .v-icon {
+.v-data-table.commit-history .v-btn .v-icon {
   font-size: 14px !important;
 }
 </style>
@@ -412,8 +416,8 @@ export default {
         ahead: false,
         history: [],
         headers: [
-          { value: 'oid', width: '100px' },
-          { value: 'message', width: '' }
+          { text: '', value: 'oid', width: '60px' },
+          { text: '', value: 'message', width: '' }
         ]
       }
     }
