@@ -347,6 +347,10 @@
   border-radius: 0px;
 }
 
+.v-data-table.commit-history {
+  border-radius: 0
+}
+
 .v-data-table.commit-history .v-btn {
   width: 100% !important;
   height: 100% !important;
