@@ -231,11 +231,6 @@
                       {{ item.oid.substring(0, 7) }}
                     </v-btn>
                   </template>
-
-                  <template v-slot:item.message="{ item }">
-                    {{ item.message.substring(0, 120) }} {{ item.message.length > 50 ? '…' : '' }}
-                  </template>
-
                 </v-data-table>
               </template>
             </template>
