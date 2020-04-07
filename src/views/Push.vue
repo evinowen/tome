@@ -256,7 +256,7 @@
 
       <v-row>
         <v-col>
-          <v-dialog v-model="confirm" persistent max-width="1200px">
+          <v-dialog v-model="confirm" persistent max-width="600px">
             <template v-slot:activator="{ on }">
               <v-btn class="mr-4" v-on="on"
                 :disabled="(input.private_key.value && input.public_key.value && input.branch.loaded ) ? false : true"
@@ -266,7 +266,30 @@
               </v-btn>
             </template>
             <v-card>
-              <v-card-title class="headline">Push</v-card-title>
+              <v-list-item>
+                <v-list-item-avatar color="orange">
+                  <v-icon dark>mdi-upload-multiple</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title class="headline">Push</v-list-item-title>
+                  <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider></v-divider>
+              <v-data-table
+                dense disable-sort class="my-0"
+                :headers="input.branch.headers"
+                :items="input.branch.history"
+                :hide-default-header="true"
+                :hide-default-footer="true"
+                :items-per-page="input.branch.history.length"
+              >
+                <template v-slot:item.oid="{ item }">
+                  <v-btn tile icon x-small color="orange">
+                    {{ item.oid.substring(0, 7) }}
+                  </v-btn>
+                </template>
+              </v-data-table>
               <v-card-actions>
                 <v-btn
                   color="orange darken-1"
@@ -375,8 +398,8 @@ export default {
         loaded: false,
         history: [],
         headers: [
-          { text: '', value: 'oid', width: '100px' },
-          { text: '', value: 'message', width: '', sortable: false }
+          { value: 'oid', width: '100px' },
+          { value: 'message', width: '' }
         ]
       }
     }
