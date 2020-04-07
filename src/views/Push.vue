@@ -206,7 +206,7 @@
                   </v-btn>
                 </v-card-text>
               </template>
-              <template v-else>
+              <template v-else-if=input.branch.history.length>
                 <v-list-item>
                   <v-list-item-avatar color="green">
                     <v-icon dark>mdi-check</v-icon>
@@ -232,6 +232,19 @@
                     </v-btn>
                   </template>
                 </v-data-table>
+              </template>
+              <template v-else>
+                <v-list-item>
+                  <v-list-item-avatar color="blue">
+                    <v-icon dark>mdi-thumb-up</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title class="headline">Match</v-list-item-title>
+                    <v-list-item-subtitle>The local repository history matches the remote repository</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider></v-divider>
+                <v-card-text class="text-center">&mdash;</v-card-text>
               </template>
             </template>
             <template v-else>
