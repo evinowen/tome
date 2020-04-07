@@ -18,6 +18,10 @@
         <v-col>
 
           <v-card dense class="my-2">
+            <v-card-title class="pa-2">
+              Credentials
+            </v-card-title>
+
             <v-row no-gutters>
               <v-col>
                 <input ref="private_key" type="file" style="display: none" @change="assign_private_key" />
@@ -69,13 +73,17 @@
               </v-col>
 
             </v-row>
+          </v-card>
 
+          <v-card dense class="my-2">
+            <v-card-title class="pa-2">
+              Remote
+            </v-card-title>
             <v-card-actions>
               <v-select
                 :items="input.remotes.list"
                 label="Remote"
                 @change="select_remote"
-                :disabled="(input.private_key.value && input.public_key.value) ? false : true"
                 dense clearable class="mt-4"
               >
                 <template v-slot:selection="data">
@@ -164,19 +172,136 @@
 
       <v-divider class="mt-4 mb-2"></v-divider>
 
+      <v-row align="center" justify="center">
+        <v-col>
+          <v-card>
+            <template v-if=input.remotes.value>
+              <template v-if=input.branch.loading>
+                <v-list-item>
+                  <v-list-item-avatar color="grey">
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title class="headline">&mdash;</v-list-item-title>
+                    <v-list-item-subtitle>Loading ... </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider></v-divider>
+                <v-card-text class="text-center">&mdash;</v-card-text>
+              </template>
+              <template v-else-if=this.input.branch.error>
+                <v-list-item>
+                  <v-list-item-avatar color="red">
+                    <v-icon dark>mdi-alert</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title class="headline">Error</v-list-item-title>
+                    <v-list-item-subtitle>{{ this.input.branch.error }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider></v-divider>
+                <v-card-text class="text-center">
+                  <v-btn @click.stop="load_branch">
+                    <v-icon class="mr-2">mdi-reload</v-icon>
+                    Retry
+                  </v-btn>
+                </v-card-text>
+              </template>
+              <template v-else-if=input.branch.history.length>
+                <v-list-item>
+                  <v-list-item-avatar color="green">
+                    <v-icon dark>mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title class="headline">Compare</v-list-item-title>
+                    <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-container class="pa-0 ma-0" style="background: #DDDDDD; min-height: 120px">
+                  <v-data-table
+                    dense disable-sort class="my-0 commit-history"
+                    :headers="input.branch.headers"
+                    :items="input.branch.history"
+                    :hide-default-footer="true"
+                    :items-per-page="input.branch.history.length"
+                  >
+                    <template v-slot:item.oid="{ item }">
+                      <v-btn tile icon x-small color="green">
+                        {{ item.oid.substring(0, 7) }}
+                      </v-btn>
+                    </template>
+                  </v-data-table>
+                </v-container>
+              </template>
+              <template v-else>
+                <v-list-item>
+                  <v-list-item-avatar color="blue">
+                    <v-icon dark>mdi-thumb-up</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title class="headline">Match</v-list-item-title>
+                    <v-list-item-subtitle>The local repository history matches the remote repository</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider></v-divider>
+                <v-card-text class="text-center">&mdash;</v-card-text>
+              </template>
+            </template>
+            <template v-else>
+              <v-list-item>
+                <v-list-item-avatar color="grey">
+                  <v-icon dark>mdi-cursor-pointer</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title class="headline">Select Remote</v-list-item-title>
+                  <v-list-item-subtitle>Choose a remote to compare to the local repository</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider></v-divider>
+              <v-card-text class="text-center">&mdash;</v-card-text>
+            </template>
+          </v-card>
+        </v-col>
+
+      </v-row>
+
+      <v-divider class="mt-4 mb-2"></v-divider>
+
       <v-row>
         <v-col>
-          <v-dialog v-model="confirm" persistent max-width="1200px">
+          <v-dialog v-model="confirm" persistent max-width="600px">
             <template v-slot:activator="{ on }">
               <v-btn class="mr-4" v-on="on"
-                :disabled="(input.private_key.value && input.public_key.value && input.remotes.value ) ? false : true"
+                :disabled="(input.private_key.value && input.public_key.value && input.branch.ahead ) ? false : true"
               >
                 <v-icon class="mr-2">mdi-upload-multiple</v-icon>
                 Push
               </v-btn>
             </template>
             <v-card>
-              <v-card-title class="headline">Push</v-card-title>
+              <v-list-item>
+                <v-list-item-avatar color="orange">
+                  <v-icon dark>mdi-upload-multiple</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title class="headline">Push</v-list-item-title>
+                  <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-container class="pa-0 ma-0" style="background: #DDDDDD; min-height: 120px">
+                <v-data-table
+                  dense disable-sort class="my-0 commit-history"
+                  :headers="input.branch.headers"
+                  :items="input.branch.history"
+                  :hide-default-footer="true"
+                  :items-per-page="input.branch.history.length"
+                >
+                  <template v-slot:item.oid="{ item }">
+                    <v-btn tile icon x-small color="orange">
+                      {{ item.oid.substring(0, 7) }}
+                    </v-btn>
+                  </template>
+                </v-data-table>
+              </v-container>
               <v-card-actions>
                 <v-btn
                   color="orange darken-1"
@@ -222,6 +347,40 @@
   border-radius: 0px;
 }
 
+.v-data-table.commit-history {
+  border-radius: 0
+}
+
+.v-data-table.commit-history .v-btn {
+  width: 100% !important;
+  height: 100% !important;
+  text-align: left;
+  justify-content: left;
+}
+
+.v-data-table.commit-history th {
+  height: 1px;
+}
+
+.v-data-table.commit-history td {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0 8px !important;
+}
+
+.v-data-table.commit-history td:first-child {
+  padding: 0px !important;
+}
+
+.v-data-table.commit-history td:first-child .v-btn {
+  text-align: center;
+  justify-content: center;
+}
+
+.v-data-table.commit-history .v-btn .v-icon {
+  font-size: 14px !important;
+}
 </style>
 
 <script>
@@ -255,15 +414,17 @@ export default {
         obscured: false
       },
       branch: {
-        loading: false
+        error: null,
+        loading: false,
+        loaded: false,
+        ahead: false,
+        history: [],
+        headers: [
+          { text: '', value: 'oid', width: '60px' },
+          { text: '', value: 'message', width: '' }
+        ]
       }
-    },
-    headers: [
-      { text: 'File', value: 'path' },
-      { text: 'Type', value: 'type', align: 'right' },
-      { text: '', value: 'action', align: 'right' }
-    ]
-
+    }
   }),
   computed: {
     repository: function () {
@@ -277,6 +438,18 @@ export default {
     }
   },
   mounted: async function () {
+    if (this.configuration.private_key) {
+      this.input.private_key.value = this.configuration.private_key
+    }
+
+    if (this.configuration.public_key) {
+      this.input.public_key.value = this.configuration.public_key
+    }
+
+    if (this.configuration.passphrase) {
+      this.input.passphrase.value = this.configuration.passphrase
+    }
+
     await this.load_remotes()
   },
   methods: {
@@ -339,44 +512,86 @@ export default {
     remove_remote: function (event) {
     },
     select_remote: async function (remote) {
-      this.input.remotes.value = null
+      this.input.remotes.value = remote
 
       this.input.branch.reference = null
       this.input.branch.loading = true
+      this.input.branch.loaded = false
+      this.input.branch.ahead = false
 
-      if (remote) {
-        try {
-          const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
-
-          if (result) { }
-
-          console.log('referenceList?', (await remote.object.referenceList()).map(reference => {
-            const object = {
-              name: reference.name(),
-              object: reference
-
-            }
-
-            const parsed = reference.name().match(/^refs\/heads\/(.*)$/m)
-
-            if (parsed) {
-              object.short = parsed[1]
-
-              if (object.short === this.branch) {
-                this.input.branch.reference = object
-              }
-            }
-
-            return object
-          }))
-
-          this.input.remotes.value = remote
-        } catch (err) { }
-      }
+      await this.load_branch()
 
       this.input.branch.loading = false
+    },
+    load_branch: async function () {
+      const remote = this.input.remotes.value
 
-      return true
+      this.input.branch.error = 'Loading ... '
+      this.input.branch.history = []
+
+      try {
+        const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
+
+        if (result) { }
+
+        (await remote.object.referenceList()).map(async reference => {
+          console.log('referenceList', reference.name(), reference, reference.oid().tostrS())
+          const object = {
+            name: reference.name(),
+            object: reference
+
+          }
+
+          const parsed = reference.name().match(/^refs\/heads\/(.*)$/m)
+
+          if (parsed) {
+            object.short = parsed[1]
+
+            if (object.short === this.branch) {
+              this.input.branch.reference = object
+            }
+          }
+
+          return object
+        })
+
+        let local_commit = await this.repository.getReferenceCommit(this.branch)
+        const remote_commit = await this.repository.getCommit(this.input.branch.reference.object.oid())
+
+        let ahead = 0
+
+        do {
+          console.log(remote_commit.id().tostrS(), '==', local_commit.id().tostrS())
+          if (remote_commit.id().cmp(local_commit.id()) === 0) {
+            break
+          }
+
+          this.input.branch.history.push({
+            oid: local_commit.id().tostrS(),
+            message: local_commit.message()
+          })
+          ahead++
+
+          if (local_commit.parentcount() < 1) {
+            throw new Error('Detached')
+          }
+
+          local_commit = await local_commit.parent(0)
+        } while (local_commit)
+
+        console.log('Ahead', ahead)
+
+        if (ahead > 0) {
+          this.input.branch.ahead = true
+        }
+
+        this.input.branch.loaded = true
+      } catch (error) {
+        this.input.branch.error = error
+        return
+      }
+
+      this.input.branch.error = null
     },
 
     push: async function (event) {
