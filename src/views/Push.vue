@@ -333,7 +333,8 @@ export default {
       branch: {
         error: null,
         loading: false,
-        loaded: false
+        loaded: false,
+        history: []
       }
     },
     headers: [
@@ -429,13 +430,17 @@ export default {
     },
     load_branch: async function () {
       const remote = this.input.remotes.value
+
       this.input.branch.error = 'Loading ... '
+      this.input.branch.history = []
+
       try {
         const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
 
         if (result) { }
 
-        console.log('referenceList?', (await remote.object.referenceList()).map(reference => {
+        (await remote.object.referenceList()).map(async reference => {
+          console.log('referenceList', reference.name(), reference, reference.oid().tostrS())
           const object = {
             name: reference.name(),
             object: reference
@@ -453,7 +458,62 @@ export default {
           }
 
           return object
-        }))
+        })
+
+        let local_commit = await this.repository.getReferenceCommit(this.branch)
+        let remote_commit = await this.repository.getCommit(this.input.branch.reference.object.oid())
+
+        const diff = local_commit.id().cmp(this.input.branch.reference.object.oid())
+
+        if (diff > 0) {
+          let ahead = 0
+
+          do {
+            console.log(remote_commit.id().tostrS(), '==', local_commit.id().tostrS())
+            if (remote_commit.id().cmp(local_commit.id()) === 0) {
+              break
+            }
+
+            this.input.branch.history.push({
+              oid: local_commit.id().tostrS(),
+              message: local_commit.message()
+            })
+            ahead++
+
+            if (local_commit.parentcount() < 1) {
+              throw new Error('Detached')
+            }
+
+            local_commit = await local_commit.parent(0)
+          } while (local_commit)
+
+          console.log('Ahead', ahead)
+        } else if (diff < 0) {
+          let behind = 0
+
+          do {
+            console.log(remote_commit.id().tostrS(), '==', local_commit.id().tostrS())
+            if (local_commit.id().cmp(remote_commit.id()) === 0) {
+              break
+            }
+
+            this.input.branch.history.push({
+              oid: remote_commit.id().tostrS(),
+              message: local_commit.message()
+            })
+            behind++
+
+            if (remote_commit.parentcount() < 1) {
+              throw new Error('Detached')
+            }
+
+            remote_commit = await remote_commit.parent(0)
+          } while (remote_commit)
+
+          console.log('Behind', behind)
+        } else {
+          console.log('Current')
+        }
 
         this.input.branch.loaded = true
       } catch (error) {
