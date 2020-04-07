@@ -438,6 +438,18 @@ export default {
     }
   },
   mounted: async function () {
+    if (this.configuration.private_key) {
+      this.input.private_key.value = this.configuration.private_key
+    }
+
+    if (this.configuration.public_key) {
+      this.input.public_key.value = this.configuration.public_key
+    }
+
+    if (this.configuration.passphrase) {
+      this.input.passphrase.value = this.configuration.passphrase
+    }
+
     await this.load_remotes()
   },
   methods: {
