@@ -272,7 +272,7 @@
           <v-dialog v-model="confirm" persistent max-width="600px">
             <template v-slot:activator="{ on }">
               <v-btn class="mr-4" v-on="on"
-                :disabled="(input.private_key.value && input.public_key.value && input.branch.loaded ) ? false : true"
+                :disabled="(input.private_key.value && input.public_key.value && input.branch.ahead ) ? false : true"
               >
                 <v-icon class="mr-2">mdi-upload-multiple</v-icon>
                 Push
@@ -409,6 +409,7 @@ export default {
         error: null,
         loading: false,
         loaded: false,
+        ahead: false,
         history: [],
         headers: [
           { value: 'oid', width: '100px' },
@@ -496,6 +497,7 @@ export default {
       this.input.branch.reference = null
       this.input.branch.loading = true
       this.input.branch.loaded = false
+      this.input.branch.ahead = false
 
       await this.load_branch()
 
@@ -534,58 +536,33 @@ export default {
         })
 
         let local_commit = await this.repository.getReferenceCommit(this.branch)
-        let remote_commit = await this.repository.getCommit(this.input.branch.reference.object.oid())
+        const remote_commit = await this.repository.getCommit(this.input.branch.reference.object.oid())
 
-        const diff = local_commit.id().cmp(this.input.branch.reference.object.oid())
+        let ahead = 0
 
-        if (diff > 0) {
-          let ahead = 0
+        do {
+          console.log(remote_commit.id().tostrS(), '==', local_commit.id().tostrS())
+          if (remote_commit.id().cmp(local_commit.id()) === 0) {
+            break
+          }
 
-          do {
-            console.log(remote_commit.id().tostrS(), '==', local_commit.id().tostrS())
-            if (remote_commit.id().cmp(local_commit.id()) === 0) {
-              break
-            }
+          this.input.branch.history.push({
+            oid: local_commit.id().tostrS(),
+            message: local_commit.message()
+          })
+          ahead++
 
-            this.input.branch.history.push({
-              oid: local_commit.id().tostrS(),
-              message: local_commit.message()
-            })
-            ahead++
+          if (local_commit.parentcount() < 1) {
+            throw new Error('Detached')
+          }
 
-            if (local_commit.parentcount() < 1) {
-              throw new Error('Detached')
-            }
+          local_commit = await local_commit.parent(0)
+        } while (local_commit)
 
-            local_commit = await local_commit.parent(0)
-          } while (local_commit)
+        console.log('Ahead', ahead)
 
-          console.log('Ahead', ahead)
-        } else if (diff < 0) {
-          let behind = 0
-
-          do {
-            console.log(remote_commit.id().tostrS(), '==', local_commit.id().tostrS())
-            if (local_commit.id().cmp(remote_commit.id()) === 0) {
-              break
-            }
-
-            this.input.branch.history.push({
-              oid: remote_commit.id().tostrS(),
-              message: local_commit.message()
-            })
-            behind++
-
-            if (remote_commit.parentcount() < 1) {
-              throw new Error('Detached')
-            }
-
-            remote_commit = await remote_commit.parent(0)
-          } while (remote_commit)
-
-          console.log('Behind', behind)
-        } else {
-          console.log('Current')
+        if (ahead > 0) {
+          this.input.branch.ahead = true
         }
 
         this.input.branch.loaded = true
