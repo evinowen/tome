@@ -217,11 +217,26 @@
                   </v-list-item-content>
                 </v-list-item>
                 <v-divider></v-divider>
-                <v-card-text class="text-center">
-                  <v-container v-for="item in input.branch.history" :key="item.oid">
-                    {{ item.oid }} - {{ item.message }}
-                  </v-container>
-                </v-card-text>
+
+                <v-data-table
+                  dense disable-sort class="my-0"
+                  :headers="input.branch.headers"
+                  :items="input.branch.history"
+                  :hide-default-header="true"
+                  :hide-default-footer="true"
+                  :items-per-page="input.branch.history.length"
+                >
+                  <template v-slot:item.oid="{ item }">
+                    <v-btn tile icon x-small color="green">
+                      {{ item.oid.substring(0, 7) }}
+                    </v-btn>
+                  </template>
+
+                  <template v-slot:item.message="{ item }">
+                    {{ item.message.substring(0, 120) }} {{ item.message.length > 50 ? '…' : '' }}
+                  </template>
+
+                </v-data-table>
               </template>
             </template>
             <template v-else>
@@ -302,6 +317,31 @@
   border-radius: 0px;
 }
 
+.v-data-table .v-btn {
+  width: 100% !important;
+  height: 100% !important;
+  text-align: left;
+  justify-content: left;
+}
+
+.v-data-table td {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.v-data-table td:first-child {
+  padding: 0px !important;
+}
+
+.v-data-table td:first-child .v-btn {
+  text-align: center;
+  justify-content: center;
+}
+
+.v-data-table .v-btn .v-icon {
+  font-size: 14px !important;
+}
 </style>
 
 <script>
@@ -338,15 +378,13 @@ export default {
         error: null,
         loading: false,
         loaded: false,
-        history: []
+        history: [],
+        headers: [
+          { text: '', value: 'oid', width: '100px' },
+          { text: '', value: 'message', width: '', sortable: false }
+        ]
       }
-    },
-    headers: [
-      { text: 'File', value: 'path' },
-      { text: 'Type', value: 'type', align: 'right' },
-      { text: '', value: 'action', align: 'right' }
-    ]
-
+    }
   }),
   computed: {
     repository: function () {
