@@ -217,7 +217,11 @@
                   </v-list-item-content>
                 </v-list-item>
                 <v-divider></v-divider>
-                <v-card-text class="text-center">&mdash;</v-card-text>
+                <v-card-text class="text-center">
+                  <v-container v-for="item in input.branch.history" :key="item.oid">
+                    {{ item.oid }} - {{ item.message }}
+                  </v-container>
+                </v-card-text>
               </template>
             </template>
             <template v-else>
