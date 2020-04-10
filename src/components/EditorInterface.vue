@@ -7,7 +7,6 @@
             :populate=load_path
             :enabled=explore
             :selected=load_file
-            v-on="$listeners"
           />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;"></scrolly-bar>
