@@ -1,17 +1,17 @@
 <template>
   <v-container class="pa-0" style="user-select: none;">
-    <v-container class="explorer-folder"
-      v-bind:class="['explorer-folder', {'explorer-folder-enabled': enabled}, {'explorer-folder-selected': path == (leaf ? active : upstream)}]"
+    <v-container class="explorer-directory"
+      v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == (leaf ? active : upstream)}]"
       @click.left.stop="select(null)"
       @click.right.stop="$emit('context', $event, 'folder', path)"
     >
-        <v-btn tile text x-small @click.stop="toggle" class="explorer-folder-button mr-1">
+        <v-btn tile text x-small @click.stop="toggle" class="explorer-directory-button mr-1">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <div style="display: inline-block;">{{ name }}</div>
     </v-container>
 
-    <v-container v-if="expanded" class="explorer-folder-container">
+    <v-container v-if="expanded" class="explorer-directory-container">
       <template v-if=leaf>
         <explorer-file
           v-for="child in children"
@@ -48,7 +48,7 @@
 </template>
 
 <style>
-.explorer-folder {
+.explorer-directory {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -57,12 +57,12 @@
   vertical-align: text-bottom;
 }
 
-.explorer-folder-button {
+.explorer-directory-button {
   min-width: 20px !important;
   padding: 0 !important;
 }
 
-.explorer-folder-container {
+.explorer-directory-container {
   border: solid #C8C8C8;
   border-width: 0 0 0 1px;
   width: auto !important;
@@ -70,27 +70,27 @@
   margin: 0 0 4px 4px !important;
 }
 
-.explorer-folder:hover {
+.explorer-directory:hover {
   background: #EEEEEE;
 }
 
-.explorer-folder-enabled.explorer-folder:hover {
+.explorer-directory-enabled.explorer-directory:hover {
   background: #BBBBBB;
 }
 
-.explorer-folder-selected {
+.explorer-directory-selected {
   background: #CCCCCC;
 }
 
-.explorer-folder-enabled.explorer-folder-selected {
+.explorer-directory-enabled.explorer-directory-selected {
   background: #F44336;
 }
 
-.explorer-folder-selected:hover {
+.explorer-directory-selected:hover {
   background: #BBBBBB;
 }
 
-.explorer-folder-enabled.explorer-folder-selected:hover {
+.explorer-directory-enabled.explorer-directory-selected:hover {
   background: #F66055;
 }
 
