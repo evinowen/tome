@@ -8,7 +8,7 @@
         <v-btn tile text x-small @click.stop="toggle" class="explorer-directory-button mr-1">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
-        <div style="display: inline-block;">{{ name }}</div>
+        <div style="display: inline-block;">{{ display }}</div>
     </v-container>
 
     <v-container v-if="expanded" class="explorer-directory-container">
@@ -23,8 +23,10 @@
           :parent=this
           :directory=child.directory
           :populate=populate
+          :format=format
           :active=active
           :enabled=enabled
+          :title=title
         />
       </template>
       <template v-else>
@@ -38,8 +40,10 @@
           :parent=this
           :directory=child.directory
           :populate=populate
+          :format=format
           :active=upstream
           :enabled=enabled
+          :title=title
         />
       </template>
     </v-container>
@@ -100,10 +104,12 @@
 export default {
   props: {
     enabled: { type: Boolean },
+    title: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String },
     active: { type: String },
     populate: { type: Function },
+    format: { type: Function },
     leaf: { type: Boolean }
   },
   data: () => ({
@@ -126,6 +132,13 @@ export default {
       }
 
       return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+    },
+    display: function () {
+      if (this.title) {
+        return this.format(this.name, true)
+      }
+
+      return this.name
     }
   },
   methods: {

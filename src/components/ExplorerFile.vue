@@ -12,7 +12,9 @@
         :name=name
         :path=path
         :populate=populate
+        :format=format
         :enabled=enabled
+        :title=title
         v-on:selected="select"
         :active=active child
         v-on="$listeners"
@@ -30,7 +32,7 @@
           <v-btn tile text x-small @click.stop="select(null)" class="explorer-file-button mr-1">
             <v-icon>mdi-file</v-icon>
           </v-btn>
-          {{ name }}
+          {{ display }}
         </div>
       </v-container>
 
@@ -89,10 +91,12 @@
 export default {
   props: {
     enabled: { type: Boolean },
+    title: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String, default: '' },
     active: { type: String },
     populate: { type: Function },
+    format: { type: Function },
     highlight: { type: String, default: '' },
     directory: { type: Boolean, default: false },
     parent: { type: Object }
@@ -107,6 +111,13 @@ export default {
       return [
         '.git'
       ].indexOf(this.name) > -1
+    },
+    display: function () {
+      if (this.title) {
+        return this.format(this.name)
+      }
+
+      return this.name
     }
   },
   methods: {
