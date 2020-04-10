@@ -4,7 +4,7 @@
     :key=tome.path
     :path=tome.path
     :enabled=enabled
-    :title=title
+    :title=configuration.format_titles
     :populate=populate
     :format=format
     @selected=selected
@@ -25,6 +25,9 @@ export default {
   computed: {
     tome: function () {
       return store.state.tome
+    },
+    configuration: function () {
+      return store.state.configuration
     }
   },
   methods: {

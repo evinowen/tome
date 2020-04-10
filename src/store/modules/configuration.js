@@ -6,7 +6,8 @@ export default {
     email: '',
     private_key: '',
     public_key: '',
-    passphrase: ''
+    passphrase: '',
+    format_titles: true
   },
   mutations: {
     set: function (state, data) {
