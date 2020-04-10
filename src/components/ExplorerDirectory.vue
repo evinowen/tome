@@ -13,7 +13,7 @@
 
     <v-container v-if="expanded" class="explorer-folder-container">
       <template v-if=leaf>
-        <explorer-node
+        <explorer-file
           v-for="child in children"
           v-on:selected="select"
           v-on="$listeners"
@@ -28,7 +28,7 @@
         />
       </template>
       <template v-else>
-        <explorer-node
+        <explorer-file
           v-for="child in children"
           v-on:selected="select"
           v-on="$listeners"

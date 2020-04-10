@@ -7,7 +7,7 @@
           {{ name }}
         </div>
       </v-container>
-      <explorer
+      <explorer-directory
         v-else
         :name=name
         :path=path

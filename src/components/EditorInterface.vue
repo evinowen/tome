@@ -3,7 +3,7 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer
+          <explorer-directory
             :name=tome.name
             :key=tome.path
             :path=tome.path
@@ -100,8 +100,6 @@ import store from '@/store'
 import { remote } from 'electron'
 import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
-
-import Explorer from './Explorer.vue'
 
 import EmptyView from '@/views/Empty.vue'
 import ActionView from '@/views/Action.vue'
@@ -261,8 +259,6 @@ export default {
   },
 
   components: {
-    Explorer,
-
     Scrolly,
     ScrollyViewport,
     ScrollyBar,
