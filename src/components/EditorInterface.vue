@@ -3,13 +3,10 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer-directory
-            :name=tome.name
-            :key=tome.path
-            :path=tome.path
+          <explorer
             :populate=load_path
             :enabled=explore
-            v-on:selected=load_file
+            :selected=load_file
             v-on="$listeners"
           />
         </scrolly-viewport>
