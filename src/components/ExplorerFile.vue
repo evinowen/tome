@@ -1,8 +1,8 @@
 <template>
   <v-container class="pa-0" style="user-select: none;">
     <template v-if="directory">
-      <v-container v-if="disabled" class="explorer-node explorer-node-disabled">
-        <div class="explorer-node">
+      <v-container v-if="disabled" class="explorer-file explorer-file-disabled">
+        <div class="explorer-file">
           <v-icon class="mr-1">mdi-folder</v-icon>
           {{ name }}
         </div>
@@ -22,12 +22,12 @@
 
     <template v-else v-on="$listeners">
       <v-container
-        v-bind:class="['explorer-node', 'explorer-node-hover', {'explorer-node-enabled': enabled}, {'explorer-node-selected': path == active }]"
+        v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': enabled}, {'explorer-file-selected': path == active }]"
         @click.left.stop="select(null)"
         @click.right="$emit('context', $event, 'file', path)"
       >
-        <div class="explorer-node">
-          <v-btn tile text x-small @click.stop="select(null)" class="explorer-node-button mr-1">
+        <div class="explorer-file">
+          <v-btn tile text x-small @click.stop="select(null)" class="explorer-file-button mr-1">
             <v-icon>mdi-file</v-icon>
           </v-btn>
           {{ name }}
@@ -40,7 +40,7 @@
 </template>
 
 <style>
-.explorer-node {
+.explorer-file {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -49,37 +49,37 @@
   vertical-align: text-bottom;
 }
 
-.explorer-node-button {
+.explorer-file-button {
   min-width: 20px !important;
   padding: 0 !important;
 }
 
-.explorer-node-disabled,
-.explorer-node-disabled .v-icon {
+.explorer-file-disabled,
+.explorer-file-disabled .v-icon {
   color: rgba(0, 0, 0, 0.20);
 }
 
-.explorer-node-hover:hover {
+.explorer-file-hover:hover {
   background: #EEEEEE;
 }
 
-.explorer-node-enabled.explorer-node-hover:hover {
+.explorer-file-enabled.explorer-file-hover:hover {
   background: #BBBBBB;
 }
 
-.explorer-node-selected {
+.explorer-file-selected {
   background: #CCCCCC;
 }
 
-.explorer-node-enabled.explorer-node-selected {
+.explorer-file-enabled.explorer-file-selected {
   background: #F44336;
 }
 
-.explorer-node-selected:hover {
+.explorer-file-selected:hover {
   background: #BBBBBB;
 }
 
-.explorer-node-enabled.explorer-node-selected:hover {
+.explorer-file-enabled.explorer-file-selected:hover {
   background: #F66055;
 }
 
