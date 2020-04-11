@@ -18,7 +18,6 @@ import store from '@/store'
 export default {
   props: {
     enabled: { type: Boolean },
-    title: { type: Boolean },
     populate: { type: Function },
     selected: { type: Function }
   },

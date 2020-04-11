@@ -39,6 +39,10 @@
             @change="counter_start('settings')"
           />
         </v-list-item>
+        <v-divider></v-divider>
+        <v-list-item>
+          <v-switch v-model="configuration.format_titles" label="Format Titles" @change="counter_start('settings')"></v-switch>
+        </v-list-item>
       </v-list>
       <template v-slot:append>
         <v-divider></v-divider>
