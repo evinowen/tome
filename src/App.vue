@@ -198,41 +198,6 @@ export default {
   mounted: async function () {
     this.settings.run = async () => store.dispatch('writeConfiguration', store.state.tome_app_config_path)
 
-    store.state.tome_file_actions_root = [
-      {
-        name: 'New File',
-        icon: 'mdi-file-star',
-        action: (event) => {
-          console.log('new file', event)
-          this.add.value = ''
-          this.add.relative_path = ''
-          this.add.as_directory = false
-          this.add.active = true
-        }
-      },
-      {
-        name: 'New Folder',
-        icon: 'mdi-folder-star',
-        action: (event) => {
-          console.log('new folder', event)
-          this.add.value = ''
-          this.add.relative_path = ''
-          this.add.as_directory = true
-          this.add.active = true
-        }
-      },
-      {
-        name: 'Open Folder',
-        icon: 'mdi-folder-move',
-        action: (event) => {
-          console.log('open folder', event)
-          shell.openItem(store.state.tome.path)
-        }
-      }
-    ]
-
-    store.state.tome_file_actions = store.state.tome_file_actions_root
-
     store.state.tome_app_config_path_dir = path.join(remote.app.getPath('appData'), 'tome')
 
     let create_directory = false
