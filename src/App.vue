@@ -246,6 +246,9 @@ export default {
       await store.dispatch('load', file_path)
       this.reload_run()
     },
+    action_rename: async function (path) {
+      console.log('action_rename', path)
+    },
     action_new_file: async function (target_path) {
       console.log('new file', target_path)
       this.add.value = ''
@@ -321,7 +324,7 @@ export default {
       console.log('open_context', e, type, path)
 
       this.context.visible = true
-      this.context.title = `${type} - ${path}`
+      this.context.title = path
       this.context.target = path
       this.context.items = []
       this.context.position.x = e.clientX
@@ -333,9 +336,23 @@ export default {
             title: 'Expand',
             action: () => { console.log('Expand Action!') }
           })
+
+          this.context.items.push({
+            divider: true
+          })
+
           // fall through
 
         case 'file':
+          this.context.items.push({
+            title: 'Rename',
+            action: this.action_rename
+          })
+
+          this.context.items.push({
+            divider: true
+          })
+
           this.context.items.push({
             title: 'New File',
             action: this.action_new_file
