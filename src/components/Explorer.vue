@@ -3,11 +3,11 @@
     :name=tome.name
     :key=tome.path
     :path=tome.path
+    :active=active
     :enabled=enabled
     :title=configuration.format_titles
     :populate=populate
     :format=format
-    @selected=selected
     v-on="$listeners"
   />
 </template>
@@ -17,9 +17,9 @@ import store from '@/store'
 
 export default {
   props: {
+    value: { type: Object },
     enabled: { type: Boolean },
-    populate: { type: Function },
-    selected: { type: Function }
+    populate: { type: Function }
   },
   computed: {
     tome: function () {
@@ -27,6 +27,9 @@ export default {
     },
     configuration: function () {
       return store.state.configuration
+    },
+    active: function () {
+      return this.value ? this.value.path : ''
     }
   },
   methods: {

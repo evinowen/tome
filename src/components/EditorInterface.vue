@@ -3,7 +3,7 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer :populate=load_path :enabled=explore :selected=load_file v-on="$listeners" />
+          <explorer v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;" />
         <scrolly-bar axis="x" style="margin-bottom: 2px;" />
@@ -172,20 +172,15 @@ export default {
       return true
     },
 
-    load_file: async function (node) {
+    load_file: async function () {
       this.error = ''
-
+      this.actions = []
       this.absolute_path = null
 
-      this.actions = null
-      this.selected = null
-
-      if (!node) {
-        this.actions = []
+      if (!this.selected) {
         return
       }
 
-      this.selected = node
       this.absolute_path = this.selected.path
 
       const status = await new Promise((resolve, reject) => this.fs.lstat(this.absolute_path, (err, status) => err ? reject(err) : resolve(status)))

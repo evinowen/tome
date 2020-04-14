@@ -15,7 +15,6 @@
         :format=format
         :enabled=enabled
         :title=title
-        v-on:selected="select"
         :active=active child
         v-on="$listeners"
         leaf
@@ -25,11 +24,11 @@
     <template v-else v-on="$listeners">
       <v-container
         v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': enabled}, {'explorer-file-selected': path == active }]"
-        @click.left.stop="select(null)"
+        @click.left.stop="$emit('input', { path })"
         @click.right="$emit('context', $event, 'file', path)"
       >
         <div class="explorer-file">
-          <v-btn tile text x-small @click.stop="select(null)" class="explorer-file-button mr-1">
+          <v-btn tile text x-small @click.stop="$emit('input', { path })" class="explorer-file-button mr-1">
             <v-icon>mdi-file</v-icon>
           </v-btn>
           {{ display }}
@@ -118,16 +117,6 @@ export default {
       }
 
       return this.name
-    }
-  },
-  methods: {
-    select: function (node) {
-      if (!this.enabled) {
-        return
-      }
-
-      const selected = node || this
-      return this.$emit('selected', selected)
     }
   }
 }

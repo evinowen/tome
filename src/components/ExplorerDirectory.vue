@@ -1,8 +1,8 @@
 <template>
   <v-container class="pa-0" style="user-select: none;">
     <v-container class="explorer-directory"
-      v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == (leaf ? active : upstream)}]"
-      @click.left.stop="select(null)"
+      v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == active}]"
+      @click.left.stop="$emit('input', { path })"
       @click.right.stop="$emit('context', $event, 'folder', path)"
     >
         <v-btn tile text x-small @click.stop="toggle" class="explorer-directory-button mr-1">
@@ -15,7 +15,6 @@
       <template v-if=leaf>
         <explorer-file
           v-for="child in children"
-          v-on:selected="select"
           v-on="$listeners"
           :key=child.path
           :name=child.name
@@ -32,7 +31,6 @@
       <template v-else>
         <explorer-file
           v-for="child in children"
-          v-on:selected="select"
           v-on="$listeners"
           :key=child.path
           :name=child.name
@@ -41,7 +39,7 @@
           :directory=child.directory
           :populate=populate
           :format=format
-          :active=upstream
+          :active=active
           :enabled=enabled
           :title=title
         />
@@ -117,8 +115,7 @@ export default {
     directory: true,
     expanded: false,
     loaded: false,
-    children: [],
-    upstream: ''
+    children: []
   }),
   mounted: function () {
     if (!this.leaf) {
@@ -165,15 +162,6 @@ export default {
 
       while (this.children.pop()) { }
       this.loaded = (await this.populate(this)) === true
-    },
-    select: function (node) {
-      if (!this.enabled) {
-        return
-      }
-
-      this.selected = node || this
-      this.upstream = this.selected.path
-      return this.$emit('selected', this.selected)
     }
   }
 }
