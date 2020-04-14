@@ -141,21 +141,19 @@ export default {
         }
       }
 
-      return !item.directory ? true : new Promise((resolve, reject) => this.fs.readdir(
-        item.path,
-        { withFileTypes: true },
-        (err, files) => err ? reject(err) : resolve(files)
-      ))
-        .then(children => children.map(
+      if (item.directory) {
+        return new Promise((resolve, reject) => this.fs.readdir(
+          item.path,
+          { withFileTypes: true },
+          (err, files) => err ? reject(err) : resolve(files)
+        )).then(children => children.map(
           child => ({
             name: child.name,
             path: this.path.join(item.path, child.name),
             directory: child.isDirectory(),
             ...file_ext(this.path.extname(child.name).toLowerCase())
           })
-        )
-        )
-        .then(children => {
+        )).then(children => {
           children.forEach(child => {
             if (child.directory) {
               child.children = []
@@ -169,6 +167,9 @@ export default {
 
           return true
         })
+      }
+
+      return true
     },
 
     load_file: async function (node) {
