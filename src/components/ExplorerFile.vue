@@ -15,7 +15,9 @@
         :format=format
         :enabled=enabled
         :title=title
-        :active=active child
+        :active=active
+        :edit=edit
+        child
         v-on="$listeners"
         leaf
       />
@@ -27,12 +29,15 @@
         @click.left.stop="$emit('input', { path })"
         @click.right="$emit('context', $event, 'file', path)"
       >
-        <div class="explorer-file">
+        <v-layout class="explorer-file">
           <v-btn tile text x-small @click.stop="$emit('input', { path })" class="explorer-file-button mr-1">
             <v-icon>mdi-file</v-icon>
           </v-btn>
-          {{ display }}
-        </div>
+          <v-flex>
+            <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small hide-details autofocus @blur=blur @focus=focus />
+            <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small hide-details />
+          </v-flex>
+        </v-layout>
       </v-container>
 
     </template>
@@ -58,6 +63,14 @@
 .explorer-file-disabled,
 .explorer-file-disabled .v-icon {
   color: rgba(0, 0, 0, 0.20);
+}
+
+.explorer-file .v-input,
+.explorer-file .v-input input {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 12px;
+  color: black;
 }
 
 .explorer-file-hover:hover {
@@ -94,6 +107,7 @@ export default {
     name: { type: String, default: '' },
     path: { type: String, default: '' },
     active: { type: String },
+    edit: { type: Boolean },
     populate: { type: Function },
     format: { type: Function },
     highlight: { type: String, default: '' },
@@ -103,7 +117,8 @@ export default {
   data: () => ({
     expanded: false,
     loaded: false,
-    children: []
+    children: [],
+    input: ''
   }),
   computed: {
     disabled: function () {
@@ -117,6 +132,15 @@ export default {
       }
 
       return this.name
+    }
+  },
+  methods: {
+    focus: function () {
+      this.input = this.display
+    },
+    blur: function () {
+      console.log('attempt rename', { previous: this.path, proposed: this.input })
+      this.$emit('blur')
     }
   }
 }

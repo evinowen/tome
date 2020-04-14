@@ -3,7 +3,7 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" />
+          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;" />
         <scrolly-bar axis="x" style="margin-bottom: 2px;" />
@@ -223,8 +223,10 @@ export default {
       this.fs.writeFileSync(this.absolute_path, value)
 
       this.$emit('save')
+    },
+    rename: async function (path) {
+      await this.$refs.explorer.edit()
     }
-
   },
 
   computed: {

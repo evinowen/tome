@@ -24,6 +24,7 @@
           :populate=populate
           :format=format
           :active=active
+          :edit=edit
           :enabled=enabled
           :title=title
         />
@@ -40,6 +41,7 @@
           :populate=populate
           :format=format
           :active=active
+          :edit=edit
           :enabled=enabled
           :title=title
         />
@@ -106,6 +108,7 @@ export default {
     name: { type: String, default: '' },
     path: { type: String },
     active: { type: String },
+    edit: { type: Boolean },
     populate: { type: Function },
     format: { type: Function },
     leaf: { type: Boolean }

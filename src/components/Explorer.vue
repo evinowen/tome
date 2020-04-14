@@ -4,10 +4,12 @@
     :key=tome.path
     :path=tome.path
     :active=active
+    :edit=editing
     :enabled=enabled
     :title=configuration.format_titles
     :populate=populate
     :format=format
+    @blur=blur
     v-on="$listeners"
   />
 </template>
@@ -21,6 +23,9 @@ export default {
     enabled: { type: Boolean },
     populate: { type: Function }
   },
+  data: () => ({
+    editing: false
+  }),
   computed: {
     tome: function () {
       return store.state.tome
@@ -45,6 +50,14 @@ export default {
       }
 
       return words.map(item => String(item).substring(0, 1).toUpperCase().concat(item.substring(1))).join(' ')
+    },
+    edit: async function () {
+      this.editing = true
+      console.log('Explorer edit')
+    },
+    blur: async function () {
+      this.editing = false
+      console.log('Explorer edit done')
     }
   }
 }

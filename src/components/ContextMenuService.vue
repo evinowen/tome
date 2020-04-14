@@ -12,13 +12,10 @@
         <v-subheader v-if=title>{{ title }}</v-subheader>
         <v-divider></v-divider>
         <v-list-item-group>
-          <template
-            v-for="(item, index) in items"
-            @click="item.action(target)"
-          >
+          <template v-for="(item, index) in items">
             <div :key="index">
               <v-divider v-if=item.divider></v-divider>
-              <v-list-item v-else>
+              <v-list-item v-else @click="item.action(target)">
                 <v-list-item-title>{{ item.title }}</v-list-item-title>
               </v-list-item>
             </div>

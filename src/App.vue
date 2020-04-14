@@ -64,6 +64,7 @@
     </v-navigation-drawer>
 
     <editor-interface
+      ref="interface"
       :edit=edit
       :commit=commit
       :push=push
@@ -248,6 +249,7 @@ export default {
     },
     action_rename: async function (path) {
       console.log('action_rename', path)
+      await this.$refs.interface.rename(path)
     },
     action_new_file: async function (target_path) {
       console.log('new file', target_path)
