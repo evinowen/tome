@@ -1,6 +1,6 @@
 <template>
   <v-container class="pa-0" style="user-select: none;">
-    <v-container class="explorer-directory"
+    <v-layout class="explorer-directory"
       v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == active}]"
       @click.left.stop="$emit('input', { path })"
       @click.right.stop="$emit('context', $event, 'folder', path)"
@@ -8,8 +8,11 @@
         <v-btn tile text x-small @click.stop="toggle" class="explorer-directory-button mr-1">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
-        <div style="display: inline-block;">{{ display }}</div>
-    </v-container>
+        <v-flex>
+          <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small hide-details autofocus @blur=blur @focus=focus />
+          <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small hide-details />
+        </v-flex>
+    </v-layout>
 
     <v-container v-if="expanded" class="explorer-directory-container">
       <template v-if=leaf>
@@ -59,6 +62,14 @@
   user-select: none;
   padding: 0 !important;
   vertical-align: text-bottom;
+}
+
+.explorer-directory .v-input,
+.explorer-directory .v-input input {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 12px;
+  color: black;
 }
 
 .explorer-directory-button {
@@ -118,7 +129,8 @@ export default {
     directory: true,
     expanded: false,
     loaded: false,
-    children: []
+    children: [],
+    input: ''
   }),
   mounted: function () {
     if (!this.leaf) {
@@ -165,6 +177,13 @@ export default {
 
       while (this.children.pop()) { }
       this.loaded = (await this.populate(this)) === true
+    },
+    focus: function () {
+      this.input = this.display
+    },
+    blur: function () {
+      console.log('attempt rename', { previous: this.path, proposed: this.input })
+      this.$emit('blur')
     }
   }
 }
