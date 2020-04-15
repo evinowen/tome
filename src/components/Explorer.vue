@@ -59,6 +59,14 @@ export default {
     submit: async function (data) {
       console.log('Explorer submit', data)
       await this.blur()
+
+      let proposed = data.proposed
+
+      if (data.title) {
+        proposed = proposed.toLowerCase().replace(/ +/g, '.').concat('.md')
+      }
+
+      this.$emit('rename', data.path, proposed)
     },
     blur: async function () {
       console.log('Explorer blur')

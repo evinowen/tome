@@ -3,7 +3,7 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" />
+          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;" />
         <scrolly-bar axis="x" style="margin-bottom: 2px;" />
@@ -223,6 +223,21 @@ export default {
       this.fs.writeFileSync(this.absolute_path, value)
 
       this.$emit('save')
+    },
+    rename_file: async function (path, proposed) {
+      const directory = this.path.dirname(path)
+      const proposed_full = this.path.join(directory, proposed)
+
+      console.log(path, proposed, directory, proposed_full)
+
+      const success = await new Promise((resolve, reject) => this.fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
+
+      if (success) {
+        console.log('rename_file success')
+        return
+      }
+
+      console.log('rename_file failed')
     },
     rename: async function (path) {
       await this.$refs.explorer.edit()
