@@ -9,7 +9,7 @@
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <v-flex>
-          <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small hide-details autofocus @blur=blur @focus=focus />
+          <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small hide-details autofocus @blur=blur @focus=focus @keyup.enter=submit />
           <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small hide-details />
         </v-flex>
     </v-layout>
@@ -181,8 +181,16 @@ export default {
     focus: function () {
       this.input = this.display
     },
+    submit: function () {
+      this.$emit('submit', {
+        title: this.title,
+        directory: true,
+        original: this.display,
+        proposed: this.input,
+        path: this.path
+      })
+    },
     blur: function () {
-      console.log('attempt rename', { previous: this.path, proposed: this.input })
       this.$emit('blur')
     }
   }

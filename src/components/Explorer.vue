@@ -9,6 +9,7 @@
     :title=configuration.format_titles
     :populate=populate
     :format=format
+    @submit=submit
     @blur=blur
     v-on="$listeners"
   />
@@ -55,9 +56,13 @@ export default {
       this.editing = true
       console.log('Explorer edit')
     },
+    submit: async function (data) {
+      console.log('Explorer submit', data)
+      await this.blur()
+    },
     blur: async function () {
+      console.log('Explorer blur')
       this.editing = false
-      console.log('Explorer edit done')
     }
   }
 }
