@@ -62,7 +62,11 @@ export default {
       let proposed = data.proposed
 
       if (data.title) {
-        proposed = proposed.toLowerCase().replace(/ +/g, '.').concat('.md')
+        proposed = proposed.toLowerCase().replace(/ +/g, '.')
+
+        if (!data.directory) {
+          proposed = proposed.concat('.md')
+        }
       }
 
       this.$emit('rename', data.path, proposed, (update) => { data.container.update(data.path, update) })
