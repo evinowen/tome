@@ -92,6 +92,7 @@ import store from '@/store'
 import { remote } from 'electron'
 import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
+import { v4 as uuidv4 } from 'uuid'
 
 import EmptyView from '@/views/Empty.vue'
 import ActionView from '@/views/Action.vue'
@@ -148,6 +149,7 @@ export default {
           (err, files) => err ? reject(err) : resolve(files)
         )).then(children => children.map(
           child => ({
+            uuid: uuidv4(),
             name: child.name,
             path: this.path.join(item.path, child.name),
             directory: child.isDirectory(),
