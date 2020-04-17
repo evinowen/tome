@@ -2,7 +2,7 @@
   <v-container class="pa-0" style="user-select: none;">
     <v-layout class="explorer-directory"
       v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == active}]"
-      @click.left.stop="$emit('input', { path })"
+      @click.left.stop="$emit('input', instance)"
       @click.right.stop="$emit('context', $event, 'folder', path)"
     >
         <v-btn tile text x-small @click.stop="toggle" class="explorer-directory-button mr-1">
@@ -19,10 +19,10 @@
         <explorer-file
           v-for="child in children"
           v-on="$listeners"
-          :key=child.path
+          :key=child.uuid
           :name=child.name
           :path=child.path
-          :parent=this
+          :parent=instance
           :directory=child.directory
           :populate=populate
           :format=format
@@ -36,10 +36,10 @@
         <explorer-file
           v-for="child in children"
           v-on="$listeners"
-          :key=child.path
+          :key=child.uuid
           :name=child.name
           :path=child.path
-          :parent=this
+          :parent=instance
           :directory=child.directory
           :populate=populate
           :format=format
@@ -122,7 +122,8 @@ export default {
     edit: { type: Boolean },
     populate: { type: Function },
     format: { type: Function },
-    leaf: { type: Boolean }
+    leaf: { type: Boolean },
+    parent: { type: Object }
   },
   data: () => ({
     selected: null,
@@ -138,6 +139,9 @@ export default {
     }
   },
   computed: {
+    instance: function () {
+      return this
+    },
     icon: function () {
       if (this.leaf) {
         return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
@@ -183,6 +187,7 @@ export default {
     },
     submit: function () {
       this.$emit('submit', {
+        container: this.parent,
         title: this.title,
         directory: true,
         original: this.display,
@@ -192,6 +197,17 @@ export default {
     },
     blur: function () {
       this.$emit('blur')
+    },
+    update: function (path, update) {
+      console.log('update... ', path)
+      this.children.forEach((child, index) => {
+        if (child.path === path) {
+          console.log('found!', this.children[index])
+          this.children[index] = { ...child, ...update }
+          console.log('updated!', this.children[index])
+        }
+      })
+      this.$forceUpdate()
     }
   }
 }

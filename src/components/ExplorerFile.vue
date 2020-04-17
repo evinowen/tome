@@ -11,6 +11,7 @@
         v-else
         :name=name
         :path=path
+        :parent=parent
         :populate=populate
         :format=format
         :enabled=enabled
@@ -26,11 +27,11 @@
     <template v-else v-on="$listeners">
       <v-container
         v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': enabled}, {'explorer-file-selected': path == active }]"
-        @click.left.stop="$emit('input', { path })"
+        @click.left.stop="$emit('input', instance)"
         @click.right="$emit('context', $event, 'file', path)"
       >
         <v-layout class="explorer-file">
-          <v-btn tile text x-small @click.stop="$emit('input', { path })" class="explorer-file-button mr-1">
+          <v-btn tile text x-small @click.stop="$emit('input', instance)" class="explorer-file-button mr-1">
             <v-icon>mdi-file</v-icon>
           </v-btn>
           <v-flex>
@@ -121,6 +122,9 @@ export default {
     input: ''
   }),
   computed: {
+    instance: function () {
+      return this
+    },
     disabled: function () {
       return [
         '.git'
@@ -140,6 +144,7 @@ export default {
     },
     submit: function () {
       this.$emit('submit', {
+        container: this.parent,
         title: this.title,
         directory: this.directory,
         original: this.display,

@@ -226,7 +226,7 @@ export default {
 
       this.$emit('save')
     },
-    rename_file: async function (path, proposed) {
+    rename_file: async function (path, proposed, update) {
       const directory = this.path.dirname(path)
       const proposed_full = this.path.join(directory, proposed)
 
@@ -236,6 +236,7 @@ export default {
 
       if (success) {
         console.log('rename_file success')
+        update({ name: proposed, path: proposed_full })
         return
       }
 

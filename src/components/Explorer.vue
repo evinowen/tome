@@ -1,7 +1,6 @@
 <template>
   <explorer-directory
     :name=tome.name
-    :key=tome.path
     :path=tome.path
     :active=active
     :edit=editing
@@ -66,7 +65,7 @@ export default {
         proposed = proposed.toLowerCase().replace(/ +/g, '.').concat('.md')
       }
 
-      this.$emit('rename', data.path, proposed)
+      this.$emit('rename', data.path, proposed, (update) => { data.container.update(data.path, update) })
     },
     blur: async function () {
       console.log('Explorer blur')
