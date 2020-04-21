@@ -3,18 +3,10 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer
-            :name=tome.name
-            :key=tome.path
-            :path=tome.path
-            :populate=load_path
-            :enabled=explore
-            v-on:selected=load_file
-            v-on="$listeners"
-          />
+          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file />
         </scrolly-viewport>
-        <scrolly-bar axis="y" style="margin-right: 2px;"></scrolly-bar>
-        <scrolly-bar axis="x" style="margin-bottom: 2px;"></scrolly-bar>
+        <scrolly-bar axis="y" style="margin-right: 2px;" />
+        <scrolly-bar axis="x" style="margin-bottom: 2px;" />
       </scrolly>
     </template>
 
@@ -100,8 +92,7 @@ import store from '@/store'
 import { remote } from 'electron'
 import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
-
-import Explorer from './Explorer.vue'
+import { v4 as uuidv4 } from 'uuid'
 
 import EmptyView from '@/views/Empty.vue'
 import ActionView from '@/views/Action.vue'
@@ -151,21 +142,20 @@ export default {
         }
       }
 
-      return !item.directory ? true : new Promise((resolve, reject) => this.fs.readdir(
-        item.path,
-        { withFileTypes: true },
-        (err, files) => err ? reject(err) : resolve(files)
-      ))
-        .then(children => children.map(
+      if (item.directory) {
+        return new Promise((resolve, reject) => this.fs.readdir(
+          item.path,
+          { withFileTypes: true },
+          (err, files) => err ? reject(err) : resolve(files)
+        )).then(children => children.map(
           child => ({
+            uuid: uuidv4(),
             name: child.name,
             path: this.path.join(item.path, child.name),
             directory: child.isDirectory(),
             ...file_ext(this.path.extname(child.name).toLowerCase())
           })
-        )
-        )
-        .then(children => {
+        )).then(children => {
           children.forEach(child => {
             if (child.directory) {
               child.children = []
@@ -179,22 +169,20 @@ export default {
 
           return true
         })
+      }
+
+      return true
     },
 
-    load_file: async function (node) {
+    load_file: async function () {
       this.error = ''
-
+      this.actions = []
       this.absolute_path = null
 
-      this.actions = null
-      this.selected = null
-
-      if (!node) {
-        this.actions = []
+      if (!this.selected) {
         return
       }
 
-      this.selected = node
       this.absolute_path = this.selected.path
 
       const status = await new Promise((resolve, reject) => this.fs.lstat(this.absolute_path, (err, status) => err ? reject(err) : resolve(status)))
@@ -237,8 +225,26 @@ export default {
       this.fs.writeFileSync(this.absolute_path, value)
 
       this.$emit('save')
-    }
+    },
+    rename_file: async function (path, proposed, update) {
+      const directory = this.path.dirname(path)
+      const proposed_full = this.path.join(directory, proposed)
 
+      console.log(path, proposed, directory, proposed_full)
+
+      const success = await new Promise((resolve, reject) => this.fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
+
+      if (success) {
+        console.log('rename_file success')
+        update({ name: proposed, path: proposed_full })
+        return
+      }
+
+      console.log('rename_file failed')
+    },
+    rename: async function (path) {
+      await this.$refs.explorer.edit()
+    }
   },
 
   computed: {
@@ -261,8 +267,6 @@ export default {
   },
 
   components: {
-    Explorer,
-
     Scrolly,
     ScrollyViewport,
     ScrollyBar,

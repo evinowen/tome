@@ -2,19 +2,19 @@ import Vue from 'vue'
 import Vuetify from 'vuetify'
 
 import { createLocalVue, mount } from '@vue/test-utils'
-import ExplorerNode from '@/components/ExplorerNode.vue'
+import ExplorerFile from '@/components/ExplorerFile.vue'
 
 Vue.use(Vuetify)
 
 const localVue = createLocalVue()
 
-describe('ExplorerNode.vue', () => {
+describe('ExplorerFile.vue', () => {
   let vuetify
   let wrapper
 
   function wrap (object) {
     wrapper = mount(
-      ExplorerNode,
+      ExplorerFile,
       {
         localVue,
         vuetify,

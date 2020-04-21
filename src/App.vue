@@ -39,6 +39,10 @@
             @change="counter_start('settings')"
           />
         </v-list-item>
+        <v-divider></v-divider>
+        <v-list-item>
+          <v-switch v-model="configuration.format_titles" label="Format Titles" @change="counter_start('settings')"></v-switch>
+        </v-list-item>
       </v-list>
       <template v-slot:append>
         <v-divider></v-divider>
@@ -60,6 +64,7 @@
     </v-navigation-drawer>
 
     <editor-interface
+      ref="interface"
       :edit=edit
       :commit=commit
       :push=push
@@ -194,41 +199,6 @@ export default {
   mounted: async function () {
     this.settings.run = async () => store.dispatch('writeConfiguration', store.state.tome_app_config_path)
 
-    store.state.tome_file_actions_root = [
-      {
-        name: 'New File',
-        icon: 'mdi-file-star',
-        action: (event) => {
-          console.log('new file', event)
-          this.add.value = ''
-          this.add.relative_path = ''
-          this.add.as_directory = false
-          this.add.active = true
-        }
-      },
-      {
-        name: 'New Folder',
-        icon: 'mdi-folder-star',
-        action: (event) => {
-          console.log('new folder', event)
-          this.add.value = ''
-          this.add.relative_path = ''
-          this.add.as_directory = true
-          this.add.active = true
-        }
-      },
-      {
-        name: 'Open Folder',
-        icon: 'mdi-folder-move',
-        action: (event) => {
-          console.log('open folder', event)
-          shell.openItem(store.state.tome.path)
-        }
-      }
-    ]
-
-    store.state.tome_file_actions = store.state.tome_file_actions_root
-
     store.state.tome_app_config_path_dir = path.join(remote.app.getPath('appData'), 'tome')
 
     let create_directory = false
@@ -276,6 +246,10 @@ export default {
     set_tome: async function (file_path) {
       await store.dispatch('load', file_path)
       this.reload_run()
+    },
+    action_rename: async function (path) {
+      console.log('action_rename', path)
+      await this.$refs.interface.rename(path)
     },
     action_new_file: async function (target_path) {
       console.log('new file', target_path)
@@ -352,7 +326,7 @@ export default {
       console.log('open_context', e, type, path)
 
       this.context.visible = true
-      this.context.title = `${type} - ${path}`
+      this.context.title = path
       this.context.target = path
       this.context.items = []
       this.context.position.x = e.clientX
@@ -364,9 +338,23 @@ export default {
             title: 'Expand',
             action: () => { console.log('Expand Action!') }
           })
+
+          this.context.items.push({
+            divider: true
+          })
+
           // fall through
 
         case 'file':
+          this.context.items.push({
+            title: 'Rename',
+            action: this.action_rename
+          })
+
+          this.context.items.push({
+            divider: true
+          })
+
           this.context.items.push({
             title: 'New File',
             action: this.action_new_file

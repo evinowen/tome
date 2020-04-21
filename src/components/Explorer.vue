@@ -1,166 +1,79 @@
 <template>
-  <v-container class="pa-0" style="user-select: none;">
-    <v-container class="explorer-folder"
-      v-bind:class="['explorer-folder', {'explorer-folder-enabled': enabled}, {'explorer-folder-selected': path == (leaf ? active : upstream)}]"
-      @click.left.stop="select(null)"
-      @click.right.stop="$emit('context', $event, 'folder', path)"
-    >
-        <v-btn tile text x-small @click.stop="toggle" class="explorer-folder-button mr-1">
-          <v-icon>{{ icon }}</v-icon>
-        </v-btn>
-        <div style="display: inline-block;">{{ name }}</div>
-    </v-container>
-
-    <v-container v-if="expanded" class="explorer-folder-container">
-      <template v-if=leaf>
-        <explorer-node
-          v-for="child in children"
-          v-on:selected="select"
-          v-on="$listeners"
-          :key=child.path
-          :name=child.name
-          :path=child.path
-          :parent=this
-          :directory=child.directory
-          :populate=populate
-          :active=active
-          :enabled=enabled
-        />
-      </template>
-      <template v-else>
-        <explorer-node
-          v-for="child in children"
-          v-on:selected="select"
-          v-on="$listeners"
-          :key=child.path
-          :name=child.name
-          :path=child.path
-          :parent=this
-          :directory=child.directory
-          :populate=populate
-          :active=upstream
-          :enabled=enabled
-        />
-      </template>
-    </v-container>
-
-  </v-container>
+  <explorer-directory
+    :name=tome.name
+    :path=tome.path
+    :active=active
+    :edit=editing
+    :enabled=enabled
+    :title=configuration.format_titles
+    :populate=populate
+    :format=format
+    @submit=submit
+    @blur=blur
+    v-on="$listeners"
+  />
 </template>
 
-<style>
-.explorer-folder {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  user-select: none;
-  padding: 0 !important;
-  vertical-align: text-bottom;
-}
-
-.explorer-folder-button {
-  min-width: 20px !important;
-  padding: 0 !important;
-}
-
-.explorer-folder-container {
-  border: solid #C8C8C8;
-  border-width: 0 0 0 1px;
-  width: auto !important;
-  padding: 0 0 0 4px !important;
-  margin: 0 0 4px 4px !important;
-}
-
-.explorer-folder:hover {
-  background: #EEEEEE;
-}
-
-.explorer-folder-enabled.explorer-folder:hover {
-  background: #BBBBBB;
-}
-
-.explorer-folder-selected {
-  background: #CCCCCC;
-}
-
-.explorer-folder-enabled.explorer-folder-selected {
-  background: #F44336;
-}
-
-.explorer-folder-selected:hover {
-  background: #BBBBBB;
-}
-
-.explorer-folder-enabled.explorer-folder-selected:hover {
-  background: #F66055;
-}
-
-</style>
-
 <script>
+import store from '@/store'
+
 export default {
   props: {
+    value: { type: Object },
     enabled: { type: Boolean },
-    name: { type: String, default: '' },
-    path: { type: String },
-    active: { type: String },
-    populate: { type: Function },
-    leaf: { type: Boolean }
+    populate: { type: Function }
   },
   data: () => ({
-    selected: null,
-    directory: true,
-    expanded: false,
-    loaded: false,
-    children: [],
-    upstream: ''
+    editing: false
   }),
-  mounted: function () {
-    if (!this.leaf) {
-      this.toggle()
-    }
-  },
   computed: {
-    icon: function () {
-      if (this.leaf) {
-        return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
-      }
-
-      return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+    tome: function () {
+      return store.state.tome
+    },
+    configuration: function () {
+      return store.state.configuration
+    },
+    active: function () {
+      return this.value ? this.value.path : ''
     }
   },
   methods: {
-    toggle: async function () {
-      if (this.expanded) {
-        this.$emit('collapsing', this)
-        this.expanded = false
-        this.$emit('collapsed', this)
-      } else {
-        this.$emit('expanding', this)
+    format: function (name, directory) {
+      const words = name.split('.')
 
-        if (!this.loaded && this.populate) {
-          await this.load()
+      if (!directory) {
+        const ext = words.pop()
+
+        if (ext !== 'md') {
+          return ' - '
         }
-
-        this.loaded = false
-
-        this.expanded = true
-        this.$emit('expanded', this)
-      }
-    },
-    load: async function () {
-      this.loaded = false
-
-      while (this.children.pop()) { }
-      this.loaded = (await this.populate(this)) === true
-    },
-    select: function (node) {
-      if (!this.enabled) {
-        return
       }
 
-      this.selected = node || this
-      this.upstream = this.selected.path
-      return this.$emit('selected', this.selected)
+      return words.map(item => String(item).substring(0, 1).toUpperCase().concat(item.substring(1))).join(' ')
+    },
+    edit: async function () {
+      this.editing = true
+      console.log('Explorer edit')
+    },
+    submit: async function (data) {
+      console.log('Explorer submit', data)
+      await this.blur()
+
+      let proposed = data.proposed
+
+      if (data.title) {
+        proposed = proposed.toLowerCase().replace(/ +/g, '.')
+
+        if (!data.directory) {
+          proposed = proposed.concat('.md')
+        }
+      }
+
+      this.$emit('rename', data.path, proposed, (update) => { data.container.update(data.path, update) })
+    },
+    blur: async function () {
+      console.log('Explorer blur')
+      this.editing = false
     }
   }
 }

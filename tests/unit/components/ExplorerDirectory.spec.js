@@ -2,18 +2,18 @@ import Vue from 'vue'
 import Vuetify from 'vuetify'
 
 import { createLocalVue, mount } from '@vue/test-utils'
-import Explorer from '@/components/Explorer.vue'
+import ExplorerDirectory from '@/components/ExplorerDirectory.vue'
 
 Vue.use(Vuetify)
 
 const localVue = createLocalVue()
 
-describe('Explorer.vue', () => {
+describe('ExplorerDirectory.vue', () => {
   let vuetify
 
   function wrap (object) {
     return mount(
-      Explorer,
+      ExplorerDirectory,
       {
         localVue,
         vuetify,

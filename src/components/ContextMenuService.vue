@@ -10,14 +10,16 @@
     >
       <v-list dense class="context-menu-list">
         <v-subheader v-if=title>{{ title }}</v-subheader>
+        <v-divider></v-divider>
         <v-list-item-group>
-          <v-list-item
-            v-for="(item, index) in items"
-            :key="index"
-            @click="item.action(target)"
-          >
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item>
+          <template v-for="(item, index) in items">
+            <div :key="index">
+              <v-divider v-if=item.divider></v-divider>
+              <v-list-item v-else @click="item.action(target)">
+                <v-list-item-title>{{ item.title }}</v-list-item-title>
+              </v-list-item>
+            </div>
+          </template>
         </v-list-item-group>
       </v-list>
     </v-menu>
@@ -37,13 +39,13 @@
 }
 
 .context-menu-list .v-subheader {
-  height: auto;
+  height: 18px !important;
   padding: 4px;
 
 }
 
 .context-menu-list .v-list-item {
-  min-height: 0px;
+  min-height: 0px !important;
   padding: 4px 4px 4px 12px;
   font-weight: normal !important;
 
