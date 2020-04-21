@@ -44,7 +44,8 @@ describe('store/modules/configuration.js', () => {
       email: 'testuser@example.com',
       private_key: 'id_rsa',
       public_key: 'id_rsa.pub',
-      passphrase: 'password'
+      passphrase: 'password',
+      format_titles: false
     })
   })
 
@@ -58,6 +59,7 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.private_key).toBe('')
     expect(store.state.configuration.public_key).toBe('')
     expect(store.state.configuration.passphrase).toBe('')
+    expect(store.state.configuration.format_titles).toBe(true)
 
     expect(store.state.configuration.undefined).toBeUndefined()
   })
@@ -72,6 +74,7 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.private_key).toBe('id_rsa')
     expect(store.state.configuration.public_key).toBe('id_rsa.pub')
     expect(store.state.configuration.passphrase).toBe('password')
+    expect(store.state.configuration.format_titles).toBe(false)
   })
 
   it('should set values from object when updateConfiguration is dispatched', async () => {
@@ -95,7 +98,8 @@ describe('store/modules/configuration.js', () => {
       email: '',
       private_key: '',
       public_key: '',
-      passphrase: ''
+      passphrase: '',
+      format_titles: true
     })
 
     await store.dispatch('writeConfiguration', 'config.json')
