@@ -79,11 +79,19 @@
   color: black;
 }
 
+.explorer-file .v-input__slot {
+  margin: 0 !important;
+}
+
 .explorer-file .v-text-field__details {
   margin-top: 20px;
   position: absolute !important;
   right: 0px;
   z-index: 1000;
+}
+
+.explorer-file .v-input--is-disabled .v-text-field__details {
+  display: none !important;
 }
 
 .explorer-file .v-text-field__details .v-messages__wrapper {
