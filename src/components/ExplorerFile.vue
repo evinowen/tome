@@ -30,17 +30,19 @@
         @click.left.stop="$emit('input', instance)"
         @click.right="$emit('context', $event, 'file', path)"
       >
-        <v-layout class="explorer-file">
-          <v-btn tile text x-small @click.stop="$emit('input', instance)" class="explorer-file-button mr-1">
-            <v-icon>mdi-file</v-icon>
-          </v-btn>
-          <v-flex>
-            <v-form v-model=valid>
-              <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
-              <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
-            </v-form>
-          </v-flex>
-        </v-layout>
+        <div draggable @dragstart.stop=drag>
+          <v-layout class="explorer-file">
+            <v-btn tile text x-small @click.stop="$emit('input', instance)" class="explorer-file-button mr-1">
+              <v-icon>mdi-file</v-icon>
+            </v-btn>
+            <v-flex>
+              <v-form v-model=valid>
+                <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
+                <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
+              </v-form>
+            </v-flex>
+          </v-layout>
+        </div>
       </v-container>
 
     </template>
@@ -167,6 +169,9 @@ export default {
     }
   },
   methods: {
+    drag: function () {
+      event.dataTransfer.dropEffect = 'move'
+    },
     focus: function () {
       this.input = this.display
     },

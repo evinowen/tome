@@ -1,20 +1,22 @@
 <template>
   <v-container class="pa-0" style="user-select: none;">
-    <v-layout class="explorer-directory"
-      v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == active}]"
-      @click.left.stop="$emit('input', instance)"
-      @click.right.stop="$emit('context', $event, 'folder', path)"
-    >
-        <v-btn tile text x-small @click.stop="toggle" class="explorer-directory-button mr-1">
-          <v-icon>{{ icon }}</v-icon>
-        </v-btn>
-        <v-flex>
-          <v-form v-model=valid>
-            <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
-            <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
-          </v-form>
-        </v-flex>
-    </v-layout>
+    <div draggable v-on:dragstart.stop=drag>
+      <v-layout class="explorer-directory"
+        v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == active}]"
+        @click.left.stop="$emit('input', instance)"
+        @click.right.stop="$emit('context', $event, 'folder', path)"
+      >
+          <v-btn tile text x-small @click.stop="toggle" class="explorer-directory-button mr-1">
+            <v-icon>{{ icon }}</v-icon>
+          </v-btn>
+          <v-flex>
+            <v-form v-model=valid>
+              <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
+              <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
+            </v-form>
+          </v-flex>
+      </v-layout>
+    </div>
 
     <v-container v-if="expanded" class="explorer-directory-container">
       <template v-if=leaf>
@@ -185,6 +187,9 @@ export default {
     }
   },
   methods: {
+    drag: function (event) {
+      event.dataTransfer.dropEffect = 'move'
+    },
     toggle: async function () {
       if (this.expanded) {
         this.$emit('collapsing', this)
