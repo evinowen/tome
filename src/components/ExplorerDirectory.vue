@@ -1,5 +1,6 @@
 <template>
   <v-container class="pa-0" style="user-select: none; clear: both;">
+    <div v-if=!leaf style="height: 2px;" />
     <div class="explorer-directory-drop" droppable draggable @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
       <v-layout class="explorer-directory"
         v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == active}]"
@@ -19,6 +20,7 @@
     </div>
 
     <v-container v-if="expanded" class="explorer-directory-container">
+      <div style="height: 2px;" />
       <template v-if=leaf>
         <explorer-file
           v-for="child in children"
