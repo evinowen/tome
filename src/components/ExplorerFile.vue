@@ -26,7 +26,7 @@
 
     <template v-else v-on="$listeners">
       <v-container class="pa-0" style="user-select: none; clear: both;">
-        <div class="explorer-file-drop" droppable draggable @dragstart.stop=drag_start @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
+        <div class="explorer-file-drop" droppable draggable @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
           <v-layout
             v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': enabled}, {'explorer-file-selected': path == active }]"
             @click.left.stop="$emit('input', instance)"
@@ -207,6 +207,10 @@ export default {
   methods: {
     drag_start: function (event) {
       event.dataTransfer.dropEffect = 'move'
+      event.target.style.opacity = 0.2
+    },
+    drag_end: function (event) {
+      event.target.style.opacity = 1
     },
     drag_enter: function (event) {
       let container = event.target
