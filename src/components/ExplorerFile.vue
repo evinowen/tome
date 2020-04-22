@@ -25,13 +25,13 @@
     </template>
 
     <template v-else v-on="$listeners">
-      <v-container
-        v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': enabled}, {'explorer-file-selected': path == active }]"
-        @click.left.stop="$emit('input', instance)"
-        @click.right="$emit('context', $event, 'file', path)"
-      >
-        <div draggable @dragstart.stop=drag>
-          <v-layout class="explorer-file">
+      <v-container class="pa-0" style="user-select: none; clear: both;">
+        <div class="explorer-file-drop" droppable draggable @dragstart.stop=drag_start @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
+          <v-layout
+            v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': enabled}, {'explorer-file-selected': path == active }]"
+            @click.left.stop="$emit('input', instance)"
+            @click.right="$emit('context', $event, 'file', path)"
+          >
             <v-btn tile text x-small @click.stop="$emit('input', instance)" class="explorer-file-button mr-1">
               <v-icon>mdi-file</v-icon>
             </v-btn>
@@ -46,6 +46,7 @@
       </v-container>
 
     </template>
+    <div class="explorer-file-break" />
   </v-container>
 
 </template>
@@ -53,16 +54,36 @@
 <style>
 .explorer-file {
   height: 20px;
+  position: relative;
+  top: -2px;
+  margin: -2px -2px -4px -2px;
   padding: 0 !important;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
   user-select: none;
   vertical-align: text-bottom;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.explorer-file-break {
+  height: 2px;
+  width: 100%;
+}
+
+.explorer-file-drop {
+  height: 16px;
+  margin: 2px;
+}
+
+.explorer-file-drop.drop {
+  outline: 2px dashed #999;
 }
 
 .explorer-file-button {
+  width: 20px !important;
   min-width: 20px !important;
+  height: 20px !important;
+  min-height: 20px !important;
   padding: 0 !important;
 }
 
@@ -77,10 +98,17 @@
   padding: 0 !important;
   font-size: 12px;
   color: black;
+  vertical-align: text-bottom;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .explorer-file .v-input__slot {
   margin: 0 !important;
+}
+
+.explorer-file .v-input__slot:before {
+  border: none !important;
 }
 
 .explorer-file .v-text-field__details {
@@ -99,27 +127,27 @@
 }
 
 .explorer-file-hover:hover {
-  background: #EEEEEE;
+  background: rgba(180, 180, 180, 0.3);
 }
 
 .explorer-file-enabled.explorer-file-hover:hover {
-  background: #BBBBBB;
+  background: rgba(150, 150, 150, 0.6);
 }
 
 .explorer-file-selected {
-  background: #CCCCCC;
+  background: rgba(180, 180, 180, 0.6);
 }
 
 .explorer-file-enabled.explorer-file-selected {
-  background: #F44336;
+  background: rgba(244, 40, 30, 0.6);
 }
 
 .explorer-file-selected:hover {
-  background: #BBBBBB;
+  background: rgba(150, 150, 150, 0.6);
 }
 
 .explorer-file-enabled.explorer-file-selected:hover {
-  background: #F66055;
+  background: rgba(255, 20, 10, 0.6);
 }
 
 </style>
@@ -177,8 +205,36 @@ export default {
     }
   },
   methods: {
-    drag: function () {
+    drag_start: function (event) {
       event.dataTransfer.dropEffect = 'move'
+    },
+    drag_enter: function (event) {
+      let container = event.target
+
+      for (let i = 8; container && i > 0; i--) {
+        if (container.hasAttribute('droppable')) {
+          container.classList.add('drop')
+          return
+        }
+
+        container = container.parentElement
+      }
+    },
+    drag_leave: function (event) {
+      let container = event.target
+
+      for (let i = 8; container && i > 0; i--) {
+        container.classList.remove('drop')
+
+        if (container.hasAttribute('droppable')) {
+          return
+        }
+
+        container = container.parentElement
+      }
+    },
+    drop: function (event) {
+      console.log('drop')
     },
     focus: function () {
       this.input = this.display

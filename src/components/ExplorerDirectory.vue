@@ -1,6 +1,6 @@
 <template>
-  <v-container class="pa-0" style="user-select: none;">
-    <div draggable @dragstart.stop=drag>
+  <v-container class="pa-0" style="user-select: none; clear: both;">
+    <div class="explorer-directory-drop" droppable draggable @dragstart.stop=drag_start @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
       <v-layout class="explorer-directory"
         v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == active}]"
         @click.left.stop="$emit('input', instance)"
@@ -54,19 +54,37 @@
         />
       </template>
     </v-container>
-
+    <div class="explorer-directory-break" />
   </v-container>
+
 </template>
 
 <style>
 .explorer-directory {
   height: 20px;
+  position: relative;
+  top: -2px;
+  margin: -2px -2px -4px -2px;
   padding: 0 !important;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
   user-select: none;
   vertical-align: text-bottom;
+}
+
+.explorer-directory-break {
+  height: 0px;
+  width: 100%;
+}
+
+.explorer-directory-drop {
+  height: 16px;
+  margin: 2px;
+}
+
+.explorer-directory-drop.drop {
+  outline: 2px dashed #999;
 }
 
 .explorer-directory .v-input,
@@ -79,6 +97,10 @@
 
 .explorer-directory .v-input__slot {
   margin: 0 !important;
+}
+
+.explorer-directory .v-input__slot:before {
+  border: none !important;
 }
 
 .explorer-directory .v-text-field__details {
@@ -97,7 +119,10 @@
 }
 
 .explorer-directory-button {
+  width: 20px !important;
   min-width: 20px !important;
+  height: 20px !important;
+  min-height: 20px !important;
   padding: 0 !important;
 }
 
@@ -110,27 +135,27 @@
 }
 
 .explorer-directory:hover {
-  background: #EEEEEE;
+  background: rgba(180, 180, 180, 0.3);
 }
 
 .explorer-directory-enabled.explorer-directory:hover {
-  background: #BBBBBB;
+  background: rgba(150, 150, 150, 0.6);
 }
 
 .explorer-directory-selected {
-  background: #CCCCCC;
+  background: rgba(180, 180, 180, 0.6);
 }
 
 .explorer-directory-enabled.explorer-directory-selected {
-  background: #F44336;
+  background: rgba(244, 40, 30, 0.6);
 }
 
 .explorer-directory-selected:hover {
-  background: #BBBBBB;
+  background: rgba(150, 150, 150, 0.6);
 }
 
 .explorer-directory-enabled.explorer-directory-selected:hover {
-  background: #F66055;
+  background: rgba(255, 20, 10, 0.6);
 }
 
 </style>
@@ -195,8 +220,36 @@ export default {
     }
   },
   methods: {
-    drag: function (event) {
+    drag_start: function (event) {
       event.dataTransfer.dropEffect = 'move'
+    },
+    drag_enter: function (event) {
+      let container = event.target
+
+      for (let i = 8; container && i > 0; i--) {
+        if (container.hasAttribute('droppable')) {
+          container.classList.add('drop')
+          return
+        }
+
+        container = container.parentElement
+      }
+    },
+    drag_leave: function (event) {
+      let container = event.target
+
+      for (let i = 8; container && i > 0; i--) {
+        container.classList.remove('drop')
+
+        if (container.hasAttribute('droppable')) {
+          return
+        }
+
+        container = container.parentElement
+      }
+    },
+    drop: function (event) {
+      console.log('drop')
     },
     toggle: async function () {
       if (this.expanded) {
