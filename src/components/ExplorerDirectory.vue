@@ -1,6 +1,6 @@
 <template>
   <v-container class="pa-0" style="user-select: none;">
-    <div draggable v-on:dragstart.stop=drag>
+    <div draggable @dragstart.stop=drag>
       <v-layout class="explorer-directory"
         v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == active}]"
         @click.left.stop="$emit('input', instance)"
