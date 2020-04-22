@@ -233,7 +233,7 @@ export default {
       for (let i = 8; container && i > 0; i--) {
         if (container.hasAttribute('droppable')) {
           container.classList.add('drop')
-          return
+          break
         }
 
         container = container.parentElement
@@ -246,14 +246,18 @@ export default {
         container.classList.remove('drop')
 
         if (container.hasAttribute('droppable')) {
-          return
+          break
         }
 
         container = container.parentElement
       }
+
+      return container
     },
     drop: function (event) {
-      console.log('drop')
+      const container = this.drag_leave(event)
+
+      console.log('drop done', container)
     },
     toggle: async function () {
       if (this.expanded) {
