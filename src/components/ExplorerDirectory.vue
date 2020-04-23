@@ -346,6 +346,8 @@ export default {
       console.log('insert_item data', data)
       console.log('insert_item destination path', this.path)
 
+      data.parent = this.instance
+
       this.children.push(data)
     }
   }

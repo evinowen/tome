@@ -83,19 +83,28 @@ export default {
       this.hold = state
     },
     drop: async function (state) {
-      const data = this.hold.context.parent.remove_item(this.hold.context)
+      this.$emit('move', this.hold.context.path, state.context.path, {
+        reject: async (error) => {
+          console.log(`Failed to move ${this.hold.context.path} to ${state.context.path}`, error)
+        },
+        resolve: async (path) => {
+          const data = this.hold.context.parent.remove_item(this.hold.context)
 
-      if (state.context.directory) {
-        if (!state.context.expanded) {
-          await state.context.toggle()
+          data.path = path || data.path
+
+          if (state.context.directory) {
+            if (!state.context.expanded) {
+              await state.context.toggle()
+            }
+
+            state.context.insert_item(data)
+          } else {
+            state.context.parent.insert_item(data)
+          }
+
+          this.hold = null
         }
-
-        state.context.insert_item(data)
-      } else {
-        state.context.parent.insert_item(data)
-      }
-
-      this.hold = null
+      })
     }
   }
 }
