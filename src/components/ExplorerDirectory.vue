@@ -1,22 +1,27 @@
 <template>
-  <v-container class="pa-0" style="user-select: none;">
-    <v-layout class="explorer-directory"
-      v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == active}]"
-      @click.left.stop="$emit('input', instance)"
-      @click.right.stop="$emit('context', $event, 'folder', path)"
-    >
-        <v-btn tile text x-small @click.stop="toggle" class="explorer-directory-button mr-1">
-          <v-icon>{{ icon }}</v-icon>
-        </v-btn>
-        <v-flex>
-          <v-form v-model=valid>
-            <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
-            <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
-          </v-form>
-        </v-flex>
-    </v-layout>
+  <v-container class="pa-0" style="user-select: none; clear: both;" v-show="visible">
+    <div v-if=!leaf style="height: 2px;" />
+    <div class="explorer-directory-drop" droppable :draggable="leaf && !system" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
+      <v-layout class="explorer-directory"
+        v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled && !system}, {'explorer-directory-selected': path == active}]"
+        @click.left.stop="system ? null : $emit('input', instance)"
+        @click.right.stop="$emit('context', $event, 'folder', path)"
+      >
+          <v-btn tile text x-small @click.stop="system ? null : toggle()" class="explorer-directory-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
+            <v-icon>{{ icon }}</v-icon>
+          </v-btn>
+          <v-flex>
+            <template v-if=system>{{ display }}</template>
+            <v-form v-else v-model=valid>
+              <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
+              <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
+            </v-form>
+          </v-flex>
+      </v-layout>
+    </div>
 
     <v-container v-if="expanded" class="explorer-directory-container">
+      <div style="height: 2px;" />
       <template v-if=leaf>
         <explorer-file
           v-for="child in children"
@@ -52,19 +57,42 @@
         />
       </template>
     </v-container>
-
+    <div class="explorer-directory-break" />
   </v-container>
+
 </template>
 
 <style>
 .explorer-directory {
   height: 20px;
+  position: relative;
+  top: -2px;
+  margin: -2px -2px -4px -2px;
   padding: 0 !important;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
   user-select: none;
   vertical-align: text-bottom;
+  color: grey;
+}
+
+.explorer-directory-enabled {
+  color: black;
+}
+
+.explorer-directory-break {
+  height: 0px;
+  width: 100%;
+}
+
+.explorer-directory-drop {
+  height: 16px;
+  margin: 2px;
+}
+
+.explorer-directory-drop.drop {
+  outline: 2px dashed #999;
 }
 
 .explorer-directory .v-input,
@@ -75,6 +103,14 @@
   color: black;
 }
 
+.explorer-directory .v-input__slot {
+  margin: 0 !important;
+}
+
+.explorer-directory .v-input__slot:before {
+  border: none !important;
+}
+
 .explorer-directory .v-text-field__details {
   margin-top: 20px;
   position: absolute !important;
@@ -82,12 +118,19 @@
   z-index: 1000;
 }
 
+.explorer-directory .v-input--is-disabled .v-text-field__details {
+  display: none !important;
+}
+
 .explorer-directory .v-text-field__details .v-messages__wrapper {
   background: rgba(255, 255, 255, 0.8);
 }
 
 .explorer-directory-button {
+  width: 20px !important;
   min-width: 20px !important;
+  height: 20px !important;
+  min-height: 20px !important;
   padding: 0 !important;
 }
 
@@ -100,27 +143,27 @@
 }
 
 .explorer-directory:hover {
-  background: #EEEEEE;
+  background: rgba(180, 180, 180, 0.3);
 }
 
 .explorer-directory-enabled.explorer-directory:hover {
-  background: #BBBBBB;
+  background: rgba(150, 150, 150, 0.6);
 }
 
 .explorer-directory-selected {
-  background: #CCCCCC;
+  background: rgba(180, 180, 180, 0.6);
 }
 
 .explorer-directory-enabled.explorer-directory-selected {
-  background: #F44336;
+  background: rgba(244, 40, 30, 0.6);
 }
 
 .explorer-directory-selected:hover {
-  background: #BBBBBB;
+  background: rgba(150, 150, 150, 0.6);
 }
 
 .explorer-directory-enabled.explorer-directory-selected:hover {
-  background: #F66055;
+  background: rgba(255, 20, 10, 0.6);
 }
 
 </style>
@@ -157,6 +200,11 @@ export default {
     instance: function () {
       return this
     },
+    system: function () {
+      return [
+        '.git'
+      ].indexOf(this.name) > -1
+    },
     icon: function () {
       if (this.leaf) {
         return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
@@ -165,11 +213,14 @@ export default {
       return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
     },
     display: function () {
-      if (this.title) {
+      if (this.title && !this.system) {
         return this.format(this.name, true)
       }
 
       return this.name
+    },
+    visible: function () {
+      return !(this.title && (this.display === '' || this.system))
     },
     rules: function () {
       if (this.title) {
@@ -185,8 +236,47 @@ export default {
     }
   },
   methods: {
+    drag_start: function (event) {
+      event.dataTransfer.dropEffect = 'move'
+      event.target.style.opacity = 0.2
+    },
+    drag_end: function (event) {
+      event.target.style.opacity = 1
+    },
+    drag_enter: function (event) {
+      let container = event.target
+
+      for (let i = 8; container && i > 0; i--) {
+        if (container.hasAttribute('droppable')) {
+          container.classList.add('drop')
+          break
+        }
+
+        container = container.parentElement
+      }
+    },
+    drag_leave: function (event) {
+      let container = event.target
+
+      for (let i = 8; container && i > 0; i--) {
+        container.classList.remove('drop')
+
+        if (container.hasAttribute('droppable')) {
+          break
+        }
+
+        container = container.parentElement
+      }
+
+      return container
+    },
+    drop: function (event) {
+      const container = this.drag_leave(event)
+
+      console.log('drop done', container)
+    },
     toggle: async function () {
-      if (this.expanded) {
+      if (this.system || this.expanded) {
         this.$emit('collapsing', this)
         this.expanded = false
         this.$emit('collapsed', this)

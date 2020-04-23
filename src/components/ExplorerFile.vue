@@ -1,49 +1,43 @@
 <template>
-  <v-container class="pa-0" style="user-select: none;">
-    <template v-if="directory">
-      <v-container v-if="disabled" class="explorer-file explorer-file-disabled">
-        <div class="explorer-file">
-          <v-icon class="mr-1">mdi-folder</v-icon>
-          {{ name }}
+  <v-container class="pa-0" style="user-select: none;" v-show="visible">
+    <explorer-directory v-if="directory"
+      :name=name
+      :path=path
+      :parent=parent
+      :populate=populate
+      :format=format
+      :enabled=enabled
+      :title=title
+      :active=active
+      :edit=edit
+      child
+      v-on="$listeners"
+      leaf
+    />
+    <template v-else v-on="$listeners">
+      <v-container class="pa-0" style="user-select: none; clear: both;">
+        <div class="explorer-file-drop" droppable :draggable="!system" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
+          <v-layout
+            v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': !system}, {'explorer-file-selected': path == active }]"
+            @click.left.stop="$emit('input', instance)"
+            @click.right="$emit('context', $event, 'file', path)"
+          >
+            <v-btn tile text x-small @click.stop="system ? null : $emit('input', instance)" class="explorer-file-button mr-1" :color="!system ? 'black' : 'grey'">
+              <v-icon>mdi-file</v-icon>
+            </v-btn>
+            <v-flex>
+              <template v-if=system>{{ display }}</template>
+              <v-form v-else v-model=valid>
+                <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
+                <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
+              </v-form>
+            </v-flex>
+          </v-layout>
         </div>
       </v-container>
-      <explorer-directory
-        v-else
-        :name=name
-        :path=path
-        :parent=parent
-        :populate=populate
-        :format=format
-        :enabled=enabled
-        :title=title
-        :active=active
-        :edit=edit
-        child
-        v-on="$listeners"
-        leaf
-      />
-    </template>
-
-    <template v-else v-on="$listeners">
-      <v-container
-        v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': enabled}, {'explorer-file-selected': path == active }]"
-        @click.left.stop="$emit('input', instance)"
-        @click.right="$emit('context', $event, 'file', path)"
-      >
-        <v-layout class="explorer-file">
-          <v-btn tile text x-small @click.stop="$emit('input', instance)" class="explorer-file-button mr-1">
-            <v-icon>mdi-file</v-icon>
-          </v-btn>
-          <v-flex>
-            <v-form v-model=valid>
-              <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
-              <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
-            </v-form>
-          </v-flex>
-        </v-layout>
-      </v-container>
 
     </template>
+    <div class="explorer-file-break" />
   </v-container>
 
 </template>
@@ -51,16 +45,41 @@
 <style>
 .explorer-file {
   height: 20px;
+  position: relative;
+  top: -2px;
+  margin: -2px -2px -4px -2px;
   padding: 0 !important;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
   user-select: none;
   vertical-align: text-bottom;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: grey;
+}
+
+.explorer-file-enabled {
+  color: black;
+}
+
+.explorer-file-break {
+  height: 2px;
+  width: 100%;
+}
+
+.explorer-file-drop {
+  height: 16px;
+  margin: 2px;
+}
+
+.explorer-file-drop.drop {
+  outline: 2px dashed #999;
 }
 
 .explorer-file-button {
+  width: 20px !important;
   min-width: 20px !important;
+  height: 20px !important;
+  min-height: 20px !important;
   padding: 0 !important;
 }
 
@@ -75,6 +94,17 @@
   padding: 0 !important;
   font-size: 12px;
   color: black;
+  vertical-align: text-bottom;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.explorer-file .v-input__slot {
+  margin: 0 !important;
+}
+
+.explorer-file .v-input__slot:before {
+  border: none !important;
 }
 
 .explorer-file .v-text-field__details {
@@ -84,32 +114,36 @@
   z-index: 1000;
 }
 
+.explorer-file .v-input--is-disabled .v-text-field__details {
+  display: none !important;
+}
+
 .explorer-file .v-text-field__details .v-messages__wrapper {
   background: rgba(255, 255, 255, 0.8);
 }
 
 .explorer-file-hover:hover {
-  background: #EEEEEE;
+  background: rgba(180, 180, 180, 0.3);
 }
 
 .explorer-file-enabled.explorer-file-hover:hover {
-  background: #BBBBBB;
+  background: rgba(150, 150, 150, 0.6);
 }
 
 .explorer-file-selected {
-  background: #CCCCCC;
+  background: rgba(180, 180, 180, 0.6);
 }
 
 .explorer-file-enabled.explorer-file-selected {
-  background: #F44336;
+  background: rgba(244, 40, 30, 0.6);
 }
 
 .explorer-file-selected:hover {
-  background: #BBBBBB;
+  background: rgba(150, 150, 150, 0.6);
 }
 
 .explorer-file-enabled.explorer-file-selected:hover {
-  background: #F66055;
+  background: rgba(255, 20, 10, 0.6);
 }
 
 </style>
@@ -140,17 +174,20 @@ export default {
     instance: function () {
       return this
     },
-    disabled: function () {
+    system: function () {
       return [
         '.git'
       ].indexOf(this.name) > -1
     },
     display: function () {
-      if (this.title) {
+      if (this.title && !this.system) {
         return this.format(this.name)
       }
 
       return this.name
+    },
+    visible: function () {
+      return !(this.title && (this.display === '' || this.system))
     },
     rules: function () {
       if (this.title) {
@@ -167,6 +204,45 @@ export default {
     }
   },
   methods: {
+    drag_start: function (event) {
+      event.dataTransfer.dropEffect = 'move'
+      event.target.style.opacity = 0.2
+    },
+    drag_end: function (event) {
+      event.target.style.opacity = 1
+    },
+    drag_enter: function (event) {
+      let container = event.target
+
+      for (let i = 8; container && i > 0; i--) {
+        if (container.hasAttribute('droppable')) {
+          container.classList.add('drop')
+          break
+        }
+
+        container = container.parentElement
+      }
+    },
+    drag_leave: function (event) {
+      let container = event.target
+
+      for (let i = 8; container && i > 0; i--) {
+        container.classList.remove('drop')
+
+        if (container.hasAttribute('droppable')) {
+          break
+        }
+
+        container = container.parentElement
+      }
+
+      return container
+    },
+    drop: function (event) {
+      const container = this.drag_leave(event)
+
+      console.log('drop done', container)
+    },
     focus: function () {
       this.input = this.display
     },
