@@ -350,6 +350,8 @@ export default {
       this.sort()
       this.$forceUpdate()
     },
+    create: function (directory, path) {
+    },
     remove_item: function (source) {
       console.log('remove_item source path', source.path)
       console.log('remove_item parent path', this.path)

@@ -253,17 +253,11 @@ export default {
     },
     action_new_file: async function (target_path) {
       console.log('new file', target_path)
-      this.add.value = ''
-      this.add.relative_path = target_path
-      this.add.as_directory = false
-      this.add.active = true
+      await this.$refs.interface.create(false)
     },
     action_new_folder: async function (target_path) {
       console.log('new folder', target_path)
-      this.add.value = ''
-      this.add.relative_path = target_path
-      this.add.as_directory = true
-      this.add.active = true
+      await this.$refs.interface.create(true)
     },
     action_open_folder: async function (path) {
       console.log('action_open_folder', path)

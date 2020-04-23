@@ -261,6 +261,9 @@ export default {
     },
     blur: function () {
       this.$emit('blur')
+    },
+    create: function (directory) {
+      return this.parent.create(directory, this.path)
     }
   }
 }

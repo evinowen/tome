@@ -270,6 +270,9 @@ export default {
         return context.reject(error)
       }
     },
+    create: async function (path, directory) {
+      await this.$refs.explorer.create(path, directory)
+    },
     rename: async function (path) {
       await this.$refs.explorer.edit()
     }

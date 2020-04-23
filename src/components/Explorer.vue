@@ -59,6 +59,11 @@ export default {
       this.editing = true
       console.log('Explorer edit')
     },
+    create: async function (path, directory) {
+      this.value.create(path, directory)
+      this.editing = true
+      console.log('Explorer create')
+    },
     submit: async function (data) {
       console.log('Explorer submit', data)
       await this.blur()
