@@ -2,6 +2,7 @@
   <v-container class="pa-0" style="user-select: none;" v-show="visible">
     <explorer-directory v-if="directory"
       :uuid=uuid
+      :ephemeral=ephemeral
       :name=name
       :path=path
       :parent=parent
@@ -154,6 +155,7 @@ export default {
   props: {
     uuid: { type: String },
     enabled: { type: Boolean },
+    ephemeral: { type: Boolean },
     title: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String, default: '' },

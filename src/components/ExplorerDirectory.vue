@@ -28,6 +28,7 @@
           v-on="$listeners"
           :key=child.uuid
           :uuid=child.uuid
+          :ephemeral=child.ephemeral
           :name=child.name
           :path=child.path
           :parent=instance
@@ -46,6 +47,7 @@
           v-on="$listeners"
           :key=child.uuid
           :uuid=child.uuid
+          :ephemeral=child.ephemeral
           :name=child.name
           :path=child.path
           :parent=instance
@@ -175,6 +177,7 @@ export default {
   props: {
     uuid: { type: String },
     enabled: { type: Boolean },
+    ephemeral: { type: Boolean },
     title: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String },
