@@ -48,10 +48,10 @@ describe('ExplorerFile.vue', () => {
     jest.clearAllMocks()
   })
 
-  it('should be disabled if the filename equals .git', async () => {
+  it('should be flagged as system if the filename equals .git', async () => {
     wrap({ name: '.git' })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.disabled).toEqual(true)
+    expect(wrapper.vm.system).toEqual(true)
   })
 })
