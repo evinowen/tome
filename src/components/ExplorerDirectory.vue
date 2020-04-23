@@ -27,6 +27,7 @@
           v-for="child in children"
           v-on="$listeners"
           :key=child.uuid
+          :uuid=child.uuid
           :name=child.name
           :path=child.path
           :parent=instance
@@ -44,6 +45,7 @@
           v-for="child in children"
           v-on="$listeners"
           :key=child.uuid
+          :uuid=child.uuid
           :name=child.name
           :path=child.path
           :parent=instance
@@ -171,6 +173,7 @@
 <script>
 export default {
   props: {
+    uuid: { type: String },
     enabled: { type: Boolean },
     title: { type: Boolean },
     name: { type: String, default: '' },
@@ -239,6 +242,8 @@ export default {
     drag_start: function (event) {
       event.dataTransfer.dropEffect = 'move'
       event.target.style.opacity = 0.2
+
+      this.$emit('drag', { context: this })
     },
     drag_end: function (event) {
       event.target.style.opacity = 1
@@ -267,13 +272,10 @@ export default {
 
         container = container.parentElement
       }
-
-      return container
     },
     drop: function (event) {
-      const container = this.drag_leave(event)
-
-      console.log('drop done', container)
+      this.drag_leave(event)
+      this.$emit('drop', { context: this })
     },
     toggle: async function () {
       if (this.system || this.expanded) {
@@ -298,6 +300,25 @@ export default {
 
       while (this.children.pop()) { }
       this.loaded = (await this.populate(this)) === true
+
+      this.sort()
+    },
+    sort: function () {
+      this.children.sort((first, second) => {
+        const name = (first, second) => {
+          return first.path === second.path ? 0 : (first.path < second.path ? -1 : 1)
+        }
+
+        if (first.directory && second.directory) {
+          return name(first, second)
+        } else if (first.directory) {
+          return -1
+        } else if (second.directory) {
+          return 1
+        } else {
+          return name(first, second)
+        }
+      })
     },
     focus: function () {
       this.input = this.display
@@ -326,7 +347,29 @@ export default {
           console.log('updated!', this.children[index])
         }
       })
+      this.sort()
       this.$forceUpdate()
+    },
+    remove_item: function (source) {
+      console.log('remove_item source path', source.path)
+      console.log('remove_item parent path', this.path)
+
+      const index = this.children.findIndex(child => child.uuid === source.uuid)
+
+      if (index < 0) {
+        return undefined
+      }
+
+      return this.children.splice(index, 1).pop() || false
+    },
+    insert_item: function (data) {
+      console.log('insert_item data', data)
+      console.log('insert_item destination path', this.path)
+
+      data.parent = this.instance
+
+      this.children.push(data)
+      this.sort()
     }
   }
 }

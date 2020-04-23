@@ -1,6 +1,7 @@
 <template>
   <v-container class="pa-0" style="user-select: none;" v-show="visible">
     <explorer-directory v-if="directory"
+      :uuid=uuid
       :name=name
       :path=path
       :parent=parent
@@ -151,6 +152,7 @@
 <script>
 export default {
   props: {
+    uuid: { type: String },
     enabled: { type: Boolean },
     title: { type: Boolean },
     name: { type: String, default: '' },
@@ -207,6 +209,8 @@ export default {
     drag_start: function (event) {
       event.dataTransfer.dropEffect = 'move'
       event.target.style.opacity = 0.2
+
+      this.$emit('drag', { context: this })
     },
     drag_end: function (event) {
       event.target.style.opacity = 1
@@ -235,13 +239,10 @@ export default {
 
         container = container.parentElement
       }
-
-      return container
     },
     drop: function (event) {
-      const container = this.drag_leave(event)
-
-      console.log('drop done', container)
+      this.drag_leave(event)
+      this.$emit('drop', { context: this })
     },
     focus: function () {
       this.input = this.display

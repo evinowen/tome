@@ -3,7 +3,7 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file />
+          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file @move=move_file />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;" />
         <scrolly-bar axis="x" style="margin-bottom: 2px;" />
@@ -241,6 +241,34 @@ export default {
       }
 
       console.log('rename_file failed')
+    },
+    move_file: async function (path, proposed, context) {
+      let directory = proposed
+      try {
+        const status = await new Promise((resolve, reject) => this.fs.lstat(proposed, (err, status) => err ? reject(err) : resolve(status)))
+
+        if (!status.isDirectory()) {
+          directory = this.path.dirname(proposed)
+        }
+      } catch (error) {
+        return context.reject(error)
+      }
+
+      const basename = this.path.basename(path)
+      const proposed_full = this.path.join(directory, basename)
+
+      console.log(path, proposed, basename, proposed_full)
+
+      if (directory === this.path.dirname(path)) {
+        return context.reject('Invalid move, same directory')
+      }
+
+      try {
+        await new Promise((resolve, reject) => this.fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
+        return context.resolve(proposed_full)
+      } catch (error) {
+        return context.reject(error)
+      }
     },
     rename: async function (path) {
       await this.$refs.explorer.edit()
