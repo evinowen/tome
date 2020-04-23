@@ -1,17 +1,18 @@
 <template>
-  <v-container class="pa-0" style="user-select: none; clear: both;">
+  <v-container class="pa-0" style="user-select: none; clear: both;" v-show="visible">
     <div v-if=!leaf style="height: 2px;" />
-    <div class="explorer-directory-drop" droppable :draggable=leaf @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
+    <div class="explorer-directory-drop" droppable :draggable="leaf && !system" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
       <v-layout class="explorer-directory"
-        v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled}, {'explorer-directory-selected': path == active}]"
-        @click.left.stop="$emit('input', instance)"
+        v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled && !system}, {'explorer-directory-selected': path == active}]"
+        @click.left.stop="system ? null : $emit('input', instance)"
         @click.right.stop="$emit('context', $event, 'folder', path)"
       >
-          <v-btn tile text x-small @click.stop="toggle" class="explorer-directory-button mr-1">
+          <v-btn tile text x-small @click.stop="system ? null : toggle()" class="explorer-directory-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
             <v-icon>{{ icon }}</v-icon>
           </v-btn>
           <v-flex>
-            <v-form v-model=valid>
+            <template v-if=system>{{ display }}</template>
+            <v-form v-else v-model=valid>
               <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
               <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
             </v-form>
@@ -73,6 +74,11 @@
   overflow: visible;
   user-select: none;
   vertical-align: text-bottom;
+  color: grey;
+}
+
+.explorer-directory-enabled {
+  color: black;
 }
 
 .explorer-directory-break {
@@ -194,6 +200,11 @@ export default {
     instance: function () {
       return this
     },
+    system: function () {
+      return [
+        '.git'
+      ].indexOf(this.name) > -1
+    },
     icon: function () {
       if (this.leaf) {
         return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
@@ -202,11 +213,14 @@ export default {
       return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
     },
     display: function () {
-      if (this.title) {
+      if (this.title && !this.system) {
         return this.format(this.name, true)
       }
 
       return this.name
+    },
+    visible: function () {
+      return !(this.title && (this.display === '' || this.system))
     },
     rules: function () {
       if (this.title) {
@@ -262,7 +276,7 @@ export default {
       console.log('drop done', container)
     },
     toggle: async function () {
-      if (this.expanded) {
+      if (this.system || this.expanded) {
         this.$emit('collapsing', this)
         this.expanded = false
         this.$emit('collapsed', this)

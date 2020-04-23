@@ -49,7 +49,7 @@ export default {
         }
       }
 
-      return words.map(item => String(item).substring(0, 1).toUpperCase().concat(item.substring(1))).join(' ')
+      return words.map(item => String(item).substring(0, 1).toUpperCase().concat(item.substring(1))).join(' ').trim()
     },
     edit: async function () {
       this.editing = true

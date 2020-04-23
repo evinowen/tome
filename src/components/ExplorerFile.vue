@@ -1,42 +1,33 @@
 <template>
-  <v-container class="pa-0" style="user-select: none;">
-    <template v-if="directory">
-      <v-container v-if="disabled" class="explorer-file explorer-file-disabled">
-        <div class="explorer-file">
-          <v-icon class="mr-1">mdi-folder</v-icon>
-          {{ name }}
-        </div>
-      </v-container>
-      <explorer-directory
-        v-else
-        :name=name
-        :path=path
-        :parent=parent
-        :populate=populate
-        :format=format
-        :enabled=enabled
-        :title=title
-        :active=active
-        :edit=edit
-        child
-        v-on="$listeners"
-        leaf
-      />
-    </template>
-
+  <v-container class="pa-0" style="user-select: none;" v-show="visible">
+    <explorer-directory v-if="directory"
+      :name=name
+      :path=path
+      :parent=parent
+      :populate=populate
+      :format=format
+      :enabled=enabled
+      :title=title
+      :active=active
+      :edit=edit
+      child
+      v-on="$listeners"
+      leaf
+    />
     <template v-else v-on="$listeners">
       <v-container class="pa-0" style="user-select: none; clear: both;">
-        <div class="explorer-file-drop" droppable draggable @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
+        <div class="explorer-file-drop" droppable :draggable="!system" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
           <v-layout
-            v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': enabled}, {'explorer-file-selected': path == active }]"
+            v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': !system}, {'explorer-file-selected': path == active }]"
             @click.left.stop="$emit('input', instance)"
             @click.right="$emit('context', $event, 'file', path)"
           >
-            <v-btn tile text x-small @click.stop="$emit('input', instance)" class="explorer-file-button mr-1">
+            <v-btn tile text x-small @click.stop="system ? null : $emit('input', instance)" class="explorer-file-button mr-1" :color="!system ? 'black' : 'grey'">
               <v-icon>mdi-file</v-icon>
             </v-btn>
             <v-flex>
-              <v-form v-model=valid>
+              <template v-if=system>{{ display }}</template>
+              <v-form v-else v-model=valid>
                 <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
                 <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
               </v-form>
@@ -63,6 +54,11 @@
   vertical-align: text-bottom;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: grey;
+}
+
+.explorer-file-enabled {
+  color: black;
 }
 
 .explorer-file-break {
@@ -178,17 +174,20 @@ export default {
     instance: function () {
       return this
     },
-    disabled: function () {
+    system: function () {
       return [
         '.git'
       ].indexOf(this.name) > -1
     },
     display: function () {
-      if (this.title) {
+      if (this.title && !this.system) {
         return this.format(this.name)
       }
 
       return this.name
+    },
+    visible: function () {
+      return !(this.title && (this.display === '' || this.system))
     },
     rules: function () {
       if (this.title) {
