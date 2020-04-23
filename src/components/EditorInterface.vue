@@ -179,7 +179,7 @@ export default {
       this.actions = []
       this.absolute_path = null
 
-      if (!this.selected) {
+      if (!this.selected || !this.selected.path) {
         return
       }
 

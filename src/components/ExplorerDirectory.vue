@@ -173,6 +173,8 @@
 </style>
 
 <script>
+import { v4 as uuidv4 } from 'uuid'
+
 export default {
   props: {
     uuid: { type: String },
@@ -358,6 +360,25 @@ export default {
       this.$forceUpdate()
     },
     create: function (directory, path) {
+      if (!this.expanded) {
+        this.toggle()
+      }
+
+      const data = {
+        uuid: uuidv4(),
+        ephemeral: true,
+        name: '',
+        path: '',
+        directory
+      }
+
+      if (path) {
+        const index = this.children.findIndex(child => child.path === path)
+        console.log('path provided', path, index)
+        this.children.splice(index, 0, data)
+      } else {
+        this.children.push(data)
+      }
     },
     remove_item: function (source) {
       console.log('remove_item source path', source.path)
