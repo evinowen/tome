@@ -322,56 +322,52 @@ export default {
 
       await store.dispatch('inspect')
     },
-    open_context: async function (e, type, path) {
-      console.log('open_context', e, type, path)
+    open_context: async function (state) {
+      const { instance, event } = state
+      console.log('open_context', instance, event)
+      instance.$emit('input', instance)
 
       this.context.visible = true
-      this.context.title = path
-      this.context.target = path
+      this.context.title = instance.path
+      this.context.target = instance.path
       this.context.items = []
-      this.context.position.x = e.clientX
-      this.context.position.y = e.clientY
+      this.context.position.x = event.clientX
+      this.context.position.y = event.clientY
 
-      switch (type) {
-        case 'folder':
-          this.context.items.push({
-            title: 'Expand',
-            action: () => { console.log('Expand Action!') }
-          })
+      const standard = [
+        {
+          title: 'Rename',
+          action: this.action_rename
+        },
+        {
+          divider: true
+        },
+        {
+          title: 'New File',
+          action: this.action_new_file
+        },
+        {
+          title: 'New Folder',
+          action: this.action_new_folder
+        },
+        {
+          title: 'Open Folder',
+          action: this.action_open_folder
+        }
+      ]
 
-          this.context.items.push({
-            divider: true
-          })
+      if (instance.directory) {
+        this.context.items.push({
+          title: 'Expand',
+          action: () => { console.log('Expand Action!') }
+        })
 
-          // fall through
-
-        case 'file':
-          this.context.items.push({
-            title: 'Rename',
-            action: this.action_rename
-          })
-
-          this.context.items.push({
-            divider: true
-          })
-
-          this.context.items.push({
-            title: 'New File',
-            action: this.action_new_file
-          })
-
-          this.context.items.push({
-            title: 'New Folder',
-            action: this.action_new_folder
-          })
-
-          this.context.items.push({
-            title: 'Open Folder',
-            action: this.action_open_folder
-          })
-
-          break
+        this.context.items.push({
+          divider: true
+        })
       }
+
+      this.context.items = this.context.items.concat(standard)
     },
     reload_selected_explorer: function () {
       // TODO: Reimplement reload behavior for explorer

@@ -5,7 +5,7 @@
       <v-layout class="explorer-directory"
         v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled && !system}, {'explorer-directory-selected': path == active}]"
         @click.left.stop="system ? null : $emit('input', instance)"
-        @click.right.stop="$emit('context', $event, 'folder', path)"
+        @click.right.stop="$emit('context', { instance, event: $event })"
       >
           <v-btn tile text x-small @click.stop="system ? null : toggle()" class="explorer-directory-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
             <v-icon>{{ icon }}</v-icon>

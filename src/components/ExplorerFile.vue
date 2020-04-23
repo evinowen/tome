@@ -21,7 +21,7 @@
           <v-layout
             v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': !system}, {'explorer-file-selected': path == active }]"
             @click.left.stop="$emit('input', instance)"
-            @click.right="$emit('context', $event, 'file', path)"
+            @click.right.stop="$emit('context', { instance, event: $event })"
           >
             <v-btn tile text x-small @click.stop="system ? null : $emit('input', instance)" class="explorer-file-button mr-1" :color="!system ? 'black' : 'grey'">
               <v-icon>mdi-file</v-icon>
