@@ -27,6 +27,7 @@
           v-for="child in children"
           v-on="$listeners"
           :key=child.uuid
+          :uuid=child.uuid
           :name=child.name
           :path=child.path
           :parent=instance
@@ -44,6 +45,7 @@
           v-for="child in children"
           v-on="$listeners"
           :key=child.uuid
+          :uuid=child.uuid
           :name=child.name
           :path=child.path
           :parent=instance
@@ -171,6 +173,7 @@
 <script>
 export default {
   props: {
+    uuid: { type: String },
     enabled: { type: Boolean },
     title: { type: Boolean },
     name: { type: String, default: '' },
@@ -239,6 +242,8 @@ export default {
     drag_start: function (event) {
       event.dataTransfer.dropEffect = 'move'
       event.target.style.opacity = 0.2
+
+      this.$emit('drag', { context: this })
     },
     drag_end: function (event) {
       event.target.style.opacity = 1
@@ -267,13 +272,10 @@ export default {
 
         container = container.parentElement
       }
-
-      return container
     },
     drop: function (event) {
-      const container = this.drag_leave(event)
-
-      console.log('drop done', container)
+      this.drag_leave(event)
+      this.$emit('drop', { context: this })
     },
     toggle: async function () {
       if (this.system || this.expanded) {
@@ -327,6 +329,24 @@ export default {
         }
       })
       this.$forceUpdate()
+    },
+    remove_item: function (source) {
+      console.log('remove_item source path', source.path)
+      console.log('remove_item parent path', this.path)
+
+      const index = this.children.findIndex(child => child.uuid === source.uuid)
+
+      if (index < 0) {
+        return undefined
+      }
+
+      return this.children.splice(index, 1).pop() || false
+    },
+    insert_item: function (data) {
+      console.log('insert_item data', data)
+      console.log('insert_item destination path', this.path)
+
+      this.children.push(data)
     }
   }
 }

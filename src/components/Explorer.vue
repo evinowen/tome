@@ -8,8 +8,11 @@
     :title=configuration.format_titles
     :populate=populate
     :format=format
+    :hold=hold
     @submit=submit
     @blur=blur
+    @drag=drag
+    @drop=drop
     v-on="$listeners"
   />
 </template>
@@ -24,7 +27,8 @@ export default {
     populate: { type: Function }
   },
   data: () => ({
-    editing: false
+    editing: false,
+    hold: null
   }),
   computed: {
     tome: function () {
@@ -74,6 +78,24 @@ export default {
     blur: async function () {
       console.log('Explorer blur')
       this.editing = false
+    },
+    drag: async function (state) {
+      this.hold = state
+    },
+    drop: async function (state) {
+      const data = this.hold.context.parent.remove_item(this.hold.context)
+
+      if (state.context.directory) {
+        if (!state.context.expanded) {
+          await state.context.toggle()
+        }
+
+        state.context.insert_item(data)
+      } else {
+        state.context.parent.insert_item(data)
+      }
+
+      this.hold = null
     }
   }
 }
