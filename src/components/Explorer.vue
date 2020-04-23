@@ -80,8 +80,13 @@ export default {
 
       this.$emit('rename', data.path, proposed, (update) => { data.container.update(data.path, update) })
     },
-    blur: async function () {
-      console.log('Explorer blur')
+    blur: async function (state) {
+      const { context } = state
+
+      if (context.ephemeral) {
+        context.parent.remove_item(context)
+      }
+
       this.editing = false
     },
     drag: async function (state) {

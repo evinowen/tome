@@ -174,6 +174,11 @@ export default {
     valid: false,
     input: ''
   }),
+  mounted: function () {
+    if (this.ephemeral) {
+      this.$emit('input', this.instance)
+    }
+  },
   computed: {
     instance: function () {
       return this
@@ -262,7 +267,7 @@ export default {
       }
     },
     blur: function () {
-      this.$emit('blur')
+      this.$emit('blur', { context: this })
     },
     create: function (directory) {
       return this.parent.create(directory, this.path)

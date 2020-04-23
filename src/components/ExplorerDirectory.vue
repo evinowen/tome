@@ -201,6 +201,10 @@ export default {
     if (!this.leaf) {
       this.toggle()
     }
+
+    if (this.ephemeral) {
+      this.$emit('input', this.instance)
+    }
   },
   computed: {
     instance: function () {
@@ -339,7 +343,7 @@ export default {
       }
     },
     blur: function () {
-      this.$emit('blur')
+      this.$emit('blur', { context: this })
     },
     update: function (path, update) {
       console.log('update... ', path)
