@@ -300,6 +300,25 @@ export default {
 
       while (this.children.pop()) { }
       this.loaded = (await this.populate(this)) === true
+
+      this.sort()
+    },
+    sort: function () {
+      this.children.sort((first, second) => {
+        const name = (first, second) => {
+          return first.path === second.path ? 0 : (first.path < second.path ? -1 : 1)
+        }
+
+        if (first.directory && second.directory) {
+          return name(first, second)
+        } else if (first.directory) {
+          return -1
+        } else if (second.directory) {
+          return 1
+        } else {
+          return name(first, second)
+        }
+      })
     },
     focus: function () {
       this.input = this.display
@@ -328,6 +347,7 @@ export default {
           console.log('updated!', this.children[index])
         }
       })
+      this.sort()
       this.$forceUpdate()
     },
     remove_item: function (source) {
@@ -349,6 +369,7 @@ export default {
       data.parent = this.instance
 
       this.children.push(data)
+      this.sort()
     }
   }
 }
