@@ -64,21 +64,36 @@ export default {
       this.editing = true
       console.log('Explorer create')
     },
-    submit: async function (data) {
-      console.log('Explorer submit', data)
-      await this.blur()
+    submit: async function (state) {
+      console.log('Explorer submit', state)
+      const { context } = state
 
-      let proposed = data.proposed
+      let input = context.input
 
-      if (data.title) {
-        proposed = proposed.toLowerCase().replace(/ +/g, '.')
+      if (context.title) {
+        input = input.toLowerCase().replace(/ +/g, '.')
 
-        if (!data.directory) {
-          proposed = proposed.concat('.md')
+        if (!context.directory) {
+          input = input.concat('.md')
         }
       }
 
-      this.$emit('rename', data.path, proposed, (update) => { data.container.update(data.path, update) })
+      const resolve = async (update) => {
+        context.parent.update(context, update)
+        await this.blur({ context: this })
+      }
+
+      const reject = async (message) => {
+        console.log(`Failed to create ${input}`, message)
+        context.error = message
+        context.$refs.form.validate()
+      }
+
+      if (context.ephemeral) {
+        this.$emit('create', { context, input, resolve, reject })
+      } else {
+        this.$emit('rename', context.path, input, resolve)
+      }
     },
     blur: async function (state) {
       const { context } = state

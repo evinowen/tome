@@ -29,7 +29,7 @@
             </v-btn>
             <v-flex>
               <template v-if=system>{{ display }}</template>
-              <v-form v-else v-model=valid>
+              <v-form v-else ref="form" v-model=valid>
                 <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @input="error = null" @keyup.enter=submit />
                 <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
               </v-form>
@@ -259,14 +259,7 @@ export default {
     },
     submit: function () {
       if (this.valid) {
-        this.$emit('submit', {
-          container: this.parent,
-          title: this.title,
-          directory: this.directory,
-          original: this.display,
-          proposed: this.input,
-          path: this.path
-        })
+        this.$emit('submit', { context: this })
       }
     },
     blur: function () {

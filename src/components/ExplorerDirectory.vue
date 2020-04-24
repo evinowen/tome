@@ -12,7 +12,7 @@
           </v-btn>
           <v-flex>
             <template v-if=system>{{ display }}</template>
-            <v-form v-else v-model=valid>
+            <v-form v-else ref="form" v-model=valid>
               <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @input="error = null" @keyup.enter=submit />
               <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
             </v-form>
@@ -337,28 +337,21 @@ export default {
     },
     submit: function () {
       if (this.valid) {
-        this.$emit('submit', {
-          container: this.parent,
-          title: this.title,
-          directory: true,
-          original: this.display,
-          proposed: this.input,
-          path: this.path
-        })
+        this.$emit('submit', { context: this })
       }
     },
     blur: function () {
       this.$emit('blur', { context: this })
     },
-    update: function (path, update) {
-      console.log('update... ', path)
-      this.children.forEach((child, index) => {
-        if (child.path === path) {
-          console.log('found!', this.children[index])
-          this.children[index] = { ...child, ...update }
-          console.log('updated!', this.children[index])
-        }
-      })
+    update: function (context, update) {
+      const child = this.children.find(child => child.path === context.path)
+
+      if (!child) {
+        return
+      }
+
+      Object.assign(child, update)
+
       this.sort()
       this.$forceUpdate()
     },
