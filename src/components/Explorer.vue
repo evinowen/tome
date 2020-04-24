@@ -64,6 +64,9 @@ export default {
       this.editing = true
       console.log('Explorer create')
     },
+    delete: async function (path) {
+      console.log('Explorer delete', path)
+    },
     submit: async function (state) {
       console.log('Explorer submit', state)
       const { context } = state

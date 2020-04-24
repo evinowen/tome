@@ -298,6 +298,9 @@ export default {
     },
     rename: async function (path) {
       await this.$refs.explorer.edit()
+    },
+    delete: async function (path) {
+      await this.$refs.explorer.delete(path)
     }
   },
 
