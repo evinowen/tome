@@ -3,7 +3,7 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file @move=move_file @create=create_file />
+          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file @move=move_file @create=create_file @delete=delete_file />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;" />
         <scrolly-bar axis="x" style="margin-bottom: 2px;" />
@@ -289,6 +289,18 @@ export default {
         }
 
         return state.resolve({ path, name: input, ephemeral: false })
+      } catch (error) {
+        return state.reject(error)
+      }
+    },
+    delete_file: async function (state) {
+      console.log('delete', state)
+      const { path } = state
+
+      try {
+        await new Promise((resolve, reject) => this.fs.unlink(path, (err) => err ? reject(err) : resolve(true)))
+
+        return state.resolve()
       } catch (error) {
         return state.reject(error)
       }
