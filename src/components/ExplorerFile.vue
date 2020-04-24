@@ -2,6 +2,7 @@
   <v-container class="pa-0" style="user-select: none;" v-show="visible">
     <explorer-directory v-if="directory"
       :uuid=uuid
+      :ephemeral=ephemeral
       :name=name
       :path=path
       :parent=parent
@@ -21,15 +22,15 @@
           <v-layout
             v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': !system}, {'explorer-file-selected': path == active }]"
             @click.left.stop="$emit('input', instance)"
-            @click.right="$emit('context', $event, 'file', path)"
+            @click.right.stop="$emit('context', { instance, event: $event })"
           >
             <v-btn tile text x-small @click.stop="system ? null : $emit('input', instance)" class="explorer-file-button mr-1" :color="!system ? 'black' : 'grey'">
               <v-icon>mdi-file</v-icon>
             </v-btn>
             <v-flex>
               <template v-if=system>{{ display }}</template>
-              <v-form v-else v-model=valid>
-                <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
+              <v-form v-else ref="form" v-model=valid>
+                <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @input="error = null" @keyup.enter=submit />
                 <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
               </v-form>
             </v-flex>
@@ -154,6 +155,7 @@ export default {
   props: {
     uuid: { type: String },
     enabled: { type: Boolean },
+    ephemeral: { type: Boolean },
     title: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String, default: '' },
@@ -170,8 +172,14 @@ export default {
     loaded: false,
     children: [],
     valid: false,
-    input: ''
+    input: '',
+    error: null
   }),
+  mounted: function () {
+    if (this.ephemeral) {
+      this.$emit('input', this.instance)
+    }
+  },
   computed: {
     instance: function () {
       return this
@@ -194,11 +202,13 @@ export default {
     rules: function () {
       if (this.title) {
         return [
+          (value) => this.error === null || this.error,
           (value) => String(value).search(/[^\w ]/g) === -1 || 'No special characters are allowed.'
         ]
       }
 
       return [
+        (value) => this.error === null || this.error,
         (value) => String(value).search(/\s/g) === -1 || 'No whitespace is allowed.',
         (value) => String(value).search(/[^\w.]/g) === -1 || 'No special characters are allowed.',
         (value) => String(value).substring(String(value).length - 3) === '.md' || 'Filename must end with .md extension'
@@ -249,18 +259,14 @@ export default {
     },
     submit: function () {
       if (this.valid) {
-        this.$emit('submit', {
-          container: this.parent,
-          title: this.title,
-          directory: this.directory,
-          original: this.display,
-          proposed: this.input,
-          path: this.path
-        })
+        this.$emit('submit', { context: this })
       }
     },
     blur: function () {
-      this.$emit('blur')
+      this.$emit('blur', { context: this })
+    },
+    create: async function (directory) {
+      return this.parent.create(directory, this.path)
     }
   }
 }

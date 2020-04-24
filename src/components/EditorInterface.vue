@@ -3,7 +3,7 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file @move=move_file />
+          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file @move=move_file @create=create_file />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;" />
         <scrolly-bar axis="x" style="margin-bottom: 2px;" />
@@ -179,7 +179,7 @@ export default {
       this.actions = []
       this.absolute_path = null
 
-      if (!this.selected) {
+      if (!this.selected || !this.selected.path) {
         return
       }
 
@@ -269,6 +269,32 @@ export default {
       } catch (error) {
         return context.reject(error)
       }
+    },
+    create_file: async function (state) {
+      const { context, input } = state
+      const path = this.path.join(context.parent.path, input)
+
+      console.log(context.parent.path, input, path)
+
+      try {
+        await new Promise((resolve, reject) => this.fs.access(path, (err) => err ? reject(err) : resolve(true)))
+        return state.reject('Invalid create, file already exists')
+      } catch (_) { }
+
+      try {
+        if (context.directory) {
+          await new Promise((resolve, reject) => this.fs.mkdir(path, (err) => err ? reject(err) : resolve(true)))
+        } else {
+          await new Promise((resolve, reject) => this.fs.writeFile(path, '', (err) => err ? reject(err) : resolve(true)))
+        }
+
+        return state.resolve({ path, name: input, ephemeral: false })
+      } catch (error) {
+        return state.reject(error)
+      }
+    },
+    create: async function (path, directory) {
+      await this.$refs.explorer.create(path, directory)
     },
     rename: async function (path) {
       await this.$refs.explorer.edit()

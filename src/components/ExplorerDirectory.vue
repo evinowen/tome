@@ -5,15 +5,15 @@
       <v-layout class="explorer-directory"
         v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled && !system}, {'explorer-directory-selected': path == active}]"
         @click.left.stop="system ? null : $emit('input', instance)"
-        @click.right.stop="$emit('context', $event, 'folder', path)"
+        @click.right.stop="$emit('context', { instance, event: $event })"
       >
           <v-btn tile text x-small @click.stop="system ? null : toggle()" class="explorer-directory-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
             <v-icon>{{ icon }}</v-icon>
           </v-btn>
           <v-flex>
             <template v-if=system>{{ display }}</template>
-            <v-form v-else v-model=valid>
-              <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
+            <v-form v-else ref="form" v-model=valid>
+              <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @input="error = null" @keyup.enter=submit />
               <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
             </v-form>
           </v-flex>
@@ -28,6 +28,7 @@
           v-on="$listeners"
           :key=child.uuid
           :uuid=child.uuid
+          :ephemeral=child.ephemeral
           :name=child.name
           :path=child.path
           :parent=instance
@@ -46,6 +47,7 @@
           v-on="$listeners"
           :key=child.uuid
           :uuid=child.uuid
+          :ephemeral=child.ephemeral
           :name=child.name
           :path=child.path
           :parent=instance
@@ -171,10 +173,13 @@
 </style>
 
 <script>
+import { v4 as uuidv4 } from 'uuid'
+
 export default {
   props: {
     uuid: { type: String },
     enabled: { type: Boolean },
+    ephemeral: { type: Boolean },
     title: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String },
@@ -192,11 +197,16 @@ export default {
     loaded: false,
     children: [],
     valid: false,
-    input: ''
+    input: '',
+    error: null
   }),
   mounted: function () {
     if (!this.leaf) {
       this.toggle()
+    }
+
+    if (this.ephemeral) {
+      this.$emit('input', this.instance)
     }
   },
   computed: {
@@ -228,11 +238,13 @@ export default {
     rules: function () {
       if (this.title) {
         return [
+          (value) => !this.error || this.error,
           (value) => String(value).search(/[^\w ]/g) === -1 || 'No special characters are allowed.'
         ]
       }
 
       return [
+        (value) => !this.error || this.error,
         (value) => String(value).search(/\s/g) === -1 || 'No whitespace is allowed.',
         (value) => String(value).search(/[^\w.]/g) === -1 || 'No special characters are allowed.'
       ]
@@ -325,30 +337,44 @@ export default {
     },
     submit: function () {
       if (this.valid) {
-        this.$emit('submit', {
-          container: this.parent,
-          title: this.title,
-          directory: true,
-          original: this.display,
-          proposed: this.input,
-          path: this.path
-        })
+        this.$emit('submit', { context: this })
       }
     },
     blur: function () {
-      this.$emit('blur')
+      this.$emit('blur', { context: this })
     },
-    update: function (path, update) {
-      console.log('update... ', path)
-      this.children.forEach((child, index) => {
-        if (child.path === path) {
-          console.log('found!', this.children[index])
-          this.children[index] = { ...child, ...update }
-          console.log('updated!', this.children[index])
-        }
-      })
+    update: function (context, update) {
+      const child = this.children.find(child => child.path === context.path)
+
+      if (!child) {
+        return
+      }
+
+      Object.assign(child, update)
+
       this.sort()
       this.$forceUpdate()
+    },
+    create: async function (directory, path) {
+      if (!this.expanded) {
+        await this.toggle()
+      }
+
+      const data = {
+        uuid: uuidv4(),
+        ephemeral: true,
+        name: '',
+        path: '',
+        directory
+      }
+
+      if (path) {
+        const index = this.children.findIndex(child => child.path === path)
+        console.log('path provided', path, index)
+        this.children.splice(index, 0, data)
+      } else {
+        this.children.push(data)
+      }
     },
     remove_item: function (source) {
       console.log('remove_item source path', source.path)
