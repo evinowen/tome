@@ -251,6 +251,10 @@ export default {
       console.log('action_rename', path)
       await this.$refs.interface.rename(path)
     },
+    action_delete: async function (path) {
+      console.log('action_delete', path)
+      await this.$refs.interface.delete(path)
+    },
     action_new_file: async function (target_path) {
       console.log('new file', target_path)
       await this.$refs.interface.create(false)
@@ -332,6 +336,10 @@ export default {
         {
           title: 'Rename',
           action: this.action_rename
+        },
+        {
+          title: 'Delete',
+          action: this.action_delete
         },
         {
           divider: true

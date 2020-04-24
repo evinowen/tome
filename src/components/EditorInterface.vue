@@ -3,7 +3,7 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file @move=move_file @create=create_file />
+          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file @move=move_file @create=create_file @delete=delete_file />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;" />
         <scrolly-bar axis="x" style="margin-bottom: 2px;" />
@@ -293,11 +293,42 @@ export default {
         return state.reject(error)
       }
     },
+    delete_file: async function (state) {
+      console.log('delete', state)
+      const { path } = state
+
+      try {
+        const unlink = async (path) => {
+          const status = await new Promise((resolve, reject) => this.fs.lstat(path, (err, status) => err ? reject(err) : resolve(status)))
+          if (status.isDirectory()) {
+            const files = await new Promise((resolve, reject) => this.fs.readdir(path, (err, status) => err ? reject(err) : resolve(status)))
+            if (files) {
+              for (const file of files) {
+                console.log(`recurse? ${this.path.join(path, file)}`)
+                await unlink(this.path.join(path, file))
+              }
+            }
+          }
+
+          console.log(`Unlink ${path}`)
+          await new Promise((resolve, reject) => this.fs.unlink(path, (err) => err ? reject(err) : resolve(true)))
+        }
+
+        unlink(path)
+
+        return state.resolve()
+      } catch (error) {
+        return state.reject(error)
+      }
+    },
     create: async function (path, directory) {
       await this.$refs.explorer.create(path, directory)
     },
     rename: async function (path) {
       await this.$refs.explorer.edit()
+    },
+    delete: async function (path) {
+      await this.$refs.explorer.delete(path)
     }
   },
 
