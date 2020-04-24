@@ -298,7 +298,23 @@ export default {
       const { path } = state
 
       try {
-        await new Promise((resolve, reject) => this.fs.unlink(path, (err) => err ? reject(err) : resolve(true)))
+        const unlink = async (path) => {
+          const status = await new Promise((resolve, reject) => this.fs.lstat(path, (err, status) => err ? reject(err) : resolve(status)))
+          if (status.isDirectory()) {
+            const files = await new Promise((resolve, reject) => this.fs.readdir(path, (err, status) => err ? reject(err) : resolve(status)))
+            if (files) {
+              for (const file of files) {
+                console.log(`recurse? ${this.path.join(path, file)}`)
+                await unlink(this.path.join(path, file))
+              }
+            }
+          }
+
+          console.log(`Unlink ${path}`)
+          await new Promise((resolve, reject) => this.fs.unlink(path, (err) => err ? reject(err) : resolve(true)))
+        }
+
+        unlink(path)
 
         return state.resolve()
       } catch (error) {
