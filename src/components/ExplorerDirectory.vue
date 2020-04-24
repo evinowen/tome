@@ -13,7 +13,7 @@
           <v-flex>
             <template v-if=system>{{ display }}</template>
             <v-form v-else v-model=valid>
-              <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @keyup.enter=submit />
+              <v-text-field v-show=" ((path == active) && edit)" ref="input" v-model=input dense small autofocus :rules=rules @blur=blur @focus=focus @input="error = null" @keyup.enter=submit />
               <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
             </v-form>
           </v-flex>
@@ -197,7 +197,8 @@ export default {
     loaded: false,
     children: [],
     valid: false,
-    input: ''
+    input: '',
+    error: null
   }),
   mounted: function () {
     if (!this.leaf) {
@@ -237,11 +238,13 @@ export default {
     rules: function () {
       if (this.title) {
         return [
+          (value) => !this.error || this.error,
           (value) => String(value).search(/[^\w ]/g) === -1 || 'No special characters are allowed.'
         ]
       }
 
       return [
+        (value) => !this.error || this.error,
         (value) => String(value).search(/\s/g) === -1 || 'No whitespace is allowed.',
         (value) => String(value).search(/[^\w.]/g) === -1 || 'No special characters are allowed.'
       ]
