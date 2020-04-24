@@ -355,9 +355,9 @@ export default {
       this.sort()
       this.$forceUpdate()
     },
-    create: function (directory, path) {
+    create: async function (directory, path) {
       if (!this.expanded) {
-        this.toggle()
+        await this.toggle()
       }
 
       const data = {

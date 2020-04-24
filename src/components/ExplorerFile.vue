@@ -265,7 +265,7 @@ export default {
     blur: function () {
       this.$emit('blur', { context: this })
     },
-    create: function (directory) {
+    create: async function (directory) {
       return this.parent.create(directory, this.path)
     }
   }

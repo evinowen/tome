@@ -60,7 +60,7 @@ export default {
       console.log('Explorer edit')
     },
     create: async function (path, directory) {
-      this.value.create(path, directory)
+      await this.value.create(path, directory)
       this.editing = true
       console.log('Explorer create')
     },
@@ -108,6 +108,10 @@ export default {
       this.hold = state
     },
     drop: async function (state) {
+      if (state.context.directory && !state.context.expanded) {
+        await state.context.toggle()
+      }
+
       this.$emit('move', this.hold.context.path, state.context.path, {
         reject: async (error) => {
           console.log(`Failed to move ${this.hold.context.path} to ${state.context.path}`, error)
@@ -118,10 +122,6 @@ export default {
           data.path = path || data.path
 
           if (state.context.directory) {
-            if (!state.context.expanded) {
-              await state.context.toggle()
-            }
-
             state.context.insert_item(data)
           } else {
             state.context.parent.insert_item(data)
