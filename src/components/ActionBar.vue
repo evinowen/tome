@@ -4,7 +4,7 @@
     color="grey darken-3" class="pa-0"
     height=18
   >
-    <v-btn tile icon small dark color="red" class="pa-0" @click.stop="open">
+    <v-btn action-bar-bookshelf tile icon small dark color="red" class="pa-0" @click.stop="open">
       <v-icon small>mdi-bookshelf</v-icon>
     </v-btn>
 
@@ -53,7 +53,7 @@
 
       <v-divider inset vertical />
 
-      <v-switch v-model="edit" dense x-small inset hide-details class="edit_switch"></v-switch>
+      <v-switch action-bar-edit v-model="edit" dense x-small inset hide-details class="edit_switch"></v-switch>
 
       <v-divider inset vertical />
 
