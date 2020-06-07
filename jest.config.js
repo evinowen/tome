@@ -22,5 +22,8 @@ module.exports = {
         outputDirectory: './reports/junit/jest'
       }
     ]
+  ],
+  setupFiles: [
+    './tests/helpers.js'
   ]
 }
