@@ -14,11 +14,13 @@
     @drag=drag
     @drop=drop
     v-on="$listeners"
+    ref="explorer_root"
   />
 </template>
 
 <script>
 import store from '@/store'
+import ExplorerDirectory from './ExplorerDirectory.vue'
 
 export default {
   props: {
@@ -141,6 +143,9 @@ export default {
         }
       })
     }
+  },
+  components: {
+    ExplorerDirectory
   }
 }
 </script>
