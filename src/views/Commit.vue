@@ -41,7 +41,7 @@
               </template>
             </v-data-table>
           </v-card>
-          <v-btn tile :disabled="available.length < 1" @click.stop="stage('*')">
+          <v-btn ref="stage" tile :disabled="available.length < 1" @click.stop="stage('*')">
             Stage All
           </v-btn>
         </v-col>
@@ -74,7 +74,7 @@
               </template>
             </v-data-table>
           </v-card>
-          <v-btn tile :disabled="staged.length < 1" @click.stop="reset('*')">
+          <v-btn ref="reset" tile :disabled="staged.length < 1" @click.stop="reset('*')">
             Reset All
           </v-btn>
         </v-col>
@@ -140,6 +140,7 @@
               </v-container>
               <v-card-actions>
                 <v-btn
+                  ref="commit"
                   color="orange darken-1"
                   text @click="commit"
                   :disabled="working"
