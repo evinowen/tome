@@ -1,7 +1,7 @@
 <template>
   <v-container class="pa-0" style="user-select: none; clear: both;" v-show="visible">
     <div v-if=!leaf style="height: 2px;" />
-    <div class="explorer-directory-drop" droppable :draggable="leaf && !system" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
+    <div ref=draggable class="explorer-directory-drop" droppable :draggable="leaf && !system" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
       <v-layout class="explorer-directory"
         v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled && !system}, {'explorer-directory-selected': path == active}]"
         @click.left.stop="system ? null : $emit('input', instance)"
@@ -174,6 +174,7 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid'
+import ExplorerFile from './ExplorerFile.vue'
 
 export default {
   props: {
@@ -200,9 +201,9 @@ export default {
     input: '',
     error: null
   }),
-  mounted: function () {
+  mounted: async function () {
     if (!this.leaf) {
-      this.toggle()
+      await this.toggle()
     }
 
     if (this.ephemeral) {
@@ -397,6 +398,9 @@ export default {
       this.children.push(data)
       this.sort()
     }
+  },
+  components: {
+    ExplorerFile
   }
 }
 </script>
