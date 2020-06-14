@@ -35,7 +35,6 @@ describe('StatusButton.vue', () => {
           staged_removed: 5
         }
       }
-
     )
   })
 
@@ -44,13 +43,13 @@ describe('StatusButton.vue', () => {
   })
 
   it('should calculate updated available files', async () => {
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.available_added).toEqual(14)
   })
 
   it('should calculate updated staged files', async () => {
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.staged_added).toEqual(27)
   })
