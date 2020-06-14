@@ -340,7 +340,7 @@ export default {
 
       const signature = NodeGit.Signature.now(this.input.name || this.configuration.name, this.input.email || this.configuration.email)
 
-      const commit = await this.repository.createCommit('HEAD', signature, signature, this.input.message, oid, parents)
+      await this.repository.createCommit('HEAD', signature, signature, this.input.message, oid, parents)
 
       this.confirm = false
       this.working = false

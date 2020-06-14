@@ -215,7 +215,7 @@ export default {
     }
 
     if (create_directory) {
-      const err = await new Promise((resolve, reject) => this.fs.mkdir(store.state.tome_app_config_path_dir, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
+      await new Promise((resolve, reject) => this.fs.mkdir(store.state.tome_app_config_path_dir, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
     }
 
     store.state.tome_app_config_path = this.path.join(store.state.tome_app_config_path_dir, 'config.json')
@@ -286,7 +286,6 @@ export default {
       this.reload.counter = this.reload.counter - 1
 
       this.reload.timeout = setTimeout(this.reload_update, 1000)
-
     },
     reload_run: async function () {
       clearTimeout(this.reload.timeout)

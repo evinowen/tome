@@ -240,7 +240,6 @@ export default {
 
       if (success) {
         update({ name: proposed, path: proposed_full })
-        return
       }
     },
     move_file: async function (path, proposed, context) {

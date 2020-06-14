@@ -530,7 +530,7 @@ export default {
       this.input.branch.error = 'Loading ... '
       this.input.branch.history = []
 
-      const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
+      await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
 
       try {
         (await remote.object.referenceList()).map(async reference => {
