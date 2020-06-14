@@ -482,7 +482,7 @@ export default {
       return {
         private_key: this.input.private_key.value,
         public_key: this.input.public_key.value,
-        passphrase: this.input.passphrase.value || ''
+        passphrase: this.input.passphrase.value
       }
     },
 
@@ -513,8 +513,6 @@ export default {
 
       await this.load_remotes()
     },
-    remove_remote: function (event) {
-    },
     select_remote: async function (remote) {
       this.input.remotes.value = remote
 
@@ -532,11 +530,9 @@ export default {
       this.input.branch.error = 'Loading ... '
       this.input.branch.history = []
 
+      const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
+
       try {
-        const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
-
-        if (result) { }
-
         (await remote.object.referenceList()).map(async reference => {
           const object = {
             name: reference.name(),

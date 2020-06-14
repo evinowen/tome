@@ -2,13 +2,12 @@ import NodeGit from 'nodegit'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
-import PushView from '@/views/Push.vue'
-
 import store from '@/store'
+import PushView from '@/views/Push.vue'
 
 Vue.use(Vuetify)
 
-jest.mock('nodegit', () => ({ Remote: {} }))
+jest.mock('nodegit', () => ({ Enums: {}, Remote: {}, Cred: {} }))
 jest.mock('@/store', () => ({ state: {} }))
 
 const _id = {
@@ -31,6 +30,11 @@ const remote_commit  = {
 }
 
 const reference_list = [
+  { name: jest.fn(() => 'refs/tags/v1'), oid: () => _id },
+  { name: jest.fn(() => 'refs/tags/v2'), oid: () => _id },
+  { name: jest.fn(() => 'refs/tags/v3'), oid: () => _id },
+  { name: jest.fn(() => 'refs/heads/develop'), oid: () => _id },
+  { name: jest.fn(() => 'refs/heads/stage'), oid: () => _id },
   { name: jest.fn(() => 'refs/heads/master'), oid: () => _id }
 ]
 
@@ -41,28 +45,19 @@ const repository_remotes = [
     oid: () => _id,
     connect: jest.fn((direction, callbacks) => 0),
     referenceList: jest.fn(() => reference_list),
-    push: jest.fn()
+    push: jest.fn((_, options) => {
+      if (options && options.callbacks) {
+        if (options.callbacks.credentials) {
+          options.callbacks.credentials()
+        }
+
+        if (options.callbacks.certificateCheck) {
+          options.callbacks.certificateCheck()
+        }
+      }
+    })
   }
 ]
-
-store.state = {
-  tome: {
-    repository: {
-      getRemotes: jest.fn(() => Promise.resolve(repository_remotes)),
-      getReferences: jest.fn(() => reference_list),
-      getReferenceCommit: jest.fn(() => local_commit),
-      getCommit: jest.fn(() => remote_commit)
-    },
-    branch: {
-      name: 'master'
-    }
-  },
-  configuration: {
-    private_key: 'key',
-    public_key: 'key.pub',
-    passphrase: 'passphrase'
-  }
-}
 
 NodeGit.Enums = {
   DIRECTION: {
@@ -74,30 +69,63 @@ NodeGit.Remote = {
   create: jest.fn((repository, name, url) => repository_remotes[0]),
 }
 
+NodeGit.Cred = {
+  sshKeyNew: jest.fn()
+}
+
 describe('Push.vue', () => {
   let vuetify
-  let wrapper
 
-  const prepare = () => {
-    vuetify = new Vuetify()
+  const factory = assemble(PushView)
+    .context(() => ({ stubs: { VDataTable: true } }))
+    .hook(({ context, localVue }) => {
+      localVue.use(Vuetify)
 
-    return { context: { vuetify, stubs: { VDataTable: true } } }
-  }
+      vuetify = new Vuetify()
+      context.vuetify = vuetify
+    })
 
-  const wrap = factory(PushView, prepare, {})
+  beforeEach(() => {
+    store.state = {
+      tome: {
+        repository: {
+          getRemotes: jest.fn(() => Promise.resolve(repository_remotes)),
+          getReferences: jest.fn(() => reference_list),
+          getReferenceCommit: jest.fn(() => local_commit),
+          getCommit: jest.fn(() => remote_commit)
+        },
+        branch: {
+          name: 'master'
+        }
+      },
+      configuration: {
+        private_key: 'key',
+        public_key: 'key.pub',
+        passphrase: 'passphrase'
+      }
+    }
+  })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
   it('is able to be mocked and prepared for testing', () => {
-    wrapper = wrap({})
+    const wrapper = factory.wrap()
+
+    expect(wrapper).not.toBeNull()
+  })
+
+  it('is able to be mocked and prepared for testing with a blank configuration', () => {
+    store.state.configuration = {}
+
+    const wrapper = factory.wrap()
 
     expect(wrapper).not.toBeNull()
   })
 
   it('assign the selected private key when selected in the file dialog', async () => {
-    wrapper = wrap({})
+    const wrapper = factory.wrap()
 
     expect(wrapper.vm.input.private_key.value).toBe('key')
 
@@ -108,8 +136,20 @@ describe('Push.vue', () => {
     expect(wrapper.vm.input.private_key.value).toBe('/private/key/path')
   })
 
+  it('not overwrite the private key when selected key in the file dialog returns no path', async () => {
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.input.private_key.value).toBe('key')
+
+    wrapper.vm.proxy_file = jest.fn((event) => ({ path: null }))
+
+    await wrapper.find({ ref: 'private_key' }).trigger('change')
+
+    expect(wrapper.vm.input.private_key.value).toBe('key')
+  })
+
   it('assign the selected public key when selected in the file dialog', async () => {
-    wrapper = wrap({})
+    const wrapper = factory.wrap()
 
     expect(wrapper.vm.input.public_key.value).toBe('key.pub')
 
@@ -121,7 +161,7 @@ describe('Push.vue', () => {
   })
 
   it('create a remote and reload remotes when add remote form is submited', async () => {
-    wrapper = wrap({})
+    const wrapper = factory.wrap()
 
     expect(NodeGit.Remote.create).toHaveBeenCalledTimes(0)
 
@@ -134,23 +174,41 @@ describe('Push.vue', () => {
   })
 
   it('set and load the remote chosen from the remote list', async () => {
-    wrapper = wrap({})
-    await wrapper.vm.$nextTick()
+    _id.cmp.mockImplementationOnce(() => 1)
+
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.input.remotes.selected).toBeNull()
+    expect(wrapper.vm.input.branch.error).toBeNull()
 
     wrapper.vm.$refs.remote_select.selectItem(wrapper.vm.input.remotes.list[0])
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.input.remotes.selected).toBe(wrapper.vm.input.remotes.list[0])
+  })
 
+  it('throw error when a remote chosen from the remote list is detached', async () => {
+    _id.cmp.mockImplementationOnce(() => 1)
+    local_commit.parentcount.mockImplementationOnce(() => 0)
+
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.input.remotes.selected).toBeNull()
+    expect(wrapper.vm.input.branch.error).toBeNull()
+
+    wrapper.vm.$refs.remote_select.selectItem(wrapper.vm.input.remotes.list[0])
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.input.remotes.selected).toBe(wrapper.vm.input.remotes.list[0])
   })
 
   it('prevent push if no remote selected when the push is confirmed', async () => {
-    wrapper = wrap({})
+    const wrapper = factory.wrap()
 
     wrapper.vm.confirm = true
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(repository_remotes[0].push).toHaveBeenCalledTimes(0)
 
@@ -160,13 +218,13 @@ describe('Push.vue', () => {
   })
 
   it('push pending commits when the push is confirmed', async () => {
-    wrapper = wrap({})
+    const wrapper = factory.wrap()
 
     wrapper.vm.confirm = true
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     wrapper.vm.$refs.remote_select.selectItem(wrapper.vm.input.remotes.list[0])
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(repository_remotes[0].push).toHaveBeenCalledTimes(0)
 
