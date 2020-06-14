@@ -16,9 +16,9 @@ jest.mock('electron', () => ({
 }))
 
 const fs = {
-  open: jest.fn(),
-  close: jest.fn(),
-  mkdir: jest.fn()
+  open: jest.fn((path, flags, callback) => callback(0, 1)),
+  close: jest.fn((handler, callback) => callback(0)),
+  mkdir: jest.fn((path, options, callback) => callback(0)),
 }
 
 const path = {
@@ -38,30 +38,6 @@ const localVue = createLocalVue()
 
 describe('NewFileService.vue', () => {
   let vuetify
-  let wrapper
-
-  function wrap (object) {
-    wrapper = mount(
-      NewFileService,
-      {
-        localVue,
-        vuetify,
-        stubs: {
-        },
-        propsData: {
-          active: false,
-          target: 'test',
-          base: '/root/',
-          extension: '.md',
-          folder: false,
-
-          ...(object || {})
-
-        }
-      }
-
-    )
-  }
 
   beforeEach(() => {
     vuetify = new Vuetify()
@@ -71,11 +47,20 @@ describe('NewFileService.vue', () => {
     jest.clearAllMocks()
   })
 
+  const factory = assemble(NewFileService, {
+    active: true,
+    target: 'test',
+    base: '/root/',
+    extension: '.md',
+    folder: false,
+  })
+  .context(() => ({ vuetify, stubs: { VDialog: true } }))
+
   it('should use target for relative if path is not absolute', async () => {
     path.isAbsolute.mockReturnValue(false)
 
-    wrap()
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.relative).toEqual('test')
   })
@@ -84,8 +69,8 @@ describe('NewFileService.vue', () => {
     path.isAbsolute.mockReturnValue(true)
     path.relative.mockReturnValue('test-relative')
 
-    wrap()
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.relative).toEqual('test-relative')
   })
@@ -94,8 +79,8 @@ describe('NewFileService.vue', () => {
     path.isAbsolute.mockReturnValue(true)
     path.relative.mockReturnValue('test-relative')
 
-    wrap({ extension: '.test' })
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap({ extension: '.test' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.extension_formatted).toEqual('.test')
   })
@@ -104,9 +89,91 @@ describe('NewFileService.vue', () => {
     path.isAbsolute.mockReturnValue(true)
     path.relative.mockReturnValue('test-relative')
 
-    wrap({ extension: 'test' })
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap({ extension: 'test' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.extension_formatted).toEqual('.test')
+  })
+
+  it('should attempt to create a file or folder when create is clicked', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const events = {
+      create: jest.fn(),
+      close: jest.fn()
+    }
+
+    wrapper.vm.$on('create', events.create)
+    wrapper.vm.$on('close', events.close)
+
+    expect(events.create).toHaveBeenCalledTimes(0)
+    expect(events.close).toHaveBeenCalledTimes(0)
+
+    await wrapper.find({ ref: 'create' }).trigger('click')
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(events.create).toHaveBeenCalledTimes(1)
+    expect(events.close).toHaveBeenCalledTimes(1)
+  })
+
+  it('should attempt to create a file when form submitted', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const events = {
+      create: jest.fn(),
+      close: jest.fn()
+    }
+
+    wrapper.vm.$on('create', events.create)
+    wrapper.vm.$on('close', events.close)
+
+    expect(events.create).toHaveBeenCalledTimes(0)
+    expect(events.close).toHaveBeenCalledTimes(0)
+
+    await wrapper.find({ ref: 'form' }).trigger('submit')
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(events.create).toHaveBeenCalledTimes(1)
+    expect(events.close).toHaveBeenCalledTimes(1)
+  })
+
+  it('should attempt to create a folder when form submitted', async () => {
+    const wrapper = factory.wrap({ folder: false })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const events = {
+      create: jest.fn(),
+      close: jest.fn()
+    }
+
+    wrapper.vm.$on('create', events.create)
+    wrapper.vm.$on('close', events.close)
+
+    expect(events.create).toHaveBeenCalledTimes(0)
+    expect(events.close).toHaveBeenCalledTimes(0)
+
+    await wrapper.find({ ref: 'form' }).trigger('submit')
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(events.create).toHaveBeenCalledTimes(1)
+    expect(events.close).toHaveBeenCalledTimes(1)
+  })
+
+  it('should emit close event when cancel is clicked', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const event = jest.fn()
+
+    wrapper.vm.$on('close', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.find({ ref: 'cancel' }).trigger('click')
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(event).toHaveBeenCalledTimes(1)
   })
 })
