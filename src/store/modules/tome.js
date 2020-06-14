@@ -1,9 +1,6 @@
 import { remote } from 'electron'
 import NodeGit from 'nodegit'
 
-const fs = remote.require('fs')
-const path = remote.require('path')
-
 export default {
   state: {
     name: '',
@@ -51,8 +48,6 @@ export default {
         const source = status[type]
         const target = state.status[type]
 
-        console.log(type, source, target)
-
         target.new = source.new || 0
         target.renamed = source.renamed || 0
         target.modified = source.modified || 0
@@ -67,6 +62,9 @@ export default {
   },
   actions: {
     load: async function (context, target) {
+      const fs = remote.require('fs')
+      const path = remote.require('path')
+
       context.commit('stale')
 
       let repository = null
@@ -102,6 +100,9 @@ export default {
       }
 
       if (repository.headUnborn()) {
+        const fs = remote.require('fs')
+        const path = remote.require('path')
+
         const head_raw = fs.readFileSync(path.join(context.state.path, '.git', 'HEAD'), 'utf8')
 
         let head_line_index = head_raw.length
