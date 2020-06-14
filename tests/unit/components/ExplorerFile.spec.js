@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
+import ExplorerDirectory from '@/components/ExplorerDirectory.vue'
 import ExplorerFile from '@/components/ExplorerFile.vue'
 
 Vue.use(Vuetify)
@@ -16,9 +17,7 @@ describe('ExplorerFile.vue', () => {
     jest.clearAllMocks()
   })
 
-  const prepare = () => ({ context: { vuetify, stubs: { ExplorerDirectory: true } } })
-
-  const wrap = factory(ExplorerFile, prepare,  {
+  const factory = assemble(ExplorerFile, {
     name: 'Name',
     path: '/pa/th/to/fi/le',
     active: 'Active',
@@ -30,17 +29,18 @@ describe('ExplorerFile.vue', () => {
     directory: false,
     parent: {},
   })
+  .context(() => ({ vuetify, stubs: { ExplorerDirectory: true } }))
 
   it('should be flagged as system if the filename equals .git', async () => {
-    wrap({ name: '.git' })
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap({ name: '.git' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.system).toEqual(true)
   })
 
   it('should emit a drag event when a drag starts with this component', async () => {
-    const wrapper = wrap()
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const event = jest.fn()
     wrapper.vm.$on('drag', event)
@@ -58,8 +58,8 @@ describe('ExplorerFile.vue', () => {
   })
 
   it('should emit a drop event when a drop starts with this component', async () => {
-    const wrapper = wrap()
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const event = jest.fn()
     wrapper.vm.$on('drop', event)
@@ -78,8 +78,8 @@ describe('ExplorerFile.vue', () => {
   })
 
   it('should reset opacity when dragging ends', async () => {
-    const wrapper = wrap()
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const event = {
       dataTransfer: {},
@@ -100,8 +100,8 @@ describe('ExplorerFile.vue', () => {
   })
 
   it('should determine the correct parent container when a dragging over', async () => {
-    const wrapper = wrap()
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const event = {
       dataTransfer: {},
@@ -128,8 +128,8 @@ describe('ExplorerFile.vue', () => {
 
   it('should relay calls to create to its parent node', async () => {
     const parent = { create: jest.fn() }
-    const wrapper = wrap({ parent })
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap({ parent })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(parent.create).toHaveBeenCalledTimes(0)
 
@@ -139,29 +139,50 @@ describe('ExplorerFile.vue', () => {
   })
 
   it('should emit submit event when submit is called', async () => {
-    const wrapper = wrap()
+    const wrapper = factory.wrap()
     wrapper.setData({ valid: true })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const event = jest.fn()
     wrapper.vm.$on('submit', event)
 
     expect(event).toHaveBeenCalledTimes(0)
 
+    wrapper.vm.valid = true
+
     await wrapper.vm.submit()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(event).toHaveBeenCalledTimes(1)
   })
 
   it('should refresh input field value when focus is called', async () => {
-    const wrapper = wrap()
+    const wrapper = factory.wrap()
     wrapper.setData({ input: 'test' })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.input).not.toBe(wrapper.vm.display)
 
     await wrapper.vm.focus()
 
     expect(wrapper.vm.input).toBe(wrapper.vm.display)
+  })
+
+  it('should trigger input immediately for emphemeral input', async () => {
+    const event = jest.fn()
+
+    const wrapper = factory.wrap({ ephemeral: true })
+    wrapper.vm.$on('input', event)
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.emitted().input.length).toBe(1)
+  })
+
+  it('should format the display name if title is set and instance is non-system', async () => {
+    const format = jest.fn()
+    const wrapper = factory.wrap({ title: true, format })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(format).toHaveBeenCalledTimes(1)
   })
 })

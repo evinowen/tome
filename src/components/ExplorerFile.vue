@@ -151,8 +151,6 @@
 </style>
 
 <script>
-import ExplorerDirectory from './ExplorerDirectory.vue'
-
 export default {
   props: {
     uuid: { type: String },
@@ -270,9 +268,6 @@ export default {
     create: async function (directory) {
       return this.parent.create(directory, this.path)
     }
-  },
-  components: {
-    ExplorerDirectory
   }
 }
 </script>

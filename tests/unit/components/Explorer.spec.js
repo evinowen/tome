@@ -35,7 +35,6 @@ remote.require = jest.fn((target) => {
 
 describe('Explorer.vue', () => {
   let vuetify
-  let wrapper
 
   beforeEach(() => {
     vuetify = new Vuetify()
@@ -44,8 +43,6 @@ describe('Explorer.vue', () => {
   afterEach(() => {
     jest.clearAllMocks()
   })
-
-  const prepare = () => ({ context: { vuetify } })
 
   const value = { create: jest.fn(), parent: { remove_item: jest.fn(() => ({ path: '/item.path' })) } }
   const hold = {
@@ -57,28 +54,29 @@ describe('Explorer.vue', () => {
     }
   }
 
-  const wrap = factory(Explorer, prepare, { value, enabled: true })
+  const factory = assemble(Explorer, { value, enabled: true })
+    .context(() => { vuetify })
 
   it('is able to be mocked and prepared for testing', () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
 
     expect(wrapper).not.toBeNull()
   })
 
   it('store drag state when dragging begins in hold', async () => {
-    wrapper = wrap()
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.hold).toBeNull()
 
     await wrapper.vm.$refs.explorer_root.$emit('drag', hold)
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.hold).toBe(hold)
   })
 
   it('flip edit flag to true when edit method is called', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
 
     expect(wrapper.vm.editing).toBe(false)
 
@@ -88,7 +86,7 @@ describe('Explorer.vue', () => {
   })
 
   it('instruct target to create a new node then flip edit flag to true when create method is called', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
 
     expect(wrapper.vm.editing).toBe(false)
 
@@ -99,9 +97,9 @@ describe('Explorer.vue', () => {
   })
 
   it('emit a delete event with a reject/resolve callback when delete is called', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
 
-    const event = jest.fn(({ resolve }) => resolve())
+    const event = jest.fn(({ reject, resolve }) => ({ resolve: resolve(), reject: reject() }))
     wrapper.vm.$on('delete', event)
 
     expect(event).toHaveBeenCalledTimes(0)
@@ -114,22 +112,22 @@ describe('Explorer.vue', () => {
   })
 
   it('flip edit flag to false when blur event is triggered', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
     wrapper.setData({ editing: true })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.editing).toBe(true)
 
     await wrapper.vm.$refs.explorer_root.$emit('blur', { context: { emphemeral: false } })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.editing).toBe(false)
   })
 
   it('instruct parent to destory emphemeral children when blur event is triggered', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
     wrapper.setData({ editing: true })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
       ephemeral: true,
@@ -141,15 +139,15 @@ describe('Explorer.vue', () => {
     expect(context.parent.remove_item).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.$refs.explorer_root.$emit('blur', { context })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(context.parent.remove_item).toHaveBeenCalledTimes(1)
   })
 
   it('emit move event with interactions when drop event is triggered for a file and resolve properly', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
     wrapper.setData({ hold })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
       path: '',
@@ -169,16 +167,16 @@ describe('Explorer.vue', () => {
     expect(context.parent.insert_item).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.$refs.explorer_root.$emit('drop', { context })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(event).toHaveBeenCalledTimes(1)
     expect(context.parent.insert_item).toHaveBeenCalledTimes(1)
   })
 
   it('emit move event with interactions when drop event is triggered for a file and reject properly', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
     wrapper.setData({ hold })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let context = {
       directory: false,
@@ -197,16 +195,16 @@ describe('Explorer.vue', () => {
     expect(context.parent.insert_item).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.$refs.explorer_root.$emit('drop', { context })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(event).toHaveBeenCalledTimes(1)
     expect(context.parent.insert_item).toHaveBeenCalledTimes(0)
   })
 
   it('emit move event with interactions when drop event is triggered for a folder and resolve properly', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
     wrapper.setData({ hold })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let context = {
       directory: true,
@@ -226,16 +224,16 @@ describe('Explorer.vue', () => {
     expect(context.insert_item).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.$refs.explorer_root.$emit('drop', { context })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(event).toHaveBeenCalledTimes(1)
     expect(context.insert_item).toHaveBeenCalledTimes(1)
   })
 
   it('emit move event with interactions when drop event is triggered for a folder and reject properly', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
     wrapper.setData({ hold })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
       path: '',
@@ -257,16 +255,16 @@ describe('Explorer.vue', () => {
     expect(context.insert_item).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.$refs.explorer_root.$emit('drop', { context })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(event).toHaveBeenCalledTimes(1)
     expect(context.insert_item).toHaveBeenCalledTimes(0)
   })
 
   it('expand the folder context when drop event is triggered for a folder', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
     wrapper.setData({ hold })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
       path: '',
@@ -279,14 +277,14 @@ describe('Explorer.vue', () => {
     expect(context.toggle).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.$refs.explorer_root.$emit('drop', { context })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(context.toggle).toHaveBeenCalledTimes(1)
   })
 
   it('attempt to create a new object when the field is ephemeral', async () => {
-    wrapper = wrap()
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
       title: true,
@@ -310,14 +308,112 @@ describe('Explorer.vue', () => {
     expect(event).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.$refs.explorer_root.$emit('submit', { context })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(event).toHaveBeenCalledTimes(1)
   })
 
+  it('format input for files on create when the input context is a title', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const context = {
+      title: true,
+      directory: false,
+      ephemeral: true,
+      path: '/123abc',
+      input: '/1234abcd',
+      parent: {
+        update: jest.fn()
+      },
+      error: null,
+      $refs: { form: { validate: jest.fn() } }
+    }
+
+    const event = jest.fn(async (state) => {
+      const { resolve } = state
+      await resolve('/new/path')
+    })
+
+    wrapper.vm.$on('create', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.$refs.explorer_root.$emit('submit', { context })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(event).toHaveBeenCalledTimes(1)
+    expect(event.mock.calls[0][0].input).not.toBe(context.input)
+  })
+
+  it('format input for directories on create when the input context is a title', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const context = {
+      title: true,
+      directory: true,
+      ephemeral: true,
+      path: '/123abc',
+      input: '1234 Abcd',
+      parent: {
+        update: jest.fn()
+      },
+      error: null,
+      $refs: { form: { validate: jest.fn() } }
+    }
+
+    const event = jest.fn(async (state) => {
+      const { resolve } = state
+      await resolve('/new/path')
+    })
+
+    wrapper.vm.$on('create', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.$refs.explorer_root.$emit('submit', { context })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(event).toHaveBeenCalledTimes(1)
+    expect(event.mock.calls[0][0].input).not.toBe(context.input)
+  })
+
+  it('not format input on create when the input context is not a title', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const context = {
+      title: false,
+      ephemeral: true,
+      path: '/123abc',
+      input: '1234.abcd',
+      parent: {
+        update: jest.fn()
+      },
+      error: null,
+      $refs: { form: { validate: jest.fn() } }
+    }
+
+    const event = jest.fn(async (state) => {
+      const { resolve } = state
+      await resolve('/new/path')
+    })
+
+    wrapper.vm.$on('create', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.$refs.explorer_root.$emit('submit', { context })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(event).toHaveBeenCalledTimes(1)
+    expect(event.mock.calls[0][0].input).toBe(context.input)
+  })
+
   it('fail well when attempting to create a new object when the field is ephemeral', async () => {
-    wrapper = wrap()
-    await wrapper.vm.$nextTick()
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
       title: true,
@@ -341,15 +437,15 @@ describe('Explorer.vue', () => {
     expect(event).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.$refs.explorer_root.$emit('submit', { context })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(event).toHaveBeenCalledTimes(1)
   })
 
   it('attempt to rename an object when the field is normal', async () => {
-    wrapper = wrap()
+    const wrapper = factory.wrap()
     wrapper.setData({ hold })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
       title: true,
@@ -372,8 +468,26 @@ describe('Explorer.vue', () => {
     expect(event).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.$refs.explorer_root.$emit('submit', { context })
-    await wrapper.vm.$nextTick()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(event).toHaveBeenCalledTimes(1)
+  })
+
+  it('should return placeholder title for files formatted that have incorrect extension', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const formated = wrapper.vm.format('file.name.txt')
+
+    expect(formated).toBe(' - ')
+  })
+
+  it('should return formatted title for files formatted that have correct extension', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const formated = wrapper.vm.format('file.name.md')
+
+    expect(formated).toBe('File Name')
   })
 })

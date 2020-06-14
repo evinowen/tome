@@ -174,7 +174,6 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid'
-import ExplorerFile from './ExplorerFile.vue'
 
 export default {
   props: {
@@ -307,6 +306,8 @@ export default {
         this.expanded = true
         this.$emit('expanded', this)
       }
+
+      return true
     },
     load: async function () {
       this.loaded = false
@@ -371,16 +372,12 @@ export default {
 
       if (path) {
         const index = this.children.findIndex(child => child.path === path)
-        console.log('path provided', path, index)
         this.children.splice(index, 0, data)
       } else {
         this.children.push(data)
       }
     },
     remove_item: function (source) {
-      console.log('remove_item source path', source.path)
-      console.log('remove_item parent path', this.path)
-
       const index = this.children.findIndex(child => child.uuid === source.uuid)
 
       if (index < 0) {
@@ -390,17 +387,11 @@ export default {
       return this.children.splice(index, 1).pop() || false
     },
     insert_item: function (data) {
-      console.log('insert_item data', data)
-      console.log('insert_item destination path', this.path)
-
       data.parent = this.instance
 
       this.children.push(data)
       this.sort()
     }
-  },
-  components: {
-    ExplorerFile
   }
 }
 </script>

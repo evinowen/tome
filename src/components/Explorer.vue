@@ -59,25 +59,19 @@ export default {
     },
     edit: async function () {
       this.editing = true
-      console.log('Explorer edit')
     },
     create: async function (path, directory) {
       await this.value.create(path, directory)
       this.editing = true
-      console.log('Explorer create')
     },
     delete: async function (path) {
-      console.log('Explorer delete', path)
       this.$emit('delete', {
         path,
-        reject: async (error) => {
-          console.log(`Failed to delete ${path}`, error)
-        },
+        reject: async (error) => error,
         resolve: async () => this.value.parent.remove_item(this.value)
       })
     },
     submit: async function (state) {
-      console.log('Explorer submit', state)
       const { context } = state
 
       let input = context.input
@@ -96,7 +90,6 @@ export default {
       }
 
       const reject = async (message) => {
-        console.log(`Failed to create ${input}`, message)
         context.error = message
         context.$refs.form.validate()
       }
@@ -125,9 +118,7 @@ export default {
       }
 
       this.$emit('move', this.hold.context.path, state.context.path, {
-        reject: async (error) => {
-          console.log(`Failed to move ${this.hold.context.path} to ${state.context.path}`, error)
-        },
+        reject: async (error) => error,
         resolve: async (path) => {
           const data = this.hold.context.parent.remove_item(this.hold.context)
 
