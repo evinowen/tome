@@ -33,7 +33,7 @@
           <codemirror ref="editor" v-else-if="absolute_path" :value="content" style="height: 100%;" @input="save_file" />
 
           <!-- ACTION OR ERROR MENUS -->
-          <div v-else style="height: 100%; padding: 0px;">
+          <div v-else class="full_size">
             <template v-if="actions">
               <action-view :actions="actions">
                 <div class="display-2">{{ tome.name }}</div>
@@ -57,7 +57,7 @@
     </template>
   </split-pane>
 
-  <div v-else>
+  <div v-else class="full_size">
     <empty-view ref="empty_unloaded">{{ error || "" }}</empty-view>
   </div>
 
@@ -76,6 +76,11 @@
 
 .splitter-pane-resizer {
   border-color: transparent !important;
+}
+
+.full_size {
+  height: 100%;
+  padding: 0px;
 }
 
 .CodeMirror {
