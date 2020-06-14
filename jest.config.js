@@ -14,6 +14,10 @@ module.exports = {
       statements: -10
     }
   },
+  moduleNameMapper: {
+    '\\.css$': '<rootDir>/tests/stubs/CssStub.js',
+    '^vuetify/lib$': 'vuetify'
+  },
   reporters: [
     'default',
     [
@@ -25,5 +29,6 @@ module.exports = {
   ],
   setupFiles: [
     './tests/helpers.js'
-  ]
+  ],
+  transformIgnorePatterns: ['node_modules/(?!vuetify)']
 }
