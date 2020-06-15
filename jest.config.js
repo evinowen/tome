@@ -27,8 +27,5 @@ module.exports = {
       }
     ]
   ],
-  setupFiles: [
-    './tests/helpers.js'
-  ],
   transformIgnorePatterns: ['node_modules/(?!vuetify)']
 }

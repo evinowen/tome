@@ -1,8 +1,8 @@
+import { assemble } from 'tests/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import { remote } from 'electron'
 
-import { createLocalVue, mount } from '@vue/test-utils'
 import NewFileService from '@/components/NewFileService.vue'
 
 Vue.use(Vuetify)
@@ -16,9 +16,9 @@ jest.mock('electron', () => ({
 }))
 
 const fs = {
-  open: jest.fn((path, flags, callback) => callback(0, 1)),
-  close: jest.fn((handler, callback) => callback(0)),
-  mkdir: jest.fn((path, options, callback) => callback(0)),
+  open: jest.fn((path, flags, callback) => callback(null, 1)),
+  close: jest.fn((handler, callback) => callback(null)),
+  mkdir: jest.fn((path, options, callback) => callback(null))
 }
 
 const path = {
@@ -33,8 +33,6 @@ remote.require = jest.fn((target) => {
     case 'path': return path
   }
 })
-
-const localVue = createLocalVue()
 
 describe('NewFileService.vue', () => {
   let vuetify
@@ -52,9 +50,9 @@ describe('NewFileService.vue', () => {
     target: 'test',
     base: '/root/',
     extension: '.md',
-    folder: false,
+    folder: false
   })
-  .context(() => ({ vuetify, stubs: { VDialog: true } }))
+    .context(() => ({ vuetify, stubs: { VDialog: true } }))
 
   it('should use target for relative if path is not absolute', async () => {
     path.isAbsolute.mockReturnValue(false)

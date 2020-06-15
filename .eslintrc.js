@@ -20,9 +20,13 @@ module.exports = {
     {
       files: [
         '**/__tests__/*.{j,t}s?(x)',
-        '**/tests/unit/**/*.spec.{j,t}s?(x)'
+        '**/tests/unit/**/*.spec.{j,t}s?(x)',
+        '**/tests/helpers.js'
       ],
       env: {
+        browser: true,
+        es6: true,
+        node: true,
         jest: true
       }
     }

@@ -1,3 +1,4 @@
+import { assemble } from 'tests/helpers'
 import { remote } from 'electron'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
@@ -55,15 +56,15 @@ const children = [
 ]
 
 const fs = {
-  access: jest.fn((path, callback) => callback(0)),
-  open: jest.fn((path, flags, callback) => callback(0, 1)),
-  close: jest.fn((handler, callback) => callback(0)),
+  access: jest.fn((path, callback) => callback(null)),
+  open: jest.fn((path, flags, callback) => callback(null, 1)),
+  close: jest.fn((handler, callback) => callback(null)),
   mkdir: jest.fn((path, options, callback) => (!callback ? options : callback)(0, children)),
-  writeFile: jest.fn((path, content, callback) => callback(0)),
+  writeFile: jest.fn((path, content, callback) => callback(null)),
   readdir: jest.fn((handler, options, callback) => (!callback ? options : callback)(0, children)),
-  lstat: jest.fn((handler, callback) => callback(0, _lstat.status)),
-  unlink: jest.fn((handler, callback) => callback(0, 1)),
-  rename: jest.fn((path, proposed, callback) => callback(0)),
+  lstat: jest.fn((handler, callback) => callback(null, _lstat.status)),
+  unlink: jest.fn((handler, callback) => callback(null, 1)),
+  rename: jest.fn((path, proposed, callback) => callback(null)),
   readFileSync: jest.fn(() => '# Placeholder Content'),
   writeFileSync: jest.fn()
 }
@@ -107,12 +108,19 @@ describe('EditorInterface.vue', () => {
     commit: false,
     push: false
   })
-  .context(() => ({
-    vuetify,
-    stubs: {
-      ActionView: true, CommitView: true, EmptyView: true, PushView: true, Explorer: true, Codemirror: true
-    }
-  }))
+    .context(() => (
+      {
+        vuetify,
+        stubs: {
+          ActionView: true,
+          CommitView: true,
+          EmptyView: true,
+          PushView: true,
+          Explorer: true,
+          Codemirror: true
+        }
+      }
+    ))
 
   it('should render empty view if not editing and no file is loaded', async () => {
     store.state.tome.name = null
@@ -272,7 +280,7 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should fail to move and pass to explorer when move is triggered when file information cannot be retrieved on destination', async () => {
-    fs.lstat.mockImplementationOnce((handler, callback) => callback(1))
+    fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
 
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -313,7 +321,7 @@ describe('EditorInterface.vue', () => {
 
   it('should fail to move and pass to explorer when move is triggered and rename fails', async () => {
     path.dirname.mockImplementationOnce(() => '/xyz789')
-    fs.rename.mockImplementationOnce((path, callback) => callback(1))
+    fs.rename.mockImplementationOnce((path, callback) => callback(new Error('error!')))
 
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -334,7 +342,7 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should attempt to create a file and pass to explorer when create is triggered', async () => {
-    fs.access.mockImplementationOnce((path, callback) => callback(1))
+    fs.access.mockImplementationOnce((path, callback) => callback(new Error('error!')))
 
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -360,7 +368,7 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should fail to create and pass to explorer when create is triggered for existing file', async () => {
-    fs.access.mockImplementationOnce((path, callback) => callback(0, true))
+    fs.access.mockImplementationOnce((path, callback) => callback(null, true))
 
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()

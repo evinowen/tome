@@ -1,6 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils'
 
-global.respond = (routable) => {
+const respond = (routable) => {
   const _routable = routable || []
   const _mock = jest.fn(async (type, callback) => {
     if (_routable.indexOf(type) < 0) {
@@ -13,7 +13,7 @@ global.respond = (routable) => {
   return { routable: _routable, mock: _mock }
 }
 
-global.assemble = (object, defaults) => {
+const assemble = (object, defaults) => {
   const factory = {
     trap: false,
     component: {
@@ -69,4 +69,9 @@ global.assemble = (object, defaults) => {
   }
 
   return factory
+}
+
+export default {
+  respond,
+  assemble
 }

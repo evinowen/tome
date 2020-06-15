@@ -1,3 +1,4 @@
+import { assemble } from 'tests/helpers'
 import { remote, shell } from 'electron'
 import store from '@/store'
 import Vue from 'vue'
@@ -20,10 +21,10 @@ const _lstat = {
 }
 
 const fs = {
-  open: jest.fn((path, flags, callback) => callback(0, 1)),
-  close: jest.fn((handler, callback) => callback(0)),
+  open: jest.fn((path, flags, callback) => callback(null, 1)),
+  close: jest.fn((handler, callback) => callback(null)),
   mkdir: jest.fn((path, options, callback) => fs_callback(options, callback)),
-  lstat: jest.fn((handler, callback) => callback(0, _lstat.status)),
+  lstat: jest.fn((handler, callback) => callback(null, _lstat.status))
 }
 
 const path = {
@@ -67,7 +68,7 @@ describe('App.vue', () => {
         ContextMenuService: true,
         SystemBar: true,
         EditorInterface: true,
-        ActionBar: true,
+        ActionBar: true
       }
     }))
     .hook(({ context, localVue }) => {
@@ -89,8 +90,8 @@ describe('App.vue', () => {
   })
 
   it('should attempt to create configuration directory and file if they do not exist', async () => {
-    fs.lstat.mockImplementationOnce((handler, callback) => callback(1))
-    fs.lstat.mockImplementationOnce((handler, callback) => callback(1))
+    fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
+    fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
 
     const wrapper = factory.wrap()
 
@@ -105,8 +106,8 @@ describe('App.vue', () => {
   })
 
   it('should set error if attempt to create configuration directory fails', async () => {
-    fs.lstat.mockImplementationOnce((handler, callback) => callback(1))
-    fs.lstat.mockImplementationOnce((handler, callback) => callback(1))
+    fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
+    fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
 
     fs.mkdir.mockImplementation((path, options, callback) => fs_callback_error(options, callback))
 
@@ -123,10 +124,10 @@ describe('App.vue', () => {
   })
 
   it('should set error if attempt to create configuration file fails', async () => {
-    fs.lstat.mockImplementationOnce((handler, callback) => callback(1))
-    fs.lstat.mockImplementationOnce((handler, callback) => callback(1))
+    fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
+    fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
 
-    fs.open.mockImplementation((path, flags, callback) => callback('error!'))
+    fs.open.mockImplementation((path, flags, callback) => callback(new Error('error!')))
 
     const wrapper = factory.wrap()
 
@@ -233,7 +234,7 @@ describe('App.vue', () => {
           if (timeout--) {
             setTimeout(wait, 1000)
           } else {
-            reject('Time limit exceeded')
+            reject(new Error('Time limit exceeded'))
           }
         } else {
           resolve(true)
@@ -267,7 +268,7 @@ describe('App.vue', () => {
           if (timeout--) {
             setTimeout(wait, 1000)
           } else {
-            reject('Time limit exceeded')
+            reject(new Error('Time limit exceeded'))
           }
         } else {
           resolve()

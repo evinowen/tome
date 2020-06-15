@@ -14,11 +14,11 @@ jest.mock('electron', () => ({
 
 const repository = {
   getStatus: jest.fn((cb) => Promise.resolve([
-    { path: () => '/test/1', isNew: () => true, isModified: () => false, isRenamed: () => false, isDeleted: () => false, },
-    { path: () => '/test/2', isNew: () => false, isModified: () => true, isRenamed: () => false, isDeleted: () => false, },
-    { path: () => '/test/3', isNew: () => false, isModified: () => false, isRenamed: () => true, isDeleted: () => false, },
-    { path: () => '/test/4', isNew: () => false, isModified: () => false, isRenamed: () => false, isDeleted: () => true, },
-    { path: () => '/test/5', isNew: () => false, isModified: () => false, isRenamed: () => false, isDeleted: () => false, }
+    { path: () => '/test/1', isNew: () => true, isModified: () => false, isRenamed: () => false, isDeleted: () => false },
+    { path: () => '/test/2', isNew: () => false, isModified: () => true, isRenamed: () => false, isDeleted: () => false },
+    { path: () => '/test/3', isNew: () => false, isModified: () => false, isRenamed: () => true, isDeleted: () => false },
+    { path: () => '/test/4', isNew: () => false, isModified: () => false, isRenamed: () => false, isDeleted: () => true },
+    { path: () => '/test/5', isNew: () => false, isModified: () => false, isRenamed: () => false, isDeleted: () => false }
   ])),
   headDetached: jest.fn(() => false),
   isMerging: jest.fn(() => false),
@@ -30,7 +30,7 @@ const repository = {
 jest.mock('nodegit', () => ({}))
 
 const fs = {
-  readFileSync: jest.fn((path, options) => "# Header\n"),
+  readFileSync: jest.fn((path, options) => '# Header\n'),
   existsSync: jest.fn((path) => true)
 }
 
@@ -48,7 +48,7 @@ remote.require = jest.fn((target) => {
 
 NodeGit.Repository = {
   open: jest.fn((path) => repository),
-  init: jest.fn((path, is_bare) => repository),
+  init: jest.fn((path, is_bare) => repository)
 }
 NodeGit.StatusOptions = jest.fn()
 NodeGit.Status = {
@@ -162,7 +162,7 @@ describe('store/modules/tome.js', () => {
   })
 
   it('load the provided target repository on a load event if a repository exists at the target even if head is unborn', async () => {
-    fs.readFileSync.mockReturnValueOnce("ref: refs/heads/master\r\n")
+    fs.readFileSync.mockReturnValueOnce('ref: refs/heads/master\r\n')
     repository.headUnborn.mockReturnValueOnce(true)
 
     expect(NodeGit.Repository.open).toHaveBeenCalledTimes(0)
@@ -183,7 +183,6 @@ describe('store/modules/tome.js', () => {
   })
 
   it('read the current state of the repository on an inspect event', async () => {
-
     await store.dispatch('load', '/path/to/file')
 
     expect(store.state.tome.status.staged.items.length).toBe(0)

@@ -1,3 +1,4 @@
+import { assemble } from 'tests/helpers'
 import NodeGit from 'nodegit'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
@@ -22,7 +23,7 @@ const local_commit = {
   parent: jest.fn(() => ({}))
 }
 
-const remote_commit  = {
+const remote_commit = {
   id: () => _id,
   message: jest.fn(),
   parentcount: jest.fn(() => 1),
@@ -66,7 +67,7 @@ NodeGit.Enums = {
 }
 
 NodeGit.Remote = {
-  create: jest.fn((repository, name, url) => repository_remotes[0]),
+  create: jest.fn((repository, name, url) => repository_remotes[0])
 }
 
 NodeGit.Cred = {
@@ -165,8 +166,8 @@ describe('Push.vue', () => {
 
     expect(NodeGit.Remote.create).toHaveBeenCalledTimes(0)
 
-    wrapper.vm.input.remotes.input.name = "new_remote"
-    wrapper.vm.input.remotes.input.url = "git@git.server:test/test2.git"
+    wrapper.vm.input.remotes.input.name = 'new_remote'
+    wrapper.vm.input.remotes.input.url = 'git@git.server:test/test2.git'
 
     await wrapper.find({ ref: 'add_remote' }).trigger('click')
 

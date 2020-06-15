@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import router from '@/router'
 
 import { createLocalVue } from '@vue/test-utils'
@@ -16,7 +15,7 @@ describe('src/router/index.js', () => {
   })
 
   it('is able to be mocked and prepared for testing', async () => {
-    router.push({ name: '/', params: {}})
+    router.push({ name: '/', params: {} })
 
     await localVue.nextTick()
   })

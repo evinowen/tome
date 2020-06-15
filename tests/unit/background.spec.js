@@ -16,7 +16,7 @@ app.on = jest.fn(async (type, callback) => {
 
 app.quit = jest.fn()
 
-let win_run = [ 'closed' ]
+const win_run = ['closed']
 const win = {
   loadURL: jest.fn(),
   webContents: {
@@ -30,7 +30,6 @@ win.on = jest.fn(async (type, callback) => {
   }
   await callback()
 })
-
 
 BrowserWindow.mockImplementation(() => win)
 
@@ -46,7 +45,7 @@ describe('background.js', () => {
 
   afterEach(() => {
     process.env = _env
-    Object.defineProperty(process, 'platform', { value: _platform });
+    Object.defineProperty(process, 'platform', { value: _platform })
 
     jest.clearAllMocks()
   })
@@ -125,11 +124,12 @@ describe('background.js', () => {
 
   it('should supply appropriate listener for exit events while in win32 development mode', () => {
     process.env.NODE_ENV = 'development'
-    Object.defineProperty(process, 'platform', { value: 'win32' });
+    Object.defineProperty(process, 'platform', { value: 'win32' })
 
-    jest.spyOn(process, 'on').mockImplementationOnce((type, callback) => {
+    // callback_win32 for eslint compatability
+    jest.spyOn(process, 'on').mockImplementationOnce((type, callback_win32) => {
       if (type === 'message') {
-        callback('graceful-exit')
+        callback_win32('graceful-exit')
       }
     })
 
@@ -140,7 +140,7 @@ describe('background.js', () => {
 
   it('should supply appropriate listener for exit events while in linux development mode', () => {
     process.env.NODE_ENV = 'development'
-    Object.defineProperty(process, 'platform', { value: 'linux' });
+    Object.defineProperty(process, 'platform', { value: 'linux' })
 
     jest.spyOn(process, 'on').mockImplementationOnce((type, callback) => {
       if (type === 'SIGTERM') {

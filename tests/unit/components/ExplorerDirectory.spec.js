@@ -1,8 +1,8 @@
+import { assemble } from 'tests/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
 import ExplorerDirectory from '@/components/ExplorerDirectory.vue'
-import ExplorerFile from '@/components/ExplorerFile.vue'
 
 Vue.use(Vuetify)
 
@@ -50,7 +50,7 @@ describe('ExplorerDirectory.vue', () => {
     open_folder: null,
     leaf: false
   })
-  .context(() => ({ vuetify, stubs: { ExplorerFile: true } } ))
+    .context(() => ({ vuetify, stubs: { ExplorerFile: true } }))
 
   it('should expand immediately when instance is not a leaf', async () => {
     const wrapper = factory.wrap({ leaf: false })
@@ -107,7 +107,7 @@ describe('ExplorerDirectory.vue', () => {
 
     const length = wrapper.vm.children.length
 
-    wrapper.vm.remove_item({ path: '/not.there',  uuid: 'uuid-x' })
+    wrapper.vm.remove_item({ path: '/not.there', uuid: 'uuid-x' })
 
     expect(wrapper.vm.children.length).toBe(length)
   })

@@ -1,9 +1,5 @@
-import Vue from 'vue'
 import Vuex from 'vuex'
 import { createLocalVue } from '@vue/test-utils'
-
-import tome from '@/store/modules/tome'
-import configuration from '@/store/modules/configuration'
 
 jest.mock('@/store/modules/tome')
 jest.mock('@/store/modules/configuration')

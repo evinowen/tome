@@ -1,3 +1,4 @@
+import { assemble } from 'tests/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import { remote } from 'electron'
@@ -55,7 +56,7 @@ describe('Explorer.vue', () => {
   }
 
   const factory = assemble(Explorer, { value, enabled: true })
-    .context(() => { vuetify })
+    .context(() => ({ vuetify }))
 
   it('is able to be mocked and prepared for testing', () => {
     const wrapper = factory.wrap()
@@ -178,7 +179,7 @@ describe('Explorer.vue', () => {
     wrapper.setData({ hold })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    let context = {
+    const context = {
       directory: false,
       insert_item: jest.fn(),
       parent: { insert_item: jest.fn() }
@@ -206,7 +207,7 @@ describe('Explorer.vue', () => {
     wrapper.setData({ hold })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    let context = {
+    const context = {
       directory: true,
       expanded: true,
       insert_item: jest.fn(),

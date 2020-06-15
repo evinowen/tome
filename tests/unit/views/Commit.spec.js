@@ -1,3 +1,4 @@
+import { assemble } from 'tests/helpers'
 import NodeGit from 'nodegit'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
@@ -31,7 +32,7 @@ store.state = {
       head: jest.fn(() => null),
       createCommit: jest.fn(() => ({})),
       refreshIndex: jest.fn(() => index),
-      headUnborn: jest.fn(() => false),
+      headUnborn: jest.fn(() => false)
     },
     status: {
       staged: {
@@ -39,14 +40,14 @@ store.state = {
         renamed: 0,
         modified: 2,
         deleted: 0,
-        items: [ { path: '/1234' }, { path: '/5678' } ]
+        items: [{ path: '/1234' }, { path: '/5678' }]
       },
       available: {
         new: 2,
         renamed: 0,
         modified: 0,
         deleted: 0,
-        items: [ { path: '/abcd' }, { path: '/efgh' } ]
+        items: [{ path: '/abcd' }, { path: '/efgh' }]
       }
     }
   },
@@ -80,7 +81,6 @@ describe('Commit.vue', () => {
       vuetify = new Vuetify()
       context.vuetify = vuetify
     })
-
 
   afterEach(() => {
     jest.clearAllMocks()
@@ -230,7 +230,6 @@ describe('Commit.vue', () => {
     expect(NodeGit.Reset.default).toHaveBeenCalledTimes(length)
     expect(store.dispatch).toHaveBeenCalledTimes(0)
   })
-
 
   it('create a remote and reload remotes when add remote form is submited', async () => {
     const wrapper = factory.wrap()

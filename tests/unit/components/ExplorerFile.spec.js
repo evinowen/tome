@@ -1,7 +1,7 @@
+import { assemble } from 'tests/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
-import ExplorerDirectory from '@/components/ExplorerDirectory.vue'
 import ExplorerFile from '@/components/ExplorerFile.vue'
 
 Vue.use(Vuetify)
@@ -27,9 +27,9 @@ describe('ExplorerFile.vue', () => {
     open_folder: null,
     highlight: 'Highlight',
     directory: false,
-    parent: {},
+    parent: {}
   })
-  .context(() => ({ vuetify, stubs: { ExplorerDirectory: true } }))
+    .context(() => ({ vuetify, stubs: { ExplorerDirectory: true } }))
 
   it('should be flagged as system if the filename equals .git', async () => {
     const wrapper = factory.wrap({ name: '.git' })

@@ -120,15 +120,6 @@ describe('store/modules/configuration.js', () => {
   it('should throw error if unable to save to provided file when writeConfiguration is dispatched', async () => {
     fs.writeFile.mockImplementationOnce((file, data, options, callback) => fs_callback_error(options, callback))
 
-    const json = JSON.stringify({
-      name: '',
-      email: '',
-      private_key: '',
-      public_key: '',
-      passphrase: '',
-      format_titles: true
-    })
-
     await expect(store.dispatch('writeConfiguration', 'config.json')).rejects.toBe('error!')
 
     expect(fs.writeFile).toHaveBeenCalledTimes(1)
