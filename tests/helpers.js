@@ -71,7 +71,7 @@ const assemble = (object, defaults) => {
   return factory
 }
 
-export default {
+export {
   respond,
   assemble
 }

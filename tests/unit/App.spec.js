@@ -1,4 +1,4 @@
-import { assemble } from 'tests/helpers'
+import { assemble } from '@/../tests/helpers'
 import { remote, shell } from 'electron'
 import store from '@/store'
 import Vue from 'vue'
