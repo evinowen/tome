@@ -115,7 +115,7 @@ describe('NewFileService.vue', () => {
     expect(events.close).toHaveBeenCalledTimes(1)
   })
 
-  it('should attempt to create a file when form submitted', async () => {
+  it('should create a file and fire events for create and close when form submitted', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
@@ -137,8 +137,56 @@ describe('NewFileService.vue', () => {
     expect(events.close).toHaveBeenCalledTimes(1)
   })
 
-  it('should attempt to create a folder when form submitted', async () => {
-    const wrapper = factory.wrap({ folder: false })
+  it('should attempt to create a file but fail with no events if error openning after form submitted', async () => {
+    fs.open.mockImplementationOnce((path, flags, callback) => callback(new Error('error!')))
+
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const events = {
+      create: jest.fn(),
+      close: jest.fn()
+    }
+
+    wrapper.vm.$on('create', events.create)
+    wrapper.vm.$on('close', events.close)
+
+    expect(events.create).toHaveBeenCalledTimes(0)
+    expect(events.close).toHaveBeenCalledTimes(0)
+
+    await wrapper.find({ ref: 'form' }).trigger('submit')
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(events.create).toHaveBeenCalledTimes(0)
+    expect(events.close).toHaveBeenCalledTimes(0)
+  })
+
+  it('should attempt to create a file but fail with no events if error closing after form submitted', async () => {
+    fs.close.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
+
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const events = {
+      create: jest.fn(),
+      close: jest.fn()
+    }
+
+    wrapper.vm.$on('create', events.create)
+    wrapper.vm.$on('close', events.close)
+
+    expect(events.create).toHaveBeenCalledTimes(0)
+    expect(events.close).toHaveBeenCalledTimes(0)
+
+    await wrapper.find({ ref: 'form' }).trigger('submit')
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(events.create).toHaveBeenCalledTimes(0)
+    expect(events.close).toHaveBeenCalledTimes(0)
+  })
+
+  it('should create a folder and fire events for create and close when form submitted', async () => {
+    const wrapper = factory.wrap({ folder: true })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const events = {
@@ -157,6 +205,30 @@ describe('NewFileService.vue', () => {
 
     expect(events.create).toHaveBeenCalledTimes(1)
     expect(events.close).toHaveBeenCalledTimes(1)
+  })
+
+  it('should attempt to create a folder but fail with no events if error after form submitted', async () => {
+    fs.mkdir.mockImplementationOnce((path, options, callback) => callback(new Error('error!')))
+
+    const wrapper = factory.wrap({ folder: true })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const events = {
+      create: jest.fn(),
+      close: jest.fn()
+    }
+
+    wrapper.vm.$on('create', events.create)
+    wrapper.vm.$on('close', events.close)
+
+    expect(events.create).toHaveBeenCalledTimes(0)
+    expect(events.close).toHaveBeenCalledTimes(0)
+
+    await wrapper.find({ ref: 'form' }).trigger('submit')
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(events.create).toHaveBeenCalledTimes(0)
+    expect(events.close).toHaveBeenCalledTimes(0)
   })
 
   it('should emit close event when cancel is clicked', async () => {

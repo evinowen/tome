@@ -61,9 +61,7 @@ export default {
     create: async function (data) {
       let file = this.path.join(this.base, this.relative, this.label)
 
-      if (this.extension_formatted) {
-        file = `${file}${this.extension_formatted}`
-      }
+      file = `${file}${this.extension_formatted}`
 
       if (this.folder) {
         await new Promise((resolve, reject) => this.fs.mkdir(file, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
