@@ -342,15 +342,15 @@ export default {
       this.context.visible = true
       this.context.title = instance.path
       this.context.target = instance.path
-      this.context.items = []
+      this.context.items.length = 0
       this.context.position.x = event.clientX
       this.context.position.y = event.clientY
 
-      this.context.items.concat(this.context.options.standard)
-
       if (instance.directory) {
-        this.context.items.concat(this.context.options.directory)
+        this.context.items.push(...this.context.options.directory)
       }
+
+      this.context.items.push(...this.context.options.standard)
     },
     proxy_file: function (event) {
       const files = event.target.files || event.dataTransfer.files
