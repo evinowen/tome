@@ -18,7 +18,7 @@
     />
     <template v-else v-on="$listeners">
       <v-container class="pa-0" style="user-select: none; clear: both;">
-        <div class="explorer-file-drop" droppable :draggable="!system" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
+        <div ref=draggable class="explorer-file-drop" droppable :draggable="!system" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
           <v-layout
             v-bind:class="['explorer-file', 'explorer-file-hover', {'explorer-file-enabled': !system}, {'explorer-file-selected': path == active }]"
             @click.left.stop="$emit('input', instance)"

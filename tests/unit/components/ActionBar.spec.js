@@ -1,3 +1,4 @@
+import { remote } from 'electron'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
@@ -8,9 +9,20 @@ import { createLocalVue, mount } from '@vue/test-utils'
 
 Vue.use(Vuetify)
 
+jest.mock('electron', () => ({
+  remote: {
+    dialog: jest.fn()
+  }
+
+}))
+
 jest.mock('@/store', () => ({
   state: {}
 }))
+
+remote.dialog = {
+  showOpenDialog: jest.fn()
+}
 
 const localVue = createLocalVue()
 
@@ -70,26 +82,86 @@ describe('ActionBar.vue', () => {
     jest.clearAllMocks()
   })
 
-  it('emits a commit event when the commit button is clicked', () => {
+  it('emits a commit event when the commit button is clicked', async () => {
     const event = jest.fn()
 
     wrapper.vm.$on('commit', event)
 
     expect(event).toHaveBeenCalledTimes(0)
 
-    wrapper.find('[action-bar-commit]').trigger('click')
+    await wrapper.find('[action-bar-commit]').trigger('click')
 
     expect(event).toHaveBeenCalledTimes(1)
   })
 
-  it('emits a push event when the push button is clicked', () => {
+  it('emits a push event when the push button is clicked', async () => {
     const event = jest.fn()
 
     wrapper.vm.$on('push', event)
 
     expect(event).toHaveBeenCalledTimes(0)
 
-    wrapper.find('[action-bar-push]').trigger('click')
+    await wrapper.find('[action-bar-push]').trigger('click')
+
+    expect(event).toHaveBeenCalledTimes(1)
+  })
+
+  it('emits an edit event when the edit switch is clicked', async () => {
+    const event = jest.fn()
+
+    wrapper.vm.$on('edit', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.find('[action-bar-edit]').trigger('click')
+
+    expect(event).toHaveBeenCalledTimes(1)
+  })
+
+  it('open dialog to select Tome folder when the bookshelf button is clicked', async () => {
+    remote.dialog.showOpenDialog.mockReturnValue({
+      canceled: true
+    })
+
+    expect(remote.dialog.showOpenDialog).toHaveBeenCalledTimes(0)
+
+    await wrapper.find('[action-bar-bookshelf]').trigger('click')
+
+    expect(remote.dialog.showOpenDialog).toHaveBeenCalledTimes(1)
+  })
+
+  it('emits a close event when the bookshelf button is clicked and no selection is made', async () => {
+    const event = jest.fn()
+
+    wrapper.vm.$on('close', event)
+
+    remote.dialog.showOpenDialog.mockReturnValue({
+      canceled: false,
+      filePaths: []
+    })
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.find('[action-bar-bookshelf]').trigger('click')
+
+    expect(event).toHaveBeenCalledTimes(1)
+  })
+
+  it('emits an open event when the bookshelf button is clicked and a selection is made', async () => {
+    const event = jest.fn()
+
+    wrapper.vm.$on('open', event)
+
+    remote.dialog.showOpenDialog.mockReturnValue({
+      canceled: false,
+      filePaths: [
+        '/path/to/file'
+      ]
+    })
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.find('[action-bar-bookshelf]').trigger('click')
 
     expect(event).toHaveBeenCalledTimes(1)
   })

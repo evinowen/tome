@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="active" persistent>
-    <form @submit="create">
+    <form ref="form" @submit="create">
       <v-card>
         <v-card-title class="headline">{{ folder ? 'New Folder' : 'New File' }}</v-card-title>
         <v-card-text>
@@ -13,8 +13,8 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="grey darken-1" text @click.stop="$emit('close')">Cancel</v-btn>
-          <v-btn color="green darken-1" text @click.stop="create">Create</v-btn>
+          <v-btn ref=cancel color="grey darken-1" text @click.stop="$emit('close')">Cancel</v-btn>
+          <v-btn ref=create color="green darken-1" text @click.stop="create">Create</v-btn>
         </v-card-actions>
       </v-card>
     </form>
@@ -61,9 +61,7 @@ export default {
     create: async function (data) {
       let file = this.path.join(this.base, this.relative, this.label)
 
-      if (this.extension_formatted) {
-        file = `${file}${this.extension_formatted}`
-      }
+      file = `${file}${this.extension_formatted}`
 
       if (this.folder) {
         await new Promise((resolve, reject) => this.fs.mkdir(file, { recursive: true }, (err) => err ? reject(err) : resolve(true)))

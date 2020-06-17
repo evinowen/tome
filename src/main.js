@@ -1,8 +1,8 @@
 import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import vuetify from './plugins/vuetify'
+import App from '@/App.vue'
+import router from '@/router'
+import store from '@/store'
+import vuetify from '@/plugins/vuetify'
 
 import SplitPane from 'vue-splitpane'
 
@@ -10,9 +10,9 @@ import VueCodemirror from 'vue-codemirror'
 import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/lib/codemirror.css'
 
-import Explorer from './components/Explorer.vue'
-import ExplorerDirectory from './components/ExplorerDirectory.vue'
-import ExplorerFile from './components/ExplorerFile.vue'
+import Explorer from '@/components/Explorer.vue'
+import ExplorerDirectory from '@/components/ExplorerDirectory.vue'
+import ExplorerFile from '@/components/ExplorerFile.vue'
 
 Vue.component('split-pane', SplitPane)
 

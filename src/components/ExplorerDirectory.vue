@@ -1,7 +1,7 @@
 <template>
   <v-container class="pa-0" style="user-select: none; clear: both;" v-show="visible">
     <div v-if=!leaf style="height: 2px;" />
-    <div class="explorer-directory-drop" droppable :draggable="leaf && !system" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
+    <div ref=draggable class="explorer-directory-drop" droppable :draggable="leaf && !system" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
       <v-layout class="explorer-directory"
         v-bind:class="['explorer-directory', {'explorer-directory-enabled': enabled && !system}, {'explorer-directory-selected': path == active}]"
         @click.left.stop="system ? null : $emit('input', instance)"
@@ -200,9 +200,9 @@ export default {
     input: '',
     error: null
   }),
-  mounted: function () {
+  mounted: async function () {
     if (!this.leaf) {
-      this.toggle()
+      await this.toggle()
     }
 
     if (this.ephemeral) {
@@ -306,6 +306,8 @@ export default {
         this.expanded = true
         this.$emit('expanded', this)
       }
+
+      return true
     },
     load: async function () {
       this.loaded = false
@@ -370,16 +372,12 @@ export default {
 
       if (path) {
         const index = this.children.findIndex(child => child.path === path)
-        console.log('path provided', path, index)
         this.children.splice(index, 0, data)
       } else {
         this.children.push(data)
       }
     },
     remove_item: function (source) {
-      console.log('remove_item source path', source.path)
-      console.log('remove_item parent path', this.path)
-
       const index = this.children.findIndex(child => child.uuid === source.uuid)
 
       if (index < 0) {
@@ -389,9 +387,6 @@ export default {
       return this.children.splice(index, 1).pop() || false
     },
     insert_item: function (data) {
-      console.log('insert_item data', data)
-      console.log('insert_item destination path', this.path)
-
       data.parent = this.instance
 
       this.children.push(data)

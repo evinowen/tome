@@ -13,7 +13,7 @@
           <v-container class="pa-0 mb-2">
             <div class="overline">Private Key</div>
             <input ref="private_key" type="file" style="display: none" @change="assign_key('private_key', $event)" />
-            <v-btn tile icon small dark :color="configuration.private_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.private_key.click()">
+            <v-btn tile icon small :color="configuration.private_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.private_key.click()">
               <v-icon small>{{ configuration.private_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
               {{ configuration.private_key }}
             </v-btn>
@@ -23,7 +23,7 @@
           <v-container class="pa-0 mb-2">
             <div class="overline">Public Key</div>
             <input ref="public_key" type="file" style="display: none" @change="assign_key('public_key', $event)" />
-            <v-btn tile icon small dark :color="configuration.public_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.public_key.click()">
+            <v-btn tile icon small :color="configuration.public_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.public_key.click()">
               <v-icon small>{{ configuration.public_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
               {{ configuration.public_key }}
             </v-btn>
@@ -56,7 +56,7 @@
               color="orange darken-1"
             />
             <v-avatar v-else color="green" size="32">
-              <v-icon dark>mdi-content-save</v-icon>
+              <v-icon>mdi-content-save</v-icon>
             </v-avatar>
           </v-layout>
         </v-container>
@@ -77,7 +77,6 @@
     <new-file-service
       :active="add.active"
       @close="add.active = false"
-      @create="reload_selected_explorer"
       :base="tome.path" :target="add_target"
       :extension="add.as_directory ? null : 'md'"
       :folder="add.as_directory"
@@ -154,9 +153,6 @@ import SystemBar from './components/SystemBar.vue'
 import EditorInterface from './components/EditorInterface.vue'
 import ActionBar from './components/ActionBar.vue'
 
-const fs = remote.require('fs')
-const path = remote.require('path')
-
 export default {
   props: {
     source: String
@@ -192,80 +188,103 @@ export default {
       title: null,
       target: null,
       items: [],
-      position: { x: 0, y: 0 }
-    }
+      position: { x: 0, y: 0 },
+      options: {}
+    },
+
+    error: null
 
   }),
+
+  created: function () {
+    this.fs = remote.require('fs')
+    this.path = remote.require('path')
+  },
+
   mounted: async function () {
     this.settings.run = async () => store.dispatch('writeConfiguration', store.state.tome_app_config_path)
 
-    store.state.tome_app_config_path_dir = path.join(remote.app.getPath('appData'), 'tome')
+    this.context.options.standard = [
+      {
+        title: 'Rename',
+        action: async (path) => this.$refs.interface.rename(path)
+      },
+      {
+        title: 'Delete',
+        action: async (path) => this.$refs.interface.delete(path)
+      },
+      {
+        divider: true
+      },
+      {
+        title: 'New File',
+        action: async () => this.$refs.interface.create(false)
+      },
+      {
+        title: 'New Folder',
+        action: async () => this.$refs.interface.create(true)
+      },
+      {
+        title: 'Open Folder',
+        action: (path) => shell.openItem(path)
+      }
+    ]
+
+    this.context.options.directory = [
+      {
+        title: 'Expand',
+        action: null
+      },
+      {
+        divider: true
+      }
+    ]
+
+    store.state.tome_app_config_path_dir = this.path.join(remote.app.getPath('appData'), 'tome')
 
     let create_directory = false
 
     try {
-      await new Promise((resolve, reject) => fs.lstat(store.state.tome_app_config_path_dir, (err, status) => err ? reject(err) : resolve(status)))
+      await new Promise((resolve, reject) => this.fs.lstat(store.state.tome_app_config_path_dir, (err, status) => err ? reject(err) : resolve(status)))
     } catch (err) {
       create_directory = true
     }
 
     if (create_directory) {
-      const err = await new Promise((resolve, reject) => fs.mkdir(store.state.tome_app_config_path_dir, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
-
-      if (err) {
-        console.error(`Failure to create Tome configuration folder at ${store.state.tome_app_config_path_dir}`)
+      try {
+        await new Promise((resolve, reject) => this.fs.mkdir(store.state.tome_app_config_path_dir, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
+      } catch (error) {
+        this.error = error
+        return
       }
     }
 
-    store.state.tome_app_config_path = path.join(store.state.tome_app_config_path_dir, 'config.json')
+    store.state.tome_app_config_path = this.path.join(store.state.tome_app_config_path_dir, 'config.json')
 
     let create_file = false
 
     try {
-      await new Promise((resolve, reject) => fs.lstat(store.state.tome_app_config_path, (err, status) => err ? reject(err) : resolve(status)))
+      await new Promise((resolve, reject) => this.fs.lstat(store.state.tome_app_config_path, (err, status) => err ? reject(err) : resolve(status)))
     } catch (err) {
       create_file = true
     }
 
     if (create_file) {
-      const fd = await new Promise((resolve, reject) => fs.open(store.state.tome_app_config_path, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
-      await new Promise((resolve, reject) => fs.close(fd, (err) => err ? reject(err) : resolve(true)))
+      try {
+        const fd = await new Promise((resolve, reject) => this.fs.open(store.state.tome_app_config_path, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
+        await new Promise((resolve, reject) => this.fs.close(fd, (err) => err ? reject(err) : resolve(true)))
+      } catch (error) {
+        this.error = error
+        return
+      }
     }
 
     await store.dispatch('loadConfiguration', store.state.tome_app_config_path)
-    console.log('configuration complete', this.configuration)
   },
   methods: {
-    choose_tome: function (event) {
-      this.$refs.tome.click()
-    },
-    open_commit: async function (event, test) {
-      console.log('test!', event, test)
-      this.commit = true
-    },
     set_tome: async function (file_path) {
       await store.dispatch('load', file_path)
       this.reload_run()
-    },
-    action_rename: async function (path) {
-      console.log('action_rename', path)
-      await this.$refs.interface.rename(path)
-    },
-    action_delete: async function (path) {
-      console.log('action_delete', path)
-      await this.$refs.interface.delete(path)
-    },
-    action_new_file: async function (target_path) {
-      console.log('new file', target_path)
-      await this.$refs.interface.create(false)
-    },
-    action_new_folder: async function (target_path) {
-      console.log('new folder', target_path)
-      await this.$refs.interface.create(true)
-    },
-    action_open_folder: async function (path) {
-      console.log('action_open_folder', path)
-      shell.openItem(path)
     },
     counter_start: function (target) {
       clearTimeout(this[target].timeout)
@@ -282,9 +301,7 @@ export default {
 
       this[target].counter = this[target].counter - 1
 
-      if (this[target].counter >= 0) {
-        this[target].timeout = setTimeout(() => this.counter_update(target), 1000)
-      }
+      this[target].timeout = setTimeout(() => this.counter_update(target), 1000)
     },
     counter_run: async function (target) {
       clearTimeout(this[target].timeout)
@@ -310,9 +327,7 @@ export default {
 
       this.reload.counter = this.reload.counter - 1
 
-      if (this.reload.counter >= 0) {
-        this.reload.timeout = setTimeout(this.reload_update, 1000)
-      }
+      this.reload.timeout = setTimeout(this.reload_update, 1000)
     },
     reload_run: async function () {
       clearTimeout(this.reload.timeout)
@@ -322,7 +337,6 @@ export default {
     },
     open_context: async function (state) {
       const { instance, event } = state
-      console.log('open_context', instance, event)
       instance.$emit('input', instance)
 
       this.context.visible = true
@@ -332,74 +346,25 @@ export default {
       this.context.position.x = event.clientX
       this.context.position.y = event.clientY
 
-      const standard = [
-        {
-          title: 'Rename',
-          action: this.action_rename
-        },
-        {
-          title: 'Delete',
-          action: this.action_delete
-        },
-        {
-          divider: true
-        },
-        {
-          title: 'New File',
-          action: this.action_new_file
-        },
-        {
-          title: 'New Folder',
-          action: this.action_new_folder
-        },
-        {
-          title: 'Open Folder',
-          action: this.action_open_folder
-        }
-      ]
+      this.context.items.concat(this.context.options.standard)
 
       if (instance.directory) {
-        this.context.items.push({
-          title: 'Expand',
-          action: () => { console.log('Expand Action!') }
-        })
-
-        this.context.items.push({
-          divider: true
-        })
+        this.context.items.concat(this.context.options.directory)
       }
-
-      this.context.items = this.context.items.concat(standard)
     },
-    reload_selected_explorer: function () {
-      // TODO: Reimplement reload behavior for explorer
-    },
-    assign_key: async function (name, event) {
+    proxy_file: function (event) {
       const files = event.target.files || event.dataTransfer.files
 
-      if (!files.length) {
-        this[name] = null
-        return
-      }
+      return files.length ? files[0] : null
+    },
+    assign_key: async function (name, event) {
+      const file = this.proxy_file(event)
 
-      if (!files[0].path) {
-        return
-      }
-
-      await store.dispatch('updateConfiguration', { [name]: files[0].path })
+      await store.dispatch('updateConfiguration', { [name]: file.path })
       this.counter_start('settings')
     }
   },
   computed: {
-    tome_file_rendered: function () {
-      return ''
-    },
-    tome_file_path_rel: function () {
-      return store.state.tome_file_path ? `${path.relative(store.state.tome.path, store.state.tome_file_path)}${path.sep}` : ''
-    },
-    tome_path: function () {
-      return store.state.tome.path
-    },
     add_target: function () {
       return this.add.relative_path || store.state.tome_file_path
     },

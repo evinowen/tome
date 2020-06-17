@@ -81,6 +81,8 @@
             </v-card-title>
             <v-card-actions>
               <v-select
+                ref="remote_select"
+                v-model="input.remotes.selected"
                 :items="input.remotes.list"
                 label="Remote"
                 @change="select_remote"
@@ -123,7 +125,7 @@
                           append-outer-icon="mdi-plus-thick"
                         >
                           <template v-slot:append-outer>
-                            <v-btn icon color="green" @click.stop="add_remote">
+                            <v-btn ref="add_remote" icon color="green" @click.stop="add_remote">
                               <v-icon>mdi-plus-thick</v-icon>
                             </v-btn>
                           </template>
@@ -304,6 +306,7 @@
               </v-container>
               <v-card-actions>
                 <v-btn
+                  ref="push_confirm"
                   color="orange darken-1"
                   text @click="push"
                   :disabled="working"
@@ -393,6 +396,7 @@ export default {
     working: false,
     input: {
       remotes: {
+        selected: null,
         value: null,
         list: [],
         edit: false,
@@ -460,25 +464,25 @@ export default {
       return this.assign_key('public_key', event)
     },
     assign_key: async function (name, event) {
+      const file = this.proxy_file(event)
+
+      if (!file.path) {
+        return
+      }
+
+      this.input[name].value = file.path
+    },
+    proxy_file: function (event) {
       const files = event.target.files || event.dataTransfer.files
 
-      if (!files.length) {
-        this[name] = null
-        return
-      }
-
-      if (!files[0].path) {
-        return
-      }
-
-      this.input[name].value = files[0].path
+      return files.length ? files[0] : null
     },
 
     credentials: function () {
       return {
         private_key: this.input.private_key.value,
         public_key: this.input.public_key.value,
-        passphrase: this.input.passphrase.value || ''
+        passphrase: this.input.passphrase.value
       }
     },
 
@@ -509,8 +513,6 @@ export default {
 
       await this.load_remotes()
     },
-    remove_remote: function (event) {
-    },
     select_remote: async function (remote) {
       this.input.remotes.value = remote
 
@@ -525,17 +527,13 @@ export default {
     },
     load_branch: async function () {
       const remote = this.input.remotes.value
-
       this.input.branch.error = 'Loading ... '
       this.input.branch.history = []
 
+      await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
+
       try {
-        const result = await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
-
-        if (result) { }
-
         (await remote.object.referenceList()).map(async reference => {
-          console.log('referenceList', reference.name(), reference, reference.oid().tostrS())
           const object = {
             name: reference.name(),
             object: reference
@@ -561,7 +559,6 @@ export default {
         let ahead = 0
 
         do {
-          console.log(remote_commit.id().tostrS(), '==', local_commit.id().tostrS())
           if (remote_commit.id().cmp(local_commit.id()) === 0) {
             break
           }
@@ -579,8 +576,6 @@ export default {
           local_commit = await local_commit.parent(0)
         } while (local_commit)
 
-        console.log('Ahead', ahead)
-
         if (ahead > 0) {
           this.input.branch.ahead = true
         }
@@ -595,11 +590,9 @@ export default {
     },
 
     push: async function (event) {
-      console.debug('[Push Tome] Begin')
       this.working = true
 
       if (!this.input.remotes.value) {
-        console.debug('[Push Tome] No Remote Selected!', this.input.remotes.value)
         this.confirm = false
         this.working = false
 
@@ -613,15 +606,11 @@ export default {
 
       const refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`
 
-      console.debug('[Push Tome] Collect Data', refspec)
-
       await this.input.remotes.value.object.push([refspec], { callbacks: this.callbacks() })
 
-      console.debug('[Push Tome] Clear Flags')
       this.confirm = false
       this.working = false
 
-      console.debug('[Push Tome] Complete')
       this.$emit('close')
 
       return true

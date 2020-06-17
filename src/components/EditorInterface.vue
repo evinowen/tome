@@ -3,7 +3,7 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer ref="explorer" v-model=selected v-on:input=load_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file @move=move_file @create=create_file @delete=delete_file />
+          <explorer ref="explorer" v-model=selected v-on:input=select_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file @move=move_file @create=create_file @delete=delete_file />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;" />
         <scrolly-bar axis="x" style="margin-bottom: 2px;" />
@@ -30,10 +30,10 @@
           <push-view v-else-if="push" @close="$emit('push:close')" />
 
           <!-- OPEN FILE WINDOW -->
-          <codemirror v-else-if="absolute_path" :value="content" style="height: 100%;" @input="save_file" />
+          <codemirror ref="editor" v-else-if="absolute_path" :value="content" style="height: 100%;" @input="save_file" />
 
           <!-- ACTION OR ERROR MENUS -->
-          <v-content v-else style="height: 100%; padding: 0px;">
+          <div v-else class="full_size">
             <template v-if="actions">
               <action-view :actions="actions">
                 <div class="display-2">{{ tome.name }}</div>
@@ -47,7 +47,7 @@
               <empty-view>{{ error }}</empty-view>
             </template>
 
-          </v-content>
+          </div>
 
         </scrolly-viewport>
         <scrolly-bar axis="y"></scrolly-bar>
@@ -57,9 +57,9 @@
     </template>
   </split-pane>
 
-  <v-content v-else>
-    <empty-view editor-interface-empty>{{ error || "" }}</empty-view>
-  </v-content>
+  <div v-else class="full_size">
+    <empty-view ref="empty_unloaded">{{ error || "" }}</empty-view>
+  </div>
 
 </template>
 
@@ -78,6 +78,11 @@
   border-color: transparent !important;
 }
 
+.full_size {
+  height: 100%;
+  padding: 0px;
+}
+
 .CodeMirror {
   border: 1px solid #eee;
   height: auto !important;
@@ -93,6 +98,8 @@ import { remote } from 'electron'
 import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
 import { v4 as uuidv4 } from 'uuid'
+
+import Explorer from './Explorer.vue'
 
 import EmptyView from '@/views/Empty.vue'
 import ActionView from '@/views/Action.vue'
@@ -174,16 +181,20 @@ export default {
       return true
     },
 
-    load_file: async function () {
+    select_file: async function () {
+      return this.load_file(this.selected)
+    },
+
+    load_file: async function (target) {
       this.error = ''
       this.actions = []
       this.absolute_path = null
 
-      if (!this.selected || !this.selected.path) {
+      if (!target || !target.path) {
         return
       }
 
-      this.absolute_path = this.selected.path
+      this.absolute_path = target.path
 
       const status = await new Promise((resolve, reject) => this.fs.lstat(this.absolute_path, (err, status) => err ? reject(err) : resolve(status)))
 
@@ -193,17 +204,17 @@ export default {
           {
             name: 'New File',
             icon: 'mdi-file-star',
-            action: (event) => { }
+            action: null
           },
           {
             name: 'New Folder',
             icon: 'mdi-folder-star',
-            action: (event) => { }
+            action: null
           },
           {
             name: 'Open Folder',
             icon: 'mdi-folder-move',
-            action: (event) => { }
+            action: null
           }
         ]
         return
@@ -230,17 +241,9 @@ export default {
       const directory = this.path.dirname(path)
       const proposed_full = this.path.join(directory, proposed)
 
-      console.log(path, proposed, directory, proposed_full)
+      await new Promise((resolve, reject) => this.fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
 
-      const success = await new Promise((resolve, reject) => this.fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
-
-      if (success) {
-        console.log('rename_file success')
-        update({ name: proposed, path: proposed_full })
-        return
-      }
-
-      console.log('rename_file failed')
+      update({ name: proposed, path: proposed_full })
     },
     move_file: async function (path, proposed, context) {
       let directory = proposed
@@ -257,8 +260,6 @@ export default {
       const basename = this.path.basename(path)
       const proposed_full = this.path.join(directory, basename)
 
-      console.log(path, proposed, basename, proposed_full)
-
       if (directory === this.path.dirname(path)) {
         return context.reject('Invalid move, same directory')
       }
@@ -274,8 +275,6 @@ export default {
       const { context, input } = state
       const path = this.path.join(context.parent.path, input)
 
-      console.log(context.parent.path, input, path)
-
       try {
         await new Promise((resolve, reject) => this.fs.access(path, (err) => err ? reject(err) : resolve(true)))
         return state.reject('Invalid create, file already exists')
@@ -287,14 +286,12 @@ export default {
         } else {
           await new Promise((resolve, reject) => this.fs.writeFile(path, '', (err) => err ? reject(err) : resolve(true)))
         }
-
         return state.resolve({ path, name: input, ephemeral: false })
       } catch (error) {
         return state.reject(error)
       }
     },
     delete_file: async function (state) {
-      console.log('delete', state)
       const { path } = state
 
       try {
@@ -302,15 +299,12 @@ export default {
           const status = await new Promise((resolve, reject) => this.fs.lstat(path, (err, status) => err ? reject(err) : resolve(status)))
           if (status.isDirectory()) {
             const files = await new Promise((resolve, reject) => this.fs.readdir(path, (err, status) => err ? reject(err) : resolve(status)))
-            if (files) {
-              for (const file of files) {
-                console.log(`recurse? ${this.path.join(path, file)}`)
-                await unlink(this.path.join(path, file))
-              }
+
+            for (const file of files) {
+              await unlink(this.path.join(path, file))
             }
           }
 
-          console.log(`Unlink ${path}`)
           await new Promise((resolve, reject) => this.fs.unlink(path, (err) => err ? reject(err) : resolve(true)))
         }
 
@@ -355,12 +349,11 @@ export default {
     Scrolly,
     ScrollyViewport,
     ScrollyBar,
-
+    Explorer,
     EmptyView,
     ActionView,
     CommitView,
     PushView
-
   }
 
 }
