@@ -16,10 +16,20 @@ jest.mock('@/components/ExplorerFile.vue', () => ({}))
 const _Vue = {
   component: jest.fn(),
   use: jest.fn(),
-  $mount: jest.fn()
+  $mount: jest.fn(),
+  _createElement: jest.fn()
 }
 
-Vue.mockImplementation(() => _Vue)
+Vue.mockImplementation((options) => {
+  const { render } = options
+
+  const createElement = jest.fn()
+
+  render(_Vue._createElement)
+
+  return _Vue
+})
+
 Vue.config = {}
 
 describe('main.js', () => {
@@ -33,6 +43,7 @@ describe('main.js', () => {
   it('is able to be mocked and prepared for testing', () => {
     jest.isolateModules(() => { require('@/main.js') })
 
+    expect(_Vue._createElement).toHaveBeenCalledTimes(1)
     expect(_Vue.$mount).toHaveBeenCalledTimes(1)
   })
 })
