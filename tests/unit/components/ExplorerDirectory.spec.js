@@ -14,16 +14,21 @@ describe('ExplorerDirectory.vue', () => {
     children = [
       {
         directory: true,
-        path: '/path123',
-        uuid: 'uuid-1'
-      },
-      {
-        directory: true,
         path: '/path456',
         uuid: 'uuid-2'
       },
       {
+        directory: true,
+        path: '/path123',
+        uuid: 'uuid-1'
+      },
+      {
         directory: false,
+        path: '/pathABC',
+        uuid: 'uuid-4'
+      },
+      {
+        directory: true,
         path: '/path789',
         uuid: 'uuid-3'
       }
@@ -58,6 +63,16 @@ describe('ExplorerDirectory.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.expanded).toBe(true)
+  })
+
+  it('should emit input event immediately when instance is ephemeral', async () => {
+    const wrapper = factory.wrap({ ephemeral: true })
+
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.emitted().input).toBeTruthy()
   })
 
   it('should collapse when toggle is called on instance', async () => {
@@ -171,7 +186,7 @@ describe('ExplorerDirectory.vue', () => {
     expect(wrapper.vm.children.length).toBe(length + 1)
   })
 
-  it('should emit submit event when submit is called', async () => {
+  it('should emit submit event when submit is called and value is valid', async () => {
     const wrapper = factory.wrap()
     wrapper.setData({ valid: true })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -187,6 +202,24 @@ describe('ExplorerDirectory.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(event).toHaveBeenCalledTimes(1)
+  })
+
+  it('should not emit submit event when submit is called and value is not valid', async () => {
+    const wrapper = factory.wrap()
+    wrapper.setData({ valid: true })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const event = jest.fn()
+    wrapper.vm.$on('submit', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    wrapper.vm.valid = false
+
+    await wrapper.vm.submit()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(event).toHaveBeenCalledTimes(0)
   })
 
   it('should refresh input field value when focus is called', async () => {
@@ -211,6 +244,26 @@ describe('ExplorerDirectory.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.children[0].path).toBe('/new.path')
+  })
+
+  it('should return without update when update is called for path that is not a child', async () => {
+    const wrapper = factory.wrap({ leaf: false })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const paths = [
+      wrapper.vm.children[0].path,
+      wrapper.vm.children[1].path,
+      wrapper.vm.children[2].path,
+      wrapper.vm.children[3].path
+    ]
+
+    wrapper.vm.update({ path: '/a/path' }, { path: '/new.path' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.children[0].path).toBe(paths[0])
+    expect(wrapper.vm.children[1].path).toBe(paths[1])
+    expect(wrapper.vm.children[2].path).toBe(paths[2])
+    expect(wrapper.vm.children[3].path).toBe(paths[3])
   })
 
   it('should emit a drag event when a drag starts with this component', async () => {

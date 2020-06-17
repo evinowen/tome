@@ -138,7 +138,7 @@ describe('ExplorerFile.vue', () => {
     expect(parent.create).toHaveBeenCalledTimes(1)
   })
 
-  it('should emit submit event when submit is called', async () => {
+  it('should emit submit event when submit is called and value is valid', async () => {
     const wrapper = factory.wrap()
     wrapper.setData({ valid: true })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -154,6 +154,24 @@ describe('ExplorerFile.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(event).toHaveBeenCalledTimes(1)
+  })
+
+  it('should not emit submit event when submit is called and value is not valid', async () => {
+    const wrapper = factory.wrap()
+    wrapper.setData({ valid: true })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const event = jest.fn()
+    wrapper.vm.$on('submit', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    wrapper.vm.valid = false
+
+    await wrapper.vm.submit()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(event).toHaveBeenCalledTimes(0)
   })
 
   it('should refresh input field value when focus is called', async () => {
