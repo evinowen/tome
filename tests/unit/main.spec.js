@@ -23,8 +23,6 @@ const _Vue = {
 Vue.mockImplementation((options) => {
   const { render } = options
 
-  const createElement = jest.fn()
-
   render(_Vue._createElement)
 
   return _Vue
