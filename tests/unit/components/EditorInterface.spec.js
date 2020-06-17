@@ -22,35 +22,39 @@ const _lstat = {
 
 const children = [
   {
-    name: '/abc',
+    name: '.git',
     isDirectory: jest.fn(() => true)
   },
   {
-    name: '/def',
+    name: 'abc',
     isDirectory: jest.fn(() => true)
   },
   {
-    name: '/test.md',
+    name: 'def',
+    isDirectory: jest.fn(() => true)
+  },
+  {
+    name: 'test.md',
     isDirectory: jest.fn(() => false)
   },
   {
-    name: '/test.gif',
+    name: 'test.gif',
     isDirectory: jest.fn(() => false)
   },
   {
-    name: '/test.jpg',
+    name: 'test.jpg',
     isDirectory: jest.fn(() => false)
   },
   {
-    name: '/test.jpeg',
+    name: 'test.jpeg',
     isDirectory: jest.fn(() => false)
   },
   {
-    name: '/test.png',
+    name: 'test.png',
     isDirectory: jest.fn(() => false)
   },
   {
-    name: '/test.txt',
+    name: 'test.txt',
     isDirectory: jest.fn(() => false)
   }
 ]
@@ -181,6 +185,32 @@ describe('EditorInterface.vue', () => {
 
     expect(wrapper.vm.content).not.toBe('')
     expect(wrapper.vm.error).toBe('')
+  })
+
+  it('should fail to load content without a target when triggered', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.content).toBe('')
+    expect(wrapper.vm.error).toBe('')
+
+    await wrapper.vm.load_file()
+
+    expect(wrapper.vm.content).toBe('')
+  })
+
+  it('should fail to load content of an item without a path when triggered', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const selected = { }
+
+    expect(wrapper.vm.content).toBe('')
+    expect(wrapper.vm.error).toBe('')
+
+    await wrapper.vm.load_file(selected)
+
+    expect(wrapper.vm.content).toBe('')
   })
 
   it('should fail to load content of a provided item with children when triggered for file with the wrong extension', async () => {
@@ -349,6 +379,61 @@ describe('EditorInterface.vue', () => {
 
     const state = {
       context: {
+        directory: false,
+        parent: {
+          path: '/abc'
+        }
+      },
+      input: '/xyz',
+      reject: jest.fn(),
+      resolve: jest.fn()
+    }
+
+    expect(state.resolve).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.$refs.explorer.$emit('create', state)
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(state.resolve).toHaveBeenCalledTimes(1)
+  })
+
+  it('should pass error explorer when file creation is triggered and fails', async () => {
+    fs.access.mockImplementationOnce((path, callback) => callback(new Error('error!')))
+    fs.writeFile.mockImplementationOnce((path, content, callback) => callback(new Error('error!')))
+
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const state = {
+      context: {
+        directory: false,
+        parent: {
+          path: '/abc'
+        }
+      },
+      input: '/xyz',
+      reject: jest.fn(),
+      resolve: jest.fn()
+    }
+
+    expect(state.resolve).toHaveBeenCalledTimes(0)
+    expect(state.reject).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.$refs.explorer.$emit('create', state)
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(state.resolve).toHaveBeenCalledTimes(0)
+    expect(state.reject).toHaveBeenCalledTimes(1)
+  })
+
+  it('should attempt to create a directory and pass to explorer when create is triggered', async () => {
+    fs.access.mockImplementationOnce((path, callback) => callback(new Error('error!')))
+
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const state = {
+      context: {
         directory: true,
         parent: {
           path: '/abc'
@@ -367,25 +452,61 @@ describe('EditorInterface.vue', () => {
     expect(state.resolve).toHaveBeenCalledTimes(1)
   })
 
+  it('should pass error explorer when directory creation is triggered and fails', async () => {
+    fs.access.mockImplementationOnce((path, callback) => callback(new Error('error!')))
+    fs.mkdir.mockImplementationOnce(jest.fn((path, options, callback) => (!callback ? options : callback)(new Error('error!'))))
+
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const state = {
+      context: {
+        directory: true,
+        parent: {
+          path: '/abc'
+        }
+      },
+      input: '/xyz',
+      reject: jest.fn(),
+      resolve: jest.fn()
+    }
+
+    expect(state.resolve).toHaveBeenCalledTimes(0)
+    expect(state.reject).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.$refs.explorer.$emit('create', state)
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(state.resolve).toHaveBeenCalledTimes(0)
+    expect(state.reject).toHaveBeenCalledTimes(1)
+  })
+
   it('should fail to create and pass to explorer when create is triggered for existing file', async () => {
     fs.access.mockImplementationOnce((path, callback) => callback(null, true))
 
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    const context = {
+    const state = {
+      context: {
+        directory: false,
+        parent: {
+          path: '/abc'
+        }
+      },
+      input: '/xyz',
       reject: jest.fn(),
       resolve: jest.fn()
     }
 
-    expect(context.resolve).toHaveBeenCalledTimes(0)
-    expect(context.reject).toHaveBeenCalledTimes(0)
+    expect(state.resolve).toHaveBeenCalledTimes(0)
+    expect(state.reject).toHaveBeenCalledTimes(0)
 
-    await wrapper.vm.$refs.explorer.$emit('move', '/original.path', '/proposed.path', context)
+    await wrapper.vm.$refs.explorer.$emit('create', state)
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(context.resolve).toHaveBeenCalledTimes(0)
-    expect(context.reject).toHaveBeenCalledTimes(1)
+    expect(state.resolve).toHaveBeenCalledTimes(0)
+    expect(state.reject).toHaveBeenCalledTimes(1)
   })
 
   it('should attempt to delete file and pass to explorer when delete is triggered', async () => {

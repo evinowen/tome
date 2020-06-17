@@ -241,11 +241,9 @@ export default {
       const directory = this.path.dirname(path)
       const proposed_full = this.path.join(directory, proposed)
 
-      const success = await new Promise((resolve, reject) => this.fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
+      await new Promise((resolve, reject) => this.fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
 
-      if (success) {
-        update({ name: proposed, path: proposed_full })
-      }
+      update({ name: proposed, path: proposed_full })
     },
     move_file: async function (path, proposed, context) {
       let directory = proposed
@@ -301,10 +299,9 @@ export default {
           const status = await new Promise((resolve, reject) => this.fs.lstat(path, (err, status) => err ? reject(err) : resolve(status)))
           if (status.isDirectory()) {
             const files = await new Promise((resolve, reject) => this.fs.readdir(path, (err, status) => err ? reject(err) : resolve(status)))
-            if (files) {
-              for (const file of files) {
-                await unlink(this.path.join(path, file))
-              }
+
+            for (const file of files) {
+              await unlink(this.path.join(path, file))
             }
           }
 
