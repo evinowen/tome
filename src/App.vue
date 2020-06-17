@@ -77,7 +77,6 @@
     <new-file-service
       :active="add.active"
       @close="add.active = false"
-      @create="reload_selected_explorer"
       :base="tome.path" :target="add_target"
       :extension="add.as_directory ? null : 'md'"
       :folder="add.as_directory"
@@ -189,7 +188,8 @@ export default {
       title: null,
       target: null,
       items: [],
-      position: { x: 0, y: 0 }
+      position: { x: 0, y: 0 },
+      options: {}
     },
 
     error: null
@@ -204,6 +204,42 @@ export default {
   mounted: async function () {
     this.settings.run = async () => store.dispatch('writeConfiguration', store.state.tome_app_config_path)
 
+    this.context.options.standard = [
+      {
+        title: 'Rename',
+        action: async (path) => this.$refs.interface.rename(path)
+      },
+      {
+        title: 'Delete',
+        action: async (path) => this.$refs.interface.delete(path)
+      },
+      {
+        divider: true
+      },
+      {
+        title: 'New File',
+        action: async () => this.$refs.interface.create(false)
+      },
+      {
+        title: 'New Folder',
+        action: async () => this.$refs.interface.create(true)
+      },
+      {
+        title: 'Open Folder',
+        action: (path) => shell.openItem(path)
+      }
+    ]
+
+    this.context.options.directory = [
+      {
+        title: 'Expand',
+        action: null
+      },
+      {
+        divider: true
+      }
+    ]
+
     store.state.tome_app_config_path_dir = this.path.join(remote.app.getPath('appData'), 'tome')
 
     let create_directory = false
@@ -215,7 +251,12 @@ export default {
     }
 
     if (create_directory) {
-      await new Promise((resolve, reject) => this.fs.mkdir(store.state.tome_app_config_path_dir, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
+      try {
+        await new Promise((resolve, reject) => this.fs.mkdir(store.state.tome_app_config_path_dir, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
+      } catch (error) {
+        this.error = error
+        return
+      }
     }
 
     store.state.tome_app_config_path = this.path.join(store.state.tome_app_config_path_dir, 'config.json')
@@ -234,6 +275,7 @@ export default {
         await new Promise((resolve, reject) => this.fs.close(fd, (err) => err ? reject(err) : resolve(true)))
       } catch (error) {
         this.error = error
+        return
       }
     }
 
@@ -304,47 +346,11 @@ export default {
       this.context.position.x = event.clientX
       this.context.position.y = event.clientY
 
-      const standard = [
-        {
-          title: 'Rename',
-          action: async (path) => this.$refs.interface.rename(path)
-        },
-        {
-          title: 'Delete',
-          action: async (path) => this.$refs.interface.delete(path)
-        },
-        {
-          divider: true
-        },
-        {
-          title: 'New File',
-          action: async () => this.$refs.interface.create(false)
-        },
-        {
-          title: 'New Folder',
-          action: async () => this.$refs.interface.create(true)
-        },
-        {
-          title: 'Open Folder',
-          action: (path) => shell.openItem(path)
-        }
-      ]
+      this.context.items.concat(this.context.options.standard)
 
       if (instance.directory) {
-        this.context.items.push({
-          title: 'Expand',
-          action: (error) => error
-        })
-
-        this.context.items.push({
-          divider: true
-        })
+        this.context.items.concat(this.context.options.directory)
       }
-
-      this.context.items = this.context.items.concat(standard)
-    },
-    reload_selected_explorer: function () {
-      // TODO: Reimplement reload behavior for explorer
     },
     proxy_file: function (event) {
       const files = event.target.files || event.dataTransfer.files

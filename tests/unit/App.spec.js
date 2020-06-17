@@ -109,36 +109,51 @@ describe('App.vue', () => {
     fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
     fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
 
-    fs.mkdir.mockImplementation((path, options, callback) => fs_callback_error(options, callback))
+    fs.mkdir.mockImplementationOnce((path, options, callback) => fs_callback_error(options, callback))
 
     const wrapper = factory.wrap()
 
     expect(wrapper.vm.error).toBeNull()
 
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    // TODO: Fix this test to report correctly --
-    //   There is a problem with how the error is generated that is preventing it from
-    //   being caught correctly.
-    // expect(wrapper.vm.error).not.toBeNull()
+    expect(wrapper.vm.error).not.toBeNull()
   })
 
-  it('should set error if attempt to create configuration file fails', async () => {
+  it('should set error if attempt to create configuration file fails because the file cannot be opened', async () => {
     fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
     fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
 
-    fs.open.mockImplementation((path, flags, callback) => callback(new Error('error!')))
+    fs.open.mockImplementationOnce((path, flags, callback) => callback(new Error('error!')))
 
     const wrapper = factory.wrap()
 
     expect(wrapper.vm.error).toBeNull()
 
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    // TODO: Fix this test to report correctly --
-    //   There is a problem with how the error is generated that is preventing it from
-    //   being caught correctly.
-    // expect(wrapper.vm.error).not.toBeNull()
+    expect(wrapper.vm.error).not.toBeNull()
+  })
+
+  it('should set error if attempt to create configuration file fails because the file cannot be closed', async () => {
+    fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
+    fs.lstat.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
+
+    fs.close.mockImplementationOnce((handler, callback) => callback(new Error('error!')))
+
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.error).toBeNull()
+
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.error).not.toBeNull()
   })
 
   it('should load the provided path as the current Tome when set_tome is called', async () => {
@@ -152,7 +167,7 @@ describe('App.vue', () => {
 
     await wrapper.vm.set_tome('/test/path')
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
+    expect(store.dispatch).toHaveBeenCalledTimes(2)
     expect(wrapper.vm.reload_run).toHaveBeenCalledTimes(1)
   })
 
@@ -281,4 +296,73 @@ describe('App.vue', () => {
     expect(wrapper.vm.settings.triggered).toBeFalsy()
     expect(wrapper.vm.settings.run).toHaveBeenCalledTimes(1)
   }, 20000)
+
+  it('should relay calls to the editor interface instance on rename', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const path = '/test/path'
+
+    wrapper.vm.$refs.interface.rename = jest.fn()
+    expect(wrapper.vm.$refs.interface.rename).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.context.options.standard[0].action(path)
+
+    expect(wrapper.vm.$refs.interface.rename).toHaveBeenCalledTimes(1)
+  })
+
+  it('should relay calls to the editor interface instance on delete', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const path = '/test/path'
+
+    wrapper.vm.$refs.interface.delete = jest.fn()
+    expect(wrapper.vm.$refs.interface.delete).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.context.options.standard[1].action(path)
+
+    expect(wrapper.vm.$refs.interface.delete).toHaveBeenCalledTimes(1)
+  })
+
+  it('should relay calls to the editor interface instance on file create', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const path = '/test/path'
+
+    wrapper.vm.$refs.interface.create = jest.fn()
+    expect(wrapper.vm.$refs.interface.create).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.context.options.standard[3].action(path)
+
+    expect(wrapper.vm.$refs.interface.create).toHaveBeenCalledTimes(1)
+  })
+
+  it('should relay calls to the editor interface instance on folder create', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const path = '/test/path'
+
+    wrapper.vm.$refs.interface.create = jest.fn()
+    expect(wrapper.vm.$refs.interface.create).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.context.options.standard[4].action(path)
+
+    expect(wrapper.vm.$refs.interface.create).toHaveBeenCalledTimes(1)
+  })
+
+  it('should relay calls to the shell on path open', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const path = '/test/path'
+
+    expect(shell.openItem).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.context.options.standard[5].action(path)
+
+    expect(shell.openItem).toHaveBeenCalledTimes(1)
+  })
 })
