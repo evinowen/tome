@@ -15,7 +15,10 @@
           <template v-for="(item, index) in items">
             <div :key="index">
               <v-divider v-if=item.divider></v-divider>
-              <v-list-item v-else @click="item.action(target)">
+              <v-list-item v-else
+                @click="item.action(target)"
+                :disabled="item.active ? !item.active() : false"
+              >
                 <v-list-item-title>{{ item.title }}</v-list-item-title>
               </v-list-item>
             </div>
