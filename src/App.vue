@@ -144,7 +144,7 @@ html, body {
 
 <script>
 import store from './store'
-import { remote, shell } from 'electron'
+import { remote } from 'electron'
 
 import NewFileService from './components/NewFileService.vue'
 import ContextMenuService from './components/ContextMenuService.vue'
@@ -203,42 +203,6 @@ export default {
 
   mounted: async function () {
     this.settings.run = async () => store.dispatch('writeConfiguration', store.state.tome_app_config_path)
-
-    this.context.options.standard = [
-      {
-        title: 'Rename',
-        action: async (path) => this.$refs.interface.rename(path)
-      },
-      {
-        title: 'Delete',
-        action: async (path) => this.$refs.interface.delete(path)
-      },
-      {
-        divider: true
-      },
-      {
-        title: 'New File',
-        action: async () => this.$refs.interface.create(false)
-      },
-      {
-        title: 'New Folder',
-        action: async () => this.$refs.interface.create(true)
-      },
-      {
-        title: 'Open Folder',
-        action: (path) => shell.openItem(path)
-      }
-    ]
-
-    this.context.options.directory = [
-      {
-        title: 'Expand',
-        action: null
-      },
-      {
-        divider: true
-      }
-    ]
 
     store.state.tome_app_config_path_dir = this.path.join(remote.app.getPath('appData'), 'tome')
 
@@ -339,18 +303,13 @@ export default {
       const { instance, event } = state
       instance.$emit('input', instance)
 
-      this.context.visible = true
-      this.context.title = instance.path
-      this.context.target = instance.path
-      this.context.items.length = 0
-      this.context.position.x = event.clientX
-      this.context.position.y = event.clientY
-
-      if (instance.directory) {
-        this.context.items.push(...this.context.options.directory)
-      }
-
-      this.context.items.push(...this.context.options.standard)
+      Object.assign(this.context, {
+        visible: true,
+        title: instance.path,
+        target: instance.path,
+        items: instance.context,
+        position: { x: event.clientX, y: event.clientY }
+      })
     },
     proxy_file: function (event) {
       const files = event.target.files || event.dataTransfer.files

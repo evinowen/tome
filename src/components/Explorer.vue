@@ -9,17 +9,26 @@
     :populate=populate
     :format=format
     :hold=hold
+    :children=children
+    :expanded=true
+    @context="$emit('context', $event)"
+    @input="$emit('input', $event)"
+    @paste="$emit('paste', $event)"
+
+    @open=open
+    @edit=edit
     @submit=submit
     @blur=blur
     @drag=drag
     @drop=drop
-    v-on="$listeners"
+
     ref="explorer_root"
   />
 </template>
 
 <script>
 import store from '@/store'
+import { remote, shell } from 'electron'
 import ExplorerDirectory from './ExplorerDirectory.vue'
 
 export default {
@@ -29,9 +38,16 @@ export default {
     populate: { type: Function }
   },
   data: () => ({
+    children: [],
     editing: false,
     hold: null
   }),
+  mounted: async function () {
+    const fs = remote.require('fs')
+    const path = remote.require('path')
+
+    this.remote = { fs, path }
+  },
   computed: {
     tome: function () {
       return store.state.tome
@@ -47,7 +63,7 @@ export default {
     format: function (name, directory) {
       const words = name.split('.')
 
-      if (!directory) {
+      if (name.length && !directory) {
         const ext = words.pop()
 
         if (ext !== 'md') {
@@ -56,6 +72,17 @@ export default {
       }
 
       return words.map(item => String(item).substring(0, 1).toUpperCase().concat(item.substring(1))).join(' ').trim()
+    },
+    open: async function (state) {
+      const { target, parent } = state
+
+      let path = target
+
+      if (parent) {
+        path = this.remote.path.dirname(target)
+      }
+
+      shell.openItem(path)
     },
     edit: async function () {
       this.editing = true
@@ -114,7 +141,7 @@ export default {
     },
     drop: async function (state) {
       if (state.context.directory && !state.context.expanded) {
-        await state.context.toggle()
+        await state.context.$emit('toggle')
       }
 
       this.$emit('move', this.hold.context.path, state.context.path, {

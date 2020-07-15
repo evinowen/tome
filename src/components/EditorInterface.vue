@@ -3,7 +3,19 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer ref="explorer" v-model=selected v-on:input=select_file :populate=load_path :enabled=explore v-on="$listeners" @rename=rename_file @move=move_file @create=create_file @delete=delete_file />
+          <explorer
+            ref="explorer"
+            v-model=selected
+            v-on:input=select_file
+            :populate=load_path
+            :enabled=explore
+            @rename=rename_file
+            @move=move_file
+            @create=create_file
+            @delete=delete_file
+
+            @context="$emit('context', $event)"
+          />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;" />
         <scrolly-bar axis="x" style="margin-bottom: 2px;" />
@@ -160,6 +172,8 @@ export default {
             name: child.name,
             path: this.path.join(item.path, child.name),
             directory: child.isDirectory(),
+            children: [],
+            expanded: false,
             ...file_ext(this.path.extname(child.name).toLowerCase())
           })
         )).then(children => {

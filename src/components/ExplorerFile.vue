@@ -6,15 +6,18 @@
       :name=name
       :path=path
       :parent=parent
+      :children=children
       :populate=populate
       :format=format
       :enabled=enabled
+      :expanded=expanded
       :title=title
       :active=active
       :edit=edit
       child
       v-on="$listeners"
       leaf
+      ref="directory"
     />
     <template v-else v-on="$listeners">
       <v-container class="pa-0" style="user-select: none; clear: both;">
@@ -151,11 +154,14 @@
 </style>
 
 <script>
+import store from '@/store'
+
 export default {
   props: {
     uuid: { type: String },
-    enabled: { type: Boolean },
-    ephemeral: { type: Boolean },
+    enabled: { type: Boolean, default: false },
+    expanded: { type: Boolean, default: false },
+    ephemeral: { type: Boolean, default: false },
     title: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String, default: '' },
@@ -165,12 +171,11 @@ export default {
     format: { type: Function },
     highlight: { type: String, default: '' },
     directory: { type: Boolean, default: false },
-    parent: { type: Object }
+    parent: { type: Object },
+    children: { type: Array }
   },
   data: () => ({
-    expanded: false,
     loaded: false,
-    children: [],
     valid: false,
     input: '',
     error: null
@@ -181,6 +186,57 @@ export default {
     }
   },
   computed: {
+    context: function () {
+      return [
+        {
+          title: 'Open',
+          action: (path) => this.$emit('open', { type: 'file', target: path })
+        },
+        {
+          title: 'Open Folder',
+          action: (path) => this.$emit('open', { type: 'file', target: path, parent: true })
+        },
+        {
+          title: 'New File',
+          action: async () => this.create(false)
+        },
+        {
+          title: 'New Folder',
+          action: async () => this.create(true)
+        },
+        {
+          divider: true
+        },
+        {
+          title: 'Cut',
+          action: (path) => store.dispatch('cut', { type: 'file', target: path })
+        },
+        {
+          title: 'Copy',
+          action: (path) => store.dispatch('copy', { type: 'file', target: path })
+        },
+        {
+          title: 'Paste',
+          active: () => store.state.clipboard.content,
+          action: (path) => store.dispatch('paste', { type: 'file', target: path })
+        },
+        {
+          divider: true
+        },
+        {
+          title: 'Rename',
+          action: async (path) => this.$emit('edit')
+        },
+        {
+          title: 'Delete',
+          action: async (path) => this.$emit('delete', {
+            path,
+            reject: async (error) => error,
+            resolve: async () => this.parent.remove_item(this)
+          })
+        }
+      ]
+    },
     instance: function () {
       return this
     },

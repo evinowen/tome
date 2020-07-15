@@ -7,7 +7,7 @@
         @click.left.stop="system ? null : $emit('input', instance)"
         @click.right.stop="$emit('context', { instance, event: $event })"
       >
-          <v-btn tile text x-small @click.stop="system ? null : toggle()" class="explorer-directory-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
+          <v-btn tile text x-small @click.stop="system ? null : $emit('toggle')" class="explorer-directory-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
             <v-icon>{{ icon }}</v-icon>
           </v-btn>
           <v-flex>
@@ -25,39 +25,61 @@
       <template v-if=leaf>
         <explorer-file
           v-for="child in children"
-          v-on="$listeners"
           :key=child.uuid
           :uuid=child.uuid
           :ephemeral=child.ephemeral
           :name=child.name
           :path=child.path
           :parent=instance
+          :children=child.children
           :directory=child.directory
           :populate=populate
           :format=format
           :active=active
           :edit=edit
           :enabled=enabled
+          :expanded=child.expanded
           :title=title
+
+          @input="$emit('input', $event)"
+          @context="$emit('context', $event)"
+          @open="$emit('open', $event)"
+          @edit="$emit('edit', $event)"
+          @submit="$emit('submit', $event)"
+          @blur="$emit('blur', $event)"
+          @paste="$emit('paste', $event)"
+
+          @toggle="child.expanded = !child.expanded"
         />
       </template>
       <template v-else>
         <explorer-file
           v-for="child in children"
-          v-on="$listeners"
           :key=child.uuid
           :uuid=child.uuid
           :ephemeral=child.ephemeral
           :name=child.name
           :path=child.path
           :parent=instance
+          :children=child.children
           :directory=child.directory
           :populate=populate
           :format=format
           :active=active
           :edit=edit
           :enabled=enabled
+          :expanded=child.expanded
           :title=title
+
+          @input="$emit('input', $event)"
+          @context="$emit('context', $event)"
+          @open="$emit('open', $event)"
+          @edit="$emit('edit', $event)"
+          @submit="$emit('submit', $event)"
+          @blur="$emit('blur', $event)"
+          @paste="$emit('paste', $event)"
+
+          @toggle="child.expanded = !child.expanded"
         />
       </template>
     </v-container>
@@ -173,13 +195,15 @@
 </style>
 
 <script>
+import store from '@/store'
 import { v4 as uuidv4 } from 'uuid'
 
 export default {
   props: {
     uuid: { type: String },
-    enabled: { type: Boolean },
-    ephemeral: { type: Boolean },
+    enabled: { type: Boolean, default: false },
+    expanded: { type: Boolean, default: false },
+    ephemeral: { type: Boolean, default: false },
     title: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String },
@@ -188,28 +212,92 @@ export default {
     populate: { type: Function },
     format: { type: Function },
     leaf: { type: Boolean },
-    parent: { type: Object }
+    parent: { type: Object },
+    children: { type: Array }
   },
   data: () => ({
     selected: null,
     directory: true,
-    expanded: false,
     loaded: false,
-    children: [],
     valid: false,
     input: '',
     error: null
   }),
   mounted: async function () {
-    if (!this.leaf) {
-      await this.toggle()
+    if (this.expanded) {
+      await this.load()
     }
 
     if (this.ephemeral) {
       this.$emit('input', this.instance)
     }
   },
+  watch: {
+    expanded: async function (value) {
+      if (value) {
+        await this.load()
+      }
+    }
+  },
   computed: {
+    context: function () {
+      return [
+        {
+          title: 'Expand',
+          action: null
+        },
+        {
+          divider: true
+        },
+        {
+          title: 'Open',
+          action: (path) => this.$emit('open', { type: 'file', target: path })
+        },
+        {
+          title: 'Open Folder',
+          action: (path) => this.$emit('open', { type: 'file', target: path, parent: true })
+        },
+        {
+          title: 'New File',
+          action: async () => this.create(false)
+        },
+        {
+          title: 'New Folder',
+          action: async () => this.create(true)
+        },
+        {
+          divider: true
+        },
+        {
+          title: 'Cut',
+          action: (path) => store.dispatch('cut', { type: 'file', target: path })
+        },
+        {
+          title: 'Copy',
+          action: (path) => store.dispatch('copy', { type: 'file', target: path })
+        },
+        {
+          title: 'Paste',
+          active: () => store.state.clipboard.content,
+          action: (path) => store.dispatch('paste', { type: 'file', target: path })
+        },
+        {
+          divider: true
+        },
+        {
+          title: 'Rename',
+          action: async (path) => this.$emit('edit')
+        },
+        {
+          title: 'Delete',
+          action: async (path) => this.$emit('delete', {
+            path,
+            reject: async (error) => error,
+            resolve: async () => this.parent.remove_item(this)
+          })
+        }
+      ]
+    },
     instance: function () {
       return this
     },
@@ -289,28 +377,10 @@ export default {
       this.drag_leave(event)
       this.$emit('drop', { context: this })
     },
-    toggle: async function () {
-      if (this.system || this.expanded) {
-        this.$emit('collapsing', this)
-        this.expanded = false
-        this.$emit('collapsed', this)
-      } else {
-        this.$emit('expanding', this)
-
-        if (!this.loaded && this.populate) {
-          await this.load()
-        }
-
-        this.loaded = false
-
-        this.expanded = true
-        this.$emit('expanded', this)
-      }
-
-      return true
-    },
     load: async function () {
-      this.loaded = false
+      if (this.loaded) {
+        return
+      }
 
       while (this.children.pop()) { }
       this.loaded = (await this.populate(this)) === true
@@ -359,8 +429,10 @@ export default {
     },
     create: async function (directory, path) {
       if (!this.expanded) {
-        await this.toggle()
+        this.$emit('toggle')
       }
+
+      this.$emit('edit')
 
       const data = {
         uuid: uuidv4(),
