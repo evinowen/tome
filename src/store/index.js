@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 
 import tome from './modules/tome'
 import configuration from './modules/configuration'
+import clipboard from './modules/clipboard'
 
 Vue.use(Vuex)
 
@@ -20,6 +21,7 @@ export default new Vuex.Store({
   },
   modules: {
     tome: tome,
-    configuration
+    configuration,
+    clipboard
   }
 })
