@@ -7,32 +7,14 @@ import ExplorerDirectory from '@/components/ExplorerDirectory.vue'
 Vue.use(Vuetify)
 
 describe('ExplorerDirectory.vue', () => {
-  let children
+  let parent = {
+    children: []
+  }
+
   let vuetify
 
   beforeEach(() => {
-    children = [
-      {
-        directory: true,
-        path: '/path456',
-        uuid: 'uuid-2'
-      },
-      {
-        directory: true,
-        path: '/path123',
-        uuid: 'uuid-1'
-      },
-      {
-        directory: false,
-        path: '/pathABC',
-        uuid: 'uuid-4'
-      },
-      {
-        directory: true,
-        path: '/path789',
-        uuid: 'uuid-3'
-      }
-    ]
+    parent.children.length = 0
 
     vuetify = new Vuetify()
   })
@@ -46,24 +28,40 @@ describe('ExplorerDirectory.vue', () => {
     path: '/pa/th/to/fi/le',
     active: 'Active',
     populate: (object) => {
-      object.children = children
+      const children = [
+        {
+          directory: true,
+          path: '/path456',
+          uuid: 'uuid-2'
+        },
+        {
+          directory: true,
+          path: '/path123',
+          uuid: 'uuid-1'
+        },
+        {
+          directory: false,
+          path: '/pathABC',
+          uuid: 'uuid-4'
+        },
+        {
+          directory: true,
+          path: '/path789',
+          uuid: 'uuid-3'
+        }
+      ]
+
+      object.children.push(...children)
 
       return true
     },
     new_file: null,
     new_folder: null,
     open_folder: null,
-    leaf: false
+    leaf: false,
+    children: parent.children
   })
     .context(() => ({ vuetify, stubs: { ExplorerFile: true } }))
-
-  it('should expand immediately when instance is not a leaf', async () => {
-    const wrapper = factory.wrap({ leaf: false })
-
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(wrapper.vm.expanded).toBe(true)
-  })
 
   it('should emit input event immediately when instance is ephemeral', async () => {
     const wrapper = factory.wrap({ ephemeral: true })
@@ -75,24 +73,9 @@ describe('ExplorerDirectory.vue', () => {
     expect(wrapper.emitted().input).toBeTruthy()
   })
 
-  it('should collapse when toggle is called on instance', async () => {
-    const wrapper = factory.wrap({ leaf: false })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(wrapper.vm.expanded).toBe(true)
-
-    await expect(wrapper.vm.toggle()).resolves.toBeDefined()
-
-    expect(wrapper.vm.expanded).toBe(false)
-  })
-
   it('should compute expanded root icon when instance is not a leaf or closed', async () => {
-    const wrapper = factory.wrap({ leaf: false })
+    const wrapper = factory.wrap({ leaf: false, expanded: true })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    if (!wrapper.vm.expanded) {
-      await expect(wrapper.vm.toggle()).resolves.toBeDefined()
-    }
 
     expect(wrapper.vm.expanded).toBe(true)
     expect(wrapper.vm.icon).toEqual('mdi-book-open-page-variant')
@@ -103,87 +86,6 @@ describe('ExplorerDirectory.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.icon).toEqual('mdi-folder')
-  })
-
-  it('should remove node if provided path matches when remove_item is called', async () => {
-    const wrapper = factory.wrap({ leaf: false })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    const length = wrapper.vm.children.length
-
-    wrapper.vm.remove_item(children[0])
-
-    expect(wrapper.vm.children.length).toBe(length - 1)
-  })
-
-  it('should remove nothing if provided path does not match when remove_item is called', async () => {
-    const wrapper = factory.wrap({ leaf: false })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    const length = wrapper.vm.children.length
-
-    wrapper.vm.remove_item({ path: '/not.there', uuid: 'uuid-x' })
-
-    expect(wrapper.vm.children.length).toBe(length)
-  })
-
-  it('should insert node when insert is called', async () => {
-    const wrapper = factory.wrap({ leaf: false })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    const length = wrapper.vm.children.length
-
-    wrapper.vm.insert_item({
-      directory: false,
-      path: '/pathABC',
-      uuid: 'uuid-4'
-    })
-
-    expect(wrapper.vm.children.length).toBe(length + 1)
-  })
-
-  it('should create file node when create is called with falsy directory flag', async () => {
-    const wrapper = factory.wrap({ leaf: false })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    const length = wrapper.vm.children.length
-
-    await wrapper.vm.create(false)
-
-    expect(wrapper.vm.children.length).toBe(length + 1)
-  })
-
-  it('should expand node when create is called with while not expanded', async () => {
-    const wrapper = factory.wrap({ leaf: true })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(wrapper.vm.expanded).toBe(false)
-
-    await wrapper.vm.create(false)
-
-    expect(wrapper.vm.expanded).toBe(true)
-  })
-
-  it('should create directory node when create is called with truthy directory flag', async () => {
-    const wrapper = factory.wrap({ leaf: false })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    const length = wrapper.vm.children.length
-
-    await wrapper.vm.create(true)
-
-    expect(wrapper.vm.children.length).toBe(length + 1)
-  })
-
-  it('should create directory node at path when create is called with truthy directory flag and a path', async () => {
-    const wrapper = factory.wrap({ leaf: false })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    const length = wrapper.vm.children.length
-
-    await wrapper.vm.create(true, '/path456')
-
-    expect(wrapper.vm.children.length).toBe(length + 1)
   })
 
   it('should emit submit event when submit is called and value is valid', async () => {
@@ -232,38 +134,6 @@ describe('ExplorerDirectory.vue', () => {
     await wrapper.vm.focus()
 
     expect(wrapper.vm.input).toBe(wrapper.vm.display)
-  })
-
-  it('should update a child when update is called for its path', async () => {
-    const wrapper = factory.wrap({ leaf: false })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(wrapper.vm.children[0].path).not.toBe('/new.path')
-
-    wrapper.vm.update(wrapper.vm.children[0], { path: '/new.path' })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(wrapper.vm.children[0].path).toBe('/new.path')
-  })
-
-  it('should return without update when update is called for path that is not a child', async () => {
-    const wrapper = factory.wrap({ leaf: false })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    const paths = [
-      wrapper.vm.children[0].path,
-      wrapper.vm.children[1].path,
-      wrapper.vm.children[2].path,
-      wrapper.vm.children[3].path
-    ]
-
-    wrapper.vm.update({ path: '/a/path' }, { path: '/new.path' })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(wrapper.vm.children[0].path).toBe(paths[0])
-    expect(wrapper.vm.children[1].path).toBe(paths[1])
-    expect(wrapper.vm.children[2].path).toBe(paths[2])
-    expect(wrapper.vm.children[3].path).toBe(paths[3])
   })
 
   it('should emit a drag event when a drag starts with this component', async () => {

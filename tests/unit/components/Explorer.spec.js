@@ -55,7 +55,8 @@ describe('Explorer.vue', () => {
     }
   }
 
-  const factory = assemble(Explorer, { value, enabled: true })
+  const populate = jest.fn()
+  const factory = assemble(Explorer, { value, enabled: true, populate })
     .context(() => ({ vuetify }))
 
   it('is able to be mocked and prepared for testing', () => {
@@ -240,7 +241,7 @@ describe('Explorer.vue', () => {
       path: '',
       directory: true,
       expanded: false,
-      toggle: jest.fn(),
+      $emit: jest.fn(),
       insert_item: jest.fn(),
       parent: { insert_item: jest.fn() }
     }
@@ -271,16 +272,17 @@ describe('Explorer.vue', () => {
       path: '',
       directory: true,
       expanded: false,
-      toggle: jest.fn(),
+      $emit: jest.fn(),
       insert_item: jest.fn()
     }
 
-    expect(context.toggle).toHaveBeenCalledTimes(0)
+    expect(context.$emit).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.$refs.explorer_root.$emit('drop', { context })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(context.toggle).toHaveBeenCalledTimes(1)
+    expect(context.$emit).toHaveBeenCalledTimes(1)
+    expect(context.$emit.mock.calls[0][0]).toBe('toggle')
   })
 
   it('attempt to create a new object when the field is ephemeral', async () => {
