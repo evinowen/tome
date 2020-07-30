@@ -7,8 +7,9 @@
             ref="explorer"
             v-model=selected
             v-on:input=select_file
-            :populate=load_path
             :enabled=explore
+
+            @populate=populate
             @rename=rename_file
             @move=move_file
             @create=create_file
@@ -143,8 +144,7 @@ export default {
   },
 
   methods: {
-
-    load_path: async function (item) {
+    populate: async function (item) {
       const file_ext = function (ext) {
         switch (ext) {
           case '.md':
@@ -161,12 +161,16 @@ export default {
         }
       }
 
-      if (item.directory) {
-        return new Promise((resolve, reject) => this.fs.readdir(
-          item.path,
-          { withFileTypes: true },
-          (err, files) => err ? reject(err) : resolve(files)
-        )).then(children => children.map(
+      if (!item.directory) {
+        return
+      }
+
+      return new Promise((resolve, reject) => this.fs.readdir(
+        item.path,
+        { withFileTypes: true },
+        (err, files) => err ? reject(err) : resolve(files)
+      )).then(children => {
+        return children.map(
           child => ({
             uuid: uuidv4(),
             name: child.name,
@@ -176,25 +180,22 @@ export default {
             expanded: false,
             ...file_ext(this.path.extname(child.name).toLowerCase())
           })
-        )).then(children => {
-          children.forEach(child => {
-            if (child.directory) {
-              child.children = []
-              if (!['.git'].includes(child.name)) {
-                child.disabled = false
-              }
+        )
+      }).then(children => {
+        children.forEach(child => {
+          if (child.directory) {
+            child.children = []
+            if (!['.git'].includes(child.name)) {
+              child.disabled = false
             }
-          })
-
-          item.children.push(...children)
-
-          return true
+          }
         })
-      }
 
-      return true
+        item.children.length = 0
+        item.children.push(...children)
+        return true
+      })
     },
-
     select_file: async function () {
       return this.load_file(this.selected)
     },
@@ -251,13 +252,18 @@ export default {
 
       this.$emit('save')
     },
-    rename_file: async function (path, proposed, update) {
+    rename_file: async function (state) {
+      const { path, name } = state
       const directory = this.path.dirname(path)
-      const proposed_full = this.path.join(directory, proposed)
+      const proposed = this.path.join(directory, name)
 
-      await new Promise((resolve, reject) => this.fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
+      const parent = this.path.dirname(path)
+      const result = {
+        previous: { path, parent },
+        current: { path: proposed, parent }
+      }
 
-      update({ name: proposed, path: proposed_full })
+      return new Promise((resolve, reject) => this.fs.rename(path, proposed, (err) => err ? state.reject(err) : state.resolve(result)))
     },
     move_file: async function (path, proposed, context) {
       let directory = proposed
@@ -273,34 +279,35 @@ export default {
 
       const basename = this.path.basename(path)
       const proposed_full = this.path.join(directory, basename)
+      const directory_current = this.path.dirname(path)
 
-      if (directory === this.path.dirname(path)) {
+      if (directory === directory_current) {
         return context.reject('Invalid move, same directory')
       }
 
       try {
         await new Promise((resolve, reject) => this.fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
-        return context.resolve(proposed_full)
+        return context.resolve({ previous: { path, parent: directory_current }, current: { path: proposed_full, parent: directory } })
       } catch (error) {
         return context.reject(error)
       }
     },
     create_file: async function (state) {
-      const { context, input } = state
-      const path = this.path.join(context.parent.path, input)
+      const { path, name, directory } = state
+      const proposed = this.path.join(path, name)
 
       try {
-        await new Promise((resolve, reject) => this.fs.access(path, (err) => err ? reject(err) : resolve(true)))
+        await new Promise((resolve, reject) => this.fs.access(proposed, (err) => err ? reject(err) : resolve(true)))
         return state.reject('Invalid create, file already exists')
       } catch (_) { }
 
       try {
-        if (context.directory) {
+        if (directory) {
           await new Promise((resolve, reject) => this.fs.mkdir(path, (err) => err ? reject(err) : resolve(true)))
         } else {
           await new Promise((resolve, reject) => this.fs.writeFile(path, '', (err) => err ? reject(err) : resolve(true)))
         }
-        return state.resolve({ path, name: input, ephemeral: false })
+        return state.resolve({ path, name, ephemeral: false })
       } catch (error) {
         return state.reject(error)
       }

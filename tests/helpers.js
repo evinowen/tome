@@ -13,7 +13,7 @@ const respond = (routable) => {
   return { routable: _routable, mock: _mock }
 }
 
-const assemble = (object, defaults) => {
+const assemble = (object, default_props, default_listeners) => {
   const factory = {
     trap: false,
     component: {
@@ -48,7 +48,7 @@ const assemble = (object, defaults) => {
     return factory
   }
 
-  factory.wrap = (props) => {
+  factory.wrap = (props, listeners) => {
     if (!factory.trap) {
       factory.make()
     }
@@ -61,8 +61,12 @@ const assemble = (object, defaults) => {
         localVue: factory.localVue,
         ...(factory.context || {}),
         propsData: {
-          ...(defaults || {}),
+          ...(default_props || {}),
           ...(props || {})
+        },
+        listeners: {
+          ...(default_listeners || {}),
+          ...(listeners || {})
         }
       }
     )

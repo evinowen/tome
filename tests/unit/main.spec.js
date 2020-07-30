@@ -9,10 +9,6 @@ jest.mock('@/router', () => ({}))
 jest.mock('@/store', () => ({}))
 jest.mock('@/plugins/vuetify', () => ({}))
 
-jest.mock('@/components/Explorer.vue', () => ({}))
-jest.mock('@/components/ExplorerDirectory.vue', () => ({}))
-jest.mock('@/components/ExplorerFile.vue', () => ({}))
-
 const _Vue = {
   component: jest.fn(),
   use: jest.fn(),

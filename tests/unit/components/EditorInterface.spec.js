@@ -148,7 +148,7 @@ describe('EditorInterface.vue', () => {
 
     expect(item.children.length).toBe(0)
 
-    await wrapper.vm.load_path(item)
+    await wrapper.vm.populate(item)
 
     expect(item.children.length).toBe(children.length)
   })
@@ -165,7 +165,7 @@ describe('EditorInterface.vue', () => {
 
     expect(item.children.length).toBe(0)
 
-    await wrapper.vm.load_path(item)
+    await wrapper.vm.populate(item)
 
     expect(item.children.length).toBe(0)
   })
@@ -182,6 +182,20 @@ describe('EditorInterface.vue', () => {
     expect(wrapper.vm.error).toBe('')
 
     await wrapper.vm.load_file(selected)
+
+    expect(wrapper.vm.content).not.toBe('')
+    expect(wrapper.vm.error).toBe('')
+  })
+
+  it('should load the currently selected item when select file is called', async () => {
+    const wrapper = factory.wrap()
+    wrapper.setData({ selected: { path: '/path/to/selected.md' }})
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.content).toBe('')
+    expect(wrapper.vm.error).toBe('')
+
+    await wrapper.vm.select_file()
 
     expect(wrapper.vm.content).not.toBe('')
     expect(wrapper.vm.error).toBe('')
@@ -278,14 +292,21 @@ describe('EditorInterface.vue', () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    const update = jest.fn()
+    const context = {
+      path: '/original.path',
+      name: 'proposed.path',
+      reject: jest.fn(),
+      resolve: jest.fn()
+    }
 
-    expect(update).toHaveBeenCalledTimes(0)
+    expect(context.reject).toHaveBeenCalledTimes(0)
+    expect(context.resolve).toHaveBeenCalledTimes(0)
 
-    await wrapper.vm.$refs.explorer.$emit('rename', '/original.path', '/proposed.path', update)
+    await wrapper.vm.$refs.explorer.$emit('rename', context)
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(update).toHaveBeenCalledTimes(1)
+    expect(context.reject).toHaveBeenCalledTimes(0)
+    expect(context.resolve).toHaveBeenCalledTimes(1)
   })
 
   it('should attempt a move and pass to explorer when move is triggered', async () => {
@@ -295,6 +316,8 @@ describe('EditorInterface.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
+      path: '/original.path',
+      name: '/proposed.path',
       reject: jest.fn(),
       resolve: jest.fn()
     }
@@ -316,6 +339,8 @@ describe('EditorInterface.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
+      path: '/original.path',
+      name: '/proposed.path',
       reject: jest.fn(),
       resolve: jest.fn()
     }
@@ -335,6 +360,8 @@ describe('EditorInterface.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
+      path: '/original.path',
+      name: '/proposed.path',
       reject: jest.fn(),
       resolve: jest.fn()
     }
@@ -357,6 +384,8 @@ describe('EditorInterface.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const context = {
+      path: '/original.path',
+      name: '/proposed.path',
       reject: jest.fn(),
       resolve: jest.fn()
     }
@@ -460,13 +489,9 @@ describe('EditorInterface.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     const state = {
-      context: {
-        directory: true,
-        parent: {
-          path: '/abc'
-        }
-      },
-      input: '/xyz',
+      directory: true,
+      path: '/project',
+      name: '/new.folder',
       reject: jest.fn(),
       resolve: jest.fn()
     }

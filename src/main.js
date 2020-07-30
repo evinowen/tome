@@ -10,15 +10,7 @@ import VueCodemirror from 'vue-codemirror'
 import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/lib/codemirror.css'
 
-import Explorer from '@/components/Explorer.vue'
-import ExplorerDirectory from '@/components/ExplorerDirectory.vue'
-import ExplorerFile from '@/components/ExplorerFile.vue'
-
 Vue.component('split-pane', SplitPane)
-
-Vue.component('explorer', Explorer)
-Vue.component('explorer-directory', ExplorerDirectory)
-Vue.component('explorer-file', ExplorerFile)
 
 Vue.use(VueCodemirror, {
   options: {
