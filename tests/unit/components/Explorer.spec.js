@@ -75,7 +75,7 @@ describe('Explorer.vue', () => {
         children: [],
         templates: [],
         actions: [],
-        expanded: false,
+        expanded: false
       },
       {
         uuid: uuidv4(),
@@ -96,7 +96,7 @@ describe('Explorer.vue', () => {
         children: [],
         templates: [],
         actions: [],
-        expanded: false,
+        expanded: false
       },
       {
         uuid: uuidv4(),
@@ -106,7 +106,7 @@ describe('Explorer.vue', () => {
         children: [],
         templates: [],
         actions: [],
-        expanded: false,
+        expanded: false
       },
       {
         uuid: uuidv4(),
@@ -116,7 +116,7 @@ describe('Explorer.vue', () => {
         children: [],
         templates: [],
         actions: [],
-        expanded: false,
+        expanded: false
       }
     )
   })
@@ -128,20 +128,8 @@ describe('Explorer.vue', () => {
   const value = { create: jest.fn(), parent: { remove_item: jest.fn(() => ({ path: '/item.path' })) } }
   const hold = {
     context: {
-      path: '/project/second',
+      path: '/project/second'
     }
-  }
-
-  const base = {
-    uuid: uuidv4(),
-    name: 'project',
-    path: '/project',
-    root: true,
-    directory: true,
-    expanded: false,
-    children: [],
-    templates: [],
-    actions: [],
   }
 
   const children = []
@@ -151,16 +139,16 @@ describe('Explorer.vue', () => {
       case '/project':
         item.children.length = 0
         item.children.push(...children)
-        return
+        break
 
       case '/project/first':
-        return
+        break
 
       case '/project/second':
-        return
+        break
 
       case '/project/third':
-        return
+        break
     }
   })
 
@@ -389,7 +377,7 @@ describe('Explorer.vue', () => {
       const { resolve } = state
       await resolve({
         previous: { path: '/project/third', parent: '/project' },
-        current:  { path: '/project/third.path.item', parent: '/project' },
+        current: { path: '/project/third.path.item', parent: '/project' }
       })
     })
 
@@ -418,7 +406,7 @@ describe('Explorer.vue', () => {
       const { resolve } = state
       await resolve({
         previous: { path: '/project/file.md', parent: '/project' },
-        current:  { path: '/project/file.test.md', parent: '/project' },
+        current: { path: '/project/file.test.md', parent: '/project' }
       })
     })
 
@@ -473,7 +461,7 @@ describe('Explorer.vue', () => {
       const { resolve } = state
       await resolve({
         previous: { path: '/project/file.md', parent: '/project' },
-        current:  { path: '/project/file.test.md', parent: '/project' },
+        current: { path: '/project/file.test.md', parent: '/project' }
       })
     })
 

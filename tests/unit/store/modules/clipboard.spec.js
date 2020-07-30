@@ -7,8 +7,8 @@ import { cloneDeep } from 'lodash'
 
 jest.mock('electron', () => ({ remote: {} }))
 
-const fs_copy_callback = (mode, callback) => (callback ? callback : mode)(null)
-const fs_copy_callback_error = (mode, callback) => (callback ? callback : mode)('error!')
+const fs_copy_callback = (mode, callback) => (callback || mode)(null)
+const fs_copy_callback_error = (mode, callback) => (callback || mode)('error!')
 
 const _lstat = {
   isDirectory: jest.fn(() => true)
@@ -38,7 +38,7 @@ const path = {
   }),
   basename: jest.fn(path => 'basename'),
   join: jest.fn((first, second) => `${first}${second}`),
-  parse: jest.fn(path => '/directory'),
+  parse: jest.fn(path => '/directory')
 }
 
 remote.require = jest.fn((target) => {

@@ -189,7 +189,7 @@ describe('EditorInterface.vue', () => {
 
   it('should load the currently selected item when select file is called', async () => {
     const wrapper = factory.wrap()
-    wrapper.setData({ selected: { path: '/path/to/selected.md' }})
+    wrapper.setData({ selected: { path: '/path/to/selected.md' } })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.content).toBe('')

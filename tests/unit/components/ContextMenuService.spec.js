@@ -39,7 +39,6 @@ describe('ContextMenuService.vue', () => {
   const factory = assemble(ContextMenuService, {
     value: null,
     target: '/project/file.md',
-    target: '/project/file.md',
     items: items,
     position_x: 100,
     position_y: 100
@@ -72,5 +71,4 @@ describe('ContextMenuService.vue', () => {
     wrapper.vm.$refs.root.expanded = -1
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
   })
-
 })
