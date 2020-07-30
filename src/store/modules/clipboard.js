@@ -19,7 +19,6 @@ export default {
     },
     error: function (state, data) {
       const { message } = data
-      console.log('cliboard error', data)
       state.error = message
     }
   },
@@ -37,16 +36,15 @@ export default {
       })
     },
     paste: async function (context, content) {
-      if (!context.state.content.type) {
+      if (!context.state.content) {
         context.commit('error', { message: 'No content' })
+        return
       }
 
       const fs = remote.require('fs')
       const path = remote.require('path')
 
       const source = context.state.content.target
-
-      console.log('paste file', content)
 
       // Determine the directory where the file will go
       let directory = content.target
