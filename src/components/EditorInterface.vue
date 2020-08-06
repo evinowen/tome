@@ -47,19 +47,7 @@
 
           <!-- ACTION OR ERROR MENUS -->
           <div v-else class="full_size">
-            <template v-if="actions">
-              <action-view :actions="actions">
-                <div class="display-2">{{ tome.name }}</div>
-                <hr />
-                <div class="title">{{ relative_path }}</div>
-
-              </action-view>
-
-            </template>
-            <template v-else>
-              <empty-view>{{ error }}</empty-view>
-            </template>
-
+            <empty-view>{{ error }}</empty-view>
           </div>
 
         </scrolly-viewport>
@@ -115,7 +103,6 @@ import { v4 as uuidv4 } from 'uuid'
 import Explorer from './Explorer.vue'
 
 import EmptyView from '@/views/Empty.vue'
-import ActionView from '@/views/Action.vue'
 import CommitView from '@/views/Commit.vue'
 import PushView from '@/views/Push.vue'
 
@@ -125,7 +112,6 @@ export default {
     commit: { type: Boolean, default: false },
     push: { type: Boolean, default: false }
   },
-
   data: () => ({
     absolute_path: '',
     content: '',
@@ -346,36 +332,28 @@ export default {
       await this.$refs.explorer.delete(path)
     }
   },
-
   computed: {
     explore: function () {
       return !(this.commit || this.push)
     },
-
     relative_path: function () {
       return this.absolute_path ? `${this.path.relative(store.state.tome.path, this.absolute_path)}` : ''
     },
-
     rendered: function () {
       return marked(this.content)
     },
-
     tome: function () {
       return store.state.tome
     }
-
   },
-
   components: {
     Scrolly,
     ScrollyViewport,
     ScrollyBar,
     Explorer,
     EmptyView,
-    ActionView,
     CommitView,
     PushView
   }
-
 }
 </script>
