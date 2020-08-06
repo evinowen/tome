@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import tome from './modules/tome'
+import files from './modules/files'
 import configuration from './modules/configuration'
 import clipboard from './modules/clipboard'
 
@@ -21,6 +22,7 @@ export default new Vuex.Store({
   },
   modules: {
     tome: tome,
+    files,
     configuration,
     clipboard
   }

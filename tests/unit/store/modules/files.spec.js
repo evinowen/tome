@@ -213,8 +213,6 @@ describe('store/modules/files', () => {
 
     const content = 'Test Content'
 
-    const { item } = store.state.files.tree.identify(target)
-
     expect(store.state.files.content).not.toEqual(content)
 
     await store.dispatch('files/save', { content })
@@ -222,18 +220,44 @@ describe('store/modules/files', () => {
     expect(store.state.files.content).toEqual(content)
   })
 
-  it('should create a new item on submit when item is ephemeral', async () => {
+  it('should create a new directory item on submit when directory item is ephemeral', async () => {
     const path = '/project'
+    const directory = '/project/first'
     const input = 'new'
 
     await store.dispatch('files/initialize', { path })
     await store.dispatch('files/populate', { path })
     await store.dispatch('files/populate', { path: directory })
-    await store.dispatch('files/ghost', { path: directory })
+    await store.dispatch('files/ghost', { path: directory, directory: true })
 
     const { item } = store.state.files.tree.identify(directory)
 
+    expect(item.directory).toBeTruthy()
+    expect(fs.mkdir).toHaveBeenCalledTimes(0)
+
     await store.dispatch('files/submit', { path: directory, input, title: false })
+
+    expect(fs.mkdir).toHaveBeenCalledTimes(1)
+  })
+
+  it('should create a new folder item on submit when folder item is ephemeral', async () => {
+    const path = '/project'
+    const directory = '/project/first'
+    const input = 'new'
+
+    await store.dispatch('files/initialize', { path })
+    await store.dispatch('files/populate', { path })
+    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/ghost', { path: directory, directory: false })
+
+    const { item } = store.state.files.tree.identify(directory)
+
+    expect(item.directory).toBeTruthy()
+    expect(fs.writeFile).toHaveBeenCalledTimes(0)
+
+    await store.dispatch('files/submit', { path: directory, input, title: false })
+
+    expect(fs.writeFile).toHaveBeenCalledTimes(1)
   })
 
   it('should rename item on submit when item is not ephemeral', async () => {
