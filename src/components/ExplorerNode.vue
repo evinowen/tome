@@ -3,10 +3,10 @@
     <div ref=draggable class="explorer-node-drop" droppable :draggable="!(root || system)" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
       <v-layout class="explorer-node"
         v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': path == active}]"
-        @click.left.stop="system ? null : $emit('input', instance)"
+        @click.left.stop="system ? null : $emit('select', { path })"
         @click.right.stop="$emit('context', { instance, event: $event })"
       >
-        <v-btn tile text x-small @click.stop=toggle class="explorer-node-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
+        <v-btn tile text x-small @click.stop="system ? null : $emit('toggle', { path })" class="explorer-node-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <v-flex>
@@ -198,7 +198,7 @@ export default {
     }
 
     if (this.ephemeral) {
-      this.$emit('input', this.instance)
+      this.$emit('select', { path: this.path })
     }
   },
   watch: {
@@ -345,13 +345,6 @@ export default {
     },
     focus: function () {
       this.input = this.display
-    },
-    toggle: function () {
-      if (this.system) {
-        return
-      }
-
-      this.$emit('toggle', { path: this.path })
     }
   }
 }
