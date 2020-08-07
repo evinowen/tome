@@ -110,33 +110,8 @@ export default {
     delete: async function (path) {
       store.dispatch('files/delete', { path })
     },
-    submit: async function (state) {
-      const { path, input, title } = state
-
-      const { item } = this.identify(path)
-      let name = input
-
-      if (title) {
-        name = name.toLowerCase().replace(/ +/g, '.')
-
-        if (!item.directory) {
-          name = name.concat('.md')
-        }
-      }
-
-      if (item.ephemeral) {
-        store.dispatch('files/create', { path, name, directory: item.directory })
-      } else {
-        store.dispatch('files/rename', { path, name })
-      }
-    },
+    submit: async (state) => store.dispatch('files/submit', state),
     blur: async function (state) {
-      const { context } = state
-
-      if (context.ephemeral) {
-
-      }
-
       this.editing = false
     },
     drag: async function (state) {

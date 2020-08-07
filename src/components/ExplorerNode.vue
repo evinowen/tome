@@ -192,22 +192,6 @@ export default {
     input: '',
     error: null
   }),
-  mounted: async function () {
-    if (this.expanded) {
-      await this.$emit('populate', { path: this.path })
-    }
-
-    if (this.ephemeral) {
-      this.$emit('select', { path: this.path })
-    }
-  },
-  watch: {
-    expanded: async function (value) {
-      if (value) {
-        await this.$emit('populate', { path: this.path })
-      }
-    }
-  },
   computed: {
     context: function () {
       return [

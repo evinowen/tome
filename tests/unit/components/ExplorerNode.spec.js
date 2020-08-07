@@ -182,16 +182,6 @@ describe('ExplorerNode.vue', () => {
     expect(wrapper.vm.input).toBe(wrapper.vm.display)
   })
 
-  it('should trigger input immediately for emphemeral input', async () => {
-    const event = jest.fn()
-
-    const wrapper = factory.wrap({ ephemeral: true })
-    wrapper.vm.$on('input', event)
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(wrapper.emitted().input.length).toBe(1)
-  })
-
   it('should format the display name if title is set and instance is non-system', async () => {
     const format = jest.fn()
     const wrapper = factory.wrap({ title: true, format })
@@ -421,26 +411,6 @@ describe('ExplorerNode.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.emitted().populate.length).toBe(1)
-  })
-
-  it('should emit toggle event if when system flag is false and toggle function is called', async () => {
-    const wrapper = factory.wrap({ expanded: true })
-
-    expect(wrapper.emitted().toggle).toBeUndefined()
-
-    await wrapper.vm.toggle()
-
-    expect(wrapper.emitted().toggle.length).toBe(1)
-  })
-
-  it('should not emit toggle event if when system flag is true and toggle function is called', async () => {
-    const wrapper = factory.wrap({ name: '.git' })
-
-    expect(wrapper.emitted().toggle).toBeUndefined()
-
-    await wrapper.vm.toggle()
-
-    expect(wrapper.emitted().toggle).toBeUndefined()
   })
 
   it('should use root icon when the directory and root flags are true', async () => {
