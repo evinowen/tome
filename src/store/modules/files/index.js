@@ -104,7 +104,7 @@ export default {
       ))
 
       item.children.length = 0
-      item.children.push(...files.map(context.state.tree.mapper(item.path)))
+      item.children.push(...files.map(context.state.tree.mapper(item)))
     },
     ghost: async function (context, { path, directory }) {
       const _fs = remote.require('fs')
@@ -140,7 +140,7 @@ export default {
       const ext = _path.extname(path).toLowerCase()
 
       if (ext !== '.md') {
-        this.error = `File has invalid ${ext} extension.`
+        context.state.error = `File has invalid ${ext} extension.`
         return
       }
 
@@ -149,7 +149,6 @@ export default {
     save: async function (context, { content }) {
       const _fs = remote.require('fs')
 
-      console.log('content', content)
       await new Promise((resolve, reject) => _fs.writeFile(context.state.active, content, err => err ? reject(err) : resolve(true)))
       await context.commit('content', { content })
     },
