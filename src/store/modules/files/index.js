@@ -198,14 +198,14 @@ export default {
       const directory_current = _path.dirname(path)
 
       if (directory === directory_current) {
-        this.error = 'Invalid move, same directory.'
+        context.state.error = 'Invalid move, same directory.'
         return
       }
 
       await new Promise((resolve, reject) => _fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
 
-      context.dispatch('populate', { path: directory_current })
-      context.dispatch('populate', { path: directory })
+      await context.dispatch('populate', { path: directory_current })
+      await context.dispatch('populate', { path: directory })
     },
     rename: async function (context, { path, name }) {
       const _fs = remote.require('fs')
@@ -255,9 +255,8 @@ export default {
         await new Promise((resolve, reject) => _fs.unlink(path, (err) => err ? reject(err) : resolve(true)))
       }
 
-      unlink(path)
-
-      context.dispatch('populate', { path: parent })
+      await unlink(path)
+      await context.dispatch('populate', { path: parent })
     }
   }
 }
