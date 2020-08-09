@@ -7,7 +7,10 @@ export default {
     active: null,
     content: null,
     error: null,
-    tree: null
+    tree: null,
+    ghost: null,
+    selected: null,
+    editing: false
   },
   mutations: {
     initialize: function (state, data) {
@@ -26,11 +29,50 @@ export default {
       const { path } = data
 
       state.active = path
+
+      const { item } = state.tree.identify(path)
+
+      state.selected = item
     },
     content: function (state, data) {
       const { content } = data
 
       state.content = content
+    },
+    edit: function (state, data) {
+      const { edit } = data
+      state.editing = edit
+
+      if (!state.editing && state.selected.ephemeral) {
+        const { parent } = state.ghost
+        const index = parent.children.findIndex(child => child.uuid === state.ghost.uuid)
+        parent.children.splice(index, 1)
+      }
+    },
+    ghost: function (state, data) {
+      const { parent, target, directory } = data
+
+      const { item } = state.tree.identify(parent)
+
+      let index = item.children.length
+      if (target) {
+        index = item.children.findIndex(child => child.name === target)
+      }
+
+      if (state.ghost) {
+        const { parent } = state.ghost
+        const index = parent.children.findIndex(child => child.uuid === state.ghost.uuid)
+        parent.children.splice(index, 1)
+      }
+
+      state.ghost = state.tree.make({ parent: item, ephemeral: true, directory })
+      state.selected = state.ghost
+      state.editing = true
+
+      item.children.splice(index, 0, state.ghost)
+    },
+    blur: function (state) {
+      state.selected = null
     },
     error: function (state, data) {
       const { error } = data
@@ -43,6 +85,12 @@ export default {
       await context.commit('initialize', { path })
     },
     toggle: async function (context, { path }) {
+      const { item } = context.state.tree.identify(path)
+
+      if (!item.expanded) {
+        await context.dispatch('populate', { path })
+      }
+
       await context.commit('toggle', { path })
     },
     populate: async function (context, { path }) {
@@ -72,24 +120,10 @@ export default {
         parent = _path.dirname(path)
       }
 
-      const { item } = context.state.tree.identify(parent)
-
-      let index = item.children.length
-      if (target) {
-        index = item.children.findIndex(child => child.name === target)
-      }
-
-      item.children.splice(index, 0, context.state.tree.make({ ephemeral: true, directory }))
+      await context.commit('ghost', { parent, target, directory })
     },
     select: async function (context, { path }) {
       await context.commit('error', { error: null })
-
-      const { item } = context.state.tree.identify(path)
-
-      if (!item || !item.path) {
-        return
-      }
-
       await context.commit('select', { path })
 
       const _fs = remote.require('fs')
@@ -119,8 +153,11 @@ export default {
       await new Promise((resolve, reject) => _fs.writeFile(context.state.active, content, err => err ? reject(err) : resolve(true)))
       await context.commit('content', { content })
     },
-    submit: async function (context, { path, input, title }) {
-      const { item } = context.state.tree.identify(path)
+    submit: async function (context, { input, title }) {
+      const item = context.state.selected
+
+      context.commit('edit', { edit: false })
+
       let name = input
 
       if (title) {
@@ -132,10 +169,17 @@ export default {
       }
 
       if (item.ephemeral) {
-        context.dispatch('create', { path, name, directory: item.directory })
+        await context.dispatch('create', { path: item.parent.path, name, directory: item.directory })
       } else {
-        context.dispatch('rename', { path, name })
+        await context.dispatch('rename', { path: item.path, name })
       }
+    },
+    edit: async function (context) {
+      context.commit('edit', { edit: true })
+    },
+    blur: async function (context) {
+      context.commit('edit', { edit: false })
+      context.commit('blur')
     },
     move: async function (context, { path, proposed }) {
       const _fs = remote.require('fs')
@@ -174,7 +218,7 @@ export default {
 
       await new Promise((resolve, reject) => _fs.rename(path, proposed, (err) => err ? reject(err) : resolve(true)))
 
-      context.dispatch('populate', { path: parent })
+      await context.dispatch('populate', { path: parent })
     },
     create: async function (context, { path, name, directory }) {
       const _fs = remote.require('fs')
@@ -185,12 +229,12 @@ export default {
       await new Promise((resolve, reject) => _fs.access(proposed, (err) => err ? resolve(true) : reject(new Error('File already exists'))))
 
       if (directory) {
-        await new Promise((resolve, reject) => _fs.mkdir(path, (err) => err ? reject(err) : resolve(true)))
+        await new Promise((resolve, reject) => _fs.mkdir(proposed, (err) => err ? reject(err) : resolve(true)))
       } else {
-        await new Promise((resolve, reject) => _fs.writeFile(path, '', (err) => err ? reject(err) : resolve(true)))
+        await new Promise((resolve, reject) => _fs.writeFile(proposed, '', (err) => err ? reject(err) : resolve(true)))
       }
 
-      context.dispatch('populate', { path })
+      await context.dispatch('populate', { path })
     },
     delete: async function (context, { path }) {
       const _fs = remote.require('fs')

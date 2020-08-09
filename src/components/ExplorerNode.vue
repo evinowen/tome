@@ -2,7 +2,7 @@
   <v-container class="pa-0" style="user-select: none; clear: both;" v-show="visible">
     <div ref=draggable class="explorer-node-drop" droppable :draggable="!(root || system)" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
       <v-layout class="explorer-node"
-        v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': path == active}]"
+        v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
         @click.left.stop="system ? null : $emit('select', { path })"
         @click.right.stop="$emit('context', { instance, event: $event })"
       >
@@ -13,7 +13,7 @@
           <template v-if=system>{{ display }}</template>
           <v-form v-else ref="form" v-model=valid>
             <v-text-field
-              v-show=" ((path == active) && edit)"
+              v-show="(selected && edit)"
               ref="input"
               v-model=input
               dense small autofocus
@@ -21,9 +21,9 @@
               @blur="$emit('blur', { context: instance })"
               @focus=focus
               @input="error = null"
-              @keyup.enter="valid ? $emit('submit', { path, input, title }) : null"
+              @keyup.enter="valid ? $emit('submit', { input, title }) : null"
             />
-            <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
+            <v-text-field v-show="!(selected && edit)" ref="input" :value=display disabled dense small />
           </v-form>
         </v-flex>
       </v-layout>
@@ -187,12 +187,14 @@ export default {
     root: { type: Boolean }
   },
   data: () => ({
-    selected: null,
     valid: false,
     input: '',
     error: null
   }),
   computed: {
+    selected: function () {
+      return this.uuid === this.active
+    },
     context: function () {
       return [
         {

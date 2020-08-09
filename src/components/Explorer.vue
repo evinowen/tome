@@ -41,7 +41,6 @@ export default {
     enabled: { type: Boolean }
   },
   data: () => ({
-    editing: false,
     hold: null
   }),
   mounted: async function () {
@@ -58,7 +57,10 @@ export default {
       return store.state.configuration
     },
     active: function () {
-      return store.state.files.active
+      return store.state.files.selected ? String(store.state.files.selected.uuid) : null
+    },
+    editing: function () {
+      return store.state.files.editing
     },
     root: function () {
       return store.state.files.tree
@@ -99,9 +101,7 @@ export default {
 
       shell.openItem(path)
     },
-    edit: async function () {
-      this.editing = true
-    },
+    edit: async (state) => store.dispatch('files/edit', { path: state.target }),
     create: async function (state) {
       const { target, directory } = state
 
@@ -111,9 +111,7 @@ export default {
       store.dispatch('files/delete', { path })
     },
     submit: async (state) => store.dispatch('files/submit', state),
-    blur: async function (state) {
-      this.editing = false
-    },
+    blur: async (state) => store.dispatch('files/blur'),
     drag: async function (state) {
       this.hold = state
     },
