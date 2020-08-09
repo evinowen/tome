@@ -3,15 +3,14 @@ import { v4 as uuidv4 } from 'uuid'
 
 export default class FileTree {
   constructor (path) {
-    this.path = path
-    this.expanded = true
-    this.directory = true
-    this.populated = false
-    this.children = []
+    Object.assign(this, this.make({
+      path,
+      expanded: true,
+      directory: true
+    }))
   }
 
   identify (path) {
-    console.log('identify', this.path, path)
     const _path = remote.require('path')
 
     if (String(path).indexOf(this.path) !== 0) {
@@ -19,7 +18,6 @@ export default class FileTree {
     }
 
     const relative = _path.relative(this.path, path)
-
     const items = relative.split(_path.sep)
 
     return this.search(this, items)
@@ -29,17 +27,14 @@ export default class FileTree {
     const name = items.shift()
 
     if (name === '') {
-      return { item: element }
+      return { item: element, parent: null, name: null }
     }
 
     const children = element.children
     const index = children.findIndex(child => child.name === name)
 
     if (index === -1) {
-      console.log('search failed', 'name', name)
-      console.log('search failed', 'children', children)
-      children.forEach(child => console.log(Object.assign({}, child)))
-      return null
+      return { item: null, parent: element, name: name }
     }
 
     if (items.length && items[0] !== '') {
@@ -78,7 +73,9 @@ export default class FileTree {
       uuid: uuidv4(),
       name: null,
       path: null,
+      parent: null,
       directory: false,
+      disabled: true,
       children: [],
       templates: [],
       actions: [],
@@ -87,31 +84,15 @@ export default class FileTree {
     }
   }
 
-  mapper (path) {
+  mapper (parent) {
     return (data) => {
       const _path = remote.require('path')
       const item = this.make({
         name: data.name,
-        path: _path.join(path, data.name),
-        directory: data.isDirectory()
+        path: _path.join(parent.path, data.name),
+        directory: data.isDirectory(),
+        parent
       })
-
-      switch (_path.extname(data.name).toLowerCase()) {
-        case '.md':
-          Object.assign(item, { icon: 'mdi-file-code', disabled: false, color: 'blue' })
-          break
-
-        case '.gif':
-        case '.jpg':
-        case '.jpeg':
-        case '.png':
-          Object.assign(item, { icon: 'mdi-file-image', disabled: true, color: 'green' })
-          break
-
-        default:
-          Object.assign(item, { icon: 'mdi-file-remove', disabled: true })
-          break
-      }
 
       if (item.directory) {
         item.children = []
