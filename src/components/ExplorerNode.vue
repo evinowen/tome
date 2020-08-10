@@ -2,18 +2,18 @@
   <v-container class="pa-0" style="user-select: none; clear: both;" v-show="visible">
     <div ref=draggable class="explorer-node-drop" droppable :draggable="!(root || system)" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
       <v-layout class="explorer-node"
-        v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': path == active}]"
-        @click.left.stop="system ? null : $emit('input', instance)"
+        v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
+        @click.left.stop="system ? null : $emit('select', { path })"
         @click.right.stop="$emit('context', { instance, event: $event })"
       >
-        <v-btn tile text x-small @click.stop=toggle class="explorer-node-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
+        <v-btn tile text x-small @click.stop="system ? null : $emit('toggle', { path })" class="explorer-node-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <v-flex>
           <template v-if=system>{{ display }}</template>
           <v-form v-else ref="form" v-model=valid>
             <v-text-field
-              v-show=" ((path == active) && edit)"
+              v-show="(selected && edit)"
               ref="input"
               v-model=input
               dense small autofocus
@@ -21,9 +21,9 @@
               @blur="$emit('blur', { context: instance })"
               @focus=focus
               @input="error = null"
-              @keyup.enter="valid ? $emit('submit', { path, input, title }) : null"
+              @keyup.enter="valid ? $emit('submit', { input, title }) : null"
             />
-            <v-text-field v-show="!((path == active) && edit)" ref="input" :value=display disabled dense small />
+            <v-text-field v-show="!(selected && edit)" ref="input" :value=display disabled dense small />
           </v-form>
         </v-flex>
       </v-layout>
@@ -187,28 +187,14 @@ export default {
     root: { type: Boolean }
   },
   data: () => ({
-    selected: null,
     valid: false,
     input: '',
     error: null
   }),
-  mounted: async function () {
-    if (this.expanded) {
-      await this.$emit('populate', { path: this.path })
-    }
-
-    if (this.ephemeral) {
-      this.$emit('input', this.instance)
-    }
-  },
-  watch: {
-    expanded: async function (value) {
-      if (value) {
-        await this.$emit('populate', { path: this.path })
-      }
-    }
-  },
   computed: {
+    selected: function () {
+      return this.uuid === this.active
+    },
     context: function () {
       return [
         {
@@ -345,13 +331,6 @@ export default {
     },
     focus: function () {
       this.input = this.display
-    },
-    toggle: function () {
-      if (this.system) {
-        return
-      }
-
-      this.$emit('toggle', { path: this.path })
     }
   }
 }

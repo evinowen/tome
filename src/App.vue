@@ -248,7 +248,8 @@ export default {
   methods: {
     set_tome: async function (file_path) {
       await store.dispatch('load', file_path)
-      this.reload_run()
+      await store.dispatch('files/initialize', { path: file_path })
+      await this.reload_run()
     },
     counter_start: function (target) {
       clearTimeout(this[target].timeout)

@@ -3,20 +3,7 @@
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-          <explorer
-            ref="explorer"
-            v-model=selected
-            v-on:input=select_file
-            :enabled=explore
-
-            @populate=populate
-            @rename=rename_file
-            @move=move_file
-            @create=create_file
-            @delete=delete_file
-
-            @context="$emit('context', $event)"
-          />
+          <explorer ref="explorer" :enabled=explore @context="$emit('context', $event)" />
         </scrolly-viewport>
         <scrolly-bar axis="y" style="margin-right: 2px;" />
         <scrolly-bar axis="x" style="margin-bottom: 2px;" />
@@ -30,7 +17,7 @@
           <template v-if="false" />
 
           <template v-else-if="!edit">
-            <div v-if="absolute_path" style="height: 100%; padding: 0px;" >
+            <div v-if="content" style="height: 100%; padding: 0px;" >
               <div v-html="rendered" class="pa-2" />
             </div>
             <empty-view v-else />
@@ -43,23 +30,11 @@
           <push-view v-else-if="push" @close="$emit('push:close')" />
 
           <!-- OPEN FILE WINDOW -->
-          <codemirror ref="editor" v-else-if="absolute_path" :value="content" style="height: 100%;" @input="save_file" />
+          <codemirror ref="editor" v-else-if="content" :value="content" style="height: 100%;" @input=save />
 
           <!-- ACTION OR ERROR MENUS -->
           <div v-else class="full_size">
-            <template v-if="actions">
-              <action-view :actions="actions">
-                <div class="display-2">{{ tome.name }}</div>
-                <hr />
-                <div class="title">{{ relative_path }}</div>
-
-              </action-view>
-
-            </template>
-            <template v-else>
-              <empty-view>{{ error }}</empty-view>
-            </template>
-
+            <empty-view>{{ error }}</empty-view>
           </div>
 
         </scrolly-viewport>
@@ -107,15 +82,10 @@
 
 <script>
 import store from '@/store'
-import { remote } from 'electron'
 import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
-import { v4 as uuidv4 } from 'uuid'
-
-import Explorer from './Explorer.vue'
-
+import Explorer from '@/components/Explorer.vue'
 import EmptyView from '@/views/Empty.vue'
-import ActionView from '@/views/Action.vue'
 import CommitView from '@/views/Commit.vue'
 import PushView from '@/views/Push.vue'
 
@@ -125,257 +95,36 @@ export default {
     commit: { type: Boolean, default: false },
     push: { type: Boolean, default: false }
   },
-
   data: () => ({
     absolute_path: '',
-    content: '',
     actions: [],
-    error: '',
-    selected: null
+    error: ''
   }),
-
-  created: function () {
-    this.fs = remote.require('fs')
-    this.path = remote.require('path')
-  },
-
-  mounted: async function () {
-
-  },
-
-  methods: {
-    populate: async function (item) {
-      const file_ext = function (ext) {
-        switch (ext) {
-          case '.md':
-            return { icon: 'mdi-file-code', disabled: false, color: 'blue' }
-
-          case '.gif':
-          case '.jpg':
-          case '.jpeg':
-          case '.png':
-            return { icon: 'mdi-file-image', disabled: true, color: 'green' }
-
-          default:
-            return { icon: 'mdi-file-remove', disabled: true }
-        }
-      }
-
-      if (!item.directory) {
-        return
-      }
-
-      return new Promise((resolve, reject) => this.fs.readdir(
-        item.path,
-        { withFileTypes: true },
-        (err, files) => err ? reject(err) : resolve(files)
-      )).then(children => {
-        return children.map(
-          child => ({
-            uuid: uuidv4(),
-            name: child.name,
-            path: this.path.join(item.path, child.name),
-            directory: child.isDirectory(),
-            children: [],
-            expanded: false,
-            ...file_ext(this.path.extname(child.name).toLowerCase())
-          })
-        )
-      }).then(children => {
-        children.forEach(child => {
-          if (child.directory) {
-            child.children = []
-            if (!['.git'].includes(child.name)) {
-              child.disabled = false
-            }
-          }
-        })
-
-        item.children.length = 0
-        item.children.push(...children)
-        return true
-      })
-    },
-    select_file: async function () {
-      return this.load_file(this.selected)
-    },
-
-    load_file: async function (target) {
-      this.error = ''
-      this.actions = []
-      this.absolute_path = null
-
-      if (!target || !target.path) {
-        return
-      }
-
-      this.absolute_path = target.path
-
-      const status = await new Promise((resolve, reject) => this.fs.lstat(this.absolute_path, (err, status) => err ? reject(err) : resolve(status)))
-
-      if (status.isDirectory()) {
-        this.error = this.path.basename(this.absolute_path)
-        this.actions = [
-          {
-            name: 'New File',
-            icon: 'mdi-file-star',
-            action: null
-          },
-          {
-            name: 'New Folder',
-            icon: 'mdi-folder-star',
-            action: null
-          },
-          {
-            name: 'Open Folder',
-            icon: 'mdi-folder-move',
-            action: null
-          }
-        ]
-        return
-      }
-
-      const ext = this.path.extname(this.absolute_path).toLowerCase()
-
-      if (ext !== '.md') {
-        this.error = `File has invalid ${ext} extension.`
-        return
-      }
-
-      this.content = this.fs.readFileSync(this.absolute_path, 'utf8')
-    },
-
-    save_file: async function (value) {
-      this.content = value
-
-      this.fs.writeFileSync(this.absolute_path, value)
-
-      this.$emit('save')
-    },
-    rename_file: async function (state) {
-      const { path, name } = state
-      const directory = this.path.dirname(path)
-      const proposed = this.path.join(directory, name)
-
-      const parent = this.path.dirname(path)
-      const result = {
-        previous: { path, parent },
-        current: { path: proposed, parent }
-      }
-
-      return new Promise((resolve, reject) => this.fs.rename(path, proposed, (err) => err ? state.reject(err) : state.resolve(result)))
-    },
-    move_file: async function (path, proposed, context) {
-      let directory = proposed
-      try {
-        const status = await new Promise((resolve, reject) => this.fs.lstat(proposed, (err, status) => err ? reject(err) : resolve(status)))
-
-        if (!status.isDirectory()) {
-          directory = this.path.dirname(proposed)
-        }
-      } catch (error) {
-        return context.reject(error)
-      }
-
-      const basename = this.path.basename(path)
-      const proposed_full = this.path.join(directory, basename)
-      const directory_current = this.path.dirname(path)
-
-      if (directory === directory_current) {
-        return context.reject('Invalid move, same directory')
-      }
-
-      try {
-        await new Promise((resolve, reject) => this.fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
-        return context.resolve({ previous: { path, parent: directory_current }, current: { path: proposed_full, parent: directory } })
-      } catch (error) {
-        return context.reject(error)
-      }
-    },
-    create_file: async function (state) {
-      const { path, name, directory } = state
-      const proposed = this.path.join(path, name)
-
-      try {
-        await new Promise((resolve, reject) => this.fs.access(proposed, (err) => err ? reject(err) : resolve(true)))
-        return state.reject('Invalid create, file already exists')
-      } catch (_) { }
-
-      try {
-        if (directory) {
-          await new Promise((resolve, reject) => this.fs.mkdir(path, (err) => err ? reject(err) : resolve(true)))
-        } else {
-          await new Promise((resolve, reject) => this.fs.writeFile(path, '', (err) => err ? reject(err) : resolve(true)))
-        }
-        return state.resolve({ path, name, ephemeral: false })
-      } catch (error) {
-        return state.reject(error)
-      }
-    },
-    delete_file: async function (state) {
-      const { path } = state
-
-      try {
-        const unlink = async (path) => {
-          const status = await new Promise((resolve, reject) => this.fs.lstat(path, (err, status) => err ? reject(err) : resolve(status)))
-          if (status.isDirectory()) {
-            const files = await new Promise((resolve, reject) => this.fs.readdir(path, (err, status) => err ? reject(err) : resolve(status)))
-
-            for (const file of files) {
-              await unlink(this.path.join(path, file))
-            }
-          }
-
-          await new Promise((resolve, reject) => this.fs.unlink(path, (err) => err ? reject(err) : resolve(true)))
-        }
-
-        unlink(path)
-
-        return state.resolve()
-      } catch (error) {
-        return state.reject(error)
-      }
-    },
-    create: async function (path, directory) {
-      await this.$refs.explorer.create(path, directory)
-    },
-    rename: async function (path) {
-      await this.$refs.explorer.edit()
-    },
-    delete: async function (path) {
-      await this.$refs.explorer.delete(path)
-    }
-  },
-
   computed: {
     explore: function () {
       return !(this.commit || this.push)
     },
-
-    relative_path: function () {
-      return this.absolute_path ? `${this.path.relative(store.state.tome.path, this.absolute_path)}` : ''
+    content: function () {
+      return store.state.files.content
     },
-
     rendered: function () {
       return marked(this.content)
     },
-
     tome: function () {
       return store.state.tome
     }
-
   },
-
+  methods: {
+    save: async (content) => store.dispatch('files/save', { content })
+  },
   components: {
     Scrolly,
     ScrollyViewport,
     ScrollyBar,
     Explorer,
     EmptyView,
-    ActionView,
     CommitView,
     PushView
   }
-
 }
 </script>
