@@ -388,31 +388,6 @@ describe('ExplorerNode.vue', () => {
     expect(event).toHaveBeenCalledTimes(1)
   })
 
-  it('should emit populate event when expanded', async () => {
-    const event = jest.fn()
-
-    const wrapper = factory.wrap({ expanded: false })
-    wrapper.vm.$on('populate', event)
-
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-    expect(event).toHaveBeenCalledTimes(0)
-    expect(wrapper.emitted().populate).toBeUndefined()
-
-    wrapper.setProps({ expanded: true })
-
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-    expect(event).toHaveBeenCalledTimes(1)
-    expect(wrapper.emitted().populate.length).toBe(1)
-  })
-
-  it('should emit populate event if mounted as expanded', async () => {
-    const wrapper = factory.wrap({ expanded: true })
-
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(wrapper.emitted().populate.length).toBe(1)
-  })
-
   it('should use root icon when the directory and root flags are true', async () => {
     const wrapper = factory.wrap({ directory: true, root: true })
 

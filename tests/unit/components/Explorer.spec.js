@@ -169,6 +169,7 @@ describe('Explorer.vue', () => {
   it('store drag state when dragging begins in hold', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     expect(wrapper.vm.hold).toBeNull()
 
@@ -178,20 +179,23 @@ describe('Explorer.vue', () => {
     expect(wrapper.vm.hold).toBe(hold)
   })
 
-  it('flip edit flag to true when edit method is called', async () => {
-    const wrapper = factory.wrap()
+  it('should dispatch file edit action for path when edit event is triggered', async () => {
+    const wrapper = factory.wrap({ expanded: true })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
-    expect(wrapper.vm.editing).toBe(false)
+    expect(store.dispatch).toHaveBeenCalledTimes(0)
 
-    await wrapper.vm.edit()
+    await wrapper.vm.edit({ target: '/project/first' })
 
-    expect(wrapper.vm.editing).toBe(true)
+    expect(store.dispatch).toHaveBeenCalledTimes(1)
+    expect(store.dispatch.mock.calls[0][0]).toBe('files/edit')
   })
 
   it('should dispatch file delete action for path when delete event is triggered', async () => {
     const wrapper = factory.wrap({ expanded: true })
-
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
@@ -201,23 +205,24 @@ describe('Explorer.vue', () => {
     expect(store.dispatch.mock.calls[0][0]).toBe('files/delete')
   })
 
-  it('flip edit flag to false when blur event is triggered', async () => {
-    const wrapper = factory.wrap()
+  it('should dispatch file blur action when blur event is triggered', async () => {
+    const wrapper = factory.wrap({ expanded: true })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
-    wrapper.setData({ editing: true })
-    expect(wrapper.vm.editing).toBe(true)
+    expect(store.dispatch).toHaveBeenCalledTimes(0)
 
-    await wrapper.vm.$refs.explorer_root.$emit('blur')
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await wrapper.vm.blur()
 
-    expect(wrapper.vm.editing).toBe(false)
+    expect(store.dispatch).toHaveBeenCalledTimes(1)
+    expect(store.dispatch.mock.calls[0][0]).toBe('files/blur')
   })
 
   it('should dispatch file move action when drop is triggered for a node', async () => {
     const wrapper = factory.wrap()
     wrapper.setData({ hold })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     const context = {
       directory: false
@@ -235,6 +240,7 @@ describe('Explorer.vue', () => {
   it('should dispatch file submit action when submit is triggered for a node', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
@@ -254,6 +260,7 @@ describe('Explorer.vue', () => {
   it('should fail gracefully when a bad file name is passed to format', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     const formated = wrapper.vm.format()
 
@@ -263,6 +270,7 @@ describe('Explorer.vue', () => {
   it('should fail gracefully when a bad folder name is passed to format', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     const formated = wrapper.vm.format(null, true)
 
@@ -272,6 +280,7 @@ describe('Explorer.vue', () => {
   it('should return placeholder title for files formatted that have incorrect extension', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     const formated = wrapper.vm.format('file.name.txt')
 
@@ -281,6 +290,7 @@ describe('Explorer.vue', () => {
   it('should return formatted title for files formatted that have correct extension', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     const formated = wrapper.vm.format('file.name.md')
 
@@ -290,6 +300,7 @@ describe('Explorer.vue', () => {
   it('should call store file toggle action for item path provided by toggle event', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
@@ -302,6 +313,7 @@ describe('Explorer.vue', () => {
   it('should call store file select action for item path provided by select event', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
@@ -314,6 +326,7 @@ describe('Explorer.vue', () => {
   it('should call store file populate action for item path provided by populate event', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
@@ -326,6 +339,7 @@ describe('Explorer.vue', () => {
   it('should call store file ghost action for item path provided by create event', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
@@ -338,6 +352,7 @@ describe('Explorer.vue', () => {
   it('should attempt to open target file of open method call', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
 
     expect(shell.openItem).toHaveBeenCalledTimes(0)
 
