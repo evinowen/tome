@@ -174,7 +174,8 @@ export default {
         await context.dispatch('rename', { path: item.path, name })
       }
     },
-    edit: async function (context) {
+    edit: async function (context, { path }) {
+      context.commit('select', { path })
       context.commit('edit', { edit: true })
     },
     blur: async function (context) {
