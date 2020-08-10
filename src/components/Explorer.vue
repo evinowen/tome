@@ -118,11 +118,7 @@ export default {
     drop: async function (state) {
       store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
     },
-    populate: async function (state) {
-      const { path } = state
-
-      return store.dispatch('files/populate', { path })
-    }
+    populate: async (state) => store.dispatch('files/populate', state)
   },
   components: { ExplorerNode }
 }
