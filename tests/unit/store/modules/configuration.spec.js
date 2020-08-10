@@ -68,13 +68,13 @@ describe('store/modules/configuration.js', () => {
   it('should throw error if unable to load from provided file when loadConfiguration is dispatched', async () => {
     fs.readFile.mockImplementationOnce((path, options, callback) => fs_callback_error(options, callback))
 
-    await expect(store.dispatch('loadConfiguration', 'config.json')).rejects.toBe('error!')
+    await expect(store.dispatch('configuration/load', 'config.json')).rejects.toBe('error!')
 
     expect(fs.readFile).toHaveBeenCalledTimes(1)
   })
 
   it('should load json from provided file when loadConfiguration is dispatched', async () => {
-    await store.dispatch('loadConfiguration', 'config.json')
+    await store.dispatch('configuration/load', 'config.json')
 
     expect(fs.readFile).toHaveBeenCalledTimes(1)
 
@@ -92,7 +92,7 @@ describe('store/modules/configuration.js', () => {
       passphrase: 'q1h7$u*3~y:}l$:akiKUa&z%:VhDP|'
     }
 
-    await store.dispatch('updateConfiguration', update)
+    await store.dispatch('configuration/update', update)
 
     expect(store.state.configuration.name).toBe('New Name')
     expect(store.state.configuration.email).toBe('')
@@ -111,7 +111,7 @@ describe('store/modules/configuration.js', () => {
       format_titles: true
     })
 
-    await store.dispatch('writeConfiguration', 'config.json')
+    await store.dispatch('configuration/write', 'config.json')
 
     expect(fs.writeFile).toHaveBeenCalledTimes(1)
     expect(fs.writeFile.mock.calls[0][1]).toBe(json)
@@ -120,7 +120,7 @@ describe('store/modules/configuration.js', () => {
   it('should throw error if unable to save to provided file when writeConfiguration is dispatched', async () => {
     fs.writeFile.mockImplementationOnce((file, data, options, callback) => fs_callback_error(options, callback))
 
-    await expect(store.dispatch('writeConfiguration', 'config.json')).rejects.toBe('error!')
+    await expect(store.dispatch('configuration/write', 'config.json')).rejects.toBe('error!')
 
     expect(fs.writeFile).toHaveBeenCalledTimes(1)
   })

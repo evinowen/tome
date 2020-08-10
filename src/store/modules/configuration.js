@@ -1,6 +1,7 @@
 import { remote } from 'electron'
 
 export default {
+  namespaced: true,
   state: {
     name: '',
     email: '',
@@ -17,7 +18,7 @@ export default {
     }
   },
   actions: {
-    loadConfiguration: async function (context, target) {
+    load: async function (context, target) {
       const fs = remote.require('fs')
       const raw = await new Promise((resolve, reject) =>
         fs.readFile(
@@ -31,10 +32,10 @@ export default {
 
       context.commit('set', data)
     },
-    updateConfiguration: async function (context, data) {
+    update: async function (context, data) {
       context.commit('set', data)
     },
-    writeConfiguration: async function (context, path) {
+    write: async function (context, path) {
       const fs = remote.require('fs')
       await new Promise((resolve, reject) =>
         fs.writeFile(
