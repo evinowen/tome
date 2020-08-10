@@ -45,7 +45,7 @@ export default class FileTree {
   }
 
   sort (path) {
-    const item = this.identify(path)
+    const { item } = this.identify(path)
 
     if (!item) return false
 

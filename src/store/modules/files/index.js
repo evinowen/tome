@@ -105,6 +105,7 @@ export default {
 
       item.children.length = 0
       item.children.push(...files.map(context.state.tree.mapper(item)))
+      context.state.tree.sort(item.path)
     },
     ghost: async function (context, { path, directory }) {
       const _fs = remote.require('fs')
