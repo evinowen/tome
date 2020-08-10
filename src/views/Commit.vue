@@ -294,7 +294,7 @@ export default {
         }
       }
 
-      await store.dispatch('inspect')
+      await store.dispatch('tome/inspect')
     },
 
     reset: async function (file_path) {
@@ -321,7 +321,7 @@ export default {
         }
       }
 
-      await store.dispatch('inspect')
+      await store.dispatch('tome/inspect')
     },
 
     commit: async function () {

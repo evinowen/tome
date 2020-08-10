@@ -118,7 +118,7 @@ describe('store/modules/tome.js', () => {
 
     expect(store.state.tome.branch.error).toBe('')
 
-    await store.dispatch('load', '/path/to/file')
+    await store.dispatch('tome/load', '/path/to/file')
 
     expect(store.state.tome.branch.error).toBe('No Repository!')
   })
@@ -128,7 +128,7 @@ describe('store/modules/tome.js', () => {
 
     expect(store.state.tome.branch.error).toBe('')
 
-    await store.dispatch('load', '/path/to/file')
+    await store.dispatch('tome/load', '/path/to/file')
 
     expect(store.state.tome.branch.error).toBe('Head Detached')
   })
@@ -138,7 +138,7 @@ describe('store/modules/tome.js', () => {
 
     expect(store.state.tome.branch.error).toBe('')
 
-    await store.dispatch('load', '/path/to/file')
+    await store.dispatch('tome/load', '/path/to/file')
 
     expect(store.state.tome.branch.error).toBe('Merging')
   })
@@ -148,7 +148,7 @@ describe('store/modules/tome.js', () => {
 
     expect(store.state.tome.branch.error).toBe('')
 
-    await store.dispatch('load', '/path/to/file')
+    await store.dispatch('tome/load', '/path/to/file')
 
     expect(store.state.tome.branch.error).toBe('Rebasing')
   })
@@ -156,7 +156,7 @@ describe('store/modules/tome.js', () => {
   it('load the provided target repository on a load event if a repository exists at the target', async () => {
     expect(NodeGit.Repository.open).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('load', '/path/to/file')
+    await store.dispatch('tome/load', '/path/to/file')
 
     expect(NodeGit.Repository.open).toHaveBeenCalledTimes(1)
   })
@@ -167,7 +167,7 @@ describe('store/modules/tome.js', () => {
 
     expect(NodeGit.Repository.open).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('load', '/path/to/file')
+    await store.dispatch('tome/load', '/path/to/file')
 
     expect(NodeGit.Repository.open).toHaveBeenCalledTimes(1)
   })
@@ -177,18 +177,18 @@ describe('store/modules/tome.js', () => {
 
     expect(NodeGit.Repository.init).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('load', '/path/to/file')
+    await store.dispatch('tome/load', '/path/to/file')
 
     expect(NodeGit.Repository.init).toHaveBeenCalledTimes(1)
   })
 
   it('read the current state of the repository on an inspect event', async () => {
-    await store.dispatch('load', '/path/to/file')
+    await store.dispatch('tome/load', '/path/to/file')
 
     expect(store.state.tome.status.staged.items.length).toBe(0)
     expect(store.state.tome.status.available.items.length).toBe(0)
 
-    await store.dispatch('inspect')
+    await store.dispatch('tome/inspect')
 
     expect(store.state.tome.status.staged.new).toBe(1)
     expect(store.state.tome.status.staged.renamed).toBe(1)

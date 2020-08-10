@@ -247,7 +247,7 @@ export default {
   },
   methods: {
     set_tome: async function (file_path) {
-      await store.dispatch('load', file_path)
+      await store.dispatch('tome/load', file_path)
       await store.dispatch('files/initialize', { path: file_path })
       await this.reload_run()
     },
@@ -298,7 +298,7 @@ export default {
       clearTimeout(this.reload.timeout)
       this.reload.triggered = false
 
-      await store.dispatch('inspect')
+      await store.dispatch('tome/inspect')
     },
     open_context: async function (state) {
       const { instance, event } = state
