@@ -159,6 +159,8 @@ describe('App.vue', () => {
   it('should load the provided path as the current Tome when set_tome is called', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     wrapper.vm.reload_run = jest.fn()
     store.dispatch.mockClear()
@@ -168,6 +170,8 @@ describe('App.vue', () => {
     await wrapper.vm.set_tome('/test/path')
 
     expect(store.dispatch).toHaveBeenCalledTimes(2)
+    expect(store.dispatch.mock.calls[0][0]).toBe('load')
+    expect(store.dispatch.mock.calls[1][0]).toBe('files/initialize')
     expect(wrapper.vm.reload_run).toHaveBeenCalledTimes(1)
   })
 
