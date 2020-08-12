@@ -34,17 +34,16 @@ const _readdir = (path, options) => {
 const _fs = {
   access: jest.fn((path, callback) => {
     if (path.match(/\/\.config\.json$/)) {
-      callback(0)
+      callback(null)
     }
 
     if (path.match(/\/example\.file\.b\.md$/)) {
-      callback(0)
+      callback(null)
     }
 
     if (path.match(/\/example\.directory\.b$/)) {
-      callback(0)
+      callback(null)
     }
-
 
     callback(new Error('error!'))
   }),
@@ -110,7 +109,7 @@ describe('store/modules/templates', () => {
               'example.file.c.md': null,
               'example.directory.a': {
                 'example.file.b.md': null,
-                'example.file.c.md': null,
+                'example.file.c.md': null
               },
               'example.directory.b': { },
               '.config.json': null
@@ -166,7 +165,9 @@ describe('store/modules/templates', () => {
   it('should fail gracefully if path does not contain templates when load is dispatched', async () => {
     const project = '/project'
 
+    /* eslint-disable dot-notation */
     delete disk['project']['.tome']['templates']
+    /* eslint-enable dot-notation */
 
     await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
 
@@ -178,7 +179,9 @@ describe('store/modules/templates', () => {
   it('should fail gracefully if templates in path is a file when load is dispatched', async () => {
     const project = '/project'
 
+    /* eslint-disable dot-notation */
     disk['project']['.tome']['templates'] = null
+    /* eslint-enable dot-notation */
 
     await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
 

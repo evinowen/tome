@@ -83,7 +83,7 @@ describe('store/modules/actions', () => {
           'actions': {
             'example.action.a': { 'index.js': null },
             'example.action.b': { 'index.js': null },
-            'example.action.c': { 'index.js': null },
+            'example.action.c': { 'index.js': null }
           }
         },
         'first': {
@@ -133,7 +133,9 @@ describe('store/modules/actions', () => {
   it('should fail gracefully if path does not contain actions when load is dispatched', async () => {
     const project = '/project'
 
+    /* eslint-disable dot-notation */
     delete disk['project']['.tome']['actions']
+    /* eslint-enable dot-notation */
 
     await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
 
@@ -145,7 +147,9 @@ describe('store/modules/actions', () => {
   it('should fail gracefully if actions in path is a file when load is dispatched', async () => {
     const project = '/project'
 
+    /* eslint-disable dot-notation */
     disk['project']['.tome']['actions'] = null
+    /* eslint-enable dot-notation */
 
     await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
 
