@@ -151,7 +151,6 @@ export default {
       const _fs = remote.require('fs')
 
       await new Promise((resolve, reject) => _fs.writeFile(context.state.active, content, err => err ? reject(err) : resolve(true)))
-      await context.commit('content', { content })
     },
     submit: async function (context, { input, title }) {
       const item = context.state.selected
