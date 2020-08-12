@@ -16,16 +16,6 @@ let disk
 const _path_basename = path => String(path).substring(String(path).lastIndexOf('/') + 1)
 const _path_relative = (first, second) => String(second).indexOf(String(first)) === 0 ? String(second).substring(String(first).length + 1) : ''
 
-const _lstat_result = (path) => ({
-  isDirectory: jest.fn(() => {
-    const path_split = String(path).replace(/^\/|\/$/, '').split('/')
-    let item = disk
-    while (path_split.length) item = item[path_split.shift()]
-
-    return item !== null
-  })
-})
-
 const _readdir = (path, options) => {
   const path_split = String(path).replace(/^\/|\/$/, '').split('/')
   let item = disk
@@ -58,9 +48,30 @@ const _fs = {
 
     callback(new Error('error!'))
   }),
-  lstat: jest.fn((path, callback) => callback(null, _lstat_result(path))),
+  lstat: jest.fn((path, callback) => {
+    const path_split = String(path).replace(/^\/|\/$/, '').split('/')
+    let item = disk
+    while (path_split.length) {
+      const name = path_split.shift()
+
+      if (!item[name]) {
+        callback(new Error('error!'))
+      }
+
+      item = item[name]
+    }
+
+    const directory = item !== null
+
+    const result = {
+      isDirectory: jest.fn(() => directory)
+    }
+
+    callback(null, result)
+  }),
   readdir: jest.fn((path, options, callback) => (callback ?? options)(0, _readdir(path, options))),
   mkdir: jest.fn((path, options, callback) => (callback ?? options)(null)),
+  copyFile: jest.fn((src, dest, mode, callback) => (callback ?? mode)(null)),
   readFile: jest.fn((path, encoding, callback) => {
     if (path.match(/\/\.config\.json$/)) {
       callback(null, '{ "map": { "example.file.a.md": "example.%Y.%m.%d.%H.%i.%s.md" } }')
@@ -145,11 +156,23 @@ describe('store/modules/templates', () => {
   it('should set path and base then load template list when load is dispatched', async () => {
     const project = '/project'
 
-    await store.dispatch('templates/load', { path: project })
+    await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
 
     expect(store.state.templates.path).toEqual(project)
     expect(store.state.templates.base).toEqual(_path.join(project, '.tome/templates'))
     expect(store.state.templates.options.length).toBeGreaterThan(0)
+  })
+
+  it('should fail gracefully if path does not contain templates when load is dispatched', async () => {
+    const project = '/project'
+
+    delete disk['project']['.tome']['templates']
+
+    await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
+
+    expect(store.state.templates.path).toBeNull()
+    expect(store.state.templates.base).toBeNull()
+    expect(store.state.templates.options).toEqual([])
   })
 
   it('should execute templates against the target path when execute is dispatched', async () => {
@@ -157,7 +180,16 @@ describe('store/modules/templates', () => {
     const template = 'example.template.a'
     const target = '/project/first'
 
-    await store.dispatch('templates/load', { path: project })
-    await store.dispatch('templates/execute', { name: template, target })
+    await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
+    await expect(store.dispatch('templates/execute', { name: template, target })).resolves.toBeUndefined()
+  })
+
+  it('should fail gracefully when invalid template name is provided when execute is dispatched', async () => {
+    const project = '/project'
+    const template = 'example.template.z'
+    const target = '/project/first'
+
+    await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
+    await expect(store.dispatch('templates/execute', { name: template, target })).resolves.toBeUndefined()
   })
 })
