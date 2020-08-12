@@ -200,24 +200,12 @@ export default {
         {
           divider: true,
           title: 'Template',
-          load: async (path, menu) => {
-            await store.dispatch('templates/load', { path: store.state.tome.path })
-            return store.state.templates.options.map(name => ({
-              title: name,
-              action: (path) => this.$emit('template', { name, target: path })
-            }))
-          }
+          load: this.load_templates
         },
         {
           title: 'Action',
           items: this.actions,
-          load: async (path, menu) => {
-            await store.dispatch('actions/load', { path: store.state.tome.path })
-            return store.state.actions.options.map(name => ({
-              title: name,
-              action: (path) => this.$emit('action', { name, target: path })
-            }))
-          }
+          load: this.load_actions
         },
         {
           divider: true,
@@ -349,6 +337,20 @@ export default {
     },
     focus: function () {
       this.input = this.display
+    },
+    load_templates: async function (path, menu) {
+      await store.dispatch('templates/load', { path: store.state.tome.path })
+      return store.state.templates.options.map(name => ({
+        title: name,
+        action: (path) => this.$emit('template', { name, target: path })
+      }))
+    },
+    load_actions: async function (path, menu) {
+      await store.dispatch('actions/load', { path: store.state.tome.path })
+      return store.state.actions.options.map(name => ({
+        title: name,
+        action: (path) => this.$emit('action', { name, target: path })
+      }))
     }
   }
 }

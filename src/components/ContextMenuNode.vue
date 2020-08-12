@@ -89,7 +89,7 @@ export default {
         return
       }
 
-      menu.items = await menu.load(this.target, menu)
+      menu.items = await menu.load(this.target)
     }
   }
 }
