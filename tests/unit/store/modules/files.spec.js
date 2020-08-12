@@ -243,11 +243,11 @@ describe('store/modules/files', () => {
 
     const content = 'Test Content'
 
-    expect(store.state.files.content).not.toEqual(content)
+    expect(store.state.files.content).not.toBe(content)
 
     await store.dispatch('files/save', { content })
 
-    expect(store.state.files.content).toEqual(content)
+    expect(fs.writeFile).toHaveBeenCalledTimes(1)
   })
 
   it('should place the ghost adjacent to the target provided', async () => {

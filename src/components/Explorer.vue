@@ -26,6 +26,9 @@
     @populate=populate
     @create=create
 
+    @template=template
+    @action=action
+
     ref="explorer_root"
   />
 </template>
@@ -118,7 +121,9 @@ export default {
     drop: async function (state) {
       store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
     },
-    populate: async (state) => store.dispatch('files/populate', state)
+    populate: async (state) => store.dispatch('files/populate', state),
+    template: async (state) => store.dispatch('templates/execute', state),
+    action: async (state) => store.dispatch('actions/execute', state)
   },
   components: { ExplorerNode }
 }

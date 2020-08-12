@@ -39,8 +39,6 @@
         :name=child.name
         :path=child.path
         :children=child.children
-        :templates=child.templates
-        :actions=child.actions
         :directory=child.directory
         :expanded=child.expanded
 
@@ -182,8 +180,6 @@ export default {
     format: { type: Function },
     directory: { type: Boolean, default: true },
     children: { type: Array },
-    templates: { type: Array },
-    actions: { type: Array },
     root: { type: Boolean }
   },
   data: () => ({
@@ -200,6 +196,22 @@ export default {
         {
           title: 'Expand',
           action: null
+        },
+        {
+          divider: true,
+          title: 'Template',
+          load: (path, menu) => {
+            store.dispatch('templates/load', { path: store.state.tome.path })
+            return store.state.templates.options.map(name => ({
+              title: name,
+              action: (path) => this.$emit('template', { name, target: path })
+            }))
+          }
+        },
+        {
+          title: 'Action',
+          items: this.actions,
+          load: (path) => this.$emit('load', { type: 'actions', target: path })
         },
         {
           divider: true,
