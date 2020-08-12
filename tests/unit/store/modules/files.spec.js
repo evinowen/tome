@@ -116,9 +116,15 @@ describe('store/modules/files', () => {
           'b.md': null,
           'c.md': null
         },
+        'a.md': null,
+        'b.md': null,
+        'c.md': null,
         'third': {
           'c.md': null
-        }
+        },
+        'x.md': null,
+        'y.md': null,
+        'z.md': null
       }
     }
 
