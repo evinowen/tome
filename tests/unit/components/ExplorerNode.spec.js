@@ -14,10 +14,10 @@ jest.mock('@/store', () => ({
       path: '/project'
     },
     templates: {
-      options: [ 'one', 'two', 'three' ]
+      options: ['one', 'two', 'three']
     },
     actions: {
-      options: [ 'one', 'two', 'three' ]
+      options: ['one', 'two', 'three']
     }
   },
   dispatch: jest.fn()
