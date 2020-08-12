@@ -48,7 +48,7 @@ remote.require = jest.fn((target) => {
   }
 })
 
-describe('store/modules/tome.js', () => {
+describe('store/modules/clipboard.js', () => {
   let localVue
   let store
 

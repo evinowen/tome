@@ -101,7 +101,7 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.passphrase).toBe('q1h7$u*3~y:}l$:akiKUa&z%:VhDP|')
   })
 
-  it('should save json from provided file when writeConfiguration is dispatched', async () => {
+  it('should save json from provided file when configuration write is dispatched', async () => {
     const json = JSON.stringify({
       name: '',
       email: '',
@@ -117,7 +117,7 @@ describe('store/modules/configuration.js', () => {
     expect(fs.writeFile.mock.calls[0][1]).toBe(json)
   })
 
-  it('should throw error if unable to save to provided file when writeConfiguration is dispatched', async () => {
+  it('should throw error if unable to save to provided file when configuration write is dispatched', async () => {
     fs.writeFile.mockImplementationOnce((file, data, options, callback) => fs_callback_error(options, callback))
 
     await expect(store.dispatch('configuration/write', 'config.json')).rejects.toBe('error!')
