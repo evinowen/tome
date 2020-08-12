@@ -24,7 +24,7 @@ const _readdir = (path, options) => {
   if (options.withFileTypes) {
     return Object.keys(item).map(name => ({
       name,
-      isDirectory: jest.fn(() => item[name])
+      isDirectory: jest.fn(() => item[name] !== null)
     }))
   }
 
@@ -54,7 +54,7 @@ const _fs = {
     while (path_split.length) {
       const name = path_split.shift()
 
-      if (!item[name]) {
+      if (!(name in item)) {
         callback(new Error('error!'))
       }
 
@@ -167,6 +167,18 @@ describe('store/modules/templates', () => {
     const project = '/project'
 
     delete disk['project']['.tome']['templates']
+
+    await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
+
+    expect(store.state.templates.path).toBeNull()
+    expect(store.state.templates.base).toBeNull()
+    expect(store.state.templates.options).toEqual([])
+  })
+
+  it('should fail gracefully if templates in path is a file when load is dispatched', async () => {
+    const project = '/project'
+
+    disk['project']['.tome']['templates'] = null
 
     await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
 
