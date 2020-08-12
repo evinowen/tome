@@ -200,8 +200,8 @@ export default {
         {
           divider: true,
           title: 'Template',
-          load: (path, menu) => {
-            store.dispatch('templates/load', { path: store.state.tome.path })
+          load: async (path, menu) => {
+            await store.dispatch('templates/load', { path: store.state.tome.path })
             return store.state.templates.options.map(name => ({
               title: name,
               action: (path) => this.$emit('template', { name, target: path })
