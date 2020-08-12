@@ -211,7 +211,13 @@ export default {
         {
           title: 'Action',
           items: this.actions,
-          load: (path) => this.$emit('load', { type: 'actions', target: path })
+          load: async (path, menu) => {
+            await store.dispatch('actions/load', { path: store.state.tome.path })
+            return store.state.actions.options.map(name => ({
+              title: name,
+              action: (path) => this.$emit('action', { name, target: path })
+            }))
+          }
         },
         {
           divider: true,

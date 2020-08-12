@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import tome from './modules/tome'
 import files from './modules/files'
 import templates from './modules/templates'
+import actions from './modules/actions'
 import configuration from './modules/configuration'
 import clipboard from './modules/clipboard'
 
@@ -25,6 +26,7 @@ export default new Vuex.Store({
     tome: tome,
     files,
     templates,
+    actions,
     configuration,
     clipboard
   }
