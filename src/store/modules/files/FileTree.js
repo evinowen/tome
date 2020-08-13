@@ -77,8 +77,6 @@ export default class FileTree {
       directory: false,
       disabled: true,
       children: [],
-      templates: [],
-      actions: [],
       expanded: false,
       ...data
     }

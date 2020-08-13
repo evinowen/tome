@@ -116,9 +116,15 @@ describe('store/modules/files', () => {
           'b.md': null,
           'c.md': null
         },
+        'a.md': null,
+        'b.md': null,
+        'c.md': null,
         'third': {
           'c.md': null
-        }
+        },
+        'x.md': null,
+        'y.md': null,
+        'z.md': null
       }
     }
 
@@ -243,11 +249,11 @@ describe('store/modules/files', () => {
 
     const content = 'Test Content'
 
-    expect(store.state.files.content).not.toEqual(content)
+    expect(store.state.files.content).not.toBe(content)
 
     await store.dispatch('files/save', { content })
 
-    expect(store.state.files.content).toEqual(content)
+    expect(fs.writeFile).toHaveBeenCalledTimes(1)
   })
 
   it('should place the ghost adjacent to the target provided', async () => {

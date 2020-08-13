@@ -2,6 +2,7 @@ import { remote } from 'electron'
 import NodeGit from 'nodegit'
 
 export default {
+  namespaced: true,
   state: {
     name: '',
     path: '',

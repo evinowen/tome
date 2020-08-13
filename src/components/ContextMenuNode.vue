@@ -83,11 +83,13 @@ export default {
         return
       }
 
-      if (!this.items[this.expanded].load) {
+      const menu = this.items[this.expanded]
+
+      if (!menu.load) {
         return
       }
 
-      await this.items[this.expanded].load(this.target)
+      menu.items = await menu.load(this.target)
     }
   }
 }

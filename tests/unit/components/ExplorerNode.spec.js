@@ -9,6 +9,15 @@ jest.mock('@/store', () => ({
   state: {
     clipboard: {
       content: { type: 'file', target: '/path' }
+    },
+    tome: {
+      path: '/project'
+    },
+    templates: {
+      options: ['one', 'two', 'three']
+    },
+    actions: {
+      options: ['one', 'two', 'three']
     }
   },
   dispatch: jest.fn()
@@ -416,5 +425,41 @@ describe('ExplorerNode.vue', () => {
     const wrapper = factory.wrap({ directory: false, root: false })
 
     expect(wrapper.vm.icon).toBe('mdi-file')
+  })
+
+  it('should translate template options into context menu items when templates are loaded', async () => {
+    const wrapper = factory.wrap({ directory: false, root: false })
+
+    const items = await wrapper.vm.load_templates()
+    expect(items).not.toBeNull()
+    expect(items.length).toBe(3)
+
+    const event = jest.fn()
+    wrapper.vm.$on('template', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await items[0].action('/project/first')
+
+    expect(event).toHaveBeenCalledTimes(1)
+  })
+
+  it('should translate action options into context menu items when actions are loaded', async () => {
+    const wrapper = factory.wrap({ directory: false, root: false })
+
+    const items = await wrapper.vm.load_actions()
+    expect(items).not.toBeNull()
+    expect(items.length).toBe(3)
+
+    const event = jest.fn()
+    wrapper.vm.$on('action', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await items[0].action('/project/first')
+
+    expect(event).toHaveBeenCalledTimes(1)
+
+    await items[0].action('/project/first')
   })
 })

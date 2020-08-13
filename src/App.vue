@@ -202,7 +202,7 @@ export default {
   },
 
   mounted: async function () {
-    this.settings.run = async () => store.dispatch('writeConfiguration', store.state.tome_app_config_path)
+    this.settings.run = async () => store.dispatch('configuration/write', store.state.tome_app_config_path)
 
     store.state.tome_app_config_path_dir = this.path.join(remote.app.getPath('appData'), 'tome')
 
@@ -243,11 +243,11 @@ export default {
       }
     }
 
-    await store.dispatch('loadConfiguration', store.state.tome_app_config_path)
+    await store.dispatch('configuration/load', store.state.tome_app_config_path)
   },
   methods: {
     set_tome: async function (file_path) {
-      await store.dispatch('load', file_path)
+      await store.dispatch('tome/load', file_path)
       await store.dispatch('files/initialize', { path: file_path })
       await this.reload_run()
     },
@@ -298,7 +298,7 @@ export default {
       clearTimeout(this.reload.timeout)
       this.reload.triggered = false
 
-      await store.dispatch('inspect')
+      await store.dispatch('tome/inspect')
     },
     open_context: async function (state) {
       const { instance, event } = state
@@ -320,7 +320,7 @@ export default {
     assign_key: async function (name, event) {
       const file = this.proxy_file(event)
 
-      await store.dispatch('updateConfiguration', { [name]: file.path })
+      await store.dispatch('configuration/update', { [name]: file.path })
       this.counter_start('settings')
     }
   },

@@ -170,7 +170,7 @@ describe('App.vue', () => {
     await wrapper.vm.set_tome('/test/path')
 
     expect(store.dispatch).toHaveBeenCalledTimes(2)
-    expect(store.dispatch.mock.calls[0][0]).toBe('load')
+    expect(store.dispatch.mock.calls[0][0]).toBe('tome/load')
     expect(store.dispatch.mock.calls[1][0]).toBe('files/initialize')
     expect(wrapper.vm.reload_run).toHaveBeenCalledTimes(1)
   })
@@ -265,8 +265,8 @@ describe('App.vue', () => {
 
     expect(wrapper.vm.reload.triggered).toBeFalsy()
     expect(store.dispatch).toHaveBeenCalledTimes(2)
-    expect(store.dispatch.mock.calls[0][0]).toBe('writeConfiguration')
-    expect(store.dispatch.mock.calls[1][0]).toBe('inspect')
+    expect(store.dispatch.mock.calls[0][0]).toBe('configuration/write')
+    expect(store.dispatch.mock.calls[1][0]).toBe('tome/inspect')
   }, 20000)
 
   it('should follow the settings timer cycle when the counter is started', async () => {
