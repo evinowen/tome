@@ -7,6 +7,7 @@ import templates from './modules/templates'
 import actions from './modules/actions'
 import configuration from './modules/configuration'
 import clipboard from './modules/clipboard'
+import search from './modules/search'
 
 Vue.use(Vuex)
 
@@ -28,6 +29,7 @@ export default new Vuex.Store({
     templates,
     actions,
     configuration,
-    clipboard
+    clipboard,
+    search
   }
 })
