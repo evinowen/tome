@@ -93,6 +93,8 @@
       :position_y=context.position.y
     />
 
+    <search-service v-show=search />
+
     <action-bar
       :waiting=reload.counter
       :commit=commit
@@ -101,6 +103,7 @@
       @edit="edit = $event"
       @commit="commit = true"
       @push="push = true"
+      @search="search = !search"
     />
   </v-app>
 </template>
@@ -150,6 +153,7 @@ import { remote } from 'electron'
 
 import NewFileService from './components/NewFileService.vue'
 import ContextMenuService from './components/ContextMenuService.vue'
+import SearchService from './components/SearchService.vue'
 
 import SystemBar from './components/SystemBar.vue'
 import EditorInterface from './components/EditorInterface.vue'
@@ -178,6 +182,7 @@ export default {
     edit: false,
     commit: false,
     push: false,
+    search: false,
 
     add: {
       active: false,
@@ -344,7 +349,8 @@ export default {
     EmptyView,
     ActionBar,
     NewFileService,
-    ContextMenuService
+    ContextMenuService,
+    SearchService
   }
 }
 </script>

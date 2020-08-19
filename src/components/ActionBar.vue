@@ -88,6 +88,13 @@
         </div>
       </v-expand-x-transition>
 
+      <v-divider inset vertical />
+
+      <!-- SEARCH BUTTON -->
+      <v-btn action-bar-search tile small icon color="accent" class="button pa-0" @click.stop="$emit('search')" :disabled="commit || push">
+        <v-icon small>mdi-magnify</v-icon>
+      </v-btn>
+
     </template>
 
   </v-footer>
