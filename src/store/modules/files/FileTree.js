@@ -13,10 +13,6 @@ export default class FileTree {
   identify (path) {
     const _path = remote.require('path')
 
-    if (String(path).indexOf(this.path) !== 0) {
-      return null
-    }
-
     const relative = _path.relative(this.path, path)
     const items = relative.split(_path.sep)
 
@@ -46,8 +42,6 @@ export default class FileTree {
 
   sort (path) {
     const { item } = this.identify(path)
-
-    if (!item) return false
 
     item.children.sort((first, second) => {
       const name = (first, second) => {
