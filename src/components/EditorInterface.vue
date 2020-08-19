@@ -73,12 +73,19 @@
   overflow: hidden;
 }
 
+.highlight-rendered {
+  background-color: lightgray;
+  outline: 2px solid #FF9810;
+  color: black;
+}
+
 </style>
 
 <script>
 import store from '@/store'
 import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
+import Mark from 'mark.js'
 import Explorer from '@/components/Explorer.vue'
 import EmptyView from '@/views/Empty.vue'
 import CommitView from '@/views/Commit.vue'
@@ -93,20 +100,69 @@ export default {
   data: () => ({
     absolute_path: '',
     actions: [],
-    error: ''
+    error: '',
+    overlay: null,
+    mark: null
   }),
+  mounted: function () {
+    this.mark = new Mark('#editor-interface-rendered')
+  },
   computed: {
     explore: function () {
       return !(this.commit || this.push)
     },
     content: function () {
-      return store.state.files.content
+      return store.state.files.content || ''
     },
     rendered: function () {
       return marked(this.content)
     },
-    tome: function () {
-      return store.state.tome
+    search: function () {
+      console.log('search', Object.assign({}, store))
+      return store.state.search.query
+    }
+  },
+  watch: {
+    search: function (value) {
+      const query = new RegExp(value.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
+
+      this.mark.unmark()
+      this.mark.markRegExp(
+        query,
+        {
+          className: 'highlight-rendered'
+        }
+      )
+
+      if (!this.$refs.editor) {
+        console.log('no editor!', value)
+        return
+      }
+
+      const cm = this.$refs.editor.codemirror
+
+      if (this.overlay) {
+        cm.removeOverlay(this.overlay, true)
+      }
+
+      this.overlay = {
+        token: (stream) => {
+          query.lastIndex = stream.pos
+          const match = query.exec(stream.string)
+          if (match && match.index === stream.pos) {
+            stream.pos += match[0].length || 1
+            return 'searching'
+          } else if (match) {
+            stream.pos = match.index
+          } else {
+            stream.skipToEnd()
+          }
+        }
+      }
+
+      cm.addOverlay(this.overlay, true)
+
+      console.log('codemirror', cm, Object.assign({}, cm))
     }
   },
   methods: {
