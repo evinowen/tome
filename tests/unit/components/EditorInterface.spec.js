@@ -42,13 +42,6 @@ describe('EditorInterface.vue', () => {
     jest.clearAllMocks()
   })
 
-  const cm = {
-    codemirror: {
-      addOverlay: jest.fn(),
-      removeOverlay: jest.fn()
-    }
-  }
-
   const factory = assemble(EditorInterface, {
     edit: false,
     commit: false,
