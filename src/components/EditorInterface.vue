@@ -1,5 +1,5 @@
 <template>
-  <split-pane v-if="tome.path" :min-percent='5' :default-percent='25' split="vertical">
+  <split-pane :min-percent='5' :default-percent='25' split="vertical">
     <template slot="paneL">
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
@@ -14,27 +14,27 @@
       <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
 
-          <template v-if="false" />
-
-          <template v-else-if="!edit">
-            <div v-if="content" style="height: 100%; padding: 0px;" >
-              <div v-html="rendered" class="pa-2" />
+          <div v-show="!edit">
+            <div v-show="content" style="height: 100%; padding: 0px;" >
+              <div id="editor-interface-rendered" ref="rendered" v-html="rendered" class="pa-2" />
             </div>
-            <empty-view v-else />
-          </template>
+            <empty-view v-if="!content" />
+          </div>
 
-          <!-- COMMIT WINDOW -->
-          <commit-view v-else-if="commit" @close="$emit('commit:close')" />
+          <div v-show="edit">
+            <!-- COMMIT WINDOW -->
+            <commit-view v-if="commit" @close="$emit('commit:close')" />
 
-          <!-- PUSH WINDOW -->
-          <push-view v-else-if="push" @close="$emit('push:close')" />
+            <!-- PUSH WINDOW -->
+            <push-view v-else-if="push" @close="$emit('push:close')" />
 
-          <!-- OPEN FILE WINDOW -->
-          <codemirror ref="editor" v-else-if="content" :value="content" style="height: 100%;" @input=save />
+            <!-- OPEN FILE WINDOW -->
+            <codemirror ref="editor" v-else-if="content" :value="content" style="height: 100%;" @input=save />
 
-          <!-- ACTION OR ERROR MENUS -->
-          <div v-else class="full_size">
-            <empty-view>{{ error }}</empty-view>
+            <!-- ACTION OR ERROR MENUS -->
+            <div v-else class="full_size">
+              <empty-view>{{ error }}</empty-view>
+            </div>
           </div>
 
         </scrolly-viewport>
@@ -44,11 +44,6 @@
 
     </template>
   </split-pane>
-
-  <div v-else class="full_size">
-    <empty-view ref="empty_unloaded">{{ error || "" }}</empty-view>
-  </div>
-
 </template>
 
 <style>

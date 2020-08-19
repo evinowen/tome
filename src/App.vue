@@ -64,6 +64,7 @@
     </v-navigation-drawer>
 
     <editor-interface
+      v-show=tome.path
       ref="interface"
       :edit=edit
       :commit=commit
@@ -73,6 +74,7 @@
       @push:close="push = false"
       @context=open_context
     />
+    <empty-view v-show=!tome.path />
 
     <new-file-service
       :active="add.active"
@@ -151,6 +153,7 @@ import ContextMenuService from './components/ContextMenuService.vue'
 
 import SystemBar from './components/SystemBar.vue'
 import EditorInterface from './components/EditorInterface.vue'
+import EmptyView from '@/views/Empty.vue'
 import ActionBar from './components/ActionBar.vue'
 
 export default {
@@ -338,6 +341,7 @@ export default {
   components: {
     SystemBar,
     EditorInterface,
+    EmptyView,
     ActionBar,
     NewFileService,
     ContextMenuService
