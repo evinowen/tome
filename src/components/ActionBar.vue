@@ -49,7 +49,7 @@
 
       <v-divider inset vertical />
 
-      <v-spacer></v-spacer>
+      <v-spacer class="crawling">{{ status }}</v-spacer>
 
       <v-divider inset vertical />
 
@@ -152,6 +152,11 @@
 
 }
 
+.crawling {
+  padding: 0 4px;
+  font-size: 0.8em;
+}
+
 </style>
 
 <script>
@@ -201,8 +206,10 @@ export default {
   computed: {
     tome: function () {
       return store.state.tome
+    },
+    status: function () {
+      return store.state.files.tree ? store.state.files.tree.daemon.status : ''
     }
-
   },
 
   components: {
