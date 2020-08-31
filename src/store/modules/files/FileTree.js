@@ -1,6 +1,5 @@
 import { remote } from 'electron'
 import File from './File'
-import lunr from 'lunr'
 
 export default class FileTree {
   constructor (path) {
@@ -13,6 +12,9 @@ export default class FileTree {
     this.index = null
     this.crawling = null
     this.daemon = { promise: null, status: '' }
+    this.timestamp = 0
+
+    this.documents = []
 
     this.daemonize()
   }
@@ -71,6 +73,8 @@ export default class FileTree {
 
     const documents = []
 
+    let dirty = false
+
     let stack_current = []
     let stack_next = [this.base]
 
@@ -85,24 +89,21 @@ export default class FileTree {
         this.daemon.status = `Loading ${item.path}`
         const result = await item.crawl(time)
 
+        dirty = result.dirty || dirty
+
         if (item.document) {
           documents.push(item.document)
         }
 
-        stack_next.push(...result)
+        stack_next.push(...result.children)
         await new Promise((resolve, reject) => setTimeout(resolve, 50))
       }
     }
 
-    this.daemon.status = 'Building search index ... '
-    console.log('documents!', documents)
-
-    this.index = lunr(function () {
-      this.ref('title')
-      this.field('content')
-
-      documents.forEach(function (doc) { this.add(doc) }, this)
-    })
+    if (dirty) {
+      this.documents = documents
+      this.timestamp = Date.now()
+    }
 
     this.daemon.status = 'Ready'
   }

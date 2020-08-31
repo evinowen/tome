@@ -24,15 +24,19 @@ export default class File {
   }
 
   async crawl (time) {
-    if (this.disabled) {
-      return []
+    let dirty = false
+    let children = []
+
+    if (!this.disabled) {
+      children = this.children
+
+      if (!this.updated || this.updated < time) {
+        dirty = true
+        await this.load()
+      }
     }
 
-    if (!this.updated || this.updated < time) {
-      await this.load()
-    }
-
-    return this.children
+    return { dirty, children }
   }
 
   async load () {
@@ -53,6 +57,7 @@ export default class File {
     const _path = remote.require('path')
 
     this.document = {
+      path: this.path,
       title: _path.basename(this.path),
       content
     }
@@ -100,9 +105,7 @@ export default class File {
       parent
     })
 
-    console.log('dirent name', dirent.name)
     if (File.blacklist.indexOf(dirent.name) > -1) {
-      console.log('dirent name blacklist', dirent.name)
       instance.disabled = true
     }
 
