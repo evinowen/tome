@@ -3,6 +3,13 @@
     <v-toolbar class="search-box">
       <v-btn tile small :depressed=files @click="files = !files"><v-icon>mdi-file-multiple</v-icon></v-btn>
       <v-text-field ref="input" class="search-input" @input=update rows=1 :messages=status clearable />
+      <div class="search-navigate">
+        <v-item-group multiple>
+          <v-btn tile small @click=previous :disabled="visible.total < 1 || visible.target <= 1"><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn tile small @click=next :disabled="visible.total < 1 || visible.target >= visible.total"><v-icon>mdi-chevron-right</v-icon></v-btn>
+        </v-item-group>
+        <div><small>{{ visible.target }} / {{ visible.total }}</small></div>
+      </div>
     </v-toolbar>
     <v-expand-transition>
       <div v-show=files>
@@ -28,6 +35,10 @@
   z-index: 1000
 }
 
+.search-navigate {
+  text-align: center;
+}
+
 .search-results {
   height: 120px;
   margin: 12px;
@@ -36,9 +47,6 @@
   background: rgba(255, 255, 255, 0.5);
   border-top: 1px dotted rgba(0, 0, 0, 0.2);
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
-}
-
-.search-results-content {
 }
 
 .search-empty {
@@ -122,10 +130,13 @@ export default {
   }),
   computed: {
     status: () => store.state.search.status,
-    results: () => store.state.search.results
+    results: () => store.state.search.results,
+    visible: () => store.state.search.visible
   },
   methods: {
     update: query => store.dispatch('search/query', { query }),
+    next: _ => store.dispatch('search/next'),
+    previous: _ => store.dispatch('search/previous'),
     relative: function (path) {
       const _path = remote.require('path')
 
