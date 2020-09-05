@@ -6,7 +6,7 @@ export default {
     index: null,
     query: null,
     results: null,
-    visible: {
+    navigation: {
       target: 0,
       total: 0
     }
@@ -25,14 +25,14 @@ export default {
     index: function (state, { index }) {
       state.index = index
     },
-    visible: function (state, { target, total }) {
-      state.visible.target = target || state.visible.target
-      state.visible.total = total || state.visible.total
+    navigate: function (state, { target, total }) {
+      state.navigation.target = Number.isInteger(target) ? target : state.navigation.target
+      state.navigation.total = Number.isInteger(total) ? total : state.navigation.total
 
-      if (state.visible.target < 1) {
-        state.visible.target = state.visible.total
-      } else if (state.visible.target > state.visible.total) {
-        state.visible.target = 1
+      if (state.navigation.target < 1) {
+        state.navigation.target = state.navigation.total
+      } else if (state.navigation.target > state.navigation.total) {
+        state.navigation.target = 1
       }
     }
   },
@@ -65,16 +65,16 @@ export default {
 
       context.commit('results', { results })
     },
-    visible: async function (context, { total, target }) {
-      context.commit('visible', { total, target })
+    navigate: async function (context, { total, target }) {
+      context.commit('navigate', { total, target })
     },
     next: async function (context) {
-      context.commit('visible', { target: context.state.visible.target + 1, total: null })
-      console.log('next', context.state.visible)
+      context.commit('navigate', { target: context.state.navigation.target + 1, total: null })
+      console.log('next', context.state.navigation)
     },
     previous: async function (context) {
-      context.commit('visible', { target: context.state.visible.target - 1, total: null })
-      console.log('previous', context.state.visible)
+      context.commit('navigate', { target: context.state.navigation.target - 1, total: null })
+      console.log('previous', context.state.navigation)
     }
   }
 }
