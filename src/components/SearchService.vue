@@ -114,6 +114,8 @@
   max-height: unset;
   position: absolute;
   bottom: -12px;
+  text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+
 }
 
 </style>
@@ -129,8 +131,8 @@ export default {
     files: false
   }),
   computed: {
-    status: () => store.state.search.status,
-    results: () => store.state.search.results,
+    status: () => store.state.search?.status,
+    results: () => store.state.search?.results,
     navigate: () => store.state.search?.navigate
   },
   methods: {
@@ -143,7 +145,6 @@ export default {
       return _path.relative(store.state.tome.path, path)
     },
     select: async function (path) {
-      console.log('select!', path)
       store.dispatch('files/select', { path })
 
       this.files = false
