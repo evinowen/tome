@@ -86,7 +86,6 @@
 </style>
 
 <script>
-import store from '@/store'
 import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
 import Mark from 'mark.js'
@@ -116,24 +115,20 @@ export default {
       return !(this.commit || this.push)
     },
     active: function () {
-      return store.state.files.active
+      return this.$store.state.files.active
     },
     content: function () {
-      return store.state.files.content || ''
+      return this.$store.state.files.content || ''
     },
     rendered: function () {
       return marked(this.content)
     },
-    query: () => store.state.search.query
+    query: function () {
+      return this.$store.state.search?.query
+    }
   },
   watch: {
-    query: function () {
-      this.search()
-    },
-    active: function () {
-      this.search()
-    },
-    edit: function () {
+    query () {
       this.search()
     },
     content: function () {
@@ -144,16 +139,13 @@ export default {
     }
   },
   methods: {
-    save: async (content) => store.dispatch('files/save', { content }),
-    search: async function () {
+    save (content) {
+      this.$store.dispatch('files/save', { content })
+    },
+    search: function () {
       const query = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
 
       if (this.edit) {
-        if (!this.$refs.editor) {
-          console.log('no editor!', this.query)
-          return
-        }
-
         const cm = this.$refs.editor.codemirror
 
         if (this.overlay) {
@@ -176,15 +168,13 @@ export default {
         }
 
         cm.addOverlay(this.overlay, true)
-
-        console.log('codemirror', cm, Object.assign({}, cm))
       } else {
         this.mark.unmark()
         this.mark.markRegExp(
           query,
           {
             className: 'highlight-rendered',
-            done: total => store.dispatch('search/visible', { total, target: null })
+            done: total => this.$store.dispatch('search/navigate', { total, target: null })
           }
         )
       }
