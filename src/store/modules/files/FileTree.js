@@ -15,8 +15,6 @@ export default class FileTree {
     this.timestamp = 0
 
     this.documents = []
-
-    this.daemonize()
   }
 
   static search (element, items) {
@@ -61,10 +59,15 @@ export default class FileTree {
     return item.populate()
   }
 
-  async daemonize () {
-    while (true) {
+  async daemonize (callback = () => true, delay = 1000) {
+    while (callback()) {
       await this.crawl()
-      await new Promise((resolve, reject) => setTimeout(resolve, 1000))
+
+      if (!delay) {
+        continue
+      }
+
+      await new Promise((resolve, reject) => setTimeout(resolve, delay))
     }
   }
 
@@ -96,7 +99,6 @@ export default class FileTree {
         }
 
         stack_next.push(...result.children)
-        await new Promise((resolve, reject) => setTimeout(resolve, 50))
       }
     }
 
