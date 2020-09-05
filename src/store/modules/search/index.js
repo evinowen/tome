@@ -70,11 +70,9 @@ export default {
     },
     next: async function (context) {
       context.commit('navigate', { target: context.state.navigation.target + 1, total: null })
-      console.log('next', context.state.navigation)
     },
     previous: async function (context) {
       context.commit('navigate', { target: context.state.navigation.target - 1, total: null })
-      console.log('previous', context.state.navigation)
     }
   }
 }
