@@ -2,7 +2,6 @@ import Vuex from 'vuex'
 
 import { createLocalVue } from '@vue/test-utils'
 import document from '@/store/plugins/mediations/document'
-import { cloneDeep } from 'lodash'
 
 describe('store/plugins/mediations/document.js', () => {
   let localVue

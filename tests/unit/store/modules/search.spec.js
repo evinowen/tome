@@ -19,7 +19,7 @@ lunr.mockImplementation((callback) => {
     search: jest.fn((query) => [
       { ref: 'result_a', score: 1.00 },
       { ref: 'result_b', score: 0.50 },
-      { ref: 'result_c', score: 0.25 },
+      { ref: 'result_c', score: 0.25 }
     ])
   }
 })

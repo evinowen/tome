@@ -23,7 +23,7 @@ export default function () {
     },
     modules: {
       files: cloneDeep(files),
-      search: cloneDeep(search),
+      search: cloneDeep(search)
     }
   })
 }

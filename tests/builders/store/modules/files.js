@@ -10,7 +10,7 @@ const mock = {
       return
     }
 
-    Object.entries(data).forEach(([key, value]) => state[key] = value)
+    Object.entries(data).forEach(([key, value]) => { state[key] = value })
   },
   action: async (context, data) => context.commit('mock', data)
 }

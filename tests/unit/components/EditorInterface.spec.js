@@ -1,8 +1,6 @@
-
-
 import { assemble } from '@/../tests/helpers'
 import builders from '@/../tests/builders'
-import Vue from 'vue'
+
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 
@@ -38,8 +36,7 @@ describe('EditorInterface.vue', () => {
         Codemirror: true
       }
     }
-  ))
-  .hook(({ context, localVue }) => {
+  )).hook(({ context, localVue }) => {
     localVue.use(Vuetify)
     localVue.component('split-pane', SplitPane)
     vuetify = new Vuetify()
@@ -78,7 +75,6 @@ describe('EditorInterface.vue', () => {
     const wrapper = factory.wrap()
 
     await store.dispatch('files/mock', { content: '' })
-
 
     expect(wrapper.vm.overlay).toBeNull()
 
