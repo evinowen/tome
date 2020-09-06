@@ -1,41 +1,22 @@
+
+
 import { assemble } from '@/../tests/helpers'
+import builders from '@/../tests/builders'
 import Vue from 'vue'
+import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 
-import store from '@/store'
 import SplitPane from 'vue-splitpane'
 import EditorInterface from '@/components/EditorInterface.vue'
 
-Vue.use(Vuetify)
-Vue.component('split-pane', SplitPane)
-
-jest.mock('@/store', () => ({
-  state: {
-    tome: {
-      name: 'project',
-      path: '/project'
-    },
-    configuration: {
-      format_titles: false
-    },
-    files: {
-      active: null,
-      content: null,
-      error: null,
-      tree: {}
-    },
-    search: {
-      query: null
-    }
-  },
-  dispatch: jest.fn()
-}))
+// Vue.use(Vuetify)
+// Vue.component('split-pane', SplitPane)
 
 describe('EditorInterface.vue', () => {
   let vuetify
+  let store
 
-  beforeEach(() => {
-    vuetify = new Vuetify()
+  beforeEach(async () => {
   })
 
   afterEach(() => {
@@ -48,7 +29,6 @@ describe('EditorInterface.vue', () => {
     push: false
   }).context(() => (
     {
-      vuetify,
       stubs: {
         ActionView: true,
         CommitView: true,
@@ -59,10 +39,22 @@ describe('EditorInterface.vue', () => {
       }
     }
   ))
+  .hook(({ context, localVue }) => {
+    localVue.use(Vuetify)
+    localVue.component('split-pane', SplitPane)
+    vuetify = new Vuetify()
+    context.vuetify = vuetify
+
+    localVue.use(Vuex)
+    store = builders.store()
+    context.store = store
+  })
 
   it('should call store file save action for item path provided by save event', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    store.dispatch = jest.fn()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
@@ -73,88 +65,89 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should render current content using marked', async () => {
-    store.state.files.content = '# Mock'
-
     const wrapper = factory.wrap()
+
+    await store.dispatch('files/mock', { content: '# Mock' })
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.rendered).toEqual('<h1 id="mock">Mock</h1>\n')
   })
 
-  it('should not render the editor if there is no content', async () => {
-    store.state.files.content = ''
-
+  it('should abort search highlight update if no editor is visible', async () => {
     const wrapper = factory.wrap()
 
-    expect(wrapper.vm.$refs.editor).toBeUndefined()
-  })
+    await store.dispatch('files/mock', { content: '' })
 
-  it('should abort search highligh update is no editor is visible', async () => {
-    store.state.files.content = ''
-
-    const wrapper = factory.wrap()
 
     expect(wrapper.vm.overlay).toBeNull()
 
-    store.state.search.query = 'mock'
+    store.dispatch('search/mock', { query: 'mock' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    // Vue Test Utils does not have a mechanism for triggering updates to watchers of computed properities
-    wrapper.vm.$options.watch.search.call(wrapper.vm, store.state.search.query)
-
     expect(wrapper.vm.overlay).toBeNull()
   })
 
-  it('should update search highlight when the search query changes', async () => {
-    store.state.files.content = '# Mock'
-    store.state.search.query = ''
-
+  it('should update search highlight when the search query changes in render mode', async () => {
     const wrapper = factory.wrap()
+
+    await store.dispatch('files/mock', { content: '# Mock' })
+    await store.dispatch('search/mock', { query: '' })
+
+    const mark = {
+      unmark: jest.fn(),
+      markRegExp: jest.fn()
+    }
+
+    wrapper.setData({ mark })
+
+    expect(wrapper.vm.query).toEqual('')
+    expect(wrapper.vm.rendered).toEqual('<h1 id="mock">Mock</h1>\n')
+
+    await store.dispatch('search/mock', { query: 'mock' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(mark.unmark).toHaveBeenCalledTimes(1)
+    expect(mark.markRegExp).toHaveBeenCalledTimes(1)
+  })
+
+  it('should update search highlight when the search query changes in edit mode', async () => {
     const codemirror = {
       addOverlay: jest.fn(),
       removeOverlay: jest.fn()
     }
 
-    const overlay = {}
-
+    const wrapper = factory.wrap({ edit: true })
     wrapper.vm.$refs.editor.codemirror = codemirror
-    wrapper.setData({ overlay })
 
-    expect(wrapper.vm.search).toEqual('')
-    expect(wrapper.vm.rendered).toEqual('<h1 id="mock">Mock</h1>\n')
+    await store.dispatch('files/mock', { content: '# Mock' })
+    await store.dispatch('search/mock', { query: '' })
 
-    store.state.search.query = 'mock'
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    expect(wrapper.vm.query).toEqual('')
 
-    // Vue Test Utils does not have a mechanism for triggering updates to watchers of computed properities
-    wrapper.vm.$options.watch.search.call(wrapper.vm, store.state.search.query)
+    codemirror.addOverlay.mockClear()
+    codemirror.removeOverlay.mockClear()
+
+    await store.dispatch('search/mock', { query: 'mock' })
 
     expect(codemirror.removeOverlay).toHaveBeenCalledTimes(1)
-    expect(codemirror.removeOverlay.mock.calls[0][0]).toBe(overlay)
-
-    wrapper.vm.overlay.token({ pos: 0, string: store.state.files.content, skipToEnd: jest.fn() })
+    expect(codemirror.addOverlay).toHaveBeenCalledTimes(1)
   })
 
-  it('should set a functional CodeMirror mode object to overlay when search query changes', async () => {
-    store.state.files.content = '# Mock'
-    store.state.search.query = ''
-
-    const wrapper = factory.wrap()
+  it('should set a functional CodeMirror mode object to overlay when search query changes in edit mode', async () => {
     const codemirror = {
       addOverlay: jest.fn(),
       removeOverlay: jest.fn()
     }
 
-    const overlay = {}
-
+    const wrapper = factory.wrap({ edit: true })
     wrapper.vm.$refs.editor.codemirror = codemirror
-    wrapper.setData({ overlay })
 
-    store.state.search.query = 'mock'
+    await store.dispatch('files/mock', { content: '# Mock' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    // Vue Test Utils does not have a mechanism for triggering updates to watchers of computed properities
-    wrapper.vm.$options.watch.search.call(wrapper.vm, store.state.search.query)
+    await store.dispatch('search/mock', { query: 'mock' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.overlay).toBeDefined()
     expect(wrapper.vm.overlay.token).toBeDefined()
