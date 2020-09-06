@@ -48,6 +48,13 @@ describe('ActionBar.vue', () => {
 
         }
       },
+      files: {
+        tree: {
+          daemon: {
+            status: 'Grrreat!'
+          }
+        }
+      },
       tome_file: '',
       tome_file_selected: '',
       tome_file_path: '',
