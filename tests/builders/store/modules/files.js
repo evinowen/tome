@@ -4,13 +4,20 @@ import files from '@/store/modules/files'
 const template = cloneDeep(files.state)
 
 const mock = {
-  mutation: async (state, data) => {
-    if (data.reset) {
-      Object.assign(state, template)
-      return
+  mutation: (state, data) => {
+    let target = state
+
+    if (data.__target) {
+      const path = String(data.__target).split('.')
+      delete data.__target
+
+      let key
+      while (key = path.shift()) {
+        target = target[key]
+      }
     }
 
-    Object.entries(data).forEach(([key, value]) => { state[key] = value })
+    Object.entries(data).forEach(([key, value]) => { target[key] = value })
   },
   action: async (context, data) => context.commit('mock', data)
 }

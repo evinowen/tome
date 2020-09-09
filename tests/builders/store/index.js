@@ -15,12 +15,6 @@ export default function () {
         format_titles: false
       }
     },
-    actions: {
-      mock: async function (context, data) {
-        await context.dispatch('files/mock', data)
-        await context.dispatch('search/mock', data)
-      }
-    },
     modules: {
       files: cloneDeep(files),
       search: cloneDeep(search)
