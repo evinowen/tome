@@ -176,7 +176,7 @@ describe('App.vue', () => {
     expect(wrapper.vm.reload_run).toHaveBeenCalledTimes(1)
   })
 
-  it('should open directory context when triggered by editor interface', async () => {
+  it('should open directory context when triggered by editor interface using an instance', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
@@ -187,6 +187,27 @@ describe('App.vue', () => {
         path: '/path/to/context',
         directory: true,
         $emit: jest.fn()
+      },
+      event: {
+        clientX: 1,
+        clientY: 1
+      }
+    }
+
+    await wrapper.vm.$refs.interface.$emit('context', state)
+
+    expect(wrapper.vm.context.visible).toBeTruthy()
+  })
+
+  it('should open directory context when triggered by editor interface using a selection', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.context.visible).toBeFalsy()
+
+    const state = {
+      selection: {
+        context: []
       },
       event: {
         clientX: 1,

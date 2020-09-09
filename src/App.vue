@@ -309,15 +309,31 @@ export default {
       await store.dispatch('tome/inspect')
     },
     open_context: async function (state) {
-      const { instance, event } = state
-      instance.$emit('input', instance)
+      const { instance, selection, event } = state
+
+      const data = {}
+
+      this.context.title = ' ಠ_ಠ '
+
+      delete this.context.target
+      delete this.context.items
+
+      if (instance) {
+        instance.$emit('input', instance)
+        data.title = instance.path
+        data.target = instance.path
+        data.items = instance.context
+      }
+
+      if (selection) {
+        data.title = 'Content'
+        data.items = selection.context
+      }
 
       Object.assign(this.context, {
         visible: true,
-        title: instance.path,
-        target: instance.path,
-        items: instance.context,
-        position: { x: event.clientX, y: event.clientY }
+        position: { x: event.clientX, y: event.clientY },
+        ...data
       })
     },
     proxy_file: function (event) {

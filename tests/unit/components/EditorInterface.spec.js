@@ -1,12 +1,20 @@
 import { assemble } from '@/../tests/helpers'
 import builders from '@/../tests/builders'
 
+import { clipboard } from 'electron'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 
 import SplitPane from 'vue-splitpane'
 import EditorInterface from '@/components/EditorInterface.vue'
+
+jest.mock('electron', () => ({
+  clipboard: {
+    readText: jest.fn(),
+    writeText: jest.fn()
+  }
+}))
 
 jest.mock('mark.js', () => {
   return function () {
@@ -48,8 +56,10 @@ describe('EditorInterface.vue', () => {
     addOverlay: jest.fn(),
     removeOverlay: jest.fn(),
     getSearchCursor: jest.fn(() => codemirror_cursor),
+    getSelection: jest.fn(() => 'selected text'),
     setSelection: jest.fn(),
-    scrollIntoView: jest.fn()
+    scrollIntoView: jest.fn(),
+    replaceSelection: jest.fn()
   }
 
   beforeEach(async () => {
@@ -177,24 +187,24 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should update search highlight when the search query changes in edit mode', async () => {
-    const cursor = {
-      findNext: jest.fn(() => false),
-      findPrevious: jest.fn(),
-      from: jest.fn(() => 1),
-      to: jest.fn(() => 100)
-    }
+    // const cursor = {
+    //   findNext: jest.fn(() => false),
+    //   findPrevious: jest.fn(),
+    //   from: jest.fn(() => 1),
+    //   to: jest.fn(() => 100)
+    // // }
 
-    cursor.findNext.mockImplementationOnce(true)
-    cursor.findNext.mockImplementationOnce(true)
-    cursor.findNext.mockImplementationOnce(true)
+    // cursor.findNext.mockImplementationOnce(true)
+    // cursor.findNext.mockImplementationOnce(true)
+    // cursor.findNext.mockImplementationOnce(true)
 
-    const codemirror = {
-      addOverlay: jest.fn(),
-      removeOverlay: jest.fn(),
-      getSearchCursor: jest.fn(() => cursor),
-      setSelection: jest.fn(),
-      scrollIntoView: jest.fn()
-    }
+    // const codemirror = {
+    //   addOverlay: jest.fn(),
+    //   removeOverlay: jest.fn(),
+    //   getSearchCursor: jest.fn(() => cursor),
+    //   setSelection: jest.fn(),
+    //   scrollIntoView: jest.fn()
+    // }
 
     const wrapper = factory.wrap({ edit: true })
     await store.dispatch('files/mock', { active: '/project/path' })
@@ -247,26 +257,26 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should set a functional CodeMirror mode object to overlay when search query changes in edit mode', async () => {
-    const cursor = {
-      findNext: jest.fn(),
-      findPrevious: jest.fn(),
-      from: jest.fn(() => 1),
-      to: jest.fn(() => 100)
-    }
+    // const cursor = {
+    //   findNext: jest.fn(),
+    //   findPrevious: jest.fn(),
+    //   from: jest.fn(() => 1),
+    //   to: jest.fn(() => 100)
+    // }
 
-    const codemirror = {
-      addOverlay: jest.fn(),
-      removeOverlay: jest.fn(),
-      getSearchCursor: jest.fn(() => cursor),
-      setSelection: jest.fn(),
-      scrollIntoView: jest.fn()
-    }
+    // const codemirror = {
+    //   addOverlay: jest.fn(),
+    //   removeOverlay: jest.fn(),
+    //   getSearchCursor: jest.fn(() => cursor),
+    //   setSelection: jest.fn(),
+    //   scrollIntoView: jest.fn()
+    // }
 
     const wrapper = factory.wrap({ edit: true })
     await store.dispatch('files/mock', { active: '/project/path' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    wrapper.vm.$refs.editor.codemirror = codemirror
+    // wrapper.vm.$refs.editor.codemirror = codemirror
 
     await store.dispatch('files/mock', { content: '# Mock' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -292,5 +302,139 @@ describe('EditorInterface.vue', () => {
     const token_none = { pos: 0, string: 'match none', skipToEnd: jest.fn() }
     wrapper.vm.overlay.token(token_none)
     expect(token_none.skipToEnd).toHaveBeenCalledTimes(1)
+  })
+
+  it('should set clipboard with codemirror data when cut is called in edit mode', async () => {
+    const wrapper = factory.wrap({ edit: true })
+    await store.dispatch('files/mock', { active: '/project/path' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    let action
+    wrapper.vm.context.forEach(item => {
+      if (item.title === 'Cut') {
+        action = item.action
+      }
+    })
+
+    action()
+
+    expect(wrapper.vm.$refs.editor.codemirror.getSelection).toHaveBeenCalledTimes(1)
+    expect(wrapper.vm.$refs.editor.codemirror.replaceSelection).toHaveBeenCalledTimes(1)
+    expect(clipboard.writeText).toHaveBeenCalledTimes(1)
+  })
+
+  it('should set clipboard with codemirror data when copy is called in edit mode', async () => {
+    const wrapper = factory.wrap({ edit: true })
+    await store.dispatch('files/mock', { active: '/project/path' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    let action
+    wrapper.vm.context.forEach(item => {
+      if (item.title === 'Copy') {
+        action = item.action
+      }
+    })
+
+    action()
+
+    expect(wrapper.vm.$refs.editor.codemirror.getSelection).toHaveBeenCalledTimes(1)
+    expect(clipboard.writeText).toHaveBeenCalledTimes(1)
+  })
+
+  it('should set clipboard with document data when copy is called in read mode', async () => {
+    document.getSelection = jest.fn(() => 'selected text')
+
+    const wrapper = factory.wrap({})
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const event = jest.fn()
+    wrapper.vm.$on('context', event)
+
+    let action
+    wrapper.vm.context.forEach(item => {
+      if (item.title === 'Copy') {
+        action = item.action
+      }
+    })
+
+    action()
+
+    expect(document.getSelection).toHaveBeenCalledTimes(1)
+    expect(clipboard.writeText).toHaveBeenCalledTimes(1)
+  })
+
+  it('should paste clipboard into codemirror when paste is called in edit mode', async () => {
+    const wrapper = factory.wrap({ edit: true })
+    await store.dispatch('files/mock', { active: '/project/path' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    let action
+    wrapper.vm.context.forEach(item => {
+      if (item.title === 'Paste') {
+        action = item.action
+      }
+    })
+
+    action()
+
+    expect(wrapper.vm.$refs.editor.codemirror.replaceSelection).toHaveBeenCalledTimes(1)
+  })
+
+  it('should disable cut when in read mode', async () => {
+    const wrapper = factory.wrap({})
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    let active
+    wrapper.vm.context.forEach(item => {
+      if (item.title === 'Cut') {
+        active = item.active
+      }
+    })
+
+    expect(active()).toBeFalsy()
+  })
+
+  it('should disable paste when in read mode', async () => {
+    const wrapper = factory.wrap({})
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    let active
+    wrapper.vm.context.forEach(item => {
+      if (item.title === 'Paste') {
+        active = item.active
+      }
+    })
+
+    expect(active()).toBeFalsy()
+  })
+
+  it('should enable cut when in edit mode', async () => {
+    const wrapper = factory.wrap({ edit: true })
+    await store.dispatch('files/mock', { active: '/project/path' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    let active
+    wrapper.vm.context.forEach(item => {
+      if (item.title === 'Cut') {
+        active = item.active
+      }
+    })
+
+    expect(active()).toBeTruthy()
+  })
+
+  it('should enable paste when in edit mode', async () => {
+    const wrapper = factory.wrap({ edit: true })
+    await store.dispatch('files/mock', { active: '/project/path' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    let active
+    wrapper.vm.context.forEach(item => {
+      if (item.title === 'Paste') {
+        active = item.active
+      }
+    })
+
+    expect(active()).toBeTruthy()
   })
 })

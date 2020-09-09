@@ -16,6 +16,7 @@ import 'codemirror/addon/search/searchcursor.js'
 Vue.component('split-pane', SplitPane)
 
 Vue.use(VueCodemirror, {
+  events: ['contextmenu'],
   options: {
     tabSize: 4,
     mode: 'text/x-markdown',
