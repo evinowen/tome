@@ -5,8 +5,8 @@
       <v-text-field ref="input" class="search-input" @input=update @keydown.enter=next rows=1 :messages=status clearable />
       <div class="search-navigation" v-if=navigation>
         <v-item-group multiple>
-          <v-btn tile small @click=previous><v-icon>mdi-chevron-left</v-icon></v-btn>
-          <v-btn tile small @click=next><v-icon>mdi-chevron-right</v-icon></v-btn>
+          <v-btn tile small @click=previous :disabled=!query><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn tile small @click=next :disabled=!query><v-icon>mdi-chevron-right</v-icon></v-btn>
         </v-item-group>
         <div><small>{{ navigation.target }} / {{ navigation.total }}</small></div>
       </div>
@@ -133,7 +133,8 @@ export default {
   computed: {
     status: () => store.state.search?.status,
     results: () => store.state.search?.results,
-    navigation: () => store.state.search?.navigation
+    navigation: () => store.state.search?.navigation,
+    query: () => store.state.search?.query
   },
   methods: {
     update: query => store.dispatch('search/query', { query }),
