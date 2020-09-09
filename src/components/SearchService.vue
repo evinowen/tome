@@ -2,7 +2,7 @@
   <div class="search-container">
     <v-toolbar class="search-box">
       <v-btn tile small :depressed=files @click="files = !files"><v-icon>mdi-file-multiple</v-icon></v-btn>
-      <v-text-field ref="input" class="search-input" @input=update rows=1 :messages=status clearable />
+      <v-text-field ref="input" class="search-input" @input=update @keydown.enter=next rows=1 :messages=status clearable />
       <div class="search-navigation" v-if=navigation>
         <v-item-group multiple>
           <v-btn tile small @click=previous><v-icon>mdi-chevron-left</v-icon></v-btn>
