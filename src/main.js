@@ -9,6 +9,9 @@ import SplitPane from 'vue-splitpane'
 import VueCodemirror from 'vue-codemirror'
 import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/lib/codemirror.css'
+import 'codemirror/addon/scroll/simplescrollbars.css'
+import 'codemirror/addon/scroll/simplescrollbars.js'
+import 'codemirror/addon/search/searchcursor.js'
 
 Vue.component('split-pane', SplitPane)
 
@@ -18,7 +21,8 @@ Vue.use(VueCodemirror, {
     mode: 'text/x-markdown',
     theme: 'base16-dark',
     lineNumbers: true,
-    line: true
+    line: true,
+    scrollbarStyle: 'overlay'
   }
 })
 

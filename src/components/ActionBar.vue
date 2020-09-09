@@ -49,7 +49,7 @@
 
       <v-divider inset vertical />
 
-      <v-spacer></v-spacer>
+      <v-spacer class="crawling">{{ status }}</v-spacer>
 
       <v-divider inset vertical />
 
@@ -87,6 +87,13 @@
           </div>
         </div>
       </v-expand-x-transition>
+
+      <v-divider inset vertical />
+
+      <!-- SEARCH BUTTON -->
+      <v-btn action-bar-search tile small icon color="accent" class="button pa-0" @click.stop="$emit('search')" :disabled="commit || push">
+        <v-icon small>mdi-magnify</v-icon>
+      </v-btn>
 
     </template>
 
@@ -145,6 +152,11 @@
 
 }
 
+.crawling {
+  padding: 0 4px;
+  font-size: 0.8em;
+}
+
 </style>
 
 <script>
@@ -194,8 +206,10 @@ export default {
   computed: {
     tome: function () {
       return store.state.tome
+    },
+    status: function () {
+      return store.state.files.tree ? store.state.files.tree.daemon.status : ''
     }
-
   },
 
   components: {

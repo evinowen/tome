@@ -39,18 +39,18 @@ const assemble = (object, default_props, default_listeners) => {
       factory.context = factory.component.context()
     }
 
-    factory.localVue = createLocalVue()
-
-    if (factory.component.hook) {
-      factory.component.hook(factory)
-    }
-
     return factory
   }
 
   factory.wrap = (props, listeners) => {
     if (!factory.trap) {
       factory.make()
+    }
+
+    factory.localVue = createLocalVue()
+
+    if (factory.component.hook) {
+      factory.component.hook(factory)
     }
 
     factory.trap = false

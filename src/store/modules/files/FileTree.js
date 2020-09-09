@@ -1,29 +1,23 @@
 import { remote } from 'electron'
-import { v4 as uuidv4 } from 'uuid'
+import File from './File'
 
 export default class FileTree {
   constructor (path) {
-    Object.assign(this, this.make({
+    this.base = new File({
       path,
       expanded: true,
       directory: true
-    }))
+    })
+
+    this.index = null
+    this.crawling = null
+    this.daemon = { promise: null, status: '' }
+    this.timestamp = 0
+
+    this.documents = []
   }
 
-  identify (path) {
-    const _path = remote.require('path')
-
-    if (String(path).indexOf(this.path) !== 0) {
-      return null
-    }
-
-    const relative = _path.relative(this.path, path)
-    const items = relative.split(_path.sep)
-
-    return this.search(this, items)
-  }
-
-  search (element, items) {
+  static search (element, items) {
     const name = items.shift()
 
     if (name === '') {
@@ -38,68 +32,81 @@ export default class FileTree {
     }
 
     if (items.length && items[0] !== '') {
-      return this.search(children[index], items)
+      return FileTree.search(children[index], items)
     }
 
     return { item: children[index], parent: element, index }
   }
 
-  sort (path) {
+  identify (path) {
+    const _path = remote.require('path')
+
+    const relative = _path.relative(this.base.path, path)
+    const items = relative.split(_path.sep)
+
+    return FileTree.search(this.base, items)
+  }
+
+  load (path) {
     const { item } = this.identify(path)
 
-    if (!item) return false
-
-    item.children.sort((first, second) => {
-      const name = (first, second) => {
-        return first.path === second.path ? 0 : (first.path < second.path ? -1 : 1)
-      }
-
-      if (first.directory && second.directory) {
-        return name(first, second)
-      } else if (first.directory) {
-        return -1
-      } else if (second.directory) {
-        return 1
-      } else {
-        return name(first, second)
-      }
-    })
-
-    return true
+    return item.load()
   }
 
-  make (data) {
-    return {
-      uuid: uuidv4(),
-      name: null,
-      path: null,
-      parent: null,
-      directory: false,
-      disabled: true,
-      children: [],
-      expanded: false,
-      ...data
+  populate (path) {
+    const { item } = this.identify(path)
+
+    return item.populate()
+  }
+
+  async daemonize (callback = () => true, delay = 1000) {
+    while (callback()) {
+      await this.crawl()
+
+      if (!delay) {
+        continue
+      }
+
+      await new Promise((resolve, reject) => setTimeout(resolve, delay))
     }
   }
 
-  mapper (parent) {
-    return (data) => {
-      const _path = remote.require('path')
-      const item = this.make({
-        name: data.name,
-        path: _path.join(parent.path, data.name),
-        directory: data.isDirectory(),
-        parent
-      })
+  async crawl () {
+    const time = 1
 
-      if (item.directory) {
-        item.children = []
-        if (!['.git'].includes(item.name)) {
-          item.disabled = false
+    const documents = []
+
+    let dirty = false
+
+    let stack_current = []
+    let stack_next = [this.base]
+
+    this.daemon.status = 'Initialize'
+    while (stack_next.length) {
+      stack_current = stack_next
+      stack_next = []
+
+      while (stack_current.length) {
+        const item = stack_current.shift()
+
+        this.daemon.status = `Loading ${item.path}`
+        const result = await item.crawl(time)
+
+        dirty = result.dirty || dirty
+
+        if (item.document) {
+          documents.push(item.document)
         }
-      }
 
-      return item
+        stack_next.push(...result.children)
+      }
     }
+
+    if (dirty) {
+      this.documents = documents
+      this.timestamp = Date.now()
+    }
+
+    this.daemon.status = 'Ready'
   }
 }

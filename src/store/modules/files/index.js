@@ -1,5 +1,6 @@
 import { remote } from 'electron'
 import FileTree from './FileTree'
+import File from './File'
 
 export default {
   namespaced: true,
@@ -10,13 +11,19 @@ export default {
     tree: null,
     ghost: null,
     selected: null,
-    editing: false
+    editing: false,
+    daemon: {
+      promise: null,
+      callback: () => true,
+      delay: 1000
+    }
   },
   mutations: {
     initialize: function (state, data) {
       const { path } = data
 
       state.tree = new FileTree(path)
+      state.daemon.promise = state.tree.daemonize(state.daemon.callback, state.daemon.delay)
     },
     toggle: function (state, data) {
       const { path } = data
@@ -65,7 +72,7 @@ export default {
         parent.children.splice(index, 1)
       }
 
-      state.ghost = state.tree.make({ parent: item, ephemeral: true, directory })
+      state.ghost = new File({ parent: item, ephemeral: true, directory })
       state.selected = state.ghost
       state.editing = true
 
@@ -88,24 +95,13 @@ export default {
       const { item } = context.state.tree.identify(path)
 
       if (!item.expanded) {
-        await context.dispatch('populate', { path })
+        await context.state.tree.load(path)
       }
 
       await context.commit('toggle', { path })
     },
     populate: async function (context, { path }) {
-      const _fs = remote.require('fs')
-      const { item } = context.state.tree.identify(path)
-
-      const files = await new Promise((resolve, reject) => _fs.readdir(
-        item.path,
-        { withFileTypes: true },
-        (err, files) => err ? reject(err) : resolve(files)
-      ))
-
-      item.children.length = 0
-      item.children.push(...files.map(context.state.tree.mapper(item)))
-      context.state.tree.sort(item.path)
+      context.state.tree.populate(path)
     },
     ghost: async function (context, { path, directory }) {
       const _fs = remote.require('fs')

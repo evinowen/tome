@@ -66,6 +66,7 @@ describe('App.vue', () => {
       stubs: {
         NewFileService: true,
         ContextMenuService: true,
+        SearchService: true,
         SystemBar: true,
         EditorInterface: true,
         ActionBar: true

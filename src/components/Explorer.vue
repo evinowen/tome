@@ -66,7 +66,7 @@ export default {
       return store.state.files.editing
     },
     root: function () {
-      return store.state.files.tree
+      return store.state.files.tree ? store.state.files.tree.base : null
     }
   },
   methods: {

@@ -22,7 +22,12 @@ jest.mock('@/store', () => ({
       active: null,
       content: null,
       error: null,
-      tree: {}
+      tree: {
+        base: {
+          expanded: false,
+          children: []
+        }
+      }
     }
   },
   dispatch: jest.fn()
@@ -372,5 +377,35 @@ describe('Explorer.vue', () => {
 
     expect(shell.openItem).toHaveBeenCalledTimes(1)
     expect(path.dirname).toHaveBeenCalledTimes(1)
+  })
+
+  it('should instruct the template service to execute when template is called', async () => {
+    const wrapper = factory.wrap({ expanded: true })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
+
+    expect(store.dispatch).toHaveBeenCalledTimes(0)
+
+    const state = { test: 'test' }
+    await wrapper.vm.template(state)
+
+    expect(store.dispatch).toHaveBeenCalledTimes(1)
+    expect(store.dispatch.mock.calls[0][0]).toBe('templates/execute')
+    expect(store.dispatch.mock.calls[0][1]).toBe(state)
+  })
+
+  it('should instruct the action service to execute when action is called', async () => {
+    const wrapper = factory.wrap({ expanded: true })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
+
+    expect(store.dispatch).toHaveBeenCalledTimes(0)
+
+    const state = { test: 'test' }
+    await wrapper.vm.action(state)
+
+    expect(store.dispatch).toHaveBeenCalledTimes(1)
+    expect(store.dispatch.mock.calls[0][0]).toBe('actions/execute')
+    expect(store.dispatch.mock.calls[0][1]).toBe(state)
   })
 })

@@ -50,6 +50,7 @@ const _readdir = (path) => {
 
 const fs = {
   readdir: jest.fn((path, options, callback) => (callback ?? options)(0, _readdir(path))),
+  readFile: jest.fn((path, encoding, callback) => callback(null, '# Header\nContent')),
   readFileSync: jest.fn((path, options) => '# Header\nContent'),
   writeFile: jest.fn((file, data, options, callback) => (callback ?? options)(null)),
   mkdir: jest.fn((path, options, callback) => (callback ?? options)(null)),
@@ -107,6 +108,8 @@ describe('store/modules/files', () => {
 
     disk = {
       'project': {
+        '.git': {},
+        '.tome': {},
         'first': {
           'a.md': null,
           'b.md': null,
@@ -129,6 +132,8 @@ describe('store/modules/files', () => {
     }
 
     store = new Vuex.Store(cloneDeep({ modules: { files } }))
+    store.state.files.daemon.callback = jest.fn(() => false)
+    store.state.files.daemon.delay = 0
   })
 
   afterEach(() => {
@@ -143,6 +148,43 @@ describe('store/modules/files', () => {
     await store.dispatch('files/initialize', { path })
 
     expect(store.state.files.tree).not.toBeNull()
+  })
+
+  it('should start the daemon and crawl the file hierarchy on initialize', async () => {
+    store.state.files.daemon.callback.mockReturnValueOnce(true)
+
+    const path = '/project'
+
+    expect(store.state.files.tree).toBeNull()
+    expect(store.state.files.daemon.promise).toBeNull()
+
+    await store.dispatch('files/initialize', { path })
+
+    expect(store.state.files.tree).not.toBeNull()
+    expect(store.state.files.daemon.promise).not.toBeNull()
+
+    await expect(store.state.files.daemon.promise).resolves.toBeUndefined()
+
+    expect(store.state.files.daemon.callback).toHaveBeenCalledTimes(2)
+  })
+
+  it('should wait between check cycles when the daemon has a delay', async () => {
+    store.state.files.daemon.callback.mockReturnValueOnce(true)
+    store.state.files.daemon.delay = 1
+
+    const path = '/project'
+
+    expect(store.state.files.tree).toBeNull()
+    expect(store.state.files.daemon.promise).toBeNull()
+
+    await store.dispatch('files/initialize', { path })
+
+    expect(store.state.files.tree).not.toBeNull()
+    expect(store.state.files.daemon.promise).not.toBeNull()
+
+    await expect(store.state.files.daemon.promise).resolves.toBeUndefined()
+
+    expect(store.state.files.daemon.callback).toHaveBeenCalledTimes(2)
   })
 
   it('should load children for an item on populate', async () => {
@@ -270,7 +312,7 @@ describe('store/modules/files', () => {
     expect(store.state.files.ghost.parent.path).toBe(directory)
   })
 
-  it('should use the  the ghost adjacent to the target provided', async () => {
+  it('should use the the ghost adjacent to the target provided', async () => {
     const path = '/project'
     const directory = '/project/first'
 
@@ -321,6 +363,26 @@ describe('store/modules/files', () => {
     await store.dispatch('files/submit', { path: directory, input, title: false })
 
     expect(fs.mkdir).toHaveBeenCalledTimes(1)
+  })
+
+  it('should fail gracefully when creating a new item that already exists', async () => {
+    const path = '/project'
+    const directory = '/project/first'
+    const input = 'new'
+
+    await store.dispatch('files/initialize', { path })
+    await store.dispatch('files/populate', { path })
+    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/ghost', { path: directory, directory: true })
+
+    const { item } = store.state.files.tree.identify(directory)
+
+    expect(item.directory).toBeTruthy()
+    expect(fs.mkdir).toHaveBeenCalledTimes(0)
+
+    fs.access.mockImplementationOnce((path, callback) => callback(null))
+
+    await expect(store.dispatch('files/submit', { path: directory, input, title: false })).rejects.toBeDefined()
   })
 
   it('should create a new file item on submit when file item is ephemeral', async () => {
@@ -418,6 +480,29 @@ describe('store/modules/files', () => {
     const { item: item_before } = store.state.files.tree.identify(target)
     expect(item_before).toBeDefined()
 
+    await store.dispatch('files/move', { path: target, proposed: proposed_directory })
+
+    const { item: item_previous } = store.state.files.tree.identify(target)
+    const { item: item_current } = store.state.files.tree.identify(proposed)
+    expect(item_previous).toBeNull()
+    expect(item_current).toBeDefined()
+  })
+
+  it('should relocate item on move to proposed parent if proposed is not a directory', async () => {
+    const path = '/project'
+    const target_directory = '/project/first'
+    const target = '/project/first/a.md'
+    const proposed_directory = '/project/second'
+    const proposed = '/project/second/a.md'
+
+    await store.dispatch('files/initialize', { path })
+    await store.dispatch('files/populate', { path })
+    await store.dispatch('files/populate', { path: target_directory })
+    await store.dispatch('files/populate', { path: proposed_directory })
+
+    const { item: item_before } = store.state.files.tree.identify(target)
+    expect(item_before).toBeDefined()
+
     await store.dispatch('files/move', { path: target, proposed })
 
     const { item: item_previous } = store.state.files.tree.identify(target)
@@ -425,6 +510,7 @@ describe('store/modules/files', () => {
     expect(item_previous).toBeNull()
     expect(item_current).toBeDefined()
   })
+
   it('should not relocate item on move if the directory does not change', async () => {
     const path = '/project'
     const target_directory = '/project/first'
@@ -440,7 +526,7 @@ describe('store/modules/files', () => {
     const { item: item_before } = store.state.files.tree.identify(target)
     expect(item_before).toBeDefined()
 
-    await store.dispatch('files/move', { path: target, proposed })
+    await store.dispatch('files/move', { path: target, proposed: proposed_directory })
 
     const { item: item_previous } = store.state.files.tree.identify(target)
     const { item: item_current } = store.state.files.tree.identify(proposed)
