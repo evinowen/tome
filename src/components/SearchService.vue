@@ -5,8 +5,8 @@
       <v-text-field ref="input" class="search-input" @input=update rows=1 :messages=status clearable />
       <div class="search-navigate" v-if=navigate>
         <v-item-group multiple>
-          <v-btn tile small @click=previous :disabled="navigate.total < 1 || navigate.target <= 1"><v-icon>mdi-chevron-left</v-icon></v-btn>
-          <v-btn tile small @click=next :disabled="navigate.total < 1 || navigate.target >= navigate.total"><v-icon>mdi-chevron-right</v-icon></v-btn>
+          <v-btn tile small @click=previous><v-icon>mdi-chevron-left</v-icon></v-btn>
+          <v-btn tile small @click=next><v-icon>mdi-chevron-right</v-icon></v-btn>
         </v-item-group>
         <div><small>{{ navigate.target }} / {{ navigate.total }}</small></div>
       </div>
