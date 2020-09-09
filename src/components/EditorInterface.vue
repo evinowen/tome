@@ -15,7 +15,13 @@
         <scrolly-viewport>
           <div class="fill-height">
             <div v-show="content" style="height: 100%; padding: 0px;" >
-              <div id="editor-interface-rendered" ref="rendered" v-html="rendered" class="pa-2" />
+              <div
+                ref="rendered"
+                id="editor-interface-rendered"
+                class="pa-2"
+                v-html="rendered"
+                @contextmenu="$emit('context', { selection: { context }, event: $event })"
+              />
             </div>
             <empty-view v-if="!content" />
           </div>
@@ -28,7 +34,14 @@
         <commit-view v-if="commit" @close="$emit('commit:close')" />
         <push-view v-else-if="push" @close="$emit('push:close')" />
 
-        <codemirror ref="editor" v-if="edit && active" :value="content" @input=save />
+        <codemirror
+          ref="editor"
+          v-if="edit && active"
+          :value="content"
+          @input=save
+          @contextmenu="(cm, event) => $emit('context', { selection: { context }, event })"
+        />
+
         <div v-else class="full_size">
           <empty-view>{{ error }}</empty-view>
         </div>
@@ -89,6 +102,7 @@
 </style>
 
 <script>
+import { clipboard } from 'electron'
 import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
 import Mark from 'mark.js'
@@ -142,6 +156,43 @@ export default {
     },
     target: function () {
       return this.$store.state.search.navigation.target
+    },
+    context: function () {
+      return [
+        {
+          title: 'Cut',
+          active: () => this.edit,
+          action: () => {
+            const cm = this.$refs.editor.codemirror
+            const selection = cm.getSelection()
+
+            clipboard.writeText(selection)
+            cm.replaceSelection('')
+          }
+        },
+        {
+          title: 'Copy',
+          action: () => {
+            let selection
+            if (this.edit) {
+              const cm = this.$refs.editor.codemirror
+              selection = cm.getSelection()
+            } else {
+              selection = document.getSelection().toString()
+            }
+
+            clipboard.writeText(selection)
+          }
+        },
+        {
+          title: 'Paste',
+          active: () => this.edit,
+          action: () => {
+            const cm = this.$refs.editor.codemirror
+            cm.replaceSelection(clipboard.readText())
+          }
+        }
+      ]
     }
   },
   watch: {
