@@ -11,8 +11,13 @@ const mock = {
       const path = String(data.__target).split('.')
       delete data.__target
 
-      let key
-      while (key = path.shift()) {
+      while (true) {
+        const key = path.shift()
+
+        if (!key) {
+          break
+        }
+
         target = target[key]
       }
     }
