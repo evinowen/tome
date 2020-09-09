@@ -11,36 +11,28 @@
     </template>
 
     <template slot="paneR">
-      <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
+      <scrolly v-show="!edit" ref="window" class="foo" :style="{ width: '100%', height: '100%' }">
         <scrolly-viewport>
-
-          <div v-show="!edit" class="fill-height">
+          <div class="fill-height">
             <div v-show="content" style="height: 100%; padding: 0px;" >
               <div id="editor-interface-rendered" ref="rendered" v-html="rendered" class="pa-2" />
             </div>
             <empty-view v-if="!content" />
           </div>
-
-          <div v-show="edit" class="fill-height">
-            <!-- COMMIT WINDOW -->
-            <commit-view v-if="commit" @close="$emit('commit:close')" />
-
-            <!-- PUSH WINDOW -->
-            <push-view v-else-if="push" @close="$emit('push:close')" />
-
-            <!-- OPEN FILE WINDOW -->
-            <codemirror ref="editor" v-show="active" :value="content" style="height: 100%;" @input=save />
-
-            <!-- ACTION OR ERROR MENUS -->
-            <div v-show="!active" class="full_size">
-              <empty-view>{{ error }}</empty-view>
-            </div>
-          </div>
-
         </scrolly-viewport>
         <scrolly-bar axis="y"></scrolly-bar>
         <scrolly-bar axis="x"></scrolly-bar>
       </scrolly>
+
+      <div v-show="edit" class="fill-height">
+        <commit-view v-if="commit" @close="$emit('commit:close')" />
+        <push-view v-else-if="push" @close="$emit('push:close')" />
+
+        <codemirror ref="editor" v-if="edit && active" :value="content" @input=save />
+        <div v-else class="full_size">
+          <empty-view>{{ error }}</empty-view>
+        </div>
+      </div>
 
     </template>
   </split-pane>
@@ -70,16 +62,27 @@
   padding: 0px;
 }
 
+.vue-codemirror {
+  height: 100% !important;
+  width: 100% !important;
+}
+
 .CodeMirror {
   border: 1px solid #eee;
+  height: 100% !important;
+  width: 100% !important;
   min-height: 100% !important;
   min-width: 100% !important;
   overflow: hidden;
 }
 
 .highlight-rendered {
-  background-color: lightgray;
-  outline: 2px solid #FF9810;
+  background-color: yellow;
+  color: black;
+}
+
+.highlight-rendered-focus {
+  outline: 3px solid #FF9810;
   color: black;
 }
 
@@ -105,7 +108,18 @@ export default {
     actions: [],
     error: '',
     overlay: null,
-    mark: null
+    mark: null,
+    regex: null,
+    focus: null,
+    mode: {
+      read: {
+        results: null
+      },
+      write: {
+        cursor: null,
+        position: 0
+      }
+    }
   }),
   mounted: function () {
     this.mark = new Mark('#editor-interface-rendered')
@@ -124,26 +138,35 @@ export default {
       return marked(this.content)
     },
     query: function () {
-      return this.$store.state.search?.query
+      return this.$store.state.search.query
+    },
+    target: function () {
+      return this.$store.state.search.navigation.target
     }
   },
   watch: {
-    query () {
-      this.search()
+    edit: async function () {
+      await this.search()
     },
-    content: function () {
-      this.search()
+    query: async function () {
+      await this.search()
     },
-    rendered: function () {
-      this.search()
+    content: async function () {
+      await this.search()
+    },
+    rendered: async function () {
+      await this.search()
+    },
+    target: async function () {
+      await this.navigate()
     }
   },
   methods: {
     save (content) {
       this.$store.dispatch('files/save', { content })
     },
-    search: function () {
-      const query = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
+    search: async function () {
+      this.regex = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
 
       if (this.edit) {
         const cm = this.$refs.editor.codemirror
@@ -154,8 +177,8 @@ export default {
 
         this.overlay = {
           token: (stream) => {
-            query.lastIndex = stream.pos
-            const match = query.exec(stream.string)
+            this.regex.lastIndex = stream.pos
+            const match = this.regex.exec(stream.string)
             if (match && match.index === stream.pos) {
               stream.pos += match[0].length || 1
               return 'searching'
@@ -167,16 +190,90 @@ export default {
           }
         }
 
-        cm.addOverlay(this.overlay, true)
+        cm.addOverlay(this.overlay, { opaque: true })
+
+        this.mode.write.cursor = null
+        this.mode.write.position = 0
+
+        const cursor = cm.getSearchCursor(this.query, 0, { caseFold: true })
+        let total = 0
+
+        while (cursor.findNext()) {
+          total++
+        }
+
+        this.$store.dispatch('search/navigate', { total, target: null })
       } else {
-        this.mark.unmark()
-        this.mark.markRegExp(
-          query,
-          {
-            className: 'highlight-rendered',
-            done: total => this.$store.dispatch('search/navigate', { total, target: null })
+        await new Promise((resolve, reject) => {
+          this.mark.unmark({ done: resolve })
+        })
+
+        const total = await new Promise((resolve, reject) => {
+          this.mark.markRegExp(
+            this.regex,
+            {
+              className: 'highlight-rendered',
+              separateWordSearch: false,
+              acrossElements: false,
+              done: total => {
+                this.$store.dispatch('search/navigate', { total, target: null })
+                resolve(total)
+              }
+            }
+          )
+        })
+
+        this.mode.read.results = this.$refs.rendered.querySelectorAll('mark > mark')
+
+        if (this.mode.read.results.length !== total) {
+          this.mode.read.results = this.$refs.rendered.querySelectorAll('mark')
+        }
+      }
+
+      await this.navigate()
+    },
+    navigate: async function () {
+      if (this.edit) {
+        const cm = this.$refs.editor.codemirror
+
+        if (!this.mode.write.cursor) {
+          this.mode.write.cursor = cm.getSearchCursor(this.query, 0, { caseFold: true })
+        }
+
+        if (!this.mode.write.position) {
+          this.mode.write.position = 0
+        }
+
+        if (this.$store.state.search.navigation.target > 0) {
+          while (this.mode.write.position !== this.$store.state.search.navigation.target) {
+            if (this.$store.state.search.navigation.target < this.mode.write.position) {
+              this.mode.write.position--
+
+              this.mode.write.cursor.findPrevious()
+            } else if (this.$store.state.search.navigation.target > this.mode.write.position) {
+              this.mode.write.position++
+
+              this.mode.write.cursor.findNext()
+            }
           }
-        )
+
+          const from = this.mode.write.cursor.from()
+          const to = this.mode.write.cursor.to()
+
+          cm.setSelection(from, to)
+          cm.scrollIntoView({ from, to })
+        }
+      } else {
+        if (this.focus) {
+          this.focus.classList.remove('highlight-rendered-focus')
+        }
+
+        this.focus = this.mode.read.results[this.$store.state.search.navigation.target - 1]
+
+        if (this.focus) {
+          this.focus.classList.add('highlight-rendered-focus')
+          this.focus.scrollIntoView()
+        }
       }
     }
   },
