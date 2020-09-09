@@ -3,12 +3,12 @@
     <v-toolbar class="search-box">
       <v-btn tile small :depressed=files @click="files = !files"><v-icon>mdi-file-multiple</v-icon></v-btn>
       <v-text-field ref="input" class="search-input" @input=update rows=1 :messages=status clearable />
-      <div class="search-navigate" v-if=navigate>
+      <div class="search-navigation" v-if=navigation>
         <v-item-group multiple>
           <v-btn tile small @click=previous><v-icon>mdi-chevron-left</v-icon></v-btn>
           <v-btn tile small @click=next><v-icon>mdi-chevron-right</v-icon></v-btn>
         </v-item-group>
-        <div><small>{{ navigate.target }} / {{ navigate.total }}</small></div>
+        <div><small>{{ navigation.target }} / {{ navigation.total }}</small></div>
       </div>
     </v-toolbar>
     <v-expand-transition>
@@ -35,7 +35,7 @@
   z-index: 1000
 }
 
-.search-navigate {
+.search-navigation {
   text-align: center;
 }
 
@@ -133,7 +133,7 @@ export default {
   computed: {
     status: () => store.state.search?.status,
     results: () => store.state.search?.results,
-    navigate: () => store.state.search?.navigate
+    navigation: () => store.state.search?.navigation
   },
   methods: {
     update: query => store.dispatch('search/query', { query }),
