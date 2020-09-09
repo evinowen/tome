@@ -1,18 +1,56 @@
 import { assemble } from '@/../tests/helpers'
 import builders from '@/../tests/builders'
 
+import Vue from 'vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 
 import SplitPane from 'vue-splitpane'
 import EditorInterface from '@/components/EditorInterface.vue'
 
-// Vue.use(Vuetify)
-// Vue.component('split-pane', SplitPane)
+jest.mock('mark.js', () => {
+  return function () {
+    return {
+      unmark: jest.fn((options) => options.done(true)),
+      markRegExp: jest.fn((regex, options) => options.done(3))
+    }
+  }
+})
+
+Vue.use(Vuetify)
+Vue.component('split-pane', SplitPane)
+
+function GenerateElementList (array) {
+  return array.map(item => ({
+    classList: {
+      add: jest.fn(),
+      remove: jest.fn()
+    },
+    scrollIntoView: jest.fn()
+  }))
+}
+
+const markjs_results_with_parents = GenerateElementList(['one-parent', 'one', 'two-parent', 'two', 'three-parent', 'three'])
+const markjs_results = GenerateElementList(['one', 'two', 'three'])
 
 describe('EditorInterface.vue', () => {
   let vuetify
   let store
+
+  const codemirror_cursor = {
+    findNext: jest.fn(() => false),
+    findPrevious: jest.fn(),
+    from: jest.fn(() => 1),
+    to: jest.fn(() => 100)
+  }
+
+  const codemirror = {
+    addOverlay: jest.fn(),
+    removeOverlay: jest.fn(),
+    getSearchCursor: jest.fn(() => codemirror_cursor),
+    setSelection: jest.fn(),
+    scrollIntoView: jest.fn()
+  }
 
   beforeEach(async () => {
   })
@@ -33,16 +71,20 @@ describe('EditorInterface.vue', () => {
         EmptyView: true,
         PushView: true,
         Explorer: true,
-        Codemirror: true
+        Codemirror: {
+          template: '<div />',
+          data: () => ({ codemirror })
+        }
       }
     }
   )).hook(({ context, localVue }) => {
     localVue.use(Vuetify)
+    localVue.use(Vuex)
     localVue.component('split-pane', SplitPane)
+
     vuetify = new Vuetify()
     context.vuetify = vuetify
 
-    localVue.use(Vuex)
     store = builders.store()
     context.store = store
   })
@@ -90,30 +132,74 @@ describe('EditorInterface.vue', () => {
     await store.dispatch('files/mock', { content: '# Mock' })
     await store.dispatch('search/mock', { query: '' })
 
-    const mark = {
-      unmark: jest.fn(),
-      markRegExp: jest.fn()
-    }
-
-    wrapper.setData({ mark })
-
     expect(wrapper.vm.query).toEqual('')
     expect(wrapper.vm.rendered).toEqual('<h1 id="mock">Mock</h1>\n')
+
+    wrapper.vm.$refs.rendered.querySelectorAll = jest.fn((test) => {
+      switch (test) {
+        case 'mark > mark': return markjs_results_with_parents
+        case 'mark': return markjs_results
+      }
+    })
+
+    expect(wrapper.vm.mode.read.results.length).toBe(0)
 
     await store.dispatch('search/mock', { query: 'mock' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(mark.unmark).toHaveBeenCalledTimes(1)
-    expect(mark.markRegExp).toHaveBeenCalledTimes(1)
+    expect(wrapper.vm.mode.read.results.length).not.toBeNull()
+    expect(wrapper.vm.mode.read.results.length).not.toBe(0)
+  })
+
+  it('should trigger search when the edit attribute changes', async () => {
+    const wrapper = factory.wrap({ edit: false })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    wrapper.vm.search = jest.fn()
+
+    await wrapper.setProps({ edit: true })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.search).toHaveBeenCalledTimes(1)
+  })
+
+  it('should trigger navigation when the target attribute changes', async () => {
+    const wrapper = factory.wrap({})
+    store.dispatch('search/mock', { navigation: { target: 1 } })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    wrapper.vm.navigate = jest.fn()
+
+    store.dispatch('search/mock', { navigation: { target: 2 } })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.navigate).toHaveBeenCalledTimes(1)
   })
 
   it('should update search highlight when the search query changes in edit mode', async () => {
+    const cursor = {
+      findNext: jest.fn(() => false),
+      findPrevious: jest.fn(),
+      from: jest.fn(() => 1),
+      to: jest.fn(() => 100)
+    }
+
+    cursor.findNext.mockImplementationOnce(true)
+    cursor.findNext.mockImplementationOnce(true)
+    cursor.findNext.mockImplementationOnce(true)
+
     const codemirror = {
       addOverlay: jest.fn(),
-      removeOverlay: jest.fn()
+      removeOverlay: jest.fn(),
+      getSearchCursor: jest.fn(() => cursor),
+      setSelection: jest.fn(),
+      scrollIntoView: jest.fn()
     }
 
     const wrapper = factory.wrap({ edit: true })
+    await store.dispatch('files/mock', { active: '/project/path' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
     wrapper.vm.$refs.editor.codemirror = codemirror
 
     await store.dispatch('files/mock', { content: '# Mock' })
@@ -123,20 +209,63 @@ describe('EditorInterface.vue', () => {
 
     codemirror.addOverlay.mockClear()
     codemirror.removeOverlay.mockClear()
+    codemirror.setSelection.mockClear()
+    codemirror.scrollIntoView.mockClear()
 
     await store.dispatch('search/mock', { query: 'mock' })
 
     expect(codemirror.removeOverlay).toHaveBeenCalledTimes(1)
     expect(codemirror.addOverlay).toHaveBeenCalledTimes(1)
+
+    expect(codemirror.setSelection).toHaveBeenCalledTimes(1)
+    expect(codemirror.setSelection.mock.calls[0][0]).toBe(1)
+    expect(codemirror.setSelection.mock.calls[0][1]).toBe(100)
+
+    expect(codemirror.scrollIntoView).toHaveBeenCalledTimes(1)
+    expect(codemirror.scrollIntoView.mock.calls[0][0]).toEqual({ from: 1, to: 100 })
+  })
+
+  it('should align search selection with target selection when higher then target and navigate triggers in edit mode', async () => {
+    const wrapper = factory.wrap({ edit: true })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    await store.dispatch('files/mock', { content: '# Mock' })
+    await store.dispatch('files/mock', { active: '/project/path' })
+
+    codemirror_cursor.findNext.mockImplementationOnce(() => true)
+    codemirror_cursor.findNext.mockImplementationOnce(() => true)
+    codemirror_cursor.findNext.mockImplementationOnce(() => true)
+
+    await store.dispatch('search/mock', { query: 'mock' })
+
+    wrapper.setData({ mode: { write: { position: 4 } } })
+
+    await store.dispatch('search/mock', { __target: 'navigation', target: 2 })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.mode.write.position).toBe(2)
   })
 
   it('should set a functional CodeMirror mode object to overlay when search query changes in edit mode', async () => {
+    const cursor = {
+      findNext: jest.fn(),
+      findPrevious: jest.fn(),
+      from: jest.fn(() => 1),
+      to: jest.fn(() => 100)
+    }
+
     const codemirror = {
       addOverlay: jest.fn(),
-      removeOverlay: jest.fn()
+      removeOverlay: jest.fn(),
+      getSearchCursor: jest.fn(() => cursor),
+      setSelection: jest.fn(),
+      scrollIntoView: jest.fn()
     }
 
     const wrapper = factory.wrap({ edit: true })
+    await store.dispatch('files/mock', { active: '/project/path' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
     wrapper.vm.$refs.editor.codemirror = codemirror
 
     await store.dispatch('files/mock', { content: '# Mock' })
