@@ -7,7 +7,7 @@ export default {
     query: null,
     results: null,
     navigation: {
-      target: 0,
+      target: 1,
       total: 0
     }
   },

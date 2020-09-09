@@ -124,7 +124,7 @@ describe('store/modules/search', () => {
   it('should update assign navigation when the navigate action is dispatched', async () => {
     const navigation = { target: 10, total: 100 }
 
-    expect(store.state.search.navigation.target).toBe(0)
+    expect(store.state.search.navigation.target).toBe(1)
     expect(store.state.search.navigation.total).toBe(0)
 
     await store.dispatch('search/navigate', navigation)
@@ -136,7 +136,7 @@ describe('store/modules/search', () => {
   it('should retain total when the navigate action is dispatched with only target', async () => {
     const navigation = { target: 10, total: 100 }
 
-    expect(store.state.search.navigation.target).toBe(0)
+    expect(store.state.search.navigation.target).toBe(1)
     expect(store.state.search.navigation.total).toBe(0)
 
     await store.dispatch('search/navigate', navigation)
@@ -153,7 +153,7 @@ describe('store/modules/search', () => {
   it('should retain target when the navigate action is dispatched with only total', async () => {
     const navigation = { target: 10, total: 100 }
 
-    expect(store.state.search.navigation.target).toBe(0)
+    expect(store.state.search.navigation.target).toBe(1)
     expect(store.state.search.navigation.total).toBe(0)
 
     await store.dispatch('search/navigate', navigation)
@@ -170,7 +170,7 @@ describe('store/modules/search', () => {
   it('should increment navigation when the next action is dispatched', async () => {
     const navigation = { target: 10, total: 100 }
 
-    expect(store.state.search.navigation.target).toBe(0)
+    expect(store.state.search.navigation.target).toBe(1)
     expect(store.state.search.navigation.total).toBe(0)
 
     await store.dispatch('search/navigate', navigation)
@@ -185,7 +185,7 @@ describe('store/modules/search', () => {
   it('should decrement navigation when the previous action is dispatched', async () => {
     const navigation = { target: 10, total: 100 }
 
-    expect(store.state.search.navigation.target).toBe(0)
+    expect(store.state.search.navigation.target).toBe(1)
     expect(store.state.search.navigation.total).toBe(0)
 
     await store.dispatch('search/navigate', navigation)
@@ -200,7 +200,7 @@ describe('store/modules/search', () => {
   it('should wrap navigation when the target equals one and the next action is dispatched', async () => {
     const navigation = { target: 100, total: 100 }
 
-    expect(store.state.search.navigation.target).toBe(0)
+    expect(store.state.search.navigation.target).toBe(1)
     expect(store.state.search.navigation.total).toBe(0)
 
     await store.dispatch('search/navigate', navigation)
@@ -215,7 +215,7 @@ describe('store/modules/search', () => {
   it('should wrap navigation when the target equals one and the previous action is dispatched', async () => {
     const navigation = { target: 1, total: 100 }
 
-    expect(store.state.search.navigation.target).toBe(0)
+    expect(store.state.search.navigation.target).toBe(1)
     expect(store.state.search.navigation.total).toBe(0)
 
     await store.dispatch('search/navigate', navigation)
