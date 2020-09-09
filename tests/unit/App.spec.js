@@ -207,7 +207,7 @@ describe('App.vue', () => {
 
     const state = {
       selection: {
-        context: [ ]
+        context: []
       },
       event: {
         clientX: 1,
