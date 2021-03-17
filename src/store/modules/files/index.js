@@ -12,18 +12,12 @@ export default {
     ghost: null,
     selected: null,
     editing: false,
-    daemon: {
-      promise: null,
-      callback: () => true,
-      delay: 1000
-    }
   },
   mutations: {
     initialize: function (state, data) {
       const { path } = data
 
       state.tree = new FileTree(path)
-      state.daemon.promise = state.tree.daemonize(state.daemon.callback, state.daemon.delay)
     },
     toggle: function (state, data) {
       const { path } = data

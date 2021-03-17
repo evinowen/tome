@@ -59,18 +59,6 @@ export default class FileTree {
     return item.populate()
   }
 
-  async daemonize (callback = () => true, delay = 1000) {
-    while (callback()) {
-      await this.crawl()
-
-      if (!delay) {
-        continue
-      }
-
-      await new Promise((resolve, reject) => setTimeout(resolve, delay))
-    }
-  }
-
   async crawl () {
     const time = 1
 
