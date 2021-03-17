@@ -1,6 +1,7 @@
 import { remote } from 'electron'
 import FileTree from './FileTree'
 import File from './File'
+import chokidar from 'chokidar'
 
 export default {
   namespaced: true,
@@ -12,12 +13,21 @@ export default {
     ghost: null,
     selected: null,
     editing: false,
+    watcher: null
   },
   mutations: {
     initialize: function (state, data) {
       const { path } = data
 
       state.tree = new FileTree(path)
+
+      if (state.watcher) {
+        state.watcher.close()
+      }
+
+      state.tree.crawl()
+
+      state.watcher = chokidar.watch(path).on('change', (event, path) => state.tree.crawl())
     },
     toggle: function (state, data) {
       const { path } = data

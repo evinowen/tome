@@ -11,7 +11,7 @@ export default class FileTree {
 
     this.index = null
     this.crawling = null
-    this.daemon = { promise: null, status: '' }
+    this.daemon = { promise: null, cycle: true, status: '' }
     this.timestamp = 0
 
     this.documents = []
@@ -60,41 +60,65 @@ export default class FileTree {
   }
 
   async crawl () {
-    const time = 1
+    const time = Date.now()
+    const id = Math.floor(Math.random() * Math.pow(10, 16))
 
-    const documents = []
+    if (this.crawling) {
+      console.log('Tree: Kill current crawl.', id)
+      this.daemon.cycle = false
+      await this.daemon.promise
+      console.log('Tree: Previous crawl complete, wake up.', id)
+    }
 
-    let dirty = false
+    console.log('Tree: Crawling ...', id)
+    this.crawling = true
 
-    let stack_current = []
-    let stack_next = [this.base]
-
+    this.daemon.cycle = true
     this.daemon.status = 'Initialize'
-    while (stack_next.length) {
-      stack_current = stack_next
-      stack_next = []
 
-      while (stack_current.length) {
-        const item = stack_current.shift()
+    this.daemon.promise = (async () => {
+      const documents = []
 
-        this.daemon.status = `Loading ${item.path}`
-        const result = await item.crawl(time)
+      let dirty = false
+      let stack_current = []
+      let stack_next = [this.base]
 
-        dirty = result.dirty || dirty
+      while (this.daemon.cycle && stack_next.length) {
+        stack_current = stack_next
+        stack_next = []
 
-        if (item.document) {
-          documents.push(item.document)
+        while (this.daemon.cycle && stack_current.length) {
+          const item = stack_current.shift()
+
+          this.daemon.status = `Loading ${item.path}`
+          const result = await item.crawl(time)
+
+          dirty = result.dirty || dirty
+
+          if (item.document) {
+            documents.push(item.document)
+          }
+
+          stack_next.push(...result.children)
+        }
+      }
+
+      if (this.daemon.cycle) {
+        if (dirty) {
+          this.documents = documents
+          this.timestamp = Date.now()
         }
 
-        stack_next.push(...result.children)
+        this.daemon.cycle = false
+        this.daemon.status = 'Ready'
+      } else {
+        this.daemon.status = 'Terminated'
       }
-    }
 
-    if (dirty) {
-      this.documents = documents
-      this.timestamp = Date.now()
-    }
+      this.crawling = false
+      console.log('Tree: done.', id)
+    })()
 
-    this.daemon.status = 'Ready'
+    return this.daemon.promise
   }
 }
