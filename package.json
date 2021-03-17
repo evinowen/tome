@@ -15,6 +15,7 @@
   },
   "main": "background.js",
   "dependencies": {
+    "chokidar": "^3.4.3",
     "core-js": "^3.6.4",
     "lunr": "^2.3.8",
     "mark.js": "^8.11.1",
