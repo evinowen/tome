@@ -66,14 +66,20 @@ export default class File {
   async populate () {
     const _fs = remote.require('fs')
 
-    const files = await new Promise((resolve, reject) => _fs.readdir(
+    const dirents = await new Promise((resolve, reject) => _fs.readdir(
       this.path,
       { withFileTypes: true },
       (err, files) => err ? reject(err) : resolve(files)
     ))
 
-    this.children.length = 0
-    this.children.push(...files.map(file => File.convert(file, this)))
+    for (const dirent of dirents) {
+      const child = this.children.find(file => file.name === dirent.name)
+
+      if (!child) {
+        this.children.push(File.convert(dirent, this))
+      }
+    }
+
     this.sort()
   }
 
