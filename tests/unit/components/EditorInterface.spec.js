@@ -9,7 +9,7 @@ import Vuetify from 'vuetify'
 import SplitPane from 'vue-splitpane'
 import EditorInterface from '@/components/EditorInterface.vue'
 
-jest.useFakeTimers();
+jest.useFakeTimers()
 
 jest.mock('electron', () => ({
   clipboard: {
