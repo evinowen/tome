@@ -9,6 +9,8 @@ import Vuetify from 'vuetify'
 import SplitPane from 'vue-splitpane'
 import EditorInterface from '@/components/EditorInterface.vue'
 
+jest.useFakeTimers();
+
 jest.mock('electron', () => ({
   clipboard: {
     readText: jest.fn(),
@@ -109,7 +111,10 @@ describe('EditorInterface.vue', () => {
 
     await wrapper.vm.save({ path: '/project/third' })
 
+    jest.runAllTimers()
+
     expect(store.dispatch).toHaveBeenCalledTimes(1)
+
     expect(store.dispatch.mock.calls[0][0]).toBe('files/save')
   })
 
