@@ -132,8 +132,6 @@ describe('store/modules/files', () => {
     }
 
     store = new Vuex.Store(cloneDeep({ modules: { files } }))
-    store.state.files.daemon.callback = jest.fn(() => false)
-    store.state.files.daemon.delay = 0
   })
 
   afterEach(() => {
@@ -148,43 +146,6 @@ describe('store/modules/files', () => {
     await store.dispatch('files/initialize', { path })
 
     expect(store.state.files.tree).not.toBeNull()
-  })
-
-  it('should start the daemon and crawl the file hierarchy on initialize', async () => {
-    store.state.files.daemon.callback.mockReturnValueOnce(true)
-
-    const path = '/project'
-
-    expect(store.state.files.tree).toBeNull()
-    expect(store.state.files.daemon.promise).toBeNull()
-
-    await store.dispatch('files/initialize', { path })
-
-    expect(store.state.files.tree).not.toBeNull()
-    expect(store.state.files.daemon.promise).not.toBeNull()
-
-    await expect(store.state.files.daemon.promise).resolves.toBeUndefined()
-
-    expect(store.state.files.daemon.callback).toHaveBeenCalledTimes(2)
-  })
-
-  it('should wait between check cycles when the daemon has a delay', async () => {
-    store.state.files.daemon.callback.mockReturnValueOnce(true)
-    store.state.files.daemon.delay = 1
-
-    const path = '/project'
-
-    expect(store.state.files.tree).toBeNull()
-    expect(store.state.files.daemon.promise).toBeNull()
-
-    await store.dispatch('files/initialize', { path })
-
-    expect(store.state.files.tree).not.toBeNull()
-    expect(store.state.files.daemon.promise).not.toBeNull()
-
-    await expect(store.state.files.daemon.promise).resolves.toBeUndefined()
-
-    expect(store.state.files.daemon.callback).toHaveBeenCalledTimes(2)
   })
 
   it('should load children for an item on populate', async () => {
