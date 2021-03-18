@@ -72,13 +72,19 @@ export default class File {
       (err, files) => err ? reject(err) : resolve(files)
     ))
 
+    const children = []
+
     for (const dirent of dirents) {
       const child = this.children.find(file => file.name === dirent.name)
 
-      if (!child) {
-        this.children.push(File.convert(dirent, this))
+      if (child) {
+        children.push(child)
+      } else {
+        children.push(File.convert(dirent, this))
       }
     }
+
+    Array.prototype.splice.apply(this.children, [0, this.children.length].concat(children))
 
     this.sort()
   }
