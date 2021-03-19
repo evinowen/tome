@@ -1,4 +1,5 @@
 import { remote } from 'electron'
+import chokidar from 'chokidar'
 import Vuex from 'vuex'
 import { cloneDeep } from 'lodash'
 
@@ -6,6 +7,7 @@ import { createLocalVue } from '@vue/test-utils'
 import files from '@/store/modules/files'
 
 jest.mock('electron', () => ({ remote: {} }))
+jest.mock('chokidar', () => ({ watch: {} }))
 
 let disk
 const disk_fetch = (path) => {
@@ -98,6 +100,13 @@ remote.require = jest.fn((target) => {
   }
 })
 
+chokidar.watch = jest.fn((path) => ({
+  on: jest.fn((event, callback) => {
+    callback(String(path).concat('/x.md'))
+    return { close: jest.fn() }
+  })
+}))
+
 describe('store/modules/files', () => {
   let localVue
   let store
@@ -146,6 +155,22 @@ describe('store/modules/files', () => {
     await store.dispatch('files/initialize', { path })
 
     expect(store.state.files.tree).not.toBeNull()
+  })
+
+  it('should reconstruct the file tree on reinitialize', async () => {
+    const path = '/project'
+
+    expect(store.state.files.tree).toBeNull()
+
+    await store.dispatch('files/initialize', { path })
+
+    expect(store.state.files.tree).not.toBeNull()
+
+    const first = store.state.files.tree
+
+    await store.dispatch('files/initialize', { path })
+
+    expect(store.state.files.tree).not.toBe(first)
   })
 
   it('should load children for an item on populate', async () => {
