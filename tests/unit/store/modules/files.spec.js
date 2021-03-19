@@ -1,4 +1,5 @@
 import { remote } from 'electron'
+import chokidar from 'chokidar'
 import Vuex from 'vuex'
 import { cloneDeep } from 'lodash'
 
@@ -6,6 +7,7 @@ import { createLocalVue } from '@vue/test-utils'
 import files from '@/store/modules/files'
 
 jest.mock('electron', () => ({ remote: {} }))
+jest.mock('chokidar', () => ({ watch: {} }))
 
 let disk
 const disk_fetch = (path) => {
@@ -98,6 +100,13 @@ remote.require = jest.fn((target) => {
   }
 })
 
+chokidar.watch = jest.fn((path) => ({
+  on: jest.fn((event, callback) => {
+    callback(String(path).concat('/x.md'))
+    return { close: jest.fn() }
+  })
+}))
+
 describe('store/modules/files', () => {
   let localVue
   let store
@@ -132,8 +141,6 @@ describe('store/modules/files', () => {
     }
 
     store = new Vuex.Store(cloneDeep({ modules: { files } }))
-    store.state.files.daemon.callback = jest.fn(() => false)
-    store.state.files.daemon.delay = 0
   })
 
   afterEach(() => {
@@ -150,41 +157,20 @@ describe('store/modules/files', () => {
     expect(store.state.files.tree).not.toBeNull()
   })
 
-  it('should start the daemon and crawl the file hierarchy on initialize', async () => {
-    store.state.files.daemon.callback.mockReturnValueOnce(true)
-
+  it('should reconstruct the file tree on reinitialize', async () => {
     const path = '/project'
 
     expect(store.state.files.tree).toBeNull()
-    expect(store.state.files.daemon.promise).toBeNull()
 
     await store.dispatch('files/initialize', { path })
 
     expect(store.state.files.tree).not.toBeNull()
-    expect(store.state.files.daemon.promise).not.toBeNull()
 
-    await expect(store.state.files.daemon.promise).resolves.toBeUndefined()
-
-    expect(store.state.files.daemon.callback).toHaveBeenCalledTimes(2)
-  })
-
-  it('should wait between check cycles when the daemon has a delay', async () => {
-    store.state.files.daemon.callback.mockReturnValueOnce(true)
-    store.state.files.daemon.delay = 1
-
-    const path = '/project'
-
-    expect(store.state.files.tree).toBeNull()
-    expect(store.state.files.daemon.promise).toBeNull()
+    const first = store.state.files.tree
 
     await store.dispatch('files/initialize', { path })
 
-    expect(store.state.files.tree).not.toBeNull()
-    expect(store.state.files.daemon.promise).not.toBeNull()
-
-    await expect(store.state.files.daemon.promise).resolves.toBeUndefined()
-
-    expect(store.state.files.daemon.callback).toHaveBeenCalledTimes(2)
+    expect(store.state.files.tree).not.toBe(first)
   })
 
   it('should load children for an item on populate', async () => {

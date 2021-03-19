@@ -125,6 +125,7 @@ export default {
     mark: null,
     regex: null,
     focus: null,
+    timeout: null,
     mode: {
       read: {
         results: null
@@ -214,7 +215,11 @@ export default {
   },
   methods: {
     save (content) {
-      this.$store.dispatch('files/save', { content })
+      if (this.timeout) {
+        clearTimeout(this.timeout)
+      }
+
+      this.timeout = setTimeout(() => this.$store.dispatch('files/save', { content }), 1000)
     },
     search: async function () {
       this.regex = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
