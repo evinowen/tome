@@ -61,16 +61,12 @@ export default class FileTree {
 
   async crawl () {
     const time = Date.now()
-    const id = Math.floor(Math.random() * Math.pow(10, 16))
 
     if (this.crawling) {
-      console.log('Tree: Kill current crawl.', id)
       this.daemon.cycle = false
       await this.daemon.promise
-      console.log('Tree: Previous crawl complete, wake up.', id)
     }
 
-    console.log('Tree: Crawling ...', id)
     this.crawling = true
 
     this.daemon.cycle = true
@@ -116,7 +112,6 @@ export default class FileTree {
       }
 
       this.crawling = false
-      console.log('Tree: done.', id)
     })()
 
     return this.daemon.promise

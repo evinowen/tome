@@ -42,7 +42,6 @@ export default {
         const stats = await new Promise((resolve, reject) => _fs.lstat(base, (err, stats) => err ? reject(err) : resolve(stats)))
 
         if (!stats.isDirectory()) {
-          console.log('No .tome/templates directory')
           return
         }
       } catch (error) {
@@ -98,8 +97,6 @@ export default {
         if (stats.isDirectory()) {
           if (await new Promise((resolve, reject) => _fs.access(proposed, (err) => err ? resolve(true) : resolve(false)))) {
             await new Promise((resolve, reject) => _fs.mkdir(proposed, (err) => err ? reject(err) : resolve(true)))
-          } else {
-            console.log('file already exists ->', proposed)
           }
 
           const files = await new Promise((resolve, reject) => _fs.readdir(source, (err, files) => err ? reject(err) : resolve(files)))
@@ -111,8 +108,6 @@ export default {
         } else {
           if (await new Promise((resolve, reject) => _fs.access(proposed, (err) => err ? resolve(true) : resolve(false)))) {
             await new Promise((resolve, reject) => _fs.copyFile(source, proposed, 0, (error) => error ? reject(error) : resolve(true)))
-          } else {
-            console.log('file already exists ->', proposed)
           }
         }
       }
