@@ -12,23 +12,25 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          name: Restore Yarn Package Cache
+          name: Restore Yarn Cache
           keys:
-            - yarn-packages-{{ checksum "yarn.lock" }}
+            - yarn-cache-{{ checksum "yarn.lock" }}
 
       - run:
           name: Install
           command: yarn install --frozen-lockfile
 
-      - run:
-          name: Show cache directory
-          command: dir ~/.cache/yarn
-
       - save_cache:
-          name: Save Yarn Package Cache
-          key: yarn-packages-{{ checksum "yarn.lock" }}
+          name: Save Yarn Cache
+          key: yarn-cache-{{ checksum "yarn.lock" }}
           paths:
-            - ~/.cache/yarn
+            - ~\AppData\Local\Yarn\Cache
+  test:
+    executor:
+      name: win/default
+      shell: powershell.exe
+
+    steps:
       - run:
           name: Run Lint
           command: yarn lint
@@ -46,7 +48,19 @@ jobs:
           path: reports/coverage/lcov-report
           destination: coverage
 
+  build:
+    executor:
+      name: win/default
+      shell: powershell.exe
+
+    steps:
+      - run:
+          name: Build
+          command: yarn electron:build
+
 workflows:
     execute:
       jobs:
         - load
+        - test
+        - build
