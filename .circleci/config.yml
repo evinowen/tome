@@ -27,7 +27,6 @@ jobs:
       name: win/default
       shell: powershell.exe
     steps:
-      - checkout
       - run:
           name: Run Lint
           command: yarn lint
@@ -47,14 +46,18 @@ jobs:
       name: win/default
       shell: powershell.exe
     steps:
-      - checkout
       - run:
           name: Build
           command: yarn electron:build
 
 workflows:
-    execute:
-      jobs:
-        - load
-        - test
-        - build
+  version: 2
+  execute:
+    jobs:
+      - load
+      - test:
+          requires:
+            - load
+      - build:
+          requires:
+            - test
