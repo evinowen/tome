@@ -31,6 +31,8 @@ jobs:
       name: win/default
       shell: powershell.exe
     steps:
+      - attach_workspace:
+          at: .
       - run:
           name: Run Lint
           command: yarn lint
@@ -50,9 +52,33 @@ jobs:
       name: win/default
       shell: powershell.exe
     steps:
+      - attach_workspace:
+          at: .
       - run:
           name: Build
           command: yarn electron:build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist_electron
+
+  package:
+    executor:
+      name: win/default
+      shell: powershell.exe
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install WiX Toolset
+          command: choco install wixtoolset 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist_electron
+      - store_artifacts:
+          path: C:\ProgramData\chocolatey\logs
+          destination: chocolatey_logs
 
 workflows:
   version: 2
@@ -65,3 +91,6 @@ workflows:
       - build:
           requires:
             - test
+      - package:
+          requires:
+            - build
