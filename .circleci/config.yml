@@ -11,7 +11,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          name: Restore Yarn Cache
+          name: Restore NodeJS Modules and Yarn Cache
           keys:
             - yarn-cache-{{ checksum "yarn.lock" }}
       - run:
@@ -22,10 +22,11 @@ jobs:
           paths:
             - .
       - save_cache:
-          name: Save Yarn Cache
+          name: Store NodeJS Modules and Yarn Cache
           key: yarn-cache-{{ checksum "yarn.lock" }}
           paths:
             - ~\AppData\Local\Yarn\Cache
+            - ./node_modules
   test:
     executor:
       name: win/default
