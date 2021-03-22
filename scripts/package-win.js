@@ -1,8 +1,9 @@
 const { MSICreator } = require('electron-wix-msi')
 const path = require('path')
 
-async function execute() {
+let interval;
 
+async function execute () {
   const appDirectory = path.resolve(__dirname, '../dist_electron/win-unpacked')
   const outputDirectory = path.resolve(__dirname, '../dist_electron/win-packed')
 
@@ -17,6 +18,14 @@ async function execute() {
 
   await creator.create()
   await creator.compile()
+
+  if (interval) {
+    clearInterval(interval)
+  }
 }
 
 execute()
+  .catch((e) => { console.log(e) })
+  .finally(() => { process.exit() })
+
+interval = setInterval(() => process.stdout.write('.'), 1000)
