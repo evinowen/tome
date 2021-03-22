@@ -75,7 +75,7 @@ jobs:
           command: choco install wixtoolset
       - run:
           name: Package Build
-          command: npx scripts/package-win.js
+          command: node scripts/package-win.js
       - persist_to_workspace:
           root: .
           paths:
