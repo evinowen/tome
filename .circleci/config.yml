@@ -1,49 +1,97 @@
 version: 2.1
+
 orbs:
-  node: circleci/node@1.1.6
+  win: circleci/windows@2.2.0
 
 jobs:
-  build-and-test:
-    docker:
-    - image: circleci/node:13.7.0-browsers
-
+  load:
+    executor:
+      name: win/default
+      shell: powershell.exe
     steps:
       - checkout
-      - node/with-cache:
-          steps:
-            - restore_cache:
-                name: Restore Yarn Package Cache
-                keys:
-                  - yarn-packages-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          name: Restore NodeJS Modules and Yarn Cache
+          keys:
+            - yarn-cache-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install
+          command: yarn install --frozen-lockfile
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+      - save_cache:
+          name: Store NodeJS Modules and Yarn Cache
+          key: yarn-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - ~\AppData\Local\Yarn\Cache
+            - ./node_modules
+  test:
+    executor:
+      name: win/default
+      shell: powershell.exe
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run Lint
+          command: yarn lint
+      - run:
+          name: Run Unit Tests
+          command: yarn electron:test:unit
+      - store_test_results:
+          name: Store Test Results
+          path: reports/junit
+      - store_artifacts:
+          name: Store Coverage Reports
+          path: reports/coverage/lcov-report
+          destination: coverage
 
-            - run:
-                name: Install
-                command: yarn install --frozen-lockfile
+  build:
+    executor:
+      name: win/default
+      shell: powershell.exe
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Build
+          command: yarn electron:build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist_electron
 
-            - save_cache:
-                name: Save Yarn Package Cache
-                key: yarn-packages-{{ checksum "yarn.lock" }}
-                paths:
-                  - ~/.cache/yarn
-
-            - run:
-                name: Run Lint
-                command: yarn lint
-
-            - run:
-                name: Run Unit Tests
-                command: yarn electron:test:unit
-
-            - store_test_results:
-                name: Store Test Results
-                path: reports/junit
-
-            - store_artifacts:
-                name: Store Coverage Reports
-                path: reports/coverage/lcov-report
-                destination: coverage
+  package:
+    executor:
+      name: win/default
+      shell: powershell.exe
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install WiX Toolset
+          command: choco install wixtoolset 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist_electron
+      - store_artifacts:
+          path: C:\ProgramData\chocolatey\logs
+          destination: chocolatey_logs
 
 workflows:
-    build-and-test:
-      jobs:
-        - build-and-test
+  version: 2
+  execute:
+    jobs:
+      - load
+      - test:
+          requires:
+            - load
+      - build:
+          requires:
+            - test
+      - package:
+          requires:
+            - build
