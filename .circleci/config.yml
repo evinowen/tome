@@ -74,7 +74,7 @@ jobs:
           command: refreshenv
       - run:
           name: Add WiX Toolset to Path
-          command: $env:PATH += $env:WIX
+          command: $env:PATH += ";$($env:WIX)bin"
       - run:
           name: Package Build
           command: node scripts/package-win.js
