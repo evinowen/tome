@@ -61,7 +61,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - dist_electron
+            - dist_electron/win-unpacked
 
   package:
     executor:
@@ -72,11 +72,14 @@ jobs:
           at: .
       - run:
           name: Install WiX Toolset
-          command: choco install wixtoolset 
+          command: choco install wixtoolset
+      - run:
+          name: Package Build
+          command: npx scripts/package-win.js
       - persist_to_workspace:
           root: .
           paths:
-            - dist_electron
+            - dist_electron/win-packed
       - store_artifacts:
           path: C:\ProgramData\chocolatey\logs
           destination: chocolatey_logs
