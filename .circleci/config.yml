@@ -72,14 +72,16 @@ jobs:
           at: .
       - run:
           name: Install WiX Toolset
-          command: choco install wixtoolset
+          command: choco install -y wixtoolset
+      - run:
+          name: Refresh Powershell Environment
+          command: refreshenv
       - run:
           name: Package Build
           command: node scripts/package-win.js
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist_electron/win-packed
+      - store_artifacts:
+          path: dist_electron/win-packed
+          destination: package
       - store_artifacts:
           path: C:\ProgramData\chocolatey\logs
           destination: chocolatey_logs
