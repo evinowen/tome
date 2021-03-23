@@ -55,35 +55,10 @@ jobs:
       - run:
           name: Build
           command: yarn electron:build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist_electron/win-unpacked
-
-  package:
-    executor:
-      name: win/default
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Install WiX Toolset
-          command: choco install -y wixtoolset
-      - run:
-          name: Refresh Powershell Environment
-          command: refreshenv
-      - run:
-          name: Add WiX Toolset to Path
-          command: $env:PATH += ";$($env:WIX)bin"
-      - run:
-          name: Package Build
-          command: node scripts/package-win.js
       - store_artifacts:
-          path: dist_electron/win-packed
-          destination: package
-      - store_artifacts:
-          path: C:\ProgramData\chocolatey\logs
-          destination: chocolatey_logs
+          name: Store Coverage Reports
+          path: dist_electron/win-unpacked
+          destination: coverage
 
 workflows:
   version: 2
@@ -94,8 +69,6 @@ workflows:
           requires:
             - load
       - build:
+          type: approval
           requires:
             - test
-      - package:
-          requires:
-            - build
