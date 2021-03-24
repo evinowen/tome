@@ -73,7 +73,7 @@ jobs:
           command: New-Item -ItemType directory -Path bin
       - run:
           name: Move Setup Binary
-          command: Move-Item -Path $(Get-Content __setup-binary-out) $(Get-Content __setup-binary)
+          command: Move-Item -Path "$(Get-Content __setup-binary-out)" "$(Get-Content __setup-binary)"
       - persist_to_workspace:
           root: .
           paths:
