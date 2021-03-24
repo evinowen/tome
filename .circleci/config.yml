@@ -62,13 +62,16 @@ jobs:
       - run:
           name: Set PACKAGE_VERSION Environment Variable
           command: $env:PACKAGE_VERSION = (Get-Content -Raw -Path package.json | ConvertFrom-Json).version
+      - run:
+          name: Set SETUP_EXE Environment Variable
+          command: $env:SETUP_EXE = "$env:CIRCLE_WORKING_DIRECTORY/dist_electron/win-unpacked/$env:PACKAGE_NAME Setup $env:PACKAGE_VERSION.exe"
       - persist_to_workspace:
           root: .
           paths:
-            - ./dist_electron/win-unpacked/{{ $env:PACKAGE_NAME }} Setup {{ $env:PACKAGE_VERSION }}.exe
+            - $SETUP_EXE
       - store_artifacts:
           name: Store Installer
-          path: /dist_electron/win-unpacked/{{ $env:PACKAGE_NAME }} Setup {{ $env:PACKAGE_VERSION }}.exe
+          path: $SETUP_EXE
           destination: installer
 
   publish:
@@ -85,10 +88,13 @@ jobs:
           command: $env:PACKAGE_NAME = (Get-Content -Raw -Path package.json | ConvertFrom-Json).name
       - run:
           name: Set PACKAGE_VERSION Environment Variable
-          command: $env:PACKAGE_VERSION = (Get-Content -Raw -Path package.json | ConvertFrom-Json).version
+          command: $env:PACKAGE_VERSION = (Get-Content -Raw -Path package.json | ConvertFrom-Json).versionversion
+      - run:
+          name: Set SETUP_EXE Environment Variable
+          command: $env:SETUP_EXE = "$env:CIRCLE_WORKING_DIRECTORY/dist_electron/win-unpacked/$env:PACKAGE_NAME Setup $env:PACKAGE_VERSION.exe"
       - run:
           name: Publish Build
-          command: ghr -t $env:GITHUB_TOKEN -u $env:CIRCLE_PROJECT_USERNAME -r $env:CIRCLE_PROJECT_REPONAME -c $env:CIRCLE_SHA1 -delete $env:env:PACKAGE_VERSION "./dist_electron/win-unpacked/$env:PACKAGE_VERSION Setup $env:PACKAGE_VERSION.exe"
+          command: ghr -t $env:GITHUB_TOKEN -u $env:CIRCLE_PROJECT_USERNAME -r $env:CIRCLE_PROJECT_REPONAME -c $env:CIRCLE_SHA1 -delete $env:env:PACKAGE_VERSION $env:SETUP_EXE
 
 workflows:
   version: 2
