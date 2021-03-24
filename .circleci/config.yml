@@ -64,10 +64,10 @@ jobs:
           command: (Get-Content -Raw -Path package.json | ConvertFrom-Json).version | Out-File __package-version
       - run:
           name: Populate __setup-binary-out
-          command:  Write-Host "$($env:CIRCLE_WORKING_DIRECTORY)/dist_electron/win-unpacked/$(Get-Content __package-name) Setup $(Get-Content __package-version).exe" | Out-File __setup-binary-out
+          command: ("$($env:CIRCLE_WORKING_DIRECTORY)/dist_electron/win-unpacked/$(Get-Content __package-name) Setup $(Get-Content __package-version).exe") | Out-File __setup-binary-out
       - run:
           name: Populate __setup-binary
-          command:  Write-Host "$($env:CIRCLE_WORKING_DIRECTORY)/bin/$(Get-Content __package-name) Setup $(Get-Content __package-version).exe" | Out-File __setup-binary
+          command: ("$($env:CIRCLE_WORKING_DIRECTORY)/bin/$(Get-Content __package-name) Setup $(Get-Content __package-version).exe") | Out-File __setup-binary
       - run:
           name: Make Binary Directory
           command: New-Item -ItemType directory -Path bin
@@ -81,19 +81,19 @@ jobs:
       - store_artifacts:
           name: Store Test File __package-name
           path: __package-name
-          destination: test
+          destination: __package-name
       - store_artifacts:
           name: Store Test File __package-version
           path: __package-version
-          destination: test
+          destination: __package-version
       - store_artifacts:
           name: Store Test File __setup-binary-out
           path: __setup-binary-out
-          destination: test
+          destination: __setup-binary-out
       - store_artifacts:
           name: Store Test File __setup-binary
           path: __setup-binary
-          destination: test
+          destination: __setup-binary
       - store_artifacts:
           name: Store Installer
           path: bin
