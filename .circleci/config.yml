@@ -61,7 +61,7 @@ jobs:
           command: (Get-Content -Raw -Path package.json | ConvertFrom-Json).name | Out-File __package-name
       - run:
           name: Populate __package-version
-          command: (Get-Content -Raw -Path package.json | ConvertFrom-Json).name | Out-File __package-version
+          command: (Get-Content -Raw -Path package.json | ConvertFrom-Json).version | Out-File __package-version
       - run:
           name: Populate __setup-binary-out
           command:  Write-Host "$($env:CIRCLE_WORKING_DIRECTORY)/dist_electron/win-unpacked/$(Get-Content __package-name) Setup $(Get-Content __package-version).exe" | Out-File __setup-binary-out
@@ -78,6 +78,22 @@ jobs:
           root: .
           paths:
             - bin
+      - store_artifacts:
+          name: Store Test File __package-name
+          path: __package-name
+          destination: test
+      - store_artifacts:
+          name: Store Test File __package-version
+          path: __package-version
+          destination: test
+      - store_artifacts:
+          name: Store Test File __setup-binary-out
+          path: __setup-binary-out
+          destination: test
+      - store_artifacts:
+          name: Store Test File __setup-binary
+          path: __setup-binary
+          destination: test
       - store_artifacts:
           name: Store Installer
           path: bin
