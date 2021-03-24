@@ -9,11 +9,6 @@ jobs:
       name: win/default
     steps:
       - checkout
-      - restore_cache:
-          name: Restore NodeJS Modules and Yarn Cache
-          keys:
-            - yarn-cache-{{ checksum "yarn.lock" }}
-            - yarn-cache
       - run:
           name: Set PACKAGE_NAME Environment Variable
           command: $env:PACKAGE_NAME = (Get-Content -Raw -Path package.json | ConvertFrom-Json).name
@@ -25,7 +20,12 @@ jobs:
           command: $env:SETUP_EXE = "$env:CIRCLE_WORKING_DIRECTORY/dist_electron/win-unpacked/$env:PACKAGE_NAME Setup $env:PACKAGE_VERSION.exe"
       - run:
           name: Print SETUP_EXE Environment Variable
-          command: $env:SETUP_EXE
+          command: Write-Host $env:SETUP_EXE
+      - restore_cache:
+          name: Restore NodeJS Modules and Yarn Cache
+          keys:
+            - yarn-cache-{{ checksum "yarn.lock" }}
+            - yarn-cache
       - run:
           name: Install
           command: yarn install --frozen-lockfile --verbose
