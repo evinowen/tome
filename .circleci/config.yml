@@ -60,6 +60,22 @@ jobs:
           path: dist_electron/win-unpacked
           destination: coverage
 
+  publish:
+    executor:
+      name: win/default
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install ghr
+          command: go get github.com/tcnksm/ghr
+      - run:
+          name: Set VERSION Environment Variable
+          command: $env:VERSION = (Get-Content -Raw -Path package.json | ConvertFrom-Json).version
+      - run:
+          name: Publish Build
+          command: ghr -t $env:GITHUB_TOKEN -u $env:CIRCLE_PROJECT_USERNAME -r $env:CIRCLE_PROJECT_REPONAME -c $env:CIRCLE_SHA1 -delete $env:VERSION "./dist_electron/win-unpacked/Tome Setup $($env:VERSION).exe"
+
 workflows:
   version: 2
   execute:
@@ -70,4 +86,7 @@ workflows:
             - load
       - build:
           requires:
-            - test
+            - test            
+      - publish:
+          requires:
+            - build
