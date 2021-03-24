@@ -55,10 +55,17 @@ jobs:
       - run:
           name: Build
           command: yarn electron:build
+      - run:
+          name: Set VERSION Environment Variable
+          command: $env:VERSION = (Get-Content -Raw -Path package.json | ConvertFrom-Json).version
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "./dist_electron/win-unpacked/Tome Setup $($env:VERSION).exe"
       - store_artifacts:
-          name: Store Coverage Reports
-          path: dist_electron/win-unpacked
-          destination: coverage
+          name: Store Installer
+          path: "./dist_electron/win-unpacked/Tome Setup $($env:VERSION).exe"
+          destination: installer
 
   publish:
     executor:
