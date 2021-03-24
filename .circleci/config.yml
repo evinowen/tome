@@ -13,9 +13,10 @@ jobs:
           name: Restore NodeJS Modules and Yarn Cache
           keys:
             - yarn-cache-{{ checksum "yarn.lock" }}
+            - yarn-cache
       - run:
           name: Install
-          command: yarn install --frozen-lockfile
+          command: yarn install --frozen-lockfile --verbose
       - persist_to_workspace:
           root: .
           paths:
@@ -25,7 +26,7 @@ jobs:
           key: yarn-cache-{{ checksum "yarn.lock" }}
           paths:
             - ~\AppData\Local\Yarn\Cache
-            - ./node_modules
+            - node_modules
   test:
     executor:
       name: win/default
@@ -64,10 +65,10 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - ./dist_electron/win-unpacked/$env:PACKAGE_VERSION Setup $env:PACKAGE_VERSION.exe
+            - ./dist_electron/win-unpacked/{{ $env:PACKAGE_NAME }} Setup {{ $env:PACKAGE_VERSION }}.exe
       - store_artifacts:
           name: Store Installer
-          path: ./dist_electron/win-unpacked/$$env:PACKAGE_VERSION Setup $env:PACKAGE_VERSION.exe
+          path: /dist_electron/win-unpacked/{{ $env:PACKAGE_NAME }} Setup {{ $env:PACKAGE_VERSION }}.exe
           destination: installer
 
   publish:
