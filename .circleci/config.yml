@@ -15,6 +15,18 @@ jobs:
             - yarn-cache-{{ checksum "yarn.lock" }}
             - yarn-cache
       - run:
+          name: Set PACKAGE_NAME Environment Variable
+          command: $env:PACKAGE_NAME = (Get-Content -Raw -Path package.json | ConvertFrom-Json).name
+      - run:
+          name: Set PACKAGE_VERSION Environment Variable
+          command: $env:PACKAGE_VERSION = (Get-Content -Raw -Path package.json | ConvertFrom-Json).versionversion
+      - run:
+          name: Set SETUP_EXE Environment Variable
+          command: $env:SETUP_EXE = "$env:CIRCLE_WORKING_DIRECTORY/dist_electron/win-unpacked/$env:PACKAGE_NAME Setup $env:PACKAGE_VERSION.exe"
+      - run:
+          name: Print SETUP_EXE Environment Variable
+          command: $env:SETUP_EXE
+      - run:
           name: Install
           command: yarn install --frozen-lockfile --verbose
       - persist_to_workspace:
