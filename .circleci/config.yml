@@ -64,7 +64,7 @@ jobs:
           command: (Get-Content -Raw -Path package.json | ConvertFrom-Json).version | Out-File __package-version
       - run:
           name: Populate __setup-binary-out
-          command: ("$($env:CIRCLE_WORKING_DIRECTORY)/dist_electron/win-unpacked/$(Get-Content __package-name) Setup $(Get-Content __package-version).exe") | Out-File __setup-binary-out
+          command: ("$($env:CIRCLE_WORKING_DIRECTORY)/dist_electron/$(Get-Content __package-name) Setup $(Get-Content __package-version).exe") | Out-File __setup-binary-out
       - run:
           name: Populate __setup-binary
           command: ("$($env:CIRCLE_WORKING_DIRECTORY)/bin/$(Get-Content __package-name) Setup $(Get-Content __package-version).exe") | Out-File __setup-binary
