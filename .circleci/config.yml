@@ -4,7 +4,7 @@ orbs:
   win: circleci/windows@2.4.0
 
 jobs:
-  load:
+  install:
     executor:
       name: win/default
     steps:
@@ -12,18 +12,21 @@ jobs:
       - restore_cache:
           name: Restore NodeJS Modules and Yarn Cache
           keys:
-            - yarn-cache-{{ checksum "yarn.lock" }}
-            - yarn-cache
+            - yarn-cache-z4Vc0MdzFM-{{ checksum "yarn.lock" }}
+            - yarn-cache-z4Vc0MdzFM
       - run:
           name: Install
-          command: yarn install --frozen-lockfile --verbose
+          command: if (-not Test-Path node_modules\.circleci-{{ checksum "yarn.lock" }}) { yarn install --frozen-lockfile }
+      - run:
+          name: Replace cache file
+          command: Remove-Item node_modules\.circleci-* && New-Item -Name node_modules\.circleci-{{ checksum "yarn.lock" }} -ItemType File
       - persist_to_workspace:
           root: .
           paths:
             - .
       - save_cache:
           name: Store NodeJS Modules and Yarn Cache
-          key: yarn-cache-{{ checksum "yarn.lock" }}
+          key: yarn-cache-z4Vc0MdzFM-{{ checksum "yarn.lock" }}
           paths:
             - ~\AppData\Local\Yarn\Cache
             - node_modules
@@ -98,16 +101,16 @@ jobs:
           command: go get github.com/tcnksm/ghr
       - run:
           name: Publish Build
-          command: ~\go\bin\ghr -t $env:GITHUB_TOKEN -u $env:CIRCLE_PROJECT_USERNAME -r $env:CIRCLE_PROJECT_REPONAME -c $env:CIRCLE_SHA1 -delete $(Get-Content __package-version) bin
+          command: ~\go\bin\ghr -t $env:GITHUB_TOKEN -u $env:CIRCLE_PROJECT_USERNAME -r $env:CIRCLE_PROJECT_REPONAME -c $env:CIRCLE_SHA1 $(Get-Content __package-version) bin
 
 workflows:
   version: 2
   execute:
     jobs:
-      - load
+      - install
       - test:
           requires:
-            - load
+            - install
       - build:
           requires:
             - test            
