@@ -16,7 +16,7 @@ jobs:
             - yarn-cache-z4Vc0MdzFM
       - run:
           name: Install
-          command: if (-not Test-Path node_modules\.circleci-{{ checksum "yarn.lock" }}) { yarn install --frozen-lockfile }
+          command: if (-not (Test-Path node_modules\.circleci-{{ checksum "yarn.lock" }})) { yarn install --frozen-lockfile }
       - run:
           name: Replace cache file
           command: Remove-Item node_modules\.circleci-* && New-Item -Name node_modules\.circleci-{{ checksum "yarn.lock" }} -ItemType File
