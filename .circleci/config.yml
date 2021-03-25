@@ -78,22 +78,10 @@ jobs:
           root: .
           paths:
             - bin
-      - store_artifacts:
-          name: Store Test File __package-name
-          path: __package-name
-          destination: __package-name
-      - store_artifacts:
-          name: Store Test File __package-version
-          path: __package-version
-          destination: __package-version
-      - store_artifacts:
-          name: Store Test File __setup-binary-out
-          path: __setup-binary-out
-          destination: __setup-binary-out
-      - store_artifacts:
-          name: Store Test File __setup-binary
-          path: __setup-binary
-          destination: __setup-binary
+            - __package-name
+            - __package-version
+            - __setup-binary-out
+            - __setup-binary
       - store_artifacts:
           name: Store Installer
           path: bin
@@ -110,7 +98,7 @@ jobs:
           command: go get github.com/tcnksm/ghr
       - run:
           name: Publish Build
-          command: ~\go\bin\ghr -t $env:GITHUB_TOKEN -u $env:CIRCLE_PROJECT_USERNAME -r $env:CIRCLE_PROJECT_REPONAME -c $env:CIRCLE_SHA1 -delete $env:env:PACKAGE_VERSION bin
+          command: ~\go\bin\ghr -t $env:GITHUB_TOKEN -u $env:CIRCLE_PROJECT_USERNAME -r $env:CIRCLE_PROJECT_REPONAME -c $env:CIRCLE_SHA1 -delete $(Get-Content __package-version) bin
 
 workflows:
   version: 2
