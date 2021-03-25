@@ -1,6 +1,6 @@
 {
-  "name": "tome",
-  "version": "0.1.0",
+  "name": "Tome",
+  "version": "0.0.1",
   "license": "MIT",
   "scripts": {
     "lint": "vue-cli-service lint --no-fix",
