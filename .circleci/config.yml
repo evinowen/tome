@@ -18,8 +18,11 @@ jobs:
           name: Install
           command: if (-not (Test-Path node_modules\.circleci-$((Get-FileHash yarn.lock).Hash))) { yarn install --frozen-lockfile }
       - run:
-          name: Replace cache file
-          command: Remove-Item node_modules\.circleci-* && New-Item -Name node_modules\.circleci-$((Get-FileHash yarn.lock).Hash) -ItemType File
+          name: Remove Old Cache Indicators
+          command: Remove-Item node_modules\.circleci-*
+      - run:
+          name: Create New Cache Indicator
+          command: New-Item -Name node_modules\.circleci-$((Get-FileHash yarn.lock).Hash) -ItemType File
       - persist_to_workspace:
           root: .
           paths:
