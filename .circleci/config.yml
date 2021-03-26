@@ -1,49 +1,137 @@
 version: 2.1
+
 orbs:
-  node: circleci/node@1.1.6
+  win: circleci/windows@2.4.0
 
 jobs:
-  build-and-test:
-    docker:
-    - image: circleci/node:13.7.0-browsers
-
+  install:
+    executor:
+      name: win/default
     steps:
       - checkout
-      - node/with-cache:
-          steps:
-            - restore_cache:
-                name: Restore Yarn Package Cache
-                keys:
-                  - yarn-packages-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          name: Restore NodeJS Modules and Yarn Cache
+          keys:
+            - yarn-cache-z4Vc0MdzFM-{{ checksum "yarn.lock" }}
+            - yarn-cache-z4Vc0MdzFM
+      - run:
+          name: Install
+          command: if (-not (Test-Path "node_modules\.circleci-$((Get-FileHash yarn.lock).Hash)")) { yarn install --frozen-lockfile }
+      - run:
+          name: Remove Old Cache Indicators
+          command: Remove-Item node_modules\.circleci-*
+      - run:
+          name: Create New Cache Indicator
+          command: New-Item -Name "node_modules\.circleci-$((Get-FileHash yarn.lock).Hash)" -ItemType File
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+      - save_cache:
+          name: Store NodeJS Modules and Yarn Cache
+          key: yarn-cache-z4Vc0MdzFM-{{ checksum "yarn.lock" }}
+          paths:
+            - ~\AppData\Local\Yarn\Cache
+            - node_modules
+  test:
+    executor:
+      name: win/default
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run Lint
+          command: yarn lint
+      - run:
+          name: Run Unit Tests
+          command: yarn electron:test:unit
+      - store_test_results:
+          name: Store Test Results
+          path: reports/junit
+      - store_artifacts:
+          name: Store Coverage Reports
+          path: reports/coverage/lcov-report
+          destination: coverage
 
-            - run:
-                name: Install
-                command: yarn install --frozen-lockfile
+  build:
+    executor:
+      name: win/default
+    steps:
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          name: Restore Electron Cache
+          keys:
+            - electron-cache-z4Vc0MdzFM-{{ checksum "yarn.lock" }}
+            - electron-cache-z4Vc0MdzFM
+      - run:
+          name: Build
+          command: yarn electron:build
+      - save_cache:
+          name: Store Electron Cache
+          key: electron-cache-z4Vc0MdzFM-{{ checksum "yarn.lock" }}
+          paths:
+            - ~\AppData\Local\electron\Cache
+            - ~\AppData\Local\electron-builder\Cache
+      - run:
+          name: Populate __package-name
+          command: (Get-Content -Raw -Path package.json | ConvertFrom-Json).name | Out-File __package-name
+      - run:
+          name: Populate __package-version
+          command: (Get-Content -Raw -Path package.json | ConvertFrom-Json).version | Out-File __package-version
+      - run:
+          name: Populate __setup-binary-out
+          command: ("$($env:CIRCLE_WORKING_DIRECTORY)/dist_electron/$(Get-Content __package-name) Setup $(Get-Content __package-version).exe") | Out-File __setup-binary-out
+      - run:
+          name: Populate __setup-binary
+          command: ("$($env:CIRCLE_WORKING_DIRECTORY)/bin/$(Get-Content __package-name) Setup $(Get-Content __package-version).exe") | Out-File __setup-binary
+      - run:
+          name: Make Binary Directory
+          command: New-Item -ItemType directory -Path bin
+      - run:
+          name: Move Setup Binary
+          command: Move-Item -Path "$(Get-Content __setup-binary-out)" "$(Get-Content __setup-binary)"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bin
+            - __package-name
+            - __package-version
+            - __setup-binary-out
+            - __setup-binary
+      - store_artifacts:
+          name: Store Installer
+          path: bin
+          destination: installer
 
-            - save_cache:
-                name: Save Yarn Package Cache
-                key: yarn-packages-{{ checksum "yarn.lock" }}
-                paths:
-                  - ~/.cache/yarn
-
-            - run:
-                name: Run Lint
-                command: yarn lint
-
-            - run:
-                name: Run Unit Tests
-                command: yarn electron:test:unit
-
-            - store_test_results:
-                name: Store Test Results
-                path: reports/junit
-
-            - store_artifacts:
-                name: Store Coverage Reports
-                path: reports/coverage/lcov-report
-                destination: coverage
+  publish:
+    executor:
+      name: win/default
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install ghr
+          command: go get github.com/tcnksm/ghr
+      - run:
+          name: Publish Build
+          command: ~\go\bin\ghr -t $env:GITHUB_TOKEN -u $env:CIRCLE_PROJECT_USERNAME -r $env:CIRCLE_PROJECT_REPONAME -c $env:CIRCLE_SHA1 $(Get-Content __package-version) bin
 
 workflows:
-    build-and-test:
-      jobs:
-        - build-and-test
+  version: 2
+  execute:
+    jobs:
+      - install
+      - test:
+          requires:
+            - install
+      - build:
+          requires:
+            - test            
+      - publish:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master

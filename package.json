@@ -1,6 +1,6 @@
 {
-  "name": "tome",
-  "version": "0.1.0",
+  "name": "Tome",
+  "version": "0.0.1",
   "license": "MIT",
   "scripts": {
     "lint": "vue-cli-service lint --no-fix",
@@ -42,6 +42,7 @@
     "babel-eslint": "^10.0.3",
     "cross-env": "^7.0.2",
     "electron": "^8.0.1",
+    "electron-wix-msi": "^3.1.0",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-node": "^11.0.0",

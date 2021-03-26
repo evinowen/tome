@@ -33,80 +33,52 @@ remote.getCurrentWindow.mockImplementation(() => window)
 remote.BrowserWindow.getFocusedWindow.mockImplementation(() => window)
 
 describe('SystemBar.vue', () => {
-  it('renders props.title when passed', () => {
-    const title = 'Test Title'
+  const title = 'Test Title'
 
-    const mock = mount(
+  let vuetify
+  let wrapper
+
+  beforeEach(() => {
+    vuetify = new Vuetify()
+
+    wrapper = mount(
       SystemBar,
       {
+        vuetify,
         propsData: { title }
       }
     )
+  })
 
-    expect(mock.find('[system-bar-title]').text()).toEqual(title)
+  it('renders props.title when passed', () => {
+    expect(wrapper.find('[system-bar-title]').text()).toEqual(title)
   })
 
   it('calls method to close the application window when close button is clicked', () => {
-    const title = 'Test Title'
-
-    const mock = mount(
-      SystemBar,
-      {
-        propsData: { title }
-      }
-    )
-
-    mock.find('[system-bar-close]').trigger('click')
+    wrapper.find('[system-bar-close]').trigger('click')
 
     expect(window.close).toHaveBeenCalledTimes(1)
   })
 
   it('calls method to minimize the application window when minimize button is clicked', () => {
-    const title = 'Test Title'
-
-    const mock = mount(
-      SystemBar,
-      {
-        propsData: { title }
-      }
-    )
-
-    mock.find('[system-bar-minimize]').trigger('click')
+    wrapper.find('[system-bar-minimize]').trigger('click')
 
     expect(window.minimize).toHaveBeenCalledTimes(1)
   })
 
   it('calls method to maximize the application window when maximize button is clicked and window is not maximized', () => {
-    const title = 'Test Title'
-
-    const mock = mount(
-      SystemBar,
-      {
-        propsData: { title }
-      }
-    )
-
     window.isMaximized = jest.fn(() => false)
 
-    mock.find('[system-bar-maximize]').trigger('click')
+    wrapper.find('[system-bar-maximize]').trigger('click')
 
     expect(window.restore).toHaveBeenCalledTimes(0)
     expect(window.maximize).toHaveBeenCalledTimes(1)
   })
 
   it('calls method to restore the application window when maximize button is clicked and window is maximized', () => {
-    const title = 'Test Title'
-
-    const mock = mount(
-      SystemBar,
-      {
-        propsData: { title }
-      }
-    )
-
     window.isMaximized.mockImplementation(() => true)
 
-    mock.find('[system-bar-maximize]').trigger('click')
+    wrapper.find('[system-bar-maximize]').trigger('click')
 
     expect(window.maximize).toHaveBeenCalledTimes(0)
     expect(window.restore).toHaveBeenCalledTimes(1)

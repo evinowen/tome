@@ -113,18 +113,6 @@ describe('ActionBar.vue', () => {
     expect(event).toHaveBeenCalledTimes(1)
   })
 
-  it('emits an edit event when the edit switch is clicked', async () => {
-    const event = jest.fn()
-
-    wrapper.vm.$on('edit', event)
-
-    expect(event).toHaveBeenCalledTimes(0)
-
-    await wrapper.find('[action-bar-edit]').trigger('click')
-
-    expect(event).toHaveBeenCalledTimes(1)
-  })
-
   it('open dialog to select Tome folder when the bookshelf button is clicked', async () => {
     remote.dialog.showOpenDialog.mockReturnValue({
       canceled: true

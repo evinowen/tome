@@ -26,7 +26,6 @@ export default {
         const stats = await new Promise((resolve, reject) => _fs.lstat(base, (err, stats) => err ? reject(err) : resolve(stats)))
 
         if (!stats.isDirectory()) {
-          console.log('No .tome/actions directory')
           return
         }
       } catch (error) {
@@ -49,16 +48,12 @@ export default {
 
       const path = _path.join(base, 'index.js')
 
-      console.log('execute action', path)
-
       const raw = await new Promise((resolve, reject) => _fs.readFile(path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
 
       const _vm = require('vm')
       const script = _vm.createScript(raw)
 
       script.runInThisContext()
-
-      console.log('Action: Execute complete.', name)
     }
   }
 }
