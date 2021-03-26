@@ -59,9 +59,20 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - restore_cache:
+          name: Restore Electron Cache
+          keys:
+            - electron-cache-z4Vc0MdzFM-{{ checksum "yarn.lock" }}
+            - electron-cache-z4Vc0MdzFM
       - run:
           name: Build
           command: yarn electron:build
+      - save_cache:
+          name: Store Electron Cache
+          key: electron-cache-z4Vc0MdzFM-{{ checksum "yarn.lock" }}
+          paths:
+            - ~\AppData\Local\electron\Cache
+            - ~\AppData\Local\electron-builder\Cache
       - run:
           name: Populate __package-name
           command: (Get-Content -Raw -Path package.json | ConvertFrom-Json).name | Out-File __package-name
