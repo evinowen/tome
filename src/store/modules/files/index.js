@@ -86,7 +86,12 @@ export default {
       if (state.ghost) {
         const { parent } = state.ghost
         const index = parent.children.findIndex(child => child.uuid === state.ghost.uuid)
-        parent.children.splice(index, 1)
+
+        if (index > -1) {
+          parent.children.splice(index, 1)
+        }
+
+        state.ghost = null
       }
 
       state.ghost = new File({ parent: item, ephemeral: true, directory })
