@@ -275,7 +275,7 @@ export default {
     },
     display: function () {
       if (this.title && !this.system) {
-        return this.format(this.name, true)
+        return this.format(this.name, this.directory)
       }
 
       return this.name
