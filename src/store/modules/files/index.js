@@ -95,10 +95,11 @@ export default {
       }
 
       state.ghost = new File({ parent: item, ephemeral: true, directory })
-      state.selected = state.ghost
-      state.editing = true
 
       item.children.splice(index, 0, state.ghost)
+
+      state.selected = state.ghost
+      state.editing = true
     },
     blur: function (state) {
       state.selected = null
