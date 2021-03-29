@@ -281,7 +281,7 @@ export default {
       return this.name
     },
     visible: function () {
-      return !(this.title && (this.display === '' || this.system))
+      return this.ephemeral || !(this.title && (this.display === '' || this.system))
     },
     rules: function () {
       if (this.title) {
