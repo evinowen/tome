@@ -65,6 +65,19 @@ export default {
 
       const { item } = state.tree.identify(parent)
 
+      let ancestor = item
+      const legacy = []
+
+      while (ancestor) {
+        legacy.push(ancestor)
+        ancestor = ancestor.parent
+      }
+
+      while (legacy.length) {
+        ancestor = legacy.pop()
+        ancestor.expanded = true
+      }
+
       let index = item.children.length
       if (target) {
         index = item.children.findIndex(child => child.name === target)
