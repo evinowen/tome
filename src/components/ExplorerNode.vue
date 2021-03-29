@@ -258,7 +258,8 @@ export default {
     },
     system: function () {
       return [
-        '.git'
+        '.git',
+        '.tome'
       ].indexOf(this.name) > -1
     },
     icon: function () {
