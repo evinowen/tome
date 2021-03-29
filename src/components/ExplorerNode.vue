@@ -263,15 +263,26 @@ export default {
       ].indexOf(this.name) > -1
     },
     icon: function () {
+      let error = false
+      this.format(this.name, this.directory, () => { error = true })
+
       if (this.directory) {
         if (this.root) {
           return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
         }
 
-        return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
+        if (error) {
+          return this.expanded ? 'mdi-folder-open-outline' : 'mdi-folder-outline'
+        } else {
+          return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
+        }
       }
 
-      return 'mdi-file'
+      if (error) {
+        return 'mdi-file-outline'
+      } else {
+        return 'mdi-file'
+      }
     },
     display: function () {
       if (this.title && !this.system) {
