@@ -175,14 +175,10 @@ export default {
 
       context.commit('edit', { edit: false })
 
-      let name = input
+      let name = input.toLowerCase().replace(/ +/g, '.').replace(/[^a-z0-9.-]/g, '')
 
-      if (title) {
-        name = name.toLowerCase().replace(/ +/g, '.')
-
-        if (!item.directory) {
-          name = name.concat('.md')
-        }
+      if (title && !item.directory) {
+        name = name.concat('.md')
       }
 
       if (item.ephemeral) {
