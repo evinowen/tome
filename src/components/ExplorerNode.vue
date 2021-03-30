@@ -307,8 +307,8 @@ export default {
 
       return [
         (value) => !this.error || this.error,
-        (value) => String(value).search(/\s/g) === -1 || 'No whitespace is allowed.',
-        (value) => String(value).search(/[^\w.]/g) === -1 || 'No special characters are allowed.'
+        (value) => String(value).search(/[^\S ]/g) === -1 || 'No whitespace is allowed.',
+        (value) => String(value).search(/[^\w. ]/g) === -1 || 'No special characters are allowed.'
       ]
     }
   },
