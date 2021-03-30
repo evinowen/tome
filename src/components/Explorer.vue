@@ -72,26 +72,20 @@ export default {
   methods: {
     format: function (name, directory, error) {
       if (!name) {
-        return ' - '
+        throw new Error('Name provided is falsey')
       }
 
       if (name.match(/[^a-z0-9.-]/)) {
-        if (error) {
-          error()
-        }
+        throw new Error('Name contains invalid characters')
       }
 
-      const words = name ? String(name).split('.') : ['']
+      const words = String(name).split('.')
 
       if (words.length && !directory) {
         const ext = words.pop()
 
         if (ext !== 'md') {
-          if (error) {
-            error()
-          }
-
-          return name
+          throw new Error('Not Markdown File Extension')
         }
       }
 
