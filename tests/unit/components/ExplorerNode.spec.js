@@ -201,6 +201,14 @@ describe('ExplorerNode.vue', () => {
     expect(format).toHaveBeenCalledTimes(2)
   })
 
+  it('should find a placeholder display name if title is set and format fails', async () => {
+    format.mockImplementationOnce(() => { throw new Error() })
+    const wrapper = factory.wrap({ title: true, format })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(format).toHaveBeenCalledTimes(2)
+  })
+
   it('should emit open event when Open context menu action is called', async () => {
     const event = jest.fn()
 
@@ -418,10 +426,7 @@ describe('ExplorerNode.vue', () => {
   })
 
   it('should use directory icon when the directory flag but not root flag is true, but title format check fails', async () => {
-    format.mockImplementationOnce((name, _, error) => {
-      error()
-      return name
-    })
+    format.mockImplementationOnce(() => { throw new Error() })
 
     const wrapper = factory.wrap({ directory: true, root: false })
 
@@ -435,10 +440,7 @@ describe('ExplorerNode.vue', () => {
   })
 
   it('should use expanded directory icon when the directory flag but not root flag is true while expanded, but title format check fails', async () => {
-    format.mockImplementationOnce((name, _, error) => {
-      error()
-      return name
-    })
+    format.mockImplementationOnce(() => { throw new Error() })
 
     const wrapper = factory.wrap({ directory: true, root: false, expanded: true })
 
@@ -452,10 +454,7 @@ describe('ExplorerNode.vue', () => {
   })
 
   it('should use file outline icon when both the directory and root flags are not true, but title format check fails', async () => {
-    format.mockImplementationOnce((name, _, error) => {
-      error()
-      return name
-    })
+    format.mockImplementationOnce(() => { throw new Error() })
 
     const wrapper = factory.wrap({ directory: false, root: false })
 
