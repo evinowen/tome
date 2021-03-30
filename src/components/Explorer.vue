@@ -71,6 +71,10 @@ export default {
   },
   methods: {
     format: function (name, directory, error) {
+      if (!name) {
+        return ' - '
+      }
+
       if (name.match(/[^a-z0-9.-]/)) {
         if (error) {
           error()
