@@ -182,6 +182,16 @@ export default {
         name = name.concat('.md')
       }
 
+      const words = String(name).split('.')
+
+      if (words.length && !item.directory) {
+        const ext = words.pop()
+
+        if (ext !== 'md') {
+          name = name.concat('.md')
+        }
+      }
+
       if (item.ephemeral) {
         await context.dispatch('create', { path: item.parent.path, name, directory: item.directory })
       } else {
