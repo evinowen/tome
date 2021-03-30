@@ -70,14 +70,28 @@ export default {
     }
   },
   methods: {
-    format: function (name, directory) {
+    format: function (name, directory, error) {
+      if (!name) {
+        return ' - '
+      }
+
+      if (name.match(/[^a-z0-9.-]/)) {
+        if (error) {
+          error()
+        }
+      }
+
       const words = name ? String(name).split('.') : ['']
 
       if (words.length && !directory) {
         const ext = words.pop()
 
         if (ext !== 'md') {
-          return ' - '
+          if (error) {
+            error()
+          }
+
+          return name
         }
       }
 

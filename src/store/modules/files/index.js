@@ -65,6 +65,19 @@ export default {
 
       const { item } = state.tree.identify(parent)
 
+      let ancestor = item
+      const legacy = []
+
+      while (ancestor) {
+        legacy.push(ancestor)
+        ancestor = ancestor.parent
+      }
+
+      while (legacy.length) {
+        ancestor = legacy.pop()
+        ancestor.expanded = true
+      }
+
       let index = item.children.length
       if (target) {
         index = item.children.findIndex(child => child.name === target)
@@ -73,14 +86,20 @@ export default {
       if (state.ghost) {
         const { parent } = state.ghost
         const index = parent.children.findIndex(child => child.uuid === state.ghost.uuid)
-        parent.children.splice(index, 1)
+
+        if (index > -1) {
+          parent.children.splice(index, 1)
+        }
+
+        state.ghost = null
       }
 
       state.ghost = new File({ parent: item, ephemeral: true, directory })
-      state.selected = state.ghost
-      state.editing = true
 
       item.children.splice(index, 0, state.ghost)
+
+      state.selected = state.ghost
+      state.editing = true
     },
     blur: function (state) {
       state.selected = null
@@ -157,14 +176,10 @@ export default {
 
       context.commit('edit', { edit: false })
 
-      let name = input
+      let name = input.toLowerCase().replace(/ +/g, '.').replace(/[^a-z0-9.-]/g, '')
 
-      if (title) {
-        name = name.toLowerCase().replace(/ +/g, '.')
-
-        if (!item.directory) {
-          name = name.concat('.md')
-        }
+      if (title && !item.directory) {
+        name = name.concat('.md')
       }
 
       if (item.ephemeral) {

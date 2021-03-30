@@ -36,6 +36,7 @@ describe('ExplorerNode.vue', () => {
     jest.clearAllMocks()
   })
 
+  const format = jest.fn((name) => name)
   const factory = assemble(ExplorerNode, {
     name: 'Name',
     path: '/pa/th/to/fi/le',
@@ -45,7 +46,8 @@ describe('ExplorerNode.vue', () => {
     new_folder: null,
     open_folder: null,
     highlight: 'Highlight',
-    directory: false
+    directory: false,
+    format: format
   })
     .context(() => ({ vuetify }))
 
@@ -196,7 +198,7 @@ describe('ExplorerNode.vue', () => {
     const wrapper = factory.wrap({ title: true, format })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(format).toHaveBeenCalledTimes(1)
+    expect(format).toHaveBeenCalledTimes(2)
   })
 
   it('should emit open event when Open context menu action is called', async () => {
@@ -415,16 +417,49 @@ describe('ExplorerNode.vue', () => {
     expect(wrapper.vm.icon).toBe('mdi-folder')
   })
 
+  it('should use directory icon when the directory flag but not root flag is true, but title format check fails', async () => {
+    format.mockImplementationOnce((name, _, error) => {
+      error()
+      return name
+    })
+
+    const wrapper = factory.wrap({ directory: true, root: false })
+
+    expect(wrapper.vm.icon).toBe('mdi-folder-outline')
+  })
+
   it('should use expanded directory icon when the directory flag but not root flag is true while expanded', async () => {
     const wrapper = factory.wrap({ directory: true, root: false, expanded: true })
 
     expect(wrapper.vm.icon).toBe('mdi-folder-open')
   })
 
+  it('should use expanded directory icon when the directory flag but not root flag is true while expanded, but title format check fails', async () => {
+    format.mockImplementationOnce((name, _, error) => {
+      error()
+      return name
+    })
+
+    const wrapper = factory.wrap({ directory: true, root: false, expanded: true })
+
+    expect(wrapper.vm.icon).toBe('mdi-folder-open-outline')
+  })
+
   it('should use file icon when both the directory and root flags are not true', async () => {
     const wrapper = factory.wrap({ directory: false, root: false })
 
     expect(wrapper.vm.icon).toBe('mdi-file')
+  })
+
+  it('should use file outline icon when both the directory and root flags are not true, but title format check fails', async () => {
+    format.mockImplementationOnce((name, _, error) => {
+      error()
+      return name
+    })
+
+    const wrapper = factory.wrap({ directory: false, root: false })
+
+    expect(wrapper.vm.icon).toBe('mdi-file-outline')
   })
 
   it('should translate template options into context menu items when templates are loaded', async () => {

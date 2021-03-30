@@ -279,7 +279,7 @@ describe('Explorer.vue', () => {
 
     const formated = wrapper.vm.format(null, true)
 
-    expect(formated).toBe('')
+    expect(formated).toBe(' - ')
   })
 
   it('should return placeholder title for files formatted that have incorrect extension', async () => {
@@ -289,7 +289,31 @@ describe('Explorer.vue', () => {
 
     const formated = wrapper.vm.format('file.name.txt')
 
-    expect(formated).toBe(' - ')
+    expect(formated).toBe('file.name.txt')
+  })
+
+  it('should call error callback for files formatted that have incorrect extension', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
+
+    const callback = jest.fn()
+
+    wrapper.vm.format('file.name.txt', false, callback)
+
+    expect(callback).toHaveBeenCalled()
+  })
+
+  it('should call error callback for item formatted that are titled with invalid symbols', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.dispatch.mockClear()
+
+    const callback = jest.fn()
+
+    wrapper.vm.format('FILE-%%%%', false, callback)
+
+    expect(callback).toHaveBeenCalled()
   })
 
   it('should return formatted title for files formatted that have correct extension', async () => {
