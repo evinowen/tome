@@ -263,30 +263,33 @@ export default {
       ].indexOf(this.name) > -1
     },
     icon: function () {
-      let error = false
-      this.format(this.name, this.directory, () => { error = true })
+      try {
+        this.format(this.name, this.directory)
 
-      if (this.directory) {
-        if (this.root) {
-          return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
-        }
+        if (this.directory) {
+          if (this.root) {
+            return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+          }
 
-        if (error) {
-          return this.expanded ? 'mdi-folder-open-outline' : 'mdi-folder-outline'
-        } else {
           return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
         }
-      }
 
-      if (error) {
-        return 'mdi-file-outline'
-      } else {
         return 'mdi-file'
+      } catch (e) {
+        if (this.directory) {
+          return this.expanded ? 'mdi-folder-open-outline' : 'mdi-folder-outline'
+        }
+
+        return 'mdi-file-outline'
       }
     },
     display: function () {
       if (this.title && !this.system) {
-        return this.format(this.name, this.directory)
+        try {
+          return this.format(this.name, this.directory)
+        } catch (e) {
+          return (this.ephemeral || this.name) ? this.name : ' - '
+        }
       }
 
       return this.name

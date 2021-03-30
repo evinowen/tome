@@ -262,58 +262,36 @@ describe('Explorer.vue', () => {
     expect(store.dispatch.mock.calls[0][0]).toBe('files/submit')
   })
 
-  it('should fail gracefully when a bad file name is passed to format', async () => {
+  it('should throw an exception when no named is passed to format', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
     store.dispatch.mockClear()
 
-    const formated = wrapper.vm.format()
-
-    expect(formated).toBe(' - ')
+    expect(() => wrapper.vm.format()).toThrow(Error)
   })
 
-  it('should fail gracefully when a bad folder name is passed to format', async () => {
+  it('should throw an exception when a bad folder name is passed to format', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
     store.dispatch.mockClear()
 
-    const formated = wrapper.vm.format(null, true)
-
-    expect(formated).toBe(' - ')
+    expect(() => wrapper.vm.format(null, true)).toThrow(Error)
   })
 
-  it('should return placeholder title for files formatted that have incorrect extension', async () => {
+  it('should throw an exception for files that have incorrect extension', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
     store.dispatch.mockClear()
 
-    const formated = wrapper.vm.format('file.name.txt')
-
-    expect(formated).toBe('file.name.txt')
+    expect(() => wrapper.vm.format('file.name.txt')).toThrow(Error)
   })
 
-  it('should call error callback for files formatted that have incorrect extension', async () => {
+  it('should throw an exception for items formatted that are titled with invalid symbols', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
     store.dispatch.mockClear()
 
-    const callback = jest.fn()
-
-    wrapper.vm.format('file.name.txt', false, callback)
-
-    expect(callback).toHaveBeenCalled()
-  })
-
-  it('should call error callback for item formatted that are titled with invalid symbols', async () => {
-    const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-    store.dispatch.mockClear()
-
-    const callback = jest.fn()
-
-    wrapper.vm.format('FILE-%%%%', false, callback)
-
-    expect(callback).toHaveBeenCalled()
+    expect(() => wrapper.vm.format('FILE-%%%%')).toThrow(Error)
   })
 
   it('should return formatted title for files formatted that have correct extension', async () => {
