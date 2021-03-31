@@ -28,9 +28,9 @@
         </v-flex>
       </v-layout>
     </div>
-
+    <div style="height: 2px;" />
     <v-container v-if="directory && expanded" class="explorer-node-container">
-      <div style="height: 2px;" />
+
       <explorer-node
         v-for="child in children"
         :key=child.uuid
@@ -132,8 +132,9 @@
   border: solid #C8C8C8;
   border-width: 0 0 0 1px;
   width: auto !important;
+  min-height: 8px;
   padding: 0 0 0 4px !important;
-  margin: 0 0 4px 4px !important;
+  margin: 0 0 6px 4px !important;
 }
 
 .explorer-node:hover {
