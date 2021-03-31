@@ -6,7 +6,7 @@
         @click.left.stop="system ? null : $emit('select', { path })"
         @click.right.stop="$emit('context', { instance, event: $event })"
       >
-        <v-btn tile text x-small @click.stop="system ? null : $emit('toggle', { path })" class="explorer-node-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
+        <v-btn tile text x-small @click.stop="system ? null : $emit(directory ? 'toggle' : 'select', { path })" class="explorer-node-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <v-flex>
