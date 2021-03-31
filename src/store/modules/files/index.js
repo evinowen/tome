@@ -152,6 +152,7 @@ export default {
 
       if (status.isDirectory()) {
         await context.commit('error', { error: 'Cannot load contents of directory' })
+        await context.commit('content', { content: null })
         return
       }
 
@@ -160,7 +161,8 @@ export default {
       const ext = _path.extname(path).toLowerCase()
 
       if (ext !== '.md') {
-        context.state.error = `File has invalid ${ext} extension.`
+        await context.commit('error', { error: `File has invalid ${ext} extension.` })
+        await context.commit('content', { content: null })
         return
       }
 
@@ -180,6 +182,16 @@ export default {
 
       if (title && !item.directory) {
         name = name.concat('.md')
+      }
+
+      const words = String(name).split('.')
+
+      if (words.length && !item.directory) {
+        const ext = words.pop()
+
+        if (ext !== 'md') {
+          name = name.concat('.md')
+        }
       }
 
       if (item.ephemeral) {

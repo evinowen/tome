@@ -6,7 +6,7 @@
         @click.left.stop="system ? null : $emit('select', { path })"
         @click.right.stop="$emit('context', { instance, event: $event })"
       >
-        <v-btn tile text x-small @click.stop="system ? null : $emit('toggle', { path })" class="explorer-node-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
+        <v-btn tile text x-small @click.stop="system ? null : $emit(directory ? 'toggle' : 'select', { path })" class="explorer-node-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <v-flex>
@@ -28,9 +28,9 @@
         </v-flex>
       </v-layout>
     </div>
-
+    <div style="height: 2px;" />
     <v-container v-if="directory && expanded" class="explorer-node-container">
-      <div style="height: 2px;" />
+
       <explorer-node
         v-for="child in children"
         :key=child.uuid
@@ -132,8 +132,9 @@
   border: solid #C8C8C8;
   border-width: 0 0 0 1px;
   width: auto !important;
+  min-height: 8px;
   padding: 0 0 0 4px !important;
-  margin: 0 0 4px 4px !important;
+  margin: 0 0 6px 4px !important;
 }
 
 .explorer-node:hover {
@@ -307,8 +308,8 @@ export default {
 
       return [
         (value) => !this.error || this.error,
-        (value) => String(value).search(/\s/g) === -1 || 'No whitespace is allowed.',
-        (value) => String(value).search(/[^\w.]/g) === -1 || 'No special characters are allowed.'
+        (value) => String(value).search(/[^\S ]/g) === -1 || 'No whitespace is allowed.',
+        (value) => String(value).search(/[^\w. ]/g) === -1 || 'No special characters are allowed.'
       ]
     }
   },
