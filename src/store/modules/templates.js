@@ -22,6 +22,7 @@ export default {
   state: {
     path: null,
     base: null,
+    last: null,
     options: []
   },
   mutations: {
@@ -30,6 +31,9 @@ export default {
       state.base = base
       state.options.length = 0
       state.options.push(...options)
+    },
+    complete: function (state, { path }) {
+      state.last = { path, timestamp: Date.now() }
     }
   },
   actions: {
@@ -125,7 +129,9 @@ export default {
         }
       }
 
-      construct(base, target, true)
+      await construct(base, target, true)
+
+      context.commit('complete', { path: target })
     }
   }
 }

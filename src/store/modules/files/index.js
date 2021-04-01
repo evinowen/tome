@@ -114,11 +114,14 @@ export default {
     initialize: async function (context, { path }) {
       await context.commit('initialize', { path })
     },
+    load: async function (context, { path }) {
+      await context.state.tree.load(path)
+    },
     toggle: async function (context, { path }) {
       const { item } = context.state.tree.identify(path)
 
       if (!item.expanded) {
-        await context.state.tree.load(path)
+        await context.dispatch('load', { path })
       }
 
       await context.commit('toggle', { path })
