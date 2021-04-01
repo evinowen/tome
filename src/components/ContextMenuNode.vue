@@ -16,7 +16,7 @@
           <div :key="index">
             <v-divider v-if=item.divider></v-divider>
             <v-list-item
-              @click="item.action ? item.action(target) : null"
+              @click="item.action ? $emit('close') && item.action(target) : null"
               @mouseover="expanded = index"
               :disabled="item.active ? !item.active() : false"
             >
@@ -30,6 +30,7 @@
                 :target=target
                 :items=item.items
                 :value="value"
+                v-on="$listeners"
               />
             </v-list-item>
           </div>
