@@ -7,12 +7,12 @@ const translate = (input) => {
   const today = new Date()
   const [month, day, year] = today.toLocaleDateString().split('/')
   const [hour, minute, second] = today.toLocaleTimeString().slice(0, 7).split(':')
-  output = output.replace(/%Y/g, year)
-  output = output.replace(/%m/g, month)
-  output = output.replace(/%d/g, day)
-  output = output.replace(/%H/g, hour)
-  output = output.replace(/%i/g, minute)
-  output = output.replace(/%s/g, second)
+  output = output.replace(/%Y/g, year.padStart(4, '0'))
+  output = output.replace(/%m/g, month.padStart(2, '0'))
+  output = output.replace(/%d/g, day.padStart(2, '0'))
+  output = output.replace(/%H/g, hour.padStart(2, '0'))
+  output = output.replace(/%i/g, minute.padStart(2, '0'))
+  output = output.replace(/%s/g, second.padStart(2, '0'))
 
   return output
 }
