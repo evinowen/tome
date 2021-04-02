@@ -70,13 +70,16 @@ const _fs = {
   }),
   readdir: jest.fn((path, options, callback) => (callback ?? options)(0, _readdir(path, options))),
   mkdir: jest.fn((path, options, callback) => (callback ?? options)(null)),
-  copyFile: jest.fn((src, dest, mode, callback) => (callback ?? mode)(null)),
+  writeFile: jest.fn((file, data, options, callback) => (callback ?? options)(null)),
   readFile: jest.fn((path, encoding, callback) => {
     if (path.match(/\/\.config\.json$/)) {
-      callback(null, '{ "map": { "example.file.a.md": "example.%Y.%m.%d.%H.%i.%s.md" } }')
+      callback(null, JSON.stringify({
+        map: { 'example.file.a.md': 'example.%Y.%m.%d.%H.%i.%s.md' },
+        compute: { 'example.file.a.md': 'example.%Y.%m.%d.%H.%i.%s.md' }
+      }))
     }
 
-    callback(new Error('error!'))
+    callback(null, '')
   })
 }
 

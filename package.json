@@ -1,6 +1,6 @@
 {
   "name": "Tome",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "scripts": {
     "lint": "vue-cli-service lint --no-fix",
@@ -20,6 +20,7 @@
     "lunr": "^2.3.8",
     "mark.js": "^8.11.1",
     "marked": "^0.8.0",
+    "mustache": "^4.2.0",
     "nodegit": "^0.26.4",
     "uuid": "^7.0.3",
     "vue": "^2.6.11",

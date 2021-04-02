@@ -1,4 +1,5 @@
 import { remote } from 'electron'
+import Mustache from 'mustache'
 
 const translate = (input) => {
   let output = input
@@ -6,12 +7,12 @@ const translate = (input) => {
   const today = new Date()
   const [month, day, year] = today.toLocaleDateString().split('/')
   const [hour, minute, second] = today.toLocaleTimeString().slice(0, 7).split(':')
-  output = output.replace(/%Y/g, year)
-  output = output.replace(/%m/g, month)
-  output = output.replace(/%d/g, day)
-  output = output.replace(/%H/g, hour)
-  output = output.replace(/%i/g, minute)
-  output = output.replace(/%s/g, second)
+  output = output.replace(/%Y/g, year.padStart(4, '0'))
+  output = output.replace(/%m/g, month.padStart(2, '0'))
+  output = output.replace(/%d/g, day.padStart(2, '0'))
+  output = output.replace(/%H/g, hour.padStart(2, '0'))
+  output = output.replace(/%i/g, minute.padStart(2, '0'))
+  output = output.replace(/%s/g, second.padStart(2, '0'))
 
   return output
 }
@@ -21,6 +22,7 @@ export default {
   state: {
     path: null,
     base: null,
+    last: null,
     options: []
   },
   mutations: {
@@ -29,6 +31,9 @@ export default {
       state.base = base
       state.options.length = 0
       state.options.push(...options)
+    },
+    complete: function (state, { path }) {
+      state.last = { path, timestamp: Date.now() }
     }
   },
   actions: {
@@ -62,7 +67,9 @@ export default {
 
       const base = _path.join(context.state.base, name)
 
-      const config = {}
+      const config = {
+        directory: true
+      }
 
       {
         const path = _path.join(base, '.config.json')
@@ -74,7 +81,13 @@ export default {
         }
       }
 
-      const construct = async (source, destination) => {
+      const compute = {}
+
+      for (const key in config.compute) {
+        compute[key] = translate(config.compute[key])
+      }
+
+      const construct = async (source, destination, root = false) => {
         const stats = await new Promise((resolve, reject) => _fs.lstat(source, (err, stats) => err ? reject(err) : resolve(stats)))
 
         let target = _path.basename(source)
@@ -95,24 +108,30 @@ export default {
 
         // if folder, decend with contsruct
         if (stats.isDirectory()) {
-          if (await new Promise((resolve, reject) => _fs.access(proposed, (err) => err ? resolve(true) : resolve(false)))) {
-            await new Promise((resolve, reject) => _fs.mkdir(proposed, (err) => err ? reject(err) : resolve(true)))
+          if (!root || config.directory) {
+            if (await new Promise((resolve, reject) => _fs.access(proposed, (err) => err ? resolve(true) : resolve(false)))) {
+              await new Promise((resolve, reject) => _fs.mkdir(proposed, (err) => err ? reject(err) : resolve(true)))
+            }
           }
 
           const files = await new Promise((resolve, reject) => _fs.readdir(source, (err, files) => err ? reject(err) : resolve(files)))
 
           const constructs = []
-          files.forEach(file => constructs.push(construct(_path.join(source, file), _path.join(destination, target))))
+          files.forEach(file => constructs.push(construct(_path.join(source, file), (!root || config.directory) ? proposed : destination)))
 
           await Promise.all(constructs)
         } else {
           if (await new Promise((resolve, reject) => _fs.access(proposed, (err) => err ? resolve(true) : resolve(false)))) {
-            await new Promise((resolve, reject) => _fs.copyFile(source, proposed, 0, (error) => error ? reject(error) : resolve(true)))
+            const raw = await new Promise((resolve, reject) => _fs.readFile(source, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
+            const rendered = Mustache.render(raw, { config, source, proposed, ...compute })
+            await new Promise((resolve, reject) => _fs.writeFile(proposed, rendered, (err) => err ? reject(err) : resolve(true)))
           }
         }
       }
 
-      construct(base, target)
+      await construct(base, target, true)
+
+      context.commit('complete', { path: target })
     }
   }
 }
