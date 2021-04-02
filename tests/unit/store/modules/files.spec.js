@@ -52,9 +52,11 @@ const _readdir = (path) => {
 
 const fs = {
   readdir: jest.fn((path, options, callback) => (callback ?? options)(0, _readdir(path))),
+  readdirSync: jest.fn((path, options) => _readdir(path)),
   readFile: jest.fn((path, encoding, callback) => callback(null, '# Header\nContent')),
   readFileSync: jest.fn((path, options) => '# Header\nContent'),
   writeFile: jest.fn((file, data, options, callback) => (callback ?? options)(null)),
+  writeFileSync: jest.fn((file, data, options) => null),
   mkdir: jest.fn((path, options, callback) => (callback ?? options)(null)),
   unlink: jest.fn((path, callback) => {
     const { parent, name } = disk_fetch(path)
@@ -119,6 +121,8 @@ describe('store/modules/files', () => {
       'project': {
         '.git': {},
         '.tome': {},
+        'a.md': null,
+        'b.md': null,
         'first': {
           'a.md': null,
           'b.md': null,
@@ -128,15 +132,13 @@ describe('store/modules/files', () => {
           'b.md': null,
           'c.md': null
         },
-        'a.md': null,
-        'b.md': null,
         'c.md': null,
-        'third': {
-          'c.md': null
-        },
         'x.md': null,
         'y.md': null,
-        'z.md': null
+        'z.md': null,
+        'third': {
+          'c.md': null
+        }
       }
     }
 
