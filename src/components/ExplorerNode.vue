@@ -29,7 +29,7 @@
       </v-layout>
     </div>
     <div style="height: 2px;" />
-    <v-container v-if="directory && expanded" class="explorer-node-container">
+    <v-container v-if=directory v-show=expanded class="explorer-node-container">
 
       <explorer-node
         v-for="child in children"
