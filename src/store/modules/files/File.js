@@ -39,20 +39,20 @@ export default class File {
     return { dirty, children }
   }
 
-  async load () {
+  load () {
     if (this.directory) {
-      await this.populate()
+      this.populate()
     } else {
-      await this.read()
+      this.read()
     }
 
     this.updated = Date.now()
   }
 
-  async read () {
+  read () {
     const _fs = remote.require('fs')
 
-    const content = await new Promise((resolve, reject) => _fs.readFile(this.path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
+    const content = _fs.readFileSync(this.path, 'utf8')
 
     const _path = remote.require('path')
 
@@ -63,14 +63,10 @@ export default class File {
     }
   }
 
-  async populate () {
+  populate () {
     const _fs = remote.require('fs')
 
-    const dirents = await new Promise((resolve, reject) => _fs.readdir(
-      this.path,
-      { withFileTypes: true },
-      (err, files) => err ? reject(err) : resolve(files)
-    ))
+    const dirents = _fs.readdirSync(this.path, { withFileTypes: true })
 
     const children = []
 
@@ -84,7 +80,7 @@ export default class File {
       }
     }
 
-    Array.prototype.splice.apply(this.children, [0, this.children.length].concat(children))
+    this.children.splice(0, this.children.length, ...children)
 
     this.sort()
   }

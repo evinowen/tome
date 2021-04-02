@@ -29,6 +29,16 @@ export default {
 
       state.watcher = chokidar.watch(path).on('change', (event, path) => state.tree.crawl())
     },
+    load: function (state, data) {
+      const { path } = data
+
+      state.tree.load(path)
+    },
+    populate: function (state, data) {
+      const { path } = data
+
+      state.tree.populate(path)
+    },
     toggle: function (state, data) {
       const { path } = data
 
@@ -114,9 +124,6 @@ export default {
     initialize: async function (context, { path }) {
       await context.commit('initialize', { path })
     },
-    load: async function (context, { path }) {
-      await context.state.tree.load(path)
-    },
     toggle: async function (context, { path }) {
       const { item } = context.state.tree.identify(path)
 
@@ -126,8 +133,11 @@ export default {
 
       await context.commit('toggle', { path })
     },
+    load: async function (context, { path }) {
+      await context.commit('load', { path })
+    },
     populate: async function (context, { path }) {
-      context.state.tree.populate(path)
+      await context.commit('populate', { path })
     },
     ghost: async function (context, { path, directory }) {
       const _fs = remote.require('fs')
@@ -228,7 +238,7 @@ export default {
       const directory_current = _path.dirname(path)
 
       if (directory === directory_current) {
-        context.state.error = 'Invalid move, same directory.'
+        await context.commit('error', { error: 'Invalid move, same directory.' })
         return
       }
 
