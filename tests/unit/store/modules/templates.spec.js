@@ -74,8 +74,8 @@ const _fs = {
   readFile: jest.fn((path, encoding, callback) => {
     if (path.match(/\/\.config\.json$/)) {
       callback(null, JSON.stringify({
-        map: { "example.file.a.md": "example.%Y.%m.%d.%H.%i.%s.md" },
-        compute: { "example.file.a.md": "example.%Y.%m.%d.%H.%i.%s.md" }
+        map: { 'example.file.a.md': 'example.%Y.%m.%d.%H.%i.%s.md' },
+        compute: { 'example.file.a.md': 'example.%Y.%m.%d.%H.%i.%s.md' }
       }))
     }
 
