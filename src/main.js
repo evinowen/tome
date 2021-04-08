@@ -9,6 +9,7 @@ import SplitPane from 'vue-splitpane'
 import VueCodemirror from 'vue-codemirror'
 import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/lib/codemirror.css'
+import 'codemirror/addon/display/autorefresh.js'
 import 'codemirror/addon/scroll/simplescrollbars.css'
 import 'codemirror/addon/scroll/simplescrollbars.js'
 import 'codemirror/addon/search/searchcursor.js'
@@ -23,6 +24,7 @@ Vue.use(VueCodemirror, {
     theme: 'base16-dark',
     lineNumbers: true,
     line: true,
+    autoRefresh: true,
     scrollbarStyle: 'overlay'
   }
 })
