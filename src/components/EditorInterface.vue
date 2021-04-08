@@ -226,6 +226,11 @@ export default {
       this.$emit('save')
     },
     search: async function () {
+      if (!this.query) {
+        this.regex = null
+        return
+      }
+
       this.regex = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
 
       if (this.edit) {
