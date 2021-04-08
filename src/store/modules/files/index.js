@@ -157,7 +157,6 @@ export default {
     },
     select: async function (context, { path }) {
       await context.commit('error', { error: null })
-      await context.commit('select', { path })
 
       const _fs = remote.require('fs')
 
@@ -166,20 +165,19 @@ export default {
       if (status.isDirectory()) {
         await context.commit('error', { error: 'Cannot load contents of directory' })
         await context.commit('content', { content: null })
-        return
+      } else {
+        const _path = remote.require('path')
+        const ext = _path.extname(path).toLowerCase()
+
+        if (ext !== '.md') {
+          await context.commit('error', { error: `File has invalid ${ext} extension.` })
+          await context.commit('content', { content: null })
+        } else {
+          await context.commit('content', { content: _fs.readFileSync(path, 'utf8') })
+        }
       }
 
-      const _path = remote.require('path')
-
-      const ext = _path.extname(path).toLowerCase()
-
-      if (ext !== '.md') {
-        await context.commit('error', { error: `File has invalid ${ext} extension.` })
-        await context.commit('content', { content: null })
-        return
-      }
-
-      await context.commit('content', { content: _fs.readFileSync(path, 'utf8') })
+      await context.commit('select', { path })
     },
     save: async function (context, { content }) {
       const _fs = remote.require('fs')
