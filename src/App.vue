@@ -69,7 +69,7 @@
       :edit=edit
       :commit=commit
       :push=push
-      @save=reload_start
+      @save="counter_start('editor')"
       @commit:close="commit = false"
       @push:close="push = false"
       @context=open_context
@@ -97,7 +97,7 @@
     <search-service v-show=search />
 
     <action-bar
-      :waiting=reload.counter
+      :waiting=editor.counter
       :commit=commit
       :push=push
       @open=set_tome
@@ -174,7 +174,7 @@ export default {
       max: 3
     },
 
-    reload: {
+    editor: {
       triggered: false,
       counter: 0,
       max: 3
@@ -212,6 +212,7 @@ export default {
 
   mounted: async function () {
     this.settings.run = async () => store.dispatch('configuration/write', store.state.tome_app_config_path)
+    this.editor.run = async () => store.dispatch('tome/inspect')
 
     store.state.tome_app_config_path_dir = this.path.join(remote.app.getPath('appData'), 'tome')
 
@@ -258,7 +259,7 @@ export default {
     set_tome: async function (file_path) {
       await store.dispatch('tome/load', file_path)
       await store.dispatch('files/initialize', { path: file_path })
-      await this.reload_run()
+      await store.dispatch('tome/inspect')
     },
     counter_start: function (target) {
       clearTimeout(this[target].timeout)
@@ -285,29 +286,6 @@ export default {
     counter_clear: async function (target) {
       clearTimeout(this[target].timeout)
       this[target].triggered = false
-    },
-    reload_start: function () {
-      clearTimeout(this.reload.timeout)
-
-      this.reload.triggered = true
-      this.reload.counter = this.reload.max
-
-      this.reload.timeout = setTimeout(this.reload_update, 500)
-    },
-    reload_update: async function () {
-      if (!this.reload.counter) {
-        return this.reload_run()
-      }
-
-      this.reload.counter = this.reload.counter - 1
-
-      this.reload.timeout = setTimeout(this.reload_update, 1000)
-    },
-    reload_run: async function () {
-      clearTimeout(this.reload.timeout)
-      this.reload.triggered = false
-
-      await store.dispatch('tome/inspect')
     },
     open_context: async function (state) {
       const { instance, selection, event } = state

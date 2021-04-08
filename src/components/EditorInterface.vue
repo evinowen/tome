@@ -214,12 +214,16 @@ export default {
     }
   },
   methods: {
-    save (content) {
+    save: async function (content) {
       if (this.timeout) {
         clearTimeout(this.timeout)
       }
 
-      this.timeout = setTimeout(() => this.$store.dispatch('files/save', { content }), 1000)
+      await new Promise(resolve => { this.timeout = setTimeout(resolve, 1000) })
+
+      await this.$store.dispatch('files/save', { content })
+
+      this.$emit('save')
     },
     search: async function () {
       this.regex = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
