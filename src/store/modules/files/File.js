@@ -19,8 +19,14 @@ export default class File {
       expanded: false,
       document: null,
       updated: null,
+      clean: true,
       ...data
     })
+
+    if (!this.directory && this.path) {
+      const _path = remote.require('path')
+      this.extension = _path.extname(this.path).toLowerCase()
+    }
   }
 
   async crawl (time) {

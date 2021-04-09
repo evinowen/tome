@@ -54,10 +54,17 @@ export default {
       const { item } = state.tree.identify(path)
 
       state.selected = item
+
+      if (item.directory || item.extension !== '.md') {
+        state.content = null
+      } else {
+        state.content = item.document.content
+      }
     },
-    content: function (state, data) {
+    update: function (state, data) {
       const { content } = data
 
+      state.selected.clean = false
       state.content = content
     },
     edit: function (state, data) {
@@ -156,33 +163,21 @@ export default {
       await context.commit('ghost', { parent, target, directory })
     },
     select: async function (context, { path }) {
-      await context.commit('error', { error: null })
-
-      const _fs = remote.require('fs')
-
-      const status = await new Promise((resolve, reject) => _fs.lstat(path, (err, status) => err ? reject(err) : resolve(status)))
-
-      if (status.isDirectory()) {
-        await context.commit('error', { error: 'Cannot load contents of directory' })
-        await context.commit('content', { content: null })
-      } else {
-        const _path = remote.require('path')
-        const ext = _path.extname(path).toLowerCase()
-
-        if (ext !== '.md') {
-          await context.commit('error', { error: `File has invalid ${ext} extension.` })
-          await context.commit('content', { content: null })
-        } else {
-          await context.commit('content', { content: _fs.readFileSync(path, 'utf8') })
-        }
-      }
-
+      await context.dispatch('save', { path })
       await context.commit('select', { path })
     },
-    save: async function (context, { content }) {
+    update: async function (context, { content }) {
+      await context.commit('update', { content })
+    },
+    save: async function (context) {
+      const item = context.state.selected
+
       const _fs = remote.require('fs')
 
-      await new Promise((resolve, reject) => _fs.writeFile(context.state.active, content, err => err ? reject(err) : resolve(true)))
+      if (item && !item.directory && !item.clean) {
+        item.clean = true
+        await new Promise((resolve, reject) => _fs.writeFile(context.state.active, context.state.content, err => err ? reject(err) : resolve(true)))
+      }
     },
     submit: async function (context, { input, title }) {
       const item = context.state.selected

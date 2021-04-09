@@ -38,7 +38,7 @@
           ref="editor"
           v-if="edit && active"
           :value="content"
-          @input=save
+          @inputRead=input
           @contextmenu="(cm, event) => $emit('context', { selection: { context }, event })"
         />
 
@@ -125,7 +125,6 @@ export default {
     mark: null,
     regex: null,
     focus: null,
-    timeout: null,
     mode: {
       read: {
         results: null
@@ -214,16 +213,16 @@ export default {
     }
   },
   methods: {
-    save: async function (content) {
-      if (this.timeout) {
-        clearTimeout(this.timeout)
+    input: async function (codemirror) {
+      if (codemirror.isClean()) {
+        return
       }
 
-      await new Promise(resolve => { this.timeout = setTimeout(resolve, 1000) })
+      codemirror.save()
 
-      await this.$store.dispatch('files/save', { content })
+      const content = codemirror.doc.getValue()
 
-      this.$emit('save')
+      this.$emit('save', { content })
     },
     search: async function () {
       if (!this.query) {
