@@ -20,12 +20,17 @@ export default class File {
       document: null,
       updated: null,
       clean: true,
+      readonly: false,
       ...data
     })
 
     if (!this.directory && this.path) {
       const _path = remote.require('path')
       this.extension = _path.extname(this.path).toLowerCase()
+
+      if (this.extension !== '.md') {
+        this.readonly = true
+      }
     }
   }
 

@@ -19,7 +19,11 @@
                 <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-folder</v-icon>
               </empty-view>
 
-              <div v-show="!directory" class="fill-height">
+              <empty-view v-if="readonly">
+                <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-file</v-icon>
+              </empty-view>
+
+              <div v-show="!(directory || readonly)" class="fill-height">
                 <div
                   ref="rendered"
                   id="editor-interface-rendered"
@@ -159,6 +163,9 @@ export default {
     directory: function () {
       return this.$store.state.files.selected?.directory || false
     },
+    readonly: function () {
+      return this.$store.state.files.selected?.readonly || false
+    },
     content: function () {
       return this.$store.state.files.content || ''
     },
@@ -175,7 +182,7 @@ export default {
       return [
         {
           title: 'Cut',
-          active: () => this.edit,
+          active: () => this.edit && !this.readonly,
           action: () => {
             const cm = this.$refs.editor.codemirror
             const selection = cm.getSelection()
@@ -200,7 +207,7 @@ export default {
         },
         {
           title: 'Paste',
-          active: () => this.edit,
+          active: () => this.edit && !this.readonly,
           action: () => {
             const cm = this.$refs.editor.codemirror
             cm.replaceSelection(clipboard.readText())
@@ -210,6 +217,15 @@ export default {
     }
   },
   watch: {
+    active: async function () {
+      this.$refs.editor.codemirror.setOption('readOnly', this.readonly)
+
+      if (this.readonly) {
+        this.$refs.editor.codemirror.setOption('mode', null)
+      } else {
+        this.$refs.editor.codemirror.setOption('mode', 'text/x-markdown')
+      }
+    },
     edit: async function () {
       await this.search()
     },

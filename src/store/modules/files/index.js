@@ -55,9 +55,7 @@ export default {
 
       state.selected = item
 
-      if (item.directory || item.extension !== '.md') {
-        state.content = null
-      } else {
+      if (!item.directory) {
         state.content = item.document.content
       }
     },
@@ -174,7 +172,7 @@ export default {
 
       const _fs = remote.require('fs')
 
-      if (item && !item.directory && !item.clean) {
+      if (item && !item.readonly && !item.directory && !item.clean) {
         item.clean = true
         await new Promise((resolve, reject) => _fs.writeFile(context.state.active, context.state.content, err => err ? reject(err) : resolve(true)))
       }
