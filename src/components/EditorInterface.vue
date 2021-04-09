@@ -11,41 +11,49 @@
     </template>
 
     <template slot="paneR">
-      <scrolly v-show="!edit" ref="window" class="foo" :style="{ width: '100%', height: '100%' }">
-        <scrolly-viewport>
-          <div class="fill-height">
-            <div v-show="content" style="height: 100%; padding: 0px;" >
-              <div
-                ref="rendered"
-                id="editor-interface-rendered"
-                class="pa-2"
-                v-html="rendered"
-                @contextmenu="$emit('context', { selection: { context }, event: $event })"
-              />
+      <div v-show="active" class="fill-height">
+        <scrolly v-show="!edit" ref="window" class="foo" :style="{ width: '100%', height: '100%' }">
+          <scrolly-viewport>
+            <div class="fill-height">
+              <empty-view v-if="directory">
+                <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-folder</v-icon>
+              </empty-view>
+
+              <div v-show="!directory" class="fill-height">
+                <div
+                  ref="rendered"
+                  id="editor-interface-rendered"
+                  class="pa-2"
+                  v-html="rendered"
+                  @contextmenu="$emit('context', { selection: { context }, event: $event })"
+                />
+              </div>
             </div>
-            <empty-view v-if="!content" />
-          </div>
-        </scrolly-viewport>
-        <scrolly-bar axis="y"></scrolly-bar>
-        <scrolly-bar axis="x"></scrolly-bar>
-      </scrolly>
+          </scrolly-viewport>
+          <scrolly-bar axis="y"></scrolly-bar>
+          <scrolly-bar axis="x"></scrolly-bar>
+        </scrolly>
 
-      <div v-show="edit" class="fill-height">
-        <commit-view v-if="commit" @close="$emit('commit:close')" />
-        <push-view v-else-if="push" @close="$emit('push:close')" />
+        <div v-show="edit" class="fill-height">
+          <commit-view v-if="commit" @close="$emit('commit:close')" />
+          <push-view v-else-if="push" @close="$emit('push:close')" />
 
-        <codemirror
-          ref="editor"
-          v-if="edit && active"
-          :value="content"
-          @inputRead=input
-          @contextmenu="(cm, event) => $emit('context', { selection: { context }, event })"
-        />
+          <empty-view v-show="directory">
+            <v-icon large class=" grey--text text--lighten-2">mdi-folder</v-icon>
+            <h4>{{ active }}</h4>
+          </empty-view>
 
-        <div v-else class="full_size">
-          <empty-view>{{ error }}</empty-view>
+          <codemirror
+            ref="editor"
+            v-show="!directory"
+            :value="content"
+            @inputRead=input
+            @contextmenu="(cm, event) => $emit('context', { selection: { context }, event })"
+          />
         </div>
+
       </div>
+      <empty-view v-show="!active" >{{ error }}</empty-view>
 
     </template>
   </split-pane>
@@ -144,6 +152,12 @@ export default {
     },
     active: function () {
       return this.$store.state.files.active
+    },
+    name: function () {
+      return this.$store.state.files.selected?.name || ''
+    },
+    directory: function () {
+      return this.$store.state.files.selected?.directory || false
     },
     content: function () {
       return this.$store.state.files.content || ''
