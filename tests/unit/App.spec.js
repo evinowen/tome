@@ -163,17 +163,16 @@ describe('App.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    wrapper.vm.reload_run = jest.fn()
     store.dispatch.mockClear()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.set_tome('/test/path')
 
-    expect(store.dispatch).toHaveBeenCalledTimes(2)
+    expect(store.dispatch).toHaveBeenCalledTimes(3)
     expect(store.dispatch.mock.calls[0][0]).toBe('tome/load')
     expect(store.dispatch.mock.calls[1][0]).toBe('files/initialize')
-    expect(wrapper.vm.reload_run).toHaveBeenCalledTimes(1)
+    expect(store.dispatch.mock.calls[2][0]).toBe('tome/inspect')
   })
 
   it('should open directory context when triggered by editor interface using an instance', async () => {
@@ -243,6 +242,34 @@ describe('App.vue', () => {
     expect(wrapper.vm.context.visible).toBeTruthy()
   })
 
+  it('should start editor counter when Editor Interface emits a save event when editing', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    wrapper.vm.edit = true
+
+    expect(wrapper.vm.editor.triggered).toBeFalsy()
+    expect(wrapper.vm.editor.counter).toBe(0)
+
+    wrapper.vm.$refs.interface.$emit('save', { content: '' })
+
+    expect(wrapper.vm.editor.triggered).toBeTruthy()
+    expect(wrapper.vm.editor.counter).not.toBe(0)
+  })
+
+  it('should called editor run when Editor Interface emits a save event when not editing', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    wrapper.vm.editor.run = jest.fn()
+
+    expect(wrapper.vm.editor.run).toHaveBeenCalledTimes(0)
+
+    wrapper.vm.$refs.interface.$emit('save', { content: '' })
+
+    expect(wrapper.vm.editor.run).toHaveBeenCalledTimes(1)
+  })
+
   it('should start store counter when a setting field is updated', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -257,21 +284,21 @@ describe('App.vue', () => {
     expect(wrapper.vm.settings.counter).not.toBe(0)
   })
 
-  it('should follow the reload timer cycle when Editor Interface emits a save event', async () => {
+  it('should follow the editor timer cycle when Editor Interface emits a save event', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    store.dispatch.mockClear()
+    wrapper.vm.editor.run = jest.fn()
 
-    expect(wrapper.vm.reload.timeout).toBeFalsy()
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
+    expect(wrapper.vm.editor.timeout).toBeFalsy()
+    expect(wrapper.vm.editor.run).toHaveBeenCalledTimes(0)
 
-    wrapper.vm.$refs.interface.$emit('save')
+    wrapper.vm.$refs.interface.$emit('save', { content: '' })
 
     await expect(new Promise((resolve, reject) => {
       let timeout = 10
       const wait = () => {
-        if (wrapper.vm.reload.triggered) {
+        if (wrapper.vm.editor.triggered) {
           if (timeout--) {
             setTimeout(wait, 1000)
           } else {
@@ -285,10 +312,8 @@ describe('App.vue', () => {
       wait()
     })).resolves.toBeDefined()
 
-    expect(wrapper.vm.reload.triggered).toBeFalsy()
-    expect(store.dispatch).toHaveBeenCalledTimes(2)
-    expect(store.dispatch.mock.calls[0][0]).toBe('configuration/write')
-    expect(store.dispatch.mock.calls[1][0]).toBe('tome/inspect')
+    expect(wrapper.vm.editor.triggered).toBeFalsy()
+    expect(wrapper.vm.editor.triggered).toBeFalsy()
   }, 20000)
 
   it('should follow the settings timer cycle when the counter is started', async () => {
