@@ -52,7 +52,6 @@ describe('ExplorerNode.vue', () => {
     .context(() => ({ vuetify }))
 
   it('should produce itself when instance is computed', async () => {
-    const format = jest.fn()
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 

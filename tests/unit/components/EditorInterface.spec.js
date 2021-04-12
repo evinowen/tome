@@ -66,7 +66,7 @@ describe('EditorInterface.vue', () => {
     isClean: jest.fn(() => false),
     save: jest.fn(),
     doc: {
-      getValue: jest.fn(() => "Value")
+      getValue: jest.fn(() => 'Value')
     }
   }
 
