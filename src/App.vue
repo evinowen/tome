@@ -69,7 +69,7 @@
       :edit=edit
       :commit=commit
       :push=push
-      @save=reload_start
+      @save="save"
       @commit:close="commit = false"
       @push:close="push = false"
       @context=open_context
@@ -97,11 +97,11 @@
     <search-service v-show=search />
 
     <action-bar
-      :waiting=reload.counter
+      :waiting=editor.counter
       :commit=commit
       :push=push
       @open=set_tome
-      @edit="edit = $event"
+      @edit=toggle
       @commit="commit = true"
       @push="push = true"
       @search="search = !search"
@@ -174,7 +174,7 @@ export default {
       max: 3
     },
 
-    reload: {
+    editor: {
       triggered: false,
       counter: 0,
       max: 3
@@ -212,6 +212,10 @@ export default {
 
   mounted: async function () {
     this.settings.run = async () => store.dispatch('configuration/write', store.state.tome_app_config_path)
+    this.editor.run = async () => {
+      await store.dispatch('files/save')
+      store.dispatch('tome/inspect')
+    }
 
     store.state.tome_app_config_path_dir = this.path.join(remote.app.getPath('appData'), 'tome')
 
@@ -255,10 +259,21 @@ export default {
     await store.dispatch('configuration/load', store.state.tome_app_config_path)
   },
   methods: {
+    save: async function (state) {
+      const { content } = state
+
+      await store.dispatch('files/update', { content })
+
+      if (this.edit) {
+        this.counter_start('editor')
+      } else {
+        this.counter_run('editor', false)
+      }
+    },
     set_tome: async function (file_path) {
       await store.dispatch('tome/load', file_path)
       await store.dispatch('files/initialize', { path: file_path })
-      await this.reload_run()
+      store.dispatch('tome/inspect')
     },
     counter_start: function (target) {
       clearTimeout(this[target].timeout)
@@ -277,37 +292,21 @@ export default {
 
       this[target].timeout = setTimeout(() => this.counter_update(target), 1000)
     },
-    counter_run: async function (target) {
+    counter_run: async function (target, clear = true) {
       clearTimeout(this[target].timeout)
-      this[target].run()
-      this[target].timeout = setTimeout(() => this.counter_clear(target), 1000)
+
+      this[target].counter = 0
+      await this[target].run()
+
+      if (clear) {
+        this[target].timeout = setTimeout(() => this.counter_clear(target), 1000)
+      }
     },
     counter_clear: async function (target) {
       clearTimeout(this[target].timeout)
+
+      this[target].counter = 0
       this[target].triggered = false
-    },
-    reload_start: function () {
-      clearTimeout(this.reload.timeout)
-
-      this.reload.triggered = true
-      this.reload.counter = this.reload.max
-
-      this.reload.timeout = setTimeout(this.reload_update, 500)
-    },
-    reload_update: async function () {
-      if (!this.reload.counter) {
-        return this.reload_run()
-      }
-
-      this.reload.counter = this.reload.counter - 1
-
-      this.reload.timeout = setTimeout(this.reload_update, 1000)
-    },
-    reload_run: async function () {
-      clearTimeout(this.reload.timeout)
-      this.reload.triggered = false
-
-      await store.dispatch('tome/inspect')
     },
     open_context: async function (state) {
       const { instance, selection, event } = state
@@ -347,6 +346,15 @@ export default {
 
       await store.dispatch('configuration/update', { [name]: file.path })
       this.counter_start('settings')
+    },
+    toggle: async function (value) {
+      if (value) {
+        await this.counter_clear('editor')
+      } else {
+        await this.counter_run('editor', false)
+      }
+
+      this.edit = value
     }
   },
   computed: {

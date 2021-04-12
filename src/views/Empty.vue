@@ -2,8 +2,7 @@
   <v-container fill-height fluid class="main_screen">
     <v-row align="center" justify="center">
         <v-col class="text-center grey--text text--lighten-2">
-          <v-icon x-large class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-bookshelf</v-icon>
-          <p><slot></slot></p>
+          <slot></slot>
         </v-col>
     </v-row>
   </v-container>

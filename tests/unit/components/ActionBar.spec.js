@@ -89,6 +89,19 @@ describe('ActionBar.vue', () => {
     jest.clearAllMocks()
   })
 
+  it('should emit an edit event when internal edit value changes', async () => {
+    const event = jest.fn()
+
+    wrapper.vm.$on('edit', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    wrapper.setData({ edit: !wrapper.vm.edit })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(event).toHaveBeenCalledTimes(1)
+  })
+
   it('emits a commit event when the commit button is clicked', async () => {
     const event = jest.fn()
 

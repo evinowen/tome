@@ -61,7 +61,13 @@ describe('EditorInterface.vue', () => {
     getSelection: jest.fn(() => 'selected text'),
     setSelection: jest.fn(),
     scrollIntoView: jest.fn(),
-    replaceSelection: jest.fn()
+    replaceSelection: jest.fn(),
+    setOption: jest.fn(),
+    isClean: jest.fn(() => false),
+    save: jest.fn(),
+    doc: {
+      getValue: jest.fn(() => 'Value')
+    }
   }
 
   beforeEach(async () => {
@@ -101,21 +107,62 @@ describe('EditorInterface.vue', () => {
     context.store = store
   })
 
-  it('should call store file save action for item path provided by save event', async () => {
+  it('should emit a save event when input method is called and changes have been made', async () => {
     const wrapper = factory.wrap()
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const event = jest.fn()
+    wrapper.vm.$on('save', event)
 
     store.dispatch = jest.fn()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
+    expect(event).toHaveBeenCalledTimes(0)
 
-    await wrapper.vm.save({ path: '/project/third' })
+    await wrapper.vm.input(codemirror)
 
     jest.runAllTimers()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
+    expect(event).toHaveBeenCalledTimes(1)
+  })
 
-    expect(store.dispatch.mock.calls[0][0]).toBe('files/save')
+  it('should do nothing when input method is called and changes have not been made', async () => {
+    codemirror.isClean.mockImplementation(() => true)
+
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    const event = jest.fn()
+    wrapper.vm.$on('save', event)
+
+    store.dispatch = jest.fn()
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.input(codemirror)
+
+    jest.runAllTimers()
+
+    expect(event).toHaveBeenCalledTimes(0)
+  })
+
+  it('should update the interface to plain text when document is read only', async () => {
+    codemirror.isClean.mockImplementation(() => true)
+
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    codemirror.setOption.mockClear()
+
+    await store.dispatch('files/mock', { selected: { readonly: true }, active: '/project/path' })
+
+    expect(codemirror.setOption).toHaveBeenCalledTimes(2)
+
+    expect(codemirror.setOption.mock.calls[0][0]).toBe('readOnly')
+    expect(codemirror.setOption.mock.calls[0][1]).toBe(true)
+
+    expect(codemirror.setOption.mock.calls[1][0]).toBe('mode')
+    expect(codemirror.setOption.mock.calls[1][1]).toBeNull()
   })
 
   it('should render current content using marked', async () => {
@@ -145,9 +192,9 @@ describe('EditorInterface.vue', () => {
     const wrapper = factory.wrap()
 
     await store.dispatch('files/mock', { content: '# Mock' })
-    await store.dispatch('search/mock', { query: '' })
+    await store.dispatch('search/mock', { query: 'first' })
 
-    expect(wrapper.vm.query).toEqual('')
+    expect(wrapper.vm.query).toEqual('first')
     expect(wrapper.vm.rendered).toEqual('<h1 id="mock">Mock</h1>\n')
 
     wrapper.vm.$refs.rendered.querySelectorAll = jest.fn((test) => {
@@ -159,7 +206,7 @@ describe('EditorInterface.vue', () => {
 
     expect(wrapper.vm.mode.read.results.length).toBe(0)
 
-    await store.dispatch('search/mock', { query: 'mock' })
+    await store.dispatch('search/mock', { query: 'second' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.mode.read.results.length).not.toBeNull()
@@ -168,6 +215,7 @@ describe('EditorInterface.vue', () => {
 
   it('should trigger search when the edit attribute changes', async () => {
     const wrapper = factory.wrap({ edit: false })
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     wrapper.vm.search = jest.fn()
@@ -180,6 +228,7 @@ describe('EditorInterface.vue', () => {
 
   it('should trigger navigation when the target attribute changes', async () => {
     const wrapper = factory.wrap({})
+
     store.dispatch('search/mock', { navigation: { target: 1 } })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
@@ -192,42 +241,22 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should update search highlight when the search query changes in edit mode', async () => {
-    // const cursor = {
-    //   findNext: jest.fn(() => false),
-    //   findPrevious: jest.fn(),
-    //   from: jest.fn(() => 1),
-    //   to: jest.fn(() => 100)
-    // // }
-
-    // cursor.findNext.mockImplementationOnce(true)
-    // cursor.findNext.mockImplementationOnce(true)
-    // cursor.findNext.mockImplementationOnce(true)
-
-    // const codemirror = {
-    //   addOverlay: jest.fn(),
-    //   removeOverlay: jest.fn(),
-    //   getSearchCursor: jest.fn(() => cursor),
-    //   setSelection: jest.fn(),
-    //   scrollIntoView: jest.fn()
-    // }
-
     const wrapper = factory.wrap({ edit: true })
+
     await store.dispatch('files/mock', { active: '/project/path' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    wrapper.vm.$refs.editor.codemirror = codemirror
-
     await store.dispatch('files/mock', { content: '# Mock' })
-    await store.dispatch('search/mock', { query: '' })
+    await store.dispatch('search/mock', { query: 'first' })
 
-    expect(wrapper.vm.query).toEqual('')
+    expect(wrapper.vm.query).toEqual('first')
 
     codemirror.addOverlay.mockClear()
     codemirror.removeOverlay.mockClear()
     codemirror.setSelection.mockClear()
     codemirror.scrollIntoView.mockClear()
 
-    await store.dispatch('search/mock', { query: 'mock' })
+    await store.dispatch('search/mock', { query: 'second' })
 
     expect(codemirror.removeOverlay).toHaveBeenCalledTimes(1)
     expect(codemirror.addOverlay).toHaveBeenCalledTimes(1)
@@ -242,6 +271,7 @@ describe('EditorInterface.vue', () => {
 
   it('should align search selection with target selection when higher then target and navigate triggers in edit mode', async () => {
     const wrapper = factory.wrap({ edit: true })
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     await store.dispatch('files/mock', { content: '# Mock' })
@@ -262,26 +292,10 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should set a functional CodeMirror mode object to overlay when search query changes in edit mode', async () => {
-    // const cursor = {
-    //   findNext: jest.fn(),
-    //   findPrevious: jest.fn(),
-    //   from: jest.fn(() => 1),
-    //   to: jest.fn(() => 100)
-    // }
-
-    // const codemirror = {
-    //   addOverlay: jest.fn(),
-    //   removeOverlay: jest.fn(),
-    //   getSearchCursor: jest.fn(() => cursor),
-    //   setSelection: jest.fn(),
-    //   scrollIntoView: jest.fn()
-    // }
-
     const wrapper = factory.wrap({ edit: true })
+
     await store.dispatch('files/mock', { active: '/project/path' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    // wrapper.vm.$refs.editor.codemirror = codemirror
 
     await store.dispatch('files/mock', { content: '# Mock' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()

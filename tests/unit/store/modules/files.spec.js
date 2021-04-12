@@ -192,7 +192,8 @@ describe('store/modules/files', () => {
     const target = '/project/first'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: target })
 
     const { item } = store.state.files.tree.identify(target)
 
@@ -208,7 +209,8 @@ describe('store/modules/files', () => {
     const target = '/project/first'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: target })
     await store.dispatch('files/toggle', { path: target })
 
     const { item } = store.state.files.tree.identify(target)
@@ -225,8 +227,8 @@ describe('store/modules/files', () => {
     const directory = '/project/first'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
 
     expect(store.state.files.active).toBeNull()
 
@@ -235,30 +237,15 @@ describe('store/modules/files', () => {
     expect(store.state.files.active).not.toBeNull()
   })
 
-  it('should not load the content from targed item on select when the item isnot a markdown file', async () => {
-    const path = '/project'
-    const directory = '/project/first'
-    const target = '/project/third/c.txt'
-
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
-
-    expect(store.state.files.content).toBeNull()
-
-    await store.dispatch('files/select', { path: target })
-
-    expect(store.state.files.content).toBeNull()
-  })
-
-  it('should load the content from targed item on select when the item is a markdown file', async () => {
+  it('should load the content from targed item on select when the item is a file', async () => {
     const path = '/project'
     const directory = '/project/first'
     const target = '/project/first/a.md'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
+    await store.dispatch('files/load', { path: target })
 
     expect(store.state.files.content).toBeNull()
 
@@ -273,16 +260,19 @@ describe('store/modules/files', () => {
     const target = '/project/first/a.md'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
+    await store.dispatch('files/load', { path: target })
     await store.dispatch('files/select', { path: target })
 
     const content = 'Test Content'
 
     expect(store.state.files.content).not.toBe(content)
 
-    await store.dispatch('files/save', { content })
+    await store.dispatch('files/update', { content })
+    await store.dispatch('files/save')
 
+    expect(store.state.files.content).toBe(content)
     expect(fs.writeFile).toHaveBeenCalledTimes(1)
   })
 
@@ -292,8 +282,9 @@ describe('store/modules/files', () => {
     const target = '/project/first/a.md'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
+    await store.dispatch('files/load', { path: target })
     await store.dispatch('files/ghost', { path: target, directory: true })
 
     expect(store.state.files.ghost).toBeDefined()
@@ -305,8 +296,8 @@ describe('store/modules/files', () => {
     const directory = '/project/first'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/ghost', { path: directory, target: 'a.md', directory: true })
 
     expect(store.state.files.ghost).toBeDefined()
@@ -319,9 +310,9 @@ describe('store/modules/files', () => {
     const second = '/project/second'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: first })
-    await store.dispatch('files/populate', { path: second })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: first })
+    await store.dispatch('files/load', { path: second })
     await store.dispatch('files/ghost', { path: first, directory: true })
 
     expect(store.state.files.ghost).toBeDefined()
@@ -339,8 +330,8 @@ describe('store/modules/files', () => {
     const input = 'new'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/ghost', { path: directory, directory: true })
 
     const { item } = store.state.files.tree.identify(directory)
@@ -359,8 +350,8 @@ describe('store/modules/files', () => {
     const input = 'new'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/ghost', { path: directory, directory: true })
 
     const { item } = store.state.files.tree.identify(directory)
@@ -379,8 +370,8 @@ describe('store/modules/files', () => {
     const input = 'new'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/ghost', { path: directory, directory: false })
 
     const { item } = store.state.files.tree.identify(directory)
@@ -399,8 +390,8 @@ describe('store/modules/files', () => {
     const input = 'new'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/edit', { path: directory })
 
     const { item: item_before } = store.state.files.tree.identify(directory)
@@ -420,8 +411,9 @@ describe('store/modules/files', () => {
     const input = 'New File Name'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
+    await store.dispatch('files/load', { path: target })
     await store.dispatch('files/edit', { path: target })
 
     const { item: item_before } = store.state.files.tree.identify(target)
@@ -442,8 +434,9 @@ describe('store/modules/files', () => {
     const target = '/project/first/a.md'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: directory })
+    await store.dispatch('files/load', { path: target })
     await store.dispatch('files/edit', { path: target })
 
     expect(store.state.files.editing).toBeTruthy()
@@ -461,9 +454,9 @@ describe('store/modules/files', () => {
     const proposed = '/project/second/a.md'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: target_directory })
-    await store.dispatch('files/populate', { path: proposed_directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: target_directory })
+    await store.dispatch('files/load', { path: proposed_directory })
 
     const { item: item_before } = store.state.files.tree.identify(target)
     expect(item_before).toBeDefined()
@@ -484,9 +477,9 @@ describe('store/modules/files', () => {
     const proposed = '/project/second/a.md'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: target_directory })
-    await store.dispatch('files/populate', { path: proposed_directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: target_directory })
+    await store.dispatch('files/load', { path: proposed_directory })
 
     const { item: item_before } = store.state.files.tree.identify(target)
     expect(item_before).toBeDefined()
@@ -507,9 +500,9 @@ describe('store/modules/files', () => {
     const proposed = '/project/first/a.md'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
-    await store.dispatch('files/populate', { path: target_directory })
-    await store.dispatch('files/populate', { path: proposed_directory })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/load', { path: target_directory })
+    await store.dispatch('files/load', { path: proposed_directory })
 
     const { item: item_before } = store.state.files.tree.identify(target)
     expect(item_before).toBeDefined()
@@ -527,7 +520,7 @@ describe('store/modules/files', () => {
     const directory = '/project/third'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
+    await store.dispatch('files/load', { path })
 
     const { item: item_before } = store.state.files.tree.identify(directory)
 

@@ -51,6 +51,13 @@ describe('ExplorerNode.vue', () => {
   })
     .context(() => ({ vuetify }))
 
+  it('should produce itself when instance is computed', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.instance).toBe(wrapper.vm)
+  })
+
   it('should be flagged as system if the filename equals .git', async () => {
     const wrapper = factory.wrap({ name: '.git' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
