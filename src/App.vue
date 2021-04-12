@@ -364,9 +364,6 @@ export default {
     tome: function () {
       return store.state.tome
     },
-    active: function () {
-      return store.state.files.active
-    },
     configuration: function () {
       return store.state.configuration
     }

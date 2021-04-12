@@ -242,6 +242,41 @@ describe('App.vue', () => {
     expect(wrapper.vm.context.visible).toBeTruthy()
   })
 
+  it('should clear editor counter when toggled into edit mode', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    wrapper.vm.counter_clear = jest.fn()
+    wrapper.vm.counter_run = jest.fn()
+
+    expect(wrapper.vm.counter_clear).toHaveBeenCalledTimes(0)
+    expect(wrapper.vm.counter_run).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.toggle(true)
+
+    expect(wrapper.vm.counter_clear).toHaveBeenCalledTimes(1)
+    expect(wrapper.vm.counter_clear.mock.calls[0][0]).toBe('editor')
+    expect(wrapper.vm.counter_run).toHaveBeenCalledTimes(0)
+  })
+
+  it('should trigger editor counter callback when toggled out of edit mode', async () => {
+    const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    wrapper.vm.counter_clear = jest.fn()
+    wrapper.vm.counter_run = jest.fn()
+
+    expect(wrapper.vm.counter_clear).toHaveBeenCalledTimes(0)
+    expect(wrapper.vm.counter_run).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.toggle(false)
+
+    expect(wrapper.vm.counter_clear).toHaveBeenCalledTimes(0)
+    expect(wrapper.vm.counter_run).toHaveBeenCalledTimes(1)
+    expect(wrapper.vm.counter_run.mock.calls[0][0]).toBe('editor')
+    expect(wrapper.vm.counter_run.mock.calls[0][1]).toBe(false)
+  })
+
   it('should start editor counter when Editor Interface emits a save event when editing', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -251,7 +286,7 @@ describe('App.vue', () => {
     expect(wrapper.vm.editor.triggered).toBeFalsy()
     expect(wrapper.vm.editor.counter).toBe(0)
 
-    wrapper.vm.$refs.interface.$emit('save', { content: '' })
+    await wrapper.vm.$refs.interface.$emit('save', { content: '' })
 
     expect(wrapper.vm.editor.triggered).toBeTruthy()
     expect(wrapper.vm.editor.counter).not.toBe(0)
@@ -265,7 +300,7 @@ describe('App.vue', () => {
 
     expect(wrapper.vm.editor.run).toHaveBeenCalledTimes(0)
 
-    wrapper.vm.$refs.interface.$emit('save', { content: '' })
+    await wrapper.vm.$refs.interface.$emit('save', { content: '' })
 
     expect(wrapper.vm.editor.run).toHaveBeenCalledTimes(1)
   })
