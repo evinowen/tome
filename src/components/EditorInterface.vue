@@ -139,7 +139,7 @@ export default {
     focus: null,
     mode: {
       read: {
-        results: null
+        results: []
       },
       write: {
         cursor: null,
@@ -156,9 +156,6 @@ export default {
     },
     active: function () {
       return this.$store.state.files.active
-    },
-    name: function () {
-      return this.$store.state.files.selected?.name || ''
     },
     directory: function () {
       return this.$store.state.files.selected?.directory || false
