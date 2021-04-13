@@ -76,14 +76,6 @@
     />
     <empty-view v-show=!tome.path />
 
-    <new-file-service
-      :active="add.active"
-      @close="add.active = false"
-      :base="tome.path" :target="add_target"
-      :extension="add.as_directory ? null : 'md'"
-      :folder="add.as_directory"
-    />
-
     <context-menu-service
       v-model=context.visible
       @close="context.visible = false"
@@ -152,7 +144,6 @@ html, body {
 import store from './store'
 import { remote } from 'electron'
 
-import NewFileService from './components/NewFileService.vue'
 import ContextMenuService from './components/ContextMenuService.vue'
 import SearchService from './components/SearchService.vue'
 
@@ -184,13 +175,6 @@ export default {
     commit: false,
     push: false,
     search: false,
-
-    add: {
-      active: false,
-      value: '',
-      relative_path: '',
-      as_directory: false
-    },
 
     context: {
       visible: false,
@@ -358,9 +342,6 @@ export default {
     }
   },
   computed: {
-    add_target: function () {
-      return this.add.relative_path || store.state.tome_file_path
-    },
     tome: function () {
       return store.state.tome
     },
@@ -373,7 +354,6 @@ export default {
     EditorInterface,
     EmptyView,
     ActionBar,
-    NewFileService,
     ContextMenuService,
     SearchService
   }

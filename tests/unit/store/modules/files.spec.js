@@ -50,14 +50,34 @@ const _readdir = (path) => {
   return _readdir_result(...files)
 }
 
+const _writefile = (path) => {
+  const path_split = String(path).replace(/^\/|\/$/, '').split('/')
+  let item = disk
+  while (path_split.length > 1) item = item[path_split.shift()]
+
+  item[path_split.shift()] = null
+
+  return true
+}
+
+const _mkdir = (path) => {
+  const path_split = String(path).replace(/^\/|\/$/, '').split('/')
+  let item = disk
+  while (path_split.length > 1) item = item[path_split.shift()]
+
+  item[path_split.shift()] = {}
+
+  return true
+}
+
 const fs = {
   readdir: jest.fn((path, options, callback) => (callback ?? options)(0, _readdir(path))),
   readdirSync: jest.fn((path, options) => _readdir(path)),
   readFile: jest.fn((path, encoding, callback) => callback(null, '# Header\nContent')),
   readFileSync: jest.fn((path, options) => '# Header\nContent'),
-  writeFile: jest.fn((file, data, options, callback) => (callback ?? options)(null)),
-  writeFileSync: jest.fn((file, data, options) => null),
-  mkdir: jest.fn((path, options, callback) => (callback ?? options)(null)),
+  writeFile: jest.fn((path, data, options, callback) => (callback ?? options)(0, _writefile(path))),
+  writeFileSync: jest.fn((path, data, options) => _writefile(path)),
+  mkdir: jest.fn((path, options, callback) => (callback ?? options)(0, _mkdir(path))),
   unlink: jest.fn((path, callback) => {
     const { parent, name } = disk_fetch(path)
     if (!parent) return callback(new Error('error!'))
