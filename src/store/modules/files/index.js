@@ -56,6 +56,10 @@ export default {
       state.selected = item
 
       if (!item.directory) {
+        if (!item.document) {
+          item.read()
+        }
+
         state.content = item.document.content
       }
     },
