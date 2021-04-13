@@ -64,7 +64,6 @@ describe('App.vue', () => {
   const factory = assemble(App)
     .context(() => ({
       stubs: {
-        NewFileService: true,
         ContextMenuService: true,
         SearchService: true,
         SystemBar: true,
