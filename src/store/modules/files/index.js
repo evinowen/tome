@@ -165,7 +165,7 @@ export default {
       await context.commit('ghost', { parent, target, directory })
     },
     select: async function (context, { path }) {
-      await context.dispatch('save', { path })
+      await context.dispatch('save')
       await context.commit('select', { path })
     },
     update: async function (context, { content }) {
