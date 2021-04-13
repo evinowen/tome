@@ -249,11 +249,12 @@ export default {
       const directory = _path.dirname(path)
       const proposed = _path.join(directory, name)
 
-      const parent = _path.dirname(path)
-
       await new Promise((resolve, reject) => _fs.rename(path, proposed, (err) => err ? reject(err) : resolve(true)))
 
-      await context.dispatch('populate', { path: parent })
+      await context.dispatch('load', { path: directory })
+      await context.dispatch('load', { path: proposed })
+
+      await context.dispatch('select', { path: proposed })
     },
     create: async function (context, { path, name, directory }) {
       const _fs = remote.require('fs')
@@ -269,7 +270,10 @@ export default {
         await new Promise((resolve, reject) => _fs.writeFile(proposed, '', (err) => err ? reject(err) : resolve(true)))
       }
 
-      await context.dispatch('populate', { path })
+      await context.dispatch('load', { path })
+      await context.dispatch('load', { path: proposed })
+
+      await context.dispatch('select', { path: proposed })
     },
     delete: async function (context, { path }) {
       const _fs = remote.require('fs')
