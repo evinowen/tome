@@ -50,13 +50,13 @@ export default class FileTree {
   load (path) {
     const { item } = this.identify(path)
 
-    return item.load()
+    return item ? item.load() : null
   }
 
   populate (path) {
     const { item } = this.identify(path)
 
-    return item.populate()
+    return item ? item.populate() : null
   }
 
   async crawl () {
