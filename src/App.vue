@@ -105,7 +105,10 @@
 html, body {
   font-size: 12px !important;
   overflow: hidden !important;
+}
 
+.v-application {
+  font-family: "Montserrat" !important;
 }
 
 .v-icon.v-icon {
