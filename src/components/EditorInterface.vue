@@ -1,7 +1,7 @@
 <template>
   <split-pane :min-percent='5' :default-percent='25' split="vertical">
     <template slot="paneL">
-      <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
+      <scrolly class="foo" :style="{ width: '100%', height: '100%', background: '#282828' }">
         <scrolly-viewport>
           <explorer ref="explorer" :enabled=explore @context="$emit('context', $event)" />
         </scrolly-viewport>
@@ -66,6 +66,8 @@
 <style>
 .fill-height {
   height: 100%;
+  background: #151515;
+  color: #CCC;
 }
 
 .splitter-paneL,

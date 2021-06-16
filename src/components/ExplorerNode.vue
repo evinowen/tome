@@ -57,6 +57,11 @@
 </template>
 
 <style>
+.explorer-node .v-icon {
+  font-size: 14px;
+  color: #AAA !important;
+}
+
 .explorer-node {
   height: 20px;
   position: relative;
@@ -68,11 +73,11 @@
   overflow: visible;
   user-select: none;
   vertical-align: text-bottom;
-  color: grey;
+  color: #666;
 }
 
 .explorer-node-enabled {
-  color: black;
+  color: #CCC;
 }
 
 .explorer-node-break {
@@ -94,7 +99,7 @@
   margin: 0 !important;
   padding: 0 !important;
   font-size: 12px;
-  color: black;
+  color: #CCC;
 }
 
 .explorer-node .v-input__slot {
@@ -129,7 +134,7 @@
 }
 
 .explorer-node-container {
-  border: solid #C8C8C8;
+  border: dotted black;
   border-width: 0 0 0 1px;
   width: auto !important;
   min-height: 8px;
