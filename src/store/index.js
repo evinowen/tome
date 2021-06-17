@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+import { remote } from 'electron'
+
 import tome from './modules/tome'
 import files from './modules/files'
 import templates from './modules/templates'
@@ -15,15 +17,24 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    tome_file: '',
-    tome_file_selected: '',
-    tome_file_path: '',
-    tome_file_data: '',
-    tome_file_error: '',
-    tome_app_config_path: '',
-    tome_app_config_path_dir: ''
+    application_path: '',
+    configuration_path: ''
   },
   mutations: {
+    hydrate: function (state, data) {
+      Object.assign(state, data)
+    }
+  },
+  actions: {
+    hydrate: async function (context) {
+      const path = remote.require('path')
+
+      const application_path = remote.app.getPath('userData')
+      const configuration_path = path.join(application_path, 'config.json')
+
+      context.commit('hydrate', { application_path, configuration_path })
+      await context.dispatch('configuration/load', context.state.configuration_path)
+    }
   },
   modules: {
     tome: tome,

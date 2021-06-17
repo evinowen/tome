@@ -2,65 +2,7 @@
   <v-app id="inspire">
     <system-bar title="tome" @settings="settings.open = true" />
     <v-navigation-drawer v-model="settings.open" fixed temporary>
-      <v-list dense v-if="configuration">
-        <v-list-item>
-          <v-text-field small label="Name" v-model="configuration.name" @change="counter_start('settings')" />
-        </v-list-item>
-        <v-list-item>
-          <v-text-field small label="E-Mail" v-model="configuration.email" @change="counter_start('settings')" />
-        </v-list-item>
-        <v-list-item>
-          <v-container class="pa-0 mb-2">
-            <div class="overline">Private Key</div>
-            <input ref="private_key" type="file" style="display: none" @change="assign_key('private_key', $event)" />
-            <v-btn tile icon small :color="configuration.private_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.private_key.click()">
-              <v-icon small>{{ configuration.private_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-              {{ configuration.private_key }}
-            </v-btn>
-          </v-container>
-        </v-list-item>
-        <v-list-item>
-          <v-container class="pa-0 mb-2">
-            <div class="overline">Public Key</div>
-            <input ref="public_key" type="file" style="display: none" @change="assign_key('public_key', $event)" />
-            <v-btn tile icon small :color="configuration.public_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.public_key.click()">
-              <v-icon small>{{ configuration.public_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-              {{ configuration.public_key }}
-            </v-btn>
-          </v-container>
-        </v-list-item>
-        <v-list-item>
-          <v-text-field
-            v-model="configuration.passphrase"
-            label="passphrase" small clearable
-            :append-icon="settings.obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
-            :type="settings.obscure_passphrase ? 'password' : 'text'"
-            @click:append="settings.obscure_passphrase = !settings.obscure_passphrase"
-            @change="counter_start('settings')"
-          />
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-switch v-model="configuration.format_titles" label="Format Titles" @change="counter_start('settings')"></v-switch>
-        </v-list-item>
-      </v-list>
-      <template v-slot:append>
-        <v-divider></v-divider>
-        <v-container class="my-1">
-          <v-layout justify-center align-center>
-            <v-progress-circular
-              v-if="settings.triggered"
-              :value="(settings.counter * 100) / settings.max"
-              :size="32"
-              :width="6"
-              color="orange darken-1"
-            />
-            <v-avatar v-else color="green" size="32">
-              <v-icon>mdi-content-save</v-icon>
-            </v-avatar>
-          </v-layout>
-        </v-container>
-      </template>
+      <settings />
     </v-navigation-drawer>
 
     <editor-interface
@@ -151,6 +93,7 @@ import ContextMenuService from './components/ContextMenuService.vue'
 import SearchService from './components/SearchService.vue'
 
 import SystemBar from './components/SystemBar.vue'
+import Settings from './components/Settings.vue'
 import EditorInterface from './components/EditorInterface.vue'
 import EmptyView from '@/views/Empty.vue'
 import ActionBar from './components/ActionBar.vue'
@@ -198,52 +141,10 @@ export default {
   },
 
   mounted: async function () {
-    this.settings.run = async () => store.dispatch('configuration/write', store.state.tome_app_config_path)
     this.editor.run = async () => {
       await store.dispatch('files/save')
       store.dispatch('tome/inspect')
     }
-
-    store.state.tome_app_config_path_dir = this.path.join(remote.app.getPath('appData'), 'tome')
-
-    let create_directory = false
-
-    try {
-      await new Promise((resolve, reject) => this.fs.lstat(store.state.tome_app_config_path_dir, (err, status) => err ? reject(err) : resolve(status)))
-    } catch (err) {
-      create_directory = true
-    }
-
-    if (create_directory) {
-      try {
-        await new Promise((resolve, reject) => this.fs.mkdir(store.state.tome_app_config_path_dir, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
-      } catch (error) {
-        this.error = error
-        return
-      }
-    }
-
-    store.state.tome_app_config_path = this.path.join(store.state.tome_app_config_path_dir, 'config.json')
-
-    let create_file = false
-
-    try {
-      await new Promise((resolve, reject) => this.fs.lstat(store.state.tome_app_config_path, (err, status) => err ? reject(err) : resolve(status)))
-    } catch (err) {
-      create_file = true
-    }
-
-    if (create_file) {
-      try {
-        const fd = await new Promise((resolve, reject) => this.fs.open(store.state.tome_app_config_path, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
-        await new Promise((resolve, reject) => this.fs.close(fd, (err) => err ? reject(err) : resolve(true)))
-      } catch (error) {
-        this.error = error
-        return
-      }
-    }
-
-    await store.dispatch('configuration/load', store.state.tome_app_config_path)
   },
   methods: {
     save: async function (state) {
@@ -354,6 +255,7 @@ export default {
   },
   components: {
     SystemBar,
+    Settings,
     EditorInterface,
     EmptyView,
     ActionBar,

@@ -32,6 +32,8 @@ Vue.use(VueCodemirror, {
 
 Vue.config.productionTip = false
 
+store.dispatch('hydrate')
+
 new Vue({
   router,
   store,
