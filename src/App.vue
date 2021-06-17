@@ -1,9 +1,8 @@
 <template>
   <v-app id="inspire">
-    <system-bar title="tome" @settings="settings.open = true" />
-    <v-navigation-drawer v-model="settings.open" fixed temporary>
-      <settings />
-    </v-navigation-drawer>
+    <system-bar title="tome" @settings="settings.open = !settings.open" />
+
+    <settings v-model="settings.open" />
 
     <editor-interface
       v-show=tome.path
@@ -223,17 +222,6 @@ export default {
         position: { x: event.clientX, y: event.clientY },
         ...data
       })
-    },
-    proxy_file: function (event) {
-      const files = event.target.files || event.dataTransfer.files
-
-      return files.length ? files[0] : null
-    },
-    assign_key: async function (name, event) {
-      const file = this.proxy_file(event)
-
-      await store.dispatch('configuration/update', { [name]: file.path })
-      this.counter_start('settings')
     },
     toggle: async function (value) {
       if (value) {
