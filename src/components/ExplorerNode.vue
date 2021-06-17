@@ -158,12 +158,20 @@
   background: rgba(244, 40, 30, 0.6);
 }
 
+.explorer-node-enabled.explorer-node-selected .v-input input {
+  color: #DDD;
+}
+
 .explorer-node-selected:hover {
   background: rgba(150, 150, 150, 0.6);
 }
 
 .explorer-node-enabled.explorer-node-selected:hover {
   background: rgba(255, 20, 10, 0.6);
+}
+
+.explorer-node-enabled.explorer-node-selected:hover .v-input input {
+  color: #EEE;
 }
 
 </style>
