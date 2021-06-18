@@ -4,14 +4,15 @@
 
     <settings v-model="settings.open" />
 
+    <commit v-model=commit />
+
     <editor-interface
       v-show=tome.path
       ref="interface"
       :edit=edit
-      :commit=commit
+      :commit=false
       :push=push
       @save="save"
-      @commit:close="commit = false"
       @push:close="push = false"
       @context=open_context
     />
@@ -33,10 +34,11 @@
       :waiting=editor.counter
       :commit=commit
       :push=push
+      :disabled="settings.open"
       @open=set_tome
       @edit=toggle
-      @commit="commit = true"
-      @push="push = true"
+      @commit="commit = !commit"
+      @push="push = !push"
       @search="search = !search"
     />
   </v-app>
@@ -93,6 +95,7 @@ import SearchService from './components/SearchService.vue'
 
 import SystemBar from './components/SystemBar.vue'
 import Settings from './components/Settings.vue'
+import Commit from './components/Commit.vue'
 import EditorInterface from './components/EditorInterface.vue'
 import EmptyView from '@/views/Empty.vue'
 import ActionBar from './components/ActionBar.vue'
@@ -244,6 +247,7 @@ export default {
   components: {
     SystemBar,
     Settings,
+    Commit,
     EditorInterface,
     EmptyView,
     ActionBar,

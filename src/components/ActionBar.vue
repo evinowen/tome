@@ -4,7 +4,7 @@
     color="grey darken-3" class="pa-0"
     height=18
   >
-    <v-btn action-bar-bookshelf tile icon small dark color="red" class="pa-0" @click.stop="open">
+    <v-btn action-bar-bookshelf tile icon small dark color="red" class="pa-0" @click.stop="open" :disabled=disabled>
       <v-icon small>mdi-bookshelf</v-icon>
     </v-btn>
 
@@ -53,7 +53,7 @@
 
       <v-divider inset vertical />
 
-      <v-switch action-bar-edit v-model="edit" dense x-small inset hide-details class="edit_switch"></v-switch>
+      <v-switch action-bar-edit v-model="edit" dense x-small inset hide-details class="edit_switch" :disabled=disabled>></v-switch>
 
       <v-divider inset vertical />
 
@@ -75,12 +75,12 @@
             />
 
             <!-- SAVE BUTTON -->
-            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop="$emit('commit')" :disabled="commit || push">
+            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop="$emit('commit')" :disabled="disabled || push">
               <v-icon small>mdi-content-save</v-icon>
             </v-btn>
 
             <!-- PUSH BUTTON -->
-            <v-btn action-bar-push tile small icon color="accent" class="button pa-0" @click.stop="$emit('push')" :disabled="commit || push">
+            <v-btn action-bar-push tile small icon color="accent" class="button pa-0" @click.stop="$emit('push')" :disabled="disabled || commit">
               <v-icon small>mdi-upload-multiple</v-icon>
             </v-btn>
 
@@ -91,7 +91,7 @@
       <v-divider inset vertical />
 
       <!-- SEARCH BUTTON -->
-      <v-btn action-bar-search tile small icon color="accent" class="button pa-0" @click.stop="$emit('search')" :disabled="commit || push">
+      <v-btn action-bar-search tile small icon color="accent" class="button pa-0" @click.stop="$emit('search')" :disabled="disabled || commit || push">
         <v-icon small>mdi-magnify</v-icon>
       </v-btn>
 
@@ -170,7 +170,8 @@ export default {
     waiting: { type: Number, default: 0 },
     waiting_max: { type: Number, default: 3 },
     commit: { type: Boolean, default: false },
-    push: { type: Boolean, default: false }
+    push: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false }
   },
 
   data: () => ({
