@@ -20,6 +20,8 @@ function createWindow () {
     width: 800,
     height: 600,
     frame: false,
+    show: false,
+    backgroundColor: '#000000',
     webPreferences: {
       nodeIntegration: true
     }
@@ -37,6 +39,10 @@ function createWindow () {
 
   win.on('closed', () => {
     win = null
+  })
+
+  win.once('ready-to-show', () => {
+    win.show()
   })
 }
 
