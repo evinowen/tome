@@ -1,8 +1,8 @@
 <template>
-  <v-container class="pa-0 mb-2">
-    <div class="overline">{{ label }}</div>
+  <v-container fluid class="pa-0 mb-2">
     <input ref="input" type="file" style="display: none" @change="input($event)" />
-    <v-btn tile icon small :color="value ? 'green' : 'red'" class="key-input" @click.stop="$refs.input.click()">
+    <v-label for=id small><span style="font-size: 0.75em;">{{ label }}</span></v-label>
+    <v-btn id=id tile icon small :color=color class="key-input" @click.stop="$refs.input.click()">
       <v-icon small>{{ value ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
       {{ value }}
     </v-btn>
@@ -40,7 +40,13 @@
 export default {
   props: {
     value: { type: String, default: '' },
-    label: { type: String, default: '' }
+    label: { type: String, default: '' },
+    id: { type: String, default: '' }
+  },
+  computed: {
+    color: function () {
+      return this.value ? 'green' : 'red'
+    }
   },
   methods: {
     proxy_file: function (event) {

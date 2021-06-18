@@ -8,10 +8,10 @@
         <v-text-field small label="e-mail" v-model="configuration.email" @change=save />
       </v-list-item>
       <v-list-item>
-        <keyfile-input label="private key" v-model=configuration.private_key @change=save />
+        <keyfile-input label="private key" id="settings_private_key" v-model=configuration.private_key @change=save />
       </v-list-item>
       <v-list-item>
-        <keyfile-input label="public key" v-model=configuration.public_key @change=save />
+        <keyfile-input label="public key" id="settings_public_key" v-model=configuration.public_key @change=save />
       </v-list-item>
       <v-list-item>
         <v-text-field
