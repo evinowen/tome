@@ -2,16 +2,16 @@
   <v-navigation-drawer v-model=open @input="$emit('input', $event)" dark fixed stateless width="100%" style="height: auto; top: 25px; bottom: 0px">
     <v-list dense v-if="configuration">
       <v-list-item>
-        <v-text-field small label="Name" v-model="configuration.name" @change=save />
+        <v-text-field small label="name" v-model="configuration.name" @change=save />
       </v-list-item>
       <v-list-item>
-        <v-text-field small label="E-Mail" v-model="configuration.email" @change=save />
+        <v-text-field small label="e-mail" v-model="configuration.email" @change=save />
       </v-list-item>
       <v-list-item>
-        <keyfile-input label="Private Key" v-model=configuration.private_key @change=save />
+        <keyfile-input label="private key" v-model=configuration.private_key @change=save />
       </v-list-item>
       <v-list-item>
-        <keyfile-input label="Public Key" v-model=configuration.public_key @change=save />
+        <keyfile-input label="public key" v-model=configuration.public_key @change=save />
       </v-list-item>
       <v-list-item>
         <v-text-field
@@ -56,7 +56,6 @@
   text-align: left;
   justify-content: normal;
 }
-
 </style>
 
 <script>
