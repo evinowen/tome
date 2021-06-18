@@ -8,24 +8,10 @@
         <v-text-field small label="E-Mail" v-model="configuration.email" @change=save />
       </v-list-item>
       <v-list-item>
-        <v-container class="pa-0 mb-2">
-          <div class="overline">Private Key</div>
-          <input ref="private_key" type="file" style="display: none" @change="assign_key('private_key', $event)" />
-          <v-btn tile icon small :color="configuration.private_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.private_key.click()">
-            <v-icon small>{{ configuration.private_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-            {{ configuration.private_key }}
-          </v-btn>
-        </v-container>
+        <keyfile-input label="Private Key" v-model=configuration.private_key @change=save />
       </v-list-item>
       <v-list-item>
-        <v-container class="pa-0 mb-2">
-          <div class="overline">Public Key</div>
-          <input ref="public_key" type="file" style="display: none" @change="assign_key('public_key', $event)" />
-          <v-btn tile icon small :color="configuration.public_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.public_key.click()">
-            <v-icon small>{{ configuration.public_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-            {{ configuration.public_key }}
-          </v-btn>
-        </v-container>
+        <keyfile-input label="Public Key" v-model=configuration.public_key @change=save />
       </v-list-item>
       <v-list-item>
         <v-text-field
@@ -75,8 +61,10 @@
 
 <script>
 import store from '@/store'
+import KeyfileInput from './KeyfileInput.vue'
 
 export default {
+  components: { KeyfileInput },
   props: {
     value: { type: Boolean, default: false }
   },
