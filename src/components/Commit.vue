@@ -236,7 +236,6 @@
 
 <script>
 import store from '@/store'
-import NodeGit from 'nodegit'
 
 export default {
   props: {
@@ -278,74 +277,20 @@ export default {
     value: function (value) { this.open = value }
   },
   methods: {
-    stage: async function (file_path) {
-      const index = await this.repository.refreshIndex()
-
-      if (file_path === '*') {
-        for (let i = 0; i < this.available.length; i++) {
-          await index.addByPath(this.available[i].path)
-        }
-      } else {
-        const result = await index.addByPath(file_path)
-
-        if (result) {
-          return
-        }
-      }
-
-      {
-        const result = await index.write()
-
-        if (result) {
-          return
-        }
-      }
-
-      await store.dispatch('tome/inspect')
+    stage: async function (path) {
+      await store.dispatch('tome/stage', path)
     },
-    reset: async function (file_path) {
-      const index = await this.repository.refreshIndex()
-      const head = await this.repository.getBranchCommit(await this.repository.head())
-
-      if (file_path === '*') {
-        for (let i = 0; i < this.staged.length; i++) {
-          await NodeGit.Reset.default(this.repository, head, this.staged[i].path)
-        }
-      } else {
-        const result = await NodeGit.Reset.default(this.repository, head, file_path)
-
-        if (result) {
-          return
-        }
-      }
-
-      {
-        const result = await index.write()
-
-        if (result) {
-          return
-        }
-      }
-
-      await store.dispatch('tome/inspect')
+    reset: async function (path) {
+      await store.dispatch('tome/reset', path)
     },
     commit: async function () {
       this.working = true
 
-      const index = await this.repository.refreshIndex()
-      const oid = await index.writeTree()
-      const parents = []
+      const name = this.input.name || this.configuration.name
+      const email = this.input.email || this.configuration.email
+      const message = this.input.message
 
-      if (!this.repository.headUnborn()) {
-        const head = await NodeGit.Reference.nameToId(this.repository, 'HEAD')
-        const parent = await this.repository.getCommit(head)
-
-        parents.push(parent)
-      }
-
-      const signature = NodeGit.Signature.now(this.input.name || this.configuration.name, this.input.email || this.configuration.email)
-
-      await this.repository.createCommit('HEAD', signature, signature, this.input.message, oid, parents)
+      await store.dispatch('tome/commit', name, email, message)
 
       this.confirm = false
       this.working = false

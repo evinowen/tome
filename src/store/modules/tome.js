@@ -133,6 +133,57 @@ export default {
 
       context.commit('set', { repository, branch })
     },
+    stage: async function (context, path) {
+      const index = await context.state.repository.refreshIndex()
+
+      if (path === '*') {
+        for (let i = 0; i < context.state.tome.status.available.items.length; i++) {
+          await index.addByPath(context.state.tome.status.available.items[i].path)
+        }
+      } else {
+        const result = await index.addByPath(path)
+
+        if (result) {
+          return
+        }
+      }
+
+      {
+        const result = await index.write()
+
+        if (result) {
+          return
+        }
+      }
+
+      await context.dispatch('inspect')
+    },
+    reset: async function (context, path) {
+      const index = await context.state.repository.refreshIndex()
+      const head = await context.state.repository.getBranchCommit(await context.state.repository.head())
+
+      if (path === '*') {
+        for (let i = 0; i < context.state.tome.status.staged.items.length; i++) {
+          await NodeGit.Reset.default(context.state.repository, head, context.state.tome.status.staged.items[i].path)
+        }
+      } else {
+        const result = await NodeGit.Reset.default(context.state.repository, head, path)
+
+        if (result) {
+          return
+        }
+      }
+
+      {
+        const result = await index.write()
+
+        if (result) {
+          return
+        }
+      }
+
+      await context.dispatch('inspect')
+    },
     inspect: async function (context) {
       context.commit('stale')
 
@@ -233,6 +284,22 @@ export default {
       await Promise.all([load_index, load_working_tree])
 
       context.commit('ready', { status })
+    },
+    commit: async function (context, name, email, message) {
+      const index = await context.state.repository.refreshIndex()
+      const oid = await index.writeTree()
+      const parents = []
+
+      if (!context.state.repository.headUnborn()) {
+        const head = await NodeGit.Reference.nameToId(context.state.repository, 'HEAD')
+        const parent = await context.state.repository.getCommit(head)
+
+        parents.push(parent)
+      }
+
+      const signature = NodeGit.Signature.now(name, email)
+
+      await context.state.repository.createCommit('HEAD', signature, signature, message, oid, parents)
     }
   }
 }
