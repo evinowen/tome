@@ -5,15 +5,15 @@
     <settings v-model="settings.open" />
 
     <commit v-model=commit @close="commit = false"/>
+    <push v-model=push @close="push = false"/>
 
     <editor-interface
       v-show=tome.path
       ref="interface"
       :edit=edit
       :commit=false
-      :push=push
+      :push=false
       @save="save"
-      @push:close="push = false"
       @context=open_context
     />
     <empty-view v-show=!tome.path />
@@ -96,6 +96,7 @@ import SearchService from './components/SearchService.vue'
 import SystemBar from './components/SystemBar.vue'
 import Settings from './components/Settings.vue'
 import Commit from './components/Commit.vue'
+import Push from './components/Push.vue'
 import EditorInterface from './components/EditorInterface.vue'
 import EmptyView from '@/views/Empty.vue'
 import ActionBar from './components/ActionBar.vue'
@@ -248,6 +249,7 @@ export default {
     SystemBar,
     Settings,
     Commit,
+    Push,
     EditorInterface,
     EmptyView,
     ActionBar,

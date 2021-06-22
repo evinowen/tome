@@ -39,8 +39,6 @@
         </scrolly>
 
         <div v-show="edit" class="fill-height">
-          <push-view v-if="push" @close="$emit('push:close')" />
-
           <empty-view v-show="directory">
             <v-icon large class=" grey--text text--lighten-2">mdi-folder</v-icon>
             <h4>{{ active }}</h4>
@@ -121,13 +119,11 @@ import marked from 'marked'
 import Mark from 'mark.js'
 import Explorer from '@/components/Explorer.vue'
 import EmptyView from '@/views/Empty.vue'
-import PushView from '@/views/Push.vue'
 
 export default {
   props: {
     edit: { type: Boolean, default: false },
-    commit: { type: Boolean, default: false },
-    push: { type: Boolean, default: false }
+    commit: { type: Boolean, default: false }
   },
   data: () => ({
     absolute_path: '',
@@ -373,8 +369,7 @@ export default {
     ScrollyViewport,
     ScrollyBar,
     Explorer,
-    EmptyView,
-    PushView
+    EmptyView
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
-  <v-container style="height: 100%; padding: 0px;">
-    <v-container class="pa-4" style="height: 100%; overflow: auto;">
+  <v-navigation-drawer v-model=open @input="$emit('input', $event)" dark fixed right stateless width="100%" style="height: auto; top: 25px; bottom: 18px">
+    <v-container fluid class="pa-4">
       <v-row no-gutters>
         <v-col>
           <h1>Push</h1>
@@ -11,8 +11,6 @@
           </v-btn>
         </v-col>
       </v-row>
-
-      <hr />
 
       <v-row no-gutters>
         <v-col>
@@ -340,8 +338,7 @@
       </v-row>
 
     </v-container>
-  </v-container>
-
+  </v-navigation-drawer>
 </template>
 
 <style>
@@ -391,7 +388,11 @@ import store from '@/store'
 import NodeGit from 'nodegit'
 
 export default {
+  props: {
+    value: { type: Boolean, default: false }
+  },
   data: () => ({
+    open: false,
     confirm: false,
     working: false,
     input: {
@@ -430,6 +431,9 @@ export default {
       }
     }
   }),
+  watch: {
+    value: function (value) { this.open = value }
+  },
   computed: {
     repository: function () {
       return store.state.tome.repository
