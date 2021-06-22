@@ -4,7 +4,7 @@
 
     <settings v-model="settings.open" />
 
-    <commit v-model=commit />
+    <commit v-model=commit @close="commit = false"/>
 
     <editor-interface
       v-show=tome.path
