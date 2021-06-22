@@ -39,8 +39,7 @@
         </scrolly>
 
         <div v-show="edit" class="fill-height">
-          <commit-view v-if="commit" @close="$emit('commit:close')" />
-          <push-view v-else-if="push" @close="$emit('push:close')" />
+          <push-view v-if="push" @close="$emit('push:close')" />
 
           <empty-view v-show="directory">
             <v-icon large class=" grey--text text--lighten-2">mdi-folder</v-icon>
@@ -122,7 +121,6 @@ import marked from 'marked'
 import Mark from 'mark.js'
 import Explorer from '@/components/Explorer.vue'
 import EmptyView from '@/views/Empty.vue'
-import CommitView from '@/views/Commit.vue'
 import PushView from '@/views/Push.vue'
 
 export default {
@@ -376,7 +374,6 @@ export default {
     ScrollyBar,
     Explorer,
     EmptyView,
-    CommitView,
     PushView
   }
 }

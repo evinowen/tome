@@ -1,18 +1,17 @@
 <template>
-  <v-container style="height: 100%; padding: 0px;">
-    <v-container class="pa-4" style="height: 100%; overflow: auto;">
+  <v-navigation-drawer v-model=open @input="$emit('input', $event)" dark fixed right stateless width="100%" style="height: auto; top: 25px; bottom: 18px">
+    <v-container fluid class="pa-4">
       <v-row no-gutters>
         <v-col>
           <h1>Commit</h1>
         </v-col>
         <v-col col=1 class="text-right">
-          <v-btn tile icon color="red" @click.stop="$emit('close')">
+          <v-btn tile icon color="black" @click.stop="$emit('close')">
             <v-icon>mdi-window-close</v-icon>
           </v-btn>
         </v-col>
       </v-row>
-      <hr />
-      <v-row>
+      <v-row style="max-height: 50vh; overflow-y: scroll">
         <v-col>
           <v-card>
             <v-card-title class="pa-2">
@@ -172,12 +171,10 @@
         </v-col>
       </v-row>
     </v-container>
-  </v-container>
-
+  </v-navigation-drawer>
 </template>
 
-<style>
-.v-data-table td {
+<style>.v-data-table td {
   padding: 0 !important;
   font-size: 10px !important;
 }
@@ -242,7 +239,11 @@ import store from '@/store'
 import NodeGit from 'nodegit'
 
 export default {
+  props: {
+    value: { type: Boolean, default: false }
+  },
   data: () => ({
+    open: false,
     confirm: false,
     working: false,
     input: {
@@ -257,6 +258,9 @@ export default {
     ]
   }),
   computed: {
+    tome: function () {
+      return store.state.tome
+    },
     repository: function () {
       return store.state.tome.repository
     },
@@ -269,6 +273,9 @@ export default {
     configuration: function () {
       return store.state.configuration
     }
+  },
+  watch: {
+    value: function (value) { this.open = value }
   },
   methods: {
     stage: async function (file_path) {
@@ -296,7 +303,6 @@ export default {
 
       await store.dispatch('tome/inspect')
     },
-
     reset: async function (file_path) {
       const index = await this.repository.refreshIndex()
       const head = await this.repository.getBranchCommit(await this.repository.head())
@@ -323,7 +329,6 @@ export default {
 
       await store.dispatch('tome/inspect')
     },
-
     commit: async function () {
       this.working = true
 
@@ -349,7 +354,6 @@ export default {
 
       return true
     }
-
   }
 }
 </script>
