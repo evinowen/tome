@@ -257,12 +257,6 @@ export default {
     ]
   }),
   computed: {
-    tome: function () {
-      return store.state.tome
-    },
-    repository: function () {
-      return store.state.tome.repository
-    },
     staged: function () {
       return store.state.tome.status.staged.items
     },
