@@ -13,74 +13,29 @@
       </v-row>
       <v-row style="max-height: 50vh; overflow-y: scroll">
         <v-col>
-          <v-card>
-            <v-card-title class="pa-2">
-              Available
-            </v-card-title>
-            <v-data-table dense
-              :headers="headers"
-              :items="available"
-              :sort-by="['file']"
-              :hide-default-footer="true"
-              :items-per-page="available.length"
-              class="my-2"
-            >
-              <template v-slot:item.type="{ item }">
-                <v-btn tile icon x-small :color="item.color">
-                  <v-icon small class="mr-1">{{ item.icon }}</v-icon>
-                  {{ item.type }}
-                </v-btn>
-              </template>
-
-              <template v-slot:item.action="{ item }">
-                <v-btn tile icon x-small @click.stop="stage(item.path)">
-                  <v-icon>mdi-plus-thick</v-icon>
-                </v-btn>
-
-              </template>
-            </v-data-table>
-          </v-card>
+          <commit-list
+            title="Available"
+            :items="available"
+            icon="mdi-plus-thick"
+            @input=stage
+          />
           <v-btn ref="stage" tile :disabled="available.length < 1" @click.stop="stage('*')">
             Stage All
           </v-btn>
         </v-col>
 
         <v-col>
-          <v-card>
-            <v-card-title class="pa-2">
-              Staged
-            </v-card-title>
-            <v-data-table
-              :headers="headers"
-              :items="staged"
-              :items-per-page="staged.length"
-              :sort-by="['file']"
-              :hide-default-footer="true"
-              dense class="my-2"
-            >
-              <template v-slot:item.type="{ item }">
-                <v-btn tile icon x-small :color="item.color">
-                  <v-icon small class="mr-1">{{ item.icon }}</v-icon>
-                  {{ item.type }}
-                </v-btn>
-              </template>
-
-              <template v-slot:item.action="{ item }">
-                <v-btn tile icon x-small @click.stop="reset(item.path)">
-                  <v-icon>mdi-cancel</v-icon>
-                </v-btn>
-
-              </template>
-            </v-data-table>
-          </v-card>
+          <commit-list
+            title="Staged"
+            :items="staged"
+            icon="mdi-cancel"
+            @input=reset
+          />
           <v-btn ref="reset" tile :disabled="staged.length < 1" @click.stop="reset('*')">
             Reset All
           </v-btn>
         </v-col>
 
-      </v-row>
-
-      <v-row>
       </v-row>
 
       <v-divider class="mt-4 mb-2"></v-divider>
@@ -135,36 +90,6 @@
 </template>
 
 <style>
-.v-data-table td {
-  padding: 0 !important;
-  font-size: 10px !important;
-}
-
-.v-data-table td:first-child {
-  padding: 0 6px !important;
-}
-
-.v-data-table th:last-child {
-  padding: 0 !important;
-}
-
-.v-data-table .v-btn {
-  width: 100% !important;
-  height: 100% !important;
-  text-align: left;
-  justify-content: left;
-  color: white;
-}
-
-.v-data-table td:last-child .v-btn{
-  text-align: center;
-  justify-content: center;
-}
-
-.v-data-table .v-btn .v-icon {
-  font-size: 14px !important;
-}
-
 .message {
   height: 100px;
 }
@@ -177,6 +102,7 @@
 
 <script>
 import store from '@/store'
+import CommitList from '@/components/CommitList'
 import CommitConfirm from '@/components/CommitConfirm'
 
 export default {
@@ -191,12 +117,7 @@ export default {
       name: '',
       email: '',
       message: ''
-    },
-    headers: [
-      { text: 'File', value: 'path', width: '' },
-      { text: 'Type', value: 'type', width: '70px' },
-      { text: '', value: 'action', width: '23px', sortable: false }
-    ]
+    }
   }),
   computed: {
     staged: function () {
@@ -237,6 +158,7 @@ export default {
     }
   },
   components: {
+    CommitList,
     CommitConfirm
   }
 }
