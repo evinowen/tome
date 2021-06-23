@@ -11,6 +11,32 @@
           </v-btn>
         </v-col>
       </v-row>
+      <v-row>
+        <v-col>
+          <v-text-field
+            v-model="input.name"
+            label="Name"
+            :placeholder="configuration.name"
+            required small
+          ></v-text-field>
+          <v-text-field
+            v-model="input.email"
+            label="E-mail"
+            :placeholder="configuration.email"
+            required small
+          ></v-text-field>
+          <v-textarea
+            v-model="input.message"
+            :counter="50"
+            label="Message"
+            required
+            clearable
+            auto-grow
+            rows=3
+            class="message"
+          ></v-textarea>
+        </v-col>
+      </v-row>
       <v-row style="max-height: 50vh; overflow-y: scroll">
         <v-col>
           <commit-list
@@ -40,51 +66,19 @@
 
       <v-divider class="mt-4 mb-2"></v-divider>
 
-      <v-row>
-        <v-col cols=10>
-          <v-text-field
-            v-model="input.name"
-            label="Name"
-            :placeholder="configuration.name"
-            required small
-          ></v-text-field>
-          <v-text-field
-            v-model="input.email"
-            label="E-mail"
-            :placeholder="configuration.email"
-            required small
-          ></v-text-field>
-          <v-textarea
-            v-model="input.message"
-            :counter="50"
-            label="Message"
-            required
-            clearable
-            auto-grow
-            rows=3
-            class="message"
-          ></v-textarea>
-        </v-col>
-        <v-col cols=2 class="text-right">
-          <v-container class="mt-2">
-            <commit-confirm
-              v-model=confirm
-              @commit=commit
-              :name="input.name || configuration.name"
-              :email="input.email || configuration.email"
-              :message="input.message"
-              :disabled="staged.length < 1"
-              :waiting="working"
-            />
-          </v-container>
-          <v-container>
-            <v-btn color="red" @click.stop="$emit('close')" style="width: 100%">
-              <v-icon class="mr-2">mdi-cancel</v-icon>
-              Cancel
-            </v-btn>
-          </v-container>
-        </v-col>
-      </v-row>
+      <commit-confirm
+        v-model=confirm
+        @commit=commit
+        :name="input.name || configuration.name"
+        :email="input.email || configuration.email"
+        :message="input.message"
+        :disabled="staged.length < 1"
+        :waiting="working"
+      />
+      <v-btn color="red" @click.stop="$emit('close')">
+        <v-icon class="mr-2">mdi-cancel</v-icon>
+        Cancel
+      </v-btn>
     </v-container>
   </v-navigation-drawer>
 </template>

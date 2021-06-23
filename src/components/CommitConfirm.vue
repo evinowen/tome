@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model=open @input="$emit('input', $event)" persistent max-width="600px">
     <template v-slot:activator="{ on }">
-      <v-btn class="mr-4" v-on="on" style="width: 100%" :disabled=disabled>
+      <v-btn class="mr-4" v-on="on" :disabled=disabled>
         <v-icon class="mr-2">mdi-content-save</v-icon>
         Save
       </v-btn>
