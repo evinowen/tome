@@ -1,35 +1,37 @@
 <template>
-  <v-card>
+  <v-card v-resize=resize style="position: relative">
     <v-card-title class="pa-2">
       {{ title }}
     </v-card-title>
-    <v-data-table
-      dense
-      fixed-header
-      hide-default-footer
-      :height=height
-      style="table-layout: fixed"
-      mobile-breakpoint="0"
-      :headers="headers"
-      :items="items"
-      :sort-by="['file']"
-      items-per-page=-1
-      class="my-2"
-    >
-      <template v-slot:item.type="{ item }">
-        <v-btn tile icon x-small :color="item.color">
-          <v-icon small class="mr-1">{{ item.icon }}</v-icon>
-          {{ item.type }}
-        </v-btn>
-      </template>
+    <div ref="datatable">
+      <v-data-table
+        dense
+        fixed-header
+        hide-default-footer
+        :height="datatable.height || 24"
+        style="table-layout: fixed"
+        mobile-breakpoint="0"
+        :headers="headers"
+        :items="items"
+        :sort-by="['file']"
+        :items-per-page=items.length
+        class="my-2"
+      >
+        <template v-slot:item.type="{ item }">
+          <v-btn tile icon x-small :color="item.color">
+            <v-icon small class="mr-1">{{ item.icon }}</v-icon>
+            {{ item.type }}
+          </v-btn>
+        </template>
 
-      <template v-slot:item.action="{ item }">
-        <v-btn tile icon x-small @click.stop="$emit('input', item.path)">
-          <v-icon>{{ icon }}</v-icon>
-        </v-btn>
+        <template v-slot:item.action="{ item }">
+          <v-btn tile icon x-small @click.stop="$emit('input', item.path)">
+            <v-icon>{{ icon }}</v-icon>
+          </v-btn>
 
-      </template>
-    </v-data-table>
+        </template>
+      </v-data-table>
+    </div>
   </v-card>
 </template>
 
@@ -78,14 +80,26 @@ export default {
     title: { type: String, default: 'List' },
     items: { type: Array, default: () => [] },
     icon: { type: String, default: '' },
-    height: { type: String, default: '' }
+    offset: { type: Number, default: 0 }
   },
   data: () => ({
+    datatable: {
+      height: 0
+    },
     headers: [
       { text: 'File', value: 'path', width: 'auto' },
       { text: 'Type', value: 'type', width: '70px' },
       { text: '', value: 'action', width: '23px', sortable: false }
     ]
-  })
+  }),
+  methods: {
+    resize: function () {
+      const top = this.$refs.datatable.getBoundingClientRect().y
+
+      const height = window.innerHeight - top - this.offset
+
+      this.datatable.height = height > 100 ? height : 100
+    }
+  }
 }
 </script>

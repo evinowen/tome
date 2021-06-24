@@ -1,7 +1,7 @@
 <template>
-  <v-navigation-drawer v-model=open @input="$emit('input', $event)" dark fixed right stateless width="100%" style="height: auto; top: 25px; bottom: 18px">
+  <v-navigation-drawer v-model=open @input="$emit('input', $event)" dark fixed right stateless width="100%" style="height: auto; top: 25px; bottom: 18px;">
     <v-container fluid style="height: 100%;">
-      <div class="d-flex flex-column align-stretch justify-start flex-grow-0" style="min-height: 100%">
+      <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%; ">
         <div class="flex-grow-0">
           <div>
             <v-btn tile icon class="float-right" color="black" @click.stop="$emit('close')">
@@ -30,7 +30,9 @@
             rows=3
             class="message"
           ></v-textarea>
-          <v-container fluid>
+        </div>
+        <div>
+          <v-container fluid style="height: 0px">
             <v-row>
               <v-col style="width: 50vw">
                 <commit-list
@@ -38,11 +40,8 @@
                   :items="available"
                   icon="mdi-plus-thick"
                   @input=stage
-                  height="35vh"
+                  :offset=offset
                 />
-                <v-btn ref="stage" tile :disabled="available.length < 1" @click.stop="stage('*')">
-                  Stage All
-                </v-btn>
               </v-col>
 
               <v-col style="width: 50vw">
@@ -51,31 +50,42 @@
                   :items="staged"
                   icon="mdi-cancel"
                   @input=reset
-                  height="35vh"
+                  :offset=offset
                 />
+              </v-col>
+            </v-row>
+          </v-container>
+        </div>
+
+        <div ref="base" v-resize=resize class="flex-grow-0" style="margin-top: auto">
+          <v-container fluid>
+            <v-row>
+              <v-col>
+                <v-btn ref="stage" tile :disabled="available.length < 1" @click.stop="stage('*')">
+                  Stage All
+                </v-btn>
+              </v-col>
+              <v-col>
                 <v-btn ref="reset" tile :disabled="staged.length < 1" @click.stop="reset('*')">
                   Reset All
                 </v-btn>
               </v-col>
             </v-row>
           </v-container>
-        </div>
-
-        <div style="margin-top: auto">
-            <v-divider class="mt-4 mb-2"></v-divider>
-            <commit-confirm
-              v-model=confirm
-              @commit=commit
-              :name="input.name || configuration.name"
-              :email="input.email || configuration.email"
-              :message="input.message"
-              :disabled="staged.length < 1"
-              :waiting="working"
-            />
-            <v-btn color="red" @click.stop="$emit('close')">
-              <v-icon class="mr-2">mdi-cancel</v-icon>
-              Cancel
-            </v-btn>
+          <v-divider class="mt-4 mb-2"></v-divider>
+          <commit-confirm
+            v-model=confirm
+            @commit=commit
+            :name="input.name || configuration.name"
+            :email="input.email || configuration.email"
+            :message="input.message"
+            :disabled="staged.length < 1"
+            :waiting="working"
+          />
+          <v-btn color="red" @click.stop="$emit('close')">
+            <v-icon class="mr-2">mdi-cancel</v-icon>
+            Cancel
+          </v-btn>
         </div>
       </div>
     </v-container>
@@ -107,11 +117,13 @@ export default {
       name: '',
       email: '',
       message: ''
-    }
+    },
+    offset: 0
   }),
   mounted: function () {
     this.input.name = this.configuration.name
     this.input.email = this.configuration.email
+    this.resize()
   },
   computed: {
     staged: function () {
@@ -128,6 +140,9 @@ export default {
     value: function (value) { this.open = value }
   },
   methods: {
+    resize: function () {
+      this.offset = window.innerHeight - this.$refs.base.getBoundingClientRect().y
+    },
     stage: async function (path) {
       await store.dispatch('tome/stage', path)
     },
