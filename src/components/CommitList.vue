@@ -3,12 +3,17 @@
     <v-card-title class="pa-2">
       {{ title }}
     </v-card-title>
-    <v-data-table dense
+    <v-data-table
+      dense
+      fixed-header
+      hide-default-footer
+      :height=height
+      style="table-layout: fixed"
+      mobile-breakpoint="0"
       :headers="headers"
       :items="items"
       :sort-by="['file']"
-      :hide-default-footer="true"
-      :items-per-page="items.length"
+      items-per-page=-1
       class="my-2"
     >
       <template v-slot:item.type="{ item }">
@@ -29,9 +34,16 @@
 </template>
 
 <style>
+.v-data-table table {
+  table-layout: fixed;
+}
+
 .v-data-table td {
   padding: 0 !important;
   font-size: 10px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .v-data-table td:first-child {
@@ -65,11 +77,12 @@ export default {
   props: {
     title: { type: String, default: 'List' },
     items: { type: Array, default: () => [] },
-    icon: { type: String, default: '' }
+    icon: { type: String, default: '' },
+    height: { type: String, default: '' }
   },
   data: () => ({
     headers: [
-      { text: 'File', value: 'path', width: '' },
+      { text: 'File', value: 'path', width: 'auto' },
       { text: 'Type', value: 'type', width: '70px' },
       { text: '', value: 'action', width: '23px', sortable: false }
     ]
