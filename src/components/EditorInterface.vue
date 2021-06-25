@@ -1,42 +1,32 @@
 <template>
   <split-pane :min-percent='5' :default-percent='25' split="vertical">
     <template slot="paneL">
-      <scrolly class="foo" :style="{ width: '100%', height: '100%', background: '#282828' }">
-        <scrolly-viewport>
-          <explorer ref="explorer" :enabled=explore @context="$emit('context', $event)" />
-        </scrolly-viewport>
-        <scrolly-bar axis="y" style="margin-right: 2px;" />
-        <scrolly-bar axis="x" style="margin-bottom: 2px;" />
-      </scrolly>
+      <div class="fit" style="overflow-y: scroll;">
+        <explorer ref="explorer" :enabled=explore @context="$emit('context', $event)" />
+      </div>
     </template>
 
     <template slot="paneR">
-      <div v-show="active" class="fill-height">
-        <scrolly v-show="!edit" ref="window" class="foo" :style="{ width: '100%', height: '100%' }">
-          <scrolly-viewport>
-            <div class="fill-height">
-              <empty-view v-if="directory">
-                <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-folder</v-icon>
-              </empty-view>
+      <div v-show="active" class="fit">
+        <div v-show="!edit" class="fit" style="overflow: auto;">
+          <empty-view v-if="directory">
+            <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-folder</v-icon>
+          </empty-view>
 
-              <empty-view v-if="readonly">
-                <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-file</v-icon>
-              </empty-view>
+          <empty-view v-if="readonly">
+            <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-file</v-icon>
+          </empty-view>
 
-              <div v-show="!(directory || readonly)" class="fill-height">
-                <div
-                  ref="rendered"
-                  id="editor-interface-rendered"
-                  class="pa-2"
-                  v-html="rendered"
-                  @contextmenu="$emit('context', { selection: { context }, event: $event })"
-                />
-              </div>
-            </div>
-          </scrolly-viewport>
-          <scrolly-bar axis="y"></scrolly-bar>
-          <scrolly-bar axis="x"></scrolly-bar>
-        </scrolly>
+          <div v-show="!(directory || readonly)">
+            <div
+              ref="rendered"
+              id="editor-interface-rendered"
+              class="pa-2"
+              v-html="rendered"
+              @contextmenu="$emit('context', { selection: { context }, event: $event })"
+            />
+          </div>
+        </div>
 
         <div v-show="edit" class="fill-height">
           <empty-view v-show="directory">
@@ -61,15 +51,18 @@
 </template>
 
 <style>
-.fill-height {
+.fit {
+  width: 100%;
   height: 100%;
+}
+
+.splitter-pane {
   background: #151515;
   color: #CCC;
 }
 
 .splitter-paneL,
 .splitter-paneR {
-  overflow: hidden;
   height: auto !important;
   top: 0;
   bottom: 0;
@@ -100,6 +93,10 @@
   overflow: hidden;
 }
 
+.CodeMirror-scrollbar-filler {
+  background: transparent !important;
+}
+
 .highlight-rendered {
   background-color: yellow;
   color: black;
@@ -114,7 +111,6 @@
 
 <script>
 import { clipboard } from 'electron'
-import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
 import Mark from 'mark.js'
 import Explorer from '@/components/Explorer.vue'
@@ -365,9 +361,6 @@ export default {
     }
   },
   components: {
-    Scrolly,
-    ScrollyViewport,
-    ScrollyBar,
     Explorer,
     EmptyView
   }
