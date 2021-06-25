@@ -45,6 +45,23 @@
 </template>
 
 <style>
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(0,0,0,0.0);
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(70, 70, 70, 0.6);
+}
+
 html, body {
   font-size: 12px !important;
   overflow: hidden !important;
