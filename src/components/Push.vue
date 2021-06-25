@@ -22,26 +22,7 @@
 
             <push-keyfile-input v-model=input.private_key.value :stored=configuration.private_key />
             <push-keyfile-input v-model=input.public_key.value :stored=configuration.public_key />
-
-            <v-row no-gutters>
-              <v-col>
-                <v-text-field
-                  v-model="input.passphrase.value"
-                  :append-icon="input.passphrase.obscured ? 'mdi-eye-off' : 'mdi-eye'"
-                  :type="input.passphrase.obscured ? 'password' : 'text'"
-                  solo dense filled flat x-small clearable
-                  height=28 class="passphrase" style="min-height: 0px;"
-                  @click:append="input.passphrase.obscured = !input.passphrase.obscured"
-                  hint="passphrase"
-                />
-              </v-col>
-              <v-col cols=1>
-                <v-btn tile icon small dark :color="configuration.passphrase ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="input.passphrase.value = configuration.passphrase">
-                  <v-icon small>mdi-key</v-icon>
-                </v-btn>
-              </v-col>
-
-            </v-row>
+            <push-passphrase-input v-model=input.passphrase.value :stored=configuration.passphrase />
           </v-card>
 
           <v-card dense class="my-2">
@@ -358,6 +339,7 @@
 import store from '@/store'
 import NodeGit from 'nodegit'
 import PushKeyfileInput from './PushKeyfileInput.vue'
+import PushPassphraseInput from './PushPassphraseInput.vue'
 
 export default {
   props: {
@@ -572,7 +554,8 @@ export default {
     }
   },
   components: {
-    PushKeyfileInput
+    PushKeyfileInput,
+    PushPassphraseInput
   }
 }
 </script>
