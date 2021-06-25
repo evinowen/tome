@@ -14,7 +14,6 @@
 
       <v-row no-gutters>
         <v-col>
-
           <v-card dense class="my-2">
             <v-card-title class="pa-2">
               Credentials
@@ -25,68 +24,12 @@
             <push-passphrase-input v-model=input.passphrase.value :stored=configuration.passphrase />
           </v-card>
 
-          <v-card dense class="my-2">
-            <v-card-title class="pa-2">
-              Remote
-            </v-card-title>
-            <v-card-actions>
-              <v-select
-                ref="remote_select"
-                v-model="input.remotes.selected"
-                :items="input.remotes.list"
-                label="Remote"
-                @change="select_remote"
-                dense clearable class="mt-4"
-              >
-                <template v-slot:selection="data">
-                  {{ data.item.name }}
-                  <v-spacer />
-                  <small>{{ data.item.url }}</small>
-                </template>
-                <template v-slot:item="data">
-                  {{ data.item.name }}
-                  <v-spacer />
-                  {{ data.item.url }}
-                </template>
-                <template v-slot:append-outer>
-                  <v-btn icon :color="input.remotes.edit ? 'orange' : 'grey'" @click.stop="input.remotes.edit = !input.remotes.edit">
-                    <v-icon>mdi-square-edit-outline</v-icon>
-                  </v-btn>
-                </template>
-              </v-select>
-            </v-card-actions>
-
-            <v-expand-transition>
-              <div v-show="input.remotes.edit" class="px-6">
-                <form>
-                  <v-row dense background="red">
-                      <v-col cols="12" sm="3">
-                        <v-text-field
-                          v-model="input.remotes.input.name"
-                          label="Name"
-                          required dense
-                        />
-                      </v-col>
-                      <v-col cols="12" sm="9">
-                        <v-text-field
-                          v-model="input.remotes.input.url"
-                          label="URL"
-                          required dense
-                          append-outer-icon="mdi-plus-thick"
-                        >
-                          <template v-slot:append-outer>
-                            <v-btn ref="add_remote" icon color="green" @click.stop="add_remote">
-                              <v-icon>mdi-plus-thick</v-icon>
-                            </v-btn>
-                          </template>
-                        </v-text-field>
-                      </v-col>
-                  </v-row>
-                </form>
-              </div>
-            </v-expand-transition>
-          </v-card>
-
+          <push-remote-selector
+            v-model=input.remotes.value
+            :items=input.remotes.list
+            @input=select_remote
+            @change=add_remote
+          />
         </v-col>
       </v-row>
 
@@ -340,6 +283,7 @@ import store from '@/store'
 import NodeGit from 'nodegit'
 import PushKeyfileInput from './PushKeyfileInput.vue'
 import PushPassphraseInput from './PushPassphraseInput.vue'
+import PushRemoteSelector from './PushRemoteSelector.vue'
 
 export default {
   props: {
@@ -445,8 +389,8 @@ export default {
         object: remote
       }))
     },
-    add_remote: async function (event) {
-      await NodeGit.Remote.create(this.repository, this.input.remotes.input.name, this.input.remotes.input.url)
+    add_remote: async function (name, url) {
+      await NodeGit.Remote.create(this.repository, name, url)
 
       await this.load_remotes()
     },
@@ -555,7 +499,8 @@ export default {
   },
   components: {
     PushKeyfileInput,
-    PushPassphraseInput
+    PushPassphraseInput,
+    PushRemoteSelector
   }
 }
 </script>
