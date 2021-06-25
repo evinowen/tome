@@ -20,37 +20,8 @@
               Credentials
             </v-card-title>
 
-            <v-row no-gutters>
-              <v-col>
-                <input ref="private_key" type="file" style="display: none" @change="assign_private_key" />
-                <v-btn tile icon small dark :color="input.private_key.value ? 'green' : 'red'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="$refs.private_key.click()">
-                  <v-icon small>{{ input.private_key.value ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-                  {{ input.private_key.value }}
-                </v-btn>
-              </v-col>
-              <v-col cols=1>
-                <v-btn tile icon small dark :color="configuration.private_key ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="input.private_key.value = configuration.private_key">
-                  <v-icon small>mdi-key</v-icon>
-                </v-btn>
-              </v-col>
-
-            </v-row>
-
-            <v-row no-gutters>
-              <v-col>
-                <input ref="public_key" type="file" style="display: none" @change="assign_public_key" />
-                <v-btn tile icon small dark :color="input.public_key.value ? 'green' : 'red'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="$refs.public_key.click()">
-                  <v-icon small>{{ input.public_key.value ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-                  {{ input.public_key.value }}
-                </v-btn>
-              </v-col>
-              <v-col cols=1>
-                <v-btn tile icon small dark :color="configuration.public_key ? 'orange' : 'grey'" class="pa-0" style="width: 100%; text-align: left;" @click.stop="input.public_key.value = configuration.public_key">
-                  <v-icon small>mdi-key</v-icon>
-                </v-btn>
-              </v-col>
-
-            </v-row>
+            <push-keyfile-input v-model=input.private_key.value :stored=configuration.private_key />
+            <push-keyfile-input v-model=input.public_key.value :stored=configuration.public_key />
 
             <v-row no-gutters>
               <v-col>
@@ -386,6 +357,7 @@
 <script>
 import store from '@/store'
 import NodeGit from 'nodegit'
+import PushKeyfileInput from './PushKeyfileInput.vue'
 
 export default {
   props: {
@@ -461,27 +433,6 @@ export default {
     await this.load_remotes()
   },
   methods: {
-    assign_private_key: async function (event) {
-      return this.assign_key('private_key', event)
-    },
-    assign_public_key: async function (event) {
-      return this.assign_key('public_key', event)
-    },
-    assign_key: async function (name, event) {
-      const file = this.proxy_file(event)
-
-      if (!file.path) {
-        return
-      }
-
-      this.input[name].value = file.path
-    },
-    proxy_file: function (event) {
-      const files = event.target.files || event.dataTransfer.files
-
-      return files.length ? files[0] : null
-    },
-
     credentials: function () {
       return {
         private_key: this.input.private_key.value,
@@ -619,7 +570,9 @@ export default {
 
       return true
     }
-
+  },
+  components: {
+    PushKeyfileInput
   }
 }
 </script>
