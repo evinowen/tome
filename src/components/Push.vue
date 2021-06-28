@@ -35,13 +35,7 @@
 
       <v-row align="center" justify="center">
         <v-col>
-          <v-card  class="text-center">
-            <v-card-text>
-              <div class="title text--primary">&mdash;</div>
-              <hr/>
-              <div class="display-1 text--primary">{{ branch }}</div>
-            </v-card-text>
-          </v-card>
+          <push-branch :name=branch />
         </v-col>
 
         <v-col cols=1 class="text-center pa-0" align-center>
@@ -49,20 +43,13 @@
         </v-col>
 
         <v-col>
-          <v-card class="text-center" :loading="input.branch.loading" :disabled="!input.branch.reference">
-            <v-card-text v-if="input.branch.reference">
-              <div class="title text--primary">{{ input.branch.reference.name }}</div>
-              <hr/>
-              <div class="display-1 text--primary">{{ input.branch.reference.short }}</div>
-            </v-card-text>
-            <v-card-text v-else>
-              <div class="title text--primary">&mdash;</div>
-              <hr/>
-              <div class="display-1 text--primary">&mdash;</div>
-            </v-card-text>
-          </v-card>
+          <push-branch
+            :loading="input.branch.loading"
+            :disabled="!input.branch.reference"
+            :url="input.branch.reference ? input.branch.reference.name : null"
+            :name="input.branch.reference ? input.branch.reference.short : null"
+          />
         </v-col>
-
       </v-row>
 
       <v-divider class="mt-4 mb-2"></v-divider>
@@ -284,6 +271,7 @@ import NodeGit from 'nodegit'
 import PushKeyfileInput from './PushKeyfileInput.vue'
 import PushPassphraseInput from './PushPassphraseInput.vue'
 import PushRemoteSelector from './PushRemoteSelector.vue'
+import PushBranch from './PushBranch.vue'
 
 export default {
   props: {
@@ -500,7 +488,8 @@ export default {
   components: {
     PushKeyfileInput,
     PushPassphraseInput,
-    PushRemoteSelector
+    PushRemoteSelector,
+    PushBranch
   }
 }
 </script>
