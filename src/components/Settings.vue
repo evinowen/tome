@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model=open @input="$emit('input', $event)" dark fixed stateless width="100%" style="z-index: 1000; height: auto; top: 25px; bottom: 18px">
+  <v-navigation-drawer v-model=open @input="$emit('input', $event)" fixed stateless width="100%" style="z-index: 1000; height: auto; top: 25px; bottom: 18px">
     <v-list dense v-if="configuration">
       <v-list-item>
         <v-text-field small label="name" v-model="configuration.name" @change=save />

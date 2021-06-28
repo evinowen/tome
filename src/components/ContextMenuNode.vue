@@ -5,7 +5,7 @@
     v-on:input="$emit('input', $event)"
     :position-x="position_x"
     :position-y="position_y"
-    dark dense tile
+    dense tile
     content-class="context-menu"
   >
     <v-list dense class="context-menu-list">

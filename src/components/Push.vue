@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model=open @input="$emit('input', $event)" dark fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px">
+  <v-navigation-drawer v-model=open @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px">
     <v-container fluid class="pa-4">
       <v-row no-gutters>
         <v-col>
@@ -73,7 +73,7 @@
               <template v-else-if=this.input.branch.error>
                 <v-list-item>
                   <v-list-item-avatar color="red">
-                    <v-icon dark>mdi-alert</v-icon>
+                    <v-icon>mdi-alert</v-icon>
                   </v-list-item-avatar>
                   <v-list-item-content>
                     <v-list-item-title class="headline">Error</v-list-item-title>
@@ -91,7 +91,7 @@
               <template v-else-if=input.branch.history.length>
                 <v-list-item>
                   <v-list-item-avatar color="green">
-                    <v-icon dark>mdi-check</v-icon>
+                    <v-icon>mdi-check</v-icon>
                   </v-list-item-avatar>
                   <v-list-item-content>
                     <v-list-item-title class="headline">Compare</v-list-item-title>
@@ -117,7 +117,7 @@
               <template v-else>
                 <v-list-item>
                   <v-list-item-avatar color="blue">
-                    <v-icon dark>mdi-thumb-up</v-icon>
+                    <v-icon>mdi-thumb-up</v-icon>
                   </v-list-item-avatar>
                   <v-list-item-content>
                     <v-list-item-title class="headline">Match</v-list-item-title>
@@ -131,7 +131,7 @@
             <template v-else>
               <v-list-item>
                 <v-list-item-avatar color="grey">
-                  <v-icon dark>mdi-cursor-pointer</v-icon>
+                  <v-icon>mdi-cursor-pointer</v-icon>
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title class="headline">Select Remote</v-list-item-title>
@@ -162,7 +162,7 @@
             <v-card>
               <v-list-item>
                 <v-list-item-avatar color="orange">
-                  <v-icon dark>mdi-upload-multiple</v-icon>
+                  <v-icon>mdi-upload-multiple</v-icon>
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title class="headline">Push</v-list-item-title>

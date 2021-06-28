@@ -3,13 +3,13 @@
     <v-row no-gutters>
       <v-col>
         <input ref="input" type="file" style="display: none" @change="input" />
-        <v-btn tile icon small dark :color=color class="pa-0" @click.stop="$refs.input.click()">
+        <v-btn tile icon small :color=color class="pa-0" @click.stop="$refs.input.click()">
           <v-icon small>{{ value ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
           {{ value }}
         </v-btn>
       </v-col>
       <v-col cols=1>
-        <v-btn tile icon small dark :color=button_color class="pa-0" @click.stop="$emit('input', stored)">
+        <v-btn tile icon small :color=button_color class="pa-0" @click.stop="$emit('input', stored)">
           <v-icon small>mdi-key</v-icon>
         </v-btn>
       </v-col>

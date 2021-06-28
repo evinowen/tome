@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model=open @input="$emit('input', $event)" dark fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px;">
+  <v-navigation-drawer v-model=open @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px;">
     <v-container fluid style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%; ">
         <div class="flex-grow-0">

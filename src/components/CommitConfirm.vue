@@ -10,7 +10,7 @@
     <v-card>
       <v-list-item>
         <v-list-item-avatar color="red">
-          <v-icon dark>mdi-hammer-wrench</v-icon>
+          <v-icon>mdi-hammer-wrench</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title class="headline">Commit</v-list-item-title>

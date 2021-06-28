@@ -14,7 +14,7 @@
         />
       </v-col>
       <v-col cols=1>
-        <v-btn tile icon small dark :color=button_color class="pa-0" @click.stop="$emit('input', stored)">
+        <v-btn tile icon small :color=button_color class="pa-0" @click.stop="$emit('input', stored)">
           <v-icon small>mdi-key</v-icon>
         </v-btn>
       </v-col>

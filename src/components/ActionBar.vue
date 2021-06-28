@@ -1,10 +1,10 @@
 <template>
   <v-footer
-    app dark
+    app
     color="grey darken-3" class="pa-0"
     height=18
   >
-    <v-btn action-bar-bookshelf tile icon small dark color="red" class="pa-0" @click.stop="open" :disabled=disabled>
+    <v-btn action-bar-bookshelf tile icon small color="red" class="pa-0" @click.stop="open" :disabled=disabled>
       <v-icon small>mdi-bookshelf</v-icon>
     </v-btn>
 
@@ -26,10 +26,10 @@
           </v-tooltip>
         </template>
 
-        <v-list dark dense>
+        <v-list dense>
           <v-list-item
             v-for="(item, index) in menu"
-            :key="index" dense dark
+            :key="index" dense
             @click.stop="$emit('menu', item.key)"
           >
             <v-list-item-title>{{ item.name }}</v-list-item-title>
@@ -43,7 +43,7 @@
 
       <v-btn v-if="tome.branch.name" tile small class="button px-2" color="primary">{{ tome.branch.name }}</v-btn>
       <v-btn v-else-if="tome.branch.error" tile small icon class="button pl-1 pr-2" color="error">
-        <v-icon small dark class="pr-1">mdi-alert-box</v-icon>
+        <v-icon small class="pr-1">mdi-alert-box</v-icon>
         {{ tome.branch.error }}
       </v-btn>
 
