@@ -399,10 +399,11 @@ export default {
       this.input.branch.error = 'Loading ... '
       this.input.branch.history = []
 
-      await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
-
       try {
-        (await remote.object.referenceList()).map(async reference => {
+        await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
+
+        const references = await remote.object.referenceList()
+        references.map(async reference => {
           const object = {
             name: reference.name(),
             object: reference
