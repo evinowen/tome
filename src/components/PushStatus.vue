@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card style="height: 100%">
     <template v-if=active>
       <template v-if=loading>
         <v-list-item>

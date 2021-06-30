@@ -1,19 +1,16 @@
 <template>
   <v-navigation-drawer v-model=open @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px">
-    <v-container fluid class="pa-4">
-      <v-row no-gutters>
-        <v-col>
-          <h1>Push</h1>
-        </v-col>
-        <v-col col=1 class="text-right">
-          <v-btn tile icon color="red" @click.stop="$emit('close')">
-            <v-icon>mdi-window-close</v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
+    <v-container fluid class="pa-4" style="height: 100%;">
+      <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%;">
+        <div class="flex-grow-0">
+          <div>
+            <v-btn tile icon class="float-right" color="black" @click.stop="$emit('close')">
+              <v-icon>mdi-window-close</v-icon>
+            </v-btn>
+            <h1>Push</h1>
+          </div>
+          <div style="clear: both" ></div>
 
-      <v-row no-gutters>
-        <v-col>
           <v-card dense class="my-2">
             <v-card-title class="pa-2">
               Credentials
@@ -30,32 +27,32 @@
             @input=select_remote
             @change=add_remote
           />
-        </v-col>
-      </v-row>
 
-      <v-row align="center" justify="center">
-        <v-col>
-          <push-branch :name=branch />
-        </v-col>
+          <v-container fluid>
+            <v-row align="center" justify="center">
+              <v-col>
+                <push-branch :name=branch />
+              </v-col>
 
-        <v-col cols=1 class="text-center pa-0" align-center>
-          <v-icon align-center x-large>mdi-chevron-right</v-icon>
-        </v-col>
+              <v-col cols=1 class="text-center pa-0" align-center>
+                <v-icon align-center x-large>mdi-chevron-right</v-icon>
+              </v-col>
 
-        <v-col>
-          <push-branch
-            :loading="input.branch.loading"
-            :disabled="!input.branch.reference"
-            :url="input.branch.reference ? input.branch.reference.name : null"
-            :name="input.branch.reference ? input.branch.reference.short : null"
-          />
-        </v-col>
-      </v-row>
+              <v-col>
+                <push-branch
+                  :loading="input.branch.loading"
+                  :disabled="!input.branch.reference"
+                  :url="input.branch.reference ? input.branch.reference.name : null"
+                  :name="input.branch.reference ? input.branch.reference.short : null"
+                />
+              </v-col>
+            </v-row>
+          </v-container>
 
-      <v-divider class="mt-4 mb-2"></v-divider>
+          <v-divider class="mt-4 mb-2"></v-divider>
+        </div>
 
-      <v-row align="center" justify="center">
-        <v-col>
+        <div class="flex-grow-1">
           <push-status
             :active="input.remotes.value != null"
             :loading=input.branch.loading
@@ -63,30 +60,32 @@
             :match="input.branch.history.length <= 0"
             :history=input.branch.history
           />
-        </v-col>
-      </v-row>
+        </div>
 
-      <v-divider class="mt-4 mb-2"></v-divider>
+        <div class="flex-grow-0" style="margin-top: auto">
+          <v-divider class="mt-4 mb-2"></v-divider>
+          <v-container fluid>
+            <v-row>
+              <v-col>
+                <push-confirm
+                  v-model=confirm
+                  :disabled="!(input.private_key.value && input.public_key.value && input.branch.ahead )"
+                  :waiting=working
+                  :history=input.branch.history
+                  @push=push
+                />
+              </v-col>
 
-      <v-row>
-        <v-col>
-          <push-confirm
-            v-model=confirm
-            :disabled="!(input.private_key.value && input.public_key.value && input.branch.ahead )"
-            :waiting=working
-            :history=input.branch.history
-            @push=push
-          />
-        </v-col>
-
-        <v-col class="text-right">
-          <v-btn color="red" @click.stop="$emit('close')">
-            <v-icon class="mr-2">mdi-cancel</v-icon>
-            Cancel
-          </v-btn>
-        </v-col>
-      </v-row>
-
+              <v-col class="text-right">
+                <v-btn color="red" @click.stop="$emit('close')">
+                  <v-icon class="mr-2">mdi-cancel</v-icon>
+                  Cancel
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-container>
+        </div>
+      </div>
     </v-container>
   </v-navigation-drawer>
 </template>
