@@ -1,8 +1,7 @@
 <template>
   <v-system-bar
     window height=25
-    color="grey darken-3"
-    class="white--text pa-0"
+    class="pa-0"
     style="user-select: none;"
   >
 

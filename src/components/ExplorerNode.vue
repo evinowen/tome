@@ -1,17 +1,16 @@
 <template>
   <v-container class="pa-0" style="user-select: none; clear: both;" v-show="visible">
     <div ref=draggable class="explorer-node-drop" droppable :draggable="!(root || system)" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
-      <v-layout class="explorer-node"
+      <v-layout
         v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
         @click.left.stop="system ? null : $emit('select', { path })"
         @click.right.stop="$emit('context', { instance, event: $event })"
       >
-        <v-btn tile text x-small @click.stop="system ? null : $emit(directory ? 'toggle' : 'select', { path })" class="explorer-node-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
+        <v-btn tile text x-small @click.stop="system ? null : $emit(directory ? 'toggle' : 'select', { path })" class="explorer-node-button mr-1">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <v-flex>
-          <template v-if=system>{{ display }}</template>
-          <v-form v-else ref="form" v-model=valid>
+          <v-form ref="form" v-model=valid>
             <v-text-field
               v-show="(selected && edit)"
               ref="input"
@@ -23,7 +22,9 @@
               @input="error = null"
               @keyup.enter="valid ? $emit('submit', { input, title }) : null"
             />
-            <v-text-field v-show="!(selected && edit)" ref="input" :value=display disabled dense small />
+            <v-text-field
+              @click.stop="$emit(directory ? 'toggle' : 'select', { path })"
+              v-show="!(selected && edit)" ref="input" :value=display readonly dense small class="pa-0" />
           </v-form>
         </v-flex>
       </v-layout>
@@ -57,27 +58,24 @@
 </template>
 
 <style>
-.explorer-node .v-icon {
-  font-size: 14px;
-  color: #AAA !important;
-}
 
 .explorer-node {
-  height: 20px;
-  position: relative;
-  top: -2px;
-  margin: -2px -2px -4px -2px;
+  min-height: 0 !important;
   padding: 0 !important;
+  line-height: 12px !important;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: visible;
   user-select: none;
   vertical-align: text-bottom;
-  color: #666;
 }
 
-.explorer-node-enabled {
-  color: #CCC;
+.explorer-node * {
+  text-overflow: ellipsis;
+}
+
+.explorer-node .v-icon {
+  font-size: 14px !important;
 }
 
 .explorer-node-break {
@@ -86,8 +84,9 @@
 }
 
 .explorer-node-drop {
-  height: 16px;
-  margin: 2px;
+  height: 18px;
+  margin: 2px 2px 0 0;
+  text-overflow: ellipsis;
 }
 
 .explorer-node-drop.drop {
@@ -98,15 +97,19 @@
 .explorer-node .v-input input {
   margin: 0 !important;
   padding: 0 !important;
-  font-size: 12px;
-  color: #CCC;
+  font-size: 10px;
 }
 
 .explorer-node .v-input__slot {
+  min-height: 0 !important;
   margin: 0 !important;
 }
 
-.explorer-node .v-input__slot:before {
+.explorer-node .v-input__slot::before {
+  border-style: none !important;
+}
+
+.explorer-node .v-input__slot:after {
   border: none !important;
 }
 
@@ -117,19 +120,27 @@
   z-index: 1000;
 }
 
+.explorer-node .v-input__slot {
+  padding: 0 !important;
+}
+
+.explorer-node .v-input__icon {
+  height: 18px;
+}
+
+.explorer-node .v-input__prepend-inner {
+  margin-top: 0 !important;
+}
+
 .explorer-node .v-input--is-disabled .v-text-field__details {
   display: none !important;
 }
 
-.explorer-node .v-text-field__details .v-messages__wrapper {
-  background: rgba(255, 255, 255, 0.8);
-}
-
 .explorer-node-button {
-  width: 20px !important;
-  min-width: 20px !important;
-  height: 20px !important;
-  min-height: 20px !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
   padding: 0 !important;
 }
 
@@ -143,35 +154,24 @@
 }
 
 .explorer-node:hover {
-  background: rgba(180, 180, 180, 0.3);
+  background: var(--v-secondary-base) !important;
 }
-
-.explorer-node-enabled.explorer-node:hover {
-  background: rgba(150, 150, 150, 0.6);
+.explorer-node:hover .v-btn,
+.explorer-node:hover input {
+  color: var(--v-secondary-lighten5) !important;
 }
 
 .explorer-node-selected {
-  background: rgba(180, 180, 180, 0.6);
-}
-
-.explorer-node-enabled.explorer-node-selected {
-  background: rgba(244, 40, 30, 0.6);
-}
-
-.explorer-node-enabled.explorer-node-selected .v-input input {
-  color: #DDD;
+  background: var(--v-primary-base) !important;
 }
 
 .explorer-node-selected:hover {
-  background: rgba(150, 150, 150, 0.6);
+  background: var(--v-primary-lighten1) !important;
 }
 
-.explorer-node-enabled.explorer-node-selected:hover {
-  background: rgba(255, 20, 10, 0.6);
-}
-
-.explorer-node-enabled.explorer-node-selected:hover .v-input input {
-  color: #EEE;
+.explorer-node-selected .v-btn,
+.explorer-node-selected input {
+  color: var(--v-primary-lighten5) !important;
 }
 
 </style>

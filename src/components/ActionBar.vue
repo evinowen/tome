@@ -1,7 +1,7 @@
 <template>
   <v-footer
     app
-    color="grey darken-3" class="pa-0"
+    class="pa-0"
     height=18
   >
     <v-btn action-bar-bookshelf tile icon small color="red" class="pa-0" @click.stop="open" :disabled=disabled>
@@ -59,7 +59,7 @@
 
       <v-expand-x-transition>
         <div v-show="edit" style="overflow: hidden;">
-          <div class="grey darken-4" style="height: 18px">
+          <div style="height: 18px">
 
             <!-- STAGE BUTTON -->
             <status-button
@@ -80,7 +80,7 @@
             </v-btn>
 
             <!-- PUSH BUTTON -->
-            <v-btn action-bar-push tile small icon color="accent" class="button pa-0" @click.stop="$emit('push')" :disabled="disabled || commit">
+            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" @click.stop="$emit('push')" :disabled="disabled || commit">
               <v-icon small>mdi-upload-multiple</v-icon>
             </v-btn>
 

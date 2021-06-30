@@ -10,11 +10,11 @@
       <div v-show="active" class="fit">
         <div v-show="!edit" class="fit" style="overflow: auto;">
           <empty-view v-if="directory">
-            <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-folder</v-icon>
+            <v-icon style="font-size: 160px;">mdi-folder</v-icon>
           </empty-view>
 
           <empty-view v-if="readonly">
-            <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-file</v-icon>
+            <v-icon style="font-size: 160px;">mdi-file</v-icon>
           </empty-view>
 
           <div v-show="!(directory || readonly)">
@@ -30,7 +30,7 @@
 
         <div v-show="edit" class="fill-height">
           <empty-view v-show="directory">
-            <v-icon large class=" grey--text text--lighten-2">mdi-folder</v-icon>
+            <v-icon large>mdi-folder</v-icon>
             <h4>{{ active }}</h4>
           </empty-view>
 
@@ -38,6 +38,7 @@
             ref="editor"
             v-show="!directory"
             :value="content"
+            :options="codemirror_options"
             @inputRead=input
             @contextmenu="(cm, event) => $emit('context', { selection: { context }, event })"
           />
@@ -54,11 +55,6 @@
 .fit {
   width: 100%;
   height: 100%;
-}
-
-.splitter-pane {
-  background: #151515;
-  color: #CCC;
 }
 
 .splitter-paneL,
@@ -203,6 +199,11 @@ export default {
           }
         }
       ]
+    },
+    codemirror_options: function () {
+      return {
+        theme: this.$store.state.configuration.dark_mode ? 'base16-dark' : 'base16-light'
+      }
     }
   },
   watch: {
