@@ -70,64 +70,13 @@
 
       <v-row>
         <v-col>
-          <v-dialog v-model="confirm" persistent max-width="600px">
-            <template v-slot:activator="{ on }">
-              <v-btn class="mr-4" v-on="on"
-                :disabled="(input.private_key.value && input.public_key.value && input.branch.ahead ) ? false : true"
-              >
-                <v-icon class="mr-2">mdi-upload-multiple</v-icon>
-                Push
-              </v-btn>
-            </template>
-            <v-card>
-              <v-list-item>
-                <v-list-item-avatar color="orange">
-                  <v-icon>mdi-upload-multiple</v-icon>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title class="headline">Push</v-list-item-title>
-                  <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-              <v-container class="pa-0 ma-0" style="background: #DDDDDD; min-height: 120px">
-                <v-data-table
-                  dense disable-sort class="my-0 commit-history"
-                  :headers="input.branch.headers"
-                  :items="input.branch.history"
-                  :hide-default-footer="true"
-                  :items-per-page="input.branch.history.length"
-                >
-                  <template v-slot:item.oid="{ item }">
-                    <v-btn tile icon x-small color="orange">
-                      {{ item.oid.substring(0, 7) }}
-                    </v-btn>
-                  </template>
-                </v-data-table>
-              </v-container>
-              <v-card-actions>
-                <v-btn
-                  ref="push_confirm"
-                  color="orange darken-1"
-                  text @click="push"
-                  :disabled="working"
-                >
-                  <v-progress-circular
-                    :indeterminate="working"
-                    :size="12"
-                    :width="2"
-                    color="orange darken-1"
-                    class="mr-2"
-                  ></v-progress-circular>
-                  Proceed
-                </v-btn>
-                <v-spacer></v-spacer>
-                <v-btn color="darken-1" text @click="confirm = false" :disabled="working">
-                  <v-icon class="mr-2">mdi-exit-to-app</v-icon>
-                  Back
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+          <push-confirm
+            v-model=confirm
+            :disabled="!(input.private_key.value && input.public_key.value && input.branch.ahead )"
+            :waiting=working
+            :history=input.branch.history
+            @push=push
+          />
         </v-col>
 
         <v-col class="text-right">
@@ -135,7 +84,6 @@
             <v-icon class="mr-2">mdi-cancel</v-icon>
             Cancel
           </v-btn>
-
         </v-col>
       </v-row>
 
@@ -148,41 +96,6 @@
   min-height: 0px !important;
   border-radius: 0px;
 }
-
-.v-data-table.commit-history {
-  border-radius: 0
-}
-
-.v-data-table.commit-history .v-btn {
-  width: 100% !important;
-  height: 100% !important;
-  text-align: left;
-  justify-content: left;
-}
-
-.v-data-table.commit-history th {
-  height: 1px;
-}
-
-.v-data-table.commit-history td {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  padding: 0 8px !important;
-}
-
-.v-data-table.commit-history td:first-child {
-  padding: 0px !important;
-}
-
-.v-data-table.commit-history td:first-child .v-btn {
-  text-align: center;
-  justify-content: center;
-}
-
-.v-data-table.commit-history .v-btn .v-icon {
-  font-size: 14px !important;
-}
 </style>
 
 <script>
@@ -193,6 +106,7 @@ import PushPassphraseInput from './PushPassphraseInput.vue'
 import PushRemoteSelector from './PushRemoteSelector.vue'
 import PushBranch from './PushBranch.vue'
 import PushStatus from './PushStatus.vue'
+import PushConfirm from './PushConfirm.vue'
 
 export default {
   props: {
@@ -412,7 +326,8 @@ export default {
     PushPassphraseInput,
     PushRemoteSelector,
     PushBranch,
-    PushStatus
+    PushStatus,
+    PushConfirm
   }
 }
 </script>
