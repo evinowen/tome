@@ -2,20 +2,20 @@
   <v-navigation-drawer v-model=open @input="$emit('input', $event)" fixed stateless width="100%" style="z-index: 1000; height: auto; top: 25px; bottom: 18px">
     <v-list dense v-if="configuration">
       <v-list-item>
-        <v-text-field small label="name" v-model="configuration.name" @change=save />
+        <v-text-field small label="name" :value=configuration.name @input="assign_value('name', $event)" />
       </v-list-item>
       <v-list-item>
-        <v-text-field small label="e-mail" v-model="configuration.email" @change=save />
+        <v-text-field small label="e-mail" :value=configuration.email @input="assign_value('email', $event)" />
       </v-list-item>
       <v-list-item>
-        <keyfile-input label="private key" id="settings_private_key" v-model=configuration.private_key @change=save />
+        <keyfile-input label="private key" id="settings_private_key" :value=configuration.private_key @input=assign_key />
       </v-list-item>
       <v-list-item>
-        <keyfile-input label="public key" id="settings_public_key" v-model=configuration.public_key @change=save />
+        <keyfile-input label="public key" id="settings_public_key" :value=configuration.public_key @input=assign_key />
       </v-list-item>
       <v-list-item>
         <v-text-field
-          v-model="configuration.passphrase"
+          :value=configuration.passphrase
           label="passphrase" small clearable
           :append-icon="obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
           :type="obscure_passphrase ? 'password' : 'text'"
@@ -25,7 +25,10 @@
       </v-list-item>
       <v-divider></v-divider>
       <v-list-item>
-        <v-switch v-model="configuration.format_titles" label="Format Titles" @change=save></v-switch>
+        <v-switch :value=configuration.format_titles label="Format Titles" @change="assign_value('format_titles', $event || false)"></v-switch>
+      </v-list-item>
+      <v-list-item>
+        <v-switch :value=configuration.dark_mode label="Dark Mode" @change="assign_value('dark_mode', $event || false)"></v-switch>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -77,9 +80,6 @@ export default {
     process: null
   }),
   computed: {
-    tome: function () {
-      return store.state.tome
-    },
     configuration: function () {
       return store.state.configuration
     }
@@ -97,6 +97,11 @@ export default {
       const file = this.proxy_file(event)
 
       await store.dispatch('configuration/update', { [name]: file.path })
+      this.save()
+    },
+    assign_value: async function (name, event) {
+      console.log('assign_value', name, event)
+      await store.dispatch('configuration/update', { [name]: event })
       this.save()
     },
     save: async function () {
