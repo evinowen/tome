@@ -56,94 +56,14 @@
 
       <v-row align="center" justify="center">
         <v-col>
-          <v-card>
-            <template v-if=input.remotes.value>
-              <template v-if=input.branch.loading>
-                <v-list-item>
-                  <v-list-item-avatar color="grey">
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title class="headline">&mdash;</v-list-item-title>
-                    <v-list-item-subtitle>Loading ... </v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider></v-divider>
-                <v-card-text class="text-center">&mdash;</v-card-text>
-              </template>
-              <template v-else-if=this.input.branch.error>
-                <v-list-item>
-                  <v-list-item-avatar color="red">
-                    <v-icon>mdi-alert</v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title class="headline">Error</v-list-item-title>
-                    <v-list-item-subtitle>{{ this.input.branch.error }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider></v-divider>
-                <v-card-text class="text-center">
-                  <v-btn @click.stop="load_branch">
-                    <v-icon class="mr-2">mdi-reload</v-icon>
-                    Retry
-                  </v-btn>
-                </v-card-text>
-              </template>
-              <template v-else-if=input.branch.history.length>
-                <v-list-item>
-                  <v-list-item-avatar color="green">
-                    <v-icon>mdi-check</v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title class="headline">Compare</v-list-item-title>
-                    <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-container class="pa-0 ma-0" style="background: #DDDDDD; min-height: 120px">
-                  <v-data-table
-                    dense disable-sort class="my-0 commit-history"
-                    :headers="input.branch.headers"
-                    :items="input.branch.history"
-                    :hide-default-footer="true"
-                    :items-per-page="input.branch.history.length"
-                  >
-                    <template v-slot:item.oid="{ item }">
-                      <v-btn tile icon x-small color="green">
-                        {{ item.oid.substring(0, 7) }}
-                      </v-btn>
-                    </template>
-                  </v-data-table>
-                </v-container>
-              </template>
-              <template v-else>
-                <v-list-item>
-                  <v-list-item-avatar color="blue">
-                    <v-icon>mdi-thumb-up</v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title class="headline">Match</v-list-item-title>
-                    <v-list-item-subtitle>The local repository history matches the remote repository</v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider></v-divider>
-                <v-card-text class="text-center">&mdash;</v-card-text>
-              </template>
-            </template>
-            <template v-else>
-              <v-list-item>
-                <v-list-item-avatar color="grey">
-                  <v-icon>mdi-cursor-pointer</v-icon>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title class="headline">Select Remote</v-list-item-title>
-                  <v-list-item-subtitle>Choose a remote to compare to the local repository</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-              <v-card-text class="text-center">&mdash;</v-card-text>
-            </template>
-          </v-card>
+          <push-status
+            :active="input.remotes.value != null"
+            :loading=input.branch.loading
+            :error=input.branch.error
+            :match="input.branch.history.length <= 0"
+            :history=input.branch.history
+          />
         </v-col>
-
       </v-row>
 
       <v-divider class="mt-4 mb-2"></v-divider>
@@ -272,6 +192,7 @@ import PushKeyfileInput from './PushKeyfileInput.vue'
 import PushPassphraseInput from './PushPassphraseInput.vue'
 import PushRemoteSelector from './PushRemoteSelector.vue'
 import PushBranch from './PushBranch.vue'
+import PushStatus from './PushStatus.vue'
 
 export default {
   props: {
@@ -490,7 +411,8 @@ export default {
     PushKeyfileInput,
     PushPassphraseInput,
     PushRemoteSelector,
-    PushBranch
+    PushBranch,
+    PushStatus
   }
 }
 </script>
