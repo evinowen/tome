@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer v-model=open @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px">
-    <v-container fluid class="pa-4" style="height: 100%;">
+    <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%;">
         <div class="flex-grow-0">
           <div>
@@ -62,40 +62,24 @@
           />
         </div>
 
-        <div class="flex-grow-0" style="margin-top: auto">
+        <div class="flex-grow-0 pb-3">
           <v-divider class="mt-4 mb-2"></v-divider>
-          <v-container fluid>
-            <v-row>
-              <v-col>
-                <push-confirm
-                  v-model=confirm
-                  :disabled="!(input.private_key.value && input.public_key.value && input.branch.ahead )"
-                  :waiting=working
-                  :history=input.branch.history
-                  @push=push
-                />
-              </v-col>
-
-              <v-col class="text-right">
-                <v-btn color="red" @click.stop="$emit('close')">
-                  <v-icon class="mr-2">mdi-cancel</v-icon>
-                  Cancel
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-container>
+          <push-confirm
+            v-model=confirm
+            :disabled="!(input.private_key.value && input.public_key.value && input.branch.ahead )"
+            :waiting=working
+            :history=input.branch.history
+            @push=push
+          />
+          <v-btn color="red" @click.stop="$emit('close')">
+            <v-icon class="mr-2">mdi-cancel</v-icon>
+            Cancel
+          </v-btn>
         </div>
       </div>
     </v-container>
   </v-navigation-drawer>
 </template>
-
-<style>
-.passphrase.v-input .v-input__slot {
-  min-height: 0px !important;
-  border-radius: 0px;
-}
-</style>
 
 <script>
 import store from '@/store'

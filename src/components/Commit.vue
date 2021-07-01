@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer v-model=open @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px;">
-    <v-container fluid style="height: 100%;">
+    <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%; ">
         <div class="flex-grow-0">
           <div>
@@ -31,8 +31,9 @@
             class="message"
           ></v-textarea>
         </div>
-        <div>
-          <v-container fluid style="height: 0px">
+
+        <div v-resize=resize ref="list" class="flex-grow-1" style="min-height: 320px">
+          <v-container fluid style="height: 0;">
             <v-row>
               <v-col style="width: 50vw">
                 <commit-list
@@ -40,7 +41,7 @@
                   :items="available"
                   icon="mdi-plus-thick"
                   @input=stage
-                  :offset=offset
+                  :height=offset
                 />
               </v-col>
 
@@ -50,14 +51,14 @@
                   :items="staged"
                   icon="mdi-cancel"
                   @input=reset
-                  :offset=offset
+                  :height=offset
                 />
               </v-col>
             </v-row>
           </v-container>
         </div>
 
-        <div ref="base" v-resize=resize class="flex-grow-0" style="margin-top: auto">
+        <div ref="base" class="flex-grow-0 pb-3">
           <v-container fluid>
             <v-row>
               <v-col>
@@ -123,7 +124,6 @@ export default {
   mounted: function () {
     this.input.name = this.configuration.name
     this.input.email = this.configuration.email
-    this.resize()
   },
   computed: {
     staged: function () {
@@ -141,7 +141,7 @@ export default {
   },
   methods: {
     resize: function () {
-      this.offset = window.innerHeight - this.$refs.base.getBoundingClientRect().y
+      this.offset = this.$refs.list.clientHeight
     },
     stage: async function (path) {
       await store.dispatch('tome/stage', path)

@@ -80,11 +80,13 @@ export default {
     title: { type: String, default: 'List' },
     items: { type: Array, default: () => [] },
     icon: { type: String, default: '' },
-    offset: { type: Number, default: 0 }
+    height: { type: Number, default: 0 }
   },
   data: () => ({
     datatable: {
-      height: 0
+      offset: 64,
+      height: 0,
+      min_height: 100
     },
     headers: [
       { text: 'File', value: 'path', width: 'auto' },
@@ -94,11 +96,9 @@ export default {
   }),
   methods: {
     resize: function () {
-      const top = this.$refs.datatable.getBoundingClientRect().y
+      const height = this.height - this.datatable.offset
 
-      const height = window.innerHeight - top - this.offset
-
-      this.datatable.height = height > 100 ? height : 100
+      this.datatable.height = height > this.datatable.min_height ? height : this.datatable.min_height
     }
   }
 }
