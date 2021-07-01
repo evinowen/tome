@@ -61,16 +61,9 @@
 .commit {
   font-family: monospace;
   min-height: 120px;
-  padding: 0 4px !important;
-  font-size: 24px;
+  padding: 4px !important;
+  font-size: 18px;
   line-height: 1.0em !important;
-  background: repeating-linear-gradient(
-    to bottom,
-    #EFEFEF,
-    #EFEFEF 24px,
-    #F8F8F8 24px,
-    #F8F8F8 48px
-  );
 }
 
 .author {
