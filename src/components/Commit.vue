@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model=open @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px;">
+  <v-navigation-drawer :value=value @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px;">
     <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%; ">
         <div class="flex-grow-0">
@@ -111,7 +111,6 @@ export default {
     value: { type: Boolean, default: false }
   },
   data: () => ({
-    open: false,
     confirm: false,
     working: false,
     input: {
@@ -135,9 +134,6 @@ export default {
     configuration: function () {
       return store.state.configuration
     }
-  },
-  watch: {
-    value: function (value) { this.open = value }
   },
   methods: {
     resize: function () {

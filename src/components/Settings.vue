@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model=open @input="$emit('input', $event)" fixed stateless width="100%" style="z-index: 1000; height: auto; top: 25px; bottom: 18px">
+  <v-navigation-drawer :value=value @input="$emit('input', $event)" fixed stateless width="100%" style="z-index: 1000; height: auto; top: 25px; bottom: 18px">
     <v-list dense v-if="configuration">
       <v-list-item>
         <v-text-field small label="name" :value=configuration.name @input="assign_value('name', $event)" />
@@ -71,7 +71,6 @@ export default {
     value: { type: Boolean, default: false }
   },
   data: () => ({
-    open: false,
     obscure_passphrase: true,
     triggered: false,
     counter: 0,
@@ -83,9 +82,6 @@ export default {
     configuration: function () {
       return store.state.configuration
     }
-  },
-  watch: {
-    value: function (value) { this.open = value }
   },
   methods: {
     proxy_file: function (event) {

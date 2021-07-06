@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model=open @input="$emit('input', $event)" persistent max-width="600px">
+  <v-dialog :value=value @input="$emit('input', $event)" persistent max-width="600px">
     <template v-slot:activator="{ on }">
       <v-btn class="mr-4" v-on="on" :disabled=disabled>
         <v-icon class="mr-2">mdi-upload-multiple</v-icon>
@@ -103,14 +103,10 @@ export default {
     history: { type: Array, default: () => [] }
   },
   data: () => ({
-    open: false,
     headers: [
       { text: '', value: 'oid', width: '60px' },
       { text: '', value: 'message', width: '' }
     ]
-  }),
-  watch: {
-    value: function (value) { this.open = value }
-  }
+  })
 }
 </script>
