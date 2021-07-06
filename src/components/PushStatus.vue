@@ -57,7 +57,7 @@
             <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-container class="pa-0 ma-0" style="min-height: 120px">
+        <v-container fluid class="pa-0 ma-0" style="min-height: 120px">
           <v-data-table
             dense disable-sort class="my-0 commit-history"
             :headers=headers
