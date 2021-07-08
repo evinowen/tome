@@ -237,41 +237,47 @@ export default class Repository {
       }))
   }
 
-  async stagePath (path) {
+  async stage (query) {
     const index = await this.repository.refreshIndex()
 
-    if (path === '*') {
+    if (query === '*') {
       for (let i = 0; i < this.available.length; i++) {
-        await index.addByPath(this.available[i].path)
+        await this.stagePath(index, this.available[i].path)
       }
     } else {
-      const result = await index.addByPath(path)
-
-      if (result) {
-        return
-      }
+      await this.stagePath(index, query)
     }
 
     await index.write()
   }
 
-  async resetPath (path) {
+  async stagePath (index, path) {
+    const absolute_path = this._.path.join(this.path, path)
+
+    if (this._.fs.existsSync(absolute_path)) {
+      await index.addByPath(path)
+    } else {
+      await index.removeByPath(path)
+    }
+  }
+
+  async reset (query) {
     const index = await this.repository.refreshIndex()
     const head = await this.repository.getBranchCommit(await this.repository.head())
 
-    if (path === '*') {
+    if (query === '*') {
       for (let i = 0; i < this.staged.length; i++) {
-        await NodeGit.Reset.default(this.repository, head, this.staged[i].path)
+        await this.resetPath(head, query)
       }
     } else {
-      const result = await NodeGit.Reset.default(this.repository, head, path)
-
-      if (result) {
-        return
-      }
+      await this.resetPath(head, query)
     }
 
     await index.write()
+  }
+
+  async resetPath (head, path) {
+    await NodeGit.Reset.default(this.repository, head, path)
   }
 
   async commit (name, email, message) {

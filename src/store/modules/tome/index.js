@@ -50,13 +50,13 @@ export default {
 
       await context.dispatch('inspect')
     },
-    stage: async function (context, path) {
-      await context.state.repository.stagePath(path)
+    stage: async function (context, query) {
+      await context.state.repository.stage(query)
 
       await context.dispatch('inspect')
     },
-    reset: async function (context, path) {
-      await context.state.repository.resetPath(path)
+    reset: async function (context, query) {
+      await context.state.repository.reset(query)
 
       await context.dispatch('inspect')
     },
