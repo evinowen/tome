@@ -126,10 +126,10 @@ export default {
   },
   computed: {
     staged: function () {
-      return store.state.tome.status.staged.items
+      return store.state.tome.status.staged
     },
     available: function () {
-      return store.state.tome.status.available.items
+      return store.state.tome.status.available
     },
     configuration: function () {
       return store.state.configuration

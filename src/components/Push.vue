@@ -23,7 +23,7 @@
 
           <push-remote-selector
             v-model=input.remotes.value
-            :items=input.remotes.list
+            :items=remotes
             @input=select_remote
             @change=add_remote
           />
@@ -42,8 +42,8 @@
                 <push-branch
                   :loading="input.branch.loading"
                   :disabled="!input.branch.reference"
-                  :url="input.branch.reference ? input.branch.reference.name : null"
-                  :name="input.branch.reference ? input.branch.reference.short : null"
+                  :url="remote && remote.branch ? remote.branch.name : null"
+                  :name="remote && remote.branch ? remote.branch.short : null"
                 />
               </v-col>
             </v-row>
@@ -57,8 +57,8 @@
             :active="input.remotes.value != null"
             :loading=input.branch.loading
             :error=input.branch.error
-            :match="input.branch.history.length <= 0"
-            :history=input.branch.history
+            :match="pending.length <= 0"
+            :history=pending
           />
         </div>
 
@@ -66,9 +66,9 @@
           <v-divider class="mt-4 mb-2"></v-divider>
           <push-confirm
             v-model=confirm
-            :disabled="!(input.private_key.value && input.public_key.value && input.branch.ahead )"
+            :disabled="!(input.private_key.value && input.public_key.value && pending.length)"
             :waiting=working
-            :history=input.branch.history
+            :history=pending
             @push=push
           />
           <v-btn color="red" @click.stop="$emit('close')">
@@ -122,7 +122,7 @@ export default {
         obscured: false
       },
       branch: {
-        error: null,
+        error: '',
         loading: false,
         loaded: false,
         ahead: false,
@@ -138,8 +138,17 @@ export default {
     repository: function () {
       return store.state.tome.repository
     },
+    remotes: function () {
+      return store.state.tome.remotes
+    },
+    remote: function () {
+      return store.state.tome.remote
+    },
+    pending: function () {
+      return store.state.tome.pending
+    },
     branch: function () {
-      return store.state.tome.branch.name
+      return store.state.tome.branch
     },
     configuration: function () {
       return store.state.configuration
@@ -157,44 +166,10 @@ export default {
     if (this.configuration.passphrase) {
       this.input.passphrase.value = this.configuration.passphrase
     }
-
-    await this.load_remotes()
   },
   methods: {
-    credentials: function () {
-      return {
-        private_key: this.input.private_key.value,
-        public_key: this.input.public_key.value,
-        passphrase: this.input.passphrase.value
-      }
-    },
-
-    callbacks: function () {
-      const credentials = this.credentials()
-
-      return {
-        credentials: function (url, username) {
-          return NodeGit.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase)
-        },
-
-        certificateCheck: () => 0
-
-      }
-    },
-
-    load_remotes: async function () {
-      const items = await this.repository.getRemotes()
-
-      this.input.remotes.list = items.map(remote => ({
-        name: remote.name(),
-        url: remote.url(),
-        object: remote
-      }))
-    },
     add_remote: async function (name, url) {
       await NodeGit.Remote.create(this.repository, name, url)
-
-      await this.load_remotes()
     },
     select_remote: async function (remote) {
       this.input.remotes.value = remote
@@ -204,100 +179,26 @@ export default {
       this.input.branch.loaded = false
       this.input.branch.ahead = false
 
-      await this.load_branch()
+      const credentials = {
+        private_key: this.input.private_key.value,
+        public_key: this.input.public_key.value,
+        passphrase: this.input.passphrase.value
+      }
+
+      await store.dispatch('tome/credentials', credentials)
+      await store.dispatch('tome/remote', remote.url)
 
       this.input.branch.loading = false
     },
-    load_branch: async function () {
-      const remote = this.input.remotes.value
-      this.input.branch.error = 'Loading ... '
-      this.input.branch.history = []
-
-      try {
-        await remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.callbacks())
-
-        const references = await remote.object.referenceList()
-        references.map(async reference => {
-          const object = {
-            name: reference.name(),
-            object: reference
-
-          }
-
-          const parsed = reference.name().match(/^refs\/heads\/(.*)$/m)
-
-          if (parsed) {
-            object.short = parsed[1]
-
-            if (object.short === this.branch) {
-              this.input.branch.reference = object
-            }
-          }
-
-          return object
-        })
-
-        let local_commit = await this.repository.getReferenceCommit(this.branch)
-        const remote_commit = await this.repository.getCommit(this.input.branch.reference.object.oid())
-
-        let ahead = 0
-
-        do {
-          if (remote_commit.id().cmp(local_commit.id()) === 0) {
-            break
-          }
-
-          this.input.branch.history.push({
-            oid: local_commit.id().tostrS(),
-            message: local_commit.message()
-          })
-          ahead++
-
-          if (local_commit.parentcount() < 1) {
-            throw new Error('Detached')
-          }
-
-          local_commit = await local_commit.parent(0)
-        } while (local_commit)
-
-        if (ahead > 0) {
-          this.input.branch.ahead = true
-        }
-
-        this.input.branch.loaded = true
-      } catch (error) {
-        this.input.branch.error = error
-        return
-      }
-
-      this.input.branch.error = null
-    },
-
     push: async function (event) {
       this.working = true
 
-      if (!this.input.remotes.value) {
-        this.confirm = false
-        this.working = false
-
-        return false
-      }
-
-      (await this.repository.getReferences()).map(reference => ({
-        name: reference.name(),
-        object: reference
-      }))
-
-      const refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`
-
-      await this.input.remotes.value.object.push([refspec], { callbacks: this.callbacks() })
+      await store.dispatch('tome/push')
 
       this.confirm = false
       this.working = false
 
       this.$emit('close')
-
-      return true
     }
   },
   components: {

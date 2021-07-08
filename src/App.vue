@@ -4,8 +4,8 @@
 
     <settings v-model="settings.open" />
 
-    <commit v-if=tome.repository v-model=commit @close="commit = false"/>
-    <push v-if=tome.repository v-model=push @close="push = false"/>
+    <commit v-if=tome.loaded v-model=commit @close="commit = false"/>
+    <push v-if=tome.loaded v-model=push @close="push = false"/>
 
     <editor-interface
       v-show=tome.path

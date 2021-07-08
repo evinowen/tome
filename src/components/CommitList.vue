@@ -18,9 +18,9 @@
         class="my-2"
       >
         <template v-slot:item.type="{ item }">
-          <v-btn tile icon x-small :color="item.color">
-            <v-icon small class="mr-1">{{ item.icon }}</v-icon>
-            {{ item.type }}
+          <v-btn tile icon x-small :color="file_color(item.type)">
+            <v-icon small class="mr-1">{{ file_icon(item.type) }}</v-icon>
+            {{ file_type(item.type) }}
           </v-btn>
         </template>
 
@@ -75,6 +75,8 @@
 </style>
 
 <script>
+import RepositoryFile from '@/store/modules/tome/RepositoryFile'
+
 export default {
   props: {
     title: { type: String, default: 'List' },
@@ -99,6 +101,46 @@ export default {
       const height = this.height - this.datatable.offset
 
       this.datatable.height = height > this.datatable.min_height ? height : this.datatable.min_height
+    },
+    file_type: function (type) {
+      switch (type) {
+        case RepositoryFile.Type.NEW:
+          return 'New'
+        case RepositoryFile.Type.MODIFIED:
+          return 'Modified'
+        case RepositoryFile.Type.RENAMED:
+          return 'Renamed'
+        case RepositoryFile.Type.DELETED:
+          return 'Deleted'
+      }
+
+      return ''
+    },
+    file_color: function (type) {
+      switch (type) {
+        case RepositoryFile.Type.NEW:
+        case RepositoryFile.Type.MODIFIED:
+        case RepositoryFile.Type.RENAMED:
+          return 'green'
+        case RepositoryFile.Type.DELETED:
+          return 'red'
+      }
+
+      return ''
+    },
+    file_icon: function (type) {
+      switch (type) {
+        case RepositoryFile.Type.NEW:
+          return 'mdi-file-star'
+        case RepositoryFile.Type.MODIFIED:
+          return 'mdi-file-edit'
+        case RepositoryFile.Type.RENAMED:
+          return 'mdi-file-swap'
+        case RepositoryFile.Type.DELETED:
+          return 'mdi-file-remove'
+      }
+
+      return ''
     }
   }
 }
