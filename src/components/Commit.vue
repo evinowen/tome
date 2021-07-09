@@ -41,6 +41,7 @@
                   :items="available"
                   icon="mdi-plus-thick"
                   @input=stage
+                  @click=diff
                   :height=offset
                 />
               </v-col>
@@ -51,6 +52,7 @@
                   :items="staged"
                   icon="mdi-cancel"
                   @input=reset
+                  @click=diff
                   :height=offset
                 />
               </v-col>
@@ -138,6 +140,11 @@ export default {
   methods: {
     resize: function () {
       this.offset = this.$refs.list.clientHeight
+    },
+    diff: async function (file) {
+      await store.dispatch('tome/diff', { path: file.path })
+
+      this.$emit('patch')
     },
     stage: async function (path) {
       await store.dispatch('tome/stage', path)

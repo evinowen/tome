@@ -4,8 +4,9 @@
 
     <settings v-model="settings.open" />
 
-    <commit v-if=tome.loaded v-model=commit @close="commit = false"/>
-    <push v-if=tome.loaded v-model=push @close="push = false"/>
+    <patch v-if=tome.loaded v-model=patch @close="patch = false" />
+    <commit v-if=tome.loaded v-model=commit @close="commit = false" @patch="patch = true" />
+    <push v-if=tome.loaded v-model=push @close="push = false" @patch="patch = true" />
 
     <editor-interface
       v-show=tome.path
@@ -112,6 +113,7 @@ import SearchService from './components/SearchService.vue'
 
 import SystemBar from './components/SystemBar.vue'
 import Settings from './components/Settings.vue'
+import Patch from './components/Patch.vue'
 import Commit from './components/Commit.vue'
 import Push from './components/Push.vue'
 import EditorInterface from './components/EditorInterface.vue'
@@ -138,6 +140,7 @@ export default {
     },
 
     edit: false,
+    patch: false,
     commit: false,
     push: false,
     search: false,
@@ -265,6 +268,7 @@ export default {
   components: {
     SystemBar,
     Settings,
+    Patch,
     Commit,
     Push,
     EditorInterface,
