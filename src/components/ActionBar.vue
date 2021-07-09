@@ -184,11 +184,13 @@ export default {
 
   methods: {
     open: async function (event) {
-      const result = await remote.dialog.showOpenDialog({
+      const window = remote.BrowserWindow.getFocusedWindow()
+      const options = {
         title: 'Select Tome Directory',
         properties: ['openDirectory']
+      }
 
-      })
+      const result = await remote.dialog.showOpenDialog(window, options)
 
       if (result.canceled) {
         return
