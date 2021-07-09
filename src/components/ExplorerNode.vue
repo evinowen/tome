@@ -216,8 +216,8 @@ export default {
           title: 'Expand',
           action: null
         },
+        { divider: true },
         {
-          divider: true,
           title: 'Template',
           load: this.load_templates
         },
@@ -226,8 +226,8 @@ export default {
           items: this.actions,
           load: this.load_actions
         },
+        { divider: true },
         {
-          divider: true,
           title: 'Open',
           action: (path) => this.$emit('open', { type: 'file', target: path })
         },
@@ -243,9 +243,7 @@ export default {
           title: 'New Folder',
           action: async (path) => this.$emit('create', { type: 'file', target: path, directory: true })
         },
-        {
-          divider: true
-        },
+        { divider: true },
         {
           title: 'Cut',
           action: (path) => store.dispatch('cut', { type: 'file', target: path })
@@ -259,9 +257,7 @@ export default {
           active: () => store.state.clipboard.content,
           action: (path) => store.dispatch('paste', { type: 'file', target: path })
         },
-        {
-          divider: true
-        },
+        { divider: true },
         {
           title: 'Rename',
           action: async (path) => this.$emit('edit', { target: path })

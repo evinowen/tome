@@ -15,7 +15,7 @@
         <template v-for="(item, index) in items">
           <div :key="index">
             <v-divider v-if=item.divider></v-divider>
-            <v-list-item
+            <v-list-item v-else
               @click="item.action ? $emit('close') && item.action(target) : null"
               @mouseover="expanded = index"
               :disabled="item.active ? !item.active() : false"
