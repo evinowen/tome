@@ -80,7 +80,8 @@ export default {
 
       context.commit('patches')
     },
-    commit: async function (context, name, email, message) {
+    commit: async function (context, data) {
+      const { name, email, message } = data
       await context.state.repository.commit(name, email, message)
 
       await context.dispatch('inspect')
