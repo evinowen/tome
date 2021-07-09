@@ -6,6 +6,7 @@ export default {
     name: '',
     path: '',
     branch: '',
+    patches: [],
     remotes: [],
     pending: [],
     loaded: false,
@@ -38,6 +39,9 @@ export default {
     remote: function (state) {
       state.remote = state.repository.remote
       state.pending = state.repository.pending
+    },
+    patches: function (state) {
+      state.patches = state.repository.patches
     }
   },
   actions: {
@@ -64,6 +68,17 @@ export default {
       await context.state.repository.inspect()
 
       context.commit('refresh')
+    },
+    diff: async function (context, data) {
+      const { path, commit } = data
+
+      if (path) {
+        await context.state.repository.diffPath(path)
+      } else if (commit) {
+        await context.state.repository.diffCommit(commit)
+      }
+
+      context.commit('patches')
     },
     commit: async function (context, name, email, message) {
       await context.state.repository.commit(name, email, message)
