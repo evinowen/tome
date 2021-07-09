@@ -81,7 +81,6 @@
 }
 
 .CodeMirror {
-  border: 1px solid black;
   height: 100% !important;
   width: 100% !important;
   min-height: 100% !important;
