@@ -159,7 +159,7 @@ export default {
       const email = this.input.email || this.configuration.email
       const message = this.input.message
 
-      await store.dispatch('tome/commit', name, email, message)
+      await store.dispatch('tome/commit', { name, email, message })
 
       this.confirm = false
       this.working = false
