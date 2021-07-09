@@ -52,15 +52,15 @@
 }
 
 ::-webkit-scrollbar-corner {
-  background: rgba(0,0,0,0.0);
+  background: rgba(0,0,0,0.05);
 }
 
 ::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  background: rgba(0,0,0,0.05);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(70, 70, 70, 0.6);
+  background: var(--v-secondary-lighten3);
 }
 
 html, body {
