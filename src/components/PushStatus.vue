@@ -64,6 +64,7 @@
             :items=history
             :hide-default-footer="true"
             :items-per-page="history.length"
+            @click:row="$emit('click', $event)"
           >
             <template v-slot:item.oid="{ item }">
               <v-btn tile icon x-small color="green">

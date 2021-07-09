@@ -59,6 +59,7 @@
             :error=input.branch.error
             :match="pending.length <= 0"
             :history=pending
+            @click=diff
           />
         </div>
 
@@ -189,6 +190,11 @@ export default {
       await store.dispatch('tome/remote', remote.url)
 
       this.input.branch.loading = false
+    },
+    diff: async function (commit) {
+      await store.dispatch('tome/diff', { commit: commit.oid })
+
+      this.$emit('patch')
     },
     push: async function (event) {
       this.working = true
