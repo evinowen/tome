@@ -20,7 +20,7 @@
               @mouseover="expanded = index"
               :disabled="item.active ? !item.active() : false"
             >
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
+              <v-list-item-title class='item'>{{ item.title }}</v-list-item-title>
 
               <context-menu-node
                 v-if="(item.load || item.items) && index === expanded"
@@ -41,7 +41,17 @@
   </div>
 </template>
 
-<style>
+<style scoped>
+.v-list-item--link:before {
+  background: inherit;
+}
+
+.v-list-item:hover,
+.v-list-item:hover .item {
+  color: var(--v-primary-lighten4) !important;
+  background: var(--v-primary-darken2) !important;
+}
+
 .context-menu {
   border-radius: 0px !important;
   width: 120px;
