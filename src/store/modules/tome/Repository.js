@@ -1,6 +1,7 @@
 import { remote } from 'electron'
 import NodeGit from 'nodegit'
 import RepositoryFile from './RepositoryFile'
+import RepositoryPatch from './RepositoryPatch'
 
 export default class Repository {
   constructor (path) {
@@ -27,6 +28,8 @@ export default class Repository {
     this.private_key = null
     this.public_key = null
     this.passphrase = null
+
+    this.patches = null
   }
 
   storeCredentials (private_key, public_key, passphrase) {
@@ -235,6 +238,50 @@ export default class Repository {
 
         return new RepositoryFile(status.path(), type)
       }))
+  }
+
+  async diffCommit (oid) {
+    await this.repository.refreshIndex()
+
+    const commit = await this.repository.getCommit(oid)
+    const commit_tree = await commit.getTree()
+
+    const [parent] = await commit.getParents(1)
+    const parent_tree = await parent.getTree()
+
+    const diff = await commit_tree.diff(parent_tree)
+
+    await this.compilePatchesFromDiff(diff)
+  }
+
+  async diffPath (path) {
+    const head = await this.repository.getBranchCommit(await this.repository.head())
+    const tree = await head.getTree()
+
+    const options = new NodeGit.DiffOptions()
+
+    options.pathspec = path
+    options.flags += NodeGit.Diff.OPTION.DISABLE_PATHSPEC_MATCH
+    options.flags += NodeGit.Diff.OPTION.INCLUDE_UNREADABLE
+    options.flags += NodeGit.Diff.OPTION.INCLUDE_UNTRACKED
+    options.flags += NodeGit.Diff.OPTION.RECURSE_UNTRACKED_DIRS
+    options.flags += NodeGit.Diff.OPTION.SHOW_UNTRACKED_CONTENT
+
+    const diff = await NodeGit.Diff.treeToWorkdir(this.repository, tree, options)
+
+    await this.compilePatchesFromDiff(diff)
+  }
+
+  async compilePatchesFromDiff (diff) {
+    const patches = await diff.patches()
+
+    this.patches = []
+    for (const patch of patches) {
+      const repository_patch = new RepositoryPatch()
+      await repository_patch.build(patch)
+
+      this.patches.push(repository_patch)
+    }
   }
 
   async stage (query) {
