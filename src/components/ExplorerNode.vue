@@ -154,24 +154,29 @@
 }
 
 .explorer-node:hover {
-  background: var(--v-secondary-base) !important;
+  background: var(--v-primary-darken2) !important;
 }
 .explorer-node:hover .v-btn,
 .explorer-node:hover input {
-  color: var(--v-secondary-lighten5) !important;
+  color: var(--v-primary-lighten4) !important;
 }
 
 .explorer-node-selected {
-  background: var(--v-primary-base) !important;
-}
-
-.explorer-node-selected:hover {
-  background: var(--v-primary-lighten1) !important;
+  background: var(--v-primary-darken3) !important;
 }
 
 .explorer-node-selected .v-btn,
 .explorer-node-selected input {
-  color: var(--v-primary-lighten5) !important;
+  color: var(--v-primary-lighten3) !important;
+}
+
+.explorer-node-selected:hover {
+  background: var(--v-primary-darken2) !important;
+}
+
+.explorer-node-selected:hover .v-btn,
+.explorer-node-selected:hover input {
+  color: var(--v-primary-lighten4) !important;
 }
 
 </style>
