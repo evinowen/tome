@@ -72,7 +72,7 @@
             :history=pending
             @push=push
           />
-          <v-btn color="red" @click.stop="$emit('close')">
+          <v-btn color="warning" @click.stop="$emit('close')">
             <v-icon class="mr-2">mdi-cancel</v-icon>
             Cancel
           </v-btn>

@@ -8,7 +8,7 @@
     </template>
     <v-card>
       <v-list-item>
-        <v-list-item-avatar color="orange">
+        <v-list-item-avatar color="warning">
           <v-icon>mdi-upload-multiple</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
@@ -25,7 +25,7 @@
           dense disable-sort class="my-0 commit-history"
         >
           <template v-slot:item.oid="{ item }">
-            <v-btn tile icon x-small color="orange">
+            <v-btn tile icon x-small color="warning">
               {{ item.oid.substring(0, 7) }}
             </v-btn>
           </template>
@@ -34,7 +34,7 @@
       <v-card-actions>
         <v-btn
           ref="push_confirm"
-          color="orange darken-1"
+          color="warning"
           text @click="$emit('push')"
           :disabled=waiting
         >
@@ -42,7 +42,7 @@
             :indeterminate=waiting
             :size="12"
             :width="2"
-            color="orange darken-1"
+            color="warning"
             class="mr-2"
           ></v-progress-circular>
           Proceed

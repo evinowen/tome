@@ -23,7 +23,7 @@
           {{ data.item.url }}
         </template>
         <template v-slot:append-outer>
-          <v-btn icon :color="edit ? 'orange' : 'grey'" @click.stop="edit = !edit">
+          <v-btn icon :color="edit ? 'warning' : 'darken-1'" @click.stop="edit = !edit">
             <v-icon>mdi-square-edit-outline</v-icon>
           </v-btn>
         </template>
@@ -49,7 +49,7 @@
                   append-outer-icon="mdi-plus-thick"
                 >
                   <template v-slot:append-outer>
-                    <v-btn ref="create" icon color="green" @click.stop="create">
+                    <v-btn ref="create" icon color="success" @click.stop="create">
                       <v-icon>mdi-plus-thick</v-icon>
                     </v-btn>
                   </template>

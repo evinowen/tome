@@ -8,7 +8,7 @@
       :value="(waiting * 100) / waiting_max"
       :size="12"
       :width="2"
-      color="orange darken-1"
+      color="warning"
       class="mr-2"
     ></v-progress-circular>
     <strong v-if="available_added" class="green--text">{{ available_added }}</strong>

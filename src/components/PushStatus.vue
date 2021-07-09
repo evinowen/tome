@@ -3,7 +3,7 @@
     <template v-if=active>
       <template v-if=loading>
         <v-list-item>
-          <v-list-item-avatar color="grey">
+          <v-list-item-avatar color="darken-1">
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title class="headline">&mdash;</v-list-item-title>
@@ -16,7 +16,7 @@
 
       <template v-else-if=error>
         <v-list-item>
-          <v-list-item-avatar color="red">
+          <v-list-item-avatar color="warning">
             <v-icon>mdi-alert</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
@@ -35,7 +35,7 @@
 
       <template v-else-if=match>
         <v-list-item>
-          <v-list-item-avatar color="blue">
+          <v-list-item-avatar color="info">
             <v-icon>mdi-thumb-up</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
@@ -49,7 +49,7 @@
 
       <template v-else>
         <v-list-item>
-          <v-list-item-avatar color="green">
+          <v-list-item-avatar color="success">
             <v-icon>mdi-check</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
@@ -67,7 +67,7 @@
             @click:row="$emit('click', $event)"
           >
             <template v-slot:item.oid="{ item }">
-              <v-btn tile icon x-small color="green">
+              <v-btn tile icon x-small color="success">
                 {{ item.oid.substring(0, 7) }}
               </v-btn>
             </template>
@@ -79,7 +79,7 @@
 
     <template v-else>
       <v-list-item>
-        <v-list-item-avatar color="grey">
+        <v-list-item-avatar color="darken-1">
           <v-icon>mdi-cursor-pointer</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>

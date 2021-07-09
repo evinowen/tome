@@ -4,7 +4,7 @@
     class="pa-0"
     height=18
   >
-    <v-btn action-bar-bookshelf tile icon small color="red" class="pa-0" @click.stop="open" :disabled=disabled>
+    <v-btn action-bar-bookshelf tile icon small color="accent" class="pa-0" @click.stop="open" :disabled=disabled>
       <v-icon small>mdi-bookshelf</v-icon>
     </v-btn>
 
@@ -91,7 +91,7 @@
       <v-divider inset vertical />
 
       <!-- SEARCH BUTTON -->
-      <v-btn action-bar-search tile small icon color="accent" class="button pa-0" @click.stop="$emit('search')" :disabled="disabled || commit || push">
+      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" @click.stop="$emit('search')" :disabled="disabled || commit || push">
         <v-icon small>mdi-magnify</v-icon>
       </v-btn>
 

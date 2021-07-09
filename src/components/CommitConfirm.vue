@@ -9,7 +9,7 @@
 
     <v-card>
       <v-list-item>
-        <v-list-item-avatar color="red">
+        <v-list-item-avatar color="warning">
           <v-icon>mdi-hammer-wrench</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
@@ -33,7 +33,7 @@
       <v-card-actions>
         <v-btn
           ref="commit"
-          color="orange darken-1"
+          color="warning"
           text @click="$emit('commit')"
           :disabled="waiting"
         >
@@ -41,7 +41,7 @@
             :indeterminate="waiting"
             :size="12"
             :width="2"
-            color="orange darken-1"
+            color="warning"
             class="mr-2"
           ></v-progress-circular>
           Proceed
