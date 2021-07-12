@@ -1,6 +1,7 @@
 <template>
   <div>
   <v-menu
+    ref="node"
     v-bind:value="value"
     v-on:input="$emit('input', $event)"
     :position-x="position_x"
@@ -24,8 +25,8 @@
 
               <context-menu-node
                 v-if="(item.load || item.items) && index === expanded"
-                :position_x="position_x + 121"
-                :position_y="position_y + (index * 20)"
+                :position_x="local_position_x + 100"
+                :position_y="local_position_y + (index * 20) - 10"
                 :title=item.title
                 :target=target
                 :items=item.items
@@ -60,6 +61,7 @@
 .context-menu-list {
   border-radius: 0px !important;
   padding: 0px !important;
+  min-height: 20px;
 }
 
 .context-menu-list .v-subheader {
@@ -86,9 +88,17 @@ export default {
     position_y: { type: Number, default: 0 }
   },
   data: () => ({
-    expanded: null
+    expanded: null,
+    local_position_x: 0,
+    local_position_y: 0
   }),
   watch: {
+    position_x: function (value) {
+      this.local_position_x = this.$refs.node.calcXOverflow(value)
+    },
+    position_y: function (value) {
+      this.local_position_y = this.$refs.node.calcYOverflow(value)
+    },
     expanded: async function (value) {
       if (this.expanded === -1) {
         return
