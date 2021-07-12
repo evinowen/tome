@@ -90,7 +90,13 @@
 }
 
 .explorer-node-drop.drop {
-  outline: 2px dashed #999;
+  color: var(--v-accent-lighten4) !important;
+  background: var(--v-accent-darken1) !important;
+}
+
+.explorer-node-drop.drop .v-btn,
+.explorer-node-drop.drop input {
+  color: var(--v-accent-lighten4) !important;
 }
 
 .explorer-node .v-input,
