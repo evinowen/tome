@@ -338,28 +338,12 @@ export default {
       event.target.style.opacity = 1
     },
     drag_enter: function (event) {
-      let container = event.target
-
-      for (let i = 8; container && i > 0; i--) {
-        if (container.hasAttribute('droppable')) {
-          container.classList.add('drop')
-          break
-        }
-
-        container = container.parentElement
-      }
+      const container = event.target.closest('[droppable]')
+      container.classList.add('drop')
     },
     drag_leave: function (event) {
-      let container = event.target
-
-      for (let i = 8; container && i > 0; i--) {
-        if (container.hasAttribute('droppable')) {
-          container.classList.remove('drop')
-          break
-        }
-
-        container = container.parentElement
-      }
+      const container = event.target.closest('[droppable]')
+      container.classList.remove('drop')
     },
     drop: function (event) {
       this.drag_leave(event)
