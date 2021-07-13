@@ -4,7 +4,7 @@
     class="pa-0"
     height=18
   >
-    <library-button v-model=library @open=open @close="$emit('close')" />
+    <library-button v-model=library @open=open @close="$emit('close')" :disabled="disabled || commit || push" />
 
     <v-divider inset vertical />
 
@@ -14,7 +14,7 @@
         <template v-slot:activator="{ on: on_click }">
           <v-tooltip top>
             <template v-slot:activator="{ on: on_hover }">
-              <v-btn tile small class="button pa-0 px-2" v-on="{ ...on_hover, ...on_click }">
+              <v-btn tile small class="button pa-0 px-2" v-on="{ ...on_hover, ...on_click }" :disabled="disabled || commit || push">
                 {{ tome.name }}
               </v-btn>
             </template>
@@ -39,19 +39,22 @@
 
       <v-divider inset vertical />
 
-      <v-btn v-if="tome.branch.name" tile small class="button px-2" color="primary">{{ tome.branch.name }}</v-btn>
+      <v-btn v-if="tome.branch" tile small class="button px-2" color="primary" :disabled="disabled || commit || push">{{ tome.branch }}</v-btn>
       <v-btn v-else-if="tome.branch.error" tile small icon class="button pl-1 pr-2" color="error">
         <v-icon small class="pr-1">mdi-alert-box</v-icon>
         {{ tome.branch.error }}
       </v-btn>
+      <v-btn action-bar-commit tile small color="primary" style="min-width: 20px;" class="button pa-0" @click.stop="$emit('history')" :disabled="!tome.branch || disabled || commit || push">
+        <v-icon small>mdi-timeline-text-outline</v-icon>
+      </v-btn>
 
       <v-divider inset vertical />
 
-      <v-spacer class="crawling">{{ status }}</v-spacer>
+      <v-spacer class="crawling">&nbsp;<v-icon small>mdi-chevron-right</v-icon>&nbsp;{{ status }}</v-spacer>
 
       <v-divider inset vertical />
 
-      <v-switch action-bar-edit v-model="edit" dense x-small inset hide-details class="edit_switch" :disabled=disabled>></v-switch>
+      <v-switch action-bar-edit v-model="edit" dense x-small inset hide-details class="edit_switch" :disabled="disabled || commit || push"></v-switch>
 
       <v-divider inset vertical />
 
