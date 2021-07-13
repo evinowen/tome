@@ -4,9 +4,7 @@
     class="pa-0"
     height=18
   >
-    <v-btn action-bar-bookshelf tile icon small color="accent" class="pa-0" @click.stop="open" :disabled=disabled>
-      <v-icon small>mdi-bookshelf</v-icon>
-    </v-btn>
+    <library-button v-model=library @open=open @close="$emit('close')" />
 
     <v-divider inset vertical />
 
@@ -163,6 +161,7 @@
 import store from '@/store'
 import { remote } from 'electron'
 import StatusButton from './StatusButton.vue'
+import LibraryButton from './LibraryButton.vue'
 
 export default {
   props: {
@@ -175,7 +174,8 @@ export default {
   },
 
   data: () => ({
-    edit: false
+    edit: false,
+    library: false
   }),
 
   watch: {
@@ -184,6 +184,8 @@ export default {
 
   methods: {
     open: async function (event) {
+      this.library = false
+
       const window = remote.BrowserWindow.getFocusedWindow()
       const options = {
         title: 'Select Tome Directory',
@@ -216,7 +218,8 @@ export default {
   },
 
   components: {
-    StatusButton
+    StatusButton,
+    LibraryButton
 
   }
 }
