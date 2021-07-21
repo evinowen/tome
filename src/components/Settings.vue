@@ -20,7 +20,7 @@
           :append-icon="obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
           :type="obscure_passphrase ? 'password' : 'text'"
           @click:append="obscure_passphrase = !obscure_passphrase"
-          @change=save
+          @change=debounce_save
         />
       </v-list-item>
       <v-divider></v-divider>
@@ -62,6 +62,7 @@
 </style>
 
 <script>
+import { debounce } from 'lodash'
 import store from '@/store'
 import KeyfileInput from './KeyfileInput.vue'
 
@@ -71,47 +72,31 @@ export default {
     value: { type: Boolean, default: false }
   },
   data: () => ({
-    obscure_passphrase: true,
-    triggered: false,
-    counter: 0,
-    max: 3,
-    queue: true,
-    process: null
+    obscure_passphrase: true
   }),
   computed: {
     configuration: function () {
       return store.state.configuration
+    },
+    debounce_save: function () {
+      return debounce(this.save, 1000)
     }
   },
   methods: {
-    proxy_file: function (event) {
+    assign_key: async function (name, event) {
       const files = event.target.files || event.dataTransfer.files
 
-      return files.length ? files[0] : null
-    },
-    assign_key: async function (name, event) {
-      const file = this.proxy_file(event)
+      const file = files.length ? files[0] : null
 
       await store.dispatch('configuration/update', { [name]: file.path })
-      this.save()
+      this.debounce_save()
     },
-    assign_value: async function (name, event) {
-      console.log('assign_value', name, event)
-      await store.dispatch('configuration/update', { [name]: event })
-      this.save()
+    assign_value: async function (name, value) {
+      await store.dispatch('configuration/update', { [name]: value })
+      this.debounce_save()
     },
     save: async function () {
-      if (this.process) {
-        if (this.queue) {
-          this.queue = false
-          await this.process
-        } else {
-          return
-        }
-      }
-
-      this.process = store.dispatch('configuration/write', store.state.configuration_path)
-      this.queue = true
+      await store.dispatch('configuration/write', store.state.configuration_path)
     }
   }
 }
