@@ -74,7 +74,7 @@ describe('CommitList.vue', () => {
   })
 
   it('should return "" from file_type when called with unrecognized value', () => {
-    const value = wrapper.vm.file_type("hello?")
+    const value = wrapper.vm.file_type('hello?')
 
     expect(value).toEqual('')
   })
@@ -104,7 +104,7 @@ describe('CommitList.vue', () => {
   })
 
   it('should return "" from file_color when called with unrecognized value', () => {
-    const value = wrapper.vm.file_color("hello?")
+    const value = wrapper.vm.file_color('hello?')
 
     expect(value).toEqual('')
   })
@@ -134,7 +134,7 @@ describe('CommitList.vue', () => {
   })
 
   it('should return "" from file_icon when called with unrecognized value', () => {
-    const value = wrapper.vm.file_icon("hello?")
+    const value = wrapper.vm.file_icon('hello?')
 
     expect(value).toEqual('')
   })

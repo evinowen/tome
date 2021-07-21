@@ -43,7 +43,7 @@ describe('PushPassphraseInput.vue', () => {
   })
 
   it('should set the load button color to "orange" when there is a stored value', async () => {
-    await wrapper.setProps({ stored: './test_key.pub'})
+    await wrapper.setProps({ stored: './test_key.pub' })
 
     expect(wrapper.vm.button_color).toEqual('orange')
   })

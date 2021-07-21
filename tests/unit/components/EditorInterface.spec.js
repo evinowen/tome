@@ -8,6 +8,7 @@ import Vuetify from 'vuetify'
 
 import SplitPane from 'vue-splitpane'
 import EditorInterface from '@/components/EditorInterface.vue'
+jest.mock('@/store', () => ({ }))
 
 jest.useFakeTimers()
 

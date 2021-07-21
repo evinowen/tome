@@ -3,13 +3,19 @@ import Vuetify from 'vuetify'
 import { remote } from 'electron'
 
 import { mount } from '@vue/test-utils'
+
 import SystemBar from '@/components/SystemBar.vue'
 
-Vue.use(Vuetify)
+jest.mock('@/store', () => ({
+  state: {
+    tome: {
+      name: 'Test Title'
+    }
+  },
+  dispatch: jest.fn()
+}))
 
-afterEach(() => {
-  jest.clearAllMocks()
-})
+Vue.use(Vuetify)
 
 jest.mock('electron', () => ({
   remote: {
@@ -45,9 +51,16 @@ describe('SystemBar.vue', () => {
       SystemBar,
       {
         vuetify,
+        stubs: {
+
+        },
         propsData: { title }
       }
     )
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
   })
 
   it('renders props.title when passed', () => {

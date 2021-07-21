@@ -46,7 +46,8 @@ describe('store/modules/configuration.js', () => {
       private_key: 'id_rsa',
       public_key: 'id_rsa.pub',
       passphrase: 'password',
-      format_titles: false
+      format_titles: false,
+      dark_mode: true
     })
   })
 
@@ -108,7 +109,8 @@ describe('store/modules/configuration.js', () => {
       private_key: '',
       public_key: '',
       passphrase: '',
-      format_titles: true
+      format_titles: true,
+      dark_mode: true
     })
 
     await store.dispatch('configuration/write', 'config.json')

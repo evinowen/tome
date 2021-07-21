@@ -12,7 +12,6 @@ jest.mock('electron', () => ({ remote: { require: jest.fn() }, shell: {} }))
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 const fs_callback = (options, callback) => (options && callback ? callback : options)(null)
-const fs_callback_error = (options, callback) => (options && callback ? callback : options)('error!')
 
 const _lstat = {
   status: {

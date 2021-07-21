@@ -126,7 +126,7 @@ const nodegit_repository = {
   refreshIndex: jest.fn(() => nodegit_repository_index)
 }
 
-const nodegit_patches = [ {}, {}, {} ]
+const nodegit_patches = [{}, {}, {}]
 
 const nodegit_diff = {
   patches: jest.fn(() => nodegit_patches)
@@ -191,7 +191,6 @@ NodeGit.Status = {
     INCLUDE_UNREADABLE_AS_UNTRACKED: 32768
   }
 }
-
 
 describe('Repository.js', () => {
   beforeEach(() => {
@@ -407,7 +406,7 @@ describe('Repository.js', () => {
 
     const repository = new Repository(path)
     repository.inspectStaged = jest.fn()
-    repository.inspectAvailable  = jest.fn()
+    repository.inspectAvailable = jest.fn()
 
     await repository.load()
     await repository.inspect()

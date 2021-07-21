@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify'
-import { debounce } from 'lodash'
 
 import Settings from '@/components/Settings.vue'
 import store from '@/store'
@@ -82,7 +81,7 @@ describe('Settings.vue', () => {
     const name = 'name'
     const event = {
       target: {
-        files: [ file ]
+        files: [file]
       }
     }
 

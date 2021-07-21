@@ -91,5 +91,4 @@ describe('Branch.vue', () => {
 
     expect(event).toHaveBeenCalledTimes(1)
   })
-
 })

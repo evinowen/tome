@@ -10,7 +10,7 @@ jest.mock('electron', () => ({
 const _path_basename = path => String(path).substring(String(path).lastIndexOf('/') + 1)
 
 const path = {
-  basename: jest.fn(_path_basename),
+  basename: jest.fn(_path_basename)
 }
 
 remote.require = jest.fn((target) => {
@@ -28,7 +28,7 @@ describe('RepositoryPatch.js', () => {
 
   beforeEach(() => {
     file = {
-      path: jest.fn(() => './file.path'),
+      path: jest.fn(() => './file.path')
     }
 
     lines = [
@@ -51,15 +51,13 @@ describe('RepositoryPatch.js', () => {
       lines: jest.fn(() => lines)
     }
 
-
-    hunks = [ hunk ]
+    hunks = [hunk]
 
     patch = {
       oldFile: jest.fn(() => file),
       newFile: jest.fn(() => file),
       hunks: jest.fn(() => hunks)
     }
-
   })
 
   afterEach(() => {

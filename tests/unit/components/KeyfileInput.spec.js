@@ -52,7 +52,7 @@ describe('KeyfileInput.vue', () => {
 
     const input_event = {
       target: {
-        files: [ file ]
+        files: [file]
       }
     }
 

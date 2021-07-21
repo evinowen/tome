@@ -10,19 +10,6 @@ Vue.use(Vuetify)
 jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {} }))
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-const _id = {
-  tostrS: jest.fn(() => 1),
-  cmp: jest.fn(() => 0)
-}
-
-const index = {
-  addByPath: jest.fn(() => 0),
-  write: jest.fn(() => 0),
-  writeTree: jest.fn(() => _id)
-}
-
-const commit = {}
-
 store.state = {
   tome: {
     status: {
@@ -41,11 +28,13 @@ describe('Commit.vue', () => {
   let vuetify
 
   const factory = assemble(Commit)
-    .context(() => ({ stubs: {
-      CommitList: true,
-      CommitConfirm: true,
-      VDataTable: true
-    } }))
+    .context(() => ({
+      stubs: {
+        CommitList: true,
+        CommitConfirm: true,
+        VDataTable: true
+      }
+    }))
     .hook(({ context, localVue }) => {
       localVue.use(Vuetify)
 

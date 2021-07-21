@@ -79,7 +79,7 @@ describe('PushKeyfileInput.vue', () => {
 
     const input_event = {
       target: {
-        files: [ file ]
+        files: [file]
       }
     }
 
@@ -99,7 +99,7 @@ describe('PushKeyfileInput.vue', () => {
 
     const input_event = {
       target: {
-        files: [ file ]
+        files: [file]
       }
     }
 
