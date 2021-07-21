@@ -72,10 +72,16 @@
 
 .explorer-node * {
   text-overflow: ellipsis;
+  cursor: pointer !important;
 }
 
 .explorer-node .v-icon {
   font-size: 14px !important;
+}
+
+.explorer-node .v-btn,
+.explorer-node input {
+  cursor: pointer !important;
 }
 
 .explorer-node-break {
