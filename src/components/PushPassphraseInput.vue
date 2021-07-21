@@ -43,9 +43,6 @@ export default {
   data: () => ({
     obscured: false
   }),
-  watch: {
-    value: function (value) { this.open = value }
-  },
   computed: {
     button_color: function () {
       return this.stored ? 'orange' : 'grey'

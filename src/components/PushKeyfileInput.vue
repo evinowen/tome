@@ -41,13 +41,9 @@ export default {
     }
   },
   methods: {
-    proxy_file: function (event) {
-      const files = event.target.files || event.dataTransfer.files
-
-      return files.length ? files[0] : null
-    },
     input: async function (event) {
-      const file = this.proxy_file(event)
+      const files = event.target.files || event.dataTransfer.files
+      const file = files.length ? files[0] : null
 
       if (!file.path) {
         return
