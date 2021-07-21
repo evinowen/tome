@@ -11,18 +11,24 @@ Vue.use(Vuetify)
 
 jest.mock('electron', () => ({
   remote: {
+    BrowserWindow: jest.fn(),
     dialog: jest.fn()
   }
-
 }))
+
+remote.BrowserWindow = {
+  getFocusedWindow: jest.fn(() => ({}))
+}
+
+let remote_dialog_result
+
+remote.dialog = {
+  showOpenDialog: jest.fn(() => remote_dialog_result)
+}
 
 jest.mock('@/store', () => ({
   state: {}
 }))
-
-remote.dialog = {
-  showOpenDialog: jest.fn()
-}
 
 const localVue = createLocalVue()
 
@@ -31,21 +37,24 @@ describe('ActionBar.vue', () => {
   let wrapper
 
   beforeEach(() => {
+    remote_dialog_result = {
+      canceled: false,
+      filePaths: ['./file_path']
+    }
+
     vuetify = new Vuetify()
 
     store.state = {
       tome: {
-        path: '/pa/th/to/to/me',
+        path: './tome_path',
         name: 'Name',
         branch: {
           name: 'master',
           error: null
-
         },
         status: {
           available: { new: 0, renamed: 0, modified: 0, deleted: 0 },
           staged: { new: 0, renamed: 0, modified: 0, deleted: 0 }
-
         }
       },
       files: {
@@ -54,17 +63,10 @@ describe('ActionBar.vue', () => {
             status: 'Grrreat!'
           }
         }
-      },
-      tome_file: '',
-      tome_file_selected: '',
-      tome_file_path: '',
-      tome_file_data: '',
-      tome_file_error: '',
-      tome_app_config_path: '',
-      tome_app_config_path_dir: ''
+      }
     }
 
-    const waiting = 0
+    const branch = false
     const commit = false
     const push = false
 
@@ -74,10 +76,11 @@ describe('ActionBar.vue', () => {
         localVue,
         vuetify,
         stubs: {
+          LibraryButton: true,
           StatusButton: true
         },
         propsData: {
-          waiting,
+          branch,
           commit,
           push
         }
@@ -89,88 +92,94 @@ describe('ActionBar.vue', () => {
     jest.clearAllMocks()
   })
 
-  it('should emit an edit event when internal edit value changes', async () => {
+  it('should emit "open" event with path when open called with path', async () => {
+    const event = jest.fn()
+
+    wrapper.vm.$on('open', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    const path = './file_path'
+    await wrapper.vm.open(path)
+
+    expect(event).toHaveBeenCalledTimes(1)
+    expect(event.mock.calls[0][0]).toBe(path)
+  })
+
+  it('should pass dialog selected file to "open" event with path when open called without a path', async () => {
+    const event = jest.fn()
+
+    wrapper.vm.$on('open', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.open()
+
+    const path = remote_dialog_result.filePaths[0]
+
+    expect(event).toHaveBeenCalledTimes(1)
+    expect(event.mock.calls[0][0]).toBe(path)
+  })
+
+  it('should not emit an "open" event when open called without a path and dialog is canceled', async () => {
+    remote_dialog_result.canceled = true
+
+    const event = jest.fn()
+
+    wrapper.vm.$on('open', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.open()
+
+    expect(event).toHaveBeenCalledTimes(0)
+  })
+
+  it('should not emit an "open" event when open called without a path and file is not included', async () => {
+    remote_dialog_result.filePaths = []
+
+    const event = jest.fn()
+
+    wrapper.vm.$on('open', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.open()
+
+    expect(event).toHaveBeenCalledTimes(0)
+  })
+
+  it('should emit "edit" event when edit is modified', async () => {
     const event = jest.fn()
 
     wrapper.vm.$on('edit', event)
 
     expect(event).toHaveBeenCalledTimes(0)
 
-    wrapper.setData({ edit: !wrapper.vm.edit })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    wrapper.setData({ edit: true })
+    await wrapper.vm.$nextTick()
 
     expect(event).toHaveBeenCalledTimes(1)
   })
 
-  it('emits a commit event when the commit button is clicked', async () => {
-    const event = jest.fn()
+  it('should return value of diabled when true is passed into disabled_unless', async () => {
+    expect(wrapper.vm.disabled).toEqual(false)
 
-    wrapper.vm.$on('commit', event)
+    const disabled = wrapper.vm.disabled_unless(true)
 
-    expect(event).toHaveBeenCalledTimes(0)
-
-    await wrapper.find('[action-bar-commit]').trigger('click')
-
-    expect(event).toHaveBeenCalledTimes(1)
+    expect(disabled).toEqual(false)
   })
 
-  it('emits a push event when the push button is clicked', async () => {
-    const event = jest.fn()
+  it('should return OR of toggle values when false is passed into disabled_unless', async () => {
+    wrapper.setProps({ branch: true })
 
-    wrapper.vm.$on('push', event)
+    expect(wrapper.vm.disabled).toEqual(false)
+    expect(wrapper.vm.branch).toEqual(true)
+    expect(wrapper.vm.commit).toEqual(false)
+    expect(wrapper.vm.push).toEqual(false)
 
-    expect(event).toHaveBeenCalledTimes(0)
+    const disabled = wrapper.vm.disabled_unless(false)
 
-    await wrapper.find('[action-bar-push]').trigger('click')
-
-    expect(event).toHaveBeenCalledTimes(1)
-  })
-
-  it('open dialog to select Tome folder when the bookshelf button is clicked', async () => {
-    remote.dialog.showOpenDialog.mockReturnValue({
-      canceled: true
-    })
-
-    expect(remote.dialog.showOpenDialog).toHaveBeenCalledTimes(0)
-
-    await wrapper.find('[action-bar-bookshelf]').trigger('click')
-
-    expect(remote.dialog.showOpenDialog).toHaveBeenCalledTimes(1)
-  })
-
-  it('emits a close event when the bookshelf button is clicked and no selection is made', async () => {
-    const event = jest.fn()
-
-    wrapper.vm.$on('close', event)
-
-    remote.dialog.showOpenDialog.mockReturnValue({
-      canceled: false,
-      filePaths: []
-    })
-
-    expect(event).toHaveBeenCalledTimes(0)
-
-    await wrapper.find('[action-bar-bookshelf]').trigger('click')
-
-    expect(event).toHaveBeenCalledTimes(1)
-  })
-
-  it('emits an open event when the bookshelf button is clicked and a selection is made', async () => {
-    const event = jest.fn()
-
-    wrapper.vm.$on('open', event)
-
-    remote.dialog.showOpenDialog.mockReturnValue({
-      canceled: false,
-      filePaths: [
-        '/path/to/file'
-      ]
-    })
-
-    expect(event).toHaveBeenCalledTimes(0)
-
-    await wrapper.find('[action-bar-bookshelf]').trigger('click')
-
-    expect(event).toHaveBeenCalledTimes(1)
+    expect(disabled).toEqual(true)
   })
 })
