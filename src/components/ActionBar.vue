@@ -186,24 +186,30 @@ export default {
   },
 
   methods: {
-    open: async function (event) {
+    open: async function (path) {
       this.library = false
 
-      const window = remote.BrowserWindow.getFocusedWindow()
-      const options = {
-        title: 'Select Tome Directory',
-        properties: ['openDirectory']
-      }
+      if (path) {
+        this.$emit('open', path)
+      } else {
+        const window = remote.BrowserWindow.getFocusedWindow()
+        const options = {
+          title: 'Select Tome Directory',
+          properties: ['openDirectory']
+        }
 
-      const result = await remote.dialog.showOpenDialog(window, options)
+        const result = await remote.dialog.showOpenDialog(window, options)
 
-      if (result.canceled) {
-        return
-      }
+        if (result.canceled) {
+          return
+        }
 
-      if (!result.filePaths.length) {
-        this.$emit('close')
-        return
+        if (!result.filePaths.length) {
+          this.$emit('close')
+          return
+        }
+
+        this.$emit('open', result.filePaths[0])
       }
     },
     disabled_unless: function (unless) {
