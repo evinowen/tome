@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import { remote } from 'electron'
 
 import tome from './modules/tome'
+import library from './modules/library'
 import files from './modules/files'
 import templates from './modules/templates'
 import actions from './modules/actions'
@@ -18,7 +19,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     application_path: '',
-    configuration_path: ''
+    configuration_path: '',
+    library_path: ''
   },
   mutations: {
     hydrate: function (state, data) {
@@ -31,13 +33,17 @@ export default new Vuex.Store({
 
       const application_path = remote.app.getPath('userData')
       const configuration_path = path.join(application_path, 'config.json')
+      const library_path = path.join(application_path, 'library.json')
 
-      context.commit('hydrate', { application_path, configuration_path })
+      context.commit('hydrate', { application_path, configuration_path, library_path })
+
       await context.dispatch('configuration/load', context.state.configuration_path)
+      await context.dispatch('library/load', context.state.library_path)
     }
   },
   modules: {
     tome: tome,
+    library,
     files,
     templates,
     actions,
