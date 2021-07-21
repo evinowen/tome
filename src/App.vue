@@ -1,12 +1,14 @@
 <template>
   <v-app id="inspire">
-    <system-bar title="tome" @settings="settings.open = !settings.open" />
+    <system-bar title="tome" @settings="settings = !settings" />
 
-    <settings v-model="settings.open" />
+    <settings v-model="settings" />
 
-    <patch v-if=tome.loaded v-model=patch @close="patch = false" />
+    <branch v-if=tome.loaded v-model=branch @close="branch = false" @patch="patch = true" />
     <commit v-if=tome.loaded v-model=commit @close="commit = false" @patch="patch = true" />
     <push v-if=tome.loaded v-model=push @close="push = false" @patch="patch = true" />
+
+    <patch v-if=tome.loaded v-model=patch @close="patch = false" />
 
     <editor-interface
       v-show=tome.path
@@ -14,7 +16,7 @@
       :edit=edit
       :commit=false
       :push=false
-      @save="save"
+      @save=debounce_save
       @context=open_context
     />
     <empty-view v-show=!tome.path />
@@ -32,12 +34,15 @@
     <search-service v-show=search />
 
     <action-bar
-      :waiting=editor.counter
+      :waiting=0
+      :branch=branch
       :commit=commit
       :push=push
       :disabled="settings.open"
       @open=set_tome
+      @close=clear_tome
       @edit=toggle
+      @branch="branch = !branch"
       @commit="commit = !commit"
       @push="push = !push"
       @search="search = !search"
@@ -107,12 +112,14 @@ html, body {
 <script>
 import store from './store'
 import { remote } from 'electron'
+import { debounce } from 'lodash'
 
 import ContextMenuService from './components/ContextMenuService.vue'
 import SearchService from './components/SearchService.vue'
 
 import SystemBar from './components/SystemBar.vue'
 import Settings from './components/Settings.vue'
+import Branch from './components/Branch.vue'
 import Patch from './components/Patch.vue'
 import Commit from './components/Commit.vue'
 import Push from './components/Push.vue'
@@ -125,20 +132,8 @@ export default {
     source: String
   },
   data: () => ({
-    settings: {
-      open: false,
-      obscure_passphrase: true,
-      triggered: false,
-      counter: 0,
-      max: 3
-    },
-
-    editor: {
-      triggered: false,
-      counter: 0,
-      max: 3
-    },
-
+    settings: false,
+    branch: false,
     edit: false,
     patch: false,
     commit: false,
@@ -155,18 +150,17 @@ export default {
     },
 
     error: null
-
   }),
-
   created: function () {
     this.fs = remote.require('fs')
     this.path = remote.require('path')
   },
-
-  mounted: async function () {
-    this.editor.run = async () => {
-      await store.dispatch('files/save')
-      store.dispatch('tome/inspect')
+  computed: {
+    tome: function () {
+      return store.state.tome
+    },
+    debounce_save: function () {
+      return debounce(this.save, 1000)
     }
   },
   methods: {
@@ -174,50 +168,16 @@ export default {
       const { content } = state
 
       await store.dispatch('files/update', { content })
-
-      if (this.edit) {
-        this.counter_start('editor')
-      } else {
-        this.counter_run('editor', false)
-      }
+      await store.dispatch('files/save')
     },
     set_tome: async function (file_path) {
+      await store.dispatch('library/add', file_path)
       await store.dispatch('tome/load', file_path)
       await store.dispatch('files/initialize', { path: file_path })
       store.dispatch('tome/inspect')
     },
-    counter_start: function (target) {
-      clearTimeout(this[target].timeout)
-
-      this[target].triggered = true
-      this[target].counter = this[target].max
-
-      this[target].timeout = setTimeout(() => this.counter_update(target), 500)
-    },
-    counter_update: async function (target) {
-      if (!this[target].counter) {
-        return this.counter_run(target)
-      }
-
-      this[target].counter = this[target].counter - 1
-
-      this[target].timeout = setTimeout(() => this.counter_update(target), 1000)
-    },
-    counter_run: async function (target, clear = true) {
-      clearTimeout(this[target].timeout)
-
-      this[target].counter = 0
-      await this[target].run()
-
-      if (clear) {
-        this[target].timeout = setTimeout(() => this.counter_clear(target), 1000)
-      }
-    },
-    counter_clear: async function (target) {
-      clearTimeout(this[target].timeout)
-
-      this[target].counter = 0
-      this[target].triggered = false
+    clear_tome: async function () {
+      await store.dispatch('tome/clear')
     },
     open_context: async function (state) {
       const { instance, selection, event } = state
@@ -248,26 +208,14 @@ export default {
       })
     },
     toggle: async function (value) {
-      if (value) {
-        await this.counter_clear('editor')
-      } else {
-        await this.counter_run('editor', false)
-      }
-
+      this.debounce_save.flush()
       this.edit = value
-    }
-  },
-  computed: {
-    tome: function () {
-      return store.state.tome
-    },
-    configuration: function () {
-      return store.state.configuration
     }
   },
   components: {
     SystemBar,
     Settings,
+    Branch,
     Patch,
     Commit,
     Push,
