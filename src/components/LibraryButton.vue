@@ -13,6 +13,7 @@
       <v-list-item dense
         v-for="(item, index) in history"
         :key="index"
+        @click.stop="$emit('open', item)"
       >
         <v-icon small class="mr-1">mdi-book</v-icon>
         <v-list-item-title>{{ item }}</v-list-item-title>
@@ -55,6 +56,7 @@
 
 <script>
 import store from '@/store'
+import { remote } from 'electron'
 
 export default {
   props: {
@@ -88,11 +90,7 @@ export default {
       return store.state.tome
     },
     history: function () {
-      return [
-        'Test One',
-        'Test Two',
-        'Test Three'
-      ]
+      return store.state.library.history
     }
   }
 }
