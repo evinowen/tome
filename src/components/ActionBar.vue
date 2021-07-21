@@ -4,7 +4,7 @@
     class="pa-0"
     height=18
   >
-    <library-button v-model=library @open=open @close="$emit('close')" :disabled="disabled || commit || push" />
+    <library-button v-model=library @open=open @close="$emit('close')" :disabled="disabled_unless()" />
 
     <v-divider inset vertical />
 
@@ -14,7 +14,7 @@
         <template v-slot:activator="{ on: on_click }">
           <v-tooltip top>
             <template v-slot:activator="{ on: on_hover }">
-              <v-btn tile small class="button pa-0 px-2" v-on="{ ...on_hover, ...on_click }" :disabled="disabled || commit || push">
+              <v-btn tile small class="button pa-0 px-2" v-on="{ ...on_hover, ...on_click }" :disabled="disabled_unless()">
                 {{ tome.name }}
               </v-btn>
             </template>
@@ -39,13 +39,12 @@
 
       <v-divider inset vertical />
 
-      <v-btn v-if="tome.branch" tile small class="button px-2" color="primary" :disabled="disabled || commit || push">{{ tome.branch }}</v-btn>
+      <v-btn v-if="tome.branch" tile small class="button px-2" color="primary" :disabled="disabled_unless(branch)">
+        {{ tome.branch }}
+      </v-btn>
       <v-btn v-else-if="tome.branch.error" tile small icon class="button pl-1 pr-2" color="error">
         <v-icon small class="pr-1">mdi-alert-box</v-icon>
         {{ tome.branch.error }}
-      </v-btn>
-      <v-btn action-bar-commit tile small color="primary" style="min-width: 20px;" class="button pa-0" @click.stop="$emit('history')" :disabled="!tome.branch || disabled || commit || push">
-        <v-icon small>mdi-timeline-text-outline</v-icon>
       </v-btn>
 
       <v-divider inset vertical />
@@ -54,7 +53,7 @@
 
       <v-divider inset vertical />
 
-      <v-switch action-bar-edit v-model="edit" dense x-small inset hide-details class="edit_switch" :disabled="disabled || commit || push"></v-switch>
+      <v-switch action-bar-edit v-model="edit" dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()"></v-switch>
 
       <v-divider inset vertical />
 
@@ -76,12 +75,12 @@
             />
 
             <!-- SAVE BUTTON -->
-            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop="$emit('commit')" :disabled="disabled || push">
+            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop="$emit('commit')" :disabled="disabled_unless(commit)">
               <v-icon small>mdi-content-save</v-icon>
             </v-btn>
 
             <!-- PUSH BUTTON -->
-            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" @click.stop="$emit('push')" :disabled="disabled || commit">
+            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" @click.stop="$emit('push')" :disabled="disabled_unless(push)">
               <v-icon small>mdi-upload-multiple</v-icon>
             </v-btn>
 
@@ -92,7 +91,7 @@
       <v-divider inset vertical />
 
       <!-- SEARCH BUTTON -->
-      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" @click.stop="$emit('search')" :disabled="disabled || commit || push">
+      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" @click.stop="$emit('search')" :disabled="disabled_unless()">
         <v-icon small>mdi-magnify</v-icon>
       </v-btn>
 
@@ -205,10 +204,14 @@ export default {
         this.$emit('close')
         return
       }
+    },
+    disabled_unless: function (unless) {
+      if (unless) {
+        return this.disabled
+      }
 
-      this.$emit('open', result.filePaths[0])
+      return this.disabled || this.branch || this.commit || this.push
     }
-
   },
 
   computed: {
