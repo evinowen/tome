@@ -100,17 +100,9 @@ export default {
       this.local_position_y = this.$refs.node.calcYOverflow(value)
     },
     expanded: async function (value) {
-      if (this.expanded === -1) {
-        return
-      }
+      const menu = this.items[value]
 
-      const menu = this.items[this.expanded]
-
-      if (!menu.load) {
-        return
-      }
-
-      menu.items = await menu.load(this.target)
+      menu.items = menu.load ? await menu.load(this.target) : null
     }
   }
 }
