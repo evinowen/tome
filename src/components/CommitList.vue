@@ -16,6 +16,7 @@
         :sort-by="['file']"
         :items-per-page=items.length
         class="my-2"
+        @click:row="$emit('click', $event)"
       >
         <template v-slot:item.type="{ item }">
           <v-btn tile icon x-small :color="file_color(item.type)">
