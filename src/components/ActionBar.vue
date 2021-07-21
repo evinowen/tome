@@ -39,7 +39,7 @@
 
       <v-divider inset vertical />
 
-      <v-btn v-if="tome.branch" tile small class="button px-2" color="primary" :disabled="disabled_unless(branch)">
+      <v-btn v-if="tome.branch" tile small class="button px-2" color="primary" @click.stop="$emit('branch')" :disabled="disabled_unless(branch)">
         {{ tome.branch }}
       </v-btn>
       <v-btn v-else-if="tome.branch.error" tile small icon class="button pl-1 pr-2" color="error">
@@ -170,6 +170,7 @@ export default {
     menu: { type: Array, default: () => [] },
     waiting: { type: Number, default: 0 },
     waiting_max: { type: Number, default: 3 },
+    branch: { type: Boolean, default: false },
     commit: { type: Boolean, default: false },
     push: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false }
