@@ -1,12 +1,14 @@
 import { remote } from 'electron'
 import NodeGit from 'nodegit'
 
-const remote_path = remote.require('path')
-
 export default class RepositoryPatch {
   static LineType = NodeGit.Diff.LINE
 
   constructor () {
+    this._ = {
+      path: remote.require('path')
+    }
+
     this.name = ''
     this.path = ''
     this.lines = []
@@ -25,7 +27,7 @@ export default class RepositoryPatch {
       this.path = `${old_file_path} => ${new_file_path}`
     }
 
-    this.name = remote_path.basename(new_file_path)
+    this.name = this._.path.basename(new_file_path)
 
     const hunks = await patch.hunks()
     for (const hunk of hunks) {

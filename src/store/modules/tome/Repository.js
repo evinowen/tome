@@ -58,6 +58,8 @@ export default class Repository {
 
     this.validateRepositoryCondition()
 
+    await this.loadHistory()
+
     await this.loadRemotes()
 
     await this.loadBranch()
@@ -88,6 +90,26 @@ export default class Repository {
 
     if (this.repository.isRebasing()) {
       throw new Error('Rebasing')
+    }
+  }
+
+  async loadHistory () {
+    let commit = await this.repository.getBranchCommit(await this.repository.head())
+
+    this.history = []
+
+    for (let limit = 20; commit && limit > 0; limit--) {
+      this.history.push({
+        oid: commit.id().tostrS(),
+        date: commit.date(),
+        message: commit.message()
+      })
+
+      if (commit.parentcount()) {
+        commit = await commit.parent(0)
+      } else {
+        break
+      }
     }
   }
 
@@ -163,14 +185,11 @@ export default class Repository {
 
       this.pending.push({
         oid: local_commit.id().tostrS(),
+        date: local_commit.date(),
         message: local_commit.message()
       })
 
       this.ahead = true
-
-      if (local_commit.parentcount() < 1) {
-        throw new Error('Detached')
-      }
 
       local_commit = await local_commit.parent(0)
     } while (local_commit)
@@ -314,7 +333,7 @@ export default class Repository {
 
     if (query === '*') {
       for (let i = 0; i < this.staged.length; i++) {
-        await this.resetPath(head, query)
+        await this.resetPath(index, this.staged[i].path)
       }
     } else {
       await this.resetPath(head, query)

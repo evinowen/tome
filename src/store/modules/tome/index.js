@@ -1,29 +1,36 @@
 import Repository from './Repository'
 
+const reset = () => ({
+  name: '',
+  path: '',
+  branch: '',
+  history: [],
+  patches: [],
+  remotes: [],
+  pending: [],
+  loaded: false,
+  status: {
+    available: [],
+    staged: []
+  },
+  remote: null,
+  repository: null
+})
+
 export default {
   namespaced: true,
-  state: {
-    name: '',
-    path: '',
-    branch: '',
-    patches: [],
-    remotes: [],
-    pending: [],
-    loaded: false,
-    status: {
-      available: [],
-      staged: []
-    },
-    remote: null,
-    repository: null
-  },
+  state: reset(),
   mutations: {
+    clear: function (state, path) {
+      Object.assign(state, reset())
+    },
     initialize: function (state, path) {
       state.repository = new Repository(path)
     },
     load: function (state) {
       state.name = state.repository.name
       state.path = state.repository.path
+      state.history = state.repository.history
       state.branch = state.repository.branch
       state.remotes = state.repository.remotes
 
@@ -45,6 +52,9 @@ export default {
     }
   },
   actions: {
+    clear: async function (context) {
+      context.commit('clear')
+    },
     load: async function (context, path) {
       context.commit('initialize', path)
 
