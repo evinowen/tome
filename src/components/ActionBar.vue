@@ -9,7 +9,16 @@
     <v-divider inset vertical />
 
     <template v-if="tome.path">
-      <repository-button :name=tome.name :path=tome.path :disabled="disabled_unless()" />
+      <repository-button
+        :name=tome.name
+        :path=tome.path
+        :readme=tome.metadata.readme
+        :authors=tome.metadata.authors
+        :contributors=tome.metadata.contributors
+        :license=tome.metadata.license
+        :disabled="disabled_unless()"
+        @open=open_file
+      />
 
       <v-divider inset vertical />
 
@@ -186,6 +195,9 @@ export default {
 
         this.$emit('open', result.filePaths[0])
       }
+    },
+    open_file: function (path) {
+      store.dispatch('files/select', { path })
     },
     disabled_unless: function (unless) {
       if (unless) {

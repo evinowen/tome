@@ -1,36 +1,51 @@
 <template>
-  <v-menu top offset-y transition="slide-y-reverse-transition">
-
-    <template v-slot:activator="{ on: on_click }">
-      <v-tooltip top>
-        <template v-slot:activator="{ on: on_hover }">
-          <v-btn tile small class="button pa-0 px-2" v-on="{ ...on_hover, ...on_click }" :disabled=disabled>
-            {{ name }}
-          </v-btn>
-        </template>
-
-        <span>{{ path }}</span>
-
-      </v-tooltip>
+  <v-menu tile top offset-y
+    :value=value @input="value = !value"
+    transition="slide-y-reverse-transition"
+    content-class="menu"
+    :close-on-content-click="false"
+     width="50%"
+  >
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn tile small class="button pa-0 px-2" v-on="on" v-bind="attrs" :disabled=disabled>
+        {{ name }}
+      </v-btn>
     </template>
 
-    <v-list dense>
-      <v-list-item
-        v-for="(item, index) in menu"
-        :key="index" dense
-        @click.stop="$emit('menu', item.key)"
-      >
-        <v-list-item-title>{{ item.name }}</v-list-item-title>
-        <v-list-item-subtitle>{{ item.text }}</v-list-item-subtitle>
-      </v-list-item>
-    </v-list>
-
+    <v-card tile>
+      <v-card-title>{{ name }}</v-card-title>
+      <v-card-subtitle>{{ path }}</v-card-subtitle>
+      <v-card-actions>
+        <v-btn text :disabled="!license" @click="open(license)">
+          License
+        </v-btn>
+      </v-card-actions>
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-btn text :disabled="!readme" @click="open(readme)">
+          Read Me
+        </v-btn>
+        <v-spacer></v-spacer>
+        <v-btn text :disabled="!authors" @click="open(authors)">
+          Authors
+        </v-btn>
+        <v-btn text :disabled="!contributors" @click="open(contributors)">
+          Contributors
+        </v-btn>
+      </v-card-actions>
+    </v-card>
   </v-menu>
 </template>
 
 <style scoped>
 .button {
   height: 18px !important;
+}
+
+.menu {
+  left: 2px !important;
+  top: auto !important;
+  bottom: 21px !important;
 }
 </style>
 
@@ -39,8 +54,20 @@ export default {
   props: {
     name: { type: String, default: '' },
     path: { type: String, default: '' },
-    menu: { type: Array, default: () => [] },
+    readme: { type: String },
+    authors: { type: String },
+    contributors: { type: String },
+    license: { type: String },
     disabled: { type: Boolean, default: false }
+  },
+  data: () => ({
+    value: false
+  }),
+  methods: {
+    open: function (path) {
+      this.value = false
+      this.$emit('open', path)
+    }
   }
 }
 </script>
