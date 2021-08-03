@@ -9,33 +9,7 @@
     <v-divider inset vertical />
 
     <template v-if="tome.path">
-      <v-menu top offset-y transition="slide-y-reverse-transition">
-
-        <template v-slot:activator="{ on: on_click }">
-          <v-tooltip top>
-            <template v-slot:activator="{ on: on_hover }">
-              <v-btn tile small class="button pa-0 px-2" v-on="{ ...on_hover, ...on_click }" :disabled="disabled_unless()">
-                {{ tome.name }}
-              </v-btn>
-            </template>
-
-            <span>{{ tome.path }}</span>
-
-          </v-tooltip>
-        </template>
-
-        <v-list dense>
-          <v-list-item
-            v-for="(item, index) in menu"
-            :key="index" dense
-            @click.stop="$emit('menu', item.key)"
-          >
-            <v-list-item-title>{{ item.name }}</v-list-item-title>
-            <v-list-item-subtitle>{{ item.text }}</v-list-item-subtitle>
-          </v-list-item>
-        </v-list>
-
-      </v-menu>
+      <repository-button :name=tome.name :path=tome.path :disabled="disabled_unless()" />
 
       <v-divider inset vertical />
 
@@ -164,6 +138,7 @@ import store from '@/store'
 import { remote } from 'electron'
 import StatusButton from './StatusButton.vue'
 import LibraryButton from './LibraryButton.vue'
+import RepositoryButton from './RepositoryButton.vue'
 
 export default {
   props: {
@@ -232,7 +207,8 @@ export default {
 
   components: {
     StatusButton,
-    LibraryButton
+    LibraryButton,
+    RepositoryButton
 
   }
 }
