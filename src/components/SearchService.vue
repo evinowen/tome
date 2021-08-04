@@ -1,8 +1,8 @@
 <template>
   <div class="search-container">
     <v-toolbar class="search-box">
-      <v-btn tile small :depressed=files @click="files = !files"><v-icon>mdi-file-multiple</v-icon></v-btn>
-      <v-text-field ref="input" class="search-input" @input=update @keydown.enter=next rows=1 :messages=status clearable />
+      <v-btn small :depressed=files :color="files ? 'primary' : ''" @click="files = !files"><v-icon>mdi-file-multiple</v-icon></v-btn>
+      <v-text-field ref="input" class="search-input" @input=update @keydown.enter=next @keydown.esc="$emit('close')" rows=1 :messages=status clearable />
       <div class="search-navigation" v-if=navigation>
         <v-item-group multiple>
           <v-btn tile small @click=previous :disabled=!query><v-icon>mdi-chevron-left</v-icon></v-btn>
@@ -32,7 +32,7 @@
   position: absolute;
   width: 100%;
   bottom: 18px;
-  z-index: 1000
+  z-index: 99;
 }
 
 .search-navigation {
