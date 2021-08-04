@@ -11,26 +11,19 @@ jest.mock('electron', () => ({
   }
 }))
 
-const fs_file_stream = {}
-
 const fs = {
   existsSync: jest.fn(() => true),
-  createReadStream: jest.fn(() => fs_file_stream),
+  readFile: jest.fn((path, encoding, callback) => callback(null, fs_read_results.join('\n'))),
   writeFile: jest.fn((file, data, options, callback) => (callback ?? options)(null))
 }
 
-const readline_interface = [
+const fs_read_results = [
   './first_path', './second_path', './third_path'
 ]
-
-const readline = {
-  createInterface: jest.fn(() => readline_interface)
-}
 
 remote.require = jest.fn((target) => {
   switch (target) {
     case 'fs': return fs
-    case 'readline': return readline
   }
 })
 
@@ -63,7 +56,7 @@ describe('store/modules/library.js', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = readline_interface.slice()
+    const paths = fs_read_results.slice()
     await store.dispatch('library/load', path)
 
     expect(store.state.library.path).toEqual(path)
@@ -75,7 +68,7 @@ describe('store/modules/library.js', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = readline_interface.slice()
+    const paths = fs_read_results.slice()
     paths.push('./fourth_path')
 
     await store.dispatch('library/load', path)
@@ -90,7 +83,7 @@ describe('store/modules/library.js', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = readline_interface.slice()
+    const paths = fs_read_results.slice()
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/add', './third_path')
@@ -104,7 +97,7 @@ describe('store/modules/library.js', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = readline_interface.slice()
+    const paths = fs_read_results.slice()
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/remove', paths.pop())
@@ -118,7 +111,7 @@ describe('store/modules/library.js', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = readline_interface.slice()
+    const paths = fs_read_results.slice()
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/remove', './forth_path')

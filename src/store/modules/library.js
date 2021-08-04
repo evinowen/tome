@@ -34,17 +34,15 @@ export default {
       const history = []
 
       if (fs.existsSync(path)) {
-        const file_stream = fs.createReadStream(path)
+        const raw = await new Promise((resolve, reject) => fs.readFile(path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
 
-        const readline = remote.require('readline')
-        const read_interface = readline.createInterface({
-          input: file_stream,
-          crlfDelay: Infinity
-        })
+        const lines = raw.split(/[\n\r]+/).map(line => line.trim())
 
-        for await (const line of read_interface) {
-          console.log(`Line from file: ${line}`)
-          history.push(line)
+        for (const line of lines) {
+          if (line !== '') {
+            console.log(line)
+            history.push(line)
+          }
         }
       }
 
