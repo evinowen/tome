@@ -14,7 +14,13 @@ const reset = () => ({
     staged: []
   },
   remote: null,
-  repository: null
+  repository: null,
+  metadata: {
+    readme: null,
+    license: null,
+    authors: null,
+    contributors: null
+  }
 })
 
 export default {
@@ -49,6 +55,9 @@ export default {
     },
     patches: function (state) {
       state.patches = state.repository.patches
+    },
+    metadata: function (state, data) {
+      Object.assign(state.metadata, data)
     }
   },
   actions: {
@@ -108,6 +117,9 @@ export default {
     },
     push: async function (context) {
       await context.state.repository.push()
+    },
+    metadata: function (context, data) {
+      context.commit('metadata', data)
     }
   }
 }
