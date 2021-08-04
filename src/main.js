@@ -14,6 +14,8 @@ import 'codemirror/theme/base16-dark.css'
 import 'codemirror/addon/display/autorefresh.js'
 import 'codemirror/addon/search/searchcursor.js'
 
+import VueShortKey from 'vue-shortkey'
+
 Vue.component('split-pane', SplitPane)
 
 Vue.use(VueCodemirror, {
@@ -27,6 +29,8 @@ Vue.use(VueCodemirror, {
     autoRefresh: true
   }
 })
+
+Vue.use(VueShortKey)
 
 Vue.config.productionTip = false
 
