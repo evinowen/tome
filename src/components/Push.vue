@@ -52,7 +52,7 @@
           <v-divider class="mt-4 mb-2"></v-divider>
         </div>
 
-        <div class="flex-grow-1">
+        <div class="flex-grow-1 mb-3">
           <push-status
             :active="input.remotes.value != null"
             :loading=input.branch.loading
@@ -63,8 +63,8 @@
           />
         </div>
 
-        <div class="flex-grow-0 pb-3">
-          <v-divider class="mt-4 mb-2"></v-divider>
+        <div ref="base" class="flex-grow-0 pb-3 actions">
+          <v-divider class="mt-0 mb-2"></v-divider>
           <push-confirm
             v-model=confirm
             :disabled="!(input.private_key.value && input.public_key.value && pending.length)"
@@ -81,6 +81,14 @@
     </v-container>
   </v-navigation-drawer>
 </template>
+
+<style scoped>
+.actions {
+  backdrop-filter: blur(2px);
+  position: sticky;
+  bottom: 0px
+}
+</style>
 
 <script>
 import store from '@/store'

@@ -12,7 +12,7 @@
           <div style="clear: both" ></div>
         </div>
 
-        <div class="flex-grow-1">
+        <div class="flex-grow-1 mb-3">
           <template v-for="(file, file_index) in patches">
             <div :key=file_index :class="[ file_index ? 'mt-4' : '']">
               <v-card dense style="font-family: monospace; overflow: auto;">
@@ -31,10 +31,9 @@
           </template>
         </div>
 
-        <div ref="base" class="flex-grow-0 pb-3">
-          <v-divider class="mt-4 mb-2"></v-divider>
-          <v-btn color="primary" @click.stop="$emit('close')">
-            <v-icon class="mr-2">mdi-cancel</v-icon>
+        <div ref="base" class="flex-grow-0 pb-3 actions">
+          <v-divider class="mt-0 mb-2"></v-divider>
+          <v-btn small color="primary" @click.stop="$emit('close')">
             Done
           </v-btn>
         </div>
@@ -51,6 +50,12 @@
 
 pre {
   display: inline-block;
+}
+
+.actions {
+  backdrop-filter: blur(2px);
+  position: sticky;
+  bottom: 0px
 }
 </style>
 

@@ -75,6 +75,8 @@
               </v-col>
             </v-row>
           </v-container>
+        </div>
+        <div ref="base" class="flex-grow-0 pb-3 actions">
           <v-divider class="mt-4 mb-2"></v-divider>
           <commit-confirm
             v-model=confirm
@@ -100,6 +102,14 @@
   line-height: 1.0em !important;
   height: 15vh;
   font-size: 2.0em;
+}
+</style>
+
+<style scoped>
+.actions {
+  backdrop-filter: blur(2px);
+  position: sticky;
+  bottom: 0px
 }
 </style>
 
