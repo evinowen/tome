@@ -26,6 +26,7 @@
     "vue": "^2.6.11",
     "vue-codemirror": "^4.0.6",
     "vue-router": "^3.1.5",
+    "vue-shortkey": "^3.1.7",
     "vue-splitpane": "^1.0.6",
     "vuetify": "^2.2.11",
     "vuex": "^3.1.2"

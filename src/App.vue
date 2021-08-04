@@ -32,6 +32,25 @@
     />
 
     <search-service v-show=search />
+    <shortcut-service
+      :settings=settings
+      :patch=patch
+      :search=search
+      :edit=edit
+      :branch=branch
+      :commit=commit
+      :push=push
+      :console=console
+
+      @settings="settings = !settings"
+      @patch="patch = !patch"
+      @search="search = !search"
+      @edit="edit = !edit"
+      @branch="branch = !branch"
+      @commit="commit = !commit"
+      @push="push = !push"
+      @console="console = !console"
+    />
 
     <action-bar
       :waiting=0
@@ -126,6 +145,7 @@ import Push from './components/Push.vue'
 import EditorInterface from './components/EditorInterface.vue'
 import EmptyView from '@/views/Empty.vue'
 import ActionBar from './components/ActionBar.vue'
+import ShortcutService from './components/ShortcutService.vue'
 
 export default {
   props: {
@@ -223,7 +243,8 @@ export default {
     EmptyView,
     ActionBar,
     ContextMenuService,
-    SearchService
+    SearchService,
+    ShortcutService
   }
 }
 </script>
