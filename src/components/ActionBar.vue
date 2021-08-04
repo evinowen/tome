@@ -48,7 +48,7 @@
     <template v-if="tome.path">
       <v-divider inset vertical />
 
-      <v-switch action-bar-edit v-model="edit" dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()"></v-switch>
+      <v-switch action-bar-edit :value="edit" @click.stop="$emit('edit')" dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()"></v-switch>
 
       <v-divider inset vertical />
 
@@ -166,6 +166,7 @@ export default {
     menu: { type: Array, default: () => [] },
     waiting: { type: Number, default: 0 },
     waiting_max: { type: Number, default: 3 },
+    edit: { type: Boolean, default: false },
     branch: { type: Boolean, default: false },
     commit: { type: Boolean, default: false },
     push: { type: Boolean, default: false },
@@ -173,13 +174,8 @@ export default {
   },
 
   data: () => ({
-    edit: false,
     library: false
   }),
-
-  watch: {
-    edit: function (value) { this.$emit('edit', value) }
-  },
 
   methods: {
     open: async function (path) {

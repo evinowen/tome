@@ -56,6 +56,7 @@
 
     <action-bar
       :waiting=0
+      :edit=edit
       :branch=branch
       :commit=commit
       :push=push
@@ -233,9 +234,9 @@ export default {
         ...data
       })
     },
-    toggle: async function (value) {
+    toggle: async function () {
       this.debounce_save.flush()
-      this.edit = value
+      this.edit = !this.edit
     }
   },
   components: {
