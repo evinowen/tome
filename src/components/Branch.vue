@@ -27,8 +27,7 @@
               </v-btn>
             </template>
             <template v-slot:item.date="{ item }">
-              {{ String(item.date.getMonth()) }} / {{ String(item.date.getDay()) }} / {{ String(item.date.getFullYear()) }}
-              {{ String(item.date.getHours()) }}:{{ String(item.date.getMinutes()).padStart(2, '0') }}:{{ String(item.date.getSeconds()).padStart(2, '0') }}
+              {{ format_date(item.date) }}
             </template>
           </v-data-table>
         </div>
@@ -94,6 +93,7 @@ pre {
 </style>
 
 <script>
+import { DateTime } from 'luxon'
 import store from '@/store'
 
 export default {
@@ -117,6 +117,9 @@ export default {
       await store.dispatch('tome/diff', { commit: commit.oid })
 
       this.$emit('patch')
+    },
+    format_date: function (date) {
+      return new DateTime(date).toISODate()
     }
   }
 }
