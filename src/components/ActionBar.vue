@@ -147,9 +147,14 @@
 
 }
 
-.crawling {
-  padding: 0 4px;
+.console {
+  padding: 0;
   font-size: 0.8em;
+}
+
+.console .button {
+  padding: 0 4px !important;
+  justify-content: start;
 }
 
 </style>
@@ -170,6 +175,7 @@ export default {
     branch: { type: Boolean, default: false },
     commit: { type: Boolean, default: false },
     push: { type: Boolean, default: false },
+    console: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false }
   },
 
@@ -212,7 +218,7 @@ export default {
         return this.disabled
       }
 
-      return this.disabled || this.branch || this.commit || this.push
+      return this.disabled || this.branch || this.commit || this.push || this.console
     }
   },
 
@@ -221,7 +227,10 @@ export default {
       return store.state.tome
     },
     status: function () {
-      return store.state.files.tree ? store.state.files.tree.daemon.status : ''
+      return store.state.status
+    },
+    message: function () {
+      return store.state.message
     }
   },
 
