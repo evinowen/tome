@@ -10,6 +10,8 @@
 
     <patch v-if=tome.loaded v-model=patch @close="patch = false" />
 
+    <console v-model=console @close="console = false" />
+
     <editor-interface
       v-show=tome.path
       ref="interface"
@@ -58,12 +60,14 @@
       :commit=commit
       :push=push
       :disabled="settings.open"
+      :console=console
       @open=set_tome
       @close=clear_tome
       @edit=toggle
       @branch="branch = !branch"
       @commit="commit = !commit"
       @push="push = !push"
+      @console="console = !console"
       @search="search = !search"
     />
   </v-app>
@@ -142,6 +146,7 @@ import Branch from './components/Branch.vue'
 import Patch from './components/Patch.vue'
 import Commit from './components/Commit.vue'
 import Push from './components/Push.vue'
+import Console from './components/Console.vue'
 import EditorInterface from './components/EditorInterface.vue'
 import EmptyView from '@/views/Empty.vue'
 import ActionBar from './components/ActionBar.vue'
@@ -158,6 +163,7 @@ export default {
     patch: false,
     commit: false,
     push: false,
+    console: false,
     search: false,
 
     context: {
@@ -239,6 +245,7 @@ export default {
     Patch,
     Commit,
     Push,
+    Console,
     EditorInterface,
     EmptyView,
     ActionBar,

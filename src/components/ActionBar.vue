@@ -2,6 +2,7 @@
   <v-footer
     app
     class="pa-0"
+    style="position: absolute; z-index: 1000;"
     height=18
   >
     <library-button v-model=library @open=open @close="$emit('close')" :disabled="disabled_unless()" />
@@ -32,8 +33,19 @@
 
       <v-divider inset vertical />
 
-      <v-spacer class="crawling">&nbsp;<v-icon small>mdi-chevron-right</v-icon>&nbsp;{{ status }}</v-spacer>
+    </template>
 
+    <v-spacer class="console">
+      <v-btn tile icon small class="button" style="width: 100%"
+        @click.stop="$emit('console')"
+        :disabled="disabled_unless(console)"
+        :color="status === 'error' ? 'error' : ''"
+      >
+        <v-icon small>{{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}</v-icon>&nbsp;{{ message }}
+      </v-btn>
+    </v-spacer>
+
+    <template v-if="tome.path">
       <v-divider inset vertical />
 
       <v-switch action-bar-edit v-model="edit" dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()"></v-switch>
