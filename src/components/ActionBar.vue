@@ -53,7 +53,7 @@
       <v-divider inset vertical />
 
       <v-expand-x-transition>
-        <div v-show="edit" style="overflow: hidden;">
+        <div v-show="edit" style="overflow: hidden; white-space: nowrap;">
           <div style="height: 18px">
             <!-- SAVE BUTTON -->
             <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop="$emit('commit')" :disabled="disabled_unless(commit)">
