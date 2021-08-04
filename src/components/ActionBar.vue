@@ -55,20 +55,6 @@
       <v-expand-x-transition>
         <div v-show="edit" style="overflow: hidden;">
           <div style="height: 18px">
-
-            <!-- STAGE BUTTON -->
-            <status-button
-              :waiting="waiting"
-              :available_new="tome.status.available.new"
-              :available_renamed="tome.status.available.renamed"
-              :available_modified="tome.status.available.modified"
-              :available_removed="tome.status.available.deleted"
-              :staged_new="tome.status.staged.new"
-              :staged_renamed="tome.status.staged.renamed"
-              :staged_modified="tome.status.staged.modified"
-              :staged_removed="tome.status.staged.deleted"
-            />
-
             <!-- SAVE BUTTON -->
             <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop="$emit('commit')" :disabled="disabled_unless(commit)">
               <v-icon small>mdi-content-save</v-icon>
@@ -162,7 +148,6 @@
 <script>
 import store from '@/store'
 import { remote } from 'electron'
-import StatusButton from './StatusButton.vue'
 import LibraryButton from './LibraryButton.vue'
 import RepositoryButton from './RepositoryButton.vue'
 
@@ -235,10 +220,8 @@ export default {
   },
 
   components: {
-    StatusButton,
     LibraryButton,
     RepositoryButton
-
   }
 }
 </script>
