@@ -40,7 +40,6 @@ export default {
 
         for (const line of lines) {
           if (line !== '') {
-            console.log(line)
             history.push(line)
           }
         }
