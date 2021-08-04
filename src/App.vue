@@ -60,8 +60,8 @@
       :branch=branch
       :commit=commit
       :push=push
-      :disabled="settings.open"
       :console=console
+      :disabled="settings"
       @open=set_tome
       @close=clear_tome
       @edit=toggle
