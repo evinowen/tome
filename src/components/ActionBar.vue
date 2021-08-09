@@ -38,7 +38,7 @@
     <v-spacer class="console">
       <v-btn tile icon small class="button" style="width: 100%"
         @click.stop="$emit('console')"
-        :disabled="disabled_unless(console)"
+        :disabled="disabled_unless(console || commit || push)"
         :color="status === 'error' ? 'error' : ''"
       >
         <v-icon small>{{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}</v-icon>&nbsp;{{ message }}
