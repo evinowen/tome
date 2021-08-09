@@ -26,7 +26,9 @@ const reset = () => ({
     license: null,
     authors: null,
     contributors: null
-  }
+  },
+  commit_working: false,
+  push_working: false
 })
 
 export default {
@@ -61,6 +63,12 @@ export default {
       } else {
         state.staging--
       }
+    },
+    commit: function (state, flag) {
+      state.commit_working = flag
+    },
+    push: function (state, flag) {
+      state.push_working = flag
     },
     remote: function (state) {
       state.remote = state.repository.remote
@@ -150,7 +158,13 @@ export default {
       context.commit('remote')
     },
     push: async function (context) {
+      context.commit('push', true)
+
+      await context.dispatch('message', `Pushing to remote ${context.state.remote.name} ...`, { root: true })
       await context.state.repository.push()
+      await context.dispatch('message', `Push to remote ${context.state.remote.name} complete`, { root: true })
+
+      context.commit('push', false)
     },
     metadata: function (context, data) {
       context.commit('metadata', data)

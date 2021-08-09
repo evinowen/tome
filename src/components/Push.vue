@@ -66,7 +66,7 @@
         <div ref="base" class="flex-grow-0 pb-3 actions">
           <v-divider class="mt-0 mb-2"></v-divider>
           <push-confirm
-            v-model=confirm
+            :value=confirm @input="$emit('confirm', $event)"
             :disabled="!(input.private_key.value && input.public_key.value && pending.length)"
             :waiting=working
             :history=pending
@@ -102,11 +102,10 @@ import PushConfirm from './PushConfirm.vue'
 
 export default {
   props: {
-    value: { type: Boolean, default: false }
+    value: { type: Boolean, default: false },
+    confirm: { type: Boolean, default: false }
   },
   data: () => ({
-    confirm: false,
-    working: false,
     input: {
       remotes: {
         selected: null,
@@ -161,6 +160,9 @@ export default {
     },
     configuration: function () {
       return store.state.configuration
+    },
+    working: function () {
+      return store.state.tome.push_working
     }
   },
   mounted: async function () {
@@ -204,13 +206,10 @@ export default {
 
       this.$emit('patch')
     },
-    push: async function (event) {
-      this.working = true
-
+    push: async function () {
       await store.dispatch('tome/push')
 
-      this.confirm = false
-      this.working = false
+      this.$emit('confirm', false)
 
       this.$emit('close')
     }
