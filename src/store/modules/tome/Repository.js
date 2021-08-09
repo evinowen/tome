@@ -303,46 +303,58 @@ export default class Repository {
     }
   }
 
-  async stage (query) {
+  async stage (query, notify) {
     const index = await this.repository.refreshIndex()
 
     if (query === '*') {
       for (let i = 0; i < this.available.length; i++) {
-        await this.stagePath(index, this.available[i].path)
+        await this.stagePath(index, this.available[i].path, notify)
       }
     } else {
-      await this.stagePath(index, query)
+      await this.stagePath(index, query, notify)
     }
 
     await index.write()
   }
 
-  async stagePath (index, path) {
+  async stagePath (index, path, notify) {
     const absolute_path = this._.path.join(this.path, path)
 
     if (this._.fs.existsSync(absolute_path)) {
+      if (notify) {
+        notify('add', path)
+      }
+
       await index.addByPath(path)
     } else {
+      if (notify) {
+        notify('remove', path)
+      }
+
       await index.removeByPath(path)
     }
   }
 
-  async reset (query) {
+  async reset (query, notify) {
     const index = await this.repository.refreshIndex()
     const head = await this.repository.getBranchCommit(await this.repository.head())
 
     if (query === '*') {
       for (let i = 0; i < this.staged.length; i++) {
-        await this.resetPath(index, this.staged[i].path)
+        await this.resetPath(index, this.staged[i].path, notify)
       }
     } else {
-      await this.resetPath(head, query)
+      await this.resetPath(head, query, notify)
     }
 
     await index.write()
   }
 
-  async resetPath (head, path) {
+  async resetPath (head, path, notify) {
+    if (notify) {
+      notify('reset', path)
+    }
+
     await NodeGit.Reset.default(this.repository, head, path)
   }
 
@@ -360,7 +372,7 @@ export default class Repository {
 
     const signature = NodeGit.Signature.now(name, email)
 
-    await this.repository.createCommit('HEAD', signature, signature, message, oid, parents)
+    return this.repository.createCommit('HEAD', signature, signature, message, oid, parents)
   }
 
   async push () {

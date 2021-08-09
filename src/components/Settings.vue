@@ -36,6 +36,19 @@
       </v-row>
       <v-row dense>
         <v-col>
+          <h3>Commit Options</h3>
+        </v-col>
+      </v-row>
+      <v-row dense>
+        <v-col xs=12 sm=5 md=3 lg=2>
+          <v-switch :input-value=configuration.auto_push label="Automatic Push" @change="assign_value('auto_push', $event || false)"></v-switch>
+        </v-col>
+        <v-col xs=12 sm=7 md=9 lg=12>
+          <v-text-field small label="default remote" :value=configuration.default_remote @input="assign_value('default_remote', $event)" />
+        </v-col>
+      </v-row>
+      <v-row dense>
+        <v-col>
           <h3>Display Options</h3>
           <v-switch :input-value=configuration.format_titles label="Format Titles" @change="assign_value('format_titles', $event || false)"></v-switch>
         </v-col>

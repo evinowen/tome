@@ -46,11 +46,16 @@ remote.app = {
 shell.openItem = jest.fn()
 
 store.state = {
-  tome: { },
-  tome_file_path: '/file/path',
-  tome_app_config_path: '/config/path/config.json',
-  tome_app_config_path_dir: '/config/path',
+  tome: {
+    loaded: true,
+    path: '/tome',
+    remotes: [
+      { name: 'production', url: 'git@production.example.com:remote.git' },
+      { name: 'origin', url: 'git@git.example.com:remote.git' }
+    ]
+  },
   configuration: {
+    default_remote: 'origin',
     private_key: 'key',
     public_key: 'key.pub',
     passphrase: 'passphrase'
@@ -63,7 +68,13 @@ describe('App.vue', () => {
   const factory = assemble(App)
     .context(() => ({
       stubs: {
+        Push: { template: '<div />', methods: { push: jest.fn() } },
+        Commit: { template: '<div />', methods: { commit: jest.fn() } },
+        Branch: true,
+        Console: true,
+        Settings: true,
         ContextMenuService: true,
+        ShortcutService: true,
         SearchService: true,
         SystemBar: true,
         EditorInterface: true,
@@ -241,5 +252,34 @@ describe('App.vue', () => {
     await wrapper.vm.toggle(true)
 
     expect(wrapper.vm.edit).toBe(true)
+  })
+
+  it('should stage and execute commit on call to quick_commit', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.quick_commit()
+
+    expect(wrapper.vm.edit).toBe(true)
+    expect(wrapper.vm.commit).toBe(true)
+    expect(wrapper.vm.commit_confirm).toBe(true)
+
+    expect(store.dispatch).toHaveBeenCalledTimes(1)
+
+    expect(store.dispatch.mock.calls[0][0]).toBe('tome/stage')
+    expect(store.dispatch.mock.calls[0][1]).toEqual('*')
+  })
+
+  it('should stage and execute push on call to quick_push', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.quick_push()
+
+    expect(wrapper.vm.push).toBe(true)
+    expect(wrapper.vm.push_confirm).toBe(true)
+
+    expect(store.dispatch).toHaveBeenCalledTimes(2)
+
+    expect(store.dispatch.mock.calls[0][0]).toBe('tome/credentials')
+    expect(store.dispatch.mock.calls[1][0]).toBe('tome/remote')
   })
 })

@@ -104,14 +104,45 @@ export default {
       await context.dispatch('inspect')
     },
     stage: async function (context, query) {
-      await context.state.repository.stage(query)
+      context.commit('staging', true)
 
-      await context.dispatch('inspect')
+      try {
+        await context.state.repository.stage(query, async (type, path) => {
+          let wording
+          if (type === 'add') {
+            wording = 'as addition'
+          } else if (type === 'remove') {
+            wording = 'as removal'
+          }
+
+          await context.dispatch('message', `Staging path ${path} ${wording}`, { root: true })
+        })
+
+        await context.dispatch('inspect')
+        await context.dispatch('message', 'Stage complete', { root: true })
+      } catch (err) {
+        await context.dispatch('error', 'Stage failed', { root: true })
+        throw err
+      } finally {
+        context.commit('staging', false)
+      }
     },
     reset: async function (context, query) {
-      await context.state.repository.reset(query)
+      context.commit('staging', true)
 
-      await context.dispatch('inspect')
+      try {
+        await context.state.repository.reset(query, async (type, path) => {
+          await context.dispatch('message', `Reseting path ${path}`, { root: true })
+        })
+
+        await context.dispatch('inspect')
+        await context.dispatch('message', 'Reset complete', { root: true })
+      } catch (err) {
+        await context.dispatch('error', 'Reset failed', { root: true })
+        throw err
+      } finally {
+        context.commit('staging', false)
+      }
     },
     inspect: async function (context) {
       await context.state.repository.inspect()

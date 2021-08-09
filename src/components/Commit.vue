@@ -82,6 +82,7 @@
           <commit-confirm
             :value=confirm @input="$emit('confirm', $event)"
             @commit=commit
+            @push="push = !push"
             :name="signature.name"
             :email="signature.email"
             :message="message"
@@ -89,6 +90,7 @@
             :disabled="staged.length < 1"
             :staging="staging"
             :waiting="working"
+            :push=push
           />
           <v-btn color="warning" @click.stop="$emit('close')">
             <v-icon class="mr-2">mdi-cancel</v-icon>
@@ -128,6 +130,7 @@ export default {
     confirm: { type: Boolean, default: false }
   },
   data: () => ({
+    push: false,
     input: {
       name: '',
       email: '',
@@ -204,7 +207,9 @@ export default {
       this.$emit('confirm', false)
       this.$emit('close')
 
-      return true
+      if (this.push) {
+        this.$emit('push')
+      }
     }
   },
   components: {

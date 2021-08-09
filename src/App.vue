@@ -5,8 +5,8 @@
     <settings v-model="settings" />
 
     <branch v-if=tome.loaded v-model=branch @close="branch = false" @patch="patch = true" />
-    <commit v-if=tome.loaded v-model=commit @close="commit = false" @patch="patch = true" />
-    <push v-if=tome.loaded v-model=push @close="push = false" @patch="patch = true" />
+    <commit ref="commit" v-if=tome.loaded v-model=commit @close="commit = false" @patch="patch = true" :confirm=commit_confirm @confirm="commit_confirm = $event" @push=quick_push />
+    <push ref="push" v-if=tome.loaded v-model=push @close="push = false" @patch="patch = true" :confirm=push_confirm @confirm="push_confirm = $event" />
 
     <patch v-if=tome.loaded v-model=patch @close="patch = false" />
 
@@ -49,9 +49,11 @@
       @search="search = !search"
       @edit="edit = !edit"
       @branch="branch = !branch"
-      @commit="commit = !commit"
-      @push="push = !push"
+      @commit="commit = edit ? !commit : false"
+      @push="push = edit ? !push : false"
       @console="console = !console"
+
+      @quick-commit=quick_commit
     />
 
     <action-bar
@@ -163,7 +165,9 @@ export default {
     edit: false,
     patch: false,
     commit: false,
+    commit_confirm: false,
     push: false,
+    push_confirm: false,
     console: false,
     search: false,
 
@@ -237,6 +241,39 @@ export default {
     toggle: async function () {
       this.debounce_save.flush()
       this.edit = !this.edit
+    },
+    quick_commit: async function () {
+      this.edit = true
+      this.commit = true
+      this.commit_confirm = true
+
+      await store.dispatch('tome/stage', '*')
+
+      this.$refs.commit.commit()
+    },
+    quick_push: async function () {
+      this.push = true
+      this.push_confirm = true
+
+      const credentials = {
+        private_key: store.state.configuration.private_key,
+        public_key: store.state.configuration.public_key,
+        passphrase: store.state.configuration.passphrase
+      }
+
+      await store.dispatch('tome/credentials', credentials)
+
+      let url
+      for (const remote of store.state.tome.remotes) {
+        if (store.state.configuration.default_remote === remote.name) {
+          url = remote.url
+          break
+        }
+      }
+
+      await store.dispatch('tome/remote', url)
+
+      this.$refs.push.push()
     }
   },
   components: {

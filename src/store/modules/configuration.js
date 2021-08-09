@@ -13,6 +13,8 @@ export default {
     passphrase: '',
     format_titles: true,
     dark_mode: true,
+    auto_push: false,
+    default_remote: 'origin',
     light_primary: '',
     light_primary_enabled: false,
     light_secondary: '',
