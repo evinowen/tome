@@ -92,7 +92,6 @@
 
 <script>
 import store from '@/store'
-import NodeGit from 'nodegit'
 import PushKeyfileInput from './PushKeyfileInput.vue'
 import PushPassphraseInput from './PushPassphraseInput.vue'
 import PushRemoteSelector from './PushRemoteSelector.vue'
@@ -143,9 +142,6 @@ export default {
     }
   }),
   computed: {
-    repository: function () {
-      return store.state.tome.repository
-    },
     remotes: function () {
       return store.state.tome.remotes
     },
@@ -180,7 +176,7 @@ export default {
   },
   methods: {
     add_remote: async function (name, url) {
-      await NodeGit.Remote.create(this.repository, name, url)
+      await store.dispatch('tome/create-remote', { name, url })
     },
     select_remote: async function (remote) {
       this.input.remotes.value = remote
