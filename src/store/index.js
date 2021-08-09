@@ -13,6 +13,7 @@ import configuration from './modules/configuration'
 import clipboard from './modules/clipboard'
 import search from './modules/search'
 
+import reporter from './plugins/reporter'
 import mediator from './plugins/mediator'
 
 Vue.use(Vuex)
@@ -79,6 +80,7 @@ export default new Vuex.Store({
     search
   },
   plugins: [
+    reporter,
     mediator
   ]
 })
