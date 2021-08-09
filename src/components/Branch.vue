@@ -124,7 +124,7 @@ export default {
       this.$emit('patch')
     },
     format_date: function (date) {
-      return new DateTime(date).toISODate()
+      return DateTime.fromJSDate(date).toISODate()
     }
   }
 }

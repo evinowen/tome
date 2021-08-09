@@ -45,7 +45,7 @@ describe('Branch.vue', () => {
         localVue,
         vuetify,
         stubs: {
-          StatusButton: true
+          VDataTable: true
         },
         propsData: {
           value
@@ -90,5 +90,19 @@ describe('Branch.vue', () => {
     await wrapper.vm.diff(commit)
 
     expect(event).toHaveBeenCalledTimes(1)
+  })
+
+  it('should format date into ISO format on call to format_date', async () => {
+    const event = jest.fn()
+
+    wrapper.vm.$on('patch', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    const date = new Date('2000-01-01T12:00:00')
+
+    const result = wrapper.vm.format_date(date)
+
+    expect(result).toEqual('2000-01-01')
   })
 })
