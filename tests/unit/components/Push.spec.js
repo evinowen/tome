@@ -2,10 +2,9 @@ import { remote } from 'electron'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
+import { assemble } from '@/../tests/helpers'
 import Push from '@/components/Push.vue'
 import store from '@/store'
-
-import { createLocalVue, mount } from '@vue/test-utils'
 
 Vue.use(Vuetify)
 
@@ -22,11 +21,14 @@ remote.dialog = {
   showOpenDialog: jest.fn()
 }
 
-const localVue = createLocalVue()
-
 describe('Push.vue', () => {
   let vuetify
-  let wrapper
+
+  const factory = assemble(Push)
+    .context(() => ({
+      vuetify,
+      stubs: { StatusButton: true }
+    }))
 
   beforeEach(() => {
     vuetify = new Vuetify()
@@ -46,33 +48,29 @@ describe('Push.vue', () => {
         repository: {}
       }
     }
-
-    const waiting = 0
-    const commit = false
-    const push = false
-
-    wrapper = mount(
-      Push,
-      {
-        localVue,
-        vuetify,
-        stubs: {
-          StatusButton: true
-        },
-        propsData: {
-          waiting,
-          commit,
-          push
-        }
-      }
-    )
   })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
+  it('should pull configuration if it exists into local input when the component is mounted', async () => {
+    store.state.configuration.private_key = './id_rsa'
+    store.state.configuration.public_key = './id_rsa.pub'
+    store.state.configuration.passphrase = 'password'
+
+    expect(store.dispatch).toHaveBeenCalledTimes(0)
+
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.input.private_key.value).toEqual('./id_rsa')
+    expect(wrapper.vm.input.public_key.value).toEqual('./id_rsa.pub')
+    expect(wrapper.vm.input.passphrase.value).toEqual('password')
+  })
+
   it('should call store to load commit OID into patch when diff is called', async () => {
+    const wrapper = factory.wrap()
+
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
     const commit = {
@@ -87,6 +85,8 @@ describe('Push.vue', () => {
   })
 
   it('should call store to push when push is called', async () => {
+    const wrapper = factory.wrap()
+
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
     const event = {}
@@ -98,6 +98,8 @@ describe('Push.vue', () => {
   })
 
   it('should emit a close event after processing when push is called', async () => {
+    const wrapper = factory.wrap()
+
     const event = jest.fn()
 
     wrapper.vm.$on('close', event)
@@ -110,6 +112,8 @@ describe('Push.vue', () => {
   })
 
   it('should call store to set credentials when select_remote is called', async () => {
+    const wrapper = factory.wrap()
+
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
     const remote = {
@@ -123,6 +127,8 @@ describe('Push.vue', () => {
   })
 
   it('should call store to set remote when select_remote is called', async () => {
+    const wrapper = factory.wrap()
+
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
     const remote = {
@@ -133,5 +139,20 @@ describe('Push.vue', () => {
 
     expect(store.dispatch).toHaveBeenCalledTimes(2)
     expect(store.dispatch.mock.calls[1][0]).toEqual('tome/remote')
+  })
+
+  it('should call store to create remote when add_remote is called', async () => {
+    const wrapper = factory.wrap()
+
+    expect(store.dispatch).toHaveBeenCalledTimes(0)
+
+    const name = 'new'
+    const url = 'git@git.example.com:remote.git'
+
+    await wrapper.vm.add_remote(name, url)
+
+    expect(store.dispatch).toHaveBeenCalledTimes(1)
+    expect(store.dispatch.mock.calls[0][0]).toEqual('tome/create-remote')
+    expect(store.dispatch.mock.calls[0][1]).toEqual({ name, url })
   })
 })

@@ -514,12 +514,14 @@ describe('Repository.js', () => {
     const file_path = './test_path/file.md'
 
     const repository = new Repository(path)
-    repository.stagePath = jest.fn()
+
+    const notify = jest.fn()
 
     await repository.load()
-    await repository.stage(file_path)
+    await repository.stage(file_path, notify)
 
-    expect(repository.stagePath).toHaveBeenCalledTimes(1)
+    expect(notify).toHaveBeenCalledTimes(1)
+    expect(nodegit_repository_index.addByPath).toHaveBeenCalledTimes(1)
   })
 
   it('should stage provided path remove with stagePath when query is a path on call to stage', async () => {
@@ -530,9 +532,13 @@ describe('Repository.js', () => {
 
     const repository = new Repository(path)
 
-    await repository.load()
+    const notify = jest.fn()
 
-    await repository.stage(file_path)
+    await repository.load()
+    await repository.stage(file_path, notify)
+
+    expect(notify).toHaveBeenCalledTimes(1)
+    expect(nodegit_repository_index.removeByPath).toHaveBeenCalledTimes(1)
   })
 
   it('should reset all staged files with resetPath when query is "*" on call to reset', async () => {
@@ -559,12 +565,14 @@ describe('Repository.js', () => {
     const file_path = './test_path/file.md'
 
     const repository = new Repository(path)
-    repository.resetPath = jest.fn()
+
+    const notify = jest.fn()
 
     await repository.load()
-    await repository.reset(file_path)
+    await repository.reset(file_path, notify)
 
-    expect(repository.resetPath).toHaveBeenCalledTimes(1)
+    expect(notify).toHaveBeenCalledTimes(1)
+    expect(NodeGit.Reset.default).toHaveBeenCalledTimes(1)
   })
 
   it('should create a commit with provided information on call to commit', async () => {

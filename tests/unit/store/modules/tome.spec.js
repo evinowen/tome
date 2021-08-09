@@ -12,15 +12,19 @@ jest.mock('@/store/modules/tome/RepositoryPatch', () => jest.fn())
 
 const repository = {
   load: jest.fn(),
-  stage: jest.fn(),
-  reset: jest.fn(),
+  stage: jest.fn((query, notify) => notify('add', './file.md')),
+  reset: jest.fn((query, notify) => notify('', './file.md')),
   inspect: jest.fn(),
   diffPath: jest.fn(),
   diffCommit: jest.fn(),
   commit: jest.fn(),
   storeCredentials: jest.fn(),
   loadRemoteBranch: jest.fn(),
-  push: jest.fn()
+  push: jest.fn(),
+  remote: {
+    name: 'origin',
+    url: 'git@git.example.com:remote.git'
+  }
 }
 
 Repository.mockImplementation(() => repository)
@@ -29,11 +33,21 @@ describe('store/modules/tome.js', () => {
   let localVue
   let store
 
+  let root_actions
+
   beforeEach(() => {
     localVue = createLocalVue()
     localVue.use(Vuex)
 
-    store = new Vuex.Store(cloneDeep({ modules: { tome } }))
+    root_actions = {
+      message: jest.fn(),
+      error: jest.fn()
+    }
+
+    store = new Vuex.Store(cloneDeep({
+      actions: root_actions,
+      modules: { tome }
+    }))
   })
 
   afterEach(() => {
@@ -63,12 +77,54 @@ describe('store/modules/tome.js', () => {
     expect(repository.stage).toHaveBeenCalledTimes(1)
   })
 
+  it('should dispatch message when staged file is an addition on dispatch of stage action', async () => {
+    await store.dispatch('tome/load', '/path/to/repository')
+
+    await store.dispatch('tome/stage', './path.md')
+
+    expect(root_actions.message).toHaveBeenCalledTimes(2)
+  })
+
+  it('should dispatch error when file fails to stage on dispatch of stage action', async () => {
+    repository.stage.mockImplementationOnce((query, callback) => { throw new Error('Error!') })
+
+    await store.dispatch('tome/load', '/path/to/repository')
+
+    try {
+      await store.dispatch('tome/stage', './path.md')
+    } catch (_) {}
+
+    expect(root_actions.error).toHaveBeenCalledTimes(1)
+  })
+
+  it('should dispatch message when staged file is a removal on dispatch of stage action', async () => {
+    repository.stage.mockImplementationOnce((query, notify) => notify('remove', './file.md'))
+
+    await store.dispatch('tome/load', '/path/to/repository')
+
+    await store.dispatch('tome/stage', './path.md')
+
+    expect(root_actions.message).toHaveBeenCalledTimes(2)
+  })
+
   it('should instruct the repository to reset the query on dispatch of reset action', async () => {
     await store.dispatch('tome/load', '/path/to/repository')
 
     await store.dispatch('tome/reset', './path.md')
 
     expect(repository.reset).toHaveBeenCalledTimes(1)
+  })
+
+  it('should dispatch error when file fails to reset on dispatch of reset action', async () => {
+    repository.reset.mockImplementationOnce((query, callback) => { throw new Error('Error!') })
+
+    await store.dispatch('tome/load', '/path/to/repository')
+
+    try {
+      await store.dispatch('tome/reset', './path.md')
+    } catch (_) {}
+
+    expect(root_actions.error).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the repository to run inspect cycle on dispatch of inspect action', async () => {
@@ -115,6 +171,23 @@ describe('store/modules/tome.js', () => {
     expect(repository.commit).toHaveBeenCalledTimes(1)
   })
 
+  it('should clear staging counter on dispatch of commit action', async () => {
+    await store.dispatch('tome/load', '/path/to/repository')
+    await store.dispatch('tome/staging', true)
+
+    const data = {
+      name: 'Test',
+      email: 'text@example.com',
+      message: 'Test Commit'
+    }
+
+    expect(store.state.tome.staging).toBeGreaterThan(0)
+
+    await store.dispatch('tome/commit', data)
+
+    expect(store.state.tome.staging).toEqual(0)
+  })
+
   it('should instruct the repository to store credentials on dispatch of credentials action', async () => {
     await store.dispatch('tome/load', '/path/to/repository')
 
@@ -142,8 +215,54 @@ describe('store/modules/tome.js', () => {
   it('should instruct the repository to push to loaded remote on dispatch of push action', async () => {
     await store.dispatch('tome/load', '/path/to/repository')
 
+    const credentials = {
+      private_key: './test_rsa',
+      public_key: './test_rsa.pub',
+      passphrase: '1234'
+    }
+
+    await store.dispatch('tome/credentials', credentials)
+
+    const url = 'git@git.example.com:remote.git'
+
+    await store.dispatch('tome/remote', url)
+
     await store.dispatch('tome/push')
 
     expect(repository.push).toHaveBeenCalledTimes(1)
+  })
+
+  it('should store metadata file locations on dispatch of metadata action', async () => {
+    const readme = '/readme.md'
+
+    await store.dispatch('tome/metadata', { readme })
+
+    expect(store.state.tome.metadata.readme).toEqual(readme)
+  })
+
+  it('should store metadata file locations on dispatch of metadata action', async () => {
+    const readme = '/readme.md'
+
+    await store.dispatch('tome/metadata', { readme })
+
+    expect(store.state.tome.metadata.readme).toEqual(readme)
+  })
+
+  it('should store signature data on dispatch of signature action', async () => {
+    const name = 'Fred'
+    const email = 'fred@example.com'
+
+    await store.dispatch('tome/signature', { name, email })
+
+    expect(store.state.tome.signature.name).toEqual(name)
+    expect(store.state.tome.signature.email).toEqual(email)
+  })
+
+  it('should store commit message on dispatch of message action', async () => {
+    const message = 'Commit Message'
+
+    await store.dispatch('tome/message', message)
+
+    expect(store.state.tome.message).toEqual(message)
   })
 })

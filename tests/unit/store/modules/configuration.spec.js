@@ -11,9 +11,17 @@ jest.mock('electron', () => ({
   }
 }))
 
-let json
+const fs_callback_json = JSON.stringify({
+  name: 'Test User',
+  email: 'testuser@example.com',
+  private_key: 'id_rsa',
+  public_key: 'id_rsa.pub',
+  passphrase: 'password',
+  format_titles: false,
+  dark_mode: true
+})
 
-const fs_callback = (options, callback) => (options && callback ? callback : options)(null, json)
+const fs_callback = (options, callback) => (options && callback ? callback : options)(null, fs_callback_json)
 const fs_callback_error = (options, callback) => (options && callback ? callback : options)('error!')
 
 const fs = {
@@ -31,6 +39,8 @@ describe('store/modules/configuration.js', () => {
   let localVue
   let store
 
+  let json
+
   beforeEach(() => {
     localVue = createLocalVue()
     localVue.use(Vuex)
@@ -40,15 +50,7 @@ describe('store/modules/configuration.js', () => {
       }
     }))
 
-    json = JSON.stringify({
-      name: 'Test User',
-      email: 'testuser@example.com',
-      private_key: 'id_rsa',
-      public_key: 'id_rsa.pub',
-      passphrase: 'password',
-      format_titles: false,
-      dark_mode: true
-    })
+    json = JSON.stringify(configuration.state)
   })
 
   afterEach(() => {
@@ -103,16 +105,6 @@ describe('store/modules/configuration.js', () => {
   })
 
   it('should save json from provided file when configuration write is dispatched', async () => {
-    const json = JSON.stringify({
-      name: '',
-      email: '',
-      private_key: '',
-      public_key: '',
-      passphrase: '',
-      format_titles: true,
-      dark_mode: true
-    })
-
     await store.dispatch('configuration/write', 'config.json')
 
     expect(fs.writeFile).toHaveBeenCalledTimes(1)

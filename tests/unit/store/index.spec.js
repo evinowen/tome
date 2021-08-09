@@ -55,4 +55,20 @@ describe('src/store/index.js', () => {
   it('should perform initial state setup on dispatch of hydrate action', async () => {
     await store.dispatch('hydrate')
   })
+
+  it('should store message event on dispatch of error action', async () => {
+    expect(store.state.events.length).toBe(0)
+
+    await store.dispatch('message', 'Message!')
+
+    expect(store.state.events.length).toBe(1)
+  })
+
+  it('should store error event on dispatch of error action', async () => {
+    expect(store.state.events.length).toBe(0)
+
+    await store.dispatch('error', 'Error!')
+
+    expect(store.state.events.length).toBe(1)
+  })
 })
