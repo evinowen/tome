@@ -21,7 +21,8 @@
             required small
           ></v-text-field>
           <v-textarea
-            v-model="input.message"
+            :value=message
+            @input=update_message
             :counter="50"
             label="Message"
             required
@@ -77,14 +78,16 @@
           </v-container>
         </div>
         <div ref="base" class="flex-grow-0 pb-3 actions">
-          <v-divider class="mt-4 mb-2"></v-divider>
+          <v-divider class="mb-2"></v-divider>
           <commit-confirm
-            v-model=confirm
+            :value=confirm @input="$emit('confirm', $event)"
             @commit=commit
-            :name="input.name || configuration.name"
-            :email="input.email || configuration.email"
-            :message="input.message"
+            :name="signature.name"
+            :email="signature.email"
+            :message="message"
+            @message=update_message
             :disabled="staged.length < 1"
+            :staging="staging"
             :waiting="working"
           />
           <v-btn color="warning" @click.stop="$emit('close')">
@@ -114,17 +117,17 @@
 </style>
 
 <script>
+import { DateTime } from 'luxon'
 import store from '@/store'
 import CommitList from '@/components/CommitList'
 import CommitConfirm from '@/components/CommitConfirm'
 
 export default {
   props: {
-    value: { type: Boolean, default: false }
+    value: { type: Boolean, default: false },
+    confirm: { type: Boolean, default: false }
   },
   data: () => ({
-    confirm: false,
-    working: false,
     input: {
       name: '',
       email: '',
@@ -136,7 +139,32 @@ export default {
     this.input.name = this.configuration.name
     this.input.email = this.configuration.email
   },
+  watch: {
+    confirm: async function (value) {
+      if (value) {
+        const name = this.input.name || this.configuration.name
+        const email = this.input.email || this.configuration.email
+
+        await store.dispatch('tome/signature', { name, email })
+
+        if (store.state.tome.message === '') {
+          await store.dispatch('tome/message', `Updates for ${DateTime.now().toISODate()}`)
+        }
+
+        this.push = store.state.configuration.auto_push
+      }
+    }
+  },
   computed: {
+    signature: function () {
+      return store.state.tome.signature
+    },
+    message: function () {
+      return store.state.tome.message
+    },
+    staging: function () {
+      return store.state.tome.staging > 0
+    },
     staged: function () {
       return store.state.tome.status.staged
     },
@@ -145,11 +173,17 @@ export default {
     },
     configuration: function () {
       return store.state.configuration
+    },
+    working: function () {
+      return store.state.tome.commit_working
     }
   },
   methods: {
     resize: function () {
       this.offset = this.$refs.list.clientHeight
+    },
+    update_message: async function (message) {
+      await store.dispatch('tome/message', message)
     },
     diff: async function (file) {
       await store.dispatch('tome/diff', { path: file.path })
@@ -163,18 +197,11 @@ export default {
       await store.dispatch('tome/reset', path)
     },
     commit: async function () {
-      this.working = true
+      await store.dispatch('tome/commit')
 
-      const name = this.input.name || this.configuration.name
-      const email = this.input.email || this.configuration.email
-      const message = this.input.message
+      await store.dispatch('tome/message', '')
 
-      await store.dispatch('tome/commit', { name, email, message })
-
-      this.confirm = false
-      this.working = false
-      this.input.message = ''
-
+      this.$emit('confirm', false)
       this.$emit('close')
 
       return true

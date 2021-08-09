@@ -9,10 +9,16 @@ const reset = () => ({
   remotes: [],
   pending: [],
   loaded: false,
+  staging: 0,
   status: {
     available: [],
     staged: []
   },
+  signature: {
+    email: '',
+    name: ''
+  },
+  message: '',
   remote: null,
   repository: null,
   metadata: {
@@ -49,6 +55,13 @@ export default {
       state.status.available = state.repository.available
       state.status.staged = state.repository.staged
     },
+    staging: function (state, advance) {
+      if (advance) {
+        state.staging++
+      } else {
+        state.staging--
+      }
+    },
     remote: function (state) {
       state.remote = state.repository.remote
       state.pending = state.repository.pending
@@ -58,6 +71,15 @@ export default {
     },
     metadata: function (state, data) {
       Object.assign(state.metadata, data)
+    },
+    signature: function (state, data) {
+      const { name, email } = data
+
+      state.signature.name = name
+      state.signature.email = email
+    },
+    message: function (state, message) {
+      state.message = message
     }
   },
   actions: {
@@ -99,11 +121,23 @@ export default {
 
       context.commit('patches')
     },
-    commit: async function (context, data) {
-      const { name, email, message } = data
-      await context.state.repository.commit(name, email, message)
+    commit: async function (context) {
+      context.commit('commit', true)
+
+      const { name, email } = context.state.signature
+      const message = context.state.message
+
+      await context.dispatch('message', `Creating commit "${message}" ...`, { root: true })
+      const oid = await context.state.repository.commit(name, email, message)
+      await context.dispatch('message', `Commit "${message}" ${oid} created`, { root: true })
 
       await context.dispatch('inspect')
+
+      while (context.state.staging) {
+        context.commit('staging', false)
+      }
+
+      context.commit('commit', false)
     },
     credentials: async function (context, credentials) {
       const { private_key, public_key, passphrase } = credentials
@@ -120,6 +154,15 @@ export default {
     },
     metadata: function (context, data) {
       context.commit('metadata', data)
+    },
+    signature: function (context, data) {
+      context.commit('signature', data)
+    },
+    message: function (context, message) {
+      context.commit('message', message)
+    },
+    staging: function (context, advance) {
+      context.commit('staging', advance)
     }
   }
 }
