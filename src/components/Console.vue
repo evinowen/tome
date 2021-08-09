@@ -9,28 +9,56 @@
         <v-icon small>mdi-chevron-down</v-icon>
       </v-btn>
       <div class="output">
-        <pre v-for="(event, index) in events.slice().reverse()" :key=index>{{ event.message }}</pre>
+        <div v-for="(event, index) in events.slice().reverse()" :key=index :class="['log', `event-${event.type}`]">
+          <pre class="pre datetime">{{ event.datetime.toISODate() }}</pre>
+          <pre :class="['pre', `event-${event.type}`, 'px-2']">{{ event.type.padEnd(6) }}</pre>
+          <pre class="pre message">{{ event.message }}</pre>
+        </div>
       </div>
     </v-card>
   </v-bottom-sheet>
 </template>
-
 <style>
-pre {
-  display: block;
+.v-dialog--fullscreen {
+  height: auto;
+  top: 25px;
+  bottom: 18px;
+}
+</style>
+
+<style scoped>
+.log {
   margin: 0;
   padding: 2px 4px 1px;
   border-bottom: 1px dotted rgba(128,128,128,0.5)
 }
 
-pre:hover {
-  background: var(--v-primary-base);
+.log.event-info:hover {
+  background: var(--v-info-base);
 }
 
-.v-dialog--fullscreen {
-  height: auto;
-  top: 25px;
-  bottom: 18px;
+.log.event-info:hover .pre.event-info {
+  color: var(--v-info-lighten4);
+}
+
+.log.event-error:hover {
+  background: var(--v-error-base);
+}
+
+.log.event-error:hover .pre.event-error {
+  color: var(--v-error-lighten4);
+}
+
+.pre {
+  display: inline;
+}
+
+.pre.event-info {
+  color: var(--v-info-base);
+}
+
+.pre.event-error {
+  color: var(--v-error-base);
 }
 
 .output {
@@ -49,8 +77,6 @@ export default {
   props: {
     value: { type: Boolean, default: false }
   },
-  data: () => ({
-  }),
   computed: {
     events: function () {
       return store.state.events
