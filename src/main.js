@@ -6,6 +6,9 @@ import vuetify from '@/plugins/vuetify'
 
 import SplitPane from 'vue-splitpane'
 
+import '@fontsource/montserrat'
+import '@mdi/font/css/materialdesignicons.min.css'
+
 import VueCodemirror from 'vue-codemirror'
 import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/lib/codemirror.css'

@@ -35,7 +35,7 @@
 
 <script>
 import store from '@/store'
-import { remote, shell } from 'electron'
+import { shell } from 'electron'
 import ExplorerNode from './ExplorerNode.vue'
 
 export default {
@@ -47,10 +47,9 @@ export default {
     hold: null
   }),
   mounted: async function () {
-    const fs = remote.require('fs')
-    const path = remote.require('path')
+    const path = window.api.path
 
-    this.remote = { fs, path }
+    this.remote = { path }
   },
   computed: {
     tome: function () {
@@ -110,7 +109,7 @@ export default {
         path = this.remote.path.dirname(target)
       }
 
-      shell.openItem(path)
+      shell.openPath(path)
     },
     edit: async (state) => store.dispatch('files/edit', { path: state.target }),
     create: async function (state) {

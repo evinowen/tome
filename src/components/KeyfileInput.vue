@@ -37,7 +37,10 @@
 </style>
 
 <script>
+import { VIcon, VBtn, VLabel, VContainer } from 'vuetify/lib'
+
 export default {
+  components: { VIcon, VBtn, VLabel, VContainer },
   props: {
     value: { type: String, default: '' },
     label: { type: String, default: '' },

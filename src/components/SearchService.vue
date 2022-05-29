@@ -110,12 +110,13 @@
 </style>
 
 <script>
+import { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VExpandTransition } from 'vuetify/lib'
 import store from '@/store'
-import { remote } from 'electron'
 
 export default {
   name: 'SearchService',
   props: { },
+  components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VExpandTransition },
   data: () => ({
     files: false
   }),
@@ -130,7 +131,7 @@ export default {
     next: _ => store.dispatch('search/next'),
     previous: _ => store.dispatch('search/previous'),
     relative: function (path) {
-      const _path = remote.require('path')
+      const _path = window.api.path
 
       return _path.relative(store.state.tome.path, path)
     },

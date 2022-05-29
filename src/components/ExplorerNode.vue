@@ -194,10 +194,12 @@
 </style>
 
 <script>
+import { VContainer, VLayout, VBtn, VIcon, VFlex, VForm, VTextField } from 'vuetify/lib'
 import store from '@/store'
 
 export default {
   name: 'ExplorerNode',
+  components: { VContainer, VLayout, VBtn, VIcon, VFlex, VForm, VTextField },
   props: {
     uuid: { type: String },
     enabled: { type: Boolean, default: false },

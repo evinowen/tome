@@ -98,10 +98,12 @@ pre {
 </style>
 
 <script>
+import { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider } from 'vuetify/lib'
 import { DateTime } from 'luxon'
 import store from '@/store'
 
 export default {
+  components: { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider },
   props: {
     value: { type: Boolean, default: false }
   },

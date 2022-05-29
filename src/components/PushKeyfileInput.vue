@@ -25,7 +25,10 @@
 </style>
 
 <script>
+import { VContainer, VRow, VCol, VBtn, VIcon } from 'vuetify/lib'
+
 export default {
+  components: { VContainer, VRow, VCol, VBtn, VIcon },
   props: {
     value: { type: String, default: '' },
     stored: { type: String, default: '' },

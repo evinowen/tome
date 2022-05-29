@@ -38,7 +38,7 @@ jest.mock('electron', () => ({
     require: jest.fn()
   },
   shell: {
-    openItem: jest.fn()
+    openPath: jest.fn()
   }
 }))
 
@@ -62,13 +62,6 @@ const path = {
     }
   })
 }
-
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return fs
-    case 'path': return path
-  }
-})
 
 describe('Explorer.vue', () => {
   let vuetify
@@ -361,23 +354,23 @@ describe('Explorer.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
     store.dispatch.mockClear()
 
-    expect(shell.openItem).toHaveBeenCalledTimes(0)
+    expect(shell.openPath).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.open({ path: '/project/third' })
 
-    expect(shell.openItem).toHaveBeenCalledTimes(1)
+    expect(shell.openPath).toHaveBeenCalledTimes(1)
   })
 
   it('should attempt to open directory of file of open method call when parent flag is true', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(shell.openItem).toHaveBeenCalledTimes(0)
+    expect(shell.openPath).toHaveBeenCalledTimes(0)
     expect(path.dirname).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.open({ path: '/project/third', parent: true })
 
-    expect(shell.openItem).toHaveBeenCalledTimes(1)
+    expect(shell.openPath).toHaveBeenCalledTimes(1)
     expect(path.dirname).toHaveBeenCalledTimes(1)
   })
 

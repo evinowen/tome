@@ -12,12 +12,6 @@ remote.app = {
   getPath: jest.fn(() => './test_path')
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'path': return path
-  }
-})
-
 jest.mock('@/store/modules/tome')
 jest.mock('@/store/modules/configuration')
 jest.mock('@/store/modules/library')

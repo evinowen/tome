@@ -55,23 +55,26 @@
 </style>
 
 <script>
+import { VBtn, VDivider, VIcon, VMenu, VList, VListItem, VListItemTitle } from 'vuetify/lib'
 import store from '@/store'
-import { remote } from 'electron'
 
 export default {
+  components: {
+    VBtn,
+    VDivider,
+    VIcon,
+    VMenu,
+    VList,
+    VListItem,
+    VListItemTitle
+  },
   props: {
     value: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false }
   },
   methods: {
     open: async function (event) {
-      const window = remote.BrowserWindow.getFocusedWindow()
-      const options = {
-        title: 'Select Tome Directory',
-        properties: ['openDirectory']
-      }
-
-      const result = await remote.dialog.showOpenDialog(window, options)
+      const result = await window.api.select_directory()
 
       if (result.canceled) {
         return

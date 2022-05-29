@@ -15,12 +15,6 @@ jest.mock('electron', () => ({
 
 }))
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'path': return {}
-  }
-})
-
 jest.mock('@/store', () => ({
   state: {
     tome: {

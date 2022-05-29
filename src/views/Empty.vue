@@ -23,7 +23,10 @@
 </style>
 
 <script>
+import { VContainer, VCol, VRow } from 'vuetify/lib'
+
 export default {
+  components: { VContainer, VCol, VRow },
   props: {
     error: String
   }

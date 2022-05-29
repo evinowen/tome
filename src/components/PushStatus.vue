@@ -136,7 +136,30 @@
 </style>
 
 <script>
+import {
+  VIcon,
+  VListItem,
+  VListItemContent,
+  VListItemTitle,
+  VListItemSubtitle,
+  VListItemAvatar,
+  VCard,
+  VCardText,
+  VDivider
+} from 'vuetify/lib'
+
 export default {
+  components: {
+    VIcon,
+    VListItem,
+    VListItemContent,
+    VListItemTitle,
+    VListItemSubtitle,
+    VListItemAvatar,
+    VCard,
+    VCardText,
+    VDivider
+  },
   props: {
     active: { type: Boolean, default: false },
     loading: { type: Boolean, default: false },

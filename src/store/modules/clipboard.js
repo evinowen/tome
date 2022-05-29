@@ -1,5 +1,3 @@
-import { remote } from 'electron'
-
 export default {
   state: {
     error: null,
@@ -41,8 +39,8 @@ export default {
         return
       }
 
-      const fs = remote.require('fs')
-      const path = remote.require('path')
+      const fs = window.api.fs
+      const path = window.api.path
 
       const source = context.state.content.target
 

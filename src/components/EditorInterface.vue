@@ -105,6 +105,7 @@
 </style>
 
 <script>
+import { VIcon } from 'vuetify/lib'
 import { clipboard } from 'electron'
 import marked from 'marked'
 import Mark from 'mark.js'
@@ -361,6 +362,7 @@ export default {
     }
   },
   components: {
+    VIcon,
     Explorer,
     EmptyView
   }

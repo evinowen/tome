@@ -71,9 +71,11 @@
 </style>
 
 <script>
+import { VIcon, VBtn, VCard, VBottomSheet } from 'vuetify/lib'
 import store from '@/store'
 
 export default {
+  components: { VIcon, VBtn, VCard, VBottomSheet },
   props: {
     value: { type: Boolean, default: false }
   },

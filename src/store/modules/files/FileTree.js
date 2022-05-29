@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import File from './File'
 
 export default class FileTree {
@@ -39,7 +38,7 @@ export default class FileTree {
   }
 
   identify (path) {
-    const _path = remote.require('path')
+    const _path = window.api.path
 
     const relative = _path.relative(this.base.path, path)
     const items = relative.split(_path.sep)

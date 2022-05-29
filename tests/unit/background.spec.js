@@ -60,19 +60,6 @@ describe('background.js', () => {
     expect(win.loadURL.mock.calls[0][0]).toBe('app://./index.html')
   })
 
-  it('should construct the window use the WEBPACK_DEV_SERVER_URL if set for development', () => {
-    process.env.NODE_ENV = 'development'
-    process.env.WEBPACK_DEV_SERVER_URL = 'app://./dev/index.html'
-
-    expect(app.on).toHaveBeenCalledTimes(0)
-
-    jest.isolateModules(() => { require('@/background.js') })
-
-    expect(app.on).toHaveBeenCalledTimes(3)
-    expect(win.loadURL).toHaveBeenCalledTimes(1)
-    expect(win.loadURL.mock.calls[0][0]).toBe('app://./dev/index.html')
-  })
-
   it('should open devtools when WEBPACK_DEV_SERVER_URL is used for setting the server URL', () => {
     process.env.NODE_ENV = 'development'
     process.env.WEBPACK_DEV_SERVER_URL = 'app://./dev/index.html'

@@ -13,12 +13,6 @@ const path = {
   basename: jest.fn(_path_basename)
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'path': return path
-  }
-})
-
 describe('RepositoryPatch.js', () => {
   let patch
   let file

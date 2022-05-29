@@ -115,13 +115,6 @@ const path = {
   extname: jest.fn(path => String(path).substr(String(path).lastIndexOf('.')))
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return fs
-    case 'path': return path
-  }
-})
-
 chokidar.watch = jest.fn((path) => ({
   on: jest.fn((event, callback) => {
     callback(String(path).concat('/x.md'))

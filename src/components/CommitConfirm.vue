@@ -92,7 +92,48 @@
 </style>
 
 <script>
+import {
+  VIcon,
+  VBtn,
+  VSpacer,
+  VProgressCircular,
+  VCard,
+  VCardActions,
+  VRow,
+  VCol,
+  VContainer,
+  VCardText,
+  VDivider,
+  VDialog,
+  VListItem,
+  VListItemTitle,
+  VListItemSubtitle,
+  VListItemAvatar,
+  VListItemContent,
+  VTextarea
+} from 'vuetify/lib'
+
 export default {
+  components: {
+    VIcon,
+    VBtn,
+    VSpacer,
+    VProgressCircular,
+    VCard,
+    VCardActions,
+    VRow,
+    VCol,
+    VContainer,
+    VCardText,
+    VDivider,
+    VDialog,
+    VListItem,
+    VListItemTitle,
+    VListItemSubtitle,
+    VListItemAvatar,
+    VListItemContent,
+    VTextarea
+  },
   props: {
     value: { type: Boolean, default: false },
     name: { type: String, default: '' },

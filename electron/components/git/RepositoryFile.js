@@ -1,4 +1,4 @@
-export default class RepositoryFile {
+class RepositoryFile {
   static Type = {
     NEW: 1,
     MODIFIED: 2,
@@ -12,3 +12,5 @@ export default class RepositoryFile {
     this.type = type || File.Type.UNKNOWN
   }
 }
+
+module.exports = RepositoryFile

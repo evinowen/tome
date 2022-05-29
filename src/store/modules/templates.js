@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import Mustache from 'mustache'
 
 const translate = (input) => {
@@ -38,8 +37,8 @@ export default {
   },
   actions: {
     load: async function (context, { path }) {
-      const _fs = remote.require('fs')
-      const _path = remote.require('path')
+      const _fs = window.api.fs
+      const _path = window.api.path
 
       const base = _path.join(path, '.tome', 'templates')
 
@@ -58,8 +57,8 @@ export default {
       context.commit('load', { path, base, options: files })
     },
     execute: async function (context, { name, target }) {
-      const _fs = remote.require('fs')
-      const _path = remote.require('path')
+      const _fs = window.api.fs
+      const _path = window.api.path
 
       if (context.state.options.indexOf(name) < 0) {
         return

@@ -146,8 +146,8 @@
 </style>
 
 <script>
+import { VIcon, VBtn, VDivider, VSpacer, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
 import store from '@/store'
-import { remote } from 'electron'
 import LibraryButton from './LibraryButton.vue'
 import RepositoryButton from './RepositoryButton.vue'
 
@@ -175,13 +175,7 @@ export default {
       if (path) {
         this.$emit('open', path)
       } else {
-        const window = remote.BrowserWindow.getFocusedWindow()
-        const options = {
-          title: 'Select Tome Directory',
-          properties: ['openDirectory']
-        }
-
-        const result = await remote.dialog.showOpenDialog(window, options)
+        const result = await window.api.select_directory()
 
         if (result.canceled) {
           return
@@ -220,6 +214,13 @@ export default {
   },
 
   components: {
+    VIcon,
+    VBtn,
+    VDivider,
+    VSpacer,
+    VFooter,
+    VExpandXTransition,
+    VSwitch,
     LibraryButton,
     RepositoryButton
   }

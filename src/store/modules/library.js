@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import os from 'os'
 
 export default {
@@ -30,17 +29,18 @@ export default {
   },
   actions: {
     load: async function (context, path) {
-      const fs = remote.require('fs')
       const history = []
 
-      if (fs.existsSync(path)) {
-        const raw = await new Promise((resolve, reject) => fs.readFile(path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
+      if (await window.api.file_exists(path)) {
+        const raw = await window.api.file_contents(path)
 
-        const lines = raw.split(/[\n\r]+/).map(line => line.trim())
+        if (raw) {
+          const lines = raw.split(/[\n\r]+/).map(line => line.trim())
 
-        for (const line of lines) {
-          if (line !== '') {
-            history.push(line)
+          for (const line of lines) {
+            if (line !== '') {
+              history.push(line)
+            }
           }
         }
       }
@@ -62,7 +62,7 @@ export default {
         content += String(path).concat(os.EOL)
       }
 
-      const fs = remote.require('fs')
+      const fs = window.api.fs
 
       await new Promise((resolve, reject) =>
         fs.writeFile(context.state.path, content, (err) => err ? reject(err) : resolve(true))

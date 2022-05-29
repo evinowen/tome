@@ -22,12 +22,6 @@ const path = {
   basename: jest.fn()
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'path': return path
-  }
-})
-
 remote.BrowserWindow = {
   getFocusedWindow: jest.fn(() => focused_window)
 }

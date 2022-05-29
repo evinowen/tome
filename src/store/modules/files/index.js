@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import FileTree from './FileTree'
 import File from './File'
 import chokidar from 'chokidar'
@@ -149,8 +148,8 @@ export default {
       await context.commit('populate', { path })
     },
     ghost: async function (context, { path, directory }) {
-      const _fs = remote.require('fs')
-      const _path = remote.require('path')
+      const _fs = window.api.fs
+      const _path = window.api.path
 
       let parent = path
       let target
@@ -174,7 +173,7 @@ export default {
     save: async function (context) {
       const item = context.state.selected
 
-      const _fs = remote.require('fs')
+      const _fs = window.api.fs
 
       if (item && !item.readonly && !item.directory && !item.clean) {
         item.clean = true
@@ -217,8 +216,8 @@ export default {
       context.commit('blur')
     },
     move: async function (context, { path, proposed }) {
-      const _fs = remote.require('fs')
-      const _path = remote.require('path')
+      const _fs = window.api.fs
+      const _path = window.api.path
 
       let directory = proposed
 
@@ -243,8 +242,8 @@ export default {
       await context.dispatch('populate', { path: directory })
     },
     rename: async function (context, { path, name }) {
-      const _fs = remote.require('fs')
-      const _path = remote.require('path')
+      const _fs = window.api.fs
+      const _path = window.api.path
 
       const directory = _path.dirname(path)
       const proposed = _path.join(directory, name)
@@ -257,8 +256,8 @@ export default {
       await context.dispatch('select', { path: proposed })
     },
     create: async function (context, { path, name, directory }) {
-      const _fs = remote.require('fs')
-      const _path = remote.require('path')
+      const _fs = window.api.fs
+      const _path = window.api.path
 
       const proposed = _path.join(path, name)
 
@@ -276,8 +275,8 @@ export default {
       await context.dispatch('select', { path: proposed })
     },
     delete: async function (context, { path }) {
-      const _fs = remote.require('fs')
-      const _path = remote.require('path')
+      const _fs = window.api.fs
+      const _path = window.api.path
 
       const parent = _path.dirname(path)
 

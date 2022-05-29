@@ -137,12 +137,12 @@ html, body {
 
 <script>
 import store from './store'
-import { remote } from 'electron'
 import { debounce } from 'lodash'
 
 import ContextMenuService from './components/ContextMenuService.vue'
 import SearchService from './components/SearchService.vue'
 
+import { VApp } from 'vuetify/lib'
 import SystemBar from './components/SystemBar.vue'
 import Settings from './components/Settings.vue'
 import Branch from './components/Branch.vue'
@@ -182,10 +182,6 @@ export default {
 
     error: null
   }),
-  created: function () {
-    this.fs = remote.require('fs')
-    this.path = remote.require('path')
-  },
   computed: {
     tome: function () {
       return store.state.tome
@@ -277,6 +273,7 @@ export default {
     }
   },
   components: {
+    VApp,
     SystemBar,
     Settings,
     Branch,

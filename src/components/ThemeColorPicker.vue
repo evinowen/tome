@@ -57,7 +57,10 @@
 </style>
 
 <script>
+import { VCard, VCardTitle, VSwitch, VSkeletonLoader } from 'vuetify/lib'
+
 export default {
+  components: { VCard, VCardTitle, VSwitch, VSkeletonLoader },
   props: {
     enabled: { type: Boolean, required: true },
     value: { type: String, required: true },

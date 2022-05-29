@@ -63,7 +63,9 @@
 </template>
 
 <script>
+import { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer } from 'vuetify/lib'
 export default {
+  components: { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer },
   props: {
     value: { type: Object, default: () => {} },
     items: { type: Array, default: () => [] }

@@ -57,7 +57,10 @@
 </style>
 
 <script>
+import { VCard, VIcon, VBtn, VSpacer, VTextField, VSwitch, VCardActions, VCardText, VListItem, VListItemAvatar, VListItemTitle, VListItemSubtitle, VListItemContent } from 'vuetify/lib'
+
 export default {
+  components: { VCard, VIcon, VBtn, VSpacer, VTextField, VSwitch, VCardActions, VCardText, VListItem, VListItemAvatar, VListItemTitle, VListItemSubtitle, VListItemContent },
   data: () => ({
     error: false
   })

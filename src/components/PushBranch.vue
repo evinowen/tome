@@ -9,7 +9,10 @@
 </template>
 
 <script>
+import { VCard, VCardText } from 'vuetify/lib'
+
 export default {
+  components: { VCard, VCardText },
   props: {
     name: { type: String, default: null },
     url: { type: String, default: null },

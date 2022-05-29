@@ -41,13 +41,6 @@ const path = {
   parse: jest.fn(path => '/directory')
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return fs
-    case 'path': return path
-  }
-})
-
 describe('store/modules/clipboard.js', () => {
   let localVue
   let store

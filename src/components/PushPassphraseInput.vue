@@ -35,7 +35,10 @@
 </style>
 
 <script>
+import { VContainer, VRow, VCol, VBtn, VIcon, VTextField } from 'vuetify/lib'
+
 export default {
+  components: { VContainer, VRow, VCol, VBtn, VIcon, VTextField },
   props: {
     value: { type: String, default: '' },
     stored: { type: String, default: '' }

@@ -22,13 +22,6 @@ const path = {
   join: jest.fn((first, second) => String(first).replace(/\/$/g, '').concat('/').concat(String(second).replace(/^\/|\/$/g, '')))
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return fs
-    case 'path': return path
-  }
-})
-
 jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {}, Diff: { LINE: 1 } }))
 
 const nodegit_references = [

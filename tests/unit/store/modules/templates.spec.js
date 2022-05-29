@@ -90,13 +90,6 @@ const _path = {
   relative: jest.fn(_path_relative)
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return _fs
-    case 'path': return _path
-  }
-})
-
 describe('store/modules/templates', () => {
   let localVue
   let store

@@ -32,18 +32,11 @@ const path = {
   isAbsolute: jest.fn()
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return fs
-    case 'path': return path
-  }
-})
-
 remote.app = {
   getPath: jest.fn(() => '/root/')
 }
 
-shell.openItem = jest.fn()
+shell.openPath = jest.fn()
 
 store.state = {
   tome: {

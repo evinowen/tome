@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import Vuetify from '@/plugins/vuetify'
 
 const default_colors = {}
@@ -53,7 +52,8 @@ export default {
   },
   actions: {
     load: async function (context, target) {
-      const fs = remote.require('fs')
+      const fs = window.api.fs
+
       const raw = await new Promise((resolve, reject) =>
         fs.readFile(
           target,
@@ -74,7 +74,8 @@ export default {
       await context.dispatch('present')
     },
     write: async function (context, path) {
-      const fs = remote.require('fs')
+      const fs = window.api.fs
+
       await new Promise((resolve, reject) =>
         fs.writeFile(
           path,
@@ -119,7 +120,7 @@ export default {
         if (context.state[`${theme}_${color}_enabled`]) {
           Vuetify.framework.theme.themes[theme][color] = context.state[`${theme}_${color}`]
         } else {
-          Vuetify.framework.theme.themes.[theme][color] = default_colors[theme][color]
+          Vuetify.framework.theme.themes[theme][color] = default_colors[theme][color]
         }
       }
     }

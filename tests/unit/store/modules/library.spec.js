@@ -21,12 +21,6 @@ const fs_read_results = [
   './first_path', './second_path', './third_path'
 ]
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return fs
-  }
-})
-
 describe('store/modules/library.js', () => {
   let localVue
   let store

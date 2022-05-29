@@ -1,14 +1,10 @@
-import { remote } from 'electron'
-import NodeGit from 'nodegit'
+const NodeGit = require('nodegit')
+const _path = require('path')
 
-export default class RepositoryPatch {
+class RepositoryPatch {
   static LineType = NodeGit.Diff.LINE
 
   constructor () {
-    this._ = {
-      path: remote.require('path')
-    }
-
     this.name = ''
     this.path = ''
     this.lines = []
@@ -27,7 +23,7 @@ export default class RepositoryPatch {
       this.path = `${old_file_path} => ${new_file_path}`
     }
 
-    this.name = this._.path.basename(new_file_path)
+    this.name = _path.basename(new_file_path)
 
     const hunks = await patch.hunks()
     for (const hunk of hunks) {
@@ -46,3 +42,5 @@ export default class RepositoryPatch {
     }
   }
 }
+
+module.exports = RepositoryPatch

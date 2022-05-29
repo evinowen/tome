@@ -60,10 +60,12 @@ pre {
 </style>
 
 <script>
+import { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon } from 'vuetify/lib'
+
 import store from '@/store'
-import RepositoryPatch from '@/store/modules/tome/RepositoryPatch'
 
 export default {
+  components: { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon },
   props: {
     value: { type: Boolean, default: false }
   },
@@ -77,24 +79,24 @@ export default {
   methods: {
     line_color: function (type) {
       switch (type) {
-        case RepositoryPatch.LineType.HUNK_HDR:
-          return 'blue--text'
-        case RepositoryPatch.LineType.ADDITION:
-          return 'green--text'
-        case RepositoryPatch.LineType.DELETION:
-          return 'red--text'
+        // case RepositoryPatch.LineType.HUNK_HDR:
+        //   return 'blue--text'
+        // case RepositoryPatch.LineType.ADDITION:
+        //   return 'green--text'
+        // case RepositoryPatch.LineType.DELETION:
+        //   return 'red--text'
         default:
           return ''
       }
     },
     line_prefix: function (type) {
       switch (type) {
-        case RepositoryPatch.LineType.HUNK_HDR:
-          return ''
-        case RepositoryPatch.LineType.ADDITION:
-          return '+ '
-        case RepositoryPatch.LineType.DELETION:
-          return '- '
+        // case RepositoryPatch.LineType.HUNK_HDR:
+        //   return ''
+        // case RepositoryPatch.LineType.ADDITION:
+        //   return '+ '
+        // case RepositoryPatch.LineType.DELETION:
+        //   return '- '
         default:
           return '  '
       }

@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import { v4 as uuidv4 } from 'uuid'
 
 export default class File {
@@ -25,7 +24,7 @@ export default class File {
     })
 
     if (!this.directory && this.path) {
-      const _path = remote.require('path')
+      const _path = window.api.path
       this.extension = _path.extname(this.path).toLowerCase()
 
       if (this.extension !== '.md') {
@@ -61,11 +60,11 @@ export default class File {
   }
 
   read () {
-    const _fs = remote.require('fs')
+    const _fs = window.api.fs
 
     const content = _fs.readFileSync(this.path, 'utf8')
 
-    const _path = remote.require('path')
+    const _path = window.api.path
 
     this.document = {
       path: this.path,
@@ -75,7 +74,7 @@ export default class File {
   }
 
   populate () {
-    const _fs = remote.require('fs')
+    const _fs = window.api.fs
 
     const dirents = _fs.readdirSync(this.path, { withFileTypes: true })
 
@@ -115,7 +114,7 @@ export default class File {
   }
 
   static convert (dirent, parent) {
-    const _path = remote.require('path')
+    const _path = window.api.path
 
     const instance = new File({
       name: dirent.name,

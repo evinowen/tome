@@ -251,6 +251,7 @@
 </style>
 
 <script>
+import { VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/lib'
 import { debounce } from 'lodash'
 import store from '@/store'
 import ThemePreview from './ThemePreview.vue'
@@ -290,6 +291,14 @@ export default {
     }
   },
   components: {
+    VCol,
+    VRow,
+    VBtn,
+    VDivider,
+    VContainer,
+    VSwitch,
+    VTextField,
+    VNavigationDrawer,
     KeyfileInput,
     ThemePreview,
     ThemeColorPicker

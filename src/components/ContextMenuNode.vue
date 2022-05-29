@@ -77,8 +77,11 @@
 </style>
 
 <script>
+import { VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VDivider, VMenu } from 'vuetify/lib'
+
 export default {
   name: 'ContextMenuNode',
+  components: { VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VDivider, VMenu },
   props: {
     value: { type: Boolean, default: false },
     title: { type: String, default: null },

@@ -50,7 +50,9 @@
 </style>
 
 <script>
+import { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu } from 'vuetify/lib'
 export default {
+  components: { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu },
   props: {
     name: { type: String, default: '' },
     path: { type: String, default: '' },

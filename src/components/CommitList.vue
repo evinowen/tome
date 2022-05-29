@@ -76,9 +76,25 @@
 </style>
 
 <script>
-import RepositoryFile from '@/store/modules/tome/RepositoryFile'
+import { VDataTable, VCard, VCardTitle, VBtn, VIcon } from 'vuetify/lib'
+
+class RepositoryFile {
+  static Type = {
+    NEW: 1,
+    MODIFIED: 2,
+    RENAMED: 3,
+    DELETED: 4,
+    UNKNOWN: 0
+  }
+
+  constructor (path, type) {
+    this.path = path
+    this.type = type || File.Type.UNKNOWN
+  }
+}
 
 export default {
+  components: { VDataTable, VCard, VCardTitle, VBtn, VIcon },
   props: {
     title: { type: String, default: 'List' },
     items: { type: Array, default: () => [] },

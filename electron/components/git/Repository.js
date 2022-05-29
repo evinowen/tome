@@ -1,17 +1,14 @@
-import { remote } from 'electron'
-import NodeGit from 'nodegit'
-import RepositoryFile from './RepositoryFile'
-import RepositoryPatch from './RepositoryPatch'
+const NodeGit = require('nodegit')
+const RepositoryFile = require('./RepositoryFile')
+const RepositoryPatch = require('./RepositoryPatch')
 
-export default class Repository {
+const _path = require('path')
+const _fs = require('fs')
+
+class Repository {
   constructor (path) {
-    this._ = {
-      fs: remote.require('fs'),
-      path: remote.require('path')
-    }
-
     this.path = path
-    this.name = this._.path.basename(this.path)
+    this.name = _path.basename(this.path)
 
     this.repository = null
     this.branch = null
@@ -54,21 +51,26 @@ export default class Repository {
   }
 
   async load () {
+    console.log('loadOpenOrInit')
     await this.loadOpenOrInit()
 
+    console.log('validateRepositoryCondition')
     this.validateRepositoryCondition()
 
+    console.log('loadHistory')
     await this.loadHistory()
 
+    console.log('loadRemotes')
     await this.loadRemotes()
 
+    console.log('loadBranch')
     await this.loadBranch()
   }
 
   async loadOpenOrInit () {
-    const path = this._.path.join(this.path, '.git')
+    const path = _path.join(this.path, '.git')
 
-    if (this._.fs.existsSync(path)) {
+    if (_fs.existsSync(path)) {
       this.repository = await NodeGit.Repository.open(this.path)
     } else {
       this.repository = await NodeGit.Repository.init(this.path, 0)
@@ -94,7 +96,8 @@ export default class Repository {
   }
 
   async loadHistory () {
-    let commit = await this.repository.getBranchCommit(await this.repository.head())
+    // let commit = await this.repository.getBranchCommit(await this.repository.head())
+    let commit = await this.repository.getBranchCommit('master')
 
     this.history = []
 
@@ -119,21 +122,23 @@ export default class Repository {
     this.remotes = list.map(remote => ({
       name: remote.name(),
       url: remote.url(),
-      object: remote
+      // object: remote
     }))
   }
 
   async loadBranch () {
     if (this.repository.headUnborn()) {
+      console.log('unborn')
       this.loadUnbornBranch()
     } else {
+      console.log('born!')
       await this.loadBornBranch()
     }
   }
 
   loadUnbornBranch () {
-    const head_path = this._.path.join(this.path, '.git', 'HEAD')
-    const head_raw = this._.fs.readFileSync(head_path, 'utf8')
+    const head_path = _path.join(this.path, '.git', 'HEAD')
+    const head_raw = _fs.readFileSync(head_path, 'utf8')
 
     let head_line_index = head_raw.length
 
@@ -167,14 +172,14 @@ export default class Repository {
 
     this.pending = []
 
-    await this.remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.generateConnectionHooks())
+    // await this.remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.generateConnectionHooks())
 
-    const references = await this.remote.object.referenceList()
+    // const references = await this.remote.object.referenceList()
 
-    this.remote.branch = this.matchRemoteBranchReference(references)
+    // this.remote.branch = this.matchRemoteBranchReference(references)
 
-    let local_commit = await this.repository.getReferenceCommit(this.branch)
-    const remote_commit = await this.repository.getCommit(this.remote.branch.object.oid())
+    // let local_commit = await this.repository.getReferenceCommit(this.branch)
+    // const remote_commit = await this.repository.getCommit(this.remote.branch.object.oid())
 
     this.ahead = false
 
@@ -318,9 +323,9 @@ export default class Repository {
   }
 
   async stagePath (index, path, notify) {
-    const absolute_path = this._.path.join(this.path, path)
+    const absolute_path = _path.join(this.path, path)
 
-    if (this._.fs.existsSync(absolute_path)) {
+    if (_fs.existsSync(absolute_path)) {
       if (notify) {
         notify('add', path)
       }
@@ -386,3 +391,5 @@ export default class Repository {
     }
   }
 }
+
+module.exports = Repository

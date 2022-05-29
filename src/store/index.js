@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import { DateTime } from 'luxon'
-import { remote } from 'electron'
 
 import tome from './modules/tome'
 import library from './modules/library'
@@ -44,9 +43,9 @@ export default new Vuex.Store({
   },
   actions: {
     hydrate: async function (context) {
-      const path = remote.require('path')
+      const path = window.api.path
 
-      const application_path = remote.app.getPath('userData')
+      const application_path = await window.api.app_getPath('userData')
       const configuration_path = path.join(application_path, 'config.json')
       const library_path = path.join(application_path, 'library.json')
 

@@ -29,12 +29,6 @@ const fs = {
   writeFile: jest.fn((file, data, options, callback) => fs_callback(options, callback))
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return fs
-  }
-})
-
 describe('store/modules/configuration.js', () => {
   let localVue
   let store

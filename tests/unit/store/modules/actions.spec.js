@@ -65,13 +65,6 @@ const _path = {
   join: jest.fn((...list) => list.join('/').replace(/^\/|\/$/g, ''))
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return _fs
-    case 'path': return _path
-  }
-})
-
 describe('store/modules/actions', () => {
   let localVue
   let store

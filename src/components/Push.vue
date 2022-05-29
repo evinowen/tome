@@ -91,6 +91,7 @@
 </style>
 
 <script>
+import { VNavigationDrawer, VContainer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCol, VRow } from 'vuetify/lib'
 import store from '@/store'
 import PushKeyfileInput from './PushKeyfileInput.vue'
 import PushPassphraseInput from './PushPassphraseInput.vue'
@@ -211,6 +212,15 @@ export default {
     }
   },
   components: {
+    VNavigationDrawer,
+    VContainer,
+    VDivider,
+    VBtn,
+    VIcon,
+    VCard,
+    VCardTitle,
+    VCol,
+    VRow,
     PushKeyfileInput,
     PushPassphraseInput,
     PushRemoteSelector,

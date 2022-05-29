@@ -52,10 +52,11 @@
 </style>
 
 <script>
-import { remote } from 'electron'
+import { VBtn, VIcon, VSystemBar, VSpacer } from 'vuetify/lib'
 import store from '@/store'
 
 export default {
+  components: { VBtn, VIcon, VSystemBar, VSpacer },
   props: {
     title: { type: String, default: '' }
   },
@@ -66,9 +67,8 @@ export default {
   }),
 
   mounted: async function () {
-    const window = remote.getCurrentWindow()
-
-    this.maximized = window.isMaximized()
+    this.maximized = await window.api.is_window_maximized()
+    console.log(window.api)
   },
 
   computed: {
@@ -78,36 +78,28 @@ export default {
   },
 
   methods: {
-    minimize: function (event) {
-      const window = remote.BrowserWindow.getFocusedWindow()
-
-      window.minimize()
+    minimize: async function (event) {
+      await window.api.minimize_window()
 
       this.$emit('minimized')
     },
 
-    maximize: function (event) {
-      const window = remote.BrowserWindow.getFocusedWindow()
-
-      if (window.isMaximized()) {
-        window.restore()
-
+    maximize: async function (event) {
+      if (await window.api.is_window_maximized()) {
+        await window.api.restore_window()
         this.maximized = false
 
         this.$emit('restored')
       } else {
-        window.maximize()
-
+        await window.api.maximize_window()
         this.maximized = true
 
         this.$emit('maximized')
       }
     },
 
-    close: function (event) {
-      const window = remote.BrowserWindow.getFocusedWindow()
-
-      window.close()
+    close: async function (event) {
+      await window.api.close_window()
 
       this.$emit('closed')
     }

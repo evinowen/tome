@@ -95,7 +95,40 @@
 </style>
 
 <script>
+import {
+  VContainer,
+  VDialog,
+  VBtn,
+  VSpacer,
+  VProgressCircular,
+  VIcon,
+  VCard,
+  VCardActions,
+  VDataTable,
+  VListItem,
+  VListItemTitle,
+  VListItemSubtitle,
+  VListItemAvatar,
+  VListItemContent
+} from 'vuetify/lib'
+
 export default {
+  components: {
+    VContainer,
+    VDialog,
+    VBtn,
+    VSpacer,
+    VProgressCircular,
+    VIcon,
+    VCard,
+    VCardActions,
+    VDataTable,
+    VListItem,
+    VListItemTitle,
+    VListItemSubtitle,
+    VListItemAvatar,
+    VListItemContent
+  },
   props: {
     value: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },

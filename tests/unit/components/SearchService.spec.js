@@ -16,12 +16,6 @@ const _path = {
   relative: jest.fn()
 }
 
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'path': return _path
-  }
-})
-
 Vue.use(Vuetify)
 
 jest.mock('@/store', () => ({

@@ -119,6 +119,17 @@
 </style>
 
 <script>
+import {
+  VContainer,
+  VIcon,
+  VBtn,
+  VRow,
+  VCol,
+  VDivider,
+  VNavigationDrawer,
+  VTextField,
+  VTextarea
+} from 'vuetify/lib'
 import { DateTime } from 'luxon'
 import store from '@/store'
 import CommitList from '@/components/CommitList'
@@ -213,6 +224,15 @@ export default {
     }
   },
   components: {
+    VContainer,
+    VIcon,
+    VBtn,
+    VRow,
+    VCol,
+    VDivider,
+    VNavigationDrawer,
+    VTextField,
+    VTextarea,
     CommitList,
     CommitConfirm
   }
