@@ -42,28 +42,35 @@ class Repository {
       passphrase: this.passphrase
     }
 
-    return {
-      credentials: function (url, username) {
-        return NodeGit.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase)
-      },
+    const hooks = {
+      certificateCheck_break: 10,
       certificateCheck: () => 0
     }
+
+    if (this.private_key) {
+      hooks.credentials = function (url, username) {
+        if (credentials.private_key) {
+          if (!hooks.certificateCheck_break--) {
+            throw new Error('hook.certificateCheck_break exceeded')
+          }
+
+          return NodeGit.Credential.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase)
+        }
+      }
+    }
+
+    return hooks
   }
 
   async load () {
-    console.log('loadOpenOrInit')
     await this.loadOpenOrInit()
 
-    console.log('validateRepositoryCondition')
     this.validateRepositoryCondition()
 
-    console.log('loadHistory')
     await this.loadHistory()
 
-    console.log('loadRemotes')
     await this.loadRemotes()
 
-    console.log('loadBranch')
     await this.loadBranch()
   }
 
@@ -96,8 +103,7 @@ class Repository {
   }
 
   async loadHistory () {
-    // let commit = await this.repository.getBranchCommit(await this.repository.head())
-    let commit = await this.repository.getBranchCommit('master')
+    let commit = await this.repository.getBranchCommit(await this.repository.head())
 
     this.history = []
 
@@ -121,17 +127,19 @@ class Repository {
 
     this.remotes = list.map(remote => ({
       name: remote.name(),
-      url: remote.url(),
-      // object: remote
+      url: remote.url()
     }))
+
+    this.remote_map = new Map()
+    for (const remote of list) {
+      this.remote_map[remote.name()] = remote
+    }
   }
 
   async loadBranch () {
     if (this.repository.headUnborn()) {
-      console.log('unborn')
       this.loadUnbornBranch()
     } else {
-      console.log('born!')
       await this.loadBornBranch()
     }
   }
@@ -169,17 +177,23 @@ class Repository {
 
   async loadRemoteBranch (url) {
     this.remote = this.remotes.find(remote => remote.url === url)
+    this.remote_object = this.remote_map[this.remote.name]
+    this.remote_branch = null
 
     this.pending = []
 
-    // await this.remote.object.connect(NodeGit.Enums.DIRECTION.FETCH, this.generateConnectionHooks())
+    await this.remote_object.connect(NodeGit.Enums.DIRECTION.FETCH, this.generateConnectionHooks())
 
-    // const references = await this.remote.object.referenceList()
+    const references = await this.remote_object.referenceList()
 
-    // this.remote.branch = this.matchRemoteBranchReference(references)
+    this.remote_branch = this.matchRemoteBranchReference(references)
+    this.remote.branch = {
+      name: this.remote_branch.name,
+      short: this.remote_branch.short
+    }
 
-    // let local_commit = await this.repository.getReferenceCommit(this.branch)
-    // const remote_commit = await this.repository.getCommit(this.remote.branch.object.oid())
+    let local_commit = await this.repository.getReferenceCommit(this.branch)
+    const remote_commit = await this.repository.getCommit(this.remote_branch.object.oid())
 
     this.ahead = false
 
@@ -387,7 +401,7 @@ class Repository {
         callbacks: this.generateConnectionHooks()
       }
 
-      await this.remote.object.push([refspec], options)
+      await this.remote_object.push([refspec], options)
     }
   }
 }

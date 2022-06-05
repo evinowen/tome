@@ -106,7 +106,7 @@ export default {
       let path = target
 
       if (parent) {
-        path = this.remote.path.dirname(target)
+        path = window.api.path_dirname(target)
       }
 
       shell.openPath(path)

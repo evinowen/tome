@@ -145,7 +145,10 @@ import {
   VListItemAvatar,
   VCard,
   VCardText,
-  VDivider
+  VDivider,
+  VContainer,
+  VDataTable,
+  VBtn
 } from 'vuetify/lib'
 
 export default {
@@ -158,7 +161,10 @@ export default {
     VListItemAvatar,
     VCard,
     VCardText,
-    VDivider
+    VDivider,
+    VContainer,
+    VDataTable,
+    VBtn
   },
   props: {
     active: { type: Boolean, default: false },

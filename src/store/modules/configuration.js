@@ -52,16 +52,7 @@ export default {
   },
   actions: {
     load: async function (context, target) {
-      const fs = window.api.fs
-
-      const raw = await new Promise((resolve, reject) =>
-        fs.readFile(
-          target,
-          'utf8',
-          (err, data) => err ? reject(err) : resolve(data)
-        )
-      )
-
+      const raw = await window.api.file_contents(target)
       const data = JSON.parse(raw) || {}
 
       context.commit('set', data)
@@ -74,16 +65,7 @@ export default {
       await context.dispatch('present')
     },
     write: async function (context, path) {
-      const fs = window.api.fs
-
-      await new Promise((resolve, reject) =>
-        fs.writeFile(
-          path,
-          JSON.stringify(context.state),
-          'utf8',
-          (err) => err ? reject(err) : resolve()
-        )
-      )
+      await window.api.file_write(path, JSON.stringify(context.state))
     },
     present: async function (context) {
       Vuetify.framework.theme.dark = context.state.dark_mode

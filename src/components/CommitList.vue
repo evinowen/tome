@@ -76,7 +76,7 @@
 </style>
 
 <script>
-import { VDataTable, VCard, VCardTitle, VBtn, VIcon } from 'vuetify/lib'
+import { VDataTable, VCard, VCardTitle, VBtn, VIcon, Resize } from 'vuetify/lib'
 
 class RepositoryFile {
   static Type = {
@@ -85,11 +85,6 @@ class RepositoryFile {
     RENAMED: 3,
     DELETED: 4,
     UNKNOWN: 0
-  }
-
-  constructor (path, type) {
-    this.path = path
-    this.type = type || File.Type.UNKNOWN
   }
 }
 
@@ -159,6 +154,9 @@ export default {
 
       return ''
     }
+  },
+  directives: {
+    Resize
   }
 }
 </script>

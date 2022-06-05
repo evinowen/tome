@@ -39,62 +39,9 @@ export default {
         return
       }
 
-      const fs = window.api.fs
-      const path = window.api.path
-
       const source = context.state.content.target
 
-      // Determine the directory where the file will go
-      let directory = content.target
-      try {
-        // Load the file status of the target to determine if
-        // a file or directory is being targetted.
-        const status = await new Promise((resolve, reject) => fs.lstat(content.target, (err, status) => err ? reject(err) : resolve(status)))
-
-        if (!status.isDirectory()) {
-          // The destination is a file, use the parent
-          // directory of the file
-          directory = path.dirname(content.target)
-        }
-      } catch (error) {
-        // The destination does not exist
-        return context.commit('error', { message: 'Destination does not exist', object: error })
-      }
-
-      // Abort if the new directory and the source directory
-      // are the same
-      if (directory === path.dirname(source)) {
-        return context.commit('error', { message: 'Invalid move, same directory' })
-      }
-
-      // Determine the basename of the source file
-      const basename = path.basename(source)
-      const parsed = path.parse(source)
-
-      // Use the file basename to construct an available file name
-      let increment = 0
-      let destination = path.join(directory, basename)
-
-      while (await new Promise((resolve, reject) => fs.access(destination, (err) => err ? resolve(false) : resolve(true)))) {
-        increment++
-        destination = path.join(directory, `${parsed.name}.${increment}${parsed.ext}`)
-      }
-
-      try {
-        switch (context.state.action) {
-          case 'cut':
-            await new Promise((resolve, reject) => fs.rename(source, destination, (error) => error ? reject(error) : resolve(true)))
-            context.commit('clear')
-            break
-
-          case 'copy':
-            await new Promise((resolve, reject) => fs.copyFile(source, destination, 0, (error) => error ? reject(error) : resolve(true)))
-            break
-        }
-      } catch (error) {
-        context.commit('error', { message: 'Failed to execute action', object: error })
-        throw error
-      }
+      await window.api.clipboard_paste(context.state.action, source, content.target)
     }
   }
 }

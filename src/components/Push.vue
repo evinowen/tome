@@ -180,6 +180,10 @@ export default {
       await store.dispatch('tome/create-remote', { name, url })
     },
     select_remote: async function (remote) {
+      if (!remote) {
+        return
+      }
+
       this.input.remotes.value = remote
 
       this.input.branch.reference = null

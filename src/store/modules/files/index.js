@@ -1,6 +1,6 @@
 import FileTree from './FileTree'
 import File from './File'
-import chokidar from 'chokidar'
+// import chokidar from 'chokidar'
 
 export default {
   namespaced: true,
@@ -15,18 +15,15 @@ export default {
     watcher: null
   },
   mutations: {
-    initialize: function (state, data) {
-      const { path } = data
-
-      state.tree = new FileTree(path)
-
+    initialize: function (state, tree) {
       if (state.watcher) {
         state.watcher.close()
       }
 
+      state.tree = tree
       state.tree.crawl()
 
-      state.watcher = chokidar.watch(path).on('change', (event, path) => state.tree.crawl())
+      // state.watcher = chokidar.watch(path).on('change', (event, path) => state.tree.crawl())
     },
     load: function (state, data) {
       const { path } = data
@@ -38,20 +35,13 @@ export default {
 
       state.tree.populate(path)
     },
-    toggle: function (state, data) {
-      const { path } = data
-
-      const { item } = state.tree.identify(path)
-
+    toggle: function (state, item) {
       item.expanded = !item.expanded
     },
     select: function (state, data) {
-      const { path } = data
+      const { path, item } = data
 
       state.active = path
-
-      const { item } = state.tree.identify(path)
-
       state.selected = item
 
       if (!item.directory) {
@@ -79,11 +69,10 @@ export default {
       }
     },
     ghost: function (state, data) {
-      const { parent, target, directory } = data
-
-      const { item } = state.tree.identify(parent)
+      const { item, target, directory } = data
 
       let ancestor = item
+
       const legacy = []
 
       while (ancestor) {
@@ -130,16 +119,18 @@ export default {
   },
   actions: {
     initialize: async function (context, { path }) {
-      await context.commit('initialize', { path })
+      const tree = await FileTree.make(path)
+
+      await context.commit('initialize', tree)
     },
     toggle: async function (context, { path }) {
-      const { item } = context.state.tree.identify(path)
+      const { item } = await context.state.tree.identify(path)
 
       if (!item.expanded) {
         await context.dispatch('load', { path })
       }
 
-      await context.commit('toggle', { path })
+      await context.commit('toggle', item)
     },
     load: async function (context, { path }) {
       await context.commit('load', { path })
@@ -148,24 +139,23 @@ export default {
       await context.commit('populate', { path })
     },
     ghost: async function (context, { path, directory }) {
-      const _fs = window.api.fs
-      const _path = window.api.path
-
       let parent = path
       let target
 
-      const status = await new Promise((resolve, reject) => _fs.lstat(path, (err, status) => err ? reject(err) : resolve(status)))
-
-      if (!status.isDirectory()) {
-        target = _path.basename(path)
-        parent = _path.dirname(path)
+      if (!await window.api.file_is_directory(path)) {
+        target = await window.api.path_basename(path)
+        parent = await window.api.path_dirname(path)
       }
 
-      await context.commit('ghost', { parent, target, directory })
+      const { item } = await context.state.tree.identify(parent)
+
+      await context.commit('ghost', { item, target, directory })
     },
     select: async function (context, { path }) {
+      const { item } = await context.state.tree.identify(path)
+
       await context.dispatch('save')
-      await context.commit('select', { path })
+      await context.commit('select', { path, item })
     },
     update: async function (context, { content }) {
       await context.commit('update', { content })
@@ -173,11 +163,9 @@ export default {
     save: async function (context) {
       const item = context.state.selected
 
-      const _fs = window.api.fs
-
       if (item && !item.readonly && !item.directory && !item.clean) {
         item.clean = true
-        await new Promise((resolve, reject) => _fs.writeFile(context.state.active, context.state.content, err => err ? reject(err) : resolve(true)))
+        await window.api.file_write(context.state.active, context.state.content)
       }
     },
     submit: async function (context, { input, title }) {
@@ -216,39 +204,31 @@ export default {
       context.commit('blur')
     },
     move: async function (context, { path, proposed }) {
-      const _fs = window.api.fs
-      const _path = window.api.path
-
       let directory = proposed
 
-      const status = await new Promise((resolve, reject) => _fs.lstat(proposed, (err, status) => err ? reject(err) : resolve(status)))
-
-      if (!status.isDirectory()) {
-        directory = _path.dirname(proposed)
+      if (!await window.api.file_is_directory(proposed)) {
+        directory = window.api.path_dirname(proposed)
       }
 
-      const basename = _path.basename(path)
-      const proposed_full = _path.join(directory, basename)
-      const directory_current = _path.dirname(path)
+      const basename = window.api.path_basename(path)
+      const proposed_full = window.api.path_join(directory, basename)
+      const directory_current = window.api.path_dirname(path)
 
       if (directory === directory_current) {
         await context.commit('error', { error: 'Invalid move, same directory.' })
         return
       }
 
-      await new Promise((resolve, reject) => _fs.rename(path, proposed_full, (err) => err ? reject(err) : resolve(true)))
+      await window.api.rename(path, proposed_full)
 
       await context.dispatch('populate', { path: directory_current })
       await context.dispatch('populate', { path: directory })
     },
     rename: async function (context, { path, name }) {
-      const _fs = window.api.fs
-      const _path = window.api.path
+      const directory = window.api.path_dirname(path)
+      const proposed = window.api.path_join(directory, name)
 
-      const directory = _path.dirname(path)
-      const proposed = _path.join(directory, name)
-
-      await new Promise((resolve, reject) => _fs.rename(path, proposed, (err) => err ? reject(err) : resolve(true)))
+      await window.api.rename(path, proposed)
 
       await context.dispatch('load', { path: directory })
       await context.dispatch('load', { path: proposed })
@@ -256,18 +236,9 @@ export default {
       await context.dispatch('select', { path: proposed })
     },
     create: async function (context, { path, name, directory }) {
-      const _fs = window.api.fs
-      const _path = window.api.path
+      const proposed = await window.api.path_join(path, name)
 
-      const proposed = _path.join(path, name)
-
-      await new Promise((resolve, reject) => _fs.access(proposed, (err) => err ? resolve(true) : reject(new Error('File already exists'))))
-
-      if (directory) {
-        await new Promise((resolve, reject) => _fs.mkdir(proposed, (err) => err ? reject(err) : resolve(true)))
-      } else {
-        await new Promise((resolve, reject) => _fs.writeFile(proposed, '', (err) => err ? reject(err) : resolve(true)))
-      }
+      await window.api.file_create(proposed, directory)
 
       await context.dispatch('load', { path })
       await context.dispatch('load', { path: proposed })
@@ -275,25 +246,9 @@ export default {
       await context.dispatch('select', { path: proposed })
     },
     delete: async function (context, { path }) {
-      const _fs = window.api.fs
-      const _path = window.api.path
+      const parent = window.api.path_dirname(path)
 
-      const parent = _path.dirname(path)
-
-      const unlink = async (path) => {
-        const status = await new Promise((resolve, reject) => _fs.lstat(path, (err, status) => err ? reject(err) : resolve(status)))
-        if (status.isDirectory()) {
-          const files = await new Promise((resolve, reject) => _fs.readdir(path, (err, status) => err ? reject(err) : resolve(status)))
-
-          for (const file of files) {
-            await unlink(_path.join(path, file))
-          }
-        }
-
-        await new Promise((resolve, reject) => _fs.unlink(path, (err) => err ? reject(err) : resolve(true)))
-      }
-
-      await unlink(path)
+      await window.api.file_delete(path)
       await context.dispatch('populate', { path: parent })
     }
   }

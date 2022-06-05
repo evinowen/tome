@@ -43,11 +43,9 @@ export default new Vuex.Store({
   },
   actions: {
     hydrate: async function (context) {
-      const path = window.api.path
-
       const application_path = await window.api.app_getPath('userData')
-      const configuration_path = path.join(application_path, 'config.json')
-      const library_path = path.join(application_path, 'library.json')
+      const configuration_path = await window.api.path_join(application_path, 'config.json')
+      const library_path = await window.api.path_join(application_path, 'library.json')
 
       await context.dispatch('message', 'Loading...')
 

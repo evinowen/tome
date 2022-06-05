@@ -2,9 +2,11 @@ const { app, BrowserWindow } = require('electron')
 
 const path = require('path')
 
+require('./components/clipboard').register()
 require('./components/file').register()
 require('./components/git').register()
 require('./components/metadata').register()
+require('./components/path').register()
 require('./components/window').register()
 
 let win = null
@@ -13,7 +15,7 @@ const createWindow = () => {
   win = new BrowserWindow({
     width: 800,
     height: 600,
-    frame: false,
+    // frame: false,
     show: false,
     backgroundColor: 'transparent',
     webPreferences: {

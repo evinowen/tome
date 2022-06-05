@@ -128,7 +128,8 @@ import {
   VDivider,
   VNavigationDrawer,
   VTextField,
-  VTextarea
+  VTextarea,
+  Resize
 } from 'vuetify/lib'
 import { DateTime } from 'luxon'
 import store from '@/store'
@@ -235,6 +236,9 @@ export default {
     VTextarea,
     CommitList,
     CommitConfirm
+  },
+  directives: {
+    Resize
   }
 }
 </script>

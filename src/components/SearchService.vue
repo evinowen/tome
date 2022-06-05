@@ -130,10 +130,8 @@ export default {
     update: query => store.dispatch('search/query', { query }),
     next: _ => store.dispatch('search/next'),
     previous: _ => store.dispatch('search/previous'),
-    relative: function (path) {
-      const _path = window.api.path
-
-      return _path.relative(store.state.tome.path, path)
+    relative: async function (path) {
+      return window.api.path_relative(store.state.tome.path, path)
     },
     select: async function (path) {
       store.dispatch('files/select', { path })

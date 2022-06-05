@@ -15,38 +15,22 @@ export default {
   },
   actions: {
     load: async function (context, { path }) {
-      const _fs = window.api.fs
-      const _path = window.api.path
+      const base = await window.api.path_join(path, '.tome', 'actions')
 
-      const base = _path.join(path, '.tome', 'actions')
-
-      try {
-        const stats = await new Promise((resolve, reject) => _fs.lstat(base, (err, stats) => err ? reject(err) : resolve(stats)))
-
-        if (!stats.isDirectory()) {
-          return
-        }
-      } catch (error) {
-        return
-      }
-
-      const files = await new Promise((resolve, reject) => _fs.readdir(base, (err, files) => err ? reject(err) : resolve(files)))
+      const files = await window.api.directory_list(base)
 
       context.commit('load', { path, base, options: files })
     },
     execute: async function (context, { name, target }) {
-      const _fs = window.api.fs
-      const _path = window.api.path
-
       if (context.state.options.indexOf(name) < 0) {
         return
       }
 
-      const base = _path.join(context.state.base, name)
+      const base = await window.api.path_join(context.state.base, name)
 
-      const path = _path.join(base, 'index.js')
+      const path = await window.api.path_join(base, 'index.js')
 
-      const raw = await new Promise((resolve, reject) => _fs.readFile(path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
+      const raw = await window.api.file_contents(path)
 
       const _vm = require('vm')
       const script = _vm.createScript(raw)

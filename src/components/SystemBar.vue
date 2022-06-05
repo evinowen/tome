@@ -68,7 +68,6 @@ export default {
 
   mounted: async function () {
     this.maximized = await window.api.is_window_maximized()
-    console.log(window.api)
   },
 
   computed: {

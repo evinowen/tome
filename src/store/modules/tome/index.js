@@ -72,8 +72,10 @@ export default {
       state.remote = remote
       state.pending = pending
     },
-    patches: function (state) {
-      state.patches = state.repository.patches
+    patches: function (state, data) {
+      const { patches } = data
+
+      state.patches = patches
     },
     metadata: function (state, data) {
       Object.assign(state.metadata, data)
@@ -94,7 +96,6 @@ export default {
     },
     load: async function (context, path) {
       const repository = await window.api.load_repository(path)
-      console.log(repository)
 
       context.commit('initialize', repository)
       context.commit('load')
@@ -104,46 +105,36 @@ export default {
     stage: async function (context, query) {
       context.commit('staging', true)
 
-      // try {
-      //   await context.state.repository.stage(query, async (type, path) => {
-      //     let wording
-      //     if (type === 'add') {
-      //       wording = 'as addition'
-      //     } else if (type === 'remove') {
-      //       wording = 'as removal'
-      //     }
+      try {
+        await context.dispatch('message', `Staging query ${query}`, { root: true })
+        await window.api.stage_repository(query)
 
-      //     await context.dispatch('message', `Staging path ${path} ${wording}`, { root: true })
-      //   })
-
-      //   await context.dispatch('inspect')
-      //   await context.dispatch('message', 'Stage complete', { root: true })
-      // } catch (err) {
-      //   await context.dispatch('error', 'Stage failed', { root: true })
-      //   throw err
-      // } finally {
-      //   context.commit('staging', false)
-      // }
+        await context.dispatch('inspect')
+        await context.dispatch('message', 'Stage complete', { root: true })
+      } catch (err) {
+        await context.dispatch('error', 'Stage failed', { root: true })
+        throw err
+      } finally {
+        context.commit('staging', false)
+      }
     },
     reset: async function (context, query) {
       context.commit('staging', true)
 
-      // try {
-      //   await context.state.repository.reset(query, async (type, path) => {
-      //     await context.dispatch('message', `Reseting path ${path}`, { root: true })
-      //   })
+      try {
+        await context.dispatch('message', `Reseting query ${query}`, { root: true })
+        await window.api.reset_repository(query)
 
-      //   await context.dispatch('inspect')
-      //   await context.dispatch('message', 'Reset complete', { root: true })
-      // } catch (err) {
-      //   await context.dispatch('error', 'Reset failed', { root: true })
-      //   throw err
-      // } finally {
-      //   context.commit('staging', false)
-      // }
+        await context.dispatch('inspect')
+        await context.dispatch('message', 'Reset complete', { root: true })
+      } catch (err) {
+        await context.dispatch('error', 'Reset failed', { root: true })
+        throw err
+      } finally {
+        context.commit('staging', false)
+      }
     },
     inspect: async function (context) {
-      // await context.state.repository.inspect()
       await window.api.inspect_repository()
 
       await context.dispatch('refresh')
@@ -157,24 +148,25 @@ export default {
       const { path, commit } = data
 
       if (path) {
-        // await context.state.repository.diffPath(path)
         await window.api.diff_path_repository(path)
       } else if (commit) {
-        // await context.state.repository.diffCommit(commit)
         await window.api.diff_commit_repository(commit)
       }
 
-      context.commit('patches')
+      const result = await window.api.refresh_patches_repository()
+      context.commit('patches', result)
     },
     commit: async function (context) {
       context.commit('commit', true)
 
-      // const { name, email } = context.state.signature
+      const { name, email } = context.state.signature
       const message = context.state.message
 
       await context.dispatch('message', `Creating commit "${message}" ...`, { root: true })
-      // const oid = await context.state.repository.commit(name, email, message)
-      // await context.dispatch('message', `Commit "${message}" ${oid} created`, { root: true })
+
+      const oid = await window.api.commit_repository(name, email, message)
+
+      await context.dispatch('message', `Commit "${message}" ${oid} created`, { root: true })
 
       await context.dispatch('inspect')
 
@@ -187,11 +179,9 @@ export default {
     credentials: async function (context, credentials) {
       const { private_key, public_key, passphrase } = credentials
 
-      // context.state.repository.storeCredentials(private_key, public_key, passphrase)
       await window.api.credential_repository(private_key, public_key, passphrase)
     },
     remote: async function (context, url) {
-      // await context.state.repository.loadRemoteBranch(url)
       await window.api.load_remote_url_repository(url)
 
       const result = await window.api.remote_repository()
@@ -201,8 +191,9 @@ export default {
       context.commit('push', true)
 
       await context.dispatch('message', `Pushing to remote ${context.state.remote.name} ...`, { root: true })
-      // await context.state.repository.push()
+
       await window.api.push_repository()
+
       await context.dispatch('message', `Push to remote ${context.state.remote.name} complete`, { root: true })
 
       context.commit('push', false)

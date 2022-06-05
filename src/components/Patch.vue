@@ -60,12 +60,26 @@ pre {
 </style>
 
 <script>
-import { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon } from 'vuetify/lib'
+import { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText } from 'vuetify/lib'
 
 import store from '@/store'
 
+class RepositoryPatch {
+  static LineType = {
+    CONTEXT: 32,
+    ADDITION: 43,
+    DELETION: 45,
+    CONTEXT_EOFNL: 61,
+    ADD_EOFNL: 62,
+    DEL_EOFNL: 60,
+    FILE_HDR: 70,
+    HUNK_HDR: 72,
+    BINARY: 66
+  }
+}
+
 export default {
-  components: { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon },
+  components: { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText },
   props: {
     value: { type: Boolean, default: false }
   },
@@ -79,24 +93,24 @@ export default {
   methods: {
     line_color: function (type) {
       switch (type) {
-        // case RepositoryPatch.LineType.HUNK_HDR:
-        //   return 'blue--text'
-        // case RepositoryPatch.LineType.ADDITION:
-        //   return 'green--text'
-        // case RepositoryPatch.LineType.DELETION:
-        //   return 'red--text'
+        case RepositoryPatch.LineType.HUNK_HDR:
+          return 'blue--text'
+        case RepositoryPatch.LineType.ADDITION:
+          return 'green--text'
+        case RepositoryPatch.LineType.DELETION:
+          return 'red--text'
         default:
           return ''
       }
     },
     line_prefix: function (type) {
       switch (type) {
-        // case RepositoryPatch.LineType.HUNK_HDR:
-        //   return ''
-        // case RepositoryPatch.LineType.ADDITION:
-        //   return '+ '
-        // case RepositoryPatch.LineType.DELETION:
-        //   return '- '
+        case RepositoryPatch.LineType.HUNK_HDR:
+          return ''
+        case RepositoryPatch.LineType.ADDITION:
+          return '+ '
+        case RepositoryPatch.LineType.DELETION:
+          return '- '
         default:
           return '  '
       }

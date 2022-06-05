@@ -1,12 +1,8 @@
 import File from './File'
 
 export default class FileTree {
-  constructor (path) {
-    this.base = new File({
-      path,
-      expanded: true,
-      directory: true
-    })
+  constructor (file) {
+    this.base = file
 
     this.index = null
     this.crawling = null
@@ -14,6 +10,16 @@ export default class FileTree {
     this.timestamp = 0
 
     this.documents = []
+  }
+
+  static async make (path) {
+    const file = await File.make({
+      path,
+      expanded: true,
+      directory: true
+    })
+
+    return new FileTree(file)
   }
 
   static search (element, items) {
@@ -37,23 +43,21 @@ export default class FileTree {
     return { item: children[index], parent: element, index }
   }
 
-  identify (path) {
-    const _path = window.api.path
-
-    const relative = _path.relative(this.base.path, path)
-    const items = relative.split(_path.sep)
+  async identify (path) {
+    const relative = await window.api.path_relative(this.base.path, path)
+    const items = relative.split(await window.api.path_sep())
 
     return FileTree.search(this.base, items)
   }
 
-  load (path) {
-    const { item } = this.identify(path)
+  async load (path) {
+    const { item } = await this.identify(path)
 
     return item ? item.load() : null
   }
 
-  populate (path) {
-    const { item } = this.identify(path)
+  async populate (path) {
+    const { item } = await this.identify(path)
 
     return item ? item.populate() : null
   }

@@ -62,11 +62,7 @@ export default {
         content += String(path).concat(os.EOL)
       }
 
-      const fs = window.api.fs
-
-      await new Promise((resolve, reject) =>
-        fs.writeFile(context.state.path, content, (err) => err ? reject(err) : resolve(true))
-      )
+      await window.api.file_write(context.state.path, content)
     }
   }
 }
