@@ -13,8 +13,14 @@ jobs:
       with:
         node-version: 14.19.1
         
-    - name: install node tools
-      run: npm install --global --production windows-build-tools
+    - name: Install Python
+      run: choco install python
+        
+    - name: Install visualstudio2017-workload-vctools Package
+      run: choco install visualstudio2017-workload-vctools
+      
+    - name: Configure NPM
+      run: npm config set msvs_version 2017
       
     - name: install node-gyp
       run: npm install --global node-gyp@latest
