@@ -1,11 +1,6 @@
-# This is a basic workflow to help you get started with Actions
-name: CI
+name: build
+on: [push, pull_request, workflow_dispatch]
 
-# Controls when the workflow will run
-on:
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build_on_win:
     runs-on: windows-2016
