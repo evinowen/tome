@@ -6,15 +6,49 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "serve": ".\\node_modules\\.bin\\vue-cli-service serve",
-    "electron": ".\\node_modules\\.bin\\electron electron\\main.js"
+    "serve-renderer": ".\\node_modules\\.bin\\vue-cli-service serve",
+    "lint-renderer": ".\\node_modules\\.bin\\vue-cli-service lint --no-fix src/**/*.vue src/**/*.js tests/**/*.js",
+    "test-renderer": ".\\node_modules\\.bin\\vue-cli-service test:unit",
+    "build-renderer": ".\\node_modules\\.bin\\vue-cli-service --dest dist-renderer build",
+    "electron": ".\\node_modules\\.bin\\electron electron\\main.js",
+    "electron-framed": ".\\node_modules\\.bin\\cross-env-shell FRAME_WINDOW=1 \".\\node_modules\\.bin\\electron electron\\main.js\"",
+    "pack": ".\\node_modules\\.bin\\electron-builder --dir",
+    "build": ".\\node_modules\\.bin\\cross-env-shell NODE_ENV=production \".\\node_modules\\.bin\\electron-builder\""
+  },
+  "build": {
+    "appId": "com.electron.tome",
+    "npmRebuild": false,
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "files": [
+      "package.json",
+      "electron",
+      {
+        "from": "dist-renderer",
+        "to": "",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "win": {
+      "target": "NSIS",
+      "icon": "build/icon.ico"
+    }
   },
   "dependencies": {
     "@fontsource/montserrat": "^4.5.10",
     "@mdi/font": "^6.7.96",
     "chokidar": "^3.4.3",
     "core-js": "^3.6.4",
-    "electron": "^18.2.4",
+    "cross-env": "^7.0.2",
     "lodash": "^4.17.15",
     "lunr": "^2.3.8",
     "luxon": "^2.0.1",
@@ -36,9 +70,13 @@
     "@babel/core": "^7.13.0",
     "@vue/cli-plugin-babel": "^4.2.2",
     "@vue/cli-plugin-eslint": "^4.2.3",
+    "@vue/cli-plugin-unit-jest": "^4.2.2",
     "@vue/cli-service": "^4.5.17",
     "@vue/eslint-config-standard": "^5.1.0",
+    "@vue/test-utils": "^1.0.0",
     "babel-eslint": "11.0.0-beta.2",
+    "electron": "^18.2.4",
+    "electron-builder": "^23.0.3",
     "electron-rebuild": "^3.2.7",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.1",
