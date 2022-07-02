@@ -1,8 +1,7 @@
-import { remote } from 'electron'
-import Repository from '@/store/modules/tome/Repository'
+import Repository from '@/../electron/components/git/Repository'
 import NodeGit from 'nodegit'
 
-jest.mock('@/store/modules/tome/RepositoryPatch')
+jest.mock('@/../electron/components/git/RepositoryPatch')
 
 jest.mock('electron', () => ({
   remote: {

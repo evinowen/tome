@@ -1,13 +1,14 @@
 import { assemble } from '@/../tests/helpers'
-import Vue from 'vue'
 import Vuetify from 'vuetify'
-import { remote, shell } from 'electron'
+import { shell } from 'electron'
 import { v4 as uuidv4 } from 'uuid'
 import store from '@/store'
 
 import Explorer from '@/components/Explorer.vue'
 
-Vue.use(Vuetify)
+import builders from '@/../tests/builders'
+
+Object.assign(window, builders.window())
 
 jest.mock('@/store', () => ({
   state: {
@@ -34,34 +35,10 @@ jest.mock('@/store', () => ({
 }))
 
 jest.mock('electron', () => ({
-  remote: {
-    require: jest.fn()
-  },
   shell: {
     openPath: jest.fn()
   }
 }))
-
-const fs = {
-  open: jest.fn(),
-  close: jest.fn(),
-  mkdir: jest.fn()
-}
-
-const path = {
-  dirname: jest.fn(),
-  join: jest.fn(),
-  relative: jest.fn((first, second) => {
-    switch (second) {
-      case '/project': return ''
-      case '/project/first': return 'first'
-      case '/project/second': return 'second'
-      case '/project/third': return 'third'
-      case '/project/file.md': return 'file.md'
-      case '/project/ephemeral.md': return 'ephemeral.md'
-    }
-  })
-}
 
 describe('Explorer.vue', () => {
   let vuetify
@@ -156,7 +133,7 @@ describe('Explorer.vue', () => {
     }
   })
 
-  const factory = assemble(Explorer, { value, enabled: true }, { populate }).context(() => ({ vuetify }))
+  const factory = assemble(Explorer, { value, enabled: true }, { populate, stub: { VIcon: true } }).context(() => ({ vuetify }))
 
   it('is able to be mocked and prepared for testing', () => {
     const wrapper = factory.wrap()
@@ -366,12 +343,12 @@ describe('Explorer.vue', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(shell.openPath).toHaveBeenCalledTimes(0)
-    expect(path.dirname).toHaveBeenCalledTimes(0)
+    expect(window.api.path_dirname).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.open({ path: '/project/third', parent: true })
 
     expect(shell.openPath).toHaveBeenCalledTimes(1)
-    expect(path.dirname).toHaveBeenCalledTimes(1)
+    expect(window.api.path_dirname).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the template service to execute when template is called', async () => {

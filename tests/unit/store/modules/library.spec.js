@@ -1,25 +1,14 @@
-import { remote } from 'electron'
 import Vuex from 'vuex'
 
 import { createLocalVue } from '@vue/test-utils'
 import library from '@/store/modules/library'
 import { cloneDeep } from 'lodash'
 
-jest.mock('electron', () => ({
-  remote: {
-    require: jest.fn()
-  }
-}))
+import builders from '@/../tests/builders'
 
-const fs = {
-  existsSync: jest.fn(() => true),
-  readFile: jest.fn((path, encoding, callback) => callback(null, fs_read_results.join('\n'))),
-  writeFile: jest.fn((file, data, options, callback) => (callback ?? options)(null))
-}
+Object.assign(window, builders.window())
 
-const fs_read_results = [
-  './first_path', './second_path', './third_path'
-]
+window._.set_content(['./first_path', './second_path', './third_path'].join('\n'))
 
 describe('store/modules/library.js', () => {
   let localVue
@@ -28,6 +17,8 @@ describe('store/modules/library.js', () => {
   beforeEach(() => {
     localVue = createLocalVue()
     localVue.use(Vuex)
+
+    window._.reset_disk()
 
     store = new Vuex.Store(cloneDeep({
       modules: {
@@ -50,7 +41,7 @@ describe('store/modules/library.js', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = fs_read_results.slice()
+    const paths = ['./first_path', './second_path', './third_path']
     await store.dispatch('library/load', path)
 
     expect(store.state.library.path).toEqual(path)
@@ -62,8 +53,7 @@ describe('store/modules/library.js', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = fs_read_results.slice()
-    paths.push('./fourth_path')
+    const paths = ['./first_path', './second_path', './third_path', './fourth_path']
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/add', './fourth_path')
@@ -77,7 +67,7 @@ describe('store/modules/library.js', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = fs_read_results.slice()
+    const paths = ['./first_path', './second_path', './third_path']
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/add', './third_path')
@@ -91,7 +81,7 @@ describe('store/modules/library.js', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = fs_read_results.slice()
+    const paths = ['./first_path', './second_path', './third_path']
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/remove', paths.pop())
@@ -105,7 +95,7 @@ describe('store/modules/library.js', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = fs_read_results.slice()
+    const paths = ['./first_path', './second_path', './third_path']
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/remove', './forth_path')

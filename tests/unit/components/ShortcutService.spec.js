@@ -1,31 +1,19 @@
+import { assemble } from '@/../tests/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import VueShortKey from 'vue-shortkey'
 
 import ShortcutService from '@/components/ShortcutService.vue'
 
-import { createLocalVue, mount } from '@vue/test-utils'
-
 Vue.use(Vuetify)
 Vue.use(VueShortKey)
 
-const localVue = createLocalVue()
-
 describe('Console.vue', () => {
-  let vuetify
-  let wrapper
-
-  beforeEach(() => {
-    vuetify = new Vuetify()
-
-    wrapper = mount(
-      ShortcutService,
-      {
-        localVue,
-        vuetify
-      }
-    )
-  })
+  const factory = assemble(ShortcutService)
+    .hook(({ context, localVue }) => {
+      localVue.use(Vuetify)
+      context.vuetify = new Vuetify()
+    })
 
   afterEach(() => {
     jest.clearAllMocks()
@@ -34,7 +22,7 @@ describe('Console.vue', () => {
   it('should emit settings event if no other flags are enabled on call to escape', async () => {
     const event = jest.fn()
 
-    wrapper.setProps({
+    const wrapper = factory.wrap({
       settings: false,
       console: false,
       patch: false,
@@ -55,7 +43,7 @@ describe('Console.vue', () => {
   it('should emit settings event if settings flag is enabled on call to escape', async () => {
     const event = jest.fn()
 
-    wrapper.setProps({
+    const wrapper = factory.wrap({
       settings: true,
       console: true,
       patch: true,
@@ -76,7 +64,7 @@ describe('Console.vue', () => {
   it('should emit console event if console flag is enabled on call to escape', async () => {
     const event = jest.fn()
 
-    wrapper.setProps({
+    const wrapper = factory.wrap({
       settings: false,
       console: true,
       patch: true,
@@ -97,7 +85,7 @@ describe('Console.vue', () => {
   it('should emit patch event if patch flag is enabled on call to escape', async () => {
     const event = jest.fn()
 
-    wrapper.setProps({
+    const wrapper = factory.wrap({
       settings: false,
       console: false,
       patch: true,
@@ -118,7 +106,7 @@ describe('Console.vue', () => {
   it('should emit search event if search flag is enabled on call to escape', async () => {
     const event = jest.fn()
 
-    wrapper.setProps({
+    const wrapper = factory.wrap({
       settings: false,
       console: false,
       patch: false,
@@ -139,7 +127,7 @@ describe('Console.vue', () => {
   it('should emit branch event if branch flag is enabled on call to escape', async () => {
     const event = jest.fn()
 
-    wrapper.setProps({
+    const wrapper = factory.wrap({
       settings: false,
       console: false,
       patch: false,
@@ -160,7 +148,7 @@ describe('Console.vue', () => {
   it('should emit push event if push flag is enabled on call to escape', async () => {
     const event = jest.fn()
 
-    wrapper.setProps({
+    const wrapper = factory.wrap({
       settings: false,
       console: false,
       patch: false,
@@ -181,7 +169,7 @@ describe('Console.vue', () => {
   it('should emit commit event if commit flag is enabled on call to escape', async () => {
     const event = jest.fn()
 
-    wrapper.setProps({
+    const wrapper = factory.wrap({
       settings: false,
       console: false,
       patch: false,
@@ -202,7 +190,7 @@ describe('Console.vue', () => {
   it('should emit edit event if edit flag is enabled on call to escape', async () => {
     const event = jest.fn()
 
-    wrapper.setProps({
+    const wrapper = factory.wrap({
       settings: false,
       console: false,
       patch: false,

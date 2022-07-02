@@ -37,13 +37,17 @@ module.exports = {
       new Promise((resolve, reject) => fs.readFile(path, 'utf8', (error, data) => error ? reject(error) : resolve(data))))
 
     ipcMain.handle('file_create', async (event, target, directory) => {
-      await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(true) : reject(new Error('File already exists'))))
+      if (await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(false) : resolve(true)))) {
+        return false
+      }
 
       if (directory) {
         await new Promise((resolve, reject) => fs.mkdir(target, (err) => err ? reject(err) : resolve(true)))
       } else {
         await new Promise((resolve, reject) => fs.writeFile(target, '', (err) => err ? reject(err) : resolve(true)))
       }
+
+      return await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(false) : resolve(true)))
     })
 
     ipcMain.handle('file_write', async (event, path, content) => {

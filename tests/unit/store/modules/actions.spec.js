@@ -1,98 +1,30 @@
-import { remote } from 'electron'
 import Vuex from 'vuex'
 
 import { createLocalVue } from '@vue/test-utils'
 import actions from '@/store/modules/actions'
 import { cloneDeep } from 'lodash'
+import vm from 'vm'
 
-jest.mock('electron', () => ({
-  remote: {
-    require: jest.fn()
-  }
+import builders from '@/../tests/builders'
+
+Object.assign(window, builders.window())
+
+jest.mock('vm', () => ({
+  createScript: jest.fn()
 }))
 
-let disk
-
-const _readdir = (path, options) => {
-  const path_split = String(path).replace(/^\/|\/$/, '').split('/')
-  let item = disk
-  while (path_split.length) item = item[path_split.shift()]
-
-  if (options.withFileTypes) {
-    return Object.keys(item).map(name => ({
-      name,
-      isDirectory: jest.fn(() => item[name] !== null)
-    }))
-  }
-
-  return Object.keys(item)
+const _script = {
+  runInThisContext: jest.fn()
 }
 
-const _fs = {
-  lstat: jest.fn((path, callback) => {
-    const path_split = String(path).replace(/^\/|\/$/, '').split('/')
-    let item = disk
-    while (path_split.length) {
-      const name = path_split.shift()
-
-      if (!(name in item)) {
-        callback(new Error('error!'))
-      }
-
-      item = item[name]
-    }
-
-    const directory = item !== null
-
-    const result = {
-      isDirectory: jest.fn(() => directory)
-    }
-
-    callback(null, result)
-  }),
-  readdir: jest.fn((path, options, callback) => (callback ?? options)(0, _readdir(path, options))),
-  readFile: jest.fn((path, encoding, callback) => {
-    if (path.match(/\/index\.js$/)) {
-      callback(null, 'const example = 1')
-    }
-
-    callback(new Error('error!'))
-  })
-}
-
-const _path = {
-  sep: '/',
-  join: jest.fn((...list) => list.join('/').replace(/^\/|\/$/g, ''))
-}
+vm.createScript.mockImplementation(() => _script)
 
 describe('store/modules/actions', () => {
   let localVue
   let store
 
   beforeEach(() => {
-    disk = {
-      'project': {
-        '.tome': {
-          'actions': {
-            'example.action.a': { 'index.js': null },
-            'example.action.b': { 'index.js': null },
-            'example.action.c': { 'index.js': null }
-          }
-        },
-        'first': {
-          'a.md': null,
-          'b.md': null,
-          'c.md': null
-        },
-        'second': {
-          'b.md': null,
-          'c.md': null
-        },
-        'third': {
-          'c.md': null
-        }
-      }
-    }
+    window._.reset_disk()
 
     localVue = createLocalVue()
     localVue.use(Vuex)
@@ -119,16 +51,14 @@ describe('store/modules/actions', () => {
     await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
 
     expect(store.state.actions.path).toEqual(project)
-    expect(store.state.actions.base).toEqual(_path.join(project, '.tome/actions'))
+    expect(store.state.actions.base).toEqual('/project/.tome/actions')
     expect(store.state.actions.options.length).toBeGreaterThan(0)
   })
 
   it('should fail gracefully if path does not contain actions when load is dispatched', async () => {
     const project = '/project'
 
-    /* eslint-disable dot-notation */
-    delete disk['project']['.tome']['actions']
-    /* eslint-enable dot-notation */
+    window._.unset_disk('/project/.tome/actions')
 
     await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
 
@@ -140,9 +70,7 @@ describe('store/modules/actions', () => {
   it('should fail gracefully if actions in path is a file when load is dispatched', async () => {
     const project = '/project'
 
-    /* eslint-disable dot-notation */
-    disk['project']['.tome']['actions'] = null
-    /* eslint-enable dot-notation */
+    window._.unset_disk('/project/.tome/actions')
 
     await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
 

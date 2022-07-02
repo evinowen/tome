@@ -1,7 +1,6 @@
 import { app, protocol, BrowserWindow } from 'electron'
 
 jest.mock('electron', () => ({ app: {}, protocol: {}, BrowserWindow: jest.fn() }))
-jest.mock('vue-cli-plugin-electron-builder/lib', () => ({ createProtocol: jest.fn() }))
 
 protocol.registerSchemesAsPrivileged = jest.fn()
 

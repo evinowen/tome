@@ -14,7 +14,7 @@ export default store => {
       for (const type in patterns) {
         const regex = patterns[type]
         if (file.name.match(regex)) {
-          store.dispatch('tome/metadata', { [type]: file.path })
+          await store.dispatch('tome/metadata', { [type]: file.path })
         }
       }
     }

@@ -189,8 +189,8 @@ export default {
         this.$emit('open', result.filePaths[0])
       }
     },
-    open_file: function (path) {
-      store.dispatch('files/select', { path })
+    open_file: async function (path) {
+      await store.dispatch('files/select', { path })
     },
     disabled_unless: function (unless) {
       if (unless) {

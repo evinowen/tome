@@ -28,12 +28,6 @@ describe('CommitConfirm.vue', () => {
     jest.clearAllMocks()
   })
 
-  it('should set status to staging message when staging is true', async () => {
-    wrapper.setProps({ staging: true })
-
-    expect(wrapper.vm.status).toEqual('Commit details are being staged ... ')
-  })
-
   it('should set status to ready message when staging is false', async () => {
     wrapper.setProps({ staging: false })
 

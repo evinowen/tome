@@ -41,6 +41,10 @@ export default {
 
       const files = await window.api.directory_list(base)
 
+      if (!files || files.length < 1) {
+        return
+      }
+
       context.commit('load', { path, base, options: files })
     },
     execute: async function (context, { name, target }) {

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuetify from 'vuetify'
 
 import CommitList from '@/components/CommitList.vue'
-import RepositoryFile from '@/store/modules/tome/RepositoryFile'
+import RepositoryFile from '@/../electron/components/git/RepositoryFile'
 
 import { createLocalVue, mount } from '@vue/test-utils'
 

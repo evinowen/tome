@@ -286,7 +286,7 @@ export default {
           total++
         }
 
-        this.$store.dispatch('search/navigate', { total, target: null })
+        await this.$store.dispatch('search/navigate', { total, target: null })
       } else {
         await new Promise((resolve, reject) => {
           this.mark.unmark({ done: resolve })

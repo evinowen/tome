@@ -11,27 +11,6 @@ Vue.use(Vuetify)
 jest.mock('electron', () => ({ remote: { require: jest.fn() }, shell: {} }))
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-const fs_callback = (options, callback) => (options && callback ? callback : options)(null)
-
-const _lstat = {
-  status: {
-    isDirectory: jest.fn(() => false)
-  }
-}
-
-const fs = {
-  open: jest.fn((path, flags, callback) => callback(null, 1)),
-  close: jest.fn((handler, callback) => callback(null)),
-  mkdir: jest.fn((path, options, callback) => fs_callback(options, callback)),
-  lstat: jest.fn((handler, callback) => callback(null, _lstat.status))
-}
-
-const path = {
-  join: jest.fn(),
-  relative: jest.fn(),
-  isAbsolute: jest.fn()
-}
-
 remote.app = {
   getPath: jest.fn(() => '/root/')
 }

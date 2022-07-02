@@ -1,18 +1,29 @@
-import { remote } from 'electron'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
 import Patch from '@/components/Patch.vue'
-import RepositoryPatch from '@/store/modules/tome/RepositoryPatch'
 
 import { createLocalVue, mount } from '@vue/test-utils'
+
+class RepositoryPatch {
+  static LineType = {
+    CONTEXT: 32,
+    ADDITION: 43,
+    DELETION: 45,
+    CONTEXT_EOFNL: 61,
+    ADD_EOFNL: 62,
+    DEL_EOFNL: 60,
+    FILE_HDR: 70,
+    HUNK_HDR: 72,
+    BINARY: 66
+  }
+}
 
 jest.mock('electron', () => ({
   remote: {
     require: jest.fn(),
     dialog: jest.fn()
   }
-
 }))
 
 jest.mock('@/store', () => ({

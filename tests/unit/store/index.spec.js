@@ -4,10 +4,6 @@ import { createLocalVue } from '@vue/test-utils'
 
 jest.mock('electron', () => ({ remote: { app: jest.fn(), require: jest.fn() } }))
 
-const path = {
-  join: jest.fn((first, second) => String(first).replace(/\/$/g, '').concat('/').concat(String(second).replace(/^\/|\/$/g, '')))
-}
-
 remote.app = {
   getPath: jest.fn(() => './test_path')
 }

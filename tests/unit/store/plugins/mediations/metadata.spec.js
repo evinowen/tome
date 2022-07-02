@@ -45,14 +45,17 @@ describe('store/plugins/mediations/metadata.js', () => {
       timestamp: 100,
       base: {
         children: [
-          { name: 'readme.md' },
-          { name: 'license.md' },
-          { name: 'authors.md' },
-          { name: 'contributors.md' }
+          { name: 'readme.md', path: 'readme.md' },
+          { name: 'license.md', path: 'license.md' },
+          { name: 'authors.md', path: 'authors.md' },
+          { name: 'contributors.md', path: 'contributors.md' }
         ]
       }
     }
 
+    await localVue.nextTick()
+    await localVue.nextTick()
+    await localVue.nextTick()
     await localVue.nextTick()
 
     expect(object.modules.tome.actions.metadata).toHaveBeenCalledTimes(4)

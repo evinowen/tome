@@ -12,10 +12,16 @@ require('./components/window').register()
 let win = null
 
 const createWindow = () => {
+  let frame = false
+
+  if (process.env.FRAME_WINDOW) {
+    frame = true
+  }
+
   win = new BrowserWindow({
     width: 800,
     height: 600,
-    // frame: false,
+    frame,
     show: false,
     backgroundColor: 'transparent',
     webPreferences: {
@@ -25,7 +31,11 @@ const createWindow = () => {
     }
   })
 
-  win.loadURL('http://localhost:8080/')
+  if (process.env.NODE_ENV === 'production') {
+    win.loadFile('index.html')
+  } else {
+    win.loadURL('http://localhost:8080/')
+  }
 
   win.on('closed', () => {
     win = null

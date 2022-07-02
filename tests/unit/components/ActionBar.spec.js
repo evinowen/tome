@@ -1,49 +1,32 @@
-import { remote } from 'electron'
-import Vue from 'vue'
+import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
 
 import ActionBar from '@/components/ActionBar.vue'
 import store from '@/store'
 
-import { createLocalVue, mount } from '@vue/test-utils'
+import builders from '@/../tests/builders'
 
-Vue.use(Vuetify)
-
-jest.mock('electron', () => ({
-  remote: {
-    BrowserWindow: jest.fn(),
-    dialog: jest.fn()
-  }
-}))
-
-remote.BrowserWindow = {
-  getFocusedWindow: jest.fn(() => ({}))
-}
-
-let remote_dialog_result
-
-remote.dialog = {
-  showOpenDialog: jest.fn(() => remote_dialog_result)
-}
+Object.assign(window, builders.window())
 
 jest.mock('@/store', () => ({
   state: {},
   dispatch: jest.fn()
 }))
 
-const localVue = createLocalVue()
-
 describe('ActionBar.vue', () => {
-  let vuetify
-  let wrapper
+  const branch = false
+  const commit = false
+  const push = false
+
+  const factory = assemble(ActionBar, { branch, commit, push })
+    .context(() => ({ stubs: { LibraryButton: true, RepositoryButton: true } }))
+    .hook(({ context, localVue }) => {
+      localVue.use(Vuetify)
+      context.vuetify = new Vuetify()
+    })
 
   beforeEach(() => {
-    remote_dialog_result = {
-      canceled: false,
-      filePaths: ['./file_path']
-    }
-
-    vuetify = new Vuetify()
+    window._.reset_dialog()
 
     store.state = {
       tome: {
@@ -72,27 +55,6 @@ describe('ActionBar.vue', () => {
         }
       }
     }
-
-    const branch = false
-    const commit = false
-    const push = false
-
-    wrapper = mount(
-      ActionBar,
-      {
-        localVue,
-        vuetify,
-        stubs: {
-          LibraryButton: true,
-          StatusButton: true
-        },
-        propsData: {
-          branch,
-          commit,
-          push
-        }
-      }
-    )
   })
 
   afterEach(() => {
@@ -100,6 +62,7 @@ describe('ActionBar.vue', () => {
   })
 
   it('should emit "open" event with path when open called with path', async () => {
+    const wrapper = factory.wrap()
     const event = jest.fn()
 
     wrapper.vm.$on('open', event)
@@ -114,6 +77,7 @@ describe('ActionBar.vue', () => {
   })
 
   it('should pass dialog selected file to "open" event with path when open called without a path', async () => {
+    const wrapper = factory.wrap()
     const event = jest.fn()
 
     wrapper.vm.$on('open', event)
@@ -122,14 +86,13 @@ describe('ActionBar.vue', () => {
 
     await wrapper.vm.open()
 
-    const path = remote_dialog_result.filePaths[0]
-
     expect(event).toHaveBeenCalledTimes(1)
-    expect(event.mock.calls[0][0]).toBe(path)
+    expect(event.mock.calls[0][0]).toBe('/project')
   })
 
   it('should not emit an "open" event when open called without a path and dialog is canceled', async () => {
-    remote_dialog_result.canceled = true
+    const wrapper = factory.wrap()
+    window._.trip_canceled_dialog()
 
     const event = jest.fn()
 
@@ -143,7 +106,8 @@ describe('ActionBar.vue', () => {
   })
 
   it('should not emit an "open" event when open called without a path and file is not included', async () => {
-    remote_dialog_result.filePaths = []
+    const wrapper = factory.wrap()
+    window._.trip_empty_dialog()
 
     const event = jest.fn()
 
@@ -157,6 +121,7 @@ describe('ActionBar.vue', () => {
   })
 
   it('should return value of diabled when true is passed into disabled_unless', async () => {
+    const wrapper = factory.wrap()
     expect(wrapper.vm.disabled).toEqual(false)
 
     const disabled = wrapper.vm.disabled_unless(true)
@@ -165,7 +130,7 @@ describe('ActionBar.vue', () => {
   })
 
   it('should return OR of toggle values when false is passed into disabled_unless', async () => {
-    wrapper.setProps({ branch: true })
+    const wrapper = factory.wrap({ branch: true })
 
     expect(wrapper.vm.disabled).toEqual(false)
     expect(wrapper.vm.branch).toEqual(true)
@@ -178,7 +143,8 @@ describe('ActionBar.vue', () => {
   })
 
   it('should dispatch file select with path when open_file called with path', async () => {
-    const path = './file_path'
+    const wrapper = factory.wrap()
+    const path = '/project'
     await wrapper.vm.open_file(path)
 
     expect(store.dispatch).toHaveBeenCalledTimes(1)

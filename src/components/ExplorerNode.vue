@@ -260,16 +260,16 @@ export default {
         { divider: true },
         {
           title: 'Cut',
-          action: (path) => store.dispatch('cut', { type: 'file', target: path })
+          action: async (path) => await store.dispatch('cut', { type: 'file', target: path })
         },
         {
           title: 'Copy',
-          action: (path) => store.dispatch('copy', { type: 'file', target: path })
+          action: async (path) => await store.dispatch('copy', { type: 'file', target: path })
         },
         {
           title: 'Paste',
           active: () => store.state.clipboard.content,
-          action: (path) => store.dispatch('paste', { type: 'file', target: path })
+          action: async (path) => await store.dispatch('paste', { type: 'file', target: path })
         },
         { divider: true },
         {

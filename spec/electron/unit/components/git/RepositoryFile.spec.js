@@ -1,4 +1,4 @@
-import RepositoryFile from '@/store/modules/tome/RepositoryFile'
+import RepositoryFile from '@/../electron/components/git/RepositoryFile'
 
 describe('Repository.js', () => {
   it('should store constructor input values', async () => {

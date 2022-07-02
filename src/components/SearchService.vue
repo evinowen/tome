@@ -127,14 +127,14 @@ export default {
     query: () => store.state.search?.query
   },
   methods: {
-    update: query => store.dispatch('search/query', { query }),
-    next: _ => store.dispatch('search/next'),
-    previous: _ => store.dispatch('search/previous'),
+    update: async query => await store.dispatch('search/query', { query }),
+    next: async _ => await store.dispatch('search/next'),
+    previous: async _ => await store.dispatch('search/previous'),
     relative: async function (path) {
       return window.api.path_relative(store.state.tome.path, path)
     },
     select: async function (path) {
-      store.dispatch('files/select', { path })
+      await store.dispatch('files/select', { path })
 
       this.files = false
     }

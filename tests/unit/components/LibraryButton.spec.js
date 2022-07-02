@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
@@ -6,29 +5,9 @@ import LibraryButton from '@/components/LibraryButton.vue'
 
 import { createLocalVue, mount } from '@vue/test-utils'
 
-const focused_window = {}
+import builders from '@/../tests/builders'
 
-jest.mock('electron', () => ({
-  remote: {
-    BrowserWindow: jest.fn(),
-    dialog: jest.fn(),
-    require: jest.fn()
-  }
-}))
-
-let dialog_result
-
-const path = {
-  basename: jest.fn()
-}
-
-remote.BrowserWindow = {
-  getFocusedWindow: jest.fn(() => focused_window)
-}
-
-remote.dialog = {
-  showOpenDialog: jest.fn(() => dialog_result)
-}
+Object.assign(window, builders.window())
 
 Vue.use(Vuetify)
 const localVue = createLocalVue()
@@ -38,10 +17,7 @@ describe('LibraryButton.vue', () => {
   let wrapper
 
   beforeEach(() => {
-    dialog_result = {
-      canceled: false,
-      filePaths: ['./test_tome']
-    }
+    window._.reset_dialog()
 
     vuetify = new Vuetify()
 
@@ -90,7 +66,7 @@ describe('LibraryButton.vue', () => {
   })
 
   it('should not emit "open" event when open method dialog box is canceled', async () => {
-    dialog_result.canceled = true
+    window._.trip_canceled_dialog()
 
     const event = jest.fn()
 
@@ -104,7 +80,7 @@ describe('LibraryButton.vue', () => {
   })
 
   it('should not emit "open" event when open method dialog box returns no files', async () => {
-    dialog_result.filePaths.length = 0
+    window._.trip_empty_dialog()
 
     const event = jest.fn()
 
@@ -118,7 +94,7 @@ describe('LibraryButton.vue', () => {
   })
 
   it('should emit "close" event when open method dialog box returns no files', async () => {
-    dialog_result.filePaths.length = 0
+    window._.trip_empty_dialog()
 
     const event = jest.fn()
 

@@ -1,22 +1,12 @@
 import { assemble } from '@/../tests/helpers'
-import Vue from 'vue'
 import Vuetify from 'vuetify'
-import { remote } from 'electron'
 
 import store from '@/store'
 import SearchService from '@/components/SearchService.vue'
 
-jest.mock('electron', () => ({
-  remote: {
-    require: jest.fn()
-  }
-}))
+import builders from '@/../tests/builders'
 
-const _path = {
-  relative: jest.fn()
-}
-
-Vue.use(Vuetify)
+Object.assign(window, builders.window())
 
 jest.mock('@/store', () => ({
   state: {
@@ -49,11 +39,13 @@ jest.mock('@/store', () => ({
 describe('SearchService', () => {
   let vuetify
 
-  const factory = assemble(SearchService).context(() => ({ vuetify }))
+  const factory = assemble(SearchService)
+    .hook(({ context, localVue }) => {
+      localVue.use(Vuetify)
 
-  beforeEach(() => {
-    vuetify = new Vuetify()
-  })
+      vuetify = new Vuetify()
+      context.vuetify = vuetify
+    })
 
   afterEach(() => {
     jest.clearAllMocks()
@@ -107,9 +99,9 @@ describe('SearchService', () => {
 
     await wrapper.vm.relative(path)
 
-    expect(_path.relative).toHaveBeenCalledTimes(1)
-    expect(_path.relative.mock.calls[0][0]).toBe('/project')
-    expect(_path.relative.mock.calls[0][1]).toBe('/project/path/to/file')
+    expect(window.api.path_relative).toHaveBeenCalledTimes(1)
+    expect(window.api.path_relative.mock.calls[0][0]).toBe('/project')
+    expect(window.api.path_relative.mock.calls[0][1]).toBe('/project/path/to/file')
   })
 
   it('should instruct file module to select a result when select is called', async () => {

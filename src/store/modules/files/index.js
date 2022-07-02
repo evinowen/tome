@@ -21,7 +21,6 @@ export default {
       }
 
       state.tree = tree
-      state.tree.crawl()
 
       // state.watcher = chokidar.watch(path).on('change', (event, path) => state.tree.crawl())
     },
@@ -44,11 +43,7 @@ export default {
       state.active = path
       state.selected = item
 
-      if (!item.directory) {
-        if (!item.document) {
-          item.read()
-        }
-
+      if (!item.directory && item.document) {
         state.content = item.document.content
       }
     },
@@ -122,6 +117,8 @@ export default {
       const tree = await FileTree.make(path)
 
       await context.commit('initialize', tree)
+
+      await context.state.tree.crawl()
     },
     toggle: async function (context, { path }) {
       const { item } = await context.state.tree.identify(path)
@@ -152,9 +149,13 @@ export default {
       await context.commit('ghost', { item, target, directory })
     },
     select: async function (context, { path }) {
-      const { item } = await context.state.tree.identify(path)
-
       await context.dispatch('save')
+
+      const { item } = await context.state.tree.identify(path)
+      if (!item.directory && !item.document) {
+        await item.read()
+      }
+
       await context.commit('select', { path, item })
     },
     update: async function (context, { content }) {
@@ -196,7 +197,12 @@ export default {
       }
     },
     edit: async function (context, { path }) {
-      context.commit('select', { path })
+      const { item } = await context.state.tree.identify(path)
+      if (!item.directory && !item.document) {
+        await item.read()
+      }
+
+      context.commit('select', { path, item })
       context.commit('edit', { edit: true })
     },
     blur: async function (context) {
@@ -207,46 +213,66 @@ export default {
       let directory = proposed
 
       if (!await window.api.file_is_directory(proposed)) {
-        directory = window.api.path_dirname(proposed)
+        directory = await window.api.path_dirname(proposed)
       }
 
-      const basename = window.api.path_basename(path)
-      const proposed_full = window.api.path_join(directory, basename)
-      const directory_current = window.api.path_dirname(path)
+      const basename = await window.api.path_basename(path)
+      const proposed_full = await window.api.path_join(directory, basename)
+      const directory_current = await window.api.path_dirname(path)
 
       if (directory === directory_current) {
         await context.commit('error', { error: 'Invalid move, same directory.' })
         return
       }
 
-      await window.api.rename(path, proposed_full)
+      await window.api.file_rename(path, proposed_full)
 
       await context.dispatch('populate', { path: directory_current })
       await context.dispatch('populate', { path: directory })
     },
     rename: async function (context, { path, name }) {
-      const directory = window.api.path_dirname(path)
-      const proposed = window.api.path_join(directory, name)
+      const directory = await window.api.path_dirname(path)
+      const proposed = await window.api.path_join(directory, name)
 
-      await window.api.rename(path, proposed)
+      await window.api.file_rename(path, proposed)
 
       await context.dispatch('load', { path: directory })
       await context.dispatch('load', { path: proposed })
 
-      await context.dispatch('select', { path: proposed })
+      const { item } = await context.state.tree.identify(proposed)
+      if (!item.directory && !item.document) {
+        await item.read()
+      }
+
+      await context.dispatch('select', { path: proposed, item })
     },
     create: async function (context, { path, name, directory }) {
       const proposed = await window.api.path_join(path, name)
 
-      await window.api.file_create(proposed, directory)
+      let result = false
+
+      if (directory) {
+        result = await window.api.file_create_directory(proposed)
+      } else {
+        result = await window.api.file_create(proposed)
+      }
+
+      if (!result) {
+        throw new Error(`Failed to create path ${path}`)
+      }
 
       await context.dispatch('load', { path })
       await context.dispatch('load', { path: proposed })
 
-      await context.dispatch('select', { path: proposed })
+      const { item } = await context.state.tree.identify(proposed)
+      if (!item.directory && !item.document) {
+        await item.read()
+      }
+
+      await context.dispatch('select', { path: proposed, item })
     },
     delete: async function (context, { path }) {
-      const parent = window.api.path_dirname(path)
+      const parent = await window.api.path_dirname(path)
 
       await window.api.file_delete(path)
       await context.dispatch('populate', { path: parent })

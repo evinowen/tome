@@ -201,7 +201,7 @@ export default {
       await store.dispatch('library/add', file_path)
       await store.dispatch('tome/load', file_path)
       await store.dispatch('files/initialize', { path: file_path })
-      store.dispatch('tome/inspect')
+      await store.dispatch('tome/inspect')
     },
     clear_tome: async function () {
       await store.dispatch('tome/clear')

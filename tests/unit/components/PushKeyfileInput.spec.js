@@ -1,42 +1,29 @@
+import { assemble } from '@/../tests/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
 import PushKeyfileInput from '@/components/PushKeyfileInput.vue'
 
-import { createLocalVue, mount } from '@vue/test-utils'
-
 Vue.use(Vuetify)
-const localVue = createLocalVue()
 
 describe('PushKeyfileInput.vue', () => {
-  let vuetify
-  let wrapper
-
   let value
   let stored
   let file
 
-  beforeEach(() => {
-    vuetify = new Vuetify()
+  const factory = assemble(PushKeyfileInput, { value, stored })
+    .hook(({ context, localVue }) => {
+      localVue.use(Vuetify)
+      context.vuetify = new Vuetify()
+    })
 
+  beforeEach(() => {
     value = ''
     stored = ''
 
     file = {
       path: './test_key.pub'
     }
-
-    wrapper = mount(
-      PushKeyfileInput,
-      {
-        localVue,
-        vuetify,
-        propsData: {
-          value,
-          stored
-        }
-      }
-    )
   })
 
   afterEach(() => {
@@ -44,6 +31,8 @@ describe('PushKeyfileInput.vue', () => {
   })
 
   it('should mount and set prop and data defaults', async () => {
+    const wrapper = factory.wrap()
+
     expect(wrapper.vm.value).toEqual('')
     expect(wrapper.vm.stored).toEqual('')
     expect(wrapper.vm.label).toEqual('')
@@ -51,26 +40,32 @@ describe('PushKeyfileInput.vue', () => {
   })
 
   it('should set the load text color to "red" when there is no set value', async () => {
+    const wrapper = factory.wrap()
+
     expect(wrapper.vm.color).toEqual('red')
   })
 
   it('should set the load button color to "green" when there is a set value', async () => {
-    wrapper.setProps({ value: './test_key.pub' })
+    const wrapper = factory.wrap({ value: './test_key.pub' })
 
     expect(wrapper.vm.color).toEqual('green')
   })
 
   it('should set the load button color to "grey" when there is no stored value', async () => {
+    const wrapper = factory.wrap()
+
     expect(wrapper.vm.button_color).toEqual('grey')
   })
 
   it('should set the load button color to "orange" when there is a stored value', async () => {
-    wrapper.setProps({ stored: './test_key.pub' })
+    const wrapper = factory.wrap({ stored: './test_key.pub' })
 
     expect(wrapper.vm.button_color).toEqual('orange')
   })
 
   it('should emit "input" event when input method is called and file is selected', async () => {
+    const wrapper = factory.wrap()
+
     const event = jest.fn()
 
     wrapper.vm.$on('input', event)
@@ -89,6 +84,8 @@ describe('PushKeyfileInput.vue', () => {
   })
 
   it('should no emit "input" event when input method is called but file is no selected', async () => {
+    const wrapper = factory.wrap()
+
     const event = jest.fn()
 
     file.path = null

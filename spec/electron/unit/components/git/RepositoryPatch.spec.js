@@ -1,17 +1,10 @@
-import { remote } from 'electron'
-import RepositoryPatch from '@/store/modules/tome/RepositoryPatch'
+import RepositoryPatch from '@/../electron/components/git/RepositoryPatch'
 
 jest.mock('electron', () => ({
   remote: {
     require: jest.fn()
   }
 }))
-
-const _path_basename = path => String(path).substring(String(path).lastIndexOf('/') + 1)
-
-const path = {
-  basename: jest.fn(_path_basename)
-}
 
 describe('RepositoryPatch.js', () => {
   let patch
