@@ -30,6 +30,11 @@ jobs:
       
     - name: Build Renderer
       run: npm run build-renderer
-      
+
+    - name: Build packages for Electron
+      run: npm run electron-rebuild
+  
     - name: Build Installer
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: npm run build
