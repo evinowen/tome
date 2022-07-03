@@ -41,6 +41,7 @@ jobs:
         .\vs_buildtools.exe --wait --norestart --passive --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools"
         --add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools
         --add Microsoft.VisualStudio.Workload.MSBuildTools
+        --add Microsoft.VisualStudio.Workload.VCTools
       shell: cmd
       
     - name: Debug build tools
