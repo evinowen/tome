@@ -32,11 +32,10 @@ jobs:
     - name: Install node-gyp
       run: npm install --global node-gyp@latest
       
-    - name: Download Windows Build Tools
-      run: curl -SL --output vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
-      
-    - name: Install Windows Build Tools
-      run: vs_buildtools.exe
+    - name: Download and Install Windows Build Tools
+      run: |
+        curl -SL --output vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
+        vs_buildtools.exe
 
     - name: Install dependencies
       run: npm install
