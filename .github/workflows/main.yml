@@ -34,17 +34,17 @@ jobs:
       
     - name: Download and Install Windows Build Tools
       run: |
-        curl -SL --output """$($env:SystemDrive)\vs_buildtools.exe""" https://aka.ms/vs/15/release/vs_buildtools.exe
+        curl -SL --output """$($env:SystemDrive)\vs_buildtools.exe""" https://aka.ms/vs/17/release/vs_buildtools.exe
         Start-Process -FilePath """$($env:SystemDrive)\vs_buildtools.exe"""
 
     - name: Install dependencies
       run: npm install
-      
-    - name: Build Renderer
-      run: npm run build-renderer
 
     - name: Build packages for Electron
       run: npm run electron-rebuild
+      
+    - name: Build Renderer
+      run: npm run build-renderer
   
     - name: Build Installer
       env:
