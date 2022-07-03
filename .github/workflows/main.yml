@@ -13,17 +13,18 @@ jobs:
       with:
         node-version: 14.19.1
         
+    - name: Instally Python
+      run: choco install python2
+        
     - name: Install Perl
-      run: choco install strawberryperl
-      
-    - name: Add Perl to PATH
-      run: echo ";C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      run: |
+        choco install strawberryperl
+        echo ";C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         
     - name: Install NASM
-      run: choco install nasm
-      
-    - name: Add NASM to PATH
-      run: echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      run: |
+        choco install nasm
+        echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       
     - name: install node-gyp
       run: npm install --global node-gyp
