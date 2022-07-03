@@ -40,9 +40,6 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-      
-    - name: List Debug
-      run: dir "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools"
 
     - name: Build packages for Electron
       run: npm run electron-rebuild
