@@ -37,7 +37,8 @@ jobs:
       
     - name: Install Windows Build Tools
 #       run: Start-Process "$Env:SystemDrive\vs_buildtools.exe --wait --norestart --nocache --installPath ""${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools""" | Invoke-Expression
-      run: .\vs_buildtools.exe --wait --norestart --passive --installPath "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools" --add Microsoft.VisualStudio.Workload.MSBuildTools
+      run: .\vs_buildtools.exe --wait --norestart --passive --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools" --add Microsoft.VisualStudio.Workload.MSBuildTools
+      shell: cmd
       
     - name: Debug build tools
       run:  Get-ChildItem "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools"
