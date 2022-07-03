@@ -33,13 +33,16 @@ jobs:
       run: npm install --global node-gyp@latest
       
     - name: Download Windows Build Tools
-      run: curl -SL --output """$($env:SystemDrive)\vs_buildtools.exe""" https://aka.ms/vs/17/release/vs_buildtools.exe
+      run: curl -SL --output """$($env:SystemDrive)\vs_buildtools.exe""" https://aka.ms/vs/15/release/vs_buildtools.exe
       
     - name: Install Windows Build Tools
       run: Invoke-Expression -Command """$($env:SystemDrive)\vs_buildtools.exe"""
 
     - name: Install dependencies
       run: npm install
+      
+    - name: List Debug
+      run: ls -R "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools"
 
     - name: Build packages for Electron
       run: npm run electron-rebuild
