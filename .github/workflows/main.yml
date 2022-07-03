@@ -34,8 +34,8 @@ jobs:
       
     - name: Download and Install Windows Build Tools
       run: |
-        curl -SL --output vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
-        vs_buildtools.exe
+        curl -SL --output """$($env:SystemDrive)\vs_buildtools.exe""" https://aka.ms/vs/15/release/vs_buildtools.exe
+        Start-Process -FilePath """$($env:SystemDrive)\vs_buildtools.exe"""
 
     - name: Install dependencies
       run: npm install
