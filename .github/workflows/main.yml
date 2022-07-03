@@ -15,6 +15,9 @@ jobs:
         
     - name: Instally Python
       run: choco install python2
+
+    - name: Set NPM to use Python 2.7
+      run: npm config set python C:\Python27\python.exe
         
     - name: Install Perl
       run: |
@@ -26,14 +29,11 @@ jobs:
         choco install nasm
         echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       
-    - name: install node-gyp
-      run: npm install --global node-gyp
+    - name: Install node-gyp
+      run: npm install --global node-gyp@latest
       
-    - name: install Windows Build Tools
+    - name: Install Windows Build Tools
       run: npm install --global --vs2015 --production windows-build-tools
-
-    - name: Set NPM to use Python 2.7
-      run: npm config set python python2.7
       
     - name: Set NPM to use Visual Studio 2015
       run: npm config set msvs_version 2015
