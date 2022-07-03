@@ -13,7 +13,7 @@ jobs:
       with:
         node-version: 14.19.1
         
-    - name: Instally Python
+    - name: Install Python
       run: choco install python2 --version=2.7.15 --params """/InstallDir:$($env:SystemDrive)\Python27"""
 
     - name: Set NPM to use Python 2.7
@@ -36,7 +36,7 @@ jobs:
       run: curl -SL --output """$($env:SystemDrive)\vs_buildtools.exe""" https://aka.ms/vs/17/release/vs_buildtools.exe
       
     - name: Install Windows Build Tools
-      run: "$($env:SystemDrive)\vs_buildtools.exe"
+      run: Invoke-Command -Command """$($env:SystemDrive)\\vs_buildtools.exe""
 
     - name: Install dependencies
       run: npm install
