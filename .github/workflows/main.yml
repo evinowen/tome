@@ -33,10 +33,10 @@ jobs:
       run: npm install --global node-gyp@latest
       
     - name: Download Windows Build Tools
-      run: curl -SL --output """$($env:SystemDrive)\vs_buildtools.exe""" https://aka.ms/vs/15/release/vs_buildtools.exe
+      run: curl -SL --output vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
       
     - name: Install Windows Build Tools
-      run: start /w """$($env:SystemDrive)\vs_buildtools.exe"" --wait --norestart --nocache --installPath ""%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools"""
+      run: start /w vs_buildtools.exe --wait --norestart --nocache --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools"
 
     - name: Install dependencies
       run: npm install
