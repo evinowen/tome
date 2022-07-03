@@ -14,7 +14,7 @@ jobs:
         node-version: 14.19.1
         
     - name: Install Python
-      run: choco install python2 --version=2.7.15 --params """/InstallDir:$($env:SystemDrive)\Python27"""
+      run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
 
     - name: Set NPM to use Python 2.7
       run: npm config set python C:\Python27\python.exe
@@ -33,10 +33,10 @@ jobs:
       run: npm install --global node-gyp@latest
       
     - name: Download Windows Build Tools
-      run: curl -SL --output vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
+      run: curl -SL --output "$Env:SystemDrive\vs_buildtools.exe" https://aka.ms/vs/15/release/vs_buildtools.exe
       
     - name: Install Windows Build Tools
-      run: start /w vs_buildtools.exe --wait --norestart --nocache --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools"
+      run: Invoke-Expression -Command "$Env:SystemDrive\vs_buildtools.exe" --wait --norestart --nocache --installPath "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools"
 
     - name: Install dependencies
       run: npm install
