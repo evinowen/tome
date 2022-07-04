@@ -53,7 +53,6 @@ jobs:
       run:  Get-ChildItem "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools\VC"
     - name: Debug build tools3
       run:  Get-ChildItem "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary"
-      
     - name: Debug build tools4
       run:  Get-ChildItem "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build"
       
@@ -61,12 +60,4 @@ jobs:
       run: npm install
 
     - name: Build packages for Electron
-      run: psexec -accepteula -l "npm run electron-rebuild"
-      
-    - name: Build Renderer
-      run: npm run build-renderer
-  
-    - name: Build Installer
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: npm run build
+      run: psexec -accepteula -l -d cmd.exe -c "${GITHUB_WORKSPACE}\build.bat
