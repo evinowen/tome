@@ -46,18 +46,6 @@ jobs:
         --add Microsoft.VisualStudio.Workload.MSBuildTools
         --add Microsoft.VisualStudio.Workload.VCTools
       shell: cmd
-      
-    - name: Debug build tools
-      run:  Get-ChildItem "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools"
-    - name: Debug build tools2
-      run:  Get-ChildItem "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools\VC"
-    - name: Debug build tools3
-      run:  Get-ChildItem "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary"
-    - name: Debug build tools4
-      run:  Get-ChildItem "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build"
-      
-    - name: Install dependencies
-      run: npm install
 
     - name: Build packages for Electron
       run: psexec -accepteula -l -i cmd.exe "${Env:GITHUB_WORKSPACE}\build.bat"
