@@ -60,4 +60,4 @@ jobs:
       run: npm install
 
     - name: Build packages for Electron
-      run: psexec -accepteula -l -d cmd.exe -c "${Env:GITHUB_WORKSPACE}\build.bat"
+      run: psexec -accepteula -l -i cmd.exe "${Env:GITHUB_WORKSPACE}\build.bat"
