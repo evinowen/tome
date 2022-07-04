@@ -61,7 +61,7 @@ jobs:
       run: npm install
 
     - name: Build packages for Electron
-      run: psexec -l "npm run electron-rebuild"
+      run: psexec -accepteula -l "npm run electron-rebuild"
       
     - name: Build Renderer
       run: npm run build-renderer
