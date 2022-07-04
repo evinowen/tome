@@ -46,6 +46,17 @@ jobs:
         --add Microsoft.VisualStudio.Workload.MSBuildTools
         --add Microsoft.VisualStudio.Workload.VCTools
       shell: cmd
-
+ 
+    - name: Install dependencies
+      run: npm install
+  
     - name: Build packages for Electron
-      run: psexec -accepteula -l -i cmd.exe "${Env:GITHUB_WORKSPACE}\build.bat"
+      run: psexec -accepteula -l -i cmd.exe "${Env:GITHUB_WORKSPACE}\.github\rebuild.bat"
+      
+    - name: Build Renderer
+      run: npm run build-renderer
+  
+    - name: Build Installer
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: npm run build
