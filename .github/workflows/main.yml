@@ -13,6 +13,9 @@ jobs:
       with:
         node-version: 14.19.1
         
+    - name: Install PSTools
+      run: choco install pstools
+        
     - name: Install Python
       run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
 
@@ -58,7 +61,7 @@ jobs:
       run: npm install
 
     - name: Build packages for Electron
-      run: npm run electron-rebuild
+      run: psexec -l "npm run electron-rebuild"
       
     - name: Build Renderer
       run: npm run build-renderer
