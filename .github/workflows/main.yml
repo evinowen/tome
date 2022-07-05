@@ -13,9 +13,6 @@ jobs:
       with:
         node-version: 14.19.1
         
-    - name: Install PSTools
-      run: choco install pstools
-        
     - name: Install Python
       run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
 
@@ -34,12 +31,13 @@ jobs:
       
     - name: Install node-gyp
       run: npm install --global node-gyp@latest
+      shell: cmd
       
     - name: Download Windows Build Tools
       run: curl -SL --output vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
+      shell: cmd
       
     - name: Install Windows Build Tools
-#       run: Start-Process "$Env:SystemDrive\vs_buildtools.exe --wait --norestart --nocache --installPath ""${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools""" | Invoke-Expression
       run:
         .\vs_buildtools.exe --wait --norestart --passive --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools"
         --add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools
@@ -49,14 +47,18 @@ jobs:
  
     - name: Install dependencies
       run: npm install
+      shell: cmd
   
     - name: Build packages for Electron
-      run: psexec -accepteula -l -i cmd.exe "${Env:GITHUB_WORKSPACE}\.github\rebuild.bat"
+      run: npm run electron-rebuild
+      shell: cmd
       
     - name: Build Renderer
       run: npm run build-renderer
+      shell: cmd
   
     - name: Build Installer
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: npm run build
+      shell: cmd
