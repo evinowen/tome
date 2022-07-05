@@ -1,0 +1,72 @@
+name: build
+on:
+  pull_request:
+    branches: master
+  push:
+    branches: master
+
+jobs:
+  build_on_win:
+    runs-on: windows-2016
+    steps:
+    - uses: actions/checkout@master
+      with:
+        ref: $GITHUB_REF
+        
+    - uses: actions/setup-node@master
+      with:
+        node-version: 14.19.1
+        
+    - name: Install Python
+      run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
+
+    - name: Set NPM to use Python 2.7
+      run: npm config set python C:\Python27\python.exe
+        
+    - name: Install Perl
+      run: |
+        choco install strawberryperl
+        echo ";C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        
+    - name: Install NASM
+      run: |
+        choco install nasm
+        echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      
+    - name: Install node-gyp
+      run: npm install --global node-gyp@latest
+      shell: cmd
+      
+    - name: Download Windows Build Tools
+      run: curl -SL --output vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
+      shell: cmd
+      
+    - name: Install Windows Build Tools
+      run:
+        .\vs_buildtools.exe --wait --norestart --passive --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools"
+        --add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools
+        --add Microsoft.VisualStudio.Workload.MSBuildTools
+        --add Microsoft.VisualStudio.Workload.VCTools
+      shell: cmd
+ 
+    - name: Install dependencies
+      run: npm install
+      shell: cmd
+  
+    - name: Build packages for Electron
+      run: npm run electron-rebuild
+      env:
+        # Must disable test_ssl_new as it fails with privileged account access that cannot
+        # be revoked in the current GitHub Actions environment.
+        TESTS: "-test_ssl_new"
+      shell: cmd
+      
+    - name: Build Renderer
+      run: npm run build-renderer
+      shell: cmd
+  
+    - name: Build Installer
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: npm run build
+      shell: cmd
