@@ -1,5 +1,9 @@
 name: build
-on: [push, workflow_dispatch]
+on:
+  pull_request:
+    branches: master
+  push:
+    branches: master
 
 jobs:
   build_on_win:
@@ -7,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
       with:
-        ref: feat-layout-add-github-actions   
+        ref: $GITHUB_REF
         
     - uses: actions/setup-node@master
       with:
