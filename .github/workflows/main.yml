@@ -59,6 +59,10 @@ jobs:
         TESTS: "-test_ssl_new"
       shell: cmd
       
+    - name: Test Renderer
+      run: npm run test-renderer
+      shell: cmd
+      
     - name: Build Renderer
       run: npm run build-renderer
       shell: cmd
