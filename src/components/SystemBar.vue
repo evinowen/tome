@@ -1,31 +1,31 @@
 <template>
   <v-system-bar
-    window dark height=25
-    color="grey darken-3"
-    class="white--text pa-0"
+    window height=25
+    class="pa-0"
     style="user-select: none;"
   >
 
     <v-btn tile icon small @click.stop="$emit('settings')" >
-      <v-icon small>mdi-cog</v-icon>
+      <v-icon>mdi-cog</v-icon>
     </v-btn>
 
     <v-spacer></v-spacer>
 
-    <span system-bar-title>{{ title }}</span>
+    <span system-bar-title v-if=tome.name>{{ tome.name }}</span>
+    <span system-bar-title v-else><small style="color: #999">tome</small></span>
 
     <v-spacer></v-spacer>
 
     <v-btn tile icon small @click.stop="minimize" system-bar-minimize>
-      <v-icon small>mdi-window-minimize</v-icon>
+      <v-icon>mdi-window-minimize</v-icon>
     </v-btn>
 
     <v-btn tile icon small @click.stop="maximize" system-bar-maximize>
-      <v-icon small>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
+      <v-icon>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
     </v-btn>
 
     <v-btn tile icon small @click.stop="close" system-bar-close>
-      <v-icon small>mdi-window-close</v-icon>
+      <v-icon>mdi-window-close</v-icon>
     </v-btn>
 
   </v-system-bar>
@@ -41,16 +41,22 @@
   -webkit-app-region: no-drag;
 }
 
-.v-system-bar .v-icon {
+.v-system-bar .v-btn,
+.v-system-bar .v-btn .v-icon {
   margin: 0 !important;
+  font-size: 12px;
+  height: 25px;
+  width: 25px;
 }
 
 </style>
 
 <script>
-import { remote } from 'electron'
+import { VBtn, VIcon, VSystemBar, VSpacer } from 'vuetify/lib'
+import store from '@/store'
 
 export default {
+  components: { VBtn, VIcon, VSystemBar, VSpacer },
   props: {
     title: { type: String, default: '' }
   },
@@ -61,42 +67,38 @@ export default {
   }),
 
   mounted: async function () {
-    const window = remote.getCurrentWindow()
+    this.maximized = await window.api.is_window_maximized()
+  },
 
-    this.maximized = window.isMaximized()
+  computed: {
+    tome: function () {
+      return store.state.tome
+    }
   },
 
   methods: {
-    minimize: function (event) {
-      const window = remote.BrowserWindow.getFocusedWindow()
-
-      window.minimize()
+    minimize: async function (event) {
+      await window.api.minimize_window()
 
       this.$emit('minimized')
     },
 
-    maximize: function (event) {
-      const window = remote.BrowserWindow.getFocusedWindow()
-
-      if (window.isMaximized()) {
-        window.restore()
-
+    maximize: async function (event) {
+      if (await window.api.is_window_maximized()) {
+        await window.api.restore_window()
         this.maximized = false
 
         this.$emit('restored')
       } else {
-        window.maximize()
-
+        await window.api.maximize_window()
         this.maximized = true
 
         this.$emit('maximized')
       }
     },
 
-    close: function (event) {
-      const window = remote.BrowserWindow.getFocusedWindow()
-
-      window.close()
+    close: async function (event) {
+      await window.api.close_window()
 
       this.$emit('closed')
     }

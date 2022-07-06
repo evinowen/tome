@@ -1,133 +1,12 @@
-import { remote } from 'electron'
-import chokidar from 'chokidar'
 import Vuex from 'vuex'
 import { cloneDeep } from 'lodash'
 
 import { createLocalVue } from '@vue/test-utils'
 import files from '@/store/modules/files'
 
-jest.mock('electron', () => ({ remote: {} }))
-jest.mock('chokidar', () => ({ watch: {} }))
+import builders from '@/../tests/builders'
 
-let disk
-const disk_fetch = (path) => {
-  const path_split = String(path).replace(/^\/|\/$/, '').split('/')
-
-  let parent
-  let name
-  let item = disk
-
-  while (path_split.length) {
-    parent = item
-    name = path_split.shift()
-    item = item[name]
-  }
-
-  return { parent, name, item }
-}
-
-const _fs_isDirectory_factory = (name) => () => (['first', 'second', 'third'].indexOf(name) !== -1)
-
-const _path_dirname = path => String(path).substring(0, String(path).lastIndexOf('/'))
-const _path_basename = path => String(path).substring(String(path).lastIndexOf('/') + 1)
-const _path_relative = (first, second) => String(second).indexOf(String(first)) === 0 ? String(second).substring(String(first).length + 1) : ''
-
-const _lstat_result = (path) => ({
-  isDirectory: jest.fn(_fs_isDirectory_factory(_path_basename(path)))
-})
-
-const _readdir_result = (...names) => names.map(name => ({
-  name,
-  isDirectory: jest.fn(_fs_isDirectory_factory(name))
-}))
-
-const _readdir = (path) => {
-  const path_split = String(path).replace(/^\/|\/$/, '').split('/')
-  let item = disk
-  while (path_split.length) item = item[path_split.shift()]
-
-  const files = Object.keys(item)
-  return _readdir_result(...files)
-}
-
-const _writefile = (path) => {
-  const path_split = String(path).replace(/^\/|\/$/, '').split('/')
-  let item = disk
-  while (path_split.length > 1) item = item[path_split.shift()]
-
-  item[path_split.shift()] = null
-
-  return true
-}
-
-const _mkdir = (path) => {
-  const path_split = String(path).replace(/^\/|\/$/, '').split('/')
-  let item = disk
-  while (path_split.length > 1) item = item[path_split.shift()]
-
-  item[path_split.shift()] = {}
-
-  return true
-}
-
-const fs = {
-  readdir: jest.fn((path, options, callback) => (callback ?? options)(0, _readdir(path))),
-  readdirSync: jest.fn((path, options) => _readdir(path)),
-  readFile: jest.fn((path, encoding, callback) => callback(null, '# Header\nContent')),
-  readFileSync: jest.fn((path, options) => '# Header\nContent'),
-  writeFile: jest.fn((path, data, options, callback) => (callback ?? options)(0, _writefile(path))),
-  writeFileSync: jest.fn((path, data, options) => _writefile(path)),
-  mkdir: jest.fn((path, options, callback) => (callback ?? options)(0, _mkdir(path))),
-  unlink: jest.fn((path, callback) => {
-    const { parent, name } = disk_fetch(path)
-    if (!parent) return callback(new Error('error!'))
-
-    delete parent[name]
-    return callback(null, 1)
-  }),
-  rename: jest.fn((current_path, proposed_path, callback) => {
-    const { parent: current_parent, name: current_name } = disk_fetch(current_path)
-    if (!current_parent) return callback(new Error('error!'))
-
-    const proposed_name = _path_basename(proposed_path)
-
-    const parent_path = _path_dirname(proposed_path)
-    const { item: parent_item } = disk_fetch(parent_path)
-    if (!parent_item) return callback(new Error('error!'))
-
-    const item = current_parent[current_name]
-    delete current_parent[current_name]
-
-    parent_item[proposed_name] = item
-
-    return callback(null, 1)
-  }),
-  access: jest.fn((path, callback) => callback(new Error('error!'))),
-  lstat: jest.fn((path, callback) => callback(null, _lstat_result(path)))
-}
-
-const path = {
-  sep: '/',
-  dirname: jest.fn(_path_dirname),
-  basename: jest.fn(_path_basename),
-  relative: jest.fn(_path_relative),
-  join: jest.fn((first, second) => String(first).replace(/\/$/g, '').concat('/').concat(String(second).replace(/^\/|\/$/g, ''))),
-  extname: jest.fn(path => String(path).substr(String(path).lastIndexOf('.')))
-}
-
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return fs
-    case 'path': return path
-  }
-})
-
-chokidar.watch = jest.fn((path) => ({
-  on: jest.fn((event, callback) => {
-    callback(String(path).concat('/x.md'))
-    return { close: jest.fn() }
-  })
-}))
+Object.assign(window, builders.window())
 
 describe('store/modules/files', () => {
   let localVue
@@ -137,30 +16,7 @@ describe('store/modules/files', () => {
     localVue = createLocalVue()
     localVue.use(Vuex)
 
-    disk = {
-      'project': {
-        '.git': {},
-        '.tome': {},
-        'a.md': null,
-        'b.md': null,
-        'first': {
-          'a.md': null,
-          'b.md': null,
-          'c.md': null
-        },
-        'second': {
-          'b.md': null,
-          'c.md': null
-        },
-        'c.md': null,
-        'x.md': null,
-        'y.md': null,
-        'z.md': null,
-        'third': {
-          'c.md': null
-        }
-      }
-    }
+    window._.reset_disk()
 
     store = new Vuex.Store(cloneDeep({ modules: { files } }))
   })
@@ -201,7 +57,7 @@ describe('store/modules/files', () => {
     await store.dispatch('files/initialize', { path })
     await store.dispatch('files/populate', { path })
 
-    const { item } = store.state.files.tree.identify(path)
+    const { item } = await store.state.files.tree.identify(path)
 
     expect(item).not.toBeNull()
     expect(item.children.length).toBeGreaterThan(0)
@@ -215,7 +71,7 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path })
     await store.dispatch('files/load', { path: target })
 
-    const { item } = store.state.files.tree.identify(target)
+    const { item } = await store.state.files.tree.identify(target)
 
     expect(item.expanded).toBeFalsy()
 
@@ -233,7 +89,7 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: target })
     await store.dispatch('files/toggle', { path: target })
 
-    const { item } = store.state.files.tree.identify(target)
+    const { item } = await store.state.files.tree.identify(target)
 
     expect(item.expanded).toBeTruthy()
 
@@ -293,7 +149,7 @@ describe('store/modules/files', () => {
     await store.dispatch('files/save')
 
     expect(store.state.files.content).toBe(content)
-    expect(fs.writeFile).toHaveBeenCalledTimes(1)
+    expect(window.api.file_write).toHaveBeenCalledTimes(1)
   })
 
   it('should place the ghost adjacent to the target provided', async () => {
@@ -354,32 +210,30 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/ghost', { path: directory, directory: true })
 
-    const { item } = store.state.files.tree.identify(directory)
+    const { item } = await store.state.files.tree.identify(directory)
 
     expect(item.directory).toBeTruthy()
-    expect(fs.mkdir).toHaveBeenCalledTimes(0)
+    expect(window.api.file_create_directory).toHaveBeenCalledTimes(0)
 
     await store.dispatch('files/submit', { path: directory, input, title: false })
 
-    expect(fs.mkdir).toHaveBeenCalledTimes(1)
+    expect(window.api.file_create_directory).toHaveBeenCalledTimes(1)
   })
 
   it('should fail gracefully when creating a new item that already exists', async () => {
     const path = '/project'
     const directory = '/project/first'
-    const input = 'new'
+    const input = 'a.md'
 
     await store.dispatch('files/initialize', { path })
     await store.dispatch('files/load', { path })
     await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/ghost', { path: directory, directory: true })
 
-    const { item } = store.state.files.tree.identify(directory)
+    const { item } = await store.state.files.tree.identify(directory)
 
     expect(item.directory).toBeTruthy()
-    expect(fs.mkdir).toHaveBeenCalledTimes(0)
-
-    fs.access.mockImplementationOnce((path, callback) => callback(null))
+    expect(window.api.file_create_directory).toHaveBeenCalledTimes(0)
 
     await expect(store.dispatch('files/submit', { path: directory, input, title: false })).rejects.toBeDefined()
   })
@@ -394,14 +248,14 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/ghost', { path: directory, directory: false })
 
-    const { item } = store.state.files.tree.identify(directory)
+    const { item } = await store.state.files.tree.identify(directory)
 
     expect(item.directory).toBeTruthy()
-    expect(fs.writeFile).toHaveBeenCalledTimes(0)
+    expect(window.api.file_create).toHaveBeenCalledTimes(0)
 
     await store.dispatch('files/submit', { path: directory, input, title: false })
 
-    expect(fs.writeFile).toHaveBeenCalledTimes(1)
+    expect(window.api.file_create).toHaveBeenCalledTimes(1)
   })
 
   it('should rename item on submit when item is not ephemeral', async () => {
@@ -414,11 +268,11 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/edit', { path: directory })
 
-    const { item: item_before } = store.state.files.tree.identify(directory)
+    const { item: item_before } = await store.state.files.tree.identify(directory)
 
     await store.dispatch('files/submit', { path: directory, input, title: false })
 
-    const { item: item_after } = store.state.files.tree.identify(path)
+    const { item: item_after } = await store.state.files.tree.identify(path)
 
     expect(item_after.name).not.toBe(item_before.name)
   })
@@ -436,16 +290,16 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: target })
     await store.dispatch('files/edit', { path: target })
 
-    const { item: item_before } = store.state.files.tree.identify(target)
+    const { item: item_before } = await store.state.files.tree.identify(target)
 
     await store.dispatch('files/submit', { path: target, input, title: true })
 
-    const { item: item_after } = store.state.files.tree.identify(result)
+    const { item: item_after } = await store.state.files.tree.identify(result)
 
     expect(item_after).not.toBeNull()
     expect(item_after.name).not.toBe(item_before.name)
     expect(item_after.path).toBe(result)
-    expect(item_after.name).toBe(_path_basename(result))
+    expect(item_after.name).toBe('new.file.name.md')
   })
 
   it('should clear edit when blur is called while editing', async () => {
@@ -478,13 +332,13 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: target_directory })
     await store.dispatch('files/load', { path: proposed_directory })
 
-    const { item: item_before } = store.state.files.tree.identify(target)
+    const { item: item_before } = await store.state.files.tree.identify(target)
     expect(item_before).toBeDefined()
 
     await store.dispatch('files/move', { path: target, proposed: proposed_directory })
 
-    const { item: item_previous } = store.state.files.tree.identify(target)
-    const { item: item_current } = store.state.files.tree.identify(proposed)
+    const { item: item_previous } = await store.state.files.tree.identify(target)
+    const { item: item_current } = await store.state.files.tree.identify(proposed)
     expect(item_previous).toBeNull()
     expect(item_current).toBeDefined()
   })
@@ -501,13 +355,13 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: target_directory })
     await store.dispatch('files/load', { path: proposed_directory })
 
-    const { item: item_before } = store.state.files.tree.identify(target)
+    const { item: item_before } = await store.state.files.tree.identify(target)
     expect(item_before).toBeDefined()
 
     await store.dispatch('files/move', { path: target, proposed })
 
-    const { item: item_previous } = store.state.files.tree.identify(target)
-    const { item: item_current } = store.state.files.tree.identify(proposed)
+    const { item: item_previous } = await store.state.files.tree.identify(target)
+    const { item: item_current } = await store.state.files.tree.identify(proposed)
     expect(item_previous).toBeNull()
     expect(item_current).toBeDefined()
   })
@@ -524,13 +378,13 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: target_directory })
     await store.dispatch('files/load', { path: proposed_directory })
 
-    const { item: item_before } = store.state.files.tree.identify(target)
+    const { item: item_before } = await store.state.files.tree.identify(target)
     expect(item_before).toBeDefined()
 
     await store.dispatch('files/move', { path: target, proposed: proposed_directory })
 
-    const { item: item_previous } = store.state.files.tree.identify(target)
-    const { item: item_current } = store.state.files.tree.identify(proposed)
+    const { item: item_previous } = await store.state.files.tree.identify(target)
+    const { item: item_current } = await store.state.files.tree.identify(proposed)
 
     expect(item_previous).toEqual(item_current)
   })
@@ -542,13 +396,13 @@ describe('store/modules/files', () => {
     await store.dispatch('files/initialize', { path })
     await store.dispatch('files/load', { path })
 
-    const { item: item_before } = store.state.files.tree.identify(directory)
+    const { item: item_before } = await store.state.files.tree.identify(directory)
 
     expect(item_before).not.toBeNull()
 
     await store.dispatch('files/delete', { path: directory })
 
-    const { item: item_after } = store.state.files.tree.identify(directory)
+    const { item: item_after } = await store.state.files.tree.identify(directory)
 
     expect(item_after).toBeNull()
   })

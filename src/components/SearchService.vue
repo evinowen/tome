@@ -1,8 +1,8 @@
 <template>
   <div class="search-container">
     <v-toolbar class="search-box">
-      <v-btn tile small :depressed=files @click="files = !files"><v-icon>mdi-file-multiple</v-icon></v-btn>
-      <v-text-field ref="input" class="search-input" @input=update @keydown.enter=next rows=1 :messages=status clearable />
+      <v-btn small :depressed=files :color="files ? 'primary' : ''" @click="files = !files"><v-icon>mdi-file-multiple</v-icon></v-btn>
+      <v-text-field ref="input" class="search-input" @input=update @keydown.enter=next @keydown.esc="$emit('close')" rows=1 :messages=status clearable />
       <div class="search-navigation" v-if=navigation>
         <v-item-group multiple>
           <v-btn tile small @click=previous :disabled=!query><v-icon>mdi-chevron-left</v-icon></v-btn>
@@ -32,7 +32,7 @@
   position: absolute;
   width: 100%;
   bottom: 18px;
-  z-index: 1000
+  z-index: 99;
 }
 
 .search-navigation {
@@ -44,7 +44,6 @@
   margin: 12px;
   overflow-x: hidden;
   overflow-y: scroll;
-  background: rgba(255, 255, 255, 0.5);
   border-top: 1px dotted rgba(0, 0, 0, 0.2);
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
 }
@@ -52,7 +51,6 @@
 .search-empty {
   height: 100px;
   margin: 12px;
-  background: rgba(255, 255, 255, 0.5);
   border-top: 1px dotted rgba(0, 0, 0, 0.2);
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
   padding: 20px;
@@ -62,14 +60,13 @@
 }
 
 .search-result {
-  background: rgba(255, 255, 255, 0.3);
   padding: 2px 6px 1px;
   border-bottom: 1px dotted rgba(0, 0, 0, 0.2);
 }
 
 .search-result:hover {
-  color: white;
-  background: rgba(244, 40, 30, 0.95);
+  color: var(--v-secondary-lighten5) !important;
+  background: var(--v-secondary-base) !important;
 }
 
 .search-score {
@@ -80,17 +77,9 @@
   font-size: 0.8em;
   text-align: center;
   font-weight: bold;
-  background: rgba(244, 40, 30, 0.4);
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.search-result:hover .search-score {
-  background: rgba(255, 255, 255, 0.9);
-  color:  rgba(244, 40, 30, 0.8);
 }
 
 .search-box {
-  background: white;
   margin: 12px;
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
 }
@@ -121,12 +110,13 @@
 </style>
 
 <script>
+import { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VExpandTransition } from 'vuetify/lib'
 import store from '@/store'
-import { remote } from 'electron'
 
 export default {
   name: 'SearchService',
   props: { },
+  components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VExpandTransition },
   data: () => ({
     files: false
   }),
@@ -137,16 +127,14 @@ export default {
     query: () => store.state.search?.query
   },
   methods: {
-    update: query => store.dispatch('search/query', { query }),
-    next: _ => store.dispatch('search/next'),
-    previous: _ => store.dispatch('search/previous'),
-    relative: function (path) {
-      const _path = remote.require('path')
-
-      return _path.relative(store.state.tome.path, path)
+    update: async query => await store.dispatch('search/query', { query }),
+    next: async _ => await store.dispatch('search/next'),
+    previous: async _ => await store.dispatch('search/previous'),
+    relative: async function (path) {
+      return window.api.path_relative(store.state.tome.path, path)
     },
     select: async function (path) {
-      store.dispatch('files/select', { path })
+      await store.dispatch('files/select', { path })
 
       this.files = false
     }

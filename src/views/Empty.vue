@@ -11,20 +11,22 @@
 
 <style>
 .main_screen {
-  background-color: rgb(42, 42, 42);
   background-image:
     repeating-linear-gradient(
       45deg,
-      transparent,
-      transparent 3.5px,
-      rgba(50,50,50,.8) 3.5px,
-      rgba(50,50,50,.5) 7px
+      rgba(128,128,128,.1),
+      rgba(128,128,128,.075) 3.5px,
+      rgba(64,64,64,.075) 3.5px,
+      rgba(64,64,64,.1) 7px
     );
 }
 </style>
 
 <script>
+import { VContainer, VCol, VRow } from 'vuetify/lib'
+
 export default {
+  components: { VContainer, VCol, VRow },
   props: {
     error: String
   }

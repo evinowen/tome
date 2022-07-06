@@ -1,11 +1,12 @@
 <template>
   <div>
   <v-menu
+    ref="node"
     v-bind:value="value"
     v-on:input="$emit('input', $event)"
     :position-x="position_x"
     :position-y="position_y"
-    dark dense tile
+    dense tile
     content-class="context-menu"
   >
     <v-list dense class="context-menu-list">
@@ -15,17 +16,17 @@
         <template v-for="(item, index) in items">
           <div :key="index">
             <v-divider v-if=item.divider></v-divider>
-            <v-list-item
+            <v-list-item v-else
               @click="item.action ? $emit('close') && item.action(target) : null"
               @mouseover="expanded = index"
               :disabled="item.active ? !item.active() : false"
             >
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
+              <v-list-item-title class='item'>{{ item.title }}</v-list-item-title>
 
               <context-menu-node
                 v-if="(item.load || item.items) && index === expanded"
-                :position_x="position_x + 121"
-                :position_y="position_y + (index * 20)"
+                :position_x="local_position_x + 100"
+                :position_y="local_position_y + (index * 20) - 10"
                 :title=item.title
                 :target=target
                 :items=item.items
@@ -41,7 +42,17 @@
   </div>
 </template>
 
-<style>
+<style scoped>
+.v-list-item--link:before {
+  background: inherit;
+}
+
+.v-list-item:hover,
+.v-list-item:hover .item {
+  color: var(--v-primary-lighten4) !important;
+  background: var(--v-primary-darken2) !important;
+}
+
 .context-menu {
   border-radius: 0px !important;
   width: 120px;
@@ -50,6 +61,7 @@
 .context-menu-list {
   border-radius: 0px !important;
   padding: 0px !important;
+  min-height: 20px;
 }
 
 .context-menu-list .v-subheader {
@@ -65,8 +77,11 @@
 </style>
 
 <script>
+import { VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VDivider, VMenu } from 'vuetify/lib'
+
 export default {
   name: 'ContextMenuNode',
+  components: { VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VDivider, VMenu },
   props: {
     value: { type: Boolean, default: false },
     title: { type: String, default: null },
@@ -76,21 +91,21 @@ export default {
     position_y: { type: Number, default: 0 }
   },
   data: () => ({
-    expanded: null
+    expanded: null,
+    local_position_x: 0,
+    local_position_y: 0
   }),
   watch: {
+    position_x: function (value) {
+      this.local_position_x = this.$refs.node.calcXOverflow(value)
+    },
+    position_y: function (value) {
+      this.local_position_y = this.$refs.node.calcYOverflow(value)
+    },
     expanded: async function (value) {
-      if (this.expanded === -1) {
-        return
-      }
+      const menu = this.items[value]
 
-      const menu = this.items[this.expanded]
-
-      if (!menu.load) {
-        return
-      }
-
-      menu.items = await menu.load(this.target)
+      menu.items = menu.load ? await menu.load(this.target) : null
     }
   }
 }

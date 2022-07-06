@@ -1,86 +1,80 @@
-import Vue from 'vue'
+import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-import { remote } from 'electron'
 
-import { mount } from '@vue/test-utils'
 import SystemBar from '@/components/SystemBar.vue'
 
-Vue.use(Vuetify)
+import builders from '@/../tests/builders'
 
-afterEach(() => {
-  jest.clearAllMocks()
-})
+Object.assign(window, builders.window())
 
-jest.mock('electron', () => ({
-  remote: {
-    getCurrentWindow: jest.fn(),
-    BrowserWindow: {
-      getFocusedWindow: jest.fn()
+jest.mock('@/store', () => ({
+  state: {
+    tome: {
+      name: 'Test Title'
     }
-  }
-
+  },
+  dispatch: jest.fn()
 }))
-
-const window = {
-  isMaximized: jest.fn(() => false),
-  restore: jest.fn(),
-  minimize: jest.fn(),
-  maximize: jest.fn(),
-  close: jest.fn()
-}
-
-remote.getCurrentWindow.mockImplementation(() => window)
-remote.BrowserWindow.getFocusedWindow.mockImplementation(() => window)
 
 describe('SystemBar.vue', () => {
   const title = 'Test Title'
 
   let vuetify
-  let wrapper
 
-  beforeEach(() => {
-    vuetify = new Vuetify()
+  const factory = assemble(SystemBar, { title })
+    .context(() => ({ vuetify, stubs: { VIcon: true } }))
+    .hook(({ context }) => {
+      vuetify = new Vuetify()
+    })
 
-    wrapper = mount(
-      SystemBar,
-      {
-        vuetify,
-        propsData: { title }
-      }
-    )
+  afterEach(async () => {
+    await window.api.maximize_window()
+    jest.clearAllMocks()
   })
 
   it('renders props.title when passed', () => {
+    const wrapper = factory.wrap()
+
     expect(wrapper.find('[system-bar-title]').text()).toEqual(title)
   })
 
-  it('calls method to close the application window when close button is clicked', () => {
+  it('calls method to close the application window when close button is clicked', async () => {
+    const wrapper = factory.wrap()
+
     wrapper.find('[system-bar-close]').trigger('click')
+    await wrapper.vm.$nextTick()
 
-    expect(window.close).toHaveBeenCalledTimes(1)
+    expect(window.api.close_window).toHaveBeenCalledTimes(1)
   })
 
-  it('calls method to minimize the application window when minimize button is clicked', () => {
+  it('calls method to minimize the application window when minimize button is clicked', async () => {
+    const wrapper = factory.wrap()
+
     wrapper.find('[system-bar-minimize]').trigger('click')
+    await wrapper.vm.$nextTick()
 
-    expect(window.minimize).toHaveBeenCalledTimes(1)
+    expect(window.api.minimize_window).toHaveBeenCalledTimes(1)
   })
 
-  it('calls method to maximize the application window when maximize button is clicked and window is not maximized', () => {
-    window.isMaximized = jest.fn(() => false)
+  it('calls method to maximize the application window when maximize button is clicked and window is not maximized', async () => {
+    const wrapper = factory.wrap()
+
+    window.api.minimize_window()
 
     wrapper.find('[system-bar-maximize]').trigger('click')
+    await wrapper.vm.$nextTick()
 
-    expect(window.restore).toHaveBeenCalledTimes(0)
-    expect(window.maximize).toHaveBeenCalledTimes(1)
+    expect(window.api.restore_window).toHaveBeenCalledTimes(0)
+    expect(window.api.maximize_window).toHaveBeenCalledTimes(1)
   })
 
-  it('calls method to restore the application window when maximize button is clicked and window is maximized', () => {
-    window.isMaximized.mockImplementation(() => true)
+  it('calls method to restore the application window when maximize button is clicked and window is maximized', async () => {
+    const wrapper = factory.wrap()
 
     wrapper.find('[system-bar-maximize]').trigger('click')
+    await wrapper.vm.$nextTick()
 
-    expect(window.maximize).toHaveBeenCalledTimes(0)
-    expect(window.restore).toHaveBeenCalledTimes(1)
+    expect(window.api.restore_window).toHaveBeenCalledTimes(1)
+    expect(window.api.maximize_window).toHaveBeenCalledTimes(0)
   })
 })

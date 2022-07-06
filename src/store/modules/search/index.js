@@ -47,11 +47,11 @@ export default {
       })
 
       context.commit('index', { index })
-      context.dispatch('execute')
+      await context.dispatch('execute')
     },
     query: async function (context, { query }) {
       context.commit('query', { query })
-      context.dispatch('execute')
+      await context.dispatch('execute')
     },
     clear: async function (context) {
       context.commit('clear')

@@ -93,10 +93,15 @@ describe('ExplorerNode.vue', () => {
 
     expect(event).toHaveBeenCalledTimes(0)
 
+    const elm = {
+      classList: { add: jest.fn(), remove: jest.fn() }
+    }
+
     await wrapper.vm.drop({
       target: {
         hasAttribute: jest.fn(() => true),
         classList: { remove: jest.fn() },
+        closest: jest.fn(() => elm),
         parentElement: null
       }
     })
@@ -130,11 +135,16 @@ describe('ExplorerNode.vue', () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
+    const elm = {
+      classList: { add: jest.fn(), remove: jest.fn() }
+    }
+
     const event = {
       dataTransfer: {},
       target: {
         hasAttribute: jest.fn(() => false),
         style: { opacity: 1 },
+        closest: jest.fn(() => elm),
         parentElement: {
           hasAttribute: jest.fn(() => true),
           classList: { add: jest.fn() }
@@ -144,24 +154,27 @@ describe('ExplorerNode.vue', () => {
 
     await wrapper.vm.drag_start(event)
 
-    expect(event.target.hasAttribute).toHaveBeenCalledTimes(0)
-    expect(event.target.parentElement.hasAttribute).toHaveBeenCalledTimes(0)
+    expect(elm.classList.add).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.drag_enter(event)
 
-    expect(event.target.hasAttribute).toHaveBeenCalledTimes(1)
-    expect(event.target.parentElement.hasAttribute).toHaveBeenCalledTimes(1)
+    expect(elm.classList.add).toHaveBeenCalledTimes(1)
   })
 
   it('should determine the correct parent container when a drag ends', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
+    const elm = {
+      classList: { add: jest.fn(), remove: jest.fn() }
+    }
+
     const event = {
       dataTransfer: {},
       target: {
         hasAttribute: jest.fn(() => false),
         style: { opacity: 1 },
+        closest: jest.fn(() => elm),
         parentElement: {
           hasAttribute: jest.fn(() => true),
           classList: {
@@ -174,18 +187,16 @@ describe('ExplorerNode.vue', () => {
 
     await wrapper.vm.drag_start(event)
 
-    expect(event.target.hasAttribute).toHaveBeenCalledTimes(0)
-    expect(event.target.parentElement.hasAttribute).toHaveBeenCalledTimes(0)
+    expect(elm.classList.add).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.drag_enter(event)
 
-    expect(event.target.hasAttribute).toHaveBeenCalledTimes(1)
-    expect(event.target.parentElement.hasAttribute).toHaveBeenCalledTimes(1)
+    expect(elm.classList.add).toHaveBeenCalledTimes(1)
+    expect(elm.classList.remove).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.drag_leave(event)
 
-    expect(event.target.hasAttribute).toHaveBeenCalledTimes(2)
-    expect(event.target.parentElement.hasAttribute).toHaveBeenCalledTimes(2)
+    expect(elm.classList.remove).toHaveBeenCalledTimes(1)
   })
 
   it('should refresh input field value when focus is called', async () => {

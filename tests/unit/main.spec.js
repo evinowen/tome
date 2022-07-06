@@ -6,7 +6,7 @@ jest.mock('vue-splitpane', () => ({}))
 
 jest.mock('@/App.vue', () => ({}))
 jest.mock('@/router', () => ({}))
-jest.mock('@/store', () => ({}))
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 jest.mock('@/plugins/vuetify', () => ({}))
 
 const _Vue = {

@@ -1,15 +1,9 @@
 module.exports = {
-  pluginOptions: {
-    electronBuilder: {
-      builderOptions: {
-        npmRebuild: false,
-        win: {
-          icon: './assets/icon/tome.ico'
-        }
-      }
-    }
-  },
+  publicPath: './',
   transpileDependencies: [
     'vuetify'
-  ]
+  ],
+  configureWebpack: {
+    target: 'electron-renderer'
+  }
 }

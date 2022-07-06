@@ -1,77 +1,24 @@
 <template>
   <v-app id="inspire">
-    <system-bar title="tome" @settings="settings.open = true" />
-    <v-navigation-drawer v-model="settings.open" fixed temporary>
-      <v-list dense v-if="configuration">
-        <v-list-item>
-          <v-text-field small label="Name" v-model="configuration.name" @change="counter_start('settings')" />
-        </v-list-item>
-        <v-list-item>
-          <v-text-field small label="E-Mail" v-model="configuration.email" @change="counter_start('settings')" />
-        </v-list-item>
-        <v-list-item>
-          <v-container class="pa-0 mb-2">
-            <div class="overline">Private Key</div>
-            <input ref="private_key" type="file" style="display: none" @change="assign_key('private_key', $event)" />
-            <v-btn tile icon small :color="configuration.private_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.private_key.click()">
-              <v-icon small>{{ configuration.private_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-              {{ configuration.private_key }}
-            </v-btn>
-          </v-container>
-        </v-list-item>
-        <v-list-item>
-          <v-container class="pa-0 mb-2">
-            <div class="overline">Public Key</div>
-            <input ref="public_key" type="file" style="display: none" @change="assign_key('public_key', $event)" />
-            <v-btn tile icon small :color="configuration.public_key ? 'green' : 'red'" class="key-input" @click.stop="$refs.public_key.click()">
-              <v-icon small>{{ configuration.public_key ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-              {{ configuration.public_key }}
-            </v-btn>
-          </v-container>
-        </v-list-item>
-        <v-list-item>
-          <v-text-field
-            v-model="configuration.passphrase"
-            label="passphrase" small clearable
-            :append-icon="settings.obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
-            :type="settings.obscure_passphrase ? 'password' : 'text'"
-            @click:append="settings.obscure_passphrase = !settings.obscure_passphrase"
-            @change="counter_start('settings')"
-          />
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-list-item>
-          <v-switch v-model="configuration.format_titles" label="Format Titles" @change="counter_start('settings')"></v-switch>
-        </v-list-item>
-      </v-list>
-      <template v-slot:append>
-        <v-divider></v-divider>
-        <v-container class="my-1">
-          <v-layout justify-center align-center>
-            <v-progress-circular
-              v-if="settings.triggered"
-              :value="(settings.counter * 100) / settings.max"
-              :size="32"
-              :width="6"
-              color="orange darken-1"
-            />
-            <v-avatar v-else color="green" size="32">
-              <v-icon>mdi-content-save</v-icon>
-            </v-avatar>
-          </v-layout>
-        </v-container>
-      </template>
-    </v-navigation-drawer>
+    <system-bar title="tome" @settings="settings = !settings" />
+
+    <settings v-model="settings" />
+
+    <branch v-if=tome.loaded v-model=branch @close="branch = false" @patch="patch = true" />
+    <commit ref="commit" v-if=tome.loaded v-model=commit @close="commit = false" @patch="patch = true" :confirm=commit_confirm @confirm="commit_confirm = $event" @push=quick_push />
+    <push ref="push" v-if=tome.loaded v-model=push @close="push = false" @patch="patch = true" :confirm=push_confirm @confirm="push_confirm = $event" />
+
+    <patch v-if=tome.loaded v-model=patch @close="patch = false" />
+
+    <console v-model=console @close="console = false" />
 
     <editor-interface
       v-show=tome.path
       ref="interface"
       :edit=edit
-      :commit=commit
-      :push=push
-      @save="save"
-      @commit:close="commit = false"
-      @push:close="push = false"
+      :commit=false
+      :push=false
+      @save=debounce_save
       @context=open_context
     />
     <empty-view v-show=!tome.path />
@@ -87,25 +34,73 @@
     />
 
     <search-service v-show=search />
-
-    <action-bar
-      :waiting=editor.counter
+    <shortcut-service
+      :settings=settings
+      :patch=patch
+      :search=search
+      :edit=edit
+      :branch=branch
       :commit=commit
       :push=push
+      :console=console
+
+      @settings="settings = !settings"
+      @patch="patch = !patch"
+      @search="search = !search"
+      @edit="edit = !edit"
+      @branch="branch = !branch"
+      @commit="commit = edit ? !commit : false"
+      @push="push = edit ? !push : false"
+      @console="console = !console"
+
+      @quick-commit=quick_commit
+    />
+
+    <action-bar
+      :waiting=0
+      :edit=edit
+      :branch=branch
+      :commit=commit
+      :push=push
+      :console=console
+      :disabled="settings"
       @open=set_tome
+      @close=clear_tome
       @edit=toggle
-      @commit="commit = true"
-      @push="push = true"
+      @branch="branch = !branch"
+      @commit="commit = !commit"
+      @push="push = !push"
+      @console="console = !console"
       @search="search = !search"
     />
   </v-app>
 </template>
 
 <style>
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(0,0,0,0.05);
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--v-secondary-lighten3);
+}
+
 html, body {
   font-size: 12px !important;
   overflow: hidden !important;
+}
 
+.v-application {
+  font-family: "Montserrat" !important;
 }
 
 .v-icon.v-icon {
@@ -142,38 +137,38 @@ html, body {
 
 <script>
 import store from './store'
-import { remote } from 'electron'
+import { debounce } from 'lodash'
 
 import ContextMenuService from './components/ContextMenuService.vue'
 import SearchService from './components/SearchService.vue'
 
+import { VApp } from 'vuetify/lib'
 import SystemBar from './components/SystemBar.vue'
+import Settings from './components/Settings.vue'
+import Branch from './components/Branch.vue'
+import Patch from './components/Patch.vue'
+import Commit from './components/Commit.vue'
+import Push from './components/Push.vue'
+import Console from './components/Console.vue'
 import EditorInterface from './components/EditorInterface.vue'
 import EmptyView from '@/views/Empty.vue'
 import ActionBar from './components/ActionBar.vue'
+import ShortcutService from './components/ShortcutService.vue'
 
 export default {
   props: {
     source: String
   },
   data: () => ({
-    settings: {
-      open: false,
-      obscure_passphrase: true,
-      triggered: false,
-      counter: 0,
-      max: 3
-    },
-
-    editor: {
-      triggered: false,
-      counter: 0,
-      max: 3
-    },
-
+    settings: false,
+    branch: false,
     edit: false,
+    patch: false,
     commit: false,
+    commit_confirm: false,
     push: false,
+    push_confirm: false,
+    console: false,
     search: false,
 
     context: {
@@ -186,111 +181,30 @@ export default {
     },
 
     error: null
-
   }),
-
-  created: function () {
-    this.fs = remote.require('fs')
-    this.path = remote.require('path')
-  },
-
-  mounted: async function () {
-    this.settings.run = async () => store.dispatch('configuration/write', store.state.tome_app_config_path)
-    this.editor.run = async () => {
-      await store.dispatch('files/save')
-      store.dispatch('tome/inspect')
+  computed: {
+    tome: function () {
+      return store.state.tome
+    },
+    debounce_save: function () {
+      return debounce(this.save, 1000)
     }
-
-    store.state.tome_app_config_path_dir = this.path.join(remote.app.getPath('appData'), 'tome')
-
-    let create_directory = false
-
-    try {
-      await new Promise((resolve, reject) => this.fs.lstat(store.state.tome_app_config_path_dir, (err, status) => err ? reject(err) : resolve(status)))
-    } catch (err) {
-      create_directory = true
-    }
-
-    if (create_directory) {
-      try {
-        await new Promise((resolve, reject) => this.fs.mkdir(store.state.tome_app_config_path_dir, { recursive: true }, (err) => err ? reject(err) : resolve(true)))
-      } catch (error) {
-        this.error = error
-        return
-      }
-    }
-
-    store.state.tome_app_config_path = this.path.join(store.state.tome_app_config_path_dir, 'config.json')
-
-    let create_file = false
-
-    try {
-      await new Promise((resolve, reject) => this.fs.lstat(store.state.tome_app_config_path, (err, status) => err ? reject(err) : resolve(status)))
-    } catch (err) {
-      create_file = true
-    }
-
-    if (create_file) {
-      try {
-        const fd = await new Promise((resolve, reject) => this.fs.open(store.state.tome_app_config_path, 'w', (err, fd) => err ? reject(err) : resolve(fd)))
-        await new Promise((resolve, reject) => this.fs.close(fd, (err) => err ? reject(err) : resolve(true)))
-      } catch (error) {
-        this.error = error
-        return
-      }
-    }
-
-    await store.dispatch('configuration/load', store.state.tome_app_config_path)
   },
   methods: {
     save: async function (state) {
       const { content } = state
 
       await store.dispatch('files/update', { content })
-
-      if (this.edit) {
-        this.counter_start('editor')
-      } else {
-        this.counter_run('editor', false)
-      }
+      await store.dispatch('files/save')
     },
     set_tome: async function (file_path) {
+      await store.dispatch('library/add', file_path)
       await store.dispatch('tome/load', file_path)
       await store.dispatch('files/initialize', { path: file_path })
-      store.dispatch('tome/inspect')
+      await store.dispatch('tome/inspect')
     },
-    counter_start: function (target) {
-      clearTimeout(this[target].timeout)
-
-      this[target].triggered = true
-      this[target].counter = this[target].max
-
-      this[target].timeout = setTimeout(() => this.counter_update(target), 500)
-    },
-    counter_update: async function (target) {
-      if (!this[target].counter) {
-        return this.counter_run(target)
-      }
-
-      this[target].counter = this[target].counter - 1
-
-      this[target].timeout = setTimeout(() => this.counter_update(target), 1000)
-    },
-    counter_run: async function (target, clear = true) {
-      clearTimeout(this[target].timeout)
-
-      this[target].counter = 0
-      await this[target].run()
-
-      if (clear) {
-        this[target].timeout = setTimeout(() => this.counter_clear(target), 1000)
-      }
-    },
-    counter_clear: async function (target) {
-      clearTimeout(this[target].timeout)
-
-      this[target].counter = 0
-      this[target].triggered = false
+    clear_tome: async function () {
+      await store.dispatch('tome/clear')
     },
     open_context: async function (state) {
       const { instance, selection, event } = state
@@ -320,42 +234,59 @@ export default {
         ...data
       })
     },
-    proxy_file: function (event) {
-      const files = event.target.files || event.dataTransfer.files
-
-      return files.length ? files[0] : null
+    toggle: async function () {
+      this.debounce_save.flush()
+      this.edit = !this.edit
     },
-    assign_key: async function (name, event) {
-      const file = this.proxy_file(event)
+    quick_commit: async function () {
+      this.edit = true
+      this.commit = true
+      this.commit_confirm = true
 
-      await store.dispatch('configuration/update', { [name]: file.path })
-      this.counter_start('settings')
+      await store.dispatch('tome/stage', '*')
+
+      this.$refs.commit.commit()
     },
-    toggle: async function (value) {
-      if (value) {
-        await this.counter_clear('editor')
-      } else {
-        await this.counter_run('editor', false)
+    quick_push: async function () {
+      this.push = true
+      this.push_confirm = true
+
+      const credentials = {
+        private_key: store.state.configuration.private_key,
+        public_key: store.state.configuration.public_key,
+        passphrase: store.state.configuration.passphrase
       }
 
-      this.edit = value
-    }
-  },
-  computed: {
-    tome: function () {
-      return store.state.tome
-    },
-    configuration: function () {
-      return store.state.configuration
+      await store.dispatch('tome/credentials', credentials)
+
+      let url
+      for (const remote of store.state.tome.remotes) {
+        if (store.state.configuration.default_remote === remote.name) {
+          url = remote.url
+          break
+        }
+      }
+
+      await store.dispatch('tome/remote', url)
+
+      this.$refs.push.push()
     }
   },
   components: {
+    VApp,
     SystemBar,
+    Settings,
+    Branch,
+    Patch,
+    Commit,
+    Push,
+    Console,
     EditorInterface,
     EmptyView,
     ActionBar,
     ContextMenuService,
-    SearchService
+    SearchService,
+    ShortcutService
   }
 }
 </script>

@@ -35,7 +35,7 @@
 
 <script>
 import store from '@/store'
-import { remote, shell } from 'electron'
+import { shell } from 'electron'
 import ExplorerNode from './ExplorerNode.vue'
 
 export default {
@@ -46,12 +46,6 @@ export default {
   data: () => ({
     hold: null
   }),
-  mounted: async function () {
-    const fs = remote.require('fs')
-    const path = remote.require('path')
-
-    this.remote = { fs, path }
-  },
   computed: {
     tome: function () {
       return store.state.tome
@@ -94,12 +88,12 @@ export default {
     toggle: async function (state) {
       const { path } = state
 
-      store.dispatch('files/toggle', { path })
+      await store.dispatch('files/toggle', { path })
     },
     select: async function (state) {
       const { path } = state
 
-      store.dispatch('files/select', { path })
+      await store.dispatch('files/select', { path })
     },
     open: async function (state) {
       const { target, parent } = state
@@ -107,31 +101,31 @@ export default {
       let path = target
 
       if (parent) {
-        path = this.remote.path.dirname(target)
+        path = await window.api.path_dirname(target)
       }
 
-      shell.openItem(path)
+      shell.openPath(path)
     },
-    edit: async (state) => store.dispatch('files/edit', { path: state.target }),
+    edit: async (state) => await store.dispatch('files/edit', { path: state.target }),
     create: async function (state) {
       const { target, directory } = state
 
-      store.dispatch('files/ghost', { path: target, directory })
+      await store.dispatch('files/ghost', { path: target, directory })
     },
     delete: async function (path) {
-      store.dispatch('files/delete', { path })
+      await store.dispatch('files/delete', { path })
     },
-    submit: async (state) => store.dispatch('files/submit', state),
-    blur: async (state) => store.dispatch('files/blur'),
+    submit: async (state) => await store.dispatch('files/submit', state),
+    blur: async (state) => await store.dispatch('files/blur'),
     drag: async function (state) {
       this.hold = state
     },
     drop: async function (state) {
-      store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
+      await store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
     },
-    populate: async (state) => store.dispatch('files/populate', state),
-    template: async (state) => store.dispatch('templates/execute', state),
-    action: async (state) => store.dispatch('actions/execute', state)
+    populate: async (state) => await store.dispatch('files/populate', state),
+    template: async (state) => await store.dispatch('templates/execute', state),
+    action: async (state) => await store.dispatch('actions/execute', state)
   },
   components: { ExplorerNode }
 }

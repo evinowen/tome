@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import Mustache from 'mustache'
 
 const translate = (input) => {
@@ -38,44 +37,32 @@ export default {
   },
   actions: {
     load: async function (context, { path }) {
-      const _fs = remote.require('fs')
-      const _path = remote.require('path')
+      const base = await window.api.path_join(path, '.tome', 'templates')
 
-      const base = _path.join(path, '.tome', 'templates')
+      const files = await window.api.directory_list(base)
 
-      try {
-        const stats = await new Promise((resolve, reject) => _fs.lstat(base, (err, stats) => err ? reject(err) : resolve(stats)))
-
-        if (!stats.isDirectory()) {
-          return
-        }
-      } catch (error) {
+      if (!files || files.length < 1) {
         return
       }
-
-      const files = await new Promise((resolve, reject) => _fs.readdir(base, (err, files) => err ? reject(err) : resolve(files)))
 
       context.commit('load', { path, base, options: files })
     },
     execute: async function (context, { name, target }) {
-      const _fs = remote.require('fs')
-      const _path = remote.require('path')
-
       if (context.state.options.indexOf(name) < 0) {
         return
       }
 
-      const base = _path.join(context.state.base, name)
+      const base = await window.api.path_join(context.state.base, name)
 
       const config = {
         directory: true
       }
 
       {
-        const path = _path.join(base, '.config.json')
+        const path = await window.api.path_join(base, '.config.json')
 
-        if (await new Promise((resolve, reject) => _fs.access(path, (err) => err ? resolve(false) : resolve(true)))) {
-          const raw = await new Promise((resolve, reject) => _fs.readFile(path, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
+        if (await window.api.file_exists(path)) {
+          const raw = await window.api.file_contents(path)
 
           Object.assign(config, JSON.parse(raw))
         }
@@ -88,43 +75,39 @@ export default {
       }
 
       const construct = async (source, destination, root = false) => {
-        const stats = await new Promise((resolve, reject) => _fs.lstat(source, (err, stats) => err ? reject(err) : resolve(stats)))
-
-        let target = _path.basename(source)
+        let target = await window.api.path_basename(source)
 
         if (target === '.config.json') {
           return
         }
 
         if (config.map) {
-          const relative = _path.relative(base, source)
+          const relative = await window.api.path_relative(base, source)
 
           if (config.map[relative]) {
             target = translate(config.map[relative])
           }
         }
 
-        const proposed = _path.join(destination, target)
+        const proposed = await window.api.path_join(destination, target)
 
         // if folder, decend with contsruct
-        if (stats.isDirectory()) {
+        if (await window.api.file_is_directory(source)) {
           if (!root || config.directory) {
-            if (await new Promise((resolve, reject) => _fs.access(proposed, (err) => err ? resolve(true) : resolve(false)))) {
-              await new Promise((resolve, reject) => _fs.mkdir(proposed, (err) => err ? reject(err) : resolve(true)))
-            }
+            await window.api.file_create_directory(proposed)
           }
 
-          const files = await new Promise((resolve, reject) => _fs.readdir(source, (err, files) => err ? reject(err) : resolve(files)))
+          const files = await window.api.file_list_directory(source)
 
           const constructs = []
-          files.forEach(file => constructs.push(construct(_path.join(source, file), (!root || config.directory) ? proposed : destination)))
+          files.forEach(async file => constructs.push(construct(await window.api.path_join(source, file.name), (!root || config.directory) ? proposed : destination)))
 
           await Promise.all(constructs)
         } else {
-          if (await new Promise((resolve, reject) => _fs.access(proposed, (err) => err ? resolve(true) : resolve(false)))) {
-            const raw = await new Promise((resolve, reject) => _fs.readFile(source, 'utf8', (err, data) => err ? reject(err) : resolve(data)))
+          if (await window.api.file_exists(proposed)) {
+            const raw = await window.api.file_content(source)
             const rendered = Mustache.render(raw, { config, source, proposed, ...compute })
-            await new Promise((resolve, reject) => _fs.writeFile(proposed, rendered, (err) => err ? reject(err) : resolve(true)))
+            await window.api.file_write(proposed, rendered)
           }
         }
       }

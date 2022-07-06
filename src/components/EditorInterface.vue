@@ -1,49 +1,36 @@
 <template>
   <split-pane :min-percent='5' :default-percent='25' split="vertical">
     <template slot="paneL">
-      <scrolly class="foo" :style="{ width: '100%', height: '100%' }">
-        <scrolly-viewport>
-          <explorer ref="explorer" :enabled=explore @context="$emit('context', $event)" />
-        </scrolly-viewport>
-        <scrolly-bar axis="y" style="margin-right: 2px;" />
-        <scrolly-bar axis="x" style="margin-bottom: 2px;" />
-      </scrolly>
+      <div class="fit" style="overflow-y: scroll;">
+        <explorer ref="explorer" :enabled=explore @context="$emit('context', $event)" />
+      </div>
     </template>
 
     <template slot="paneR">
-      <div v-show="active" class="fill-height">
-        <scrolly v-show="!edit" ref="window" class="foo" :style="{ width: '100%', height: '100%' }">
-          <scrolly-viewport>
-            <div class="fill-height">
-              <empty-view v-if="directory">
-                <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-folder</v-icon>
-              </empty-view>
+      <div v-show="active" class="fit">
+        <div v-show="!edit" class="fit" style="overflow: auto;">
+          <empty-view v-if="directory">
+            <v-icon style="font-size: 160px;">mdi-folder</v-icon>
+          </empty-view>
 
-              <empty-view v-if="readonly">
-                <v-icon class=" grey--text text--lighten-2" style="font-size: 160px;">mdi-file</v-icon>
-              </empty-view>
+          <empty-view v-if="readonly">
+            <v-icon style="font-size: 160px;">mdi-file</v-icon>
+          </empty-view>
 
-              <div v-show="!(directory || readonly)" class="fill-height">
-                <div
-                  ref="rendered"
-                  id="editor-interface-rendered"
-                  class="pa-2"
-                  v-html="rendered"
-                  @contextmenu="$emit('context', { selection: { context }, event: $event })"
-                />
-              </div>
-            </div>
-          </scrolly-viewport>
-          <scrolly-bar axis="y"></scrolly-bar>
-          <scrolly-bar axis="x"></scrolly-bar>
-        </scrolly>
+          <div v-show="!(directory || readonly)">
+            <div
+              ref="rendered"
+              id="editor-interface-rendered"
+              class="pa-2"
+              v-html="rendered"
+              @contextmenu="$emit('context', { selection: { context }, event: $event })"
+            />
+          </div>
+        </div>
 
         <div v-show="edit" class="fill-height">
-          <commit-view v-if="commit" @close="$emit('commit:close')" />
-          <push-view v-else-if="push" @close="$emit('push:close')" />
-
           <empty-view v-show="directory">
-            <v-icon large class=" grey--text text--lighten-2">mdi-folder</v-icon>
+            <v-icon large>mdi-folder</v-icon>
             <h4>{{ active }}</h4>
           </empty-view>
 
@@ -51,6 +38,7 @@
             ref="editor"
             v-show="!directory"
             :value="content"
+            :options="codemirror_options"
             @inputRead=input
             @contextmenu="(cm, event) => $emit('context', { selection: { context }, event })"
           />
@@ -64,13 +52,13 @@
 </template>
 
 <style>
-.fill-height {
+.fit {
+  width: 100%;
   height: 100%;
 }
 
 .splitter-paneL,
 .splitter-paneR {
-  overflow: hidden;
   height: auto !important;
   top: 0;
   bottom: 0;
@@ -93,12 +81,15 @@
 }
 
 .CodeMirror {
-  border: 1px solid #eee;
   height: 100% !important;
   width: 100% !important;
   min-height: 100% !important;
   min-width: 100% !important;
   overflow: hidden;
+}
+
+.CodeMirror-scrollbar-filler {
+  background: transparent !important;
 }
 
 .highlight-rendered {
@@ -114,20 +105,17 @@
 </style>
 
 <script>
+import { VIcon } from 'vuetify/lib'
 import { clipboard } from 'electron'
-import { Scrolly, ScrollyViewport, ScrollyBar } from 'vue-scrolly'
 import marked from 'marked'
 import Mark from 'mark.js'
 import Explorer from '@/components/Explorer.vue'
 import EmptyView from '@/views/Empty.vue'
-import CommitView from '@/views/Commit.vue'
-import PushView from '@/views/Push.vue'
 
 export default {
   props: {
     edit: { type: Boolean, default: false },
-    commit: { type: Boolean, default: false },
-    push: { type: Boolean, default: false }
+    commit: { type: Boolean, default: false }
   },
   data: () => ({
     absolute_path: '',
@@ -211,6 +199,11 @@ export default {
           }
         }
       ]
+    },
+    codemirror_options: function () {
+      return {
+        theme: this.$store.state.configuration.dark_mode ? 'base16-dark' : 'base16-light'
+      }
     }
   },
   watch: {
@@ -293,7 +286,7 @@ export default {
           total++
         }
 
-        this.$store.dispatch('search/navigate', { total, target: null })
+        await this.$store.dispatch('search/navigate', { total, target: null })
       } else {
         await new Promise((resolve, reject) => {
           this.mark.unmark({ done: resolve })
@@ -369,13 +362,9 @@ export default {
     }
   },
   components: {
-    Scrolly,
-    ScrollyViewport,
-    ScrollyBar,
+    VIcon,
     Explorer,
-    EmptyView,
-    CommitView,
-    PushView
+    EmptyView
   }
 }
 </script>

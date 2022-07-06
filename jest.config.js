@@ -2,8 +2,7 @@ module.exports = {
   preset: '@vue/cli-plugin-unit-jest',
   collectCoverage: true,
   collectCoverageFrom: [
-    'src/**/*.{js,vue}',
-    '!**/node_modules/**'
+    'src/**/*.{js,vue}'
   ],
   coverageDirectory: './reports/coverage',
   coverageThreshold: {
@@ -11,12 +10,12 @@ module.exports = {
       branches: 80,
       functions: 80,
       lines: 80,
-      statements: -10
+      statements: 80
     }
   },
   moduleNameMapper: {
     '\\.css$': '<rootDir>/tests/stubs/CssStub.js',
-    '^vuetify/lib$': 'vuetify'
+    '@fontsource/montserrat': '<rootDir>/tests/stubs/CssStub.js'
   },
   reporters: [
     'default',
@@ -27,5 +26,6 @@ module.exports = {
       }
     ]
   ],
-  transformIgnorePatterns: ['node_modules/(?!vuetify)']
+  transformIgnorePatterns: ['node_modules/(?!vuetify)'],
+  setupFiles: ['<rootDir>/tests/setup.js']
 }

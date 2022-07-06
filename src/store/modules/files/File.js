@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import { v4 as uuidv4 } from 'uuid'
 
 export default class File {
@@ -23,15 +22,6 @@ export default class File {
       readonly: false,
       ...data
     })
-
-    if (!this.directory && this.path) {
-      const _path = remote.require('path')
-      this.extension = _path.extname(this.path).toLowerCase()
-
-      if (this.extension !== '.md') {
-        this.readonly = true
-      }
-    }
   }
 
   async crawl (time) {
@@ -50,34 +40,28 @@ export default class File {
     return { dirty, children }
   }
 
-  load () {
+  async load () {
     if (this.directory) {
-      this.populate()
+      await this.populate()
     } else {
-      this.read()
+      await this.read()
     }
 
     this.updated = Date.now()
   }
 
-  read () {
-    const _fs = remote.require('fs')
-
-    const content = _fs.readFileSync(this.path, 'utf8')
-
-    const _path = remote.require('path')
+  async read () {
+    const content = await window.api.file_contents(this.path)
 
     this.document = {
       path: this.path,
-      title: _path.basename(this.path),
+      title: await window.api.path_basename(this.path),
       content
     }
   }
 
-  populate () {
-    const _fs = remote.require('fs')
-
-    const dirents = _fs.readdirSync(this.path, { withFileTypes: true })
+  async populate () {
+    const dirents = await window.api.file_list_directory(this.path)
 
     const children = []
 
@@ -87,7 +71,7 @@ export default class File {
       if (child) {
         children.push(child)
       } else {
-        children.push(File.convert(dirent, this))
+        children.push(await File.convert(dirent, this))
       }
     }
 
@@ -114,20 +98,38 @@ export default class File {
     })
   }
 
-  static convert (dirent, parent) {
-    const _path = remote.require('path')
-
+  static async convert (dirent, parent) {
     const instance = new File({
       name: dirent.name,
-      path: _path.join(parent.path, dirent.name),
-      directory: dirent.isDirectory(),
+      path: await window.api.path_join(parent.path, dirent.name),
+      directory: dirent.directory,
       parent
     })
 
-    if (File.blacklist.indexOf(dirent.name) > -1) {
-      instance.disabled = true
-    }
+    await File.validate(instance)
 
     return instance
+  }
+
+  static async make (data) {
+    const instance = new File(data)
+
+    await File.validate(instance)
+
+    return instance
+  }
+
+  static async validate (instance) {
+    if (!this.directory && this.path) {
+      this.extension = await window.api.path_extension(this.path)
+
+      if (this.extension !== '.md') {
+        this.readonly = true
+      }
+    }
+
+    if (File.blacklist.indexOf(instance.name) > -1) {
+      instance.disabled = true
+    }
   }
 }

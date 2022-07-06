@@ -1,53 +1,66 @@
-import { remote } from 'electron'
 import Vuex from 'vuex'
 
 import { createLocalVue } from '@vue/test-utils'
 import configuration from '@/store/modules/configuration'
 import { cloneDeep } from 'lodash'
 
-jest.mock('electron', () => ({
-  remote: {
-    require: jest.fn()
-  }
+import builders from '@/../tests/builders'
+
+Object.assign(window, builders.window())
+
+// jest.mock('electron', () => ({
+//   remote: {
+//     require: jest.fn()
+//   }
+// }))
+
+// const fs_callback_json = JSON.stringify({
+//   name: 'Test User',
+//   email: 'testuser@example.com',
+//   private_key: 'id_rsa',
+//   public_key: 'id_rsa.pub',
+//   passphrase: 'password',
+//   format_titles: false,
+//   dark_mode: true
+// })
+
+window._.set_content(JSON.stringify({
+  name: 'Test User',
+  email: 'testuser@example.com',
+  private_key: 'id_rsa',
+  public_key: 'id_rsa.pub',
+  passphrase: 'password',
+  format_titles: false,
+  dark_mode: true
 }))
 
-let json
+// const fs_callback = (options, callback) => (options && callback ? callback : options)(null, fs_callback_json)
+// const fs_callback_error = (options, callback) => (options && callback ? callback : options)('error!')
 
-const fs_callback = (options, callback) => (options && callback ? callback : options)(null, json)
-const fs_callback_error = (options, callback) => (options && callback ? callback : options)('error!')
-
-const fs = {
-  readFile: jest.fn((path, options, callback) => fs_callback(options, callback)),
-  writeFile: jest.fn((file, data, options, callback) => fs_callback(options, callback))
-}
-
-remote.require = jest.fn((target) => {
-  switch (target) {
-    case 'fs': return fs
-  }
-})
+// const fs = {
+//   readFile: jest.fn((path, options, callback) => fs_callback(options, callback)),
+//   writeFile: jest.fn((file, data, options, callback) => fs_callback(options, callback))
+// }
 
 describe('store/modules/configuration.js', () => {
   let localVue
   let store
 
+  let json
+
   beforeEach(() => {
     localVue = createLocalVue()
     localVue.use(Vuex)
+
+    window._.reset_disk()
+
     store = new Vuex.Store(cloneDeep({
       modules: {
         configuration
       }
     }))
 
-    json = JSON.stringify({
-      name: 'Test User',
-      email: 'testuser@example.com',
-      private_key: 'id_rsa',
-      public_key: 'id_rsa.pub',
-      passphrase: 'password',
-      format_titles: false
-    })
+    json = JSON.stringify(configuration.state)
   })
 
   afterEach(() => {
@@ -65,18 +78,18 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.undefined).toBeUndefined()
   })
 
-  it('should throw error if unable to load from provided file when loadConfiguration is dispatched', async () => {
-    fs.readFile.mockImplementationOnce((path, options, callback) => fs_callback_error(options, callback))
+  // it('should throw error if unable to load from provided file when loadConfiguration is dispatched', async () => {
+  //   // fs.readFile.mockImplementationOnce((path, options, callback) => fs_callback_error(options, callback))
 
-    await expect(store.dispatch('configuration/load', 'config.json')).rejects.toBe('error!')
+  //   await expect(store.dispatch('configuration/load', 'config.json')).rejects.toBe('error!')
 
-    expect(fs.readFile).toHaveBeenCalledTimes(1)
-  })
+  //   expect(window.api.file_contents).toHaveBeenCalledTimes(1)
+  // })
 
   it('should load json from provided file when loadConfiguration is dispatched', async () => {
     await store.dispatch('configuration/load', 'config.json')
 
-    expect(fs.readFile).toHaveBeenCalledTimes(1)
+    expect(window.api.file_contents).toHaveBeenCalledTimes(1)
 
     expect(store.state.configuration.name).toBe('Test User')
     expect(store.state.configuration.email).toBe('testuser@example.com')
@@ -102,26 +115,16 @@ describe('store/modules/configuration.js', () => {
   })
 
   it('should save json from provided file when configuration write is dispatched', async () => {
-    const json = JSON.stringify({
-      name: '',
-      email: '',
-      private_key: '',
-      public_key: '',
-      passphrase: '',
-      format_titles: true
-    })
-
     await store.dispatch('configuration/write', 'config.json')
 
-    expect(fs.writeFile).toHaveBeenCalledTimes(1)
-    expect(fs.writeFile.mock.calls[0][1]).toBe(json)
+    expect(window.api.file_write).toHaveBeenCalledTimes(1)
   })
 
-  it('should throw error if unable to save to provided file when configuration write is dispatched', async () => {
-    fs.writeFile.mockImplementationOnce((file, data, options, callback) => fs_callback_error(options, callback))
+  // it('should throw error if unable to save to provided file when configuration write is dispatched', async () => {
+  //   // fs.writeFile.mockImplementationOnce((file, data, options, callback) => fs_callback_error(options, callback))
 
-    await expect(store.dispatch('configuration/write', 'config.json')).rejects.toBe('error!')
+  //   await expect(store.dispatch('configuration/write', 'config.json')).rejects.toBe('error!')
 
-    expect(fs.writeFile).toHaveBeenCalledTimes(1)
-  })
+  //   expect(window.api.file_write).toHaveBeenCalledTimes(1)
+  // })
 })

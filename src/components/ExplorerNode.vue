@@ -1,17 +1,16 @@
 <template>
   <v-container class="pa-0" style="user-select: none; clear: both;" v-show="visible">
     <div ref=draggable class="explorer-node-drop" droppable :draggable="!(root || system)" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
-      <v-layout class="explorer-node"
+      <v-layout
         v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
         @click.left.stop="system ? null : $emit('select', { path })"
         @click.right.stop="$emit('context', { instance, event: $event })"
       >
-        <v-btn tile text x-small @click.stop="system ? null : $emit(directory ? 'toggle' : 'select', { path })" class="explorer-node-button mr-1" :color="enabled && !system ? 'black' : 'grey'">
+        <v-btn tile text x-small @click.stop="system ? null : $emit(directory ? 'toggle' : 'select', { path })" class="explorer-node-button mr-1">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <v-flex>
-          <template v-if=system>{{ display }}</template>
-          <v-form v-else ref="form" v-model=valid>
+          <v-form ref="form" v-model=valid>
             <v-text-field
               v-show="(selected && edit)"
               ref="input"
@@ -23,7 +22,9 @@
               @input="error = null"
               @keyup.enter="valid ? $emit('submit', { input, title }) : null"
             />
-            <v-text-field v-show="!(selected && edit)" ref="input" :value=display disabled dense small />
+            <v-text-field
+              @click.stop="$emit(directory ? 'toggle' : 'select', { path })"
+              v-show="!(selected && edit)" ref="input" :value=display readonly dense small class="pa-0" />
           </v-form>
         </v-flex>
       </v-layout>
@@ -57,22 +58,30 @@
 </template>
 
 <style>
+
 .explorer-node {
-  height: 20px;
-  position: relative;
-  top: -2px;
-  margin: -2px -2px -4px -2px;
+  min-height: 0 !important;
   padding: 0 !important;
+  line-height: 12px !important;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: visible;
   user-select: none;
   vertical-align: text-bottom;
-  color: grey;
 }
 
-.explorer-node-enabled {
-  color: black;
+.explorer-node * {
+  text-overflow: ellipsis;
+  cursor: pointer !important;
+}
+
+.explorer-node .v-icon {
+  font-size: 14px !important;
+}
+
+.explorer-node .v-btn,
+.explorer-node input {
+  cursor: pointer !important;
 }
 
 .explorer-node-break {
@@ -81,27 +90,38 @@
 }
 
 .explorer-node-drop {
-  height: 16px;
-  margin: 2px;
+  height: 18px;
+  margin: 2px 2px 0 0;
+  text-overflow: ellipsis;
 }
 
 .explorer-node-drop.drop {
-  outline: 2px dashed #999;
+  color: var(--v-accent-lighten4) !important;
+  background: var(--v-accent-darken1) !important;
+}
+
+.explorer-node-drop.drop .v-btn,
+.explorer-node-drop.drop input {
+  color: var(--v-accent-lighten4) !important;
 }
 
 .explorer-node .v-input,
 .explorer-node .v-input input {
   margin: 0 !important;
   padding: 0 !important;
-  font-size: 12px;
-  color: black;
+  font-size: 10px;
 }
 
 .explorer-node .v-input__slot {
+  min-height: 0 !important;
   margin: 0 !important;
 }
 
-.explorer-node .v-input__slot:before {
+.explorer-node .v-input__slot::before {
+  border-style: none !important;
+}
+
+.explorer-node .v-input__slot:after {
   border: none !important;
 }
 
@@ -112,24 +132,32 @@
   z-index: 1000;
 }
 
+.explorer-node .v-input__slot {
+  padding: 0 !important;
+}
+
+.explorer-node .v-input__icon {
+  height: 18px;
+}
+
+.explorer-node .v-input__prepend-inner {
+  margin-top: 0 !important;
+}
+
 .explorer-node .v-input--is-disabled .v-text-field__details {
   display: none !important;
 }
 
-.explorer-node .v-text-field__details .v-messages__wrapper {
-  background: rgba(255, 255, 255, 0.8);
-}
-
 .explorer-node-button {
-  width: 20px !important;
-  min-width: 20px !important;
-  height: 20px !important;
-  min-height: 20px !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
   padding: 0 !important;
 }
 
 .explorer-node-container {
-  border: solid #C8C8C8;
+  border: dotted black;
   border-width: 0 0 0 1px;
   width: auto !important;
   min-height: 8px;
@@ -138,36 +166,40 @@
 }
 
 .explorer-node:hover {
-  background: rgba(180, 180, 180, 0.3);
+  background: var(--v-primary-darken2) !important;
 }
-
-.explorer-node-enabled.explorer-node:hover {
-  background: rgba(150, 150, 150, 0.6);
+.explorer-node:hover .v-btn,
+.explorer-node:hover input {
+  color: var(--v-primary-lighten4) !important;
 }
 
 .explorer-node-selected {
-  background: rgba(180, 180, 180, 0.6);
+  background: var(--v-primary-darken3) !important;
 }
 
-.explorer-node-enabled.explorer-node-selected {
-  background: rgba(244, 40, 30, 0.6);
+.explorer-node-selected .v-btn,
+.explorer-node-selected input {
+  color: var(--v-primary-lighten3) !important;
 }
 
 .explorer-node-selected:hover {
-  background: rgba(150, 150, 150, 0.6);
+  background: var(--v-primary-darken2) !important;
 }
 
-.explorer-node-enabled.explorer-node-selected:hover {
-  background: rgba(255, 20, 10, 0.6);
+.explorer-node-selected:hover .v-btn,
+.explorer-node-selected:hover input {
+  color: var(--v-primary-lighten4) !important;
 }
 
 </style>
 
 <script>
+import { VContainer, VLayout, VBtn, VIcon, VFlex, VForm, VTextField } from 'vuetify/lib'
 import store from '@/store'
 
 export default {
   name: 'ExplorerNode',
+  components: { VContainer, VLayout, VBtn, VIcon, VFlex, VForm, VTextField },
   props: {
     uuid: { type: String },
     enabled: { type: Boolean, default: false },
@@ -198,8 +230,8 @@ export default {
           title: 'Expand',
           action: null
         },
+        { divider: true },
         {
-          divider: true,
           title: 'Template',
           load: this.load_templates
         },
@@ -208,8 +240,8 @@ export default {
           items: this.actions,
           load: this.load_actions
         },
+        { divider: true },
         {
-          divider: true,
           title: 'Open',
           action: (path) => this.$emit('open', { type: 'file', target: path })
         },
@@ -225,25 +257,21 @@ export default {
           title: 'New Folder',
           action: async (path) => this.$emit('create', { type: 'file', target: path, directory: true })
         },
-        {
-          divider: true
-        },
+        { divider: true },
         {
           title: 'Cut',
-          action: (path) => store.dispatch('cut', { type: 'file', target: path })
+          action: async (path) => await store.dispatch('cut', { type: 'file', target: path })
         },
         {
           title: 'Copy',
-          action: (path) => store.dispatch('copy', { type: 'file', target: path })
+          action: async (path) => await store.dispatch('copy', { type: 'file', target: path })
         },
         {
           title: 'Paste',
           active: () => store.state.clipboard.content,
-          action: (path) => store.dispatch('paste', { type: 'file', target: path })
+          action: async (path) => await store.dispatch('paste', { type: 'file', target: path })
         },
-        {
-          divider: true
-        },
+        { divider: true },
         {
           title: 'Rename',
           action: async (path) => this.$emit('edit', { target: path })
@@ -324,28 +352,12 @@ export default {
       event.target.style.opacity = 1
     },
     drag_enter: function (event) {
-      let container = event.target
-
-      for (let i = 8; container && i > 0; i--) {
-        if (container.hasAttribute('droppable')) {
-          container.classList.add('drop')
-          break
-        }
-
-        container = container.parentElement
-      }
+      const container = event.target.closest('[droppable]')
+      container.classList.add('drop')
     },
     drag_leave: function (event) {
-      let container = event.target
-
-      for (let i = 8; container && i > 0; i--) {
-        if (container.hasAttribute('droppable')) {
-          container.classList.remove('drop')
-          break
-        }
-
-        container = container.parentElement
-      }
+      const container = event.target.closest('[droppable]')
+      container.classList.remove('drop')
     },
     drop: function (event) {
       this.drag_leave(event)
