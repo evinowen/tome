@@ -9,9 +9,11 @@ jobs:
   build_on_win:
     runs-on: windows-2016
     steps:
-    - uses: actions/checkout@master
+    - name: Checkout Repository
+      uses: actions/checkout@master
         
-    - uses: actions/setup-node@master
+    - name: Configure Node.js
+      uses: actions/setup-node@master
       with:
         node-version: 14.19.1
         
@@ -47,11 +49,11 @@ jobs:
         --add Microsoft.VisualStudio.Workload.VCTools
       shell: cmd
  
-    - name: Install dependencies
+    - name: Install Dependencies
       run: npm install
       shell: cmd
   
-    - name: Build packages for Electron
+    - name: Build Packages for Electron
       run: npm run electron-rebuild
       env:
         # Must disable test_ssl_new as it fails with privileged account access that cannot
@@ -72,3 +74,19 @@ jobs:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: npm run build
       shell: cmd
+
+    - name: Upload Installer
+      uses: actions/upload-artifact@v3
+      with:
+        name: installer
+        path: dist/tome*.exe
+        
+    - name: Create Release
+      uses: actions/create-release@latest
+#       if: ${{ startsWith("refs/tags/", $GITHUB_REF) }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        draft: true
+        tag_name: "$GITHUB_REF_NAME"
+        release_name: "$GITHUB_REF_NAME"
