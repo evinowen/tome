@@ -37,7 +37,7 @@ jobs:
       run: npm install --global node-gyp@latest
 
     - name: Download Windows Build Tools
-      run: curl -SL --output vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
+      run: Invoke-WebRequest -OutFile vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
 
     - name: Install Windows Build Tools
       run:
