@@ -18,6 +18,7 @@
   },
   "build": {
     "appId": "com.electron.tome",
+    "artifactName": "Tome.Setup.${version}.${ext}"
     "npmRebuild": false,
     "extraMetadata": {
       "main": "electron/main.js"
