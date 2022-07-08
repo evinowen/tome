@@ -22,14 +22,28 @@ jobs:
 
     - name: Install semver
       run: npm install --global semver@latest
+            
+    - name: Get Published Package Version
+      run: |
+        $Env:PUBLISHED_PACKAGE_VERSION = "0.0.0"
+        (git tag -l) | Foreach {
+          If (semver --range ">$Env:PUBLISHED_PACKAGE_VERSION" $_) {
+            $Env:PUBLISHED_PACKAGE_VERSION = $_
+          }
+        }
+        echo "PUBLISHED_PACKAGE_VERSION=${Env:PUBLISHED_PACKAGE_VERSION}"
+        echo "PUBLISHED_PACKAGE_VERSION=${Env:PUBLISHED_PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       
-    - name: Get Package Version
+    - name: Get New Package Version
       run: |
         $Env:PACKAGE_VERSION = node -p "require('./package.json').version"
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
         echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         
     - name: Validate Version
-      run: semver --range ">${{ env.PACKAGE_VERSION }}" ${{ env.PACKAGE_VERSION }}
+      run: |
+        echo "Require ${{ env.PACKAGE_VERSION }} > ${{ env.PUBLISHED_PACKAGE_VERSION }}"
+        semver --range ">${{ env.PUBLISHED_PACKAGE_VERSION }}" ${{ env.PACKAGE_VERSION }}
 
     - name: Install Python
       run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
