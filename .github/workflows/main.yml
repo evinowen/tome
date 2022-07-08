@@ -41,7 +41,7 @@ jobs:
 
     - name: Install Windows Build Tools
       run:
-        vs_buildtools.exe --wait --norestart --passive --installPath "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools"
+        .\vs_buildtools.exe --wait --norestart --passive --installPath "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools"
         --add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools
         --add Microsoft.VisualStudio.Workload.MSBuildTools
         --add Microsoft.VisualStudio.Workload.VCTools
