@@ -11,36 +11,36 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@master
-        
+
 #     - name: Configure Node.js
 #       uses: actions/setup-node@master
 #       with:
 #         node-version: 14.19.1
-        
+
 #     - name: Install Python
 #       run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
 
 #     - name: Set NPM to use Python 2.7
 #       run: npm config set python C:\Python27\python.exe
-        
+
 #     - name: Install Perl
 #       run: |
 #         choco install strawberryperl
 #         echo ";C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        
+
 #     - name: Install NASM
 #       run: |
 #         choco install nasm
 #         echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      
+
 #     - name: Install node-gyp
 #       run: npm install --global node-gyp@latest
 #       shell: cmd
-      
+
 #     - name: Download Windows Build Tools
 #       run: curl -SL --output vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
 #       shell: cmd
-      
+
 #     - name: Install Windows Build Tools
 #       run:
 #         .\vs_buildtools.exe --wait --norestart --passive --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools"
@@ -48,11 +48,11 @@ jobs:
 #         --add Microsoft.VisualStudio.Workload.MSBuildTools
 #         --add Microsoft.VisualStudio.Workload.VCTools
 #       shell: cmd
- 
+
 #     - name: Install Dependencies
 #       run: npm install
 #       shell: cmd
-  
+
 #     - name: Build Packages for Electron
 #       run: npm run electron-rebuild
 #       env:
@@ -60,33 +60,34 @@ jobs:
 #         # be revoked in the current GitHub Actions environment.
 #         TESTS: "-test_ssl_new"
 #       shell: cmd
-      
+
 #     - name: Test Renderer
 #       run: npm run test-renderer
 #       shell: cmd
-      
+
 #     - name: Build Renderer
 #       run: npm run build-renderer
-#       shell: cmd
-  
+
 #     - name: Build Installer
 #       env:
 #         GH_TOKEN: ${{ secrets.GH_TOKEN }}
 #       run: npm run build
-#       shell: cmd
 
 #     - name: Upload Installer
 #       uses: actions/upload-artifact@v3
 #       with:
 #         name: installer
 #         path: dist/tome*.exe
-        
+
+    - name: Get Package Version
+      run: |
+        $Env:PACKAGE_VERSION = node -p "require('./package.json').version"
+        echo "PACKAGE_VERSION=$Env:PACKAGE_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
     - name: Create Release
       uses: actions/create-release@latest
-#       if: ${{ startsWith("refs/tags/", $GITHUB_REF) }}
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        draft: true
-        tag_name: ${{ github.REF_NAME }}
-        release_name: ${{ github.REF_NAME }}
+        tag_name: ${{ github.PACKAGE_VERSION }}
+        release_name: ${{ github.PACKAGE_VERSION }}
