@@ -82,12 +82,12 @@ jobs:
     - name: Get Package Version
       run: |
         $Env:PACKAGE_VERSION = node -p "require('./package.json').version"
-        echo "PACKAGE_VERSION=$Env:PACKAGE_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "PACKAGE_VERSION=$($Env:PACKAGE_VERSION)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Create Release
       uses: actions/create-release@latest
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        tag_name: ${{ github.PACKAGE_VERSION }}
-        release_name: ${{ github.PACKAGE_VERSION }}
+        tag_name: ${{ env.PACKAGE_VERSION }}
+        release_name: ${{ env.PACKAGE_VERSION }}
