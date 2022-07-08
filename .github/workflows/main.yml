@@ -44,9 +44,11 @@ jobs:
             -Wait -NoNewWindow
             -FilePath .\vs_buildtools.exe
             -ArgumentList 
+              "--quiet",
+              "--force",
               "--wait",
               "--norestart",
-              "--passive",
+              "--nocache",
               "--installPath", "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools",
               "--add", "Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools",
               "--add", "Microsoft.VisualStudio.Workload.MSBuildTools",
