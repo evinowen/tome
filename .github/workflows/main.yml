@@ -88,5 +88,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         draft: true
-        tag_name: "$GITHUB_REF_NAME"
-        release_name: "$GITHUB_REF_NAME"
+        tag_name: ${{ env.GITHUB_REF_NAME }}
+        release_name: ${{ env.GITHUB_REF_NAME }}
