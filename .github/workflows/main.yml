@@ -40,11 +40,16 @@ jobs:
       run: Invoke-WebRequest -OutFile vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
 
     - name: Install Windows Build Tools
-      run:
-        .\vs_buildtools.exe --wait --norestart --passive --installPath "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools"
-        --add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools
-        --add Microsoft.VisualStudio.Workload.MSBuildTools
-        --add Microsoft.VisualStudio.Workload.VCTools
+      run: Start-Process
+            -FilePath vs_buildtools.exe
+            -ArgumentList 
+              "--wait"
+              "--norestart"
+              "--passive"
+              "--installPath" "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools"
+              "--add" "Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools"
+              "--add" "Microsoft.VisualStudio.Workload.MSBuildTools"
+              "--add" "Microsoft.VisualStudio.Workload.VCTools"
 
     - name: Install Dependencies
       run: npm install
