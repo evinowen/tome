@@ -41,6 +41,7 @@ jobs:
 
     - name: Install Windows Build Tools
       run: Start-Process
+            -Wait -NoNewWindow
             -FilePath vs_buildtools.exe
             -ArgumentList 
               "--wait"
