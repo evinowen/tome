@@ -12,29 +12,29 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@master
 
-    - name: Configure Node.js
-      uses: actions/setup-node@master
-      with:
-        node-version: 14.19.1
+#     - name: Configure Node.js
+#       uses: actions/setup-node@master
+#       with:
+#         node-version: 14.19.1
 
-    - name: Install Python
-      run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
+#     - name: Install Python
+#       run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
 
-    - name: Set NPM to use Python 2.7
-      run: npm config set python C:\Python27\python.exe
+#     - name: Set NPM to use Python 2.7
+#       run: npm config set python C:\Python27\python.exe
 
-    - name: Install Perl
-      run: |
-        choco install strawberryperl
-        echo ";C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+#     - name: Install Perl
+#       run: |
+#         choco install strawberryperl
+#         echo ";C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-    - name: Install NASM
-      run: |
-        choco install nasm
-        echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+#     - name: Install NASM
+#       run: |
+#         choco install nasm
+#         echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-    - name: Install node-gyp
-      run: npm install --global node-gyp@latest
+#     - name: Install node-gyp
+#       run: npm install --global node-gyp@latest
 
     - name: Download Windows Build Tools
       run: Invoke-WebRequest -OutFile vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
@@ -44,61 +44,61 @@ jobs:
             -Wait -NoNewWindow
             -FilePath vs_buildtools.exe
             -ArgumentList 
-              "--wait"
-              "--norestart"
-              "--passive"
-              "--installPath" "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools"
-              "--add" "Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools"
-              "--add" "Microsoft.VisualStudio.Workload.MSBuildTools"
-              "--add" "Microsoft.VisualStudio.Workload.VCTools"
+              "--wait",
+              "--norestart",
+              "--passive",
+              "--installPath ${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools",
+              "--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools",
+              "--add Microsoft.VisualStudio.Workload.MSBuildTools",
+              "--add Microsoft.VisualStudio.Workload.VCTools"
 
-    - name: Install Dependencies
-      run: npm install
+#     - name: Install Dependencies
+#       run: npm install
 
-    - name: Build Packages for Electron
-      run: npm run electron-rebuild
-      env:
-        # Must disable test_ssl_new as it fails with privileged account access that cannot
-        # be revoked in the current GitHub Actions environment.
-        TESTS: "-test_ssl_new"
+#     - name: Build Packages for Electron
+#       run: npm run electron-rebuild
+#       env:
+#         # Must disable test_ssl_new as it fails with privileged account access that cannot
+#         # be revoked in the current GitHub Actions environment.
+#         TESTS: "-test_ssl_new"
 
-    - name: Test Renderer
-      run: npm run test-renderer
+#     - name: Test Renderer
+#       run: npm run test-renderer
 
-    - name: Build Renderer
-      run: npm run build-renderer
+#     - name: Build Renderer
+#       run: npm run build-renderer
 
-    - name: Build Installer
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: npm run build
+#     - name: Build Installer
+#       env:
+#         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+#       run: npm run build
 
-    - name: Upload Installer
-      uses: actions/upload-artifact@v3
-      with:
-        name: installer
-        path: dist/tome*.exe
+#     - name: Upload Installer
+#       uses: actions/upload-artifact@v3
+#       with:
+#         name: installer
+#         path: dist/tome*.exe
 
-    - name: Get Package Version
-      run: |
-        $Env:PACKAGE_VERSION = node -p "require('./package.json').version"
-        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+#     - name: Get Package Version
+#       run: |
+#         $Env:PACKAGE_VERSION = node -p "require('./package.json').version"
+#         echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@latest
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        tag_name: ${{ env.PACKAGE_VERSION }}
-        release_name: ${{ env.PACKAGE_VERSION }}
+#     - name: Create Release
+#       id: create_release
+#       uses: actions/create-release@latest
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+#       with:
+#         tag_name: ${{ env.PACKAGE_VERSION }}
+#         release_name: ${{ env.PACKAGE_VERSION }}
         
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
-        asset_name: Tome.Setup.Windows.${{ env.PACKAGE_VERSION }}.exe
-        asset_content_type: application/exe
+#     - name: Upload Release Asset
+#       uses: actions/upload-release-asset@v1
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+#       with:
+#         upload_url: ${{ steps.create_release.outputs.upload_url }}
+#         asset_path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+#         asset_name: Tome.Setup.Windows.${{ env.PACKAGE_VERSION }}.exe
+#         asset_content_type: application/exe
