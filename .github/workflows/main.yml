@@ -47,10 +47,10 @@ jobs:
               "--wait",
               "--norestart",
               "--passive",
-              "--installPath ${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools",
-              "--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools",
-              "--add Microsoft.VisualStudio.Workload.MSBuildTools",
-              "--add Microsoft.VisualStudio.Workload.VCTools"
+              "--installPath", "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools",
+              "--add", "Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools",
+              "--add", "Microsoft.VisualStudio.Workload.MSBuildTools",
+              "--add", "Microsoft.VisualStudio.Workload.VCTools"
 
     - name: Install Dependencies
       run: npm install
