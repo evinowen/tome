@@ -106,7 +106,7 @@ jobs:
     - name: Create Release
       id: create_release
       uses: actions/create-release@latest
-      if: ${{ github.REF_NAME == "master" }}
+      if: github.REF_NAME == "master"
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
@@ -115,7 +115,7 @@ jobs:
         
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
-      if: ${{ github.REF_NAME == "master" }}
+      if: github.REF_NAME == "master"
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
