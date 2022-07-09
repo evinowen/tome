@@ -25,6 +25,7 @@ jobs:
             
     - name: Get Published Package Version
       run: |
+        git fetch --tags
         $Env:PUBLISHED_PACKAGE_VERSION = "0.0.0"
         (git tag -l) | Foreach { echo $_; If (semver --range ">$Env:PUBLISHED_PACKAGE_VERSION" $_) { $Env:PUBLISHED_PACKAGE_VERSION = $_ } }
         echo "PUBLISHED_PACKAGE_VERSION=${Env:PUBLISHED_PACKAGE_VERSION}"
