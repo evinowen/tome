@@ -98,12 +98,6 @@ jobs:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: npm run build
 
-    - name: Upload Installer
-      uses: actions/upload-artifact@v3
-      with:
-        name: installer
-        path: dist/tome*.exe
-
     - name: Create Release
       id: create_release
       uses: actions/create-release@latest
