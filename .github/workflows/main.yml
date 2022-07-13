@@ -144,7 +144,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows\Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
         asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows.exe
         asset_content_type: application/exe
       
