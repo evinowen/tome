@@ -105,6 +105,7 @@ jobs:
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   publish_release:
+    needs: build_on_win
     runs-on: windows-2016
     steps:
     - name: Checkout Repository
