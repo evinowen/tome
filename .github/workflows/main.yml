@@ -101,7 +101,7 @@ jobs:
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Win.exe
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   publish_release:
@@ -131,13 +131,12 @@ jobs:
       with:
         tag_name: ${{ env.PACKAGE_VERSION }}
         release_name: ${{ env.PACKAGE_VERSION }}
-        artifacts: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
-        allowUpdates: true
         
     - name: Download Setup Artifacts
       uses: actions/download-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Win.exe
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
@@ -145,7 +144,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./Tome.Setup.${{ env.PACKAGE_VERSION }}.Win.exe
-        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Win.exe
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows.exe
         asset_content_type: application/exe
       
