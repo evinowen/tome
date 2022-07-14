@@ -6,6 +6,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
+    "postinstall": "./node_modules/.bin/electron-builder install-app-deps",
     "serve-renderer": "./node_modules/.bin/vue-cli-service serve",
     "lint-renderer": "./node_modules/.bin/vue-cli-service lint --no-fix src/**/*.vue src/**/*.js tests/**/*.js",
     "test-renderer": "./node_modules/.bin/vue-cli-service test:unit",
