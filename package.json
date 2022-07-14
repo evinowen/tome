@@ -50,7 +50,7 @@
     "@fontsource/montserrat": "^4.5.10",
     "@mdi/font": "^6.7.96",
     "chokidar": "^3.4.3",
-    "cli-truncate": "^3.1.0",
+    "cli-truncate": "^2.1.0",
     "core-js": "^3.6.4",
     "cross-env": "^7.0.2",
     "lodash": "^4.17.15",
