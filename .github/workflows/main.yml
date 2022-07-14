@@ -114,6 +114,12 @@ jobs:
       uses: actions/setup-node@master
       with:
         node-version: 14.19.1
+        
+    - name: Get New Package Version
+      run: |
+        $PACKAGE_VERSION = node -p "require('./package.json').version"
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
 
     - name: Install Dependencies
       run: npm install
