@@ -6,7 +6,6 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "postinstall": "./node_modules/.bin/electron-builder install-app-deps",
     "serve-renderer": "./node_modules/.bin/vue-cli-service serve",
     "lint-renderer": "./node_modules/.bin/vue-cli-service lint --no-fix src/**/*.vue src/**/*.js tests/**/*.js",
     "test-renderer": "./node_modules/.bin/vue-cli-service test:unit",
@@ -19,6 +18,7 @@
   },
   "build": {
     "appId": "com.electron.tome",
+    "productName": "Tome",
     "artifactName": "Tome.Setup.${version}.${ext}",
     "npmRebuild": false,
     "extraMetadata": {
@@ -50,6 +50,7 @@
     "@fontsource/montserrat": "^4.5.10",
     "@mdi/font": "^6.7.96",
     "chokidar": "^3.4.3",
+    "cli-truncate": "^3.1.0",
     "core-js": "^3.6.4",
     "cross-env": "^7.0.2",
     "lodash": "^4.17.15",
