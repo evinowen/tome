@@ -123,7 +123,7 @@ jobs:
       env:
         # Must disable test_ssl_new as it fails with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
-        TESTS: "-test_ui,-test_pem,-test_ssl_new"
+        TESTS: "-test_ui -test_pem -test_ssl_new"
 
     - name: Test Renderer
       run: npm run test-renderer
