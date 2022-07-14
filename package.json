@@ -6,15 +6,15 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "serve-renderer": ".\\node_modules\\.bin\\vue-cli-service serve",
-    "lint-renderer": ".\\node_modules\\.bin\\vue-cli-service lint --no-fix src/**/*.vue src/**/*.js tests/**/*.js",
-    "test-renderer": ".\\node_modules\\.bin\\vue-cli-service test:unit",
-    "build-renderer": ".\\node_modules\\.bin\\vue-cli-service --dest dist-renderer build",
-    "electron": ".\\node_modules\\.bin\\electron electron\\main.js",
-    "electron-framed": ".\\node_modules\\.bin\\cross-env-shell FRAME_WINDOW=1 \".\\node_modules\\.bin\\electron electron\\main.js\"",
-    "electron-rebuild": ".\\node_modules\\.bin\\electron-rebuild",
-    "pack": ".\\node_modules\\.bin\\electron-builder --dir",
-    "build": ".\\node_modules\\.bin\\cross-env-shell NODE_ENV=production \".\\node_modules\\.bin\\electron-builder\""
+    "serve-renderer": "./node_modules/.bin/vue-cli-service serve",
+    "lint-renderer": "./node_modules/.bin/vue-cli-service lint --no-fix src/**/*.vue src/**/*.js tests/**/*.js",
+    "test-renderer": "./node_modules/.bin/vue-cli-service test:unit",
+    "build-renderer": "./node_modules/.bin/vue-cli-service --dest dist-renderer build",
+    "electron": "./node_modules/.bin/electron electron/main.js",
+    "electron-framed": "./node_modules/.bin/cross-env-shell FRAME_WINDOW=1 \"./node_modules/.bin/electron electron/main.js\"",
+    "electron-rebuild": "./node_modules/.bin/electron-rebuild",
+    "pack": "./node_modules/.bin/electron-builder --dir",
+    "build": "./node_modules/.bin/cross-env-shell NODE_ENV=production \"./node_modules/.bin/electron-builder\""
   },
   "build": {
     "appId": "com.electron.tome",
