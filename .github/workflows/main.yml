@@ -22,21 +22,25 @@ jobs:
 
     - name: Install semver
       run: npm install --global semver@latest
-            
+
     - name: Determine Published Package Version
       run: |
         git fetch --tags
         PUBLISHED_PACKAGE_VERSION="0.0.0"
-        (git tag -l) | Foreach { echo $_; If (semver --range ">$Env:PUBLISHED_PACKAGE_VERSION" $_) { $Env:PUBLISHED_PACKAGE_VERSION = $_ } }
+        for tag in $(git tag -l); do
+          if semver --range ">$PUBLISHED_PACKAGE_VERSION" $tag; then
+            PUBLISHED_PACKAGE_VERSION=$tag;
+          fi
+        done
         echo "PUBLISHED_PACKAGE_VERSION=$PUBLISHED_PACKAGE_VERSION"
         echo "PUBLISHED_PACKAGE_VERSION=$PUBLISHED_PACKAGE_VERSION" >> $GITHUB_ENV
-      
+
     - name: Determine Target Package Version
       run: |
         PACKAGE_VERSION=$(node -p "require('./package.json').version")
         echo "PACKAGE_VERSION=$PACKAGE_VERSION"
         echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
-        
+
     - name: Validate Version
       run: |
         echo "Require ${{ env.PACKAGE_VERSION }} > ${{ env.PUBLISHED_PACKAGE_VERSION }}"
@@ -51,7 +55,7 @@ jobs:
         $Env:PACKAGE_VERSION = ${{ needs.version_validation.outputs.package_version }}
         echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
         echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        
+
     - name: Checkout Repository
       uses: actions/checkout@master
 
@@ -117,7 +121,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: npm run build
-      
+
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
@@ -133,7 +137,7 @@ jobs:
         PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
         echo "PACKAGE_VERSION=$PACKAGE_VERSION"
         echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
-        
+
     - name: Checkout Repository
       uses: actions/checkout@master
 
@@ -162,7 +166,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: npm run build
-      
+
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
@@ -178,7 +182,7 @@ jobs:
         $Env:PACKAGE_VERSION = ${{ needs.version_validation.outputs.package_version }}
         echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
         echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@latest
