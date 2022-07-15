@@ -146,7 +146,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.MacOS
-        path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   publish_release:
 #     needs: build_on_win
@@ -205,8 +205,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.macOS\Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
-        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.macOS.exe
-        asset_content_type: application/exe
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.macOS\Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.macOS.dmg
+        asset_content_type: application/dmg
 
 
