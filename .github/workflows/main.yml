@@ -7,9 +7,51 @@ on:
   workflow_dispatch:
 
 jobs:
+  version_validation:
+    runs-on: ubuntu-latest
+    outputs:
+      package_version: ${{ env.PACKAGE_VERSION }}
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@master
+
+    - name: Configure Node.js
+      uses: actions/setup-node@master
+      with:
+        node-version: 14.19.1
+
+    - name: Install semver
+      run: npm install --global semver@latest
+            
+    - name: Determine Published Package Version
+      run: |
+        git fetch --tags
+        PUBLISHED_PACKAGE_VERSION="0.0.0"
+        (git tag -l) | Foreach { echo $_; If (semver --range ">$Env:PUBLISHED_PACKAGE_VERSION" $_) { $Env:PUBLISHED_PACKAGE_VERSION = $_ } }
+        echo "PUBLISHED_PACKAGE_VERSION=$PUBLISHED_PACKAGE_VERSION"
+        echo "PUBLISHED_PACKAGE_VERSION=$PUBLISHED_PACKAGE_VERSION" >> $GITHUB_ENV
+      
+    - name: Determine Target Package Version
+      run: |
+        PACKAGE_VERSION=$(node -p "require('./package.json').version")
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+        
+    - name: Validate Version
+      run: |
+        echo "Require ${{ env.PACKAGE_VERSION }} > ${{ env.PUBLISHED_PACKAGE_VERSION }}"
+        semver --range ">${{ env.PUBLISHED_PACKAGE_VERSION }}" ${{ env.PACKAGE_VERSION }}
+
   build_on_win:
+    needs: [ version_validation ]
     runs-on: windows-2016
     steps:
+    - name: Load Target Package Version
+      run: |
+        $Env:PACKAGE_VERSION = ${{ needs.version_validation.outputs.package_version }}
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        
     - name: Checkout Repository
       uses: actions/checkout@master
 
@@ -20,28 +62,6 @@ jobs:
 
     - name: Install node-gyp
       run: npm install --global node-gyp@latest
-
-    - name: Install semver
-      run: npm install --global semver@latest
-            
-    - name: Get Published Package Version
-      run: |
-        git fetch --tags
-        $Env:PUBLISHED_PACKAGE_VERSION = "0.0.0"
-        (git tag -l) | Foreach { echo $_; If (semver --range ">$Env:PUBLISHED_PACKAGE_VERSION" $_) { $Env:PUBLISHED_PACKAGE_VERSION = $_ } }
-        echo "PUBLISHED_PACKAGE_VERSION=${Env:PUBLISHED_PACKAGE_VERSION}"
-        echo "PUBLISHED_PACKAGE_VERSION=${Env:PUBLISHED_PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-      
-    - name: Get New Package Version
-      run: |
-        $Env:PACKAGE_VERSION = node -p "require('./package.json').version"
-        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
-        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        
-    - name: Validate Version
-      run: |
-        echo "Require ${{ env.PACKAGE_VERSION }} > ${{ env.PUBLISHED_PACKAGE_VERSION }}"
-        semver --range ">${{ env.PUBLISHED_PACKAGE_VERSION }}" ${{ env.PACKAGE_VERSION }}
 
     - name: Install Python
       run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
@@ -105,8 +125,15 @@ jobs:
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   build_on_macos:
+    needs: [ version_validation ]
     runs-on: macOS-latest
     steps:
+    - name: Load Target Package Version
+      run: |
+        PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+        
     - name: Checkout Repository
       uses: actions/checkout@master
 
@@ -114,12 +141,6 @@ jobs:
       uses: actions/setup-node@master
       with:
         node-version: 14.19.1
-        
-    - name: Get New Package Version
-      run: |
-        PACKAGE_VERSION=$(node -p "require('./package.json').version")
-        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
-        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
 
     - name: Install Dependencies
       run: npm install
@@ -149,20 +170,12 @@ jobs:
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   publish_release:
-    needs: [ build_on_win, build_on_macos ]
+    needs: [ version_validation, build_on_win, build_on_macos ]
     runs-on: windows-2016
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@master
-
-    - name: Configure Node.js
-      uses: actions/setup-node@master
-      with:
-        node-version: 14.19.1
-
-    - name: Get New Package Version
+    - name: Load Target Package Version
       run: |
-        $Env:PACKAGE_VERSION = node -p "require('./package.json').version"
+        $Env:PACKAGE_VERSION = ${{ needs.version_validation.outputs.package_version }}
         echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
         echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         
