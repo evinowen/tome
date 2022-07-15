@@ -193,11 +193,11 @@ jobs:
 #         asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows.exe
 #         asset_content_type: application/exe
 
-    - name: Download macOS Setup Artifacts
+    - name: Download MacOS Setup Artifacts
       uses: actions/download-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.macOS
-        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.macOS
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.MacOS
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.MacOS
 
     - name: Upload macOS Setup Artifacts
       uses: actions/upload-release-asset@v1
@@ -205,8 +205,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.macOS\Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
-        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.macOS.dmg
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.MacOS\Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.MacOS.dmg
         asset_content_type: application/dmg
 
 
