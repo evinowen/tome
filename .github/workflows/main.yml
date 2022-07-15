@@ -7,102 +7,102 @@ on:
   workflow_dispatch:
 
 jobs:
-#   build_on_win:
-#     runs-on: windows-2016
-#     steps:
-#     - name: Checkout Repository
-#       uses: actions/checkout@master
+  build_on_win:
+    runs-on: windows-2016
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@master
 
-#     - name: Configure Node.js
-#       uses: actions/setup-node@master
-#       with:
-#         node-version: 14.19.1
+    - name: Configure Node.js
+      uses: actions/setup-node@master
+      with:
+        node-version: 14.19.1
 
-#     - name: Install node-gyp
-#       run: npm install --global node-gyp@latest
+    - name: Install node-gyp
+      run: npm install --global node-gyp@latest
 
-#     - name: Install semver
-#       run: npm install --global semver@latest
+    - name: Install semver
+      run: npm install --global semver@latest
             
-#     - name: Get Published Package Version
-#       run: |
-#         git fetch --tags
-#         $Env:PUBLISHED_PACKAGE_VERSION = "0.0.0"
-#         (git tag -l) | Foreach { echo $_; If (semver --range ">$Env:PUBLISHED_PACKAGE_VERSION" $_) { $Env:PUBLISHED_PACKAGE_VERSION = $_ } }
-#         echo "PUBLISHED_PACKAGE_VERSION=${Env:PUBLISHED_PACKAGE_VERSION}"
-#         echo "PUBLISHED_PACKAGE_VERSION=${Env:PUBLISHED_PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+    - name: Get Published Package Version
+      run: |
+        git fetch --tags
+        $Env:PUBLISHED_PACKAGE_VERSION = "0.0.0"
+        (git tag -l) | Foreach { echo $_; If (semver --range ">$Env:PUBLISHED_PACKAGE_VERSION" $_) { $Env:PUBLISHED_PACKAGE_VERSION = $_ } }
+        echo "PUBLISHED_PACKAGE_VERSION=${Env:PUBLISHED_PACKAGE_VERSION}"
+        echo "PUBLISHED_PACKAGE_VERSION=${Env:PUBLISHED_PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       
-#     - name: Get New Package Version
-#       run: |
-#         $Env:PACKAGE_VERSION = node -p "require('./package.json').version"
-#         echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
-#         echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+    - name: Get New Package Version
+      run: |
+        $Env:PACKAGE_VERSION = node -p "require('./package.json').version"
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         
-#     - name: Validate Version
-#       run: |
-#         echo "Require ${{ env.PACKAGE_VERSION }} > ${{ env.PUBLISHED_PACKAGE_VERSION }}"
-#         semver --range ">${{ env.PUBLISHED_PACKAGE_VERSION }}" ${{ env.PACKAGE_VERSION }}
+    - name: Validate Version
+      run: |
+        echo "Require ${{ env.PACKAGE_VERSION }} > ${{ env.PUBLISHED_PACKAGE_VERSION }}"
+        semver --range ">${{ env.PUBLISHED_PACKAGE_VERSION }}" ${{ env.PACKAGE_VERSION }}
 
-#     - name: Install Python
-#       run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
+    - name: Install Python
+      run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
 
-#     - name: Set NPM to use Python 2.7
-#       run: npm config set python C:\Python27\python.exe
+    - name: Set NPM to use Python 2.7
+      run: npm config set python C:\Python27\python.exe
 
-#     - name: Install Perl
-#       run: |
-#         choco install strawberryperl
-#         echo ";C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    - name: Install Perl
+      run: |
+        choco install strawberryperl
+        echo ";C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-#     - name: Install NASM
-#       run: |
-#         choco install nasm
-#         echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    - name: Install NASM
+      run: |
+        choco install nasm
+        echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-#     - name: Download Windows Build Tools
-#       run: Invoke-WebRequest -OutFile vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
+    - name: Download Windows Build Tools
+      run: Invoke-WebRequest -OutFile vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
 
-#     - name: Install Windows Build Tools
-#       run: Start-Process
-#             -Wait -NoNewWindow
-#             -FilePath .\vs_buildtools.exe
-#             -ArgumentList
-#               "--quiet",
-#               "--force",
-#               "--wait",
-#               "--norestart",
-#               "--nocache",
-#               "--installPath ""${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools""",
-#               "--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools",
-#               "--add Microsoft.VisualStudio.Workload.MSBuildTools",
-#               "--add Microsoft.VisualStudio.Workload.VCTools"
+    - name: Install Windows Build Tools
+      run: Start-Process
+            -Wait -NoNewWindow
+            -FilePath .\vs_buildtools.exe
+            -ArgumentList
+              "--quiet",
+              "--force",
+              "--wait",
+              "--norestart",
+              "--nocache",
+              "--installPath ""${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools""",
+              "--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools",
+              "--add Microsoft.VisualStudio.Workload.MSBuildTools",
+              "--add Microsoft.VisualStudio.Workload.VCTools"
 
-#     - name: Install Dependencies
-#       run: npm install
+    - name: Install Dependencies
+      run: npm install
 
-#     - name: Build Packages for Electron
-#       run: npm run electron-rebuild
-#       env:
-#         # Must disable test_ssl_new as it fails with privileged account access that cannot
-#         # be revoked in the current GitHub Actions environment.
-#         TESTS: "-test_ssl_new"
+    - name: Build Packages for Electron
+      run: npm run electron-rebuild
+      env:
+        # Must disable test_ssl_new as it fails with privileged account access that cannot
+        # be revoked in the current GitHub Actions environment.
+        TESTS: "-test_ssl_new"
 
-#     - name: Test Renderer
-#       run: npm run test-renderer
+    - name: Test Renderer
+      run: npm run test-renderer
 
-#     - name: Build Renderer
-#       run: npm run build-renderer
+    - name: Build Renderer
+      run: npm run build-renderer
 
-#     - name: Build Installer
-#       env:
-#         GH_TOKEN: ${{ secrets.GH_TOKEN }}
-#       run: npm run build
+    - name: Build Installer
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: npm run build
       
-#     - name: Upload Setup Artifact
-#       uses: actions/upload-artifact@v3
-#       with:
-#         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
-#         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+    - name: Upload Setup Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
+        path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   build_on_macos:
     runs-on: macOS-latest
@@ -149,8 +149,7 @@ jobs:
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   publish_release:
-#     needs: build_on_win
-    needs: build_on_macos
+    needs: [ build_on_win, build_on_macos ]
     runs-on: windows-2016
     steps:
     - name: Checkout Repository
@@ -177,21 +176,21 @@ jobs:
         tag_name: ${{ env.PACKAGE_VERSION }}
         release_name: ${{ env.PACKAGE_VERSION }}
 
-#     - name: Download Windows Setup Artifacts
-#       uses: actions/download-artifact@v3
-#       with:
-#         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
-#         path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
+    - name: Download Windows Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
 
-#     - name: Upload Windows Setup Artifacts
-#       uses: actions/upload-release-asset@v1
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-#       with:
-#         upload_url: ${{ steps.create_release.outputs.upload_url }}
-#         asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows\Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
-#         asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows.exe
-#         asset_content_type: application/exe
+    - name: Upload Windows Setup Artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows\Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows.exe
+        asset_content_type: application/exe
 
     - name: Download MacOS Setup Artifacts
       uses: actions/download-artifact@v3
