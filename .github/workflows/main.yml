@@ -12,6 +12,9 @@ jobs:
     outputs:
       package_version: ${{ env.PACKAGE_VERSION }}
     steps:
+    - name: Prepare Environment
+      run: sudo apt-get install libkrb5-dev
+    
     - name: Checkout Repository
       uses: actions/checkout@master
 
