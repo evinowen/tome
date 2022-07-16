@@ -45,6 +45,54 @@ jobs:
       run: |
         echo "Require ${{ env.PACKAGE_VERSION }} > ${{ env.PUBLISHED_PACKAGE_VERSION }}"
         semver --range ">${{ env.PUBLISHED_PACKAGE_VERSION }}" ${{ env.PACKAGE_VERSION }}
+        
+  build_on_ubuntu:
+      needs: [ version_validation ]
+      runs-on: ubuntu-latest
+      steps:
+      - name: Load Target Package Version
+        run: |
+          PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+
+      - name: Prepare Environment
+        run: sudo apt-get install libkrb5-dev
+
+      - name: Checkout Repository
+        uses: actions/checkout@master
+
+      - name: Configure Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: 14.19.1
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Packages for Electron
+        run: npm run electron-rebuild
+        env:
+          # Must disable test_ssl_new as it fails with privileged account access that cannot
+          # be revoked in the current GitHub Actions environment.
+          TESTS: "-test_ui -test_pem -test_ssl_new"
+
+      - name: Test Renderer
+        run: npm run test-renderer
+
+      - name: Build Renderer
+        run: npm run build-renderer
+
+      - name: Build Installer
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npm run build
+
+      - name: Upload Setup Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Debian
+          path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}
 
   build_on_win:
     needs: [ version_validation ]
@@ -174,7 +222,7 @@ jobs:
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   publish_release:
-    needs: [ version_validation, build_on_win, build_on_macos ]
+    needs: [ version_validation, build_on_ubuntu, build_on_win, build_on_macos ]
     runs-on: windows-2016
     steps:
     - name: Load Target Package Version
@@ -192,6 +240,22 @@ jobs:
       with:
         tag_name: ${{ env.PACKAGE_VERSION }}
         release_name: ${{ env.PACKAGE_VERSION }}
+
+    - name: Download Debian Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Debian
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Debian
+
+    - name: Upload Debian Setup Artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Debian\Tome.Setup.${{ env.PACKAGE_VERSION }}
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Debian
+        asset_content_type: application/exe
 
     - name: Download Windows Setup Artifacts
       uses: actions/download-artifact@v3
