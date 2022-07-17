@@ -45,7 +45,7 @@ jobs:
       run: |
         echo "Require ${{ env.PACKAGE_VERSION }} > ${{ env.PUBLISHED_PACKAGE_VERSION }}"
         semver --range ">${{ env.PUBLISHED_PACKAGE_VERSION }}" ${{ env.PACKAGE_VERSION }}
-        
+
   build_on_ubuntu:
       needs: [ version_validation ]
       runs-on: ubuntu-latest
@@ -91,8 +91,8 @@ jobs:
       - name: Upload Setup Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Debian
-          path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}
+          name: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+          path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
 
   build_on_win:
     needs: [ version_validation ]
@@ -173,7 +173,7 @@ jobs:
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   build_on_macos:
@@ -218,7 +218,7 @@ jobs:
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.MacOS
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   publish_release:
@@ -244,8 +244,8 @@ jobs:
     - name: Download Debian Setup Artifacts
       uses: actions/download-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Debian
-        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Debian
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
 
     - name: Upload Debian Setup Artifacts
       uses: actions/upload-release-asset@v1
@@ -253,15 +253,15 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Debian\Tome.Setup.${{ env.PACKAGE_VERSION }}
-        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Debian
-        asset_content_type: application/exe
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb\Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        asset_content_type: application/deb
 
     - name: Download Windows Setup Artifacts
       uses: actions/download-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
-        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
     - name: Upload Windows Setup Artifacts
       uses: actions/upload-release-asset@v1
@@ -269,15 +269,15 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows\Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
-        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.Windows.exe
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe\Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
         asset_content_type: application/exe
 
     - name: Download MacOS Setup Artifacts
       uses: actions/download-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.MacOS
-        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.MacOS
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
     - name: Upload macOS Setup Artifacts
       uses: actions/upload-release-asset@v1
@@ -285,8 +285,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.MacOS\Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
-        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.MacOS.dmg
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg\Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
         asset_content_type: application/dmg
 
 
