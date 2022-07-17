@@ -36,14 +36,16 @@
       }
     ],
     "linux": {
-      "icon": "build/icon.png",
-      "target": [
-        "deb"
-      ]
+      "icon": "build/icon.256.png",
+      "target": "deb"
+    },
+    "mac": {
+      "icon": "build/icon.512.png",
+      "target": "dmg"
     },
     "win": {
-      "target": "NSIS",
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "target": "NSIS"
     }
   },
   "dependencies": {
