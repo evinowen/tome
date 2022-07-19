@@ -31,10 +31,10 @@ const createWindow = () => {
     }
   })
 
-  if (process.env.NODE_ENV === 'production') {
-    win.loadFile('index.html')
-  } else {
+  if (process.env.NODE_ENV === 'development') {
     win.loadURL('http://localhost:8080/')
+  } else {
+    win.loadFile('index.html')
   }
 
   win.on('closed', () => {
