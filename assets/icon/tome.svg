@@ -1,43 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.0" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 1400 1400" style="enable-background:new 0 0 1400 1400;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#E6E7E8;stroke:#E6E7E8;stroke-width:40;}
-	.st1{fill:#AF1116;}
-	.st2{fill:#EAE3B1;}
-	.st3{opacity:5.000000e-02;fill:#201D0F;enable-background:new    ;}
-	.st4{fill:#5D373B;}
-	.st5{opacity:0.3;fill:#230000;enable-background:new    ;}
-	.st6{fill:#CD2735;}
-	.st7{opacity:7.000000e-02;enable-background:new    ;}
-	.st8{opacity:0.5;fill:#8D575D;enable-background:new    ;}
-	.st9{opacity:0.2;fill:#230000;enable-background:new    ;}
-</style>
-<g id="Layer_6">
-	<polygon class="st0" points="1095.6,1115.1 1099.6,1115.1 1079.6,615.1 1059.6,115.1 744.7,115.1 560.7,115.1 439.6,115.1 
-		379.6,115.1 379.6,120.1 369.6,118.9 339.6,115.1 299.6,1115.1 299.6,1185.1 299.6,1195.1 299.6,1205.1 299.6,1215.1 369.6,1205.1 
-		369.6,1210.1 369.6,1215.1 409.6,1215.1 409.6,1275.1 499.6,1285.1 499.6,1215.1 1099.6,1215.1 	"/>
-</g>
-<g id="Layer_3">
-	<polygon class="st1" points="1099.6,1215.1 369.6,1215.1 369.6,1205.1 299.6,1215.1 339.6,215.1 1059.6,215.1 	"/>
-	<rect x="369.6" y="1115.1" class="st2" width="720" height="95"/>
-	<polygon class="st2" points="369.6,1195.1 349.6,1198 349.6,1115.1 389.6,1115.1 	"/>
-	<polygon class="st3" points="1089.6,1165.1 349.6,1195.1 349.6,1115.1 1089.6,1115.1 	"/>
-	<polygon class="st3" points="1089.6,1145.1 349.6,1175.1 349.6,1115.1 1089.6,1115.1 	"/>
-	<polygon class="st3" points="1089.6,1125.1 349.6,1145.7 349.6,1115.1 1089.6,1115.1 	"/>
-	<polygon class="st4" points="499.6,1285.1 409.6,1275.1 409.6,1165.1 499.6,1165.1 	"/>
-	<polygon class="st5" points="299.6,1115.1 299.6,1205.1 349.6,1198 359.6,1123.7 359.6,1115.1 	"/>
-	<polygon class="st5" points="299.6,1115.1 299.6,1195.1 349.6,1180.8 349.6,1122.2 349.6,1115.1 	"/>
-	<polygon class="st5" points="299.6,1115.1 299.6,1185.1 349.6,1163.7 349.6,1122.2 349.6,1115.1 	"/>
-	<polygon class="st6" points="299.6,1115.1 299.6,1215.1 309.6,1213.7 309.6,1115.8 	"/>
-	<polygon class="st6" points="1099.6,1115.1 369.6,1115.1 369.6,1125.1 299.6,1115.1 339.6,115.1 379.6,120.1 379.6,115.1 
-		1059.6,115.1 	"/>
-	<polygon class="st7" points="379.6,120.1 369.6,1115.1 329.7,1109.4 369.6,118.9 	"/>
-	<polygon class="st8" points="489.6,1275.1 419.6,1265.1 419.6,1255.1 489.6,1225.1 	"/>
-	<polygon class="st7" points="1099.6,1115.1 597.7,1115.1 439.6,115.1 1059.6,115.1 	"/>
-	<polygon class="st7" points="1099.6,1115.1 1009.9,1115.1 560.7,115.1 1059.6,115.1 	"/>
-	<polygon class="st7" points="1079.6,615.1 744.7,115.1 1059.6,115.1 	"/>
-	<polygon class="st9" points="369.6,1115.1 369.6,1125.1 1009.9,1115.1 	"/>
-</g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="a" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="1400" height="1400" viewBox="0 0 1400 1400">
+  <g id="b" data-name="Layer 6">
+    <polygon points="1095.6 1115.1 1099.6 1115.1 1079.6 615.1 1059.6 115.1 744.7 115.1 560.7 115.1 439.6 115.1 379.6 115.1 379.6 120.1 369.6 118.9 339.6 115.1 299.6 1115.1 299.6 1185.1 299.6 1195.1 299.6 1205.1 299.6 1215.1 369.6 1205.1 369.6 1210.1 369.6 1215.1 409.6 1215.1 409.6 1275.1 499.6 1285.1 499.6 1215.1 1099.6 1215.1 1095.6 1115.1" style="fill: #e6e7e8; stroke: #e6e7e8; stroke-width: 40px;"/>
+  </g>
+  <g id="c" data-name="Layer 3">
+    <polygon points="1099.6 1215.1 369.6 1215.1 369.6 1205.1 299.6 1215.1 339.6 215.1 1059.6 215.1 1099.6 1215.1" style="fill: #af1116;"/>
+    <rect x="369.6" y="1115.1" width="720" height="95" style="fill: #eae3b1;"/>
+    <polygon points="369.6 1195.1 349.6 1198 349.6 1115.1 389.6 1115.1 369.6 1195.1" style="fill: #eae3b1;"/>
+    <polygon points="1089.6 1165.1 349.6 1195.1 349.6 1115.1 1089.6 1115.1 1089.6 1165.1" style="fill: #201d0f; isolation: isolate; opacity: .05;"/>
+    <polygon points="1089.6 1145.1 349.6 1175.1 349.6 1115.1 1089.6 1115.1 1089.6 1145.1" style="fill: #201d0f; isolation: isolate; opacity: .05;"/>
+    <polygon points="1089.6 1125.1 349.6 1145.7 349.6 1115.1 1089.6 1115.1 1089.6 1125.1" style="fill: #201d0f; isolation: isolate; opacity: .05;"/>
+    <polygon points="499.6 1285.1 409.6 1275.1 409.6 1165.1 499.6 1165.1 499.6 1285.1" style="fill: #5d373b;"/>
+    <polygon points="299.6 1115.1 299.6 1205.1 349.6 1198 359.6 1123.7 359.6 1115.1 299.6 1115.1" style="fill: #230000; isolation: isolate; opacity: .3;"/>
+    <polygon points="299.6 1115.1 299.6 1195.1 349.6 1180.8 349.6 1122.2 349.6 1115.1 299.6 1115.1" style="fill: #230000; isolation: isolate; opacity: .3;"/>
+    <polygon points="299.6 1115.1 299.6 1185.1 349.6 1163.7 349.6 1122.2 349.6 1115.1 299.6 1115.1" style="fill: #230000; isolation: isolate; opacity: .3;"/>
+    <polygon points="299.6 1115.1 299.6 1215.1 309.6 1213.7 309.6 1115.8 299.6 1115.1" style="fill: #cd2735;"/>
+    <polygon points="1099.6 1115.1 369.6 1115.1 369.6 1125.1 299.6 1115.1 339.6 115.1 379.6 120.1 379.6 115.1 1059.6 115.1 1099.6 1115.1" style="fill: #cd2735;"/>
+    <polygon points="379.6 120.1 369.6 1115.1 329.7 1109.4 369.6 118.9 379.6 120.1" style="isolation: isolate; opacity: .07;"/>
+    <polygon points="489.6 1275.1 419.6 1265.1 419.6 1255.1 489.6 1225.1 489.6 1275.1" style="fill: #8d575d; isolation: isolate; opacity: .5;"/>
+    <polygon points="1099.6 1115.1 597.7 1115.1 439.6 115.1 1059.6 115.1 1099.6 1115.1" style="isolation: isolate; opacity: .07;"/>
+    <polygon points="1099.6 1115.1 1009.9 1115.1 560.7 115.1 1059.6 115.1 1099.6 1115.1" style="isolation: isolate; opacity: .07;"/>
+    <polygon points="1079.6 615.1 744.7 115.1 1059.6 115.1 1079.6 615.1" style="isolation: isolate; opacity: .07;"/>
+    <polygon points="369.6 1115.1 369.6 1125.1 1009.9 1115.1 369.6 1115.1" style="fill: #230000; isolation: isolate; opacity: .2;"/>
+  </g>
 </svg>
