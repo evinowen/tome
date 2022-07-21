@@ -4,71 +4,289 @@ on:
     branches: master
   push:
     branches: master
+  workflow_dispatch:
 
 jobs:
-  build_on_win:
-    runs-on: windows-2016
+  version_validation:
+    runs-on: ubuntu-latest
+    outputs:
+      package_version: ${{ env.PACKAGE_VERSION }}
     steps:
-    - uses: actions/checkout@master
-        
-    - uses: actions/setup-node@master
+    - name: Checkout Repository
+      uses: actions/checkout@master
+
+    - name: Configure Node.js
+      uses: actions/setup-node@master
       with:
         node-version: 14.19.1
-        
+
+    - name: Install semver
+      run: npm install --global semver@latest
+
+    - name: Determine Published Package Version
+      run: |
+        git fetch --tags
+        PUBLISHED_PACKAGE_VERSION="0.0.0"
+        for tag in $(git tag -l); do
+          if semver --range ">$PUBLISHED_PACKAGE_VERSION" $tag; then
+            PUBLISHED_PACKAGE_VERSION=$tag;
+          fi
+        done
+        echo "PUBLISHED_PACKAGE_VERSION=$PUBLISHED_PACKAGE_VERSION"
+        echo "PUBLISHED_PACKAGE_VERSION=$PUBLISHED_PACKAGE_VERSION" >> $GITHUB_ENV
+
+    - name: Determine Target Package Version
+      run: |
+        PACKAGE_VERSION=$(node -p "require('./package.json').version")
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+
+    - name: Validate Version
+      run: |
+        echo "Require ${{ env.PACKAGE_VERSION }} > ${{ env.PUBLISHED_PACKAGE_VERSION }}"
+        semver --range ">${{ env.PUBLISHED_PACKAGE_VERSION }}" ${{ env.PACKAGE_VERSION }}
+
+  build_on_ubuntu:
+      needs: [ version_validation ]
+      runs-on: ubuntu-latest
+      steps:
+      - name: Load Target Package Version
+        run: |
+          PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+
+      - name: Prepare Environment
+        run: sudo apt-get install libkrb5-dev
+
+      - name: Checkout Repository
+        uses: actions/checkout@master
+
+      - name: Configure Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: 14.19.1
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Packages for Electron
+        run: npm run electron-rebuild
+        env:
+          # Must disable test_ssl_new as it fails with privileged account access that cannot
+          # be revoked in the current GitHub Actions environment.
+          TESTS: "-test_ui -test_pem -test_ssl_new"
+
+      - name: Test Renderer
+        run: npm run test-renderer
+
+      - name: Build Renderer
+        run: npm run build-renderer
+
+      - name: Build Installer
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npm run build
+
+      - name: Upload Setup Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+          path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+
+  build_on_win:
+    needs: [ version_validation ]
+    runs-on: windows-2016
+    steps:
+    - name: Load Target Package Version
+      run: |
+        $Env:PACKAGE_VERSION = "${{ needs.version_validation.outputs.package_version }}"
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+    - name: Checkout Repository
+      uses: actions/checkout@master
+
+    - name: Configure Node.js
+      uses: actions/setup-node@master
+      with:
+        node-version: 14.19.1
+
+    - name: Install node-gyp
+      run: npm install --global node-gyp@latest
+
     - name: Install Python
       run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
 
     - name: Set NPM to use Python 2.7
       run: npm config set python C:\Python27\python.exe
-        
+
     - name: Install Perl
       run: |
         choco install strawberryperl
         echo ";C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        
+
     - name: Install NASM
       run: |
         choco install nasm
         echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      
-    - name: Install node-gyp
-      run: npm install --global node-gyp@latest
-      shell: cmd
-      
+
     - name: Download Windows Build Tools
-      run: curl -SL --output vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
-      shell: cmd
-      
+      run: Invoke-WebRequest -OutFile vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
+
     - name: Install Windows Build Tools
-      run:
-        .\vs_buildtools.exe --wait --norestart --passive --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools"
-        --add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools
-        --add Microsoft.VisualStudio.Workload.MSBuildTools
-        --add Microsoft.VisualStudio.Workload.VCTools
-      shell: cmd
- 
-    - name: Install dependencies
+      run: Start-Process
+            -Wait -NoNewWindow
+            -FilePath .\vs_buildtools.exe
+            -ArgumentList
+              "--quiet",
+              "--force",
+              "--wait",
+              "--norestart",
+              "--nocache",
+              "--installPath ""${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools""",
+              "--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools",
+              "--add Microsoft.VisualStudio.Workload.MSBuildTools",
+              "--add Microsoft.VisualStudio.Workload.VCTools"
+
+    - name: Install Dependencies
       run: npm install
-      shell: cmd
-  
-    - name: Build packages for Electron
+
+    - name: Build Packages for Electron
       run: npm run electron-rebuild
       env:
         # Must disable test_ssl_new as it fails with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ssl_new"
-      shell: cmd
-      
+
     - name: Test Renderer
       run: npm run test-renderer
-      shell: cmd
-      
+
     - name: Build Renderer
       run: npm run build-renderer
-      shell: cmd
-  
+
     - name: Build Installer
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: npm run build
-      shell: cmd
+
+    - name: Upload Setup Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+
+  build_on_macos:
+    needs: [ version_validation ]
+    runs-on: macOS-latest
+    steps:
+    - name: Load Target Package Version
+      run: |
+        PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+
+    - name: Checkout Repository
+      uses: actions/checkout@master
+
+    - name: Configure Node.js
+      uses: actions/setup-node@master
+      with:
+        node-version: 14.19.1
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Build Packages for Electron
+      run: npm run electron-rebuild
+      env:
+        # Must disable test_ssl_new as it fails with privileged account access that cannot
+        # be revoked in the current GitHub Actions environment.
+        TESTS: "-test_ui -test_pem -test_ssl_new"
+
+    - name: Test Renderer
+      run: npm run test-renderer
+
+    - name: Build Renderer
+      run: npm run build-renderer
+
+    - name: Build Installer
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: npm run build
+
+    - name: Upload Setup Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+
+  publish_release:
+    needs: [ version_validation, build_on_ubuntu, build_on_win, build_on_macos ]
+    runs-on: ubuntu-latest
+    if: github.REF == 'refs/heads/master'
+    steps:
+    - name: Load Target Package Version
+      run: |
+        PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        tag_name: ${{ env.PACKAGE_VERSION }}
+        release_name: ${{ env.PACKAGE_VERSION }}
+
+    - name: Download Debian Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+
+    - name: Upload Debian Setup Artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        asset_content_type: application/deb
+
+    - name: Download Windows Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+
+    - name: Upload Windows Setup Artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        asset_content_type: application/exe
+
+    - name: Download MacOS Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+
+    - name: Upload macOS Setup Artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        asset_content_type: application/dmg
+
+
