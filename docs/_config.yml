@@ -1,1 +1,4 @@
 theme: jekyll-theme-minimal
+title: Minimal theme
+logo: /assets/logo/tome.png
+show_downloads: true
