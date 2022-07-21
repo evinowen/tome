@@ -10,6 +10,13 @@ magick convert -background none $Root\..\assets\icon\tome.svg -resize 256x256 $R
 magick convert -background none $Root\..\assets\icon\tome.svg -resize 512x512 $Root\..\assets\icon\tome.512.png
 magick convert -background none $Root\..\assets\icon\tome.svg -resize 1024x1024 $Root\..\assets\icon\tome.1024.png
 
+magick convert -background none $Root\..\assets\icon\tome.svg $Root\..\docs\logo.png
+
+magick $Root\..\assets\icon\tome.1024.png `
+  -background none `
+  -gravity center -extent 2048x1024 `
+  -compress zip $Root\..\assets\icon\tome.github.png
+
 magick $Root\..\assets\icon\tome.svg `
   -define icon:auto-resize=256 `
   -background white -transparent white `
