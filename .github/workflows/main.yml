@@ -119,17 +119,17 @@ jobs:
       run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
 
     - name: Set NPM to use Python 2.7
-      run: npm config set python C:\Python27\python.exe
+      run: npm config set python "$Env:SystemDrive\Python27\python.exe"
 
     - name: Install Perl
       run: |
         choco install strawberryperl
-        echo ";C:\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        echo ";$Env:SystemDrive\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
     - name: Install NASM
       run: |
         choco install nasm
-        echo ";C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        echo ";$Env:ProgramFiles\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
     - name: Download Windows Build Tools
       run: Invoke-WebRequest -OutFile vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
