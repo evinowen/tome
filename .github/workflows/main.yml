@@ -96,7 +96,7 @@ jobs:
 
   build_on_win:
     needs: [ version_validation ]
-    runs-on: windows-2016
+    runs-on: windows-2019
     steps:
     - name: Load Target Package Version
       run: |
