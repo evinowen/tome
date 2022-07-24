@@ -9,13 +9,24 @@
         <v-icon small>mdi-chevron-down</v-icon>
       </v-btn>
       <div class="output">
-        <div v-for="(event, index) in events.slice().reverse()" :key=index :class="['log', `event-${event.type}`]">
+        <div
+          v-for="(event, index) in events.slice().reverse()"
+          :key=index
+          :class="['log', `event-${event.type}`]"
+          @click.stop="() => { show_stack(event.stack) }"
+        >
           <pre class="pre datetime">{{ event.datetime.toISODate() }}</pre>
           <pre :class="['pre', `event-${event.type}`, 'px-2']">{{ event.type.padEnd(6) }}</pre>
           <pre class="pre message">{{ event.message }}</pre>
         </div>
       </div>
     </v-card>
+    <v-snackbar v-model=detail multi-line centered vertical>
+      <pre>{{ stack }}</pre>
+      <template v-slot:action="{}">
+        <v-btn tile small color="primary" @click.stop="detail = false">Done</v-btn>
+      </template>
+    </v-snackbar>
   </v-bottom-sheet>
 </template>
 <style>
@@ -51,6 +62,7 @@
 
 .pre {
   display: inline;
+  overflow: hidden;
 }
 
 .pre.event-info {
@@ -71,13 +83,26 @@
 </style>
 
 <script>
-import { VIcon, VBtn, VCard, VBottomSheet } from 'vuetify/lib'
+import { VIcon, VBtn, VCard, VBottomSheet, VSnackbar } from 'vuetify/lib'
 import store from '@/store'
 
 export default {
-  components: { VIcon, VBtn, VCard, VBottomSheet },
+  components: { VIcon, VBtn, VCard, VBottomSheet, VSnackbar },
   props: {
     value: { type: Boolean, default: false }
+  },
+  data: () => ({
+    detail: false,
+    stack: ''
+  }),
+  methods: {
+    show_stack: function (stack) {
+      this.stack = stack.trim()
+
+      if (this.stack) {
+        this.detail = true
+      }
+    }
   },
   computed: {
     events: function () {

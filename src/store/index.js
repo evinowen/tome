@@ -31,12 +31,13 @@ export default new Vuex.Store({
       Object.assign(state, data)
     },
     log: function (state, data) {
-      const { type, message } = data
+      const { type, message, stack } = data
       state.status = type
       state.message = message
       state.events.push({
         type,
         message,
+        stack,
         datetime: DateTime.now()
       })
     }
@@ -62,8 +63,12 @@ export default new Vuex.Store({
     message: function (context, message) {
       context.commit('log', { type: 'info', message })
     },
-    error: function (context, message) {
-      context.commit('log', { type: 'error', message })
+    error: function (context, error) {
+      if (error instanceof Error) {
+        context.commit('log', { type: 'error', message: error.message, stack: error.stack })
+      } else {
+        context.commit('log', { type: 'error', message: String(error) })
+      }
     }
   },
   modules: {
