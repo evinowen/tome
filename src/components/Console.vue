@@ -13,11 +13,11 @@
           v-for="(event, index) in events.slice().reverse()"
           :key=index
           :class="['log', `event-${event.type}`]"
-          @click.stop="() => { show_stack(event.stack) }"
+          @click.stop="() => { show_stack(event.stack || event.message) }"
         >
           <pre class="pre datetime">{{ event.datetime.toISODate() }}</pre>
           <pre :class="['pre', `event-${event.type}`, 'px-2']">{{ event.type.padEnd(6) }}</pre>
-          <pre class="pre message">{{ event.message }}</pre>
+          <pre class="pre message">{{ format_message(event.message) }}</pre>
         </div>
       </div>
     </v-card>
@@ -39,6 +39,7 @@
 
 <style scoped>
 .log {
+  display: flex;
   margin: 0;
   padding: 2px 4px 1px;
   border-bottom: 1px dotted rgba(128,128,128,0.5)
@@ -61,8 +62,15 @@
 }
 
 .pre {
-  display: inline;
+  display: flex;
+  flex-shrink: 0;
+  width: 80px;
   overflow: hidden;
+}
+
+.pre.message {
+  width: auto;
+  flex-shrink: 1;
 }
 
 .pre.event-info {
@@ -102,6 +110,11 @@ export default {
       if (this.stack) {
         this.detail = true
       }
+    },
+    format_message: function (message) {
+      return message
+        .replace(/\r/g, '\u240D')
+        .replace(/\n/g, '\u2424')
     }
   },
   computed: {
