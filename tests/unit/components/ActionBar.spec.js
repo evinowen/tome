@@ -46,13 +46,6 @@ describe('ActionBar.vue', () => {
           authors: null,
           contributors: null
         }
-      },
-      files: {
-        tree: {
-          daemon: {
-            status: 'Grrreat!'
-          }
-        }
       }
     }
   })
