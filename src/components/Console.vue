@@ -15,9 +15,9 @@
           :class="['log', `event-${event.type}`]"
           @click.stop="() => { show_stack(event.stack || event.message) }"
         >
-          <pre class="pre datetime">{{ event.datetime.toISODate() }}</pre>
+          <pre class="pre datetime">{{ format_date(event) }}</pre>
           <pre :class="['pre', `event-${event.type}`, 'px-2']">{{ event.type.padEnd(6) }}</pre>
-          <pre class="pre message">{{ format_message(event.message) }}</pre>
+          <pre class="pre message">{{ format_message(event) }}</pre>
         </div>
       </div>
     </v-card>
@@ -64,13 +64,17 @@
 .pre {
   display: flex;
   flex-shrink: 0;
-  width: 80px;
+  text-align: center;
+  justify-content: center;
+  vertical-align: center;
   overflow: hidden;
 }
 
 .pre.message {
   width: auto;
   flex-shrink: 1;
+  text-align: left;
+  justify-content: start;
 }
 
 .pre.event-info {
@@ -111,8 +115,11 @@ export default {
         this.detail = true
       }
     },
-    format_message: function (message) {
-      return message
+    format_date: function (event) {
+      return `${event.datetime.toLocaleString(event.format.date)} ${event.datetime.toLocaleString(event.format.time)}`
+    },
+    format_message: function (event) {
+      return String(event.message)
         .replace(/\r/g, '\u240D')
         .replace(/\n/g, '\u2424')
     }

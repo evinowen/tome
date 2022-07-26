@@ -35,15 +35,13 @@
 
     </template>
 
-    <v-spacer class="console">
-      <v-btn tile icon small class="button" style="width: 100%"
-        @click.stop="$emit('console')"
-        :disabled="disabled_unless(console || commit || push)"
-        :color="status === 'error' ? 'error' : ''"
-      >
-        <v-icon small>{{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}</v-icon>&nbsp;{{ message }}
-      </v-btn>
-    </v-spacer>
+    <v-btn tile icon small class="console button"
+      @click.stop="$emit('console')"
+      :disabled="disabled_unless(console || commit || push)"
+      :color="status === 'error' ? 'error' : ''"
+    >
+      <v-icon small>{{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}</v-icon>&nbsp;{{ message }}
+    </v-btn>
 
     <template v-if="tome.path">
       <v-divider inset vertical />
@@ -130,23 +128,27 @@
 
 .button {
   height: 18px !important;
-
 }
 
-.console {
-  padding: 0;
+.console.button {
+  justify-content: left;
+  flex-grow: 1;
   font-size: 0.8em;
+  padding: 0 4px 0 0 !important;
 }
 
-.console .button {
+.console.button span {
+  width: 100%;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
   padding: 0 4px !important;
-  justify-content: start;
 }
 
 </style>
 
 <script>
-import { VIcon, VBtn, VDivider, VSpacer, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
+import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
 import store from '@/store'
 import LibraryButton from './LibraryButton.vue'
 import RepositoryButton from './RepositoryButton.vue'
@@ -217,7 +219,6 @@ export default {
     VIcon,
     VBtn,
     VDivider,
-    VSpacer,
     VFooter,
     VExpandXTransition,
     VSwitch,
