@@ -8,22 +8,6 @@ import builders from '@/../tests/builders'
 
 Object.assign(window, builders.window())
 
-// jest.mock('electron', () => ({
-//   remote: {
-//     require: jest.fn()
-//   }
-// }))
-
-// const fs_callback_json = JSON.stringify({
-//   name: 'Test User',
-//   email: 'testuser@example.com',
-//   private_key: 'id_rsa',
-//   public_key: 'id_rsa.pub',
-//   passphrase: 'password',
-//   format_titles: false,
-//   dark_mode: true
-// })
-
 window._.set_content(JSON.stringify({
   name: 'Test User',
   email: 'testuser@example.com',
@@ -34,19 +18,9 @@ window._.set_content(JSON.stringify({
   dark_mode: true
 }))
 
-// const fs_callback = (options, callback) => (options && callback ? callback : options)(null, fs_callback_json)
-// const fs_callback_error = (options, callback) => (options && callback ? callback : options)('error!')
-
-// const fs = {
-//   readFile: jest.fn((path, options, callback) => fs_callback(options, callback)),
-//   writeFile: jest.fn((file, data, options, callback) => fs_callback(options, callback))
-// }
-
 describe('store/modules/configuration.js', () => {
   let localVue
   let store
-
-  let json
 
   beforeEach(() => {
     localVue = createLocalVue()
@@ -59,8 +33,6 @@ describe('store/modules/configuration.js', () => {
         configuration
       }
     }))
-
-    json = JSON.stringify(configuration.state)
   })
 
   afterEach(() => {
@@ -77,14 +49,6 @@ describe('store/modules/configuration.js', () => {
 
     expect(store.state.configuration.undefined).toBeUndefined()
   })
-
-  // it('should throw error if unable to load from provided file when loadConfiguration is dispatched', async () => {
-  //   // fs.readFile.mockImplementationOnce((path, options, callback) => fs_callback_error(options, callback))
-
-  //   await expect(store.dispatch('configuration/load', 'config.json')).rejects.toBe('error!')
-
-  //   expect(window.api.file_contents).toHaveBeenCalledTimes(1)
-  // })
 
   it('should load json from provided file when loadConfiguration is dispatched', async () => {
     await store.dispatch('configuration/load', 'config.json')
@@ -119,12 +83,4 @@ describe('store/modules/configuration.js', () => {
 
     expect(window.api.file_write).toHaveBeenCalledTimes(1)
   })
-
-  // it('should throw error if unable to save to provided file when configuration write is dispatched', async () => {
-  //   // fs.writeFile.mockImplementationOnce((file, data, options, callback) => fs_callback_error(options, callback))
-
-  //   await expect(store.dispatch('configuration/write', 'config.json')).rejects.toBe('error!')
-
-  //   expect(window.api.file_write).toHaveBeenCalledTimes(1)
-  // })
 })

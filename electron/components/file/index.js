@@ -13,10 +13,12 @@ module.exports = {
       return stats.isDirectory()
     })
 
-    ipcMain.handle('file_create_directory', async (event, path) => {
-      if (await new Promise((resolve, reject) => fs.access(path, (err) => err ? resolve(true) : resolve(false)))) {
-        await new Promise((resolve, reject) => fs.mkdir(path, (err) => err ? reject(err) : resolve(true)))
+    ipcMain.handle('file_create_directory', async (event, target) => {
+      if (await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(true) : resolve(false)))) {
+        await new Promise((resolve, reject) => fs.mkdir(target, (err) => err ? reject(err) : resolve(true)))
       }
+
+      return await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(false) : resolve(true)))
     })
 
     ipcMain.handle('file_list_directory', async (event, path) => {

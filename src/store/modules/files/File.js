@@ -25,39 +25,45 @@ export default class File {
   }
 
   async crawl (time) {
-    let dirty = false
-    let children = []
-
     if (!this.disabled) {
-      children = this.children
-
       if (!this.updated || this.updated < time) {
-        dirty = true
-        await this.load()
+        return await this.load()
       }
     }
-
-    return { dirty, children }
   }
 
   async load () {
-    if (this.directory) {
-      await this.populate()
+    const { directory } = this
+    let payload
+
+    if (directory) {
+      payload = await this.populate()
     } else {
-      await this.read()
+      payload = await this.read()
     }
 
-    this.updated = Date.now()
+    return { item: this, dirty: true, payload, directory }
   }
 
   async read () {
-    const content = await window.api.file_contents(this.path)
+    const { path } = this
+    const content = await window.api.file_contents(path)
 
-    this.document = {
-      path: this.path,
-      title: await window.api.path_basename(this.path),
+    return {
+      path,
+      title: await window.api.path_basename(path),
       content
     }
+  }
+
+  render (document) {
+    this.document = document
+    this.updated = Date.now()
+  }
+
+  fill (children) {
+    this.children.splice(0, this.children.length, ...children)
+    this.updated = Date.now()
   }
 
   async populate () {
@@ -75,17 +81,17 @@ export default class File {
       }
     }
 
-    this.children.splice(0, this.children.length, ...children)
+    File.sort(children)
 
-    this.sort()
+    return children
   }
 
-  sort () {
+  static sort (children) {
     const name = (first, second) => {
       return first.path === second.path ? 0 : (first.path < second.path ? -1 : 1)
     }
 
-    this.children.sort((first, second) => {
+    children.sort((first, second) => {
       if (first.directory && second.directory) {
         return name(first, second)
       } else if (first.directory) {

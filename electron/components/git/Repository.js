@@ -22,6 +22,8 @@ class Repository {
     this.available = []
     this.staged = []
 
+    this.history = []
+
     this.private_key = null
     this.public_key = null
     this.passphrase = null
@@ -103,7 +105,15 @@ class Repository {
   }
 
   async loadHistory () {
-    let commit = await this.repository.getBranchCommit(await this.repository.head())
+    let commit
+
+    try {
+      const head = await this.repository.head()
+
+      commit = await this.repository.getBranchCommit(head)
+    } catch (error) {
+      return
+    }
 
     this.history = []
 

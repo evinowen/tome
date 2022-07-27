@@ -5,8 +5,7 @@ export default class FileTree {
     this.base = file
 
     this.index = null
-    this.crawling = null
-    this.daemon = { promise: null, cycle: true, status: '' }
+    this.crawling = 0
     this.timestamp = 0
 
     this.documents = []
@@ -53,70 +52,45 @@ export default class FileTree {
   async load (path) {
     const { item } = await this.identify(path)
 
-    return item ? item.load() : null
+    return item ? await item.load() : null
   }
 
-  async populate (path) {
-    const { item } = await this.identify(path)
-
-    return item ? item.populate() : null
-  }
-
-  async crawl () {
+  async * crawl () {
     const time = Date.now()
+    const crawl = ++this.crawling
 
-    if (this.crawling) {
-      this.daemon.cycle = false
-      await this.daemon.promise
-    }
+    const documents = []
 
-    this.crawling = true
+    let dirty = false
+    let stack_current = []
+    let stack_next = [this.base]
 
-    this.daemon.cycle = true
-    this.daemon.status = 'Initialize'
+    while (crawl === this.crawling && stack_next.length) {
+      stack_current = stack_next
+      stack_next = []
 
-    this.daemon.promise = (async () => {
-      const documents = []
+      while (crawl === this.crawling && stack_current.length) {
+        const item = stack_current.shift()
 
-      let dirty = false
-      let stack_current = []
-      let stack_next = [this.base]
+        const result = await item.crawl(time)
 
-      while (this.daemon.cycle && stack_next.length) {
-        stack_current = stack_next
-        stack_next = []
-
-        while (this.daemon.cycle && stack_current.length) {
-          const item = stack_current.shift()
-
-          this.daemon.status = `Loading ${item.path}`
-          const result = await item.crawl(time)
-
+        if (result) {
           dirty = result.dirty || dirty
 
-          if (item.document) {
-            documents.push(item.document)
+          if (result.directory) {
+            documents.push(result.payload)
+          } else {
+            stack_next.push(...result.payload)
           }
 
-          stack_next.push(...result.children)
+          yield result
         }
       }
+    }
 
-      if (this.daemon.cycle) {
-        if (dirty) {
-          this.documents = documents
-          this.timestamp = Date.now()
-        }
-
-        this.daemon.cycle = false
-        this.daemon.status = 'Ready'
-      } else {
-        this.daemon.status = 'Terminated'
-      }
-
-      this.crawling = false
-    })()
-
-    return this.daemon.promise
+    if (crawl === this.crawling && dirty) {
+      this.documents = documents
+      this.timestamp = Date.now()
+    }
   }
 }

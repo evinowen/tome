@@ -16,23 +16,23 @@ export default {
   },
   mutations: {
     initialize: function (state, tree) {
-      if (state.watcher) {
-        state.watcher.close()
-      }
+      // if (state.watcher) {
+      //   state.watcher.close()
+      // }
 
       state.tree = tree
 
       // state.watcher = chokidar.watch(path).on('change', (event, path) => state.tree.crawl())
     },
-    load: function (state, data) {
-      const { path } = data
+    render: function (state, data) {
+      const { item, payload } = data
 
-      state.tree.load(path)
+      item.render(payload)
     },
-    populate: function (state, data) {
-      const { path } = data
+    fill: function (state, data) {
+      const { item, payload } = data
 
-      state.tree.populate(path)
+      item.fill(payload)
     },
     toggle: function (state, item) {
       item.expanded = !item.expanded
@@ -116,9 +116,20 @@ export default {
     initialize: async function (context, { path }) {
       const tree = await FileTree.make(path)
 
-      await context.commit('initialize', tree)
+      context.commit('initialize', tree)
 
-      await context.state.tree.crawl()
+      await context.dispatch('crawl')
+    },
+    crawl: async function (context) {
+      const results = context.state.tree.crawl()
+
+      for await (const result of results) {
+        if (result.directory) {
+          context.commit('fill', result)
+        } else {
+          context.commit('render', result)
+        }
+      }
     },
     toggle: async function (context, { path }) {
       const { item } = await context.state.tree.identify(path)
@@ -127,13 +138,20 @@ export default {
         await context.dispatch('load', { path })
       }
 
-      await context.commit('toggle', item)
+      context.commit('toggle', item)
     },
     load: async function (context, { path }) {
-      await context.commit('load', { path })
-    },
-    populate: async function (context, { path }) {
-      await context.commit('populate', { path })
+      const result = await context.state.tree.load(path)
+
+      if (!result) {
+        return
+      }
+
+      if (result.directory) {
+        context.commit('fill', result)
+      } else {
+        context.commit('render', result)
+      }
     },
     ghost: async function (context, { path, directory }) {
       let parent = path
@@ -146,7 +164,7 @@ export default {
 
       const { item } = await context.state.tree.identify(parent)
 
-      await context.commit('ghost', { item, target, directory })
+      context.commit('ghost', { item, target, directory })
     },
     select: async function (context, { path }) {
       await context.dispatch('save')
@@ -156,10 +174,10 @@ export default {
         await item.read()
       }
 
-      await context.commit('select', { path, item })
+      context.commit('select', { path, item })
     },
     update: async function (context, { content }) {
-      await context.commit('update', { content })
+      context.commit('update', { content })
     },
     save: async function (context) {
       const item = context.state.selected
@@ -221,14 +239,14 @@ export default {
       const directory_current = await window.api.path_dirname(path)
 
       if (directory === directory_current) {
-        await context.commit('error', { error: 'Invalid move, same directory.' })
+        context.commit('error', { error: 'Invalid move, same directory.' })
         return
       }
 
       await window.api.file_rename(path, proposed_full)
 
-      await context.dispatch('populate', { path: directory_current })
-      await context.dispatch('populate', { path: directory })
+      await context.dispatch('load', { path: directory_current })
+      await context.dispatch('load', { path: directory })
     },
     rename: async function (context, { path, name }) {
       const directory = await window.api.path_dirname(path)
@@ -275,7 +293,7 @@ export default {
       const parent = await window.api.path_dirname(path)
 
       await window.api.file_delete(path)
-      await context.dispatch('populate', { path: parent })
+      await context.dispatch('load', { path: parent })
     }
   }
 }

@@ -20,13 +20,18 @@ describe('Console.vue', () => {
   beforeEach(() => {
     vuetify = new Vuetify()
 
+    const format = {
+      date: DateTime.DATE_SHORT,
+      time: DateTime.TIME_24_WITH_SHORT_OFFSET
+    }
+
     store.state = {
       events: [
-        { type: 'info', message: 'Message 1', datetime: DateTime.now().minus({ minutes: 120 }) },
-        { type: 'error', message: 'Message 2', datetime: DateTime.now().minus({ minutes: 60 }) },
-        { type: 'info', message: 'Message 3', datetime: DateTime.now().minus({ minutes: 45 }) },
-        { type: 'error', message: 'Message 4', datetime: DateTime.now().minus({ minutes: 30 }) },
-        { type: 'error', message: 'Message 5', datetime: DateTime.now().minus({ minutes: 15 }) }
+        { type: 'info', message: 'Message 1', datetime: DateTime.now().minus({ minutes: 120 }), format },
+        { type: 'error', message: 'Message 2', datetime: DateTime.now().minus({ minutes: 60 }), format },
+        { type: 'info', message: 'Message 3', datetime: DateTime.now().minus({ minutes: 45 }), format },
+        { type: 'error', message: 'Message 4', datetime: DateTime.now().minus({ minutes: 30 }), format },
+        { type: 'error', message: 'Message 5', datetime: DateTime.now().minus({ minutes: 15 }), format }
       ]
     }
 
