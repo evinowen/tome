@@ -77,7 +77,7 @@ export default class FileTree {
         if (result) {
           dirty = result.dirty || dirty
 
-          if (result.document) {
+          if (result.directory) {
             documents.push(result.payload)
           } else {
             stack_next.push(...result.payload)
