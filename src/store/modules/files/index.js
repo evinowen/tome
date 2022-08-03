@@ -140,7 +140,7 @@ export default {
 
       context.commit('toggle', item)
     },
-    load: async function (context, { path }) {
+    load: async function (context, { path, select = false }) {
       const result = await context.state.tree.load(path)
 
       if (!result) {
@@ -151,6 +151,12 @@ export default {
         context.commit('fill', result)
       } else {
         context.commit('render', result)
+      }
+
+      const { item } = result
+
+      if (select) {
+        context.commit('select', { path, item })
       }
     },
     ghost: async function (context, { path, directory }) {
@@ -166,12 +172,14 @@ export default {
 
       context.commit('ghost', { item, target, directory })
     },
-    select: async function (context, { path }) {
-      await context.dispatch('save')
+    select: async function (context, { path, save = true }) {
+      if (save) {
+        await context.dispatch('save')
+      }
 
       const { item } = await context.state.tree.identify(path)
-      if (!item.directory && !item.document) {
-        await item.read()
+      if (!item.directory) {
+        await context.dispatch('load', { path })
       }
 
       context.commit('select', { path, item })
@@ -215,12 +223,7 @@ export default {
       }
     },
     edit: async function (context, { path }) {
-      const { item } = await context.state.tree.identify(path)
-      if (!item.directory && !item.document) {
-        await item.read()
-      }
-
-      context.commit('select', { path, item })
+      await context.dispatch('select', { path })
       context.commit('edit', { edit: true })
     },
     blur: async function (context) {
@@ -255,14 +258,7 @@ export default {
       await window.api.file_rename(path, proposed)
 
       await context.dispatch('load', { path: directory })
-      await context.dispatch('load', { path: proposed })
-
-      const { item } = await context.state.tree.identify(proposed)
-      if (!item.directory && !item.document) {
-        await item.read()
-      }
-
-      await context.dispatch('select', { path: proposed, item })
+      await context.dispatch('select', { path: proposed, select: true })
     },
     create: async function (context, { path, name, directory }) {
       const proposed = await window.api.path_join(path, name)
@@ -280,14 +276,7 @@ export default {
       }
 
       await context.dispatch('load', { path })
-      await context.dispatch('load', { path: proposed })
-
-      const { item } = await context.state.tree.identify(proposed)
-      if (!item.directory && !item.document) {
-        await item.read()
-      }
-
-      await context.dispatch('select', { path: proposed, item })
+      await context.dispatch('load', { path: proposed, select: true })
     },
     delete: async function (context, { path }) {
       const parent = await window.api.path_dirname(path)
