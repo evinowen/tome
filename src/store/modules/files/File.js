@@ -25,7 +25,11 @@ export default class File {
   }
 
   async crawl (time) {
-    if (!this.disabled) {
+    if (this.disabled) {
+      return
+    }
+
+    if (this.directory) {
       if (!this.updated || this.updated < time) {
         return await this.load()
       }
