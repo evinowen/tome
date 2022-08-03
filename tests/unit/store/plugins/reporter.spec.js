@@ -46,7 +46,7 @@ describe('store/plugins/reporter.js', () => {
   })
 
   it('should catch errors and dispatch message to "error" action on exception', async () => {
-    await store.dispatch('search/index')
+    await store.dispatch('fail')
 
     expect(object.actions.error).toHaveBeenCalledTimes(1)
   })

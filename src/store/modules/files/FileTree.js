@@ -7,8 +7,6 @@ export default class FileTree {
     this.index = null
     this.crawling = 0
     this.timestamp = 0
-
-    this.documents = []
   }
 
   static async make (path) {
@@ -59,8 +57,6 @@ export default class FileTree {
     const time = Date.now()
     const crawl = ++this.crawling
 
-    const documents = []
-
     let dirty = false
     let stack_current = []
     let stack_next = [this.base]
@@ -78,8 +74,6 @@ export default class FileTree {
           dirty = result.dirty || dirty
 
           if (result.directory) {
-            documents.push(result.payload)
-          } else {
             stack_next.push(...result.payload)
           }
 
@@ -89,7 +83,6 @@ export default class FileTree {
     }
 
     if (crawl === this.crawling && dirty) {
-      this.documents = documents
       this.timestamp = Date.now()
     }
   }

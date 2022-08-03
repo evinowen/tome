@@ -1,9 +1,6 @@
-import lunr from 'lunr'
-
 export default {
   namespaced: true,
   state: {
-    index: null,
     query: null,
     results: null,
     navigation: {
@@ -22,9 +19,6 @@ export default {
     results: function (state, { results }) {
       state.results = results
     },
-    index: function (state, { index }) {
-      state.index = index
-    },
     navigate: function (state, { target, total }) {
       state.navigation.target = Number.isInteger(target) ? target : state.navigation.target
       state.navigation.total = Number.isInteger(total) ? total : state.navigation.total
@@ -37,18 +31,6 @@ export default {
     }
   },
   actions: {
-    index: async function (context, { tree }) {
-      const index = lunr(function () {
-        this.ref('path')
-        this.field('path')
-        this.field('content')
-
-        tree.documents.forEach(function (document) { this.add(document) }, this)
-      })
-
-      context.commit('index', { index })
-      await context.dispatch('execute')
-    },
     query: async function (context, { query }) {
       context.commit('query', { query })
       await context.dispatch('execute')
