@@ -12,10 +12,10 @@ describe('store/plugins/reporter.js', () => {
     localVue = createLocalVue()
     localVue.use(Vuex)
 
-    const search = {
+    const module = {
       namespaced: true,
       actions: {
-        index: async function () {
+        test: async function () {
           throw new Error('Error!')
         }
       }
@@ -31,7 +31,7 @@ describe('store/plugins/reporter.js', () => {
         error: jest.fn()
       },
       modules: {
-        search
+        module
       },
       plugins: [
         reporter
@@ -46,7 +46,7 @@ describe('store/plugins/reporter.js', () => {
   })
 
   it('should catch errors and dispatch message to "error" action on exception', async () => {
-    await store.dispatch('fail')
+    await store.dispatch('module/test')
 
     expect(object.actions.error).toHaveBeenCalledTimes(1)
   })
