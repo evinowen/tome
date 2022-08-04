@@ -15,11 +15,8 @@
         </v-col>
       </v-row>
       <v-row dense>
-        <v-col xs=12 sm=6>
+        <v-col xs=12 sm=12>
           <keyfile-input label="private key" id="settings_private_key" :value=configuration.private_key @input=assign_key />
-        </v-col>
-        <v-col xs=12 sm=6>
-          <keyfile-input label="public key" id="settings_public_key" :value=configuration.public_key @input=assign_key />
         </v-col>
       </v-row>
       <v-row dense>

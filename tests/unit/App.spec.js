@@ -29,7 +29,6 @@ store.state = {
   configuration: {
     default_remote: 'origin',
     private_key: 'key',
-    public_key: 'key.pub',
     passphrase: 'passphrase'
   }
 }

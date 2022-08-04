@@ -4,5 +4,6 @@ window.api = {
   ...require('./components/file/preload'),
   ...require('./components/metadata/preload'),
   ...require('./components/path/preload'),
+  ...require('./components/ssl/preload'),
   ...require('./components/window/preload')
 }

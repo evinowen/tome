@@ -177,7 +177,9 @@ export default {
       context.commit('commit', false)
     },
     credentials: async function (context, credentials) {
-      const { private_key, public_key, passphrase } = credentials
+      const { private_key, passphrase } = credentials
+
+      const { path: public_key } = await window.api.ssl_generate_public_key(private_key, passphrase)
 
       await window.api.credential_repository(private_key, public_key, passphrase)
     },
