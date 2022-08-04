@@ -44,7 +44,6 @@ describe('Commit.vue', () => {
       configuration: {
         auto_push: false,
         private_key: './id_rsa',
-        public_key: './id_rsa.pub',
         passphrase: '1234'
       }
     }

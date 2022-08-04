@@ -17,7 +17,6 @@
             </v-card-title>
 
             <push-keyfile-input v-model=input.private_key.value :stored=configuration.private_key />
-            <push-keyfile-input v-model=input.public_key.value :stored=configuration.public_key />
             <push-passphrase-input v-model=input.passphrase.value :stored=configuration.passphrase />
           </v-card>
 
@@ -67,7 +66,7 @@
           <v-divider class="mt-0 mb-2"></v-divider>
           <push-confirm
             :value=confirm @input="$emit('confirm', $event)"
-            :disabled="!(input.private_key.value && input.public_key.value && pending.length)"
+            :disabled="!(input.private_key.value && pending.length)"
             :waiting=working
             :history=pending
             @push=push
@@ -118,16 +117,10 @@ export default {
         }
       },
       private_key: {
-        value: '',
-        obscured: false
-      },
-      public_key: {
-        value: '',
-        obscured: false
+        value: ''
       },
       passphrase: {
-        value: '',
-        obscured: false
+        value: ''
       },
       branch: {
         error: '',
@@ -167,10 +160,6 @@ export default {
       this.input.private_key.value = this.configuration.private_key
     }
 
-    if (this.configuration.public_key) {
-      this.input.public_key.value = this.configuration.public_key
-    }
-
     if (this.configuration.passphrase) {
       this.input.passphrase.value = this.configuration.passphrase
     }
@@ -193,7 +182,6 @@ export default {
 
       const credentials = {
         private_key: this.input.private_key.value,
-        public_key: this.input.public_key.value,
         passphrase: this.input.passphrase.value
       }
 

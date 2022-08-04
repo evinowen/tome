@@ -253,7 +253,6 @@ export default {
 
       const credentials = {
         private_key: store.state.configuration.private_key,
-        public_key: store.state.configuration.public_key,
         passphrase: store.state.configuration.passphrase
       }
 

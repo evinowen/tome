@@ -36,7 +36,6 @@ describe('Push.vue', () => {
     store.state = {
       configuration: {
         private_key: '',
-        public_key: '',
         passphrase: ''
       },
       tome: {
@@ -56,7 +55,6 @@ describe('Push.vue', () => {
 
   it('should pull configuration if it exists into local input when the component is mounted', async () => {
     store.state.configuration.private_key = './id_rsa'
-    store.state.configuration.public_key = './id_rsa.pub'
     store.state.configuration.passphrase = 'password'
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
@@ -64,7 +62,6 @@ describe('Push.vue', () => {
     const wrapper = factory.wrap()
 
     expect(wrapper.vm.input.private_key.value).toEqual('./id_rsa')
-    expect(wrapper.vm.input.public_key.value).toEqual('./id_rsa.pub')
     expect(wrapper.vm.input.passphrase.value).toEqual('password')
   })
 

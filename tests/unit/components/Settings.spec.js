@@ -18,7 +18,6 @@ jest.mock('@/store', () => ({
       name: '',
       email: '',
       private_key: '',
-      public_key: '',
       passphrase: '',
       format_titles: false,
       dark_mode: false,

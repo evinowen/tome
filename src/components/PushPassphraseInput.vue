@@ -44,7 +44,7 @@ export default {
     stored: { type: String, default: '' }
   },
   data: () => ({
-    obscured: false
+    obscured: true
   }),
   computed: {
     button_color: function () {

@@ -7,6 +7,7 @@ require('./components/file').register()
 require('./components/git').register()
 require('./components/metadata').register()
 require('./components/path').register()
+require('./components/ssl').register()
 require('./components/window').register()
 
 let win = null

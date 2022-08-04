@@ -164,7 +164,6 @@ describe('store/modules/tome.js', () => {
 
     const credentials = {
       private_key: './test_rsa',
-      public_key: './test_rsa.pub',
       passphrase: '1234'
     }
 
@@ -188,7 +187,6 @@ describe('store/modules/tome.js', () => {
 
     const credentials = {
       private_key: './test_rsa',
-      public_key: './test_rsa.pub',
       passphrase: '1234'
     }
 

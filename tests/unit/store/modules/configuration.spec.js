@@ -12,7 +12,6 @@ window._.set_content(JSON.stringify({
   name: 'Test User',
   email: 'testuser@example.com',
   private_key: 'id_rsa',
-  public_key: 'id_rsa.pub',
   passphrase: 'password',
   format_titles: false,
   dark_mode: true
@@ -43,7 +42,6 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.name).toBe('')
     expect(store.state.configuration.email).toBe('')
     expect(store.state.configuration.private_key).toBe('')
-    expect(store.state.configuration.public_key).toBe('')
     expect(store.state.configuration.passphrase).toBe('')
     expect(store.state.configuration.format_titles).toBe(true)
 
@@ -58,7 +56,6 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.name).toBe('Test User')
     expect(store.state.configuration.email).toBe('testuser@example.com')
     expect(store.state.configuration.private_key).toBe('id_rsa')
-    expect(store.state.configuration.public_key).toBe('id_rsa.pub')
     expect(store.state.configuration.passphrase).toBe('password')
     expect(store.state.configuration.format_titles).toBe(false)
   })
@@ -74,7 +71,6 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.name).toBe('New Name')
     expect(store.state.configuration.email).toBe('')
     expect(store.state.configuration.private_key).toBe('')
-    expect(store.state.configuration.public_key).toBe('')
     expect(store.state.configuration.passphrase).toBe('q1h7$u*3~y:}l$:akiKUa&z%:VhDP|')
   })
 

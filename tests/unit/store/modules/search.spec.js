@@ -3,26 +3,8 @@ import { cloneDeep } from 'lodash'
 
 import { createLocalVue } from '@vue/test-utils'
 import search from '@/store/modules/search'
-import lunr from 'lunr'
 
 jest.mock('electron', () => ({ remote: {} }))
-jest.mock('lunr')
-
-lunr.mockImplementation((callback) => {
-  callback.call({
-    ref: jest.fn(),
-    field: jest.fn(),
-    add: jest.fn()
-  })
-
-  return {
-    search: jest.fn((query) => [
-      { ref: 'result_a', score: 1.00 },
-      { ref: 'result_b', score: 0.50 },
-      { ref: 'result_c', score: 0.25 }
-    ])
-  }
-})
 
 describe('store/modules/search', () => {
   let localVue
@@ -63,61 +45,15 @@ describe('store/modules/search', () => {
     expect(store.state.search.query).toBeNull()
   })
 
-  it('should manufacture an index when the index action is dispatched', async () => {
-    const tree = {
-      documents: [
-        {
-          path: '/path_one',
-          content: '# Content One'
-        },
-        {
-          path: '/path_two',
-          content: '# Content Two'
-        },
-        {
-          path: '/path_three',
-          content: '# Content Three'
-        }
-      ]
-    }
-
-    expect(store.state.search.index).toBeNull()
-
-    await store.dispatch('search/index', { tree })
-
-    expect(store.state.search.index).toBeDefined()
-  })
-
-  it('should store index results when query is set and the index action is dispatched', async () => {
+  it('should store results when query is set', async () => {
     const query = 'example search'
-    const tree = {
-      documents: [
-        {
-          path: '/path_one',
-          content: '# Content One'
-        },
-        {
-          path: '/path_two',
-          content: '# Content Two'
-        },
-        {
-          path: '/path_three',
-          content: '# Content Three'
-        }
-      ]
-    }
 
     expect(store.state.search.query).toBeNull()
-    expect(store.state.search.index).toBeNull()
     expect(store.state.search.results).toBeNull()
 
     await store.dispatch('search/query', { query })
 
     expect(store.state.search.query).toBe(query)
-
-    await store.dispatch('search/index', { tree })
-
-    expect(store.state.search.index).toBeDefined()
     expect(store.state.search.results).toBeDefined()
   })
 

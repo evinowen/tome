@@ -8,7 +8,6 @@ export default {
     name: '',
     email: '',
     private_key: '',
-    public_key: '',
     passphrase: '',
     format_titles: true,
     dark_mode: true,
