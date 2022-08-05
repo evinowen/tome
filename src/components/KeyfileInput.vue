@@ -76,6 +76,7 @@ export default {
       }
 
       this.$emit('input', file.path)
+      this.$refs.input.value = ''
     }
   }
 }
