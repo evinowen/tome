@@ -17,7 +17,7 @@
             </v-card-title>
 
             <keyfile-input v-model=input.private_key.value small storable :stored=configuration.private_key />
-            <push-passphrase-input v-model=input.passphrase.value :stored=configuration.passphrase />
+            <push-passphrase-input v-model=input.passphrase.value :stored=configuration.passphrase small storable />
           </v-card>
 
           <push-remote-selector
