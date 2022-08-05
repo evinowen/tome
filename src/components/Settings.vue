@@ -270,6 +270,11 @@ export default {
         this.public_key = await window.api.ssl_generate_public_key(this.configuration.private_key, this.configuration.passphrase)
       }
     },
+    generate_key: async function (name, passphrase) {
+      const private_key = await window.api.ssl_generate_private_key(passphrase)
+
+      await this.assign_value('private_key', private_key.path)
+    },
     save: async function () {
       await store.dispatch('configuration/write', store.state.configuration_path)
     }
