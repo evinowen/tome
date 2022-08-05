@@ -16,7 +16,7 @@
               Credentials
             </v-card-title>
 
-            <push-keyfile-input v-model=input.private_key.value :stored=configuration.private_key />
+            <keyfile-input v-model=input.private_key.value small storable :stored=configuration.private_key />
             <push-passphrase-input v-model=input.passphrase.value :stored=configuration.passphrase />
           </v-card>
 
@@ -92,7 +92,7 @@
 <script>
 import { VNavigationDrawer, VContainer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCol, VRow } from 'vuetify/lib'
 import store from '@/store'
-import PushKeyfileInput from './PushKeyfileInput.vue'
+import KeyfileInput from './KeyfileInput.vue'
 import PushPassphraseInput from './PushPassphraseInput.vue'
 import PushRemoteSelector from './PushRemoteSelector.vue'
 import PushBranch from './PushBranch.vue'
@@ -213,7 +213,7 @@ export default {
     VCardTitle,
     VCol,
     VRow,
-    PushKeyfileInput,
+    KeyfileInput,
     PushPassphraseInput,
     PushRemoteSelector,
     PushBranch,
