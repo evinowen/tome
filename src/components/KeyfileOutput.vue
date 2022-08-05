@@ -1,35 +1,42 @@
 <template>
-  <div>
-    <v-label small>
-      <span class="key-label">{{ label }}</span>
-    </v-label>
-    <div class="key-border">
-      <v-textarea :value=value tile icon auto-grow readonly no-resize class="key-output"></v-textarea>
-    </div>
-  </div>
+  <v-layout class="key-border pt-1">
+    <v-flex class="pa-1">
+      <v-text-field
+        :value="value || ' '" :label=label
+        class="key-output"
+        readonly outlined hide-details
+      />
+    </v-flex>
+    <v-btn
+      tile icon :small=small style="height: auto;"
+      @click.stop=copy
+      :disabled="value === ''"
+    >
+      <v-icon small>mdi-content-copy</v-icon>
+    </v-btn>
+  </v-layout>
 </template>
 
 <style scoped>
-.key-label {
-  font-size: 0.8em;
-}
-
 .key-output {
-  font-size: 1.0em;
   font-family: monospace !important;
-  word-break: break-all;
-  background: rgba(0, 0, 0, 0.05);
 }
 </style>
 
 <script>
-import { VLabel, VTextarea } from 'vuetify/lib'
+import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
 
 export default {
-  components: { VLabel, VTextarea },
+  components: { VIcon, VBtn, VTextField, VLayout, VFlex },
   props: {
-    value: { type: String, default: 'component default' },
+    value: { type: String, default: '' },
+    small: { type: Boolean, default: false },
     label: { type: String, default: '' }
+  },
+  methods: {
+    copy: async function () {
+      await window.api.clipboard_text(this.value)
+    }
   }
 }
 </script>
