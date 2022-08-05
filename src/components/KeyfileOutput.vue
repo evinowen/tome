@@ -17,6 +17,7 @@
 .key-output {
   font-size: 1.0em;
   font-family: monospace !important;
+  word-break: break-all;
   background: rgba(0, 0, 0, 0.05);
 }
 </style>
