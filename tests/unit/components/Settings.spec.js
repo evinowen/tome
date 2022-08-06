@@ -63,14 +63,8 @@ describe('Settings.vue', () => {
   let vuetify
   let wrapper
 
-  let file
-
   beforeEach(() => {
     vuetify = new Vuetify()
-
-    file = {
-      path: './file_path'
-    }
 
     wrapper = mount(
       Settings,
