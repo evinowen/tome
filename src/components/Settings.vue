@@ -251,7 +251,9 @@ export default {
     public_key: null
   }),
   mounted: async function () {
-    this.public_key = await window.api.ssl_generate_public_key(this.configuration.private_key, this.configuration.passphrase)
+    store.watch(state => [state.configuration.private_key, state.configuration.passphrase], async () => {
+      this.public_key = await window.api.ssl_generate_public_key(this.configuration.private_key, this.configuration.passphrase)
+    })
   },
   computed: {
     configuration: function () {
@@ -265,10 +267,6 @@ export default {
     assign_value: async function (name, value) {
       await store.dispatch('configuration/update', { [name]: value })
       this.debounce_save()
-
-      if (['private_key', 'passphrase'].includes(name)) {
-        this.public_key = await window.api.ssl_generate_public_key(this.configuration.private_key, this.configuration.passphrase)
-      }
     },
     generate_key: async function (name, passphrase) {
       const private_key = await window.api.ssl_generate_private_key(passphrase)
