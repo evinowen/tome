@@ -1,39 +1,38 @@
 <template>
-  <div>
-    <v-label :for=id small>
-      <span class="key-label">{{ label }}</span>
-    </v-label>
-    <v-layout class="key-border pt-1">
-      <v-flex>
-        <input ref="input" type="file" style="display: none" @change="input" />
-        <v-btn :id=id tile icon :small=small :color=color class="key-input" @click.stop="$refs.input.click()">
-          <v-icon small>{{ value ? "mdi-lock-open" : "mdi-lock" }}</v-icon>
-          {{ value }}
-        </v-btn>
-      </v-flex>
-      <v-btn v-if=forge
-        tile icon :small=small class="pa-0"
-        @click.stop="$emit('forge')"
-        :disabled="value !== ''"
-      >
-        <v-icon small>mdi-anvil</v-icon>
-      </v-btn>
-      <v-btn v-if=storable
-        tile icon :small=small class="pa-0"
-        :disabled="stored === ''"
-        @click.stop="$emit('input', stored)"
-      >
-        <v-icon small>mdi-cog</v-icon>
-      </v-btn>
-      <v-btn
-        tile icon :small=small class="pa-0"
-        @click.stop="$emit('input', '')"
-        :disabled="value === ''"
-      >
-        <v-icon small>mdi-close</v-icon>
-      </v-btn>
-    </v-layout>
-  </div>
+  <v-layout class="key-border pt-1">
+    <v-flex class="pa-1">
+      <input ref="input" type="file" style="display: none" @change="input" />
+      <v-text-field
+        :value="value || ' '" :label=label
+        :class="[ value ? 'v-text-field-green' : 'v-text-field-red' ]"
+        :color="value ? 'green' : 'red'"
+        :prepend-inner-icon="value ? 'mdi-lock-open' : 'mdi-lock'"
+        @click.stop="$refs.input.click()"
+        readonly outlined hide-details dense
+      />
+    </v-flex>
+    <v-btn
+      tile icon :small=small style="height: auto;"
+      @click.stop="$emit('input', '')"
+      :disabled="value === ''"
+    >
+      <v-icon small>mdi-close</v-icon>
+    </v-btn>
+    <v-btn v-if=forge
+      tile icon :small=small style="height: auto;"
+      @click.stop="$emit('forge')"
+      :disabled="value !== ''"
+    >
+      <v-icon small>mdi-anvil</v-icon>
+    </v-btn>
+    <v-btn v-if=storable
+      tile icon :small=small style="height: auto;"
+      :disabled="stored === ''"
+      @click.stop="$emit('input', stored)"
+    >
+      <v-icon small>mdi-cog</v-icon>
+    </v-btn>
+  </v-layout>
 </template>
 
 <style scoped>
@@ -45,13 +44,23 @@
   width: 100%;
   background: rgba(0, 0, 0, 0.05);
 }
+
+.v-text-field-red >>> fieldset {
+  color: red;
+  border-color: red;
+}
+
+.v-text-field-green >>> fieldset {
+  color: green;
+  border-color: green;
+}
 </style>
 
 <script>
-import { VIcon, VBtn, VLabel, VLayout, VFlex } from 'vuetify/lib'
+import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
 
 export default {
-  components: { VIcon, VBtn, VLabel, VLayout, VFlex },
+  components: { VIcon, VBtn, VTextField, VLayout, VFlex },
   props: {
     value: { type: String, default: '' },
     forge: { type: Boolean, default: false },
