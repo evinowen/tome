@@ -1,10 +1,14 @@
-const { ipcMain } = require('electron')
+const { ipcMain, clipboard } = require('electron')
 
 const fs = require('fs')
 const path = require('path')
 
 module.exports = {
   register: () => {
+    ipcMain.handle('clipboard_text', async (event, text) => {
+      clipboard.writeText(text)
+    })
+
     ipcMain.handle('clipboard_paste', async (event, action, source, target) => {
       // Determine the directory where the file will go
       let directory = target

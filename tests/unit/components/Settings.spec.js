@@ -63,14 +63,8 @@ describe('Settings.vue', () => {
   let vuetify
   let wrapper
 
-  let file
-
   beforeEach(() => {
     vuetify = new Vuetify()
-
-    file = {
-      path: './file_path'
-    }
 
     wrapper = mount(
       Settings,
@@ -102,22 +96,6 @@ describe('Settings.vue', () => {
 
     expect(store.dispatch.mock.calls[0][0]).toEqual('configuration/update')
     expect(store.dispatch.mock.calls[0][1]).toEqual({ [name]: value })
-  })
-
-  it('should assign file path as value to configuration option on call to assign_key', async () => {
-    expect(wrapper.vm.value).toEqual(false)
-
-    const name = 'name'
-    const event = {
-      target: {
-        files: [file]
-      }
-    }
-
-    await wrapper.vm.assign_key(name, event)
-
-    expect(store.dispatch.mock.calls[0][0]).toEqual('configuration/update')
-    expect(store.dispatch.mock.calls[0][1]).toEqual({ [name]: file.path })
   })
 
   it('should dispatch configuration write on call to save', async () => {

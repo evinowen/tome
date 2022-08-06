@@ -16,7 +16,13 @@
       </v-row>
       <v-row dense>
         <v-col xs=12 sm=12>
-          <keyfile-input label="private key" id="settings_private_key" :value=configuration.private_key @input=assign_key />
+          <keyfile-input
+            label="private key"
+            id="settings_private_key"
+            :value=configuration.private_key
+            @input="assign_value('private_key', $event)"
+            forge @forge="generate_key('private_key', configuration.passphrase)"
+          />
         </v-col>
       </v-row>
       <v-row dense>
@@ -27,8 +33,13 @@
             :append-icon="obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
             :type="obscure_passphrase ? 'password' : 'text'"
             @click:append="obscure_passphrase = !obscure_passphrase"
-            @change=debounce_save
+            @change="assign_value('passphrase', $event)"
           />
+        </v-col>
+      </v-row>
+      <v-row dense>
+        <v-col>
+          <keyfile-output label="public key" :value="public_key ? public_key.data : null"  />
         </v-col>
       </v-row>
       <v-row dense>
@@ -215,31 +226,6 @@
 </template>
 
 <style>
-.key-input {
-  width: 100% !important;
-  padding: 0;
-  height: 48px !important;
-  font-size: 0.9em !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.key-input .v-icon {
-  height: 28px !important;
-  width: 28px !important;
-  font-size: 2.0em !important;
-}
-
-.key-input span {
-  width: 100% !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-  justify-content: normal;
-}
-
 .actions {
   backdrop-filter: blur(2px);
   position: sticky;
@@ -253,6 +239,7 @@ import { debounce } from 'lodash'
 import store from '@/store'
 import ThemePreview from './ThemePreview.vue'
 import KeyfileInput from './KeyfileInput.vue'
+import KeyfileOutput from './KeyfileOutput.vue'
 import ThemeColorPicker from './ThemeColorPicker.vue'
 
 export default {
@@ -260,8 +247,14 @@ export default {
     value: { type: Boolean, default: false }
   },
   data: () => ({
-    obscure_passphrase: true
+    obscure_passphrase: true,
+    public_key: null
   }),
+  mounted: async function () {
+    store.watch(state => [state.configuration.private_key, state.configuration.passphrase], async () => {
+      this.public_key = await window.api.ssl_generate_public_key(this.configuration.private_key, this.configuration.passphrase)
+    })
+  },
   computed: {
     configuration: function () {
       return store.state.configuration
@@ -271,17 +264,14 @@ export default {
     }
   },
   methods: {
-    assign_key: async function (name, event) {
-      const files = event.target.files || event.dataTransfer.files
-
-      const file = files.length ? files[0] : null
-
-      await store.dispatch('configuration/update', { [name]: file.path })
-      this.debounce_save()
-    },
     assign_value: async function (name, value) {
       await store.dispatch('configuration/update', { [name]: value })
       this.debounce_save()
+    },
+    generate_key: async function (name, passphrase) {
+      const private_key = await window.api.ssl_generate_private_key(passphrase)
+
+      await this.assign_value('private_key', private_key.path)
     },
     save: async function () {
       await store.dispatch('configuration/write', store.state.configuration_path)
@@ -297,6 +287,7 @@ export default {
     VTextField,
     VNavigationDrawer,
     KeyfileInput,
+    KeyfileOutput,
     ThemePreview,
     ThemeColorPicker
   }

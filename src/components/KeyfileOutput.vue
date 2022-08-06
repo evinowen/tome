@@ -1,0 +1,42 @@
+<template>
+  <v-layout class="key-border pt-1">
+    <v-flex class="pa-1">
+      <v-text-field
+        :value="value || ' '" :label=label
+        class="key-output"
+        readonly outlined hide-details
+      />
+    </v-flex>
+    <v-btn
+      tile icon :small=small style="height: auto;"
+      @click.stop=copy
+      :disabled="value === ''"
+    >
+      <v-icon small>mdi-content-copy</v-icon>
+    </v-btn>
+  </v-layout>
+</template>
+
+<style scoped>
+.key-output {
+  font-family: monospace !important;
+}
+</style>
+
+<script>
+import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
+
+export default {
+  components: { VIcon, VBtn, VTextField, VLayout, VFlex },
+  props: {
+    value: { type: String, default: '' },
+    small: { type: Boolean, default: false },
+    label: { type: String, default: '' }
+  },
+  methods: {
+    copy: async function () {
+      await window.api.clipboard_text(this.value)
+    }
+  }
+}
+</script>
