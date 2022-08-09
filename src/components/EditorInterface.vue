@@ -169,11 +169,10 @@ export default {
           title: 'Cut',
           active: () => this.edit && !this.readonly,
           action: () => {
-            const cm = this.codemirror
-            const selection = cm.getSelection()
+            const selection = this.codemirror.getSelection()
 
             clipboard.writeText(selection)
-            cm.replaceSelection('')
+            this.codemirror.replaceSelection('')
           }
         },
         {
@@ -181,8 +180,7 @@ export default {
           action: () => {
             let selection
             if (this.edit) {
-              const cm = this.codemirror
-              selection = cm.getSelection()
+              selection = this.codemirror.getSelection()
             } else {
               selection = document.getSelection().toString()
             }
@@ -194,8 +192,7 @@ export default {
           title: 'Paste',
           active: () => this.edit && !this.readonly,
           action: () => {
-            const cm = this.codemirror
-            cm.replaceSelection(clipboard.readText())
+            this.codemirror.replaceSelection(clipboard.readText())
           }
         }
       ]
@@ -268,10 +265,8 @@ export default {
       this.regex = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
 
       if (this.edit) {
-        const cm = this.codemirror
-
         if (this.overlay) {
-          cm.removeOverlay(this.overlay, true)
+          this.codemirror.removeOverlay(this.overlay, true)
         }
 
         this.overlay = {
@@ -289,12 +284,12 @@ export default {
           }
         }
 
-        cm.addOverlay(this.overlay, { opaque: true })
+        this.codemirror.addOverlay(this.overlay, { opaque: true })
 
         this.mode.write.cursor = null
         this.mode.write.position = 0
 
-        const cursor = cm.getSearchCursor(this.query, 0, { caseFold: true })
+        const cursor = this.codemirror.getSearchCursor(this.query, 0, { caseFold: true })
         let total = 0
 
         while (cursor.findNext()) {
@@ -333,10 +328,8 @@ export default {
     },
     navigate: async function () {
       if (this.edit) {
-        const cm = this.codemirror
-
         if (!this.mode.write.cursor) {
-          this.mode.write.cursor = cm.getSearchCursor(this.query, 0, { caseFold: true })
+          this.mode.write.cursor = this.codemirror.getSearchCursor(this.query, 0, { caseFold: true })
         }
 
         if (!this.mode.write.position) {
@@ -359,8 +352,8 @@ export default {
           const from = this.mode.write.cursor.from()
           const to = this.mode.write.cursor.to()
 
-          cm.setSelection(from, to)
-          cm.scrollIntoView({ from, to })
+          this.codemirror.setSelection(from, to)
+          this.codemirror.scrollIntoView({ from, to })
         }
       } else {
         if (this.focus) {
