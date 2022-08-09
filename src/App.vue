@@ -166,10 +166,9 @@ export default {
   },
   methods: {
     save: async function (state) {
-      const { content } = state
+      const { path, content } = state
 
-      await store.dispatch('files/update', { content })
-      await store.dispatch('files/save')
+      await store.dispatch('files/save', { path, content })
     },
     set_tome: async function (file_path) {
       await store.dispatch('library/add', file_path)

@@ -37,7 +37,6 @@
           <codemirror
             ref="editor"
             v-show="!directory"
-            :value="content"
             :options="codemirror_options"
             @inputRead=input
             @contextmenu="(cm, event) => $emit('context', { selection: { context }, event })"
@@ -107,10 +106,12 @@
 <script>
 import { VIcon } from 'vuetify/lib'
 import { clipboard } from 'electron'
+import { debounce, delay } from 'lodash'
 import marked from 'marked'
 import Mark from 'mark.js'
 import Explorer from '@/components/Explorer.vue'
 import EmptyView from '@/views/Empty.vue'
+import store from '@/store'
 
 export default {
   props: {
@@ -118,7 +119,6 @@ export default {
     commit: { type: Boolean, default: false }
   },
   data: () => ({
-    absolute_path: '',
     actions: [],
     error: '',
     overlay: null,
@@ -139,29 +139,29 @@ export default {
     this.mark = new Mark('#editor-interface-rendered')
   },
   computed: {
+    codemirror: function () {
+      return this.$refs.editor.codemirror
+    },
     explore: function () {
       return !(this.commit || this.push)
     },
     active: function () {
-      return this.$store.state.files.active
-    },
-    directory: function () {
-      return this.$store.state.files.selected?.directory || false
-    },
-    readonly: function () {
-      return this.$store.state.files.selected?.readonly || false
-    },
-    content: function () {
-      return this.$store.state.files.content || ''
+      return store.state.files.active
     },
     rendered: function () {
-      return marked(this.content)
+      return marked(store.state.files.selected?.document?.content || '')
+    },
+    directory: function () {
+      return store.state.files.selected?.directory || false
+    },
+    readonly: function () {
+      return store.state.files.selected?.readonly || false
     },
     query: function () {
-      return this.$store.state.search.query
+      return store.state.search.query
     },
     target: function () {
-      return this.$store.state.search.navigation.target
+      return store.state.search.navigation.target
     },
     context: function () {
       return [
@@ -169,7 +169,7 @@ export default {
           title: 'Cut',
           active: () => this.edit && !this.readonly,
           action: () => {
-            const cm = this.$refs.editor.codemirror
+            const cm = this.codemirror
             const selection = cm.getSelection()
 
             clipboard.writeText(selection)
@@ -181,7 +181,7 @@ export default {
           action: () => {
             let selection
             if (this.edit) {
-              const cm = this.$refs.editor.codemirror
+              const cm = this.codemirror
               selection = cm.getSelection()
             } else {
               selection = document.getSelection().toString()
@@ -194,7 +194,7 @@ export default {
           title: 'Paste',
           active: () => this.edit && !this.readonly,
           action: () => {
-            const cm = this.$refs.editor.codemirror
+            const cm = this.codemirror
             cm.replaceSelection(clipboard.readText())
           }
         }
@@ -202,21 +202,34 @@ export default {
     },
     codemirror_options: function () {
       return {
-        theme: this.$store.state.configuration.dark_mode ? 'base16-dark' : 'base16-light'
+        theme: store.state.configuration.dark_mode ? 'base16-dark' : 'base16-light'
       }
+    },
+    debounce_save: function () {
+      return debounce(this.save, 500)
     }
   },
   watch: {
     active: async function () {
-      this.$refs.editor.codemirror.setOption('readOnly', this.readonly)
+      await this.debounce_save.flush()
+
+      this.codemirror.doc.setValue(store.state.files.content)
+
+      this.codemirror.setOption('readOnly', this.readonly)
 
       if (this.readonly) {
-        this.$refs.editor.codemirror.setOption('mode', null)
+        this.codemirror.setOption('mode', null)
       } else {
-        this.$refs.editor.codemirror.setOption('mode', 'text/x-markdown')
+        this.codemirror.setOption('mode', 'text/x-markdown')
       }
     },
-    edit: async function () {
+    edit: async function (value) {
+      await this.debounce_save.flush()
+
+      if (value) {
+        delay(() => this.codemirror.refresh(), 100)
+      }
+
       await this.search()
     },
     query: async function () {
@@ -233,16 +246,18 @@ export default {
     }
   },
   methods: {
-    input: async function (codemirror) {
-      if (codemirror.isClean()) {
-        return
-      }
+    input: async function () {
+      await this.debounce_save(this.active)
+    },
+    save: async function (path) {
+      const codemirror = this.codemirror
+      const content_array = []
 
-      codemirror.save()
+      codemirror.doc.eachLine((line) => { content_array.push(line.text) })
 
-      const content = codemirror.doc.getValue()
+      const content = content_array.join('\n')
 
-      this.$emit('save', { content })
+      await this.$emit('save', { path, content })
     },
     search: async function () {
       if (!this.query) {
@@ -253,7 +268,7 @@ export default {
       this.regex = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
 
       if (this.edit) {
-        const cm = this.$refs.editor.codemirror
+        const cm = this.codemirror
 
         if (this.overlay) {
           cm.removeOverlay(this.overlay, true)
@@ -286,7 +301,7 @@ export default {
           total++
         }
 
-        await this.$store.dispatch('search/navigate', { total, target: null })
+        await store.dispatch('search/navigate', { total, target: null })
       } else {
         await new Promise((resolve, reject) => {
           this.mark.unmark({ done: resolve })
@@ -300,7 +315,7 @@ export default {
               separateWordSearch: false,
               acrossElements: false,
               done: total => {
-                this.$store.dispatch('search/navigate', { total, target: null })
+                store.dispatch('search/navigate', { total, target: null })
                 resolve(total)
               }
             }
@@ -318,7 +333,7 @@ export default {
     },
     navigate: async function () {
       if (this.edit) {
-        const cm = this.$refs.editor.codemirror
+        const cm = this.codemirror
 
         if (!this.mode.write.cursor) {
           this.mode.write.cursor = cm.getSearchCursor(this.query, 0, { caseFold: true })
@@ -328,13 +343,13 @@ export default {
           this.mode.write.position = 0
         }
 
-        if (this.$store.state.search.navigation.target > 0) {
-          while (this.mode.write.position !== this.$store.state.search.navigation.target) {
-            if (this.$store.state.search.navigation.target < this.mode.write.position) {
+        if (store.state.search.navigation.target > 0) {
+          while (this.mode.write.position !== store.state.search.navigation.target) {
+            if (store.state.search.navigation.target < this.mode.write.position) {
               this.mode.write.position--
 
               this.mode.write.cursor.findPrevious()
-            } else if (this.$store.state.search.navigation.target > this.mode.write.position) {
+            } else if (store.state.search.navigation.target > this.mode.write.position) {
               this.mode.write.position++
 
               this.mode.write.cursor.findNext()
@@ -352,7 +367,7 @@ export default {
           this.focus.classList.remove('highlight-rendered-focus')
         }
 
-        this.focus = this.mode.read.results[this.$store.state.search.navigation.target - 1]
+        this.focus = this.mode.read.results[store.state.search.navigation.target - 1]
 
         if (this.focus) {
           this.focus.classList.add('highlight-rendered-focus')
