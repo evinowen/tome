@@ -47,12 +47,6 @@ export default {
         state.content = item.document.content
       }
     },
-    update: function (state, data) {
-      const { content } = data
-
-      state.selected.clean = false
-      state.content = content
-    },
     edit: function (state, data) {
       const { edit } = data
       state.editing = edit
@@ -172,11 +166,7 @@ export default {
 
       context.commit('ghost', { item, target, directory })
     },
-    select: async function (context, { path, save = true }) {
-      if (save) {
-        await context.dispatch('save')
-      }
-
+    select: async function (context, { path }) {
       const { item } = await context.state.tree.identify(path)
       if (!item.directory) {
         await context.dispatch('load', { path })
@@ -184,15 +174,16 @@ export default {
 
       context.commit('select', { path, item })
     },
-    update: async function (context, { content }) {
-      context.commit('update', { content })
-    },
-    save: async function (context) {
-      const item = context.state.selected
+    save: async function (context, { path = null, content = null }) {
+      const { item } = await context.state.tree.identify(path || context.state.active)
 
-      if (item && !item.readonly && !item.directory && !item.clean) {
-        item.clean = true
-        await window.api.file_write(context.state.active, context.state.content)
+      if (path && content === null) {
+        throw new Error('No content provided for supplied path to update')
+      }
+
+      if (item && !item.readonly && !item.directory) {
+        item.document.content = content || context.state.content
+        await window.api.file_write(item.path, item.document.content)
       }
     },
     submit: async function (context, { input, title }) {

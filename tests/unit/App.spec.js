@@ -137,21 +137,20 @@ describe('App.vue', () => {
     expect(wrapper.vm.context.visible).toBeTruthy()
   })
 
-  it('should dispatch "files/update" and "files/save" on call to save', async () => {
+  it('should dispatch "files/save" on call to save', async () => {
     const wrapper = factory.wrap()
 
     const state = {
+      path: '/path/to/context',
       content: 'This is static content.'
     }
 
     await wrapper.vm.save(state)
 
-    expect(store.dispatch).toHaveBeenCalledTimes(2)
+    expect(store.dispatch).toHaveBeenCalledTimes(1)
 
-    expect(store.dispatch.mock.calls[0][0]).toBe('files/update')
-    expect(store.dispatch.mock.calls[0][1]).toEqual({ content: state.content })
-
-    expect(store.dispatch.mock.calls[1][0]).toBe('files/save')
+    expect(store.dispatch.mock.calls[0][0]).toBe('files/save')
+    expect(store.dispatch.mock.calls[0][1]).toEqual(state)
   })
 
   it('should dispatch "library/add" with path on call to set_tome', async () => {

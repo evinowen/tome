@@ -145,10 +145,9 @@ describe('store/modules/files', () => {
 
     expect(store.state.files.content).not.toBe(content)
 
-    await store.dispatch('files/update', { content })
-    await store.dispatch('files/save')
+    await store.dispatch('files/save', { content })
 
-    expect(store.state.files.content).toBe(content)
+    expect(store.state.files.selected.document.content).toBe(content)
     expect(window.api.file_write).toHaveBeenCalledTimes(1)
   })
 
