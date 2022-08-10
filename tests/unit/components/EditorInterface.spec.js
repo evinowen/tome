@@ -1,22 +1,30 @@
 import { assemble } from '@/../tests/helpers'
-import builders from '@/../tests/builders'
 
 import { clipboard } from 'electron'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 
+import store from '@/store'
 import SplitPane from 'vue-splitpane'
 import EditorInterface from '@/components/EditorInterface.vue'
-jest.mock('@/store', () => ({ }))
 
-jest.useFakeTimers()
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 jest.mock('electron', () => ({
   clipboard: {
     readText: jest.fn(),
     writeText: jest.fn()
   }
+}))
+
+jest.mock('lodash', () => ({
+  debounce: (callback) => {
+    callback.cancel = jest.fn()
+    callback.flush = jest.fn()
+    return callback
+  },
+  delay: (callback) => callback()
 }))
 
 jest.mock('mark.js', () => {
@@ -46,7 +54,6 @@ const markjs_results = GenerateElementList(['one', 'two', 'three'])
 
 describe('EditorInterface.vue', () => {
   let vuetify
-  let store
 
   const codemirror_cursor = {
     findNext: jest.fn(() => false),
@@ -58,6 +65,7 @@ describe('EditorInterface.vue', () => {
   const codemirror = {
     addOverlay: jest.fn(),
     removeOverlay: jest.fn(),
+    refresh: jest.fn(),
     getSearchCursor: jest.fn(() => codemirror_cursor),
     getSelection: jest.fn(() => 'selected text'),
     setSelection: jest.fn(),
@@ -67,11 +75,40 @@ describe('EditorInterface.vue', () => {
     isClean: jest.fn(() => false),
     save: jest.fn(),
     doc: {
-      getValue: jest.fn(() => 'Value')
+      getValue: jest.fn(() => 'Value'),
+      eachLine: jest.fn(() => null),
+      setValue: jest.fn()
     }
   }
 
-  beforeEach(async () => {
+  beforeEach(() => {
+    store.state = Vue.observable({
+      files: {
+        active: '/README.md',
+        error: null,
+        tree: null,
+        ghost: null,
+        selected: {
+          readonly: false,
+          document: {
+            content: '# README\n'
+          }
+        },
+        editing: false,
+        watcher: null
+      },
+      search: {
+        query: null,
+        results: null,
+        navigation: {
+          target: 1,
+          total: 0
+        }
+      },
+      configuration: {
+        dark_mode: false
+      }
+    })
   })
 
   afterEach(() => {
@@ -103,59 +140,32 @@ describe('EditorInterface.vue', () => {
 
     vuetify = new Vuetify()
     context.vuetify = vuetify
-
-    store = builders.store()
-    context.store = store
   })
 
   it('should emit a save event when input method is called and changes have been made', async () => {
-    const wrapper = factory.wrap()
+    const event = jest.fn()
 
+    const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    const event = jest.fn()
     wrapper.vm.$on('save', event)
-
-    store.dispatch = jest.fn()
 
     expect(event).toHaveBeenCalledTimes(0)
 
-    await wrapper.vm.input(codemirror)
-
-    jest.runAllTimers()
+    await wrapper.vm.input()
 
     expect(event).toHaveBeenCalledTimes(1)
   })
 
-  it('should do nothing when input method is called and changes have not been made', async () => {
-    codemirror.isClean.mockImplementation(() => true)
-
+  it('should update the interface to plain text on refresh when document is read only', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    const event = jest.fn()
-    wrapper.vm.$on('save', event)
+    store.state.files.selected.readonly = true
+    wrapper.vm.$options.computed.readonly.call(wrapper.vm, true)
 
-    store.dispatch = jest.fn()
-
-    expect(event).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.input(codemirror)
-
-    jest.runAllTimers()
-
-    expect(event).toHaveBeenCalledTimes(0)
-  })
-
-  it('should update the interface to plain text when document is read only', async () => {
-    codemirror.isClean.mockImplementation(() => true)
-
-    const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    codemirror.setOption.mockClear()
-
-    await store.dispatch('files/mock', { selected: { readonly: true }, active: '/project/path' })
+    await wrapper.vm.refresh()
 
     expect(codemirror.setOption).toHaveBeenCalledTimes(2)
 
@@ -168,8 +178,11 @@ describe('EditorInterface.vue', () => {
 
   it('should render current content using marked', async () => {
     const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    await store.dispatch('files/mock', { content: '# Mock' })
+    store.state.files.selected.document.content = '# Mock'
+    store.state.files.active = '/blah'
+    await new Promise(resolve => setTimeout(resolve))
 
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
@@ -178,12 +191,13 @@ describe('EditorInterface.vue', () => {
 
   it('should abort search highlight update if no editor is visible', async () => {
     const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    await store.dispatch('files/mock', { content: '' })
+    store.state.files.selected.document.content = ''
 
     expect(wrapper.vm.overlay).toBeNull()
 
-    store.dispatch('search/mock', { query: 'mock' })
+    store.state.search.query = 'mock'
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.overlay).toBeNull()
@@ -191,9 +205,13 @@ describe('EditorInterface.vue', () => {
 
   it('should update search highlight when the search query changes in render mode', async () => {
     const wrapper = factory.wrap()
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    await store.dispatch('files/mock', { content: '# Mock' })
-    await store.dispatch('search/mock', { query: 'first' })
+    store.state.files.selected.document.content = '# Mock'
+
+    store.state.search.query = 'first'
+
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.query).toEqual('first')
     expect(wrapper.vm.rendered).toEqual('<h1 id="mock">Mock</h1>\n')
@@ -207,7 +225,8 @@ describe('EditorInterface.vue', () => {
 
     expect(wrapper.vm.mode.read.results.length).toBe(0)
 
-    await store.dispatch('search/mock', { query: 'second' })
+    store.state.search.query = 'second'
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.mode.read.results.length).not.toBeNull()
@@ -216,6 +235,7 @@ describe('EditorInterface.vue', () => {
 
   it('should trigger search when the edit attribute changes', async () => {
     const wrapper = factory.wrap({ edit: false })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
@@ -229,13 +249,15 @@ describe('EditorInterface.vue', () => {
 
   it('should trigger navigation when the target attribute changes', async () => {
     const wrapper = factory.wrap({})
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    store.dispatch('search/mock', { navigation: { target: 1 } })
+    store.state.search.navigation.target = 1
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     wrapper.vm.navigate = jest.fn()
 
-    store.dispatch('search/mock', { navigation: { target: 2 } })
+    store.state.search.navigation.target = 2
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.navigate).toHaveBeenCalledTimes(1)
@@ -243,12 +265,13 @@ describe('EditorInterface.vue', () => {
 
   it('should update search highlight when the search query changes in edit mode', async () => {
     const wrapper = factory.wrap({ edit: true })
-
-    await store.dispatch('files/mock', { active: '/project/path' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    await store.dispatch('files/mock', { content: '# Mock' })
-    await store.dispatch('search/mock', { query: 'first' })
+    store.state.files.active = '/project/path'
+    store.state.files.selected.document.content = '# Mock'
+    store.state.search.query = 'first'
+
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.query).toEqual('first')
 
@@ -257,7 +280,8 @@ describe('EditorInterface.vue', () => {
     codemirror.setSelection.mockClear()
     codemirror.scrollIntoView.mockClear()
 
-    await store.dispatch('search/mock', { query: 'second' })
+    store.state.search.query = 'second'
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(codemirror.removeOverlay).toHaveBeenCalledTimes(1)
     expect(codemirror.addOverlay).toHaveBeenCalledTimes(1)
@@ -272,21 +296,24 @@ describe('EditorInterface.vue', () => {
 
   it('should align search selection with target selection when higher then target and navigate triggers in edit mode', async () => {
     const wrapper = factory.wrap({ edit: true })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    store.state.files.selected.document.content = '# Mock'
+    store.state.files.active = '/project/path'
 
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    await store.dispatch('files/mock', { content: '# Mock' })
-    await store.dispatch('files/mock', { active: '/project/path' })
-
     codemirror_cursor.findNext.mockImplementationOnce(() => true)
     codemirror_cursor.findNext.mockImplementationOnce(() => true)
     codemirror_cursor.findNext.mockImplementationOnce(() => true)
 
-    await store.dispatch('search/mock', { query: 'mock' })
+    store.state.search.query = 'mock'
 
     wrapper.setData({ mode: { write: { position: 4 } } })
+    expect(wrapper.vm.mode.write.position).toBe(4)
 
-    await store.dispatch('search/mock', { __target: 'navigation', target: 2 })
+    store.state.search.navigation.target = 2
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.mode.write.position).toBe(2)
@@ -294,14 +321,12 @@ describe('EditorInterface.vue', () => {
 
   it('should set a functional CodeMirror mode object to overlay when search query changes in edit mode', async () => {
     const wrapper = factory.wrap({ edit: true })
-
-    await store.dispatch('files/mock', { active: '/project/path' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    await store.dispatch('files/mock', { content: '# Mock' })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.state.files.active = '/project/path'
+    store.state.files.selected.document.content = '# Mock'
+    store.state.search.query = 'mock'
 
-    await store.dispatch('search/mock', { query: 'mock' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.overlay).toBeDefined()
@@ -326,7 +351,9 @@ describe('EditorInterface.vue', () => {
 
   it('should set clipboard with codemirror data when cut is called in edit mode', async () => {
     const wrapper = factory.wrap({ edit: true })
-    await store.dispatch('files/mock', { active: '/project/path' })
+
+    store.state.files.active = '/project/path'
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let action
@@ -345,7 +372,9 @@ describe('EditorInterface.vue', () => {
 
   it('should set clipboard with codemirror data when copy is called in edit mode', async () => {
     const wrapper = factory.wrap({ edit: true })
-    await store.dispatch('files/mock', { active: '/project/path' })
+
+    store.state.files.active = '/project/path'
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let action
@@ -385,7 +414,9 @@ describe('EditorInterface.vue', () => {
 
   it('should paste clipboard into codemirror when paste is called in edit mode', async () => {
     const wrapper = factory.wrap({ edit: true })
-    await store.dispatch('files/mock', { active: '/project/path' })
+
+    store.state.files.active = '/project/path'
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let action
@@ -430,7 +461,9 @@ describe('EditorInterface.vue', () => {
 
   it('should enable cut when in edit mode', async () => {
     const wrapper = factory.wrap({ edit: true })
-    await store.dispatch('files/mock', { active: '/project/path' })
+
+    store.state.files.active = '/project/path'
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let active
@@ -445,7 +478,9 @@ describe('EditorInterface.vue', () => {
 
   it('should enable paste when in edit mode', async () => {
     const wrapper = factory.wrap({ edit: true })
-    await store.dispatch('files/mock', { active: '/project/path' })
+
+    store.state.files.active = '/project/path'
+
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let active
