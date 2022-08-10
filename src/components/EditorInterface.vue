@@ -203,14 +203,40 @@ export default {
       }
     },
     debounce_save: function () {
-      return debounce(this.save, 500)
+      return debounce((path) => this.save(path), 500)
     }
   },
   watch: {
-    active: async function () {
+    active: function () {
+      this.refresh(true)
+    },
+    edit: function (value) {
+      if (value) {
+        this.refresh()
+      }
+
+      this.search()
+    },
+    query: function () {
+      this.search()
+    },
+    content: function () {
+      this.search()
+    },
+    rendered: function () {
+      this.search()
+    },
+    target: function () {
+      this.navigate()
+    }
+  },
+  methods: {
+    refresh: async function (reset = false) {
       await this.debounce_save.flush()
 
-      this.codemirror.doc.setValue(store.state.files.content)
+      if (reset) {
+        this.codemirror.doc.setValue(store.state.files.content)
+      }
 
       this.codemirror.setOption('readOnly', this.readonly)
 
@@ -219,30 +245,9 @@ export default {
       } else {
         this.codemirror.setOption('mode', 'text/x-markdown')
       }
-    },
-    edit: async function (value) {
-      await this.debounce_save.flush()
 
-      if (value) {
-        delay(() => this.codemirror.refresh(), 100)
-      }
-
-      await this.search()
+      delay(() => this.codemirror.refresh(), 100)
     },
-    query: async function () {
-      await this.search()
-    },
-    content: async function () {
-      await this.search()
-    },
-    rendered: async function () {
-      await this.search()
-    },
-    target: async function () {
-      await this.navigate()
-    }
-  },
-  methods: {
     input: async function () {
       await this.debounce_save(this.active)
     },
@@ -263,7 +268,6 @@ export default {
       }
 
       this.regex = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
-
       if (this.edit) {
         if (this.overlay) {
           this.codemirror.removeOverlay(this.overlay, true)
@@ -336,13 +340,13 @@ export default {
           this.mode.write.position = 0
         }
 
-        if (store.state.search.navigation.target > 0) {
-          while (this.mode.write.position !== store.state.search.navigation.target) {
-            if (store.state.search.navigation.target < this.mode.write.position) {
+        if (this.target > 0) {
+          while (this.mode.write.position !== this.target) {
+            if (this.target < this.mode.write.position) {
               this.mode.write.position--
 
               this.mode.write.cursor.findPrevious()
-            } else if (store.state.search.navigation.target > this.mode.write.position) {
+            } else if (this.target > this.mode.write.position) {
               this.mode.write.position++
 
               this.mode.write.cursor.findNext()
@@ -360,7 +364,7 @@ export default {
           this.focus.classList.remove('highlight-rendered-focus')
         }
 
-        this.focus = this.mode.read.results[store.state.search.navigation.target - 1]
+        this.focus = this.mode.read.results[this.target - 1]
 
         if (this.focus) {
           this.focus.classList.add('highlight-rendered-focus')
