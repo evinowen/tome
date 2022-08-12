@@ -12,4 +12,6 @@ module.exports = {
   file_delete: (target) => ipcRenderer.invoke('file_delete', target),
   select_directory: () => ipcRenderer.invoke('select_directory'),
   directory_list: (target) => ipcRenderer.invoke('directory_list', target),
+  search_path: (target, query) => ipcRenderer.invoke('search_path', target, query),
+  search_next: () => ipcRenderer.invoke('search_next')
 }

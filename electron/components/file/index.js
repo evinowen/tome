@@ -1,6 +1,18 @@
 const { ipcMain, dialog, BrowserWindow } = require('electron')
 
 const fs = require('fs')
+const path = require('path')
+
+const search = {
+  target: null,
+  query: null,
+  files: []
+}
+
+const excluded_filenames = [
+  '.git',
+  '.tome'
+]
 
 module.exports = {
   register: () => {
@@ -100,6 +112,88 @@ module.exports = {
       }
 
       return new Promise((resolve, reject) => fs.readdir(target, (err, files) => err ? reject(err) : resolve(files)))
+    })
+
+    ipcMain.handle('search_path', async (event, target, query) => {
+      search.target = target
+      search.query = query
+      search.length = 0
+      search.targets = [target]
+    })
+
+    ipcMain.handle('search_next', async (event) => {
+      if (!search.targets.length) {
+        return { path: null }
+      }
+
+      const target = search.targets.shift()
+
+      const matches = []
+
+      const stats = await new Promise((resolve, reject) => fs.lstat(target, (err, stats) => err ? reject(err) : resolve(stats)))
+
+      const directory = stats.isDirectory()
+
+      if (directory) {
+        const results = await new Promise((resolve, reject) => fs.readdir(target, (err, files) => err ? reject(err) : resolve(files)))
+
+        for (const result of results) {
+          if (excluded_filenames.includes(result)) {
+            continue
+          }
+
+          search.targets.push(path.join(target, result))
+        }
+      } else {
+        const contents_raw = await new Promise((resolve, reject) => fs.readFile(target, 'utf8', (error, data) => error ? reject(error) : resolve(data)))
+
+        const contents = contents_raw.toLowerCase()
+        const query = search.query.toLowerCase()
+
+        let index = -1
+
+        let line_start = 0
+        let line_end = contents.indexOf('\n', index)
+
+        if (line_end < 0) {
+          line_end = contents.length
+        }
+
+        let line = null
+
+        while (true) {
+          index = contents.indexOf(query, index + 1)
+
+          if (index === -1) {
+            break
+          }
+
+          if (index >= line_end) {
+            line = null
+            line_start = contents.lastIndexOf('\n', index)
+            line_end = contents.indexOf('\n', index)
+
+            if (line_end < 0) {
+              line_end = contents.length
+            }
+          }
+
+          if (line === null) {
+            line = contents.substring(line_start, line_end)
+          }
+
+          matches.push({ index, line })
+        }
+      }
+
+      return {
+        path: {
+          absolute: target,
+          relative: path.relative(search.target, target)
+        },
+        directory,
+        matches
+      }
     })
   }
 }
