@@ -4,11 +4,11 @@ const fs = require('fs')
 
 module.exports = {
   register: () => {
-    ipcMain.handle('file_exists', async (event, path) =>
-      new Promise((resolve, reject) => fs.access(path, (error, data) => error ? resolve(false) : resolve(true))))
+    ipcMain.handle('file_exists', async (event, target) =>
+      new Promise((resolve, reject) => fs.access(target, (error, data) => error ? resolve(false) : resolve(true))))
 
-    ipcMain.handle('file_is_directory', async (event, path) => {
-      const stats = await new Promise((resolve, reject) => fs.lstat(path, (err, stats) => err ? reject(err) : resolve(stats)))
+    ipcMain.handle('file_is_directory', async (event, target) => {
+      const stats = await new Promise((resolve, reject) => fs.lstat(target, (err, stats) => err ? reject(err) : resolve(stats)))
 
       return stats.isDirectory()
     })
@@ -21,8 +21,8 @@ module.exports = {
       return await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(false) : resolve(true)))
     })
 
-    ipcMain.handle('file_list_directory', async (event, path) => {
-      const results = await new Promise((resolve, reject) => fs.readdir(path, { withFileTypes: true }, (err, files) => err ? reject(err) : resolve(files)))
+    ipcMain.handle('file_list_directory', async (event, target) => {
+      const results = await new Promise((resolve, reject) => fs.readdir(target, { withFileTypes: true }, (err, files) => err ? reject(err) : resolve(files)))
 
       const files = []
       for (const result of results) {
@@ -35,8 +35,8 @@ module.exports = {
       return files
     })
 
-    ipcMain.handle('file_contents', async (event, path) =>
-      new Promise((resolve, reject) => fs.readFile(path, 'utf8', (error, data) => error ? reject(error) : resolve(data))))
+    ipcMain.handle('file_contents', async (event, target) =>
+      new Promise((resolve, reject) => fs.readFile(target, 'utf8', (error, data) => error ? reject(error) : resolve(data))))
 
     ipcMain.handle('file_create', async (event, target, directory) => {
       if (await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(false) : resolve(true)))) {
@@ -52,29 +52,29 @@ module.exports = {
       return await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(false) : resolve(true)))
     })
 
-    ipcMain.handle('file_write', async (event, path, content) => {
-      await new Promise((resolve, reject) => fs.writeFile(path, content, 'utf8', (err) => err ? reject(err) : resolve()))
+    ipcMain.handle('file_write', async (event, target, content) => {
+      await new Promise((resolve, reject) => fs.writeFile(target, content, 'utf8', (err) => err ? reject(err) : resolve()))
     })
 
-    ipcMain.handle('file_rename', async (event, path, proposed) => {
-      await new Promise((resolve, reject) => fs.rename(path, proposed, (err) => err ? reject(err) : resolve(true)))
+    ipcMain.handle('file_rename', async (event, target, proposed) => {
+      await new Promise((resolve, reject) => fs.rename(target, proposed, (err) => err ? reject(err) : resolve(true)))
     })
 
-    ipcMain.handle('file_delete', async (event, path) => {
-      const unlink = async (path) => {
-        const status = await new Promise((resolve, reject) => fs.lstat(path, (err, status) => err ? reject(err) : resolve(status)))
+    ipcMain.handle('file_delete', async (event, target) => {
+      const unlink = async (target) => {
+        const status = await new Promise((resolve, reject) => fs.lstat(target, (err, status) => err ? reject(err) : resolve(status)))
         if (status.isDirectory()) {
-          const files = await new Promise((resolve, reject) => fs.readdir(path, (err, status) => err ? reject(err) : resolve(status)))
+          const files = await new Promise((resolve, reject) => fs.readdir(target, (err, status) => err ? reject(err) : resolve(status)))
 
           for (const file of files) {
-            await unlink(await window.api.path_join(path, file))
+            await unlink(await path.join(target, file))
           }
         }
 
-        await new Promise((resolve, reject) => fs.unlink(path, (err) => err ? reject(err) : resolve(true)))
+        await new Promise((resolve, reject) => fs.unlink(target, (err) => err ? reject(err) : resolve(true)))
       }
 
-      await unlink(path)
+      await unlink(target)
     })
 
     ipcMain.handle('select_directory', (event) => {
