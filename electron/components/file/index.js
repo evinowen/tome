@@ -5,7 +5,7 @@ const path = require('path')
 
 const search = {
   target: null,
-  query: null,
+  criteria: null,
   files: []
 }
 
@@ -114,9 +114,9 @@ module.exports = {
       return new Promise((resolve, reject) => fs.readdir(target, (err, files) => err ? reject(err) : resolve(files)))
     })
 
-    ipcMain.handle('search_path', async (event, target, query) => {
+    ipcMain.handle('search_path', async (event, target, criteria) => {
       search.target = target
-      search.query = query
+      search.criteria = criteria
       search.length = 0
       search.targets = [target]
     })
@@ -147,8 +147,8 @@ module.exports = {
       } else {
         const contents_raw = await new Promise((resolve, reject) => fs.readFile(target, 'utf8', (error, data) => error ? reject(error) : resolve(data)))
 
-        const contents = contents_raw.toLowerCase()
-        const query = search.query.toLowerCase()
+        const contents = search.criteria.case_sensitive ? contents_raw : contents_raw.toLowerCase()
+        const query = search.criteria.case_sensitive ? search.criteria.query : search.criteria.query.toLowerCase()
 
         let index = -1
 
@@ -179,7 +179,7 @@ module.exports = {
           }
 
           if (line === null) {
-            line = contents.substring(line_start, line_end)
+            line = contents_raw.substring(line_start, line_end)
           }
 
           matches.push({ index, line })
