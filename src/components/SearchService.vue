@@ -39,7 +39,7 @@
               class="search-file"
               @click="select(result.path.absolute, 1, result.matches.length)"
             >
-              <v-icon small class="pr-1">mdi-file</v-icon>
+              <v-icon small class="pr-1">{{ result.directory ? 'mdi-folder' : 'mdi-file' }}</v-icon>
               <v-flex grow>{{ result.path.relative }}</v-flex>
               <small>{{ result.path.absolute }}</small>
             </v-layout>
