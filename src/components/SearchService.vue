@@ -201,7 +201,7 @@ export default {
       return [multifile, regex_query, case_sensitive]
     },
     debounce_update: function () {
-      return debounce(this.update, 100)
+      return debounce(this.update, 500)
     }
   },
   watch: {

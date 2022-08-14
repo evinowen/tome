@@ -285,10 +285,15 @@ export default {
         return
       }
 
-      this.regex = new RegExp(
-        this.regex_query ? this.query : String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
-        String('g').concat(this.case_sensitive ? '' : 'i')
-      )
+      try {
+        this.regex = new RegExp(
+          this.regex_query ? this.query : String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
+          String('g').concat(this.case_sensitive ? '' : 'i')
+        )
+      } catch (error) {
+        await store.dispatch('error', error)
+        return
+      }
 
       if (this.edit) {
         this.overlay = {
