@@ -2,7 +2,10 @@ export default {
   namespaced: true,
   state: {
     path: null,
-    query: null,
+    query: '',
+    multifile: false,
+    regex_query: false,
+    case_sensitive: false,
     results: [],
     navigation: {
       target: 1,
@@ -13,6 +16,19 @@ export default {
     clear: function (state) {
       state.query = null
       state.results = []
+    },
+    multifile: function (state, value) {
+      state.multifile = value
+
+      if (!value) {
+        state.results = []
+      }
+    },
+    regex_query: function (state, value) {
+      state.regex_query = value
+    },
+    case_sensitive: function (state, value) {
+      state.case_sensitive = value
     },
     query: function (state, { path, query }) {
       state.path = path
@@ -36,11 +52,21 @@ export default {
     }
   },
   actions: {
+    multifile: async function (context, value) {
+      context.commit('multifile', value)
+    },
+    regex_query: async function (context, value) {
+      context.commit('regex_query', value)
+    },
+    case_sensitive: async function (context, value) {
+      context.commit('case_sensitive', value)
+    },
     query: async function (context, { path, query }) {
       context.commit('query', { path, query })
       await context.dispatch('execute')
     },
     clear: async function (context) {
+      console.log('clear!')
       context.commit('clear')
     },
     execute: async function (context) {
@@ -48,12 +74,21 @@ export default {
         return
       }
 
+      if (!context.state.multifile) {
+        return
+      }
+
       context.commit('reset')
 
       const target = context.state.path
-      const query = context.state.query
+      const criteria = {
+        query: context.state.query,
+        multifile: context.state.query,
+        regex_query: context.state.regex_query,
+        case_sensitive: context.state.case_sensitive
+      }
 
-      await window.api.search_path(target, query)
+      await window.api.search_path(target, criteria)
 
       while (true) {
         const result = await window.api.search_next()
@@ -62,15 +97,21 @@ export default {
           break
         }
 
+        if (!context.state.multifile) {
+          break
+        }
+
         if (target !== context.state.path) {
           break
         }
 
-        if (query !== context.state.query) {
-          break
+        for (const key in criteria) {
+          if (criteria[key] !== context.state[key]) {
+            break
+          }
         }
 
-        if (result.matches.length) {
+        if (result.path.matched > -1 || result.matches.length) {
           context.commit('result', result)
         }
       }
