@@ -361,8 +361,10 @@ export default {
           const from = this.mode.write.cursor.from()
           const to = this.mode.write.cursor.to()
 
-          this.codemirror.setSelection(from, to)
-          this.codemirror.scrollIntoView({ from, to })
+          try {
+            this.codemirror.setSelection(from, to)
+            this.codemirror.scrollIntoView({ from, to })
+          } catch (_) { }
         }
       } else {
         if (this.focus) {
