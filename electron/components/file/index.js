@@ -127,12 +127,27 @@ module.exports = {
       }
 
       const target = search.targets.shift()
-
       const matches = []
 
       const stats = await new Promise((resolve, reject) => fs.lstat(target, (err, stats) => err ? reject(err) : resolve(stats)))
 
       const directory = stats.isDirectory()
+
+      const regex = search.criteria.regex_query ? new RegExp(search.criteria.query, String('g').concat(search.criteria.case_sensitive ? '' : 'i')) : null
+      const query = regex || search.criteria.case_sensitive ? search.criteria.query : search.criteria.query.toLowerCase()
+
+      const path_relative = path.relative(search.target, target)
+      let path_matched = -1
+
+      if (regex) {
+        const match = regex.exec(path_relative)
+
+        if (match !== null) {
+          path_matched = match.index
+        }
+      } else {
+        path_matched = path_relative.indexOf(query)
+      }
 
       if (directory) {
         const results = await new Promise((resolve, reject) => fs.readdir(target, (err, files) => err ? reject(err) : resolve(files)))
@@ -147,8 +162,7 @@ module.exports = {
       } else {
         const contents_raw = await new Promise((resolve, reject) => fs.readFile(target, 'utf8', (error, data) => error ? reject(error) : resolve(data)))
 
-        const contents = search.criteria.case_sensitive ? contents_raw : contents_raw.toLowerCase()
-        const query = search.criteria.case_sensitive ? search.criteria.query : search.criteria.query.toLowerCase()
+        const contents = regex || search.criteria.case_sensitive ? contents_raw : contents_raw.toLowerCase()
 
         let index = -1
 
@@ -162,10 +176,20 @@ module.exports = {
         let line = null
 
         while (true) {
-          index = contents.indexOf(query, index + 1)
+          if (regex) {
+            const match = regex.exec(contents_raw)
 
-          if (index === -1) {
-            break
+            if (match === null) {
+              break
+            } else {
+              index = match.index
+            }
+          } else {
+            index = contents.indexOf(query, index + 1)
+
+            if (index === -1) {
+              break
+            }
           }
 
           if (index >= line_end) {
@@ -189,7 +213,8 @@ module.exports = {
       return {
         path: {
           absolute: target,
-          relative: path.relative(search.target, target)
+          relative: path_relative,
+          matched: path_matched
         },
         directory,
         matches
