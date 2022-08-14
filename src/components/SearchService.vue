@@ -16,6 +16,7 @@
         ref="input" class="search-input"
         :value=query
         @input=debounce_update
+        @click:clear=debounce_clear
         @keydown.enter=next
         @keydown.esc="$emit('close')"
         rows=1
@@ -27,7 +28,7 @@
           <v-btn small tile @click=previous :disabled=!query><v-icon>mdi-chevron-left</v-icon></v-btn>
           <v-btn small tile @click=next :disabled=!query><v-icon>mdi-chevron-right</v-icon></v-btn>
         </v-item-group>
-        <div><small>{{ navigation.target }} / {{ navigation.total }}</small></div>
+        <div><small>{{ navigation.total ? navigation.target : '-' }} / {{ navigation.total }}</small></div>
       </div>
     </v-toolbar>
     <v-expand-transition>
@@ -226,6 +227,9 @@ export default {
       }
 
       store.dispatch('search/multifile', false)
+    },
+    debounce_clear: async function () {
+      return await this.debounce_update('')
     }
   }
 }

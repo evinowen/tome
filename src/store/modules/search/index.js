@@ -66,11 +66,10 @@ export default {
       await context.dispatch('execute')
     },
     clear: async function (context) {
-      console.log('clear!')
       context.commit('clear')
     },
     execute: async function (context) {
-      if (!(context.state.path && context.state.query)) {
+      if (!context.state.path) {
         return
       }
 
@@ -79,6 +78,10 @@ export default {
       }
 
       context.commit('reset')
+
+      if (!context.state.query) {
+        return
+      }
 
       const target = context.state.path
       const criteria = {
