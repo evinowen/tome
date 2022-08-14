@@ -161,6 +161,12 @@ export default {
     query: function () {
       return store.state.search.query
     },
+    regex_query: function () {
+      return store.state.search.regex_query
+    },
+    case_sensitive: function () {
+      return store.state.search.case_sensitive
+    },
     target: function () {
       return store.state.search.navigation.target
     },
@@ -203,6 +209,15 @@ export default {
         theme: store.state.configuration.dark_mode ? 'base16-dark' : 'base16-light'
       }
     },
+    state: function () {
+      return [
+        this.query,
+        this.content,
+        this.rendered,
+        this.regex_query,
+        this.case_sensitive
+      ]
+    },
     debounce_save: function () {
       return debounce((path) => this.save(path), 500)
     }
@@ -218,13 +233,7 @@ export default {
 
       this.search()
     },
-    query: function () {
-      this.search()
-    },
-    content: function () {
-      this.search()
-    },
-    rendered: function () {
+    state: function () {
       this.search()
     },
     target: function () {
@@ -276,7 +285,11 @@ export default {
         return
       }
 
-      this.regex = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
+      this.regex = new RegExp(
+        this.regex_query ? this.query : String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
+        String('g').concat(this.case_sensitive ? '' : 'i')
+      )
+
       if (this.edit) {
         this.overlay = {
           token: (stream) => {
