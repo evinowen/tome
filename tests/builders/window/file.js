@@ -105,6 +105,16 @@ const _select_directory = async () => {
   return result_dialog()
 }
 
+const _search_next_result = {
+  path: {
+    absolute: '/project/path',
+    relative: 'path',
+    matched: true
+  },
+  directory: false,
+  matches: []
+}
+
 export default {
   file_contents: jest.fn(_file_contents),
   file_create: jest.fn(_file_create),
@@ -116,5 +126,7 @@ export default {
   file_rename: jest.fn(_file_rename),
   file_write: jest.fn(_file_write),
   directory_list: jest.fn(_directory_list),
-  select_directory: jest.fn(_select_directory)
+  select_directory: jest.fn(_select_directory),
+  search_path: jest.fn(),
+  search_next: jest.fn().mockReturnValue({ path: null }).mockReturnValueOnce(_search_next_result)
 }

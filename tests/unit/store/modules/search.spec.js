@@ -4,6 +4,10 @@ import { cloneDeep } from 'lodash'
 import { createLocalVue } from '@vue/test-utils'
 import search from '@/store/modules/search'
 
+import builders from '@/../tests/builders'
+
+Object.assign(window, builders.window())
+
 jest.mock('electron', () => ({ remote: {} }))
 
 describe('store/modules/search', () => {
@@ -21,22 +25,48 @@ describe('store/modules/search', () => {
     jest.clearAllMocks()
   })
 
+  it('should set multifile flag when the multifile action is dispatched', async () => {
+    expect(store.state.search.multifile).toBe(false)
+
+    await store.dispatch('search/multifile', true)
+
+    expect(store.state.search.multifile).toBe(true)
+  })
+
+  it('should set regex_query flag when the regex_query action is dispatched', async () => {
+    expect(store.state.search.regex_query).toBe(false)
+
+    await store.dispatch('search/regex_query', true)
+
+    expect(store.state.search.regex_query).toBe(true)
+  })
+
+  it('should set case_sensitive flag when the case_sensitive action is dispatched', async () => {
+    expect(store.state.search.case_sensitive).toBe(false)
+
+    await store.dispatch('search/case_sensitive', true)
+
+    expect(store.state.search.case_sensitive).toBe(true)
+  })
+
   it('should set the search query when the query action is dispatched', async () => {
+    const path = '/project'
     const query = 'example search'
 
-    expect(store.state.search.query).toBeNull()
+    expect(store.state.search.query).toBe('')
 
-    await store.dispatch('search/query', { query })
+    await store.dispatch('search/query', { path, query })
 
     expect(store.state.search.query).toBe(query)
   })
 
   it('should clear the search query when the clear action is dispatched', async () => {
+    const path = '/project'
     const query = 'example search'
 
-    expect(store.state.search.query).toBeNull()
+    expect(store.state.search.query).toBe('')
 
-    await store.dispatch('search/query', { query })
+    await store.dispatch('search/query', { path, query })
 
     expect(store.state.search.query).toBe(query)
 
@@ -46,12 +76,14 @@ describe('store/modules/search', () => {
   })
 
   it('should store results when query is set', async () => {
+    const path = '/project'
     const query = 'example search'
 
-    expect(store.state.search.query).toBeNull()
-    expect(store.state.search.results).toBeNull()
+    expect(store.state.search.query).toBe('')
+    expect(store.state.search.results).toEqual([])
 
-    await store.dispatch('search/query', { query })
+    await store.dispatch('search/multifile', true)
+    await store.dispatch('search/query', { path, query })
 
     expect(store.state.search.query).toBe(query)
     expect(store.state.search.results).toBeDefined()

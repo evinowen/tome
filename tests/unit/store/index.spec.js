@@ -1,12 +1,9 @@
-import { remote } from 'electron'
 import Vuex from 'vuex'
 import { createLocalVue } from '@vue/test-utils'
 
-jest.mock('electron', () => ({ remote: { app: jest.fn(), require: jest.fn() } }))
+import builders from '@/../tests/builders'
 
-remote.app = {
-  getPath: jest.fn(() => './test_path')
-}
+Object.assign(window, builders.window())
 
 jest.mock('@/store/modules/tome')
 jest.mock('@/store/modules/configuration')

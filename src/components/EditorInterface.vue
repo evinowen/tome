@@ -91,14 +91,15 @@
   background: transparent !important;
 }
 
+.cm-searching,
 .highlight-rendered {
-  background-color: yellow;
-  color: black;
+  background-color: rgba(255, 255, 0, 0.2) !important;
+  outline: 2px solid rgba(255, 255, 0, 0.2);
 }
 
 .highlight-rendered-focus {
-  outline: 3px solid #FF9810;
-  color: black;
+  background-color: rgba(255, 255, 0, 0.4) !important;
+  outline: 2px solid rgba(255, 255, 0, 0.4);
 }
 
 </style>
@@ -160,6 +161,12 @@ export default {
     query: function () {
       return store.state.search.query
     },
+    regex_query: function () {
+      return store.state.search.regex_query
+    },
+    case_sensitive: function () {
+      return store.state.search.case_sensitive
+    },
     target: function () {
       return store.state.search.navigation.target
     },
@@ -202,6 +209,15 @@ export default {
         theme: store.state.configuration.dark_mode ? 'base16-dark' : 'base16-light'
       }
     },
+    state: function () {
+      return [
+        this.query,
+        this.content,
+        this.rendered,
+        this.regex_query,
+        this.case_sensitive
+      ]
+    },
     debounce_save: function () {
       return debounce((path) => this.save(path), 500)
     }
@@ -217,13 +233,7 @@ export default {
 
       this.search()
     },
-    query: function () {
-      this.search()
-    },
-    content: function () {
-      this.search()
-    },
-    rendered: function () {
+    state: function () {
       this.search()
     },
     target: function () {
@@ -262,17 +272,30 @@ export default {
       await this.$emit('save', { path, content })
     },
     search: async function () {
+      if (this.overlay) {
+        this.codemirror.removeOverlay(this.overlay, true)
+      }
+
+      await new Promise((resolve, reject) => {
+        this.mark.unmark({ done: resolve })
+      })
+
       if (!this.query) {
         this.regex = null
         return
       }
 
-      this.regex = new RegExp(String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'), 'gi')
-      if (this.edit) {
-        if (this.overlay) {
-          this.codemirror.removeOverlay(this.overlay, true)
-        }
+      try {
+        this.regex = new RegExp(
+          this.regex_query ? this.query : String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
+          String('g').concat(this.case_sensitive ? '' : 'i')
+        )
+      } catch (error) {
+        await store.dispatch('error', error)
+        return
+      }
 
+      if (this.edit) {
         this.overlay = {
           token: (stream) => {
             this.regex.lastIndex = stream.pos
@@ -302,10 +325,6 @@ export default {
 
         await store.dispatch('search/navigate', { total, target: null })
       } else {
-        await new Promise((resolve, reject) => {
-          this.mark.unmark({ done: resolve })
-        })
-
         const total = await new Promise((resolve, reject) => {
           this.mark.markRegExp(
             this.regex,
@@ -332,6 +351,10 @@ export default {
     },
     navigate: async function () {
       if (this.edit) {
+        if (!this.overlay) {
+          return
+        }
+
         if (!this.mode.write.cursor) {
           this.mode.write.cursor = this.codemirror.getSearchCursor(this.query, 0, { caseFold: true })
         }
@@ -356,8 +379,10 @@ export default {
           const from = this.mode.write.cursor.from()
           const to = this.mode.write.cursor.to()
 
-          this.codemirror.setSelection(from, to)
-          this.codemirror.scrollIntoView({ from, to })
+          try {
+            this.codemirror.setSelection(from, to)
+            this.codemirror.scrollIntoView({ from, to })
+          } catch (_) { }
         }
       } else {
         if (this.focus) {

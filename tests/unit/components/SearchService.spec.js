@@ -89,21 +89,6 @@ describe('SearchService', () => {
     expect(store.dispatch.mock.calls[0][0]).toBe('search/previous')
   })
 
-  it('should find the path relative to the root tome directory when a path is passed to relative', async () => {
-    const path = '/project/path/to/file'
-
-    const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.relative(path)
-
-    expect(window.api.path_relative).toHaveBeenCalledTimes(1)
-    expect(window.api.path_relative.mock.calls[0][0]).toBe('/project')
-    expect(window.api.path_relative.mock.calls[0][1]).toBe('/project/path/to/file')
-  })
-
   it('should instruct file module to select a result when select is called', async () => {
     const path = '/project/path/to/file'
 
