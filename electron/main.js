@@ -2,6 +2,7 @@ const { app, BrowserWindow } = require('electron')
 
 const path = require('path')
 
+require('./components/actions').register()
 require('./components/clipboard').register()
 require('./components/file').register()
 require('./components/git').register()

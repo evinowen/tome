@@ -30,16 +30,9 @@ export default {
         return
       }
 
-      const base = await window.api.path_join(context.state.base, name)
+      const source = await window.api.path_join(context.state.base, name)
 
-      const path = await window.api.path_join(base, 'index.js')
-
-      const raw = await window.api.file_contents(path)
-
-      const _vm = require('vm')
-      const script = _vm.createScript(raw)
-
-      script.runInThisContext()
+      await window.api.action_invoke(source, target)
     }
   }
 }

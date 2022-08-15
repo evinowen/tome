@@ -1,4 +1,5 @@
 window.api = {
+  ...require('./components/actions/preload'),
   ...require('./components/clipboard/preload'),
   ...require('./components/git/preload'),
   ...require('./components/file/preload'),
