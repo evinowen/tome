@@ -22,8 +22,8 @@ module.exports = {
       return string.toLowerCase()
     })
 
-    ipcMain.handle('path_join', (event, first, second) => {
-      return path.join(first, second)
+    ipcMain.handle('path_join', (event, targets) => {
+      return path.join(...targets)
     })
 
     ipcMain.handle('path_relative', (event, base, query) => {
