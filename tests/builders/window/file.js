@@ -105,16 +105,6 @@ const _select_directory = async () => {
   return result_dialog()
 }
 
-const _search_next = {
-  path: {
-    absolute: '/project/path',
-    relative: 'path',
-    matched: true
-  },
-  directory: false,
-  matches: []
-}
-
 const _search_next_result = {
   path: {
     absolute: '/project/path',

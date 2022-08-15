@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import Vuex from 'vuex'
 import { createLocalVue } from '@vue/test-utils'
 
