@@ -12,17 +12,23 @@
           <v-icon>mdi-regex</v-icon>
         </v-btn>
       </v-item-group>
-      <v-text-field
-        ref="input" class="search-input"
-        :value=query
-        @input=debounce_update
-        @click:clear=debounce_clear
-        @keydown.enter=next
-        @keydown.esc="$emit('close')"
-        rows=1
-        :messages=status
-        clearable
-      />
+      <v-layout column>
+        <v-flex class="search-input px-2">
+          <v-text-field
+            ref="input"
+            :value=query
+            @input=debounce_update
+            @click:clear=debounce_clear
+            @keydown.enter=next
+            @keydown.esc="$emit('close')"
+            rows=1
+            :messages=status
+            clearable single-line hide-details
+            :prepend-icon="regex_query ? 'mdi-slash-forward' : ' '"
+            :append-outer-icon="regex_query ? 'mdi-slash-forward' : ' '"
+          />
+        </v-flex>
+      </v-layout>
       <div class="search-navigation" v-if=navigation>
         <v-item-group dense multiple class="search-buttons">
           <v-btn small tile @click=previous :disabled=!query><v-icon>mdi-chevron-left</v-icon></v-btn>
@@ -33,7 +39,7 @@
     </v-toolbar>
     <v-expand-transition>
       <div v-show=multifile>
-        <div class="search-results" v-if=results>
+        <div class="search-results">
           <div v-for="result in results" :key="result.path.relative">
             <v-layout
               class="search-file"
@@ -52,7 +58,6 @@
             </v-layout>
           </div>
         </div>
-        <div class="search-empty" v-else>ಠ_ಠ</div>
       </div>
     </v-expand-transition>
   </div>
@@ -77,23 +82,13 @@
 .search-results {
   height: 120px;
   margin: 12px;
+  margin-top: 0px;
   overflow-x: hidden;
   overflow-y: scroll;
   border-top: 1px dotted rgba(0, 0, 0, 0.2);
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
   color: var(--v-secondary-lighten5) !important;
   background: var(--v-secondary-base) !important;
-}
-
-.search-empty {
-  height: 100px;
-  margin: 12px;
-  border-top: 1px dotted rgba(0, 0, 0, 0.2);
-  box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
-  padding: 20px;
-  font-size: 4em;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.2);
 }
 
 .search-file {
@@ -142,25 +137,39 @@
 
 .search-input {
   padding: 0 12px;
-  height: 100%;
 }
 
 .search-input .v-input__control,
 .search-input .v-input__slot,
 .search-input .v-text-field__slot {
-  height: 100%;
+  height: 28px;
   position: relative;
+}
+
+.search-input .v-input__prepend-outer,
+.search-input .v-input__append-outer {
+  margin-right: 0px !important;
+  margin-left: 0px !important;
+}
+.search-input .v-input__prepend-outer div .v-icon,
+.search-input .v-input__append-outer div .v-icon {
+  font-size: 2.0em;
 }
 
 .search-input input {
   font-size: 6em;
   font-weight: 700;
-  padding: 0;
+  padding: 0px 4px;
   max-height: unset;
+  height: 120px;
   position: absolute;
-  bottom: -12px;
-  text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
-
+  bottom: -18px;
+  text-indent: 4px;
+  text-shadow:
+    -2px -2px 0 var(--v-secondary-base),
+    2px -2px 0 var(--v-secondary-base),
+    -2px 2px 0 var(--v-secondary-base),
+    2px 2px 0 var(--v-secondary-base);
 }
 
 </style>
@@ -225,8 +234,6 @@ export default {
       if (target > 0) {
         await store.dispatch('search/navigate', { target, total })
       }
-
-      store.dispatch('search/multifile', false)
     },
     debounce_clear: async function () {
       return await this.debounce_update('')
