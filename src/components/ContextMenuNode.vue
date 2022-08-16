@@ -13,29 +13,27 @@
       <v-subheader v-if=title>{{ title }}</v-subheader>
       <v-divider></v-divider>
       <v-list-item-group>
-        <template v-for="(item, index) in items">
-          <div :key="index">
-            <v-divider v-if=item.divider></v-divider>
-            <v-list-item v-else
-              @click="item.action ? $emit('close') && item.action(target) : null"
-              @mouseover="expanded = index"
-              :disabled="item.active ? !item.active() : false"
-            >
-              <v-list-item-title class='item'>{{ item.title }}</v-list-item-title>
+        <div v-for="(item, index) in items" :key="index">
+          <v-divider v-if=item.divider></v-divider>
+          <v-list-item v-else
+            @click="item.action ? $emit('close') && item.action(target) : null"
+            @mouseover="expand(index)"
+            :disabled="item.active ? !item.active() : false"
+          >
+            <v-list-item-title class='item'>{{ item.title }}</v-list-item-title>
 
-              <context-menu-node
-                v-if="(item.load || item.items) && index === expanded"
-                :position_x="local_position_x + 100"
-                :position_y="local_position_y + (index * 20) - 10"
-                :title=item.title
-                :target=target
-                :items=item.items
-                :value="value"
-                v-on="$listeners"
-              />
-            </v-list-item>
-          </div>
-        </template>
+            <context-menu-node
+              v-if="(item.load || item.items) && index === expanded"
+              :position_x="local_position_x + 100"
+              :position_y="local_position_y + (index * 20) - 10"
+              :title=item.title
+              :target=target
+              :items=item.items
+              :value="value"
+              v-on="$listeners"
+            />
+          </v-list-item>
+        </div>
       </v-list-item-group>
     </v-list>
   </v-menu>
@@ -101,13 +99,18 @@ export default {
     },
     position_y: function (value) {
       this.local_position_y = this.$refs.node.calcYOverflow(value)
-    },
-    expanded: async function (value) {
-      const menu = this.items[value]
+    }
+  },
+  methods: {
+    expand: async function (index) {
+      this.expanded = null
+
+      const menu = this.items[index]
 
       menu.items = menu.load ? await menu.load(this.target) : null
+
+      this.expanded = index
     }
   }
 }
-
 </script>
