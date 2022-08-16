@@ -32,7 +32,15 @@ export default {
 
       const source = await window.api.path_join(context.state.base, name)
 
-      await window.api.action_invoke(source, target)
+      const result = await window.api.action_invoke(source, target)
+
+      if (result.success) {
+        const message = `Action ${name} successful${result.message ? `: ${result.message}` : ''}`
+        await context.dispatch('message', message, { root: true })
+      } else {
+        const error = `Action ${name} failed: ${result.error}`
+        await context.dispatch('error', error, { root: true })
+      }
     }
   }
 }
