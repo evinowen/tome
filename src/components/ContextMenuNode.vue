@@ -1,13 +1,14 @@
 <template>
-  <div>
   <v-menu
     ref="node"
-    v-bind:value="value"
-    v-on:input="$emit('input', $event)"
-    :position-x="position_x"
-    :position-y="position_y"
-    dense tile
-    content-class="context-menu"
+    :value=value
+    :position-x=position_x
+    :position-y=position_y
+    :close-on-content-click="false"
+    dense tile content-class="context-menu"
+    @input="$emit('input', $event)"
+    @mouseover="$emit('mouseover', $event)"
+    @mouseleave="$emit('mouseleave', $event)"
   >
     <v-list dense class="context-menu-list">
       <v-subheader v-if=title>{{ title }}</v-subheader>
@@ -16,28 +17,30 @@
         <div v-for="(item, index) in items" :key="index">
           <v-divider v-if=item.divider></v-divider>
           <v-list-item v-else
-            @click="item.action ? $emit('close') && item.action(target) : null"
-            @mouseover="expand(index)"
+            @click.stop="execute(item.action)"
+            @mouseover="promote((item.items || item.load) ? index : -1)"
             :disabled="item.active ? !item.active() : false"
+            :inactive="item.action ? false : true"
           >
-            <v-list-item-title class='item'>{{ item.title }}</v-list-item-title>
-
-            <context-menu-node
-              v-if="(item.load || item.items) && index === expanded"
-              :position_x="local_position_x + 100"
-              :position_y="local_position_y + (index * 20) - 10"
-              :title=item.title
-              :target=target
-              :items=item.items
-              :value="value"
-              v-on="$listeners"
-            />
+            <v-list-item-title class='item'>
+              {{ item.title }}
+            </v-list-item-title>
           </v-list-item>
+          <context-menu-node
+            :value="(item.items || item.load) && ((promoted === index) || (active === index))"
+            :position_x="local_position_x + 100"
+            :position_y="local_position_y + (index * 20) - 10"
+            :title=item.title
+            :target=target
+            :items=item.items
+            @mouseover="activate(index)"
+            @mouseleave="deactivate(index)"
+            @close="$emit('close')"
+          />
         </div>
       </v-list-item-group>
     </v-list>
   </v-menu>
-  </div>
 </template>
 
 <style scoped>
@@ -89,7 +92,8 @@ export default {
     position_y: { type: Number, default: 0 }
   },
   data: () => ({
-    expanded: null,
+    active: -1,
+    promoted: -1,
     local_position_x: 0,
     local_position_y: 0
   }),
@@ -102,14 +106,43 @@ export default {
     }
   },
   methods: {
-    expand: async function (index) {
-      this.expanded = null
+    activate: function (index) {
+      console.log('activate!', index)
+      this.promote(index)
+      this.active = index
+    },
+    deactivate: function (index) {
+      console.log('deactivate!', index)
+      if (this.active !== index) {
+        return
+      }
 
-      const menu = this.items[index]
+      this.active = -1
+    },
+    promote: async function (index) {
+      if (this.promoted === index) {
+        return
+      }
 
-      menu.items = menu.load ? await menu.load(this.target) : null
+      this.active = -1
+      this.promoted = -1
 
-      this.expanded = index
+      const item = this.items[index]
+
+      if (!item.items && item.load) {
+        item.items = await item.load()
+      }
+
+      this.promoted = index
+      // console.log('promote!', this.promoted, this.active)
+    },
+    execute: async function (action = null) {
+      if (action === null) {
+        return
+      }
+
+      this.$emit('close')
+      await action()
     }
   }
 }

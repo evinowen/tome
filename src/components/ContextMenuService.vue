@@ -26,7 +26,5 @@ export default {
   components: {
     ContextMenuNode
   }
-
 }
-
 </script>
