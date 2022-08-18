@@ -1,12 +1,21 @@
 <template>
   <v-container class="pa-0" style="user-select: none; clear: both;" v-show="visible">
-    <div ref=draggable class="explorer-node-drop" droppable :draggable="!(root || system)" @dragstart.stop=drag_start @dragend.stop=drag_end @dragenter.stop=drag_enter @dragover.prevent @dragleave.stop=drag_leave @drop.stop=drop>
+    <div ref=draggable
+      class="explorer-node-drop"
+      droppable :draggable="!(root || system)"
+      @dragstart.stop=drag_start
+      @dragend.stop=drag_end
+      @dragenter.stop=drag_enter
+      @dragover.prevent.stop
+      @dragleave.stop=drag_leave
+      @drop.stop=drop
+    >
       <v-layout
         v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
-        @click.left.stop="system ? null : $emit('select', { path })"
-        @click.right.stop="$emit('context', { instance, event: $event })"
+        @click.left.stop="locked || $emit('select', { path })"
+        @click.right.stop="locked || $emit('context', { instance, event: $event })"
       >
-        <v-btn tile text x-small @click.stop="system ? null : $emit(directory ? 'toggle' : 'select', { path })" class="explorer-node-button mr-1">
+        <v-btn tile text x-small @click.stop="locked || $emit(directory ? 'toggle' : 'select', { path })" class="explorer-node-button mr-1">
           <v-icon>{{ icon }}</v-icon>
         </v-btn>
         <v-flex>
@@ -23,7 +32,7 @@
               @keyup.enter="valid ? $emit('submit', { input, title }) : null"
             />
             <v-text-field
-              @click.stop="$emit(directory ? 'toggle' : 'select', { path })"
+              @click.stop="locked || $emit(directory ? 'toggle' : 'select', { path })"
               v-show="!(selected && edit)" ref="input" :value=display readonly dense small class="pa-0" />
           </v-form>
         </v-flex>
@@ -39,6 +48,7 @@
         :ephemeral=child.ephemeral
         :name=child.name
         :path=child.path
+        :relationship=child.relationship
         :children=child.children
         :directory=child.directory
         :expanded=child.expanded
@@ -208,6 +218,7 @@ export default {
     title: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String },
+    relationship: { type: String },
     active: { type: String },
     edit: { type: Boolean },
     format: { type: Function },
@@ -224,6 +235,15 @@ export default {
     selected: function () {
       return this.uuid === this.active
     },
+    locked: function () {
+      return this.relationship === 'git'
+    },
+    special: function () {
+      return this.relationship === 'tome'
+    },
+    script: function () {
+      return ['tome-templates', 'tome-actions'].includes(this.relationship)
+    },
     actions: function () {
       return store.state.actions.options.map(name => ({
         title: name,
@@ -237,12 +257,23 @@ export default {
       }))
     },
     context: function () {
-      return [
+      const menu = []
+      const push = (items) => {
+        if (menu.length) {
+          menu.push({ divider: true })
+        }
+
+        menu.push(...items)
+      }
+
+      const expand = [
         {
           title: 'Expand',
           action: null
-        },
-        { divider: true },
+        }
+      ]
+
+      const script = [
         {
           title: 'Template',
           load: () => this.templates
@@ -250,8 +281,24 @@ export default {
         {
           title: 'Action',
           load: () => this.actions
-        },
-        { divider: true },
+        }
+      ]
+
+      const special = []
+
+      if (['tome', 'tome-templates'].includes(this.relationship)) {
+        special.push({
+          title: 'New Template'
+        })
+      }
+
+      if (['tome', 'tome-actions'].includes(this.relationship)) {
+        special.push({
+          title: 'New Action'
+        })
+      }
+
+      const file = [
         {
           title: 'Open',
           action: (path) => this.$emit('open', { type: 'file', target: path })
@@ -267,11 +314,14 @@ export default {
         {
           title: 'New Folder',
           action: async (path) => this.$emit('create', { type: 'file', target: path, directory: true })
-        },
-        { divider: true },
+        }
+      ]
+
+      const clipboard = [
         {
           title: 'Cut',
-          action: async (path) => await store.dispatch('cut', { type: 'file', target: path })
+          action: async (path) => await store.dispatch('cut', { type: 'file', target: path }),
+          active: () => !(this.special || this.script)
         },
         {
           title: 'Copy',
@@ -281,17 +331,30 @@ export default {
           title: 'Paste',
           active: () => store.state.clipboard.content,
           action: async (path) => await store.dispatch('paste', { type: 'file', target: path })
-        },
-        { divider: true },
+        }
+      ]
+
+      const move = [
         {
           title: 'Rename',
-          action: async (path) => this.$emit('edit', { target: path })
+          action: async (path) => this.$emit('edit', { target: path }),
+          active: () => !(this.special || this.script)
         },
         {
           title: 'Delete',
-          action: async (path) => this.$emit('delete', { target: path })
+          action: async (path) => this.$emit('delete', { target: path }),
+          active: () => !(this.special || this.script)
         }
       ]
+
+      push(this.directory ? expand : [])
+      push(this.special || this.script ? [] : script)
+      push(special.length && (this.special || this.script) ? special : [])
+      push(file)
+      push(clipboard)
+      push(move)
+
+      return menu
     },
     instance: function () {
       return this
@@ -309,6 +372,18 @@ export default {
         if (this.directory) {
           if (this.root) {
             return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+          }
+
+          if (this.locked) {
+            return this.expanded ? 'mdi-folder-open' : 'mdi-folder-key'
+          }
+
+          if (this.special) {
+            return this.expanded ? 'mdi-folder-open' : 'mdi-folder-star'
+          }
+
+          if (this.script) {
+            return this.expanded ? 'mdi-folder-open' : 'mdi-folder-text'
           }
 
           return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
@@ -354,6 +429,11 @@ export default {
   },
   methods: {
     drag_start: function (event) {
+      if (this.locked || this.special || this.script) {
+        event.preventDefault()
+        return
+      }
+
       event.dataTransfer.dropEffect = 'move'
       event.target.style.opacity = 0.2
 

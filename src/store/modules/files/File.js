@@ -6,12 +6,36 @@ export default class File {
     '.tome'
   ]
 
+  static System = {
+    Root: 'root',
+    Git: 'git',
+    Tome: 'tome',
+    TomeTemplates: 'tome-templates',
+    TomeActions: 'tome-actions'
+  }
+
+  static Relationships = {
+    base: File.System.Root,
+    children: {
+      '.git': File.System.Git,
+      '.tome': {
+        base: File.System.Tome,
+        children: {
+          'templates': File.System.TomeTemplates,
+          'actions': File.System.TomeActions
+        }
+      }
+    }
+  }
+
   constructor (data) {
     Object.assign(this, {
       uuid: uuidv4(),
       name: null,
       path: null,
+      relative: null,
       parent: null,
+      base: null,
       directory: false,
       disabled: false,
       children: [],
@@ -109,20 +133,28 @@ export default class File {
   }
 
   static async convert (dirent, parent) {
+    const path = await window.api.path_join(parent.path, dirent.name)
+    const relative = await window.api.path_relative(parent.base.path, path)
+
     const instance = new File({
       name: dirent.name,
-      path: await window.api.path_join(parent.path, dirent.name),
+      path,
+      relative,
       directory: dirent.directory,
-      parent
+      parent,
+      base: parent.base
     })
 
     await File.validate(instance)
+    await File.relate(instance)
 
     return instance
   }
 
   static async make (data) {
     const instance = new File(data)
+
+    instance.base = instance
 
     await File.validate(instance)
 
@@ -140,6 +172,37 @@ export default class File {
 
     if (File.blacklist.indexOf(instance.name) > -1) {
       instance.disabled = true
+    }
+  }
+
+  static async relate (instance) {
+    let relationship = File.Relationships
+    const items = instance.relative.split(await window.api.path_sep())
+
+    do {
+      const item = items.shift()
+
+      if (typeof relationship === 'string' || relationship instanceof String) {
+        return
+      }
+
+      const children = relationship.children
+
+      if (!children[item]) {
+        return
+      }
+
+      relationship = children[item]
+    } while (items.length)
+
+    if (!relationship) {
+      return
+    }
+
+    if (typeof relationship === 'string' || relationship instanceof String) {
+      instance.relationship = relationship
+    } else {
+      instance.relationship = relationship.base
     }
   }
 }
