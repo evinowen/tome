@@ -19,11 +19,19 @@ export default class FileTree {
     return new FileTree(file)
   }
 
-  static search (element, items) {
+  static async search (element, items) {
     const name = items.shift()
 
     if (name === '') {
       return { item: element, parent: null, name: null }
+    }
+
+    if (!element.directory) {
+      return
+    }
+
+    if (!element.loaded) {
+      element.fill(await element.populate())
     }
 
     const children = element.children
@@ -34,7 +42,7 @@ export default class FileTree {
     }
 
     if (items.length && items[0] !== '') {
-      return FileTree.search(children[index], items)
+      return await FileTree.search(children[index], items)
     }
 
     return { item: children[index], parent: element, index }
@@ -44,7 +52,7 @@ export default class FileTree {
     const relative = await window.api.path_relative(this.base.path, path)
     const items = relative.split(await window.api.path_sep())
 
-    return FileTree.search(this.base, items)
+    return await FileTree.search(this.base, items)
   }
 
   async load (path) {

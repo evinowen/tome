@@ -36,6 +36,7 @@ export default class File {
       relative: null,
       parent: null,
       base: null,
+      loaded: false,
       directory: false,
       disabled: false,
       children: [],
@@ -85,11 +86,13 @@ export default class File {
   }
 
   render (document) {
+    this.loaded = true
     this.document = document
     this.updated = Date.now()
   }
 
   fill (children) {
+    this.loaded = true
     this.children.splice(0, this.children.length, ...children)
     this.updated = Date.now()
   }
