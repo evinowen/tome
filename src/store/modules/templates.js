@@ -1,3 +1,12 @@
+export const TemplateBaseConfiguration = {
+  directory: false,
+  map: {
+    'index.md': 'index.md'
+  }
+}
+
+export const TemplateBaseIndex = '# New Template\n'
+
 export default {
   namespaced: true,
   state: {
@@ -52,9 +61,14 @@ export default {
       const path = context.state.base
 
       const post = async (path) => {
-        for (const name of ['.config.json', 'index.md']) {
-          await context.dispatch('files/create', { path, name }, { root: true })
-        }
+        const config_item = await context.dispatch('files/create', { path, name: 'config.json' }, { root: true })
+        const config_content = String(JSON.stringify(TemplateBaseConfiguration, null, 2)).concat('\n')
+        await context.dispatch('files/save', { item: config_item, content: config_content }, { root: true })
+        await context.dispatch('files/select', { item: config_item }, { root: true })
+
+        const index_item = await context.dispatch('files/create', { path, name: 'index.md' }, { root: true })
+        await context.dispatch('files/save', { item: index_item, content: TemplateBaseIndex }, { root: true })
+        await context.dispatch('files/select', { item: index_item }, { root: true })
       }
 
       await context.dispatch('files/ghost', { path, directory: true, post }, { root: true })

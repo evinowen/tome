@@ -179,6 +179,7 @@ export default class File {
 
   async rename (basename) {
     const dirname = await window.api.path_dirname(this.path)
+
     const path = await window.api.path_join(dirname, basename)
 
     await window.api.file_rename(this.path, path)
@@ -198,8 +199,6 @@ export default class File {
 
   async write (content) {
     await window.api.file_write(this.path, content)
-
-    return { item: this, directory: false, content }
   }
 
   async delete () {

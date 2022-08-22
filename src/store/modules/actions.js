@@ -1,3 +1,5 @@
+export const ActionBaseIndex = 'resolve(true)\n'
+
 export default {
   namespaced: true,
   state: {
@@ -46,9 +48,11 @@ export default {
       const path = context.state.base
 
       const post = async (path) => {
-        for (const name of ['.config.json', 'index.js']) {
-          await context.dispatch('files/create', { path, name }, { root: true })
-        }
+        const index_item = await context.dispatch('files/create', { path, name: 'index.js' }, { root: true })
+
+        await context.dispatch('files/save', { item: index_item, content: ActionBaseIndex }, { root: true })
+
+        await context.dispatch('files/select', { item: index_item }, { root: true })
       }
 
       await context.dispatch('files/ghost', { path, directory: true, post }, { root: true })

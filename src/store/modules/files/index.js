@@ -177,23 +177,23 @@ export default {
       const { content } = criteria
       const item = await context.dispatch('load', criteria)
 
-      const result = await item.write(content)
-      context.commit('fill', result)
+      await item.write(content)
+      context.commit('unload', item)
+
+      return item
     },
     submit: async function (context, { input, title }) {
-      const item = context.state.selected
-
       context.commit('edit', { edit: false })
 
       let name = input.toLowerCase().replace(/ +/g, '.').replace(/[^a-z0-9.-]/g, '')
 
-      if (title && !item.directory) {
+      if (title && !context.state.selected.directory) {
         name = name.concat('.md')
       }
 
       const words = String(name).split('.')
 
-      if (words.length && !item.directory) {
+      if (words.length && !context.state.selected.directory) {
         const ext = words.pop()
 
         if (ext !== 'md') {
@@ -201,25 +201,34 @@ export default {
         }
       }
 
-      let path
+      let item
 
-      if (item.ephemeral) {
-        path = await context.dispatch('create', { item: item.parent, name, directory: item.directory })
+      if (context.state.selected.ephemeral) {
+        const { parent, directory } = context.state.selected
+        item = await context.dispatch('create', { item: parent, name, directory })
       } else {
-        path = await context.dispatch('rename', { item, name })
+        item = await context.dispatch('rename', { item: context.state.selected, name })
       }
+
+      await context.dispatch('select', { item })
 
       if (context.state.post) {
-        await context.state.post(path)
+        await context.state.post(item.path)
       }
+
+      return item
     },
     edit: async function (context, criteria) {
-      await context.dispatch('select', criteria)
+      const item = await context.dispatch('select', criteria)
       context.commit('edit', { edit: true })
+
+      return item
     },
     blur: async function (context) {
       context.commit('edit', { edit: false })
       context.commit('blur')
+
+      return context.state.selected
     },
     move: async function (context, criteria) {
       const { proposed } = criteria
@@ -230,7 +239,9 @@ export default {
         replacement: await context.dispatch('container', { path: proposed })
       }
 
-      const result = await item.move(parents.replacement.path)
+      const path = await item.move(parents.replacement.path)
+
+      context.commit('unload', item)
 
       if (parents.original) {
         context.commit('unload', parents.original)
@@ -238,13 +249,10 @@ export default {
       }
 
       if (parents.replacement) {
-        context.commit('unload', parents.original)
+        context.commit('unload', parents.replacement)
       }
 
-      context.commit('unload', item)
-      await context.dispatch('select', { item })
-
-      return result
+      return await context.dispatch('select', { path })
     },
     rename: async function (context, criteria) {
       const { name } = criteria
@@ -254,23 +262,19 @@ export default {
         context.commit('unload', item.parent)
       }
 
-      const result = await item.rename(name)
+      const path = await item.rename(name)
 
-      await context.dispatch('select', { item })
-
-      return result
+      return await context.dispatch('identify', { path })
     },
     create: async function (context, criteria) {
       const { name, directory = false } = criteria
       const item = await context.dispatch('identify', criteria)
 
-      const result = await item.create(name, directory)
+      const path = await item.create(name, directory)
 
       context.commit('unload', item)
 
-      await context.dispatch('select', { path: result })
-
-      return result
+      return await context.dispatch('identify', { path })
     },
     delete: async function (context, criteria) {
       const item = await context.dispatch('identify', criteria)
