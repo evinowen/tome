@@ -108,9 +108,36 @@ export default {
     },
     edit: async (state) => await store.dispatch('files/edit', { path: state.target }),
     create: async function (state) {
-      const { target, directory } = state
+      const { type, target, directory } = state
 
-      await store.dispatch('files/ghost', { path: target, directory })
+      let path
+      let post
+
+      switch (type) {
+        case 'template':
+          path = await window.api.path_join(this.tome.path, '.tome', 'templates')
+          post = async (path) => {
+            for (const name of ['.config.json', 'index.md']) {
+              await store.dispatch('files/create', { path, name })
+            }
+          }
+          break
+
+        case 'action':
+          path = await window.api.path_join(this.tome.path, '.tome', 'actions')
+          post = async (path) => {
+            for (const name of ['.config.json', 'index.js']) {
+              await store.dispatch('files/create', { path, name })
+            }
+          }
+          break
+
+        default:
+          path = target
+          break
+      }
+
+      await store.dispatch('files/ghost', { path, directory, post })
     },
     delete: async function (path) {
       await store.dispatch('files/delete', { path })

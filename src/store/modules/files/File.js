@@ -1,5 +1,32 @@
 import { v4 as uuidv4 } from 'uuid'
 
+export class FileDirent {
+  static async convert (dirent, parent) {
+    const path = await window.api.path_join(parent.path, dirent.name)
+    const relative = await window.api.path_relative(parent.base.path, path)
+
+    const file = new File({
+      name: dirent.name,
+      path,
+      relative,
+      directory: dirent.directory,
+      parent,
+      base: parent.base
+    })
+
+    await File.relate(file)
+
+    return file
+  }
+}
+
+export class FileLoadContract {
+  constructor (item, payload) {
+    this.item = item
+    this.payload = payload
+  }
+}
+
 export default class File {
   static blacklist = [
     '.git',
@@ -49,18 +76,6 @@ export default class File {
     })
   }
 
-  async crawl (time) {
-    if (this.disabled) {
-      return
-    }
-
-    if (this.directory) {
-      if (!this.updated || this.updated < time) {
-        return await this.load()
-      }
-    }
-  }
-
   async load () {
     const { directory } = this
     let payload
@@ -71,7 +86,7 @@ export default class File {
       payload = await this.read()
     }
 
-    return { item: this, dirty: true, payload, directory }
+    return new FileLoadContract(this, payload)
   }
 
   async read () {
@@ -97,6 +112,33 @@ export default class File {
     this.updated = Date.now()
   }
 
+  haunt (directory = false, sibling = null) {
+    this.ghost = new File({ parent: this, ephemeral: true, directory })
+
+    let index = this.children.length
+
+    if (sibling) {
+      const sibling_index = this.children.indexOf(sibling)
+      if (sibling_index >= 0) {
+        index = sibling_index + 1
+      }
+    }
+
+    this.children.splice(index, 0, this.ghost)
+
+    return this.ghost
+  }
+
+  exercise () {
+    const index = this.children.indexOf(this.ghost)
+
+    if (index > -1) {
+      this.children.splice(index, 1)
+    }
+
+    this.ghost = null
+  }
+
   async populate () {
     const dirents = await window.api.file_list_directory(this.path)
 
@@ -108,13 +150,60 @@ export default class File {
       if (child) {
         children.push(child)
       } else {
-        children.push(await File.convert(dirent, this))
+        children.push(await FileDirent.convert(dirent, this))
       }
     }
 
     File.sort(children)
 
     return children
+  }
+
+  async create (name, directory = false) {
+    const path = await window.api.path_join(this.path, name)
+
+    let result = false
+
+    if (directory) {
+      result = await window.api.file_create_directory(path)
+    } else {
+      result = await window.api.file_create(path)
+    }
+
+    if (!result) {
+      throw new Error(`Failed to create ${name} under directory ${this.path}`)
+    }
+
+    return path
+  }
+
+  async rename (basename) {
+    const dirname = await window.api.path_dirname(this.path)
+    const path = await window.api.path_join(dirname, basename)
+
+    await window.api.file_rename(this.path, path)
+
+    return path
+  }
+
+  async move (target) {
+    const basename = await window.api.path_basename(this.path)
+    const dirname = await window.api.path_dirname(target)
+    const path = await window.api.path_join(dirname, basename)
+
+    await window.api.file_rename(this.path, path)
+
+    return path
+  }
+
+  async write (content) {
+    await window.api.file_write(this.path, content)
+
+    return { item: this, directory: false, content }
+  }
+
+  async delete () {
+    await window.api.file_delete(this.path)
   }
 
   static sort (children) {
@@ -135,47 +224,12 @@ export default class File {
     })
   }
 
-  static async convert (dirent, parent) {
-    const path = await window.api.path_join(parent.path, dirent.name)
-    const relative = await window.api.path_relative(parent.base.path, path)
-
-    const instance = new File({
-      name: dirent.name,
-      path,
-      relative,
-      directory: dirent.directory,
-      parent,
-      base: parent.base
-    })
-
-    await File.validate(instance)
-    await File.relate(instance)
-
-    return instance
-  }
-
   static async make (data) {
     const instance = new File(data)
 
     instance.base = instance
 
-    await File.validate(instance)
-
     return instance
-  }
-
-  static async validate (instance) {
-    if (!this.directory && this.path) {
-      this.extension = await window.api.path_extension(this.path)
-
-      if (this.extension !== '.md') {
-        this.readonly = true
-      }
-    }
-
-    if (File.blacklist.indexOf(instance.name) > -1) {
-      instance.disabled = true
-    }
   }
 
   static async relate (instance) {

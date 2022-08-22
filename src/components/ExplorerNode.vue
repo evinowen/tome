@@ -288,13 +288,15 @@ export default {
 
       if (['tome', 'tome-templates'].includes(this.relationship)) {
         special.push({
-          title: 'New Template'
+          title: 'New Template',
+          action: async (path) => this.$emit('create', { type: 'template', target: path, directory: true })
         })
       }
 
       if (['tome', 'tome-actions'].includes(this.relationship)) {
         special.push({
-          title: 'New Action'
+          title: 'New Action',
+          action: async (path) => this.$emit('create', { type: 'action', target: path, directory: true })
         })
       }
 

@@ -130,7 +130,7 @@ describe('store/modules/files', () => {
     expect(store.state.files.content).not.toBeNull()
   })
 
-  it('should store and update the content of the selected item on save', async () => {
+  it('should store the content of the selected item on save', async () => {
     const path = '/project'
     const directory = '/project/first'
     const target = '/project/first/a.md'
@@ -145,9 +145,8 @@ describe('store/modules/files', () => {
 
     expect(store.state.files.content).not.toBe(content)
 
-    await store.dispatch('files/save', { content })
+    await store.dispatch('files/save', { path: target, content })
 
-    expect(store.state.files.selected.document.content).toBe(content)
     expect(window.api.file_write).toHaveBeenCalledTimes(1)
   })
 
@@ -269,7 +268,7 @@ describe('store/modules/files', () => {
 
     const { item: item_before } = await store.state.files.tree.identify(directory)
 
-    await store.dispatch('files/submit', { path: directory, input, title: false })
+    await store.dispatch('files/submit', { input, title: false })
 
     const { item: item_after } = await store.state.files.tree.identify(path)
 
@@ -292,6 +291,7 @@ describe('store/modules/files', () => {
     const { item: item_before } = await store.state.files.tree.identify(target)
 
     await store.dispatch('files/submit', { path: target, input, title: true })
+    await store.dispatch('files/load', { path: directory })
 
     const { item: item_after } = await store.state.files.tree.identify(result)
 
@@ -357,7 +357,9 @@ describe('store/modules/files', () => {
     const { item: item_before } = await store.state.files.tree.identify(target)
     expect(item_before).toBeDefined()
 
-    await store.dispatch('files/move', { path: target, proposed })
+    await store.dispatch('files/move', { path: target, proposed: proposed_directory })
+    await store.dispatch('files/load', { path: target_directory })
+    await store.dispatch('files/load', { path: proposed_directory })
 
     const { item: item_previous } = await store.state.files.tree.identify(target)
     const { item: item_current } = await store.state.files.tree.identify(proposed)

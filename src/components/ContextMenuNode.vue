@@ -107,12 +107,10 @@ export default {
   },
   methods: {
     activate: function (index) {
-      console.log('activate!', index)
       this.promote(index)
       this.active = index
     },
     deactivate: function (index) {
-      console.log('deactivate!', index)
       if (this.active !== index) {
         return
       }
@@ -127,6 +125,14 @@ export default {
       this.active = -1
       this.promoted = -1
 
+      if (!this.items) {
+        return
+      }
+
+      if (index < 0) {
+        return
+      }
+
       const item = this.items[index]
 
       if (!item.items && item.load) {
@@ -134,7 +140,6 @@ export default {
       }
 
       this.promoted = index
-      // console.log('promote!', this.promoted, this.active)
     },
     execute: async function (action = null) {
       if (action === null) {
@@ -142,7 +147,7 @@ export default {
       }
 
       this.$emit('close')
-      await action()
+      await action(this.target)
     }
   }
 }
