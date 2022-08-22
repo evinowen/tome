@@ -36,7 +36,7 @@
 <script>
 import store from '@/store'
 import { shell } from 'electron'
-import ExplorerNode from './ExplorerNode.vue'
+import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
 export default {
   props: {
@@ -108,36 +108,25 @@ export default {
     },
     edit: async (state) => await store.dispatch('files/edit', { path: state.target }),
     create: async function (state) {
-      const { type, target, directory } = state
-
-      let path
-      let post
+      const { type, target } = state
 
       switch (type) {
-        case 'template':
-          path = await window.api.path_join(this.tome.path, '.tome', 'templates')
-          post = async (path) => {
-            for (const name of ['.config.json', 'index.md']) {
-              await store.dispatch('files/create', { path, name })
-            }
-          }
+        case ExplorerNodeGhostType.FILE:
+          await store.dispatch('files/ghost', { path: target, directory: false })
           break
 
-        case 'action':
-          path = await window.api.path_join(this.tome.path, '.tome', 'actions')
-          post = async (path) => {
-            for (const name of ['.config.json', 'index.js']) {
-              await store.dispatch('files/create', { path, name })
-            }
-          }
+        case ExplorerNodeGhostType.DIRECTORY:
+          await store.dispatch('files/ghost', { path: target, directory: true })
           break
 
-        default:
-          path = target
+        case ExplorerNodeGhostType.TEMPLATE:
+          await store.dispatch('templates/ghost')
+          break
+
+        case ExplorerNodeGhostType.ACTION:
+          await store.dispatch('actions/ghost')
           break
       }
-
-      await store.dispatch('files/ghost', { path, directory, post })
     },
     delete: async function (path) {
       await store.dispatch('files/delete', { path })

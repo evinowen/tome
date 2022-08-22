@@ -39,14 +39,25 @@ export default {
       const result = await window.api.template_invoke(source, target)
 
       if (result.success) {
-        const message = `Action ${name} successful${result.message ? `: ${result.message}` : ''}`
+        const message = `Template ${name} successful${result.message ? `: ${result.message}` : ''}`
         await context.dispatch('message', message, { root: true })
       } else {
-        const error = `Action ${name} failed: ${result.error}`
+        const error = `Template ${name} failed: ${result.error}`
         await context.dispatch('error', error, { root: true })
       }
 
       context.commit('complete', { path: target })
+    },
+    ghost: async function (context) {
+      const path = context.state.base
+
+      const post = async (path) => {
+        for (const name of ['.config.json', 'index.md']) {
+          await context.dispatch('files/create', { path, name }, { root: true })
+        }
+      }
+
+      await context.dispatch('files/ghost', { path, directory: true, post }, { root: true })
     }
   }
 }

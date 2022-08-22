@@ -207,6 +207,13 @@
 import { VContainer, VLayout, VBtn, VIcon, VFlex, VForm, VTextField } from 'vuetify/lib'
 import store from '@/store'
 
+export const ExplorerNodeGhostType = {
+  FILE: 'file',
+  DIRECTORY: 'directory',
+  TEMPLATE: 'template',
+  ACTION: 'action'
+}
+
 export default {
   name: 'ExplorerNode',
   components: { VContainer, VLayout, VBtn, VIcon, VFlex, VForm, VTextField },
@@ -289,14 +296,14 @@ export default {
       if (['tome', 'tome-templates'].includes(this.relationship)) {
         special.push({
           title: 'New Template',
-          action: async (path) => this.$emit('create', { type: 'template', target: path, directory: true })
+          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path })
         })
       }
 
       if (['tome', 'tome-actions'].includes(this.relationship)) {
         special.push({
           title: 'New Action',
-          action: async (path) => this.$emit('create', { type: 'action', target: path, directory: true })
+          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.ACTION, target: path })
         })
       }
 
@@ -311,11 +318,11 @@ export default {
         },
         {
           title: 'New File',
-          action: async (path) => this.$emit('create', { type: 'file', target: path, directory: false })
+          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.FILE, target: path })
         },
         {
           title: 'New Folder',
-          action: async (path) => this.$emit('create', { type: 'file', target: path, directory: true })
+          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path })
         }
       ]
 
