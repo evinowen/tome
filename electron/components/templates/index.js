@@ -131,7 +131,7 @@ module.exports = {
 
         return { success: true }
       } catch (error) {
-        return { success: false, error: String(error) }
+        return { success: false, result: String(error) }
       }
     })
   }

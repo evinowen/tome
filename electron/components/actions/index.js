@@ -19,15 +19,15 @@ module.exports = {
       const script = vm.createScript(contents_raw)
 
       try {
-        const message = await new Promise((resolve, reject) => {
+        const result = await new Promise((resolve, reject) => {
           delay(reject, script_timeout, new Error('Action runtime reached timeout threshold'))
 
           script.runInNewContext({ resolve, reject, console, source, target })
         })
 
-        return { success: true, message: String(message) }
+        return { success: true, result: String(result) }
       } catch (error) {
-        return { success: false, error: String(error) }
+        return { success: false, result: String(error) }
       }
     })
   }

@@ -120,7 +120,6 @@ export default {
     commit: { type: Boolean, default: false }
   },
   data: () => ({
-    actions: [],
     error: '',
     overlay: null,
     mark: null,
@@ -170,8 +169,23 @@ export default {
     target: function () {
       return store.state.search.navigation.target
     },
+    actions: function () {
+      return store.state.actions.options.map(name => ({
+        title: name,
+        action: async () => {
+          const selection = this.codemirror.getSelection()
+          const result = await store.dispatch('actions/execute', { name, target: selection })
+          this.codemirror.replaceSelection(result || selection)
+        }
+      }))
+    },
     context: function () {
       return [
+        {
+          title: 'Action',
+          load: () => this.actions
+        },
+        { divider: true },
         {
           title: 'Cut',
           active: () => this.edit && !this.readonly,

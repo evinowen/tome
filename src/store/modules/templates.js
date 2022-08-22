@@ -21,9 +21,6 @@ export default {
       state.base = base
       state.options.length = 0
       state.options.push(...options)
-    },
-    complete: function (state, { path }) {
-      state.last = { path, timestamp: Date.now() }
     }
   },
   actions: {
@@ -45,17 +42,14 @@ export default {
 
       const source = await window.api.path_join(context.state.base, name)
 
-      const result = await window.api.template_invoke(source, target)
+      const { success, result = null } = await window.api.template_invoke(source, target)
 
-      if (result.success) {
-        const message = `Template ${name} successful${result.message ? `: ${result.message}` : ''}`
-        await context.dispatch('message', message, { root: true })
+      if (success) {
+        await context.dispatch('message', `Template ${name} complete`, { root: true })
+        return result
       } else {
-        const error = `Template ${name} failed: ${result.error}`
-        await context.dispatch('error', error, { root: true })
+        await context.dispatch('error', `Template ${name} failed: ${result}`, { root: true })
       }
-
-      context.commit('complete', { path: target })
     },
     ghost: async function (context) {
       const path = context.state.base
