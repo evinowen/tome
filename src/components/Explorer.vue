@@ -23,7 +23,6 @@
     @blur=blur
     @drag=drag
     @drop=drop
-    @populate=populate
     @create=create
 
     @template=template
@@ -139,7 +138,6 @@ export default {
     drop: async function (state) {
       await store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
     },
-    populate: async (state) => await store.dispatch('files/populate', state),
     template: async (state) => await store.dispatch('templates/execute', state),
     action: async (state) => await store.dispatch('actions/execute', state)
   },

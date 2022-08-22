@@ -301,19 +301,6 @@ describe('Explorer.vue', () => {
     expect(store.dispatch.mock.calls[0][0]).toBe('files/select')
   })
 
-  it('should call store file populate action for item path provided by populate event', async () => {
-    const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-    store.dispatch.mockClear()
-
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.populate({ path: '/project/third' })
-
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toBe('files/populate')
-  })
-
   it('should call store file ghost action for item path provided by create event', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
