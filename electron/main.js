@@ -1,16 +1,20 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 
 const path = require('path')
 
-require('./components/actions').register()
-require('./components/clipboard').register()
-require('./components/file').register()
-require('./components/git').register()
-require('./components/metadata').register()
-require('./components/path').register()
-require('./components/ssl').register()
-require('./components/templates').register()
-require('./components/window').register()
+const register = (win) => {
+  ipcMain.removeAllListeners()
+
+  require('./components/actions').register(win)
+  require('./components/clipboard').register(win)
+  require('./components/file').register(win)
+  require('./components/git').register(win)
+  require('./components/metadata').register(win)
+  require('./components/path').register(win)
+  require('./components/ssl').register(win)
+  require('./components/templates').register(win)
+  require('./components/window').register(win)
+}
 
 let win = null
 
@@ -26,13 +30,14 @@ const createWindow = () => {
     height: 600,
     frame,
     show: false,
-    backgroundColor: 'transparent',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       preload: path.join(__dirname, 'preload.js')
     }
   })
+
+  register(win)
 
   if (process.env.NODE_ENV === 'development') {
     win.loadURL('http://localhost:8080/')

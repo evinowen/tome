@@ -17,12 +17,18 @@ export class FileIdentityContract {
 }
 
 export default class FileTree {
-  constructor (file) {
+  constructor (file, separator) {
     this.base = file
+    this.separator = separator
 
     this.index = null
     this.crawling = 0
     this.timestamp = 0
+  }
+
+  async listen (listener) {
+    await window.api.file_clear_subscriptions()
+    window.api.file_subscribe(this.base.path, listener)
   }
 
   static async make (path) {
@@ -32,10 +38,12 @@ export default class FileTree {
       directory: true
     })
 
-    return new FileTree(file)
+    const separator = await window.api.path_sep()
+
+    return new FileTree(file, separator)
   }
 
-  static async search (element, queue) {
+  static search (element, queue) {
     const name = queue.shift()
 
     if (name === '') {
@@ -54,17 +62,20 @@ export default class FileTree {
     }
 
     if (queue.length && queue[0] !== '') {
-      return await FileTree.search(children[index], queue)
+      return FileTree.search(children[index], queue)
     }
 
     const item = children[index]
     return new FileIdentity(item, element, index)
   }
 
-  async identify (path) {
-    const relative = await window.api.path_relative(this.base.path, path)
-    const queue = relative.split(await window.api.path_sep())
+  async relative (path) {
+    return await window.api.path_relative(this.base.path, path)
+  }
 
-    return await FileTree.search(this.base, queue)
+  identify (relative) {
+    const queue = relative.split(this.separator)
+
+    return FileTree.search(this.base, queue)
   }
 }

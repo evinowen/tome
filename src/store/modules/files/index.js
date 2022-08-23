@@ -1,5 +1,12 @@
 import FileTree, { FileIdentity, FileIdentityContract } from './FileTree'
 
+export const ChokidarEvent = {
+  ADD: 'add',
+  ADD_DIR: 'addDir',
+  DELETE: 'unlink',
+  DELETE_DIR: 'unlinkDir'
+}
+
 export default {
   namespaced: true,
   state: {
@@ -77,6 +84,31 @@ export default {
     initialize: async function (context, { path }) {
       const tree = await FileTree.make(path)
 
+      tree.listen(async (_, data) => {
+        console.log('chokidar update', data)
+
+        const { event, path: relative } = data
+        const identity = context.state.tree.identify(relative)
+
+        if (!identity || identity instanceof FileIdentityContract) {
+          console.log('chokidar skip', event, relative)
+          return
+        }
+
+        const { parent } = identity
+
+        switch (event) {
+          case ChokidarEvent.ADD:
+          case ChokidarEvent.ADD_DIR:
+          case ChokidarEvent.DELETE:
+          case ChokidarEvent.DELETE_DIR:
+            console.log('chokidar upload', parent.path)
+            context.commit('unload', parent)
+            await context.dispatch('load', { item: parent })
+            break
+        }
+      })
+
       context.commit('initialize', tree)
 
       await context.dispatch('toggle', tree.base)
@@ -88,7 +120,8 @@ export default {
         return item
       }
 
-      let identity = await context.state.tree.identify(path)
+      const relative = await context.state.tree.relative(path)
+      let identity = context.state.tree.identify(relative)
 
       while (true) {
         if (!identity) {

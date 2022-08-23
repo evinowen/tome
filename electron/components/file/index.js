@@ -2,6 +2,7 @@ const { ipcMain, dialog, BrowserWindow } = require('electron')
 
 const fs = require('fs')
 const path = require('path')
+const chokidar = require('chokidar')
 
 const search = {
   target: null,
@@ -14,8 +15,31 @@ const excluded_filenames = [
   '.tome'
 ]
 
+let watcher = null
+
 module.exports = {
-  register: () => {
+  register: (win) => {
+    ipcMain.on('file_subscribe', (event, target) => {
+      const relay = (event, path) => {
+        console.log('file_subscription_update', event, path)
+        win.webContents.send('file_subscription_update', { event, path })
+      }
+
+      const options = {
+        cwd: target,
+        ignored: ['.git'],
+        ignoreInitial: true
+      }
+
+      watcher = chokidar.watch(target, options).on('all', relay)
+    })
+
+    ipcMain.handle('file_clear_subscriptions', async (event) => {
+      if (watcher) {
+        await watcher.close()
+      }
+    })
+
     ipcMain.handle('file_exists', async (event, target) =>
       new Promise((resolve, reject) => fs.access(target, (error, data) => error ? resolve(false) : resolve(true))))
 

@@ -1,6 +1,11 @@
 const { ipcRenderer } = require('electron')
 
 module.exports = {
+  file_subscribe: (path, listener) => {
+    ipcRenderer.send('file_subscribe', path)
+    ipcRenderer.on('file_subscription_update', listener)
+  },
+  file_clear_subscriptions: () => ipcRenderer.invoke('file_clear_subscriptions'),
   file_exists: (target) => ipcRenderer.invoke('file_exists', target),
   file_is_directory: (target) => ipcRenderer.invoke('file_is_directory', target),
   file_create: (target) => ipcRenderer.invoke('file_create', target),
