@@ -1,20 +1,20 @@
 import Vuex from 'vuex'
 
 import { createLocalVue } from '@vue/test-utils'
-import template from '@/store/plugins/mediations/template'
+import template from '@/store/plugins/mediations/action'
 
 describe('store/plugins/mediations/template.js', () => {
   let localVue
   let store
 
-  let templates
+  let actions
   let tome
 
   beforeEach(() => {
     localVue = createLocalVue()
     localVue.use(Vuex)
 
-    templates = {
+    actions = {
       namespaced: true,
       mutations: {
         load: jest.fn()
@@ -44,7 +44,7 @@ describe('store/plugins/mediations/template.js', () => {
     store = new Vuex.Store({
       state: { },
       modules: {
-        templates,
+        actions,
         tome
       },
       plugins: [
@@ -58,10 +58,10 @@ describe('store/plugins/mediations/template.js', () => {
   })
 
   it('should dispatch template load action when tome path changes', async () => {
-    expect(templates.actions.load).toHaveBeenCalledTimes(0)
+    expect(actions.actions.load).toHaveBeenCalledTimes(0)
 
     await store.dispatch('tome/path', '/project')
 
-    expect(templates.actions.load).toHaveBeenCalledTimes(1)
+    expect(actions.actions.load).toHaveBeenCalledTimes(1)
   })
 })

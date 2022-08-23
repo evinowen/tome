@@ -39,7 +39,7 @@ describe('store/modules/templates', () => {
   it('should set path and base then load template list when load is dispatched', async () => {
     const project = '/project'
 
-    await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
+    await store.dispatch('templates/load', { path: project })
 
     expect(store.state.templates.path).toEqual(project)
     expect(store.state.templates.base).toEqual('/project/.tome/templates')
@@ -51,7 +51,7 @@ describe('store/modules/templates', () => {
 
     window._.unset_disk('/project/.tome/templates')
 
-    await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
+    await store.dispatch('templates/load', { path: project })
 
     expect(store.state.templates.path).toBeNull()
     expect(store.state.templates.base).toBeNull()
@@ -63,7 +63,7 @@ describe('store/modules/templates', () => {
 
     window._.unset_disk('/project/.tome/templates')
 
-    await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
+    await store.dispatch('templates/load', { path: project })
 
     expect(store.state.templates.path).toBeNull()
     expect(store.state.templates.base).toBeNull()
@@ -75,8 +75,8 @@ describe('store/modules/templates', () => {
     const template = 'example.template.a'
     const target = '/project/first'
 
-    await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
-    await expect(store.dispatch('templates/execute', { name: template, target })).resolves.toBeUndefined()
+    await store.dispatch('templates/load', { path: project })
+    await store.dispatch('templates/execute', { name: template, target })
   })
 
   it('should fail gracefully when invalid template name is provided when execute is dispatched', async () => {
@@ -84,7 +84,7 @@ describe('store/modules/templates', () => {
     const template = 'example.template.z'
     const target = '/project/first'
 
-    await expect(store.dispatch('templates/load', { path: project })).resolves.toBeUndefined()
-    await expect(store.dispatch('templates/execute', { name: template, target })).resolves.toBeUndefined()
+    await store.dispatch('templates/load', { path: project })
+    await store.dispatch('templates/execute', { name: template, target })
   })
 })

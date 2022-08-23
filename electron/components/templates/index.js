@@ -28,13 +28,12 @@ const translate_map = (key, config) => {
 
 const construct = async (base, source, destination, context, leaf = false) => {
   const { compute, config } = context
-  let target = path.basename(source)
 
-  if (target === '.config.json') {
+  if (path.extname(source) !== '.md') {
     return
   }
 
-  target = translate_map(path.relative(base, source), config) || target
+  const target = translate_map(path.relative(base, source), config) || path.basename(source)
 
   const source_stats = await new Promise(
     (resolve) => fs.lstat(source, (error, stats) => error ? resolve(null) : resolve(stats))
@@ -108,7 +107,7 @@ module.exports = {
       config.directory = source_stats.isDirectory()
 
       if (config.directory) {
-        const config_target = path.join(source, '.config.json')
+        const config_target = path.join(source, 'config.json')
         const config_target_exists = await new Promise(
           (resolve) => fs.access(config_target, (error) => error ? resolve(false) : resolve(true))
         )

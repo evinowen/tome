@@ -55,7 +55,6 @@ describe('store/modules/files', () => {
     const path = '/project'
 
     await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/populate', { path })
 
     const { item } = await store.state.files.tree.identify(path)
 

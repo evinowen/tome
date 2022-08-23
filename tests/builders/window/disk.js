@@ -26,7 +26,7 @@ export default {
                 'example.file.c.md': null
               },
               'example.directory.b': { },
-              '.config.json': null
+              'config.json': null
             },
             'example.template.b': null,
             'example.template.c': null

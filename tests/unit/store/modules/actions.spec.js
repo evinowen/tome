@@ -48,7 +48,7 @@ describe('store/modules/actions', () => {
   it('should set path and base then load action list when load is dispatched', async () => {
     const project = '/project'
 
-    await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
+    await store.dispatch('actions/load', { path: project })
 
     expect(store.state.actions.path).toEqual(project)
     expect(store.state.actions.base).toEqual('/project/.tome/actions')
@@ -60,7 +60,7 @@ describe('store/modules/actions', () => {
 
     window._.unset_disk('/project/.tome/actions')
 
-    await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
+    await store.dispatch('actions/load', { path: project })
 
     expect(store.state.actions.path).toBeNull()
     expect(store.state.actions.base).toBeNull()
@@ -72,7 +72,7 @@ describe('store/modules/actions', () => {
 
     window._.unset_disk('/project/.tome/actions')
 
-    await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
+    await store.dispatch('actions/load', { path: project })
 
     expect(store.state.actions.path).toBeNull()
     expect(store.state.actions.base).toBeNull()
@@ -84,8 +84,8 @@ describe('store/modules/actions', () => {
     const action = 'example.action.a'
     const target = '/project/first'
 
-    await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
-    await expect(store.dispatch('actions/execute', { name: action, target })).resolves.toBeUndefined()
+    await store.dispatch('actions/load', { path: project })
+    await store.dispatch('actions/execute', { name: action, target })
   })
 
   it('should fail gracefully when invalid action name is provided when execute is dispatched', async () => {
@@ -93,7 +93,7 @@ describe('store/modules/actions', () => {
     const action = 'example.action.z'
     const target = '/project/first'
 
-    await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
-    await expect(store.dispatch('actions/execute', { name: action, target })).resolves.toBeUndefined()
+    await store.dispatch('actions/load', { path: project })
+    await store.dispatch('actions/execute', { name: action, target })
   })
 })
