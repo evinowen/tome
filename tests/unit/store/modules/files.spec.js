@@ -12,6 +12,11 @@ describe('store/modules/files', () => {
   let localVue
   let store
 
+  const identify = async (path) => {
+    const relative = await store.state.files.tree.relative(path)
+    return store.state.files.tree.identify(relative)
+  }
+
   beforeEach(() => {
     localVue = createLocalVue()
     localVue.use(Vuex)
@@ -51,17 +56,6 @@ describe('store/modules/files', () => {
     expect(store.state.files.tree).not.toBe(first)
   })
 
-  it('should load children for an item on populate', async () => {
-    const path = '/project'
-
-    await store.dispatch('files/initialize', { path })
-
-    const { item } = await store.state.files.tree.identify(path)
-
-    expect(item).not.toBeNull()
-    expect(item.children.length).toBeGreaterThan(0)
-  })
-
   it('should expand a collapsed item on toggle', async () => {
     const path = '/project'
     const target = '/project/first'
@@ -70,7 +64,7 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path })
     await store.dispatch('files/load', { path: target })
 
-    const { item } = await store.state.files.tree.identify(target)
+    const { item } = await identify(target)
 
     expect(item.expanded).toBeFalsy()
 
@@ -88,7 +82,7 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: target })
     await store.dispatch('files/toggle', { path: target })
 
-    const { item } = await store.state.files.tree.identify(target)
+    const { item } = await identify(target)
 
     expect(item.expanded).toBeTruthy()
 
@@ -207,7 +201,7 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/ghost', { path: directory, directory: true })
 
-    const { item } = await store.state.files.tree.identify(directory)
+    const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
     expect(window.api.file_create_directory).toHaveBeenCalledTimes(0)
@@ -227,7 +221,7 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/ghost', { path: directory, directory: true })
 
-    const { item } = await store.state.files.tree.identify(directory)
+    const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
     expect(window.api.file_create_directory).toHaveBeenCalledTimes(0)
@@ -245,7 +239,7 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/ghost', { path: directory, directory: false })
 
-    const { item } = await store.state.files.tree.identify(directory)
+    const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
     expect(window.api.file_create).toHaveBeenCalledTimes(0)
@@ -265,11 +259,11 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/edit', { path: directory })
 
-    const { item: item_before } = await store.state.files.tree.identify(directory)
+    const { item: item_before } = await identify(directory)
 
     await store.dispatch('files/submit', { input, title: false })
 
-    const { item: item_after } = await store.state.files.tree.identify(path)
+    const { item: item_after } = await identify(path)
 
     expect(item_after.name).not.toBe(item_before.name)
   })
@@ -287,12 +281,12 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: target })
     await store.dispatch('files/edit', { path: target })
 
-    const { item: item_before } = await store.state.files.tree.identify(target)
+    const { item: item_before } = await identify(target)
 
     await store.dispatch('files/submit', { path: target, input, title: true })
     await store.dispatch('files/load', { path: directory })
 
-    const { item: item_after } = await store.state.files.tree.identify(result)
+    const { item: item_after } = await identify(result)
 
     expect(item_after).not.toBeNull()
     expect(item_after.name).not.toBe(item_before.name)
@@ -330,13 +324,13 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: target_directory })
     await store.dispatch('files/load', { path: proposed_directory })
 
-    const { item: item_before } = await store.state.files.tree.identify(target)
+    const { item: item_before } = await identify(target)
     expect(item_before).toBeDefined()
 
     await store.dispatch('files/move', { path: target, proposed: proposed_directory })
 
-    const { item: item_previous } = await store.state.files.tree.identify(target)
-    const { item: item_current } = await store.state.files.tree.identify(proposed)
+    const { item: item_previous } = await identify(target)
+    const { item: item_current } = await identify(proposed)
     expect(item_previous).toBeNull()
     expect(item_current).toBeDefined()
   })
@@ -353,15 +347,15 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: target_directory })
     await store.dispatch('files/load', { path: proposed_directory })
 
-    const { item: item_before } = await store.state.files.tree.identify(target)
+    const { item: item_before } = await identify(target)
     expect(item_before).toBeDefined()
 
     await store.dispatch('files/move', { path: target, proposed: proposed_directory })
     await store.dispatch('files/load', { path: target_directory })
     await store.dispatch('files/load', { path: proposed_directory })
 
-    const { item: item_previous } = await store.state.files.tree.identify(target)
-    const { item: item_current } = await store.state.files.tree.identify(proposed)
+    const { item: item_previous } = await identify(target)
+    const { item: item_current } = await identify(proposed)
     expect(item_previous).toBeNull()
     expect(item_current).toBeDefined()
   })
@@ -378,13 +372,13 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: target_directory })
     await store.dispatch('files/load', { path: proposed_directory })
 
-    const { item: item_before } = await store.state.files.tree.identify(target)
+    const { item: item_before } = await identify(target)
     expect(item_before).toBeDefined()
 
     await store.dispatch('files/move', { path: target, proposed: proposed_directory })
 
-    const { item: item_previous } = await store.state.files.tree.identify(target)
-    const { item: item_current } = await store.state.files.tree.identify(proposed)
+    const { item: item_previous } = await identify(target)
+    const { item: item_current } = await identify(proposed)
 
     expect(item_previous).toEqual(item_current)
   })
@@ -396,13 +390,13 @@ describe('store/modules/files', () => {
     await store.dispatch('files/initialize', { path })
     await store.dispatch('files/load', { path })
 
-    const { item: item_before } = await store.state.files.tree.identify(directory)
+    const { item: item_before } = await identify(directory)
 
     expect(item_before).not.toBeNull()
 
     await store.dispatch('files/delete', { path: directory })
 
-    const { item: item_after } = await store.state.files.tree.identify(directory)
+    const { item: item_after } = await identify(directory)
 
     expect(item_after).toBeNull()
   })

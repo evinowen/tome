@@ -116,6 +116,8 @@ const _search_next_result = {
 }
 
 export default {
+  file_subscribe: jest.fn(),
+  file_clear_subscriptions: jest.fn(),
   file_contents: jest.fn(_file_contents),
   file_create: jest.fn(_file_create),
   file_create_directory: jest.fn(_file_create_directory),

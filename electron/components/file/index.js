@@ -21,7 +21,6 @@ module.exports = {
   register: (win) => {
     ipcMain.on('file_subscribe', (event, target) => {
       const relay = (event, path) => {
-        console.log('file_subscription_update', event, path)
         win.webContents.send('file_subscription_update', { event, path })
       }
 
