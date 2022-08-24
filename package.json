@@ -1,6 +1,6 @@
 {
   "name": "tome",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "license": "MIT",
   "author": "Evin Owen <git@evinowen.net>",
   "description": "Git integrated cross-platform markdown pseudoeditor application built in Electron",
