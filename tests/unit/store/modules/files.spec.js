@@ -2,7 +2,7 @@ import Vuex from 'vuex'
 import { cloneDeep } from 'lodash'
 
 import { createLocalVue } from '@vue/test-utils'
-import files from '@/store/modules/files'
+import files, { ChokidarEvent } from '@/store/modules/files'
 
 import builders from '@/../tests/builders'
 
@@ -38,6 +38,23 @@ describe('store/modules/files', () => {
     await store.dispatch('files/initialize', { path })
 
     expect(store.state.files.tree).not.toBeNull()
+  })
+
+  it('should configure event listener for updates to tree path on initialize', async () => {
+    const path = '/project'
+
+    expect(store.state.files.tree).toBeNull()
+
+    window.api.file_subscribe.mockImplementationOnce(async (event, target) => {
+      await target(null, { event: ChokidarEvent.ADD, path })
+    })
+
+    await store.dispatch('files/initialize', { path })
+
+    expect(store.state.files.tree).not.toBeNull()
+
+    expect(window.api.file_clear_subscriptions).toHaveBeenCalledTimes(1)
+    expect(window.api.file_subscribe).toHaveBeenCalledTimes(1)
   })
 
   it('should reconstruct the file tree on reinitialize', async () => {

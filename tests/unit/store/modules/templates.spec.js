@@ -14,13 +14,44 @@ describe('store/modules/templates', () => {
   let localVue
   let store
 
+  let files
+  let post
+
   beforeEach(() => {
     window._.reset_disk()
+
+    post = null
+    files = {
+      namespaced: true,
+      state: {
+        active: null,
+        content: null,
+        error: null,
+        tree: null,
+        ghost: null,
+        selected: null,
+        editing: false,
+        post: null,
+        watcher: null
+      },
+      actions: {
+        create: jest.fn(),
+        ghost: jest.fn((context, criteria) => {
+          post = criteria.post
+        }),
+        select: jest.fn(),
+        save: jest.fn()
+      }
+    }
 
     localVue = createLocalVue()
     localVue.use(Vuex)
     store = new Vuex.Store(cloneDeep({
+      actions: {
+        message: jest.fn()
+      },
       modules: {
+        files,
         templates
       }
     }))
@@ -86,5 +117,22 @@ describe('store/modules/templates', () => {
 
     await store.dispatch('templates/load', { path: project })
     await store.dispatch('templates/execute', { name: template, target })
+  })
+
+  it('should trigger a file ghost and post processing when ghost is dispatched', async () => {
+    expect(post).toBeNull()
+    expect(files.actions.ghost).toHaveBeenCalledTimes(0)
+
+    await store.dispatch('templates/ghost')
+
+    expect(post).not.toBeNull()
+    expect(files.actions.ghost).toHaveBeenCalledTimes(1)
+
+    const project = '/project'
+    await post(project)
+
+    expect(files.actions.create).toHaveBeenCalledTimes(2)
+    expect(files.actions.save).toHaveBeenCalledTimes(2)
+    expect(files.actions.select).toHaveBeenCalledTimes(2)
   })
 })

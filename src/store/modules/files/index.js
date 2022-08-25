@@ -94,15 +94,15 @@ export default {
           return
         }
 
-        const { parent } = identity
+        const { item, parent } = identity
 
         switch (event) {
           case ChokidarEvent.ADD:
           case ChokidarEvent.ADD_DIR:
           case ChokidarEvent.DELETE:
           case ChokidarEvent.DELETE_DIR:
-            context.commit('unload', parent)
-            await context.dispatch('load', { item: parent })
+            context.commit('unload', parent || item)
+            await context.dispatch('load', { item: parent || item })
             break
         }
       })
