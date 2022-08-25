@@ -3,9 +3,8 @@ const { ipcMain } = require('electron')
 const fs = require('fs')
 const path = require('path')
 const vm = require('vm')
-const { delay } = require('lodash')
 
-const script_timeout = 30000
+const timeout = 30000
 
 module.exports = {
   register: () => {
@@ -26,19 +25,29 @@ module.exports = {
         }
       }
 
-      let timeout
-      let context = { require, console, source, target, content, selection }
+      const context = { require, console, source, target, content, selection }
+
+      context.require = (query) => {
+        const absolute = path.join(source, query)
+
+        if (absolute !== source) {
+          try {
+            const resolved = require.resolve(absolute)
+            delete require.cache[resolved]
+            return require(absolute)
+          } catch (error) { }
+        }
+
+        return require(query)
+      }
+
+      const options = { timeout }
 
       try {
         const message = await new Promise((resolve, reject) => {
-          timeout = delay(reject, script_timeout, new Error('Action runtime reached timeout threshold'))
-
-          context = { resolve, reject, ...context }
-
-          script.runInNewContext(context)
+          Object.assign(context, { resolve, reject })
+          script.runInNewContext(context, options)
         })
-
-        clearTimeout(timeout)
 
         return { success: true, message, selection: context.selection }
       } catch (error) {
