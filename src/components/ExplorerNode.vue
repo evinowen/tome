@@ -254,7 +254,7 @@ export default {
     actions: function () {
       return store.state.actions.options.map(name => ({
         title: name,
-        action: (path) => this.$emit('action', { name, target: path })
+        action: (path) => this.$emit('action', { name, target: path, selection: null })
       }))
     },
     templates: function () {

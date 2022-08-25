@@ -27,20 +27,23 @@ export default {
 
       context.commit('load', { path, base, options: files })
     },
-    execute: async function (context, { name, target }) {
+    execute: async function (context, { name, target, selection }) {
       if (context.state.options.indexOf(name) < 0) {
         return
       }
 
       const source = await window.api.path_join(context.state.base, name)
 
-      const { success, result } = await window.api.action_invoke(source, target)
+      const result = await window.api.action_invoke(source, target, selection)
 
-      if (success) {
-        await context.dispatch('message', `Action ${name} complete`, { root: true })
+      if (result.success) {
+        const message = String(`Action ${name} complete`).concat(result.message ? `: ${result.message}` : '')
+        await context.dispatch('message', message, { root: true })
+
         return result
       } else {
-        await context.dispatch('error', `Action ${name} failed: ${result}`, { root: true })
+        const message = String(`Action ${name} failed`).concat(result.message ? `: ${result.message}` : '')
+        await context.dispatch('error', message, { root: true })
       }
     },
     ghost: async function (context) {

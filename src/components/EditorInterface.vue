@@ -174,8 +174,11 @@ export default {
         title: name,
         action: async () => {
           const selection = this.codemirror.getSelection()
-          const result = await store.dispatch('actions/execute', { name, target: selection })
-          this.codemirror.replaceSelection(result || selection)
+          const result = await store.dispatch('actions/execute', { name, target: this.active, selection })
+
+          this.codemirror.replaceSelection(result.selection || selection)
+
+          await this.input()
         }
       }))
     },
@@ -259,7 +262,7 @@ export default {
       await this.debounce_save.flush()
 
       if (reset) {
-        this.codemirror.doc.setValue(store.state.files.content)
+        this.codemirror.doc.setValue(store.state.files.content || '')
       }
 
       this.codemirror.setOption('readOnly', this.readonly)

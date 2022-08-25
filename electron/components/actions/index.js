@@ -9,7 +9,7 @@ const script_timeout = 30000
 
 module.exports = {
   register: () => {
-    ipcMain.handle('action_invoke', async (event, source, target) => {
+    ipcMain.handle('action_invoke', async (event, source, target, selection) => {
       const stats = await new Promise((resolve, reject) => fs.lstat(source, (err, stats) => err ? reject(err) : resolve(stats)))
 
       const source_script = stats.isDirectory() ? path.join(source, 'index.js') : source
@@ -18,16 +18,31 @@ module.exports = {
 
       const script = vm.createScript(contents_raw)
 
-      try {
-        const result = await new Promise((resolve, reject) => {
-          delay(reject, script_timeout, new Error('Action runtime reached timeout threshold'))
+      const content = async (data = null) => {
+        if (data) {
+          await new Promise((resolve, reject) => fs.writeFile(target, data, (err) => err ? reject(err) : resolve(true)))
+        } else {
+          return await new Promise((resolve, reject) => fs.readFile(target, 'utf8', (error, data) => error ? reject(error) : resolve(data)))
+        }
+      }
 
-          script.runInNewContext({ resolve, reject, console, source, target })
+      let timeout
+      let context = { require, console, source, target, content, selection }
+
+      try {
+        const message = await new Promise((resolve, reject) => {
+          timeout = delay(reject, script_timeout, new Error('Action runtime reached timeout threshold'))
+
+          context = { resolve, reject, ...context }
+
+          script.runInNewContext(context)
         })
 
-        return { success: true, result: String(result) }
+        clearTimeout(timeout)
+
+        return { success: true, message, selection: context.selection }
       } catch (error) {
-        return { success: false, result: String(error) }
+        return { success: false, message: error ? String(error) : null }
       }
     })
   }
