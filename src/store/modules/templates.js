@@ -45,7 +45,13 @@ export default {
       const { success, result = null } = await window.api.template_invoke(source, target)
 
       if (success) {
+        if (result) {
+          await context.dispatch('files/load', { path: target }, { root: true })
+          await context.dispatch('files/select', { path: result }, { root: true })
+        }
+
         await context.dispatch('message', `Template ${name} complete`, { root: true })
+
         return result
       } else {
         await context.dispatch('error', `Template ${name} failed: ${result}`, { root: true })
