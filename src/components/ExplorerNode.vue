@@ -12,12 +12,20 @@
     >
       <v-layout
         v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
-        @click.left.stop="locked || $emit('select', { path })"
+        @click.left.stop="$emit('select', { path })"
         @click.right.stop="locked || $emit('context', { instance, event: $event })"
       >
-        <v-btn tile text x-small @click.stop="locked || $emit(directory ? 'toggle' : 'select', { path })" class="explorer-node-button mr-1">
-          <v-icon>{{ icon }}</v-icon>
-        </v-btn>
+        <file-icon
+          class="mr-1"
+          :path=path
+          :directory=directory
+          :extension=extension
+          :image=image
+          :relationship=relationship
+          :expanded=expanded
+          :alert=alert
+          @click="locked || $emit(directory ? 'toggle' : 'select', { path })"
+        />
         <v-flex>
           <v-form ref="form" v-model=valid>
             <v-text-field
@@ -26,13 +34,13 @@
               v-model=input
               dense small autofocus
               :rules=rules
-              @blur="$emit('blur', { context: instance })"
+              @blur="$emit('blur', { path })"
               @focus=focus
               @input="error = null"
-              @keyup.enter="valid ? $emit('submit', { input, title }) : null"
+              @keyup.enter="valid ? submit() : null"
             />
             <v-text-field
-              @click.stop="locked || $emit(directory ? 'toggle' : 'select', { path })"
+              @click.left.stop="$emit('select', { path })"
               v-show="!(selected && edit)" ref="input" :value=display readonly dense small class="pa-0" />
           </v-form>
         </v-flex>
@@ -48,6 +56,8 @@
         :ephemeral=child.ephemeral
         :name=child.name
         :path=child.path
+        :extension=child.extension
+        :image=child.image
         :relationship=child.relationship
         :children=child.children
         :directory=child.directory
@@ -91,7 +101,22 @@
 
 .explorer-node .v-btn,
 .explorer-node input {
+  position: relative;
   cursor: pointer !important;
+}
+
+.explorer-icon-badged {
+  mask-image:
+    radial-gradient(circle at calc(100% - 3px) calc(100% - 3px),
+    rgba(0, 0, 0, 0) 4px, rgba(0, 0, 0, 1) 40%);
+}
+
+.explorer-node .v-btn .explorer-badge {
+  position: absolute;
+  bottom: -1.5px;
+  right: -0.40px;
+  font-size: 10px !important;
+  background-blend-mode: overlay;
 }
 
 .explorer-node-break {
@@ -158,14 +183,6 @@
   display: none !important;
 }
 
-.explorer-node-button {
-  width: 18px !important;
-  min-width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  padding: 0 !important;
-}
-
 .explorer-node-container {
   border: dotted black;
   border-width: 0 0 0 1px;
@@ -204,8 +221,9 @@
 </style>
 
 <script>
-import { VContainer, VLayout, VBtn, VIcon, VFlex, VForm, VTextField } from 'vuetify/lib'
+import { VContainer, VLayout, VFlex, VForm, VTextField } from 'vuetify/lib'
 import store from '@/store'
+import FileIcon from '@/components/FileIcon.vue'
 
 export const ExplorerNodeGhostType = {
   FILE: 'file',
@@ -216,7 +234,7 @@ export const ExplorerNodeGhostType = {
 
 export default {
   name: 'ExplorerNode',
-  components: { VContainer, VLayout, VBtn, VIcon, VFlex, VForm, VTextField },
+  components: { VContainer, VLayout, VFlex, VForm, VTextField, FileIcon },
   props: {
     uuid: { type: String },
     enabled: { type: Boolean, default: false },
@@ -225,6 +243,8 @@ export default {
     title: { type: Boolean },
     name: { type: String, default: '' },
     path: { type: String },
+    extension: { type: String },
+    image: { type: Boolean, default: false },
     relationship: { type: String },
     active: { type: String },
     edit: { type: Boolean },
@@ -245,11 +265,9 @@ export default {
     locked: function () {
       return this.relationship === 'git'
     },
-    special: function () {
-      return this.relationship === 'tome'
-    },
-    script: function () {
-      return ['tome-templates', 'tome-actions'].includes(this.relationship)
+    system: function () {
+      const relationships = ['root', 'git', 'tome', 'tome-templates', 'tome-actions']
+      return relationships.includes(this.relationship)
     },
     actions: function () {
       return store.state.actions.options.map(name => ({
@@ -330,7 +348,7 @@ export default {
         {
           title: 'Cut',
           action: async (path) => await store.dispatch('cut', { type: 'file', target: path }),
-          active: () => !(this.special || this.script)
+          active: () => !this.system
         },
         {
           title: 'Copy',
@@ -347,18 +365,18 @@ export default {
         {
           title: 'Rename',
           action: async (path) => this.$emit('edit', { target: path }),
-          active: () => !(this.special || this.script)
+          active: () => !this.system
         },
         {
           title: 'Delete',
           action: async (path) => this.$emit('delete', { target: path }),
-          active: () => !(this.special || this.script)
+          active: () => !this.system
         }
       ]
 
       push(this.directory ? expand : [])
-      push(this.special || this.script ? [] : script)
-      push(special.length && (this.special || this.script) ? special : [])
+      push(this.system ? [] : script)
+      push(special.length && this.system ? special : [])
       push(file)
       push(clipboard)
       push(move)
@@ -367,45 +385,6 @@ export default {
     },
     instance: function () {
       return this
-    },
-    system: function () {
-      return [
-        '.git',
-        '.tome'
-      ].indexOf(this.name) > -1
-    },
-    icon: function () {
-      try {
-        this.format(this.name, this.directory)
-
-        if (this.directory) {
-          if (this.root) {
-            return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
-          }
-
-          if (this.locked) {
-            return this.expanded ? 'mdi-folder-open' : 'mdi-folder-key'
-          }
-
-          if (this.special) {
-            return this.expanded ? 'mdi-folder-open' : 'mdi-folder-star'
-          }
-
-          if (this.script) {
-            return this.expanded ? 'mdi-folder-open' : 'mdi-folder-text'
-          }
-
-          return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
-        }
-
-        return 'mdi-file'
-      } catch (e) {
-        if (this.directory) {
-          return this.expanded ? 'mdi-folder-open-outline' : 'mdi-folder-outline'
-        }
-
-        return 'mdi-file-outline'
-      }
     },
     display: function () {
       if (this.title && !this.system) {
@@ -419,26 +398,51 @@ export default {
       return this.name
     },
     visible: function () {
-      return this.ephemeral || !(this.title && (this.display === '' || this.system))
+      return this.root || this.ephemeral || !(this.title && (this.display === '' || this.system))
     },
     rules: function () {
+      let rules = [
+        (value) => !this.error || this.error,
+        (value) => String(value).search(/[^\w\s.-]/g) === -1 || 'special characters are not allowed.',
+        (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'
+      ]
+
       if (this.title) {
-        return [
-          (value) => !this.error || this.error,
-          (value) => String(value).search(/[^\w ]/g) === -1 || 'No special characters are allowed.'
+        rules = [
+          ...rules,
+          (value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.'
+        ]
+      } else if (!this.directory) {
+        rules = [
+          ...rules,
+          (value) => String(value).search(/[.]\w+$/g) !== -1 || 'file extension is required.',
+          (value) => String(value).search(/^.+[.]\w+/g) !== -1 || 'file name is required.'
         ]
       }
 
-      return [
-        (value) => !this.error || this.error,
-        (value) => String(value).search(/[^\S ]/g) === -1 || 'No whitespace is allowed.',
-        (value) => String(value).search(/[^\w. ]/g) === -1 || 'No special characters are allowed.'
-      ]
+      return rules
+    },
+    alert: function () {
+      if (this.system || this.ephemeral) {
+        return false
+      }
+
+      if (this.relationship === 'tome-file') {
+        return false
+      }
+
+      try {
+        this.format(this.name, this.directory)
+      } catch (error) {
+        return true
+      }
+
+      return false
     }
   },
   methods: {
     drag_start: function (event) {
-      if (this.locked || this.special || this.script) {
+      if (this.system) {
         event.preventDefault()
         return
       }
@@ -465,6 +469,13 @@ export default {
     },
     focus: function () {
       this.input = this.display
+    },
+    submit: function () {
+      if (!this.valid) {
+        return
+      }
+
+      this.$emit('submit', { input: this.input, title: this.title })
     }
   }
 }

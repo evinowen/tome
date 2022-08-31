@@ -34,6 +34,7 @@ export default class FileTree {
   static async make (path) {
     const file = await File.make({
       path,
+      relationship: File.System.Root,
       expanded: false,
       directory: true
     })

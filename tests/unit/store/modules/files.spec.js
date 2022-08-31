@@ -324,7 +324,7 @@ describe('store/modules/files', () => {
 
     expect(store.state.files.editing).toBeTruthy()
 
-    await store.dispatch('files/blur')
+    await store.dispatch('files/blur', { path: target })
 
     expect(store.state.files.editing).toBeFalsy()
   })

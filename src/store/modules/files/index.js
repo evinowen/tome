@@ -211,32 +211,25 @@ export default {
 
       return item
     },
-    submit: async function (context, { input, title }) {
+    submit: async function (context, criteria) {
+      const { input, title } = criteria
+
+      let item = context.state.selected
+
       context.commit('edit', { edit: false })
 
-      let name = input.toLowerCase().replace(/ +/g, '.').replace(/[^a-z0-9.-]/g, '')
+      let name = input.toLowerCase().replace(/[ .-]+/g, '.').replace(/[^a-z0-9.-]/g, '')
 
-      if (title && !context.state.selected.directory) {
+      const { ephemeral, parent, directory } = item
+
+      if (title && !directory) {
         name = name.concat('.md')
       }
 
-      const words = String(name).split('.')
-
-      if (words.length && !context.state.selected.directory) {
-        const ext = words.pop()
-
-        if (ext !== 'md') {
-          name = name.concat('.md')
-        }
-      }
-
-      let item
-
-      if (context.state.selected.ephemeral) {
-        const { parent, directory } = context.state.selected
+      if (ephemeral) {
         item = await context.dispatch('create', { item: parent, name, directory })
       } else {
-        item = await context.dispatch('rename', { item: context.state.selected, name })
+        item = await context.dispatch('rename', { item, name })
       }
 
       await context.dispatch('select', { item })
@@ -253,7 +246,13 @@ export default {
 
       return item
     },
-    blur: async function (context) {
+    blur: async function (context, criteria) {
+      const item = await context.dispatch('identify', criteria)
+
+      if (item !== context.state.selected) {
+        return null
+      }
+
       context.commit('edit', { edit: false })
       context.commit('blur')
 

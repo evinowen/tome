@@ -8,44 +8,44 @@
 
     <template slot="paneR">
       <div v-show="active" class="fit">
-        <div v-show="!edit" class="fit" style="overflow: auto;">
-          <empty-view v-if="directory">
-            <v-icon style="font-size: 160px;">mdi-folder</v-icon>
-          </empty-view>
-
-          <empty-view v-if="readonly">
-            <v-icon style="font-size: 160px;">mdi-file</v-icon>
-          </empty-view>
-
-          <div v-show="!(directory || readonly)">
-            <div
-              ref="rendered"
-              id="editor-interface-rendered"
-              class="pa-2"
-              v-html="rendered"
-              @contextmenu="$emit('context', { selection: { context }, event: $event })"
-            />
-          </div>
+        <div class="fill-height" v-show="view === 'rendered'">
+          <div
+            ref="rendered"
+            id="editor-interface-rendered"
+            class="pa-2"
+            v-html="rendered"
+            @contextmenu="$emit('context', { selection: { context }, event: $event })"
+          />
         </div>
-
-        <div v-show="edit" class="fill-height">
-          <empty-view v-show="directory">
-            <v-icon large>mdi-folder</v-icon>
-            <h4>{{ active }}</h4>
-          </empty-view>
-
+        <div class="fill-height" v-show="view === 'edit'">
           <codemirror
             ref="editor"
-            v-show="!directory"
             :options="codemirror_options"
             @inputRead=input
             @contextmenu="(cm, event) => $emit('context', { selection: { context }, event })"
           />
         </div>
-
+        <div class="fill-height" v-show="view === 'empty'">
+          <empty-view class="fill-height">
+            <div v-if=selected>
+              <image-preview v-if=selected.image :src=selected.path />
+              <file-icon v-else
+                :path=selected.path
+                :directory=selected.directory
+                :extension=selected.extension
+                :image=selected.image
+                :relationship=selected.relationship
+                :expanded=selected.expanded
+                size="large"
+                disabled
+              />
+              <v-divider v-if=selected.name class="mt-4" />
+              <div style="font-size: 2em;">{{ selected.name }}</div>
+              <div style="font-size: 1.3em; opacity: 0.6">{{ selected.relative }}</div>
+            </div>
+          </empty-view>
+        </div>
       </div>
-      <empty-view v-show="!active" >{{ error }}</empty-view>
-
     </template>
   </split-pane>
 </template>
@@ -105,12 +105,14 @@
 </style>
 
 <script>
-import { VIcon } from 'vuetify/lib'
+import { VDivider } from 'vuetify/lib'
 import { clipboard } from 'electron'
 import { debounce, delay } from 'lodash'
 import marked from 'marked'
 import Mark from 'mark.js'
 import Explorer from '@/components/Explorer.vue'
+import FileIcon from '@/components/FileIcon.vue'
+import ImagePreview from '@/components/ImagePreview.vue'
 import EmptyView from '@/views/Empty.vue'
 import store from '@/store'
 
@@ -148,14 +150,46 @@ export default {
     active: function () {
       return store.state.files.active
     },
+    selected: function () {
+      return store.state.files.selected
+    },
+    markdown: function () {
+      return this.selected && (this.selected.extension === '.md')
+    },
+    html: function () {
+      return this.selected && (['.htm', '.html'].includes(this.selected.extension))
+    },
     rendered: function () {
-      return marked(store.state.files.selected?.document?.content || '')
+      if (this.markdown) {
+        return marked(this.selected?.document?.content || '')
+      }
+
+      if (this.html) {
+        return (this.selected?.document?.content || '')
+      }
+
+      return null
     },
     directory: function () {
-      return store.state.files.selected?.directory || false
+      return this.selected?.directory || false
     },
     readonly: function () {
-      return store.state.files.selected?.readonly || false
+      return this.selected?.readonly || false
+    },
+    view: function () {
+      if (this.selected) {
+        if (!(this.selected.image || this.selected.directory)) {
+          if (this.edit) {
+            return 'edit'
+          }
+        }
+
+        if (this.rendered !== null) {
+          return 'rendered'
+        }
+      }
+
+      return 'empty'
     },
     query: function () {
       return store.state.search.query
@@ -267,10 +301,23 @@ export default {
 
       this.codemirror.setOption('readOnly', this.readonly)
 
-      if (this.readonly) {
-        this.codemirror.setOption('mode', null)
+      if (this.selected) {
+        switch (this.selected.extension) {
+          case '.md':
+            this.codemirror.setOption('mode', 'markdown')
+            break
+
+          case '.js':
+          case '.json':
+            this.codemirror.setOption('mode', 'javascript')
+            break
+
+          default:
+            this.codemirror.setOption('mode', null)
+            break
+        }
       } else {
-        this.codemirror.setOption('mode', 'text/x-markdown')
+        this.codemirror.setOption('mode', null)
       }
 
       delay(() => this.codemirror.refresh(), 100)
@@ -416,9 +463,11 @@ export default {
     }
   },
   components: {
-    VIcon,
+    VDivider,
     Explorer,
-    EmptyView
+    EmptyView,
+    FileIcon,
+    ImagePreview
   }
 }
 </script>

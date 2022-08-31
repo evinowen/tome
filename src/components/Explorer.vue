@@ -9,6 +9,7 @@
     :title=configuration.format_titles
     :format=format
     :hold=hold
+    :relationship=root.relationship
     :children=root.children
     :expanded=root.expanded
 
@@ -75,11 +76,7 @@ export default {
       const words = String(name).split('.')
 
       if (words.length && !directory) {
-        const ext = words.pop()
-
-        if (ext !== 'md') {
-          throw new Error('Not Markdown File Extension')
-        }
+        words.pop()
       }
 
       return words.map(item => String(item).substring(0, 1).toUpperCase().concat(item.substring(1))).join(' ').trim()
@@ -131,7 +128,7 @@ export default {
       await store.dispatch('files/delete', { path })
     },
     submit: async (state) => await store.dispatch('files/submit', state),
-    blur: async (state) => await store.dispatch('files/blur'),
+    blur: async (state) => await store.dispatch('files/blur', state),
     drag: async function (state) {
       this.hold = state
     },

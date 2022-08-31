@@ -249,14 +249,6 @@ describe('Explorer.vue', () => {
     expect(() => wrapper.vm.format(null, true)).toThrow(Error)
   })
 
-  it('should throw an exception for files that have incorrect extension', async () => {
-    const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-    store.dispatch.mockClear()
-
-    expect(() => wrapper.vm.format('file.name.txt')).toThrow(Error)
-  })
-
   it('should throw an exception for items formatted that are titled with invalid symbols', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()

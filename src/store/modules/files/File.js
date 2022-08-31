@@ -1,14 +1,17 @@
 import { v4 as uuidv4 } from 'uuid'
+import image_extensions from 'image-extensions'
 
 export class FileDirent {
   static async convert (dirent, parent) {
     const path = await window.api.path_join(parent.path, dirent.name)
     const relative = await window.api.path_relative(parent.base.path, path)
+    const extension = await window.api.path_extension(path)
 
     const file = new File({
       name: dirent.name,
       path,
       relative,
+      extension,
       directory: dirent.directory,
       parent,
       base: parent.base
@@ -37,8 +40,10 @@ export default class File {
     Root: 'root',
     Git: 'git',
     Tome: 'tome',
-    TomeTemplates: 'tome-templates',
-    TomeActions: 'tome-actions'
+    TomeFeature: 'tome-feature',
+    TomeTemplate: 'tome-template',
+    TomeAction: 'tome-action',
+    TomeFile: 'tome-file'
   }
 
   static Relationships = {
@@ -46,10 +51,14 @@ export default class File {
     children: {
       '.git': File.System.Git,
       '.tome': {
-        base: File.System.Tome,
+        map: {
+          base: File.System.Tome,
+          child: File.System.TomeFeature,
+          descendant: File.System.TomeFile
+        },
         children: {
-          'templates': File.System.TomeTemplates,
-          'actions': File.System.TomeActions
+          'templates': { map: { child: File.System.TomeTemplate } },
+          'actions': { map: { child: File.System.TomeAction } }
         }
       }
     }
@@ -98,6 +107,10 @@ export default class File {
       title: await window.api.path_basename(path),
       content
     }
+  }
+
+  get image () {
+    return image_extensions.includes(String(this.extension).substring(1))
   }
 
   render (document) {
@@ -232,33 +245,70 @@ export default class File {
   }
 
   static async relate (instance) {
-    let relationship = File.Relationships
+    let node = File.Relationships
     const items = instance.relative.split(await window.api.path_sep())
 
-    do {
+    const evaluate = (...nodes) => {
+      for (const node of nodes) {
+        if (!node) {
+          continue
+        }
+
+        if (typeof node === 'string' || node instanceof String) {
+          return node
+        }
+
+        const { map } = node
+        if (map && map.base) {
+          return map.base
+        }
+      }
+    }
+
+    const assign = {
+      base: null,
+      child: null,
+      descendant: null
+    }
+
+    while (items.length) {
       const item = items.shift()
 
-      if (typeof relationship === 'string' || relationship instanceof String) {
-        return
+      if (typeof node === 'string' || node instanceof String) {
+        node = null
+        break
       }
 
-      const children = relationship.children
+      assign.child = null
 
-      if (!children[item]) {
-        return
+      if (node.map) {
+        const { descendant, child } = node.map
+
+        if (child) {
+          assign.child = child
+        }
+
+        if (descendant) {
+          assign.descendant = descendant
+        }
       }
 
-      relationship = children[item]
-    } while (items.length)
+      if (!(node.children && node.children[item])) {
+        node = null
+        break
+      }
 
-    if (!relationship) {
-      return
+      node = node.children[item]
     }
 
-    if (typeof relationship === 'string' || relationship instanceof String) {
-      instance.relationship = relationship
-    } else {
-      instance.relationship = relationship.base
+    if (node) {
+      assign.base = node
     }
+
+    if (items.length) {
+      assign.child = null
+    }
+
+    instance.relationship = evaluate(assign.base, assign.child, assign.descendant)
   }
 }

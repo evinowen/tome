@@ -11,6 +11,7 @@ import '@mdi/font/css/materialdesignicons.min.css'
 
 import VueCodemirror from 'vue-codemirror'
 import 'codemirror/mode/markdown/markdown.js'
+import 'codemirror/mode/javascript/javascript.js'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/base16-light.css'
 import 'codemirror/theme/base16-dark.css'
@@ -25,7 +26,6 @@ Vue.use(VueCodemirror, {
   events: ['contextmenu', 'inputRead'],
   options: {
     tabSize: 4,
-    mode: 'text/x-markdown',
     theme: 'base16-dark',
     lineNumbers: true,
     line: true,
