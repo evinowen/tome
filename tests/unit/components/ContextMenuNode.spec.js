@@ -4,6 +4,16 @@ import Vuetify from 'vuetify'
 
 import ContextMenuNode from '@/components/ContextMenuNode.vue'
 
+global.ResizeObserver = class {
+  constructor (listener) {
+    this.listener = listener
+  }
+
+  observe (object) {
+
+  }
+}
+
 Vue.use(Vuetify)
 
 const item_none = {
@@ -153,25 +163,27 @@ describe('ContextMenuNode.vue', () => {
 
   it('should recalculate local_position_x when position_x property is updated', async () => {
     const wrapper = factory.wrap()
-    expect(wrapper.vm.local_position_x).toEqual(0)
+
+    const value = wrapper.vm.local_position_x
 
     wrapper.vm.$refs.node.calcXOverflow = jest.fn(() => 100)
     wrapper.setProps({ position_x: 200 })
 
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.local_position_x).toEqual(100)
+    expect(wrapper.vm.local_position_x).not.toEqual(value)
   })
 
   it('should recalculate local_position_y when position_y property is updated', async () => {
     const wrapper = factory.wrap()
-    expect(wrapper.vm.local_position_y).toEqual(0)
+
+    const value = wrapper.vm.local_position_y
 
     wrapper.vm.$refs.node.calcYOverflow = jest.fn(() => 100)
     wrapper.setProps({ position_y: 200 })
 
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.local_position_y).toEqual(100)
+    expect(wrapper.vm.local_position_y).not.toEqual(value)
   })
 })

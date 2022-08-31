@@ -25,7 +25,6 @@
 
     <context-menu-service
       v-model=context.visible
-      @close="context.visible = false"
       :title=context.title
       :target=context.target
       :items=context.items

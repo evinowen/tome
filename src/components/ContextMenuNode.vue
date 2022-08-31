@@ -1,38 +1,46 @@
 <template>
-  <v-menu
-    ref="node"
-    :value=value
-    :position-x=position_x
-    :position-y=position_y
-    :close-on-content-click="false"
-    dense tile content-class="context-menu"
-    @input="$emit('input', $event)"
-    @mouseover="$emit('mouseover', $event)"
-    @mouseleave="$emit('mouseleave', $event)"
-  >
+  <div ref="node" class="context-menu" v-click-outside="{ handler: () => $emit('close'), closeConditional: () => root, include }">
     <v-list dense class="context-menu-list">
-      <v-subheader v-if=title>{{ title }}</v-subheader>
+      <v-subheader>{{ title || '&nbsp;'}}</v-subheader>
       <v-divider></v-divider>
       <v-list-item-group>
         <div v-for="(item, index) in items" :key="index">
           <v-divider v-if=item.divider></v-divider>
           <v-list-item v-else
             @click.stop="execute(item.action)"
-            @mouseover="promote((item.items || item.load) ? index : -1)"
+            @mouseover="promote(index)"
             :disabled="item.active ? !item.active() : false"
             :inactive="item.action ? false : true"
           >
-            <v-list-item-title class='item'>
-              {{ item.title }}
+            <v-list-item-title class='item' style="line-height: 16px !important;">
+              <v-layout>
+                <v-flex shrink class="menu-arrow">
+                  <v-icon small v-show="local_flip_x && (item.items || item.load)">
+                    {{ local_flip_x && (item.items || item.load) ? "mdi-menu-left" : "" }}
+                  </v-icon>
+                </v-flex>
+                <v-flex grow>{{ item.title }}</v-flex>
+                <v-flex shrink class="menu-arrow">
+                  <v-icon small v-show="!local_flip_x && (item.items || item.load)">
+                    {{ !local_flip_x && (item.items || item.load) ? "mdi-menu-right" : "" }}
+                  </v-icon>
+                </v-flex>
+              </v-layout>
             </v-list-item-title>
           </v-list-item>
           <context-menu-node
-            :value="(item.items || item.load) && ((promoted === index) || (active === index))"
-            :position_x="local_position_x + 100"
-            :position_y="local_position_y + (index * 20) - 10"
+            v-if="item.items || item.load"
+            v-show="(index > -1) && (((promoted === index) || (active === index)))"
+            :window_x="window_x"
+            :window_y="window_y"
+            :position_x="local_position_x + (width * (local_flip_x ? 0 : 1))"
+            :position_y="local_position_y + offset(index) + (20 * (local_flip_y ? 1 : -1))"
+            :flip_x="local_flip_x"
+            :flip_y="local_flip_y"
             :title=item.title
             :target=target
             :items=item.items
+            :layer="layer + 1"
             @mouseover="activate(index)"
             @mouseleave="deactivate(index)"
             @close="$emit('close')"
@@ -40,7 +48,7 @@
         </div>
       </v-list-item-group>
     </v-list>
-  </v-menu>
+  </div>
 </template>
 
 <style scoped>
@@ -55,8 +63,7 @@
 }
 
 .context-menu {
-  border-radius: 0px !important;
-  width: 120px;
+  position: fixed;
 }
 
 .context-menu-list {
@@ -72,40 +79,108 @@
 
 .context-menu-list .v-list-item {
   min-height: 0px !important;
-  padding: 4px 4px 4px 12px;
+  padding: 1px;
   font-weight: normal !important;
+}
+
+.menu-arrow {
+  width: 14px;
 }
 </style>
 
 <script>
-import { VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VDivider, VMenu } from 'vuetify/lib'
+import { VLayout, VFlex, VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VIcon, VDivider, ClickOutside } from 'vuetify/lib'
 
 export default {
   name: 'ContextMenuNode',
-  components: { VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VDivider, VMenu },
+  components: { VLayout, VFlex, VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VIcon, VDivider },
+  directives: { ClickOutside },
   props: {
-    value: { type: Boolean, default: false },
     title: { type: String, default: null },
+    root: { type: Boolean, default: false },
     target: { type: String },
     items: { type: Array },
     position_x: { type: Number, default: 0 },
-    position_y: { type: Number, default: 0 }
+    position_y: { type: Number, default: 0 },
+    flip_x: { type: Boolean, default: null },
+    flip_y: { type: Boolean, default: null },
+    window_x: { type: Number, default: 0 },
+    window_y: { type: Number, default: 0 },
+    layer: { type: Number, default: 0 }
   },
   data: () => ({
     active: -1,
     promoted: -1,
+    width: 0,
+    height: 0,
     local_position_x: 0,
-    local_position_y: 0
+    local_position_y: 0,
+    local_flip_x: false,
+    local_flip_y: false,
+    resize_observer: null
   }),
+  mounted: function () {
+    this.resize_observer = new ResizeObserver(this.resize)
+    this.resize_observer.observe(this.$refs.node)
+  },
   watch: {
-    position_x: function (value) {
-      this.local_position_x = this.$refs.node.calcXOverflow(value)
+    position_x: function () {
+      this.reposition()
     },
-    position_y: function (value) {
-      this.local_position_y = this.$refs.node.calcYOverflow(value)
+    position_y: function () {
+      this.reposition()
+    },
+    flip_x: function () {
+      this.reposition()
+    },
+    flip_y: function () {
+      this.reposition()
     }
   },
   methods: {
+    include: function (param) {
+      const result = Array.from(this.$refs.node.querySelectorAll('*,* > *'))
+      return result
+    },
+    resize: function () {
+      if (this.$refs.node) {
+        this.width = this.$refs.node.clientWidth
+        this.height = this.$refs.node.clientHeight
+      }
+
+      this.reposition()
+    },
+    offset: function (target) {
+      let height = 19
+
+      for (let index = 0; index < target; index++) {
+        const item = this.items[index]
+
+        if (item.divider) {
+          height += 1
+        } else {
+          height += 18
+        }
+      }
+
+      return height
+    },
+    reposition: function () {
+      const overflow_x = this.position_x - (this.window_x / 2)
+      const overflow_y = this.position_y - (this.window_y / 2)
+
+      this.local_flip_x = this.flip_x === null ? overflow_x > 0 : this.flip_x
+      this.local_flip_y = this.flip_y === null ? overflow_y > 0 : this.flip_y
+
+      this.local_position_x = this.position_x - (this.local_flip_x ? this.width : 0)
+      this.local_position_y = this.position_y - (this.local_flip_y ? this.height : 0)
+
+      if (this.$refs.node) {
+        this.$refs.node.style.zIndex = this.layer
+        this.$refs.node.style.left = String(this.local_position_x).concat('px')
+        this.$refs.node.style.top = String(this.local_position_y).concat('px')
+      }
+    },
     activate: function (index) {
       this.promote(index)
       this.active = index
@@ -135,7 +210,7 @@ export default {
 
       const item = this.items[index]
 
-      if (!item.items && item.load) {
+      if (item.load) {
         item.items = await item.load()
       }
 
