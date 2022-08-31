@@ -19,7 +19,12 @@ const register = (win) => {
 let win = null
 
 const createWindow = () => {
+  let development = false
   let frame = false
+
+  if (process.env.NODE_ENV === 'development') {
+    development = true
+  }
 
   if (process.env.FRAME_WINDOW) {
     frame = true
@@ -31,6 +36,7 @@ const createWindow = () => {
     frame,
     show: false,
     webPreferences: {
+      webSecurity: !development,
       nodeIntegration: true,
       contextIsolation: false,
       preload: path.join(__dirname, 'preload.js')
@@ -39,7 +45,7 @@ const createWindow = () => {
 
   register(win)
 
-  if (process.env.NODE_ENV === 'development') {
+  if (development) {
     win.loadURL('http://localhost:8080/')
   } else {
     win.loadFile('index.html')
