@@ -1,20 +1,11 @@
-import Mustache from 'mustache'
-
-const translate = (input) => {
-  let output = input
-
-  const today = new Date()
-  const [month, day, year] = today.toLocaleDateString().split('/')
-  const [hour, minute, second] = today.toLocaleTimeString().slice(0, 7).split(':')
-  output = output.replace(/%Y/g, year.padStart(4, '0'))
-  output = output.replace(/%m/g, month.padStart(2, '0'))
-  output = output.replace(/%d/g, day.padStart(2, '0'))
-  output = output.replace(/%H/g, hour.padStart(2, '0'))
-  output = output.replace(/%i/g, minute.padStart(2, '0'))
-  output = output.replace(/%s/g, second.padStart(2, '0'))
-
-  return output
+export const TemplateBaseConfiguration = {
+  directory: false,
+  map: {
+    'index.md': 'index.md'
+  }
 }
+
+export const TemplateBaseIndex = '# New Template\n'
 
 export default {
   namespaced: true,
@@ -30,9 +21,6 @@ export default {
       state.base = base
       state.options.length = 0
       state.options.push(...options)
-    },
-    complete: function (state, { path }) {
-      state.last = { path, timestamp: Date.now() }
     }
   },
   actions: {
@@ -52,69 +40,38 @@ export default {
         return
       }
 
-      const base = await window.api.path_join(context.state.base, name)
+      const source = await window.api.path_join(context.state.base, name)
 
-      const config = {
-        directory: true
-      }
+      const { success, result = null } = await window.api.template_invoke(source, target)
 
-      {
-        const path = await window.api.path_join(base, '.config.json')
-
-        if (await window.api.file_exists(path)) {
-          const raw = await window.api.file_contents(path)
-
-          Object.assign(config, JSON.parse(raw))
-        }
-      }
-
-      const compute = {}
-
-      for (const key in config.compute) {
-        compute[key] = translate(config.compute[key])
-      }
-
-      const construct = async (source, destination, root = false) => {
-        let target = await window.api.path_basename(source)
-
-        if (target === '.config.json') {
-          return
+      if (success) {
+        if (result) {
+          await context.dispatch('files/load', { path: target }, { root: true })
+          await context.dispatch('files/select', { path: result }, { root: true })
         }
 
-        if (config.map) {
-          const relative = await window.api.path_relative(base, source)
+        await context.dispatch('message', `Template ${name} complete`, { root: true })
 
-          if (config.map[relative]) {
-            target = translate(config.map[relative])
-          }
-        }
+        return result
+      } else {
+        await context.dispatch('error', `Template ${name} failed: ${result}`, { root: true })
+      }
+    },
+    ghost: async function (context) {
+      const path = context.state.base
 
-        const proposed = await window.api.path_join(destination, target)
+      const post = async (path) => {
+        const config_item = await context.dispatch('files/create', { path, name: 'config.json' }, { root: true })
+        const config_content = String(JSON.stringify(TemplateBaseConfiguration, null, 2)).concat('\n')
+        await context.dispatch('files/save', { item: config_item, content: config_content }, { root: true })
+        await context.dispatch('files/select', { item: config_item }, { root: true })
 
-        // if folder, decend with contsruct
-        if (await window.api.file_is_directory(source)) {
-          if (!root || config.directory) {
-            await window.api.file_create_directory(proposed)
-          }
-
-          const files = await window.api.file_list_directory(source)
-
-          const constructs = []
-          files.forEach(async file => constructs.push(construct(await window.api.path_join(source, file.name), (!root || config.directory) ? proposed : destination)))
-
-          await Promise.all(constructs)
-        } else {
-          if (await window.api.file_exists(proposed)) {
-            const raw = await window.api.file_content(source)
-            const rendered = Mustache.render(raw, { config, source, proposed, ...compute })
-            await window.api.file_write(proposed, rendered)
-          }
-        }
+        const index_item = await context.dispatch('files/create', { path, name: 'index.md' }, { root: true })
+        await context.dispatch('files/save', { item: index_item, content: TemplateBaseIndex }, { root: true })
+        await context.dispatch('files/select', { item: index_item }, { root: true })
       }
 
-      await construct(base, target, true)
-
-      context.commit('complete', { path: target })
+      await context.dispatch('files/ghost', { path, directory: true, post }, { root: true })
     }
   }
 }

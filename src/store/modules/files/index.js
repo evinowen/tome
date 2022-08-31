@@ -1,6 +1,11 @@
-import FileTree from './FileTree'
-import File from './File'
-// import chokidar from 'chokidar'
+import FileTree, { FileIdentity, FileIdentityContract } from './FileTree'
+
+export const ChokidarEvent = {
+  ADD: 'add',
+  ADD_DIR: 'addDir',
+  DELETE: 'unlink',
+  DELETE_DIR: 'unlinkDir'
+}
 
 export default {
   namespaced: true,
@@ -12,35 +17,32 @@ export default {
     ghost: null,
     selected: null,
     editing: false,
+    post: null,
     watcher: null
   },
   mutations: {
     initialize: function (state, tree) {
-      // if (state.watcher) {
-      //   state.watcher.close()
-      // }
-
       state.tree = tree
-
-      // state.watcher = chokidar.watch(path).on('change', (event, path) => state.tree.crawl())
     },
-    render: function (state, data) {
-      const { item, payload } = data
+    load: function (state, contract) {
+      const { item, payload } = contract
 
-      item.render(payload)
-    },
-    fill: function (state, data) {
-      const { item, payload } = data
-
-      item.fill(payload)
+      if (item.directory) {
+        item.fill(payload)
+      } else {
+        item.render(payload)
+      }
     },
     toggle: function (state, item) {
       item.expanded = !item.expanded
     },
+    unload: function (state, item) {
+      item.loaded = false
+    },
     select: function (state, data) {
-      const { path, item } = data
+      const { item } = data
 
-      state.active = path
+      state.active = item.path
       state.selected = item
 
       if (!item.directory && item.document) {
@@ -53,48 +55,20 @@ export default {
 
       if (!state.editing && state.selected.ephemeral) {
         const { parent } = state.ghost
-        const index = parent.children.findIndex(child => child.uuid === state.ghost.uuid)
-        parent.children.splice(index, 1)
-      }
-    },
-    ghost: function (state, data) {
-      const { item, target, directory } = data
-
-      let ancestor = item
-
-      const legacy = []
-
-      while (ancestor) {
-        legacy.push(ancestor)
-        ancestor = ancestor.parent
-      }
-
-      while (legacy.length) {
-        ancestor = legacy.pop()
-        ancestor.expanded = true
-      }
-
-      let index = item.children.length
-      if (target) {
-        index = item.children.findIndex(child => child.name === target)
-      }
-
-      if (state.ghost) {
-        const { parent } = state.ghost
-        const index = parent.children.findIndex(child => child.uuid === state.ghost.uuid)
-
-        if (index > -1) {
-          parent.children.splice(index, 1)
-        }
-
+        parent.exercise()
         state.ghost = null
       }
+    },
+    haunt: function (state, data) {
+      const { item, directory, post } = data
 
-      state.ghost = new File({ parent: item, ephemeral: true, directory })
+      if (!item.directory) {
+        state.ghost = item.parent.haunt(directory, item)
+      } else {
+        state.ghost = item.haunt(directory)
+      }
 
-      item.children.splice(index, 0, state.ghost)
-
-      state.selected = state.ghost
+      state.post = post
       state.editing = true
     },
     blur: function (state) {
@@ -112,168 +86,231 @@ export default {
 
       context.commit('initialize', tree)
 
-      await context.dispatch('crawl')
-    },
-    crawl: async function (context) {
-      const results = context.state.tree.crawl()
+      await tree.listen(async (_, data) => {
+        const { event, path: relative } = data
+        const identity = context.state.tree.identify(relative)
 
-      for await (const result of results) {
-        if (result.directory) {
-          context.commit('fill', result)
+        if (!identity || identity instanceof FileIdentityContract) {
+          return
+        }
+
+        const { item, parent } = identity
+
+        switch (event) {
+          case ChokidarEvent.ADD:
+          case ChokidarEvent.ADD_DIR:
+          case ChokidarEvent.DELETE:
+          case ChokidarEvent.DELETE_DIR:
+            context.commit('unload', parent || item)
+            await context.dispatch('load', { item: parent || item })
+            break
+        }
+      })
+
+      await context.dispatch('toggle', tree.base)
+    },
+    identify: async function (context, criteria) {
+      const { item = null, path = null } = criteria
+
+      if (item) {
+        return item
+      }
+
+      const relative = await context.state.tree.relative(path)
+      let identity = context.state.tree.identify(relative)
+
+      while (true) {
+        if (!identity) {
+          throw new Error(`File path ${path} does not exist`)
+        }
+
+        if (identity instanceof FileIdentity) {
+          break
+        }
+
+        if (identity instanceof FileIdentityContract) {
+          const contract = await identity.item.load()
+          context.commit('load', contract)
+
+          identity = await FileTree.search(identity.item, identity.queue)
         } else {
-          context.commit('render', result)
+          throw new Error(`File path ${path} failed to identify`)
         }
       }
+
+      return identity.item
     },
-    toggle: async function (context, { path }) {
-      const { item } = await context.state.tree.identify(path)
+    toggle: async function (context, criteria) {
+      const item = await context.dispatch('identify', criteria)
 
       if (!item.expanded) {
-        await context.dispatch('load', { path })
+        await context.dispatch('load', { item })
       }
 
       context.commit('toggle', item)
+
+      return item
     },
-    load: async function (context, { path, select = false }) {
-      const result = await context.state.tree.load(path)
+    container: async function (context, criteria) {
+      const item = await context.dispatch('identify', criteria)
 
-      if (!result) {
-        return
+      if (item.directory) {
+        return item
       }
 
-      if (result.directory) {
-        context.commit('fill', result)
-      } else {
-        context.commit('render', result)
-      }
-
-      const { item } = result
-
-      if (select) {
-        context.commit('select', { path, item })
-      }
+      return parent
     },
-    ghost: async function (context, { path, directory }) {
-      let parent = path
-      let target
+    load: async function (context, criteria) {
+      const item = await context.dispatch('identify', criteria)
 
-      if (!await window.api.file_is_directory(path)) {
-        target = await window.api.path_basename(path)
-        parent = await window.api.path_dirname(path)
+      if (!item.ephemeral) {
+        const contract = await item.load()
+        context.commit('load', contract)
       }
 
-      const { item } = await context.state.tree.identify(parent)
-
-      context.commit('ghost', { item, target, directory })
+      return item
     },
-    select: async function (context, { path }) {
-      const { item } = await context.state.tree.identify(path)
-      if (!item.directory) {
-        await context.dispatch('load', { path })
+    ghost: async function (context, criteria) {
+      const { directory = false, post = null } = criteria
+      const item = await context.dispatch('load', criteria)
+
+      await context.dispatch('select', { item })
+
+      if (!item.expanded) {
+        await context.dispatch('toggle', { item })
       }
 
-      context.commit('select', { path, item })
+      context.commit('haunt', { item, directory, post })
+
+      await context.dispatch('select', { item: context.state.ghost })
+
+      return context.state.ghost
     },
-    save: async function (context, { path = null, content = null }) {
-      const { item } = await context.state.tree.identify(path || context.state.active)
+    select: async function (context, criteria) {
+      const item = await context.dispatch('load', criteria)
 
-      if (path && content === null) {
-        throw new Error('No content provided for supplied path to update')
-      }
+      let parent = item
+      while (parent.parent) {
+        parent = parent.parent
 
-      if (item && !item.readonly && !item.directory) {
-        item.document.content = content || context.state.content
-        await window.api.file_write(item.path, item.document.content)
-      }
-    },
-    submit: async function (context, { input, title }) {
-      const item = context.state.selected
-
-      context.commit('edit', { edit: false })
-
-      let name = input.toLowerCase().replace(/ +/g, '.').replace(/[^a-z0-9.-]/g, '')
-
-      if (title && !item.directory) {
-        name = name.concat('.md')
-      }
-
-      const words = String(name).split('.')
-
-      if (words.length && !item.directory) {
-        const ext = words.pop()
-
-        if (ext !== 'md') {
-          name = name.concat('.md')
+        if (!parent.expanded) {
+          await context.dispatch('toggle', { item: parent })
         }
       }
 
-      if (item.ephemeral) {
-        await context.dispatch('create', { path: item.parent.path, name, directory: item.directory })
-      } else {
-        await context.dispatch('rename', { path: item.path, name })
+      context.commit('select', { item })
+
+      return item
+    },
+    save: async function (context, criteria) {
+      const { content } = criteria
+      const item = await context.dispatch('load', criteria)
+
+      await item.write(content)
+      context.commit('unload', item)
+
+      return item
+    },
+    submit: async function (context, criteria) {
+      const { input, title } = criteria
+
+      let item = context.state.selected
+
+      context.commit('edit', { edit: false })
+
+      let name = input.toLowerCase().replace(/[ .-]+/g, '.').replace(/[^a-z0-9.-]/g, '')
+
+      const { ephemeral, parent, directory } = item
+
+      if (title && !directory) {
+        name = name.concat('.md')
       }
+
+      if (ephemeral) {
+        item = await context.dispatch('create', { item: parent, name, directory })
+      } else {
+        item = await context.dispatch('rename', { item, name })
+      }
+
+      await context.dispatch('select', { item })
+
+      if (context.state.post) {
+        await context.state.post(item.path)
+      }
+
+      return item
     },
-    edit: async function (context, { path }) {
-      await context.dispatch('select', { path })
+    edit: async function (context, criteria) {
+      const item = await context.dispatch('select', criteria)
       context.commit('edit', { edit: true })
+
+      return item
     },
-    blur: async function (context) {
+    blur: async function (context, criteria) {
+      const item = await context.dispatch('identify', criteria)
+
+      if (item !== context.state.selected) {
+        return null
+      }
+
       context.commit('edit', { edit: false })
       context.commit('blur')
-    },
-    move: async function (context, { path, proposed }) {
-      let directory = proposed
 
-      if (!await window.api.file_is_directory(proposed)) {
-        directory = await window.api.path_dirname(proposed)
+      return context.state.selected
+    },
+    move: async function (context, criteria) {
+      const { proposed } = criteria
+      const item = await context.dispatch('identify', criteria)
+
+      const parents = {
+        original: item.parent,
+        replacement: await context.dispatch('container', { path: proposed })
       }
 
-      const basename = await window.api.path_basename(path)
-      const proposed_full = await window.api.path_join(directory, basename)
-      const directory_current = await window.api.path_dirname(path)
+      const path = await item.move(parents.replacement.path)
 
-      if (directory === directory_current) {
-        context.commit('error', { error: 'Invalid move, same directory.' })
-        return
+      context.commit('unload', item)
+
+      if (parents.original) {
+        context.commit('unload', parents.original)
+        await context.dispatch('load', { item: parents.original })
       }
 
-      await window.api.file_rename(path, proposed_full)
-
-      await context.dispatch('load', { path: directory_current })
-      await context.dispatch('load', { path: directory })
-    },
-    rename: async function (context, { path, name }) {
-      const directory = await window.api.path_dirname(path)
-      const proposed = await window.api.path_join(directory, name)
-
-      await window.api.file_rename(path, proposed)
-
-      await context.dispatch('load', { path: directory })
-      await context.dispatch('select', { path: proposed, select: true })
-    },
-    create: async function (context, { path, name, directory }) {
-      const proposed = await window.api.path_join(path, name)
-
-      let result = false
-
-      if (directory) {
-        result = await window.api.file_create_directory(proposed)
-      } else {
-        result = await window.api.file_create(proposed)
+      if (parents.replacement) {
+        context.commit('unload', parents.replacement)
       }
 
-      if (!result) {
-        throw new Error(`Failed to create path ${path}`)
+      return await context.dispatch('select', { path })
+    },
+    rename: async function (context, criteria) {
+      const { name } = criteria
+      const item = await context.dispatch('identify', criteria)
+
+      if (item.parent) {
+        context.commit('unload', item.parent)
       }
 
-      await context.dispatch('load', { path })
-      await context.dispatch('load', { path: proposed, select: true })
-    },
-    delete: async function (context, { path }) {
-      const parent = await window.api.path_dirname(path)
+      const path = await item.rename(name)
 
-      await window.api.file_delete(path)
-      await context.dispatch('load', { path: parent })
+      return await context.dispatch('identify', { path })
+    },
+    create: async function (context, criteria) {
+      const { name, directory = false } = criteria
+      const item = await context.dispatch('identify', criteria)
+
+      const path = await item.create(name, directory)
+
+      context.commit('unload', item)
+
+      return await context.dispatch('identify', { path })
+    },
+    delete: async function (context, criteria) {
+      const item = await context.dispatch('identify', criteria)
+
+      await item.delete()
+
+      context.commit('unload', item.parent)
+      await context.dispatch('load', { item: item.parent })
     }
   }
 }

@@ -9,6 +9,7 @@
     :title=configuration.format_titles
     :format=format
     :hold=hold
+    :relationship=root.relationship
     :children=root.children
     :expanded=root.expanded
 
@@ -23,7 +24,6 @@
     @blur=blur
     @drag=drag
     @drop=drop
-    @populate=populate
     @create=create
 
     @template=template
@@ -36,7 +36,7 @@
 <script>
 import store from '@/store'
 import { shell } from 'electron'
-import ExplorerNode from './ExplorerNode.vue'
+import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
 export default {
   props: {
@@ -76,11 +76,7 @@ export default {
       const words = String(name).split('.')
 
       if (words.length && !directory) {
-        const ext = words.pop()
-
-        if (ext !== 'md') {
-          throw new Error('Not Markdown File Extension')
-        }
+        words.pop()
       }
 
       return words.map(item => String(item).substring(0, 1).toUpperCase().concat(item.substring(1))).join(' ').trim()
@@ -108,22 +104,37 @@ export default {
     },
     edit: async (state) => await store.dispatch('files/edit', { path: state.target }),
     create: async function (state) {
-      const { target, directory } = state
+      const { type, target } = state
 
-      await store.dispatch('files/ghost', { path: target, directory })
+      switch (type) {
+        case ExplorerNodeGhostType.FILE:
+          await store.dispatch('files/ghost', { path: target, directory: false })
+          break
+
+        case ExplorerNodeGhostType.DIRECTORY:
+          await store.dispatch('files/ghost', { path: target, directory: true })
+          break
+
+        case ExplorerNodeGhostType.TEMPLATE:
+          await store.dispatch('templates/ghost')
+          break
+
+        case ExplorerNodeGhostType.ACTION:
+          await store.dispatch('actions/ghost')
+          break
+      }
     },
     delete: async function (path) {
       await store.dispatch('files/delete', { path })
     },
     submit: async (state) => await store.dispatch('files/submit', state),
-    blur: async (state) => await store.dispatch('files/blur'),
+    blur: async (state) => await store.dispatch('files/blur', state),
     drag: async function (state) {
       this.hold = state
     },
     drop: async function (state) {
       await store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
     },
-    populate: async (state) => await store.dispatch('files/populate', state),
     template: async (state) => await store.dispatch('templates/execute', state),
     action: async (state) => await store.dispatch('actions/execute', state)
   },

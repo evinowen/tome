@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <system-bar title="tome" @settings="settings = !settings" />
+    <system-bar title="tome" :settings=settings @settings="settings = !settings" />
 
     <settings v-model="settings" />
 
@@ -25,7 +25,6 @@
 
     <context-menu-service
       v-model=context.visible
-      @close="context.visible = false"
       :title=context.title
       :target=context.target
       :items=context.items
@@ -97,10 +96,22 @@
 html, body {
   font-size: 12px !important;
   overflow: hidden !important;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
-.v-application {
+.v-application,
+.v-application--wrap {
   font-family: "Montserrat" !important;
+  overflow: hidden !important;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .v-icon.v-icon {

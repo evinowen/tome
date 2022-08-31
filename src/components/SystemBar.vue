@@ -5,8 +5,8 @@
     style="user-select: none;"
   >
 
-    <v-btn tile icon small @click.stop="$emit('settings')" >
-      <v-icon>mdi-cog</v-icon>
+    <v-btn tile icon small @click.stop="$emit('settings')" :class="[ settings ? 'rotate' : '']" >
+      <v-icon>{{ settings ? 'mdi-cog' : 'mdi-circle-medium' }}</v-icon>
     </v-btn>
 
     <v-spacer></v-spacer>
@@ -49,6 +49,14 @@
   width: 25px;
 }
 
+@-webkit-keyframes rotating {
+  from{ -webkit-transform: rotate(0deg); }
+  to{ -webkit-transform: rotate(360deg); }
+}
+
+.rotate .v-icon {
+  -webkit-animation: rotating 2s linear infinite;
+}
 </style>
 
 <script>
@@ -58,7 +66,8 @@ import store from '@/store'
 export default {
   components: { VBtn, VIcon, VSystemBar, VSpacer },
   props: {
-    title: { type: String, default: '' }
+    title: { type: String, default: '' },
+    settings: { type: Boolean, default: false }
   },
 
   data: () => ({

@@ -1,17 +1,23 @@
 <template>
   <context-menu-node
+    v-if=value
+    v-resize=resize
+    :window_x="window_x"
+    :window_y="window_y"
     :position_x="position_x"
     :position_y="position_y"
     :title=title
     :target=target
     :items=items
-    :value="value"
-    v-on="$listeners"
+    :layer=10000
+    @close="$emit('input', false)"
+    root
     ref="root"
   />
 </template>
 
 <script>
+import { Resize } from 'vuetify/lib'
 import ContextMenuNode from './ContextMenuNode'
 
 export default {
@@ -23,10 +29,18 @@ export default {
     position_x: { type: Number, default: 0 },
     position_y: { type: Number, default: 0 }
   },
-  components: {
-    ContextMenuNode
+  components: { ContextMenuNode },
+  directives: { Resize },
+  data: () => ({
+    window_x: 0,
+    window_y: 0,
+    visible: true
+  }),
+  methods: {
+    resize: function () {
+      this.window_x = window.innerWidth
+      this.window_y = window.innerHeight
+    }
   }
-
 }
-
 </script>

@@ -1,7 +1,7 @@
 <template>
   <v-container fill-height fluid class="main_screen">
     <v-row align="center" justify="center">
-        <v-col class="text-center grey--text text--lighten-2">
+        <v-col class="text-center">
           <slot></slot>
         </v-col>
     </v-row>

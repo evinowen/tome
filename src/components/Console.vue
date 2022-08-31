@@ -21,8 +21,8 @@
         </div>
       </div>
     </v-card>
-    <v-snackbar v-model=detail multi-line centered vertical>
-      <pre>{{ stack }}</pre>
+    <v-snackbar v-model=detail timeout=-1 multi-line centered vertical>
+      <div style="font-family: monospace; white-space: pre-wrap;">{{ stack }}</div>
       <template v-slot:action="{}">
         <v-btn tile small color="primary" @click.stop="detail = false">Done</v-btn>
       </template>

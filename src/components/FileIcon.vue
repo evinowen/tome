@@ -1,0 +1,218 @@
+<template>
+  <v-btn tile text x-small @click.stop="$emit('click')" :class="[ `file-icon-${size}`, `file-icon-button`, disabled ? 'file-icon-disabled' : '' ]">
+    <v-icon
+      :class="[ `file-icon-icon`, expanded ? 'file-icon-expanded' : '', badge ? `file-icon-icon-badged` : '' ]"
+    >
+      {{ icon }}
+    </v-icon>
+    <v-icon v-if="badge"
+      :key=badge
+      :class="[ `file-icon-badge`, expanded ? 'file-icon-expanded' : '', modifier ]"
+      :color="alert ? 'red' : ''"
+    >
+      {{ badge }}
+    </v-icon>
+  </v-btn>
+</template>
+
+<style>
+.file-icon-disabled,
+.file-icon-disabled * {
+  pointer-events: none !important;
+}
+
+:root {
+  --tome-file-icon-small: 1;
+  --tome-file-icon-large: 8;
+}
+
+.file-icon-small {
+  --tome-file-icon-factor: var(--tome-file-icon-small);
+}
+
+.file-icon-large {
+  --tome-file-icon-factor: var(--tome-file-icon-large);
+}
+
+.file-icon-button {
+  --tome-file-icon-button: calc(var(--tome-file-icon-factor) * 18px);
+
+  width: var(--tome-file-icon-button) !important;
+  min-width: var(--tome-file-icon-button) !important;
+  height: var(--tome-file-icon-button) !important;
+  min-height: var(--tome-file-icon-button) !important;
+  padding: 0 !important;
+}
+
+.file-icon-icon {
+  --tome-file-icon-icon: calc(var(--tome-file-icon-factor) * 14px);
+
+  font-size: var(--tome-file-icon-icon) !important;
+}
+
+.file-icon-icon-badged {
+  --tome-file-icon-icon-badged-circle-x: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 9px));
+  --tome-file-icon-icon-badged-circle-y: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 7px));
+  --tome-file-icon-icon-badged-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 9px);
+  --tome-file-icon-icon-badged-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 9px) + 1px);
+
+  mask-image:
+    radial-gradient(
+      circle at var(--tome-file-icon-icon-badged-circle-x) var(--tome-file-icon-icon-badged-circle-y),
+      rgba(0, 0, 0, 0) var(--tome-file-icon-icon-badged-gradient),
+      rgba(0, 0, 0, 1) var(--tome-file-icon-icon-badged-gradient-edge)
+    );
+}
+
+.file-icon-icon-badged.file-icon-expanded {
+  --tome-file-icon-icon-badged-circle-y: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 5px));
+}
+
+.v-icon.v-icon.file-icon-badge {
+  --tome-file-icon-badge: calc(var(--tome-file-icon-factor) * 10px);
+  --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 9px);
+  --tome-file-icon-badge-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 8px);
+  --tome-file-icon-badge-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 8px) + 1px);
+  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * -1.5px);
+  --tome-file-icon-badge-right: calc(var(--tome-file-icon-factor) * 1.5px);
+
+  position: absolute;
+  width: var(--tome-file-icon-badge) !important;
+  min-width: var(--tome-file-icon-badge) !important;
+  height: var(--tome-file-icon-badge) !important;
+  min-height: var(--tome-file-icon-badge) !important;
+  mask-image:
+    radial-gradient(
+      rgba(0, 0, 0, 1) var(--tome-file-icon-badge-gradient),
+      rgba(0, 0, 0, 0) var(--tome-file-icon-badge-gradient-edge)
+    );
+  font-size: var(--tome-file-icon-badge-font) !important;
+  bottom: var(--tome-file-icon-badge-bottom);
+  right: var(--tome-file-icon-badge-right);
+}
+
+.v-icon.v-icon.file-icon-badge.file-icon-expanded {
+  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * -2.5px);
+}
+
+@-webkit-keyframes rotating {
+  from{ -webkit-transform: rotate(0deg); }
+  to{ -webkit-transform: rotate(360deg); }
+}
+
+.file-icon-large .modify-cog {
+  -webkit-animation: rotating 2s linear infinite;
+}
+
+.modify-js {
+  --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 11.25px) !important;
+}
+
+.modify-lock,
+.modify-json {
+  --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 7.5px) !important;
+}
+</style>
+
+<script>
+import { VBtn, VIcon } from 'vuetify/lib'
+
+export default {
+  components: { VBtn, VIcon },
+  props: {
+    path: { type: String },
+    extension: { type: String },
+    relationship: { type: String },
+    directory: { type: Boolean },
+    expanded: { type: Boolean },
+    selected: { type: Boolean },
+    image: { type: Boolean },
+    alert: { type: Boolean },
+    disabled: { type: Boolean, default: false },
+    size: { type: String, default: 'small' }
+  },
+  computed: {
+    system: function () {
+      return ['git', 'tome', 'tome-templates', 'tome-actions'].includes(this.relationship)
+    },
+    icon: function () {
+      if (this.directory) {
+        if (this.relationship === 'root') {
+          return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+        }
+
+        return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
+      }
+
+      if (this.image) {
+        return 'mdi-image'
+      }
+
+      if (this.relationship === 'tome-file') {
+        return 'mdi-file'
+      }
+
+      return 'mdi-newspaper-variant'
+    },
+    badge: function () {
+      const set = () => {
+        switch (this.relationship) {
+          case 'root':
+            return null
+
+          case 'git':
+            return 'mdi-lock'
+
+          case 'tome':
+            return 'mdi-alpha-t-circle'
+
+          case 'tome-feature':
+            return 'mdi-cog'
+
+          case 'tome-action':
+            return 'mdi-play-circle'
+
+          case 'tome-template':
+            return 'mdi-lightning-bolt-circle'
+        }
+
+        if (this.image) {
+          return null
+        }
+
+        if (this.relationship === 'tome-file') {
+          switch (this.extension) {
+            case '.md':
+              return 'mdi-arrow-down-bold-circle'
+
+            case '.js':
+              return 'mdi-language-javascript'
+
+            case '.json':
+              return 'mdi-code-json'
+          }
+        }
+      }
+
+      return set() || (this.alert ? 'mdi-alert-circle' : null)
+    },
+    modifier: function () {
+      switch (this.badge) {
+        case 'mdi-cog':
+          return 'modify-cog'
+
+        case 'mdi-language-javascript':
+          return 'modify-js'
+
+        case 'mdi-lock':
+          return 'modify-lock'
+
+        case 'mdi-code-json':
+          return 'modify-json'
+      }
+
+      return null
+    }
+  }
+}
+</script>

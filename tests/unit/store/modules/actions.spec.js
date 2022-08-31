@@ -23,14 +23,47 @@ describe('store/modules/actions', () => {
   let localVue
   let store
 
+  let files
+  let post
+
+  const message = jest.fn()
+  const error = jest.fn()
+
   beforeEach(() => {
     window._.reset_disk()
 
+    post = null
+    files = {
+      namespaced: true,
+      state: {
+        active: null,
+        content: null,
+        error: null,
+        tree: null,
+        ghost: null,
+        selected: null,
+        editing: false,
+        post: null,
+        watcher: null
+      },
+      actions: {
+        create: jest.fn(),
+        ghost: jest.fn((context, criteria) => {
+          post = criteria.post
+        }),
+        select: jest.fn(),
+        save: jest.fn()
+      }
+    }
+
     localVue = createLocalVue()
     localVue.use(Vuex)
+
     store = new Vuex.Store(cloneDeep({
+      actions: { message, error },
       modules: {
-        actions
+        actions,
+        files
       }
     }))
   })
@@ -48,7 +81,7 @@ describe('store/modules/actions', () => {
   it('should set path and base then load action list when load is dispatched', async () => {
     const project = '/project'
 
-    await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
+    await store.dispatch('actions/load', { path: project })
 
     expect(store.state.actions.path).toEqual(project)
     expect(store.state.actions.base).toEqual('/project/.tome/actions')
@@ -60,10 +93,8 @@ describe('store/modules/actions', () => {
 
     window._.unset_disk('/project/.tome/actions')
 
-    await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
+    await store.dispatch('actions/load', { path: project })
 
-    expect(store.state.actions.path).toBeNull()
-    expect(store.state.actions.base).toBeNull()
     expect(store.state.actions.options).toEqual([])
   })
 
@@ -72,10 +103,8 @@ describe('store/modules/actions', () => {
 
     window._.unset_disk('/project/.tome/actions')
 
-    await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
+    await store.dispatch('actions/load', { path: project })
 
-    expect(store.state.actions.path).toBeNull()
-    expect(store.state.actions.base).toBeNull()
     expect(store.state.actions.options).toEqual([])
   })
 
@@ -84,8 +113,25 @@ describe('store/modules/actions', () => {
     const action = 'example.action.a'
     const target = '/project/first'
 
-    await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
-    await expect(store.dispatch('actions/execute', { name: action, target })).resolves.toBeUndefined()
+    await store.dispatch('actions/load', { path: project })
+    await store.dispatch('actions/execute', { name: action, target })
+
+    expect(message).toHaveBeenCalledTimes(1)
+    expect(error).toHaveBeenCalledTimes(0)
+  })
+
+  it('should provide error if executed action failed when execute is dispatched', async () => {
+    window.api.action_invoke.mockImplementation(() => ({ success: false, message: 'Error Message' }))
+
+    const project = '/project'
+    const action = 'example.action.a'
+    const target = '/project/first'
+
+    await store.dispatch('actions/load', { path: project })
+    await store.dispatch('actions/execute', { name: action, target })
+
+    expect(message).toHaveBeenCalledTimes(0)
+    expect(error).toHaveBeenCalledTimes(1)
   })
 
   it('should fail gracefully when invalid action name is provided when execute is dispatched', async () => {
@@ -93,7 +139,24 @@ describe('store/modules/actions', () => {
     const action = 'example.action.z'
     const target = '/project/first'
 
-    await expect(store.dispatch('actions/load', { path: project })).resolves.toBeUndefined()
-    await expect(store.dispatch('actions/execute', { name: action, target })).resolves.toBeUndefined()
+    await store.dispatch('actions/load', { path: project })
+    await store.dispatch('actions/execute', { name: action, target })
+  })
+
+  it('should trigger a file ghost and post processing when ghost is dispatched', async () => {
+    expect(post).toBeNull()
+    expect(files.actions.ghost).toHaveBeenCalledTimes(0)
+
+    await store.dispatch('actions/ghost')
+
+    expect(post).not.toBeNull()
+    expect(files.actions.ghost).toHaveBeenCalledTimes(1)
+
+    const project = '/project'
+    await post(project)
+
+    expect(files.actions.create).toHaveBeenCalledTimes(1)
+    expect(files.actions.save).toHaveBeenCalledTimes(1)
+    expect(files.actions.select).toHaveBeenCalledTimes(1)
   })
 })

@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import store from '@/store'
 
 import Explorer from '@/components/Explorer.vue'
+import { ExplorerNodeGhostType } from '@/components/ExplorerNode.vue'
 
 import builders from '@/../tests/builders'
 
@@ -248,14 +249,6 @@ describe('Explorer.vue', () => {
     expect(() => wrapper.vm.format(null, true)).toThrow(Error)
   })
 
-  it('should throw an exception for files that have incorrect extension', async () => {
-    const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-    store.dispatch.mockClear()
-
-    expect(() => wrapper.vm.format('file.name.txt')).toThrow(Error)
-  })
-
   it('should throw an exception for items formatted that are titled with invalid symbols', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -300,19 +293,6 @@ describe('Explorer.vue', () => {
     expect(store.dispatch.mock.calls[0][0]).toBe('files/select')
   })
 
-  it('should call store file populate action for item path provided by populate event', async () => {
-    const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-    store.dispatch.mockClear()
-
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.populate({ path: '/project/third' })
-
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toBe('files/populate')
-  })
-
   it('should call store file ghost action for item path provided by create event', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -320,7 +300,7 @@ describe('Explorer.vue', () => {
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
-    await wrapper.vm.create({ target: '/project/third', directory: false })
+    await wrapper.vm.create({ target: '/project/third', type: ExplorerNodeGhostType.FILE })
 
     expect(store.dispatch).toHaveBeenCalledTimes(1)
     expect(store.dispatch.mock.calls[0][0]).toBe('files/ghost')

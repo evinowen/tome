@@ -58,8 +58,22 @@ describe('ExplorerNode.vue', () => {
     expect(wrapper.vm.instance).toBe(wrapper.vm)
   })
 
-  it('should be flagged as system if the filename equals .git', async () => {
-    const wrapper = factory.wrap({ name: '.git' })
+  it('should be flagged as system if the relationship equals root', async () => {
+    const wrapper = factory.wrap({ relationship: 'root' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.system).toEqual(true)
+  })
+
+  it('should be flagged as system if the relationship equals git', async () => {
+    const wrapper = factory.wrap({ relationship: 'git' })
+    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+
+    expect(wrapper.vm.system).toEqual(true)
+  })
+
+  it('should be flagged as system if the relationship equals tome', async () => {
+    const wrapper = factory.wrap({ relationship: 'tome' })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     expect(wrapper.vm.system).toEqual(true)
@@ -423,95 +437,5 @@ describe('ExplorerNode.vue', () => {
     await action()
 
     expect(event).toHaveBeenCalledTimes(1)
-  })
-
-  it('should use root icon when the directory and root flags are true', async () => {
-    const wrapper = factory.wrap({ directory: true, root: true })
-
-    expect(wrapper.vm.icon).toBe('mdi-book')
-  })
-
-  it('should use expanded root icon when the directory and root flags are true while expanded', async () => {
-    const wrapper = factory.wrap({ directory: true, root: true, expanded: true })
-
-    expect(wrapper.vm.icon).toBe('mdi-book-open-page-variant')
-  })
-
-  it('should use directory icon when the directory flag but not root flag is true', async () => {
-    const wrapper = factory.wrap({ directory: true, root: false })
-
-    expect(wrapper.vm.icon).toBe('mdi-folder')
-  })
-
-  it('should use directory icon when the directory flag but not root flag is true, but title format check fails', async () => {
-    format.mockImplementationOnce(() => { throw new Error() })
-
-    const wrapper = factory.wrap({ directory: true, root: false })
-
-    expect(wrapper.vm.icon).toBe('mdi-folder-outline')
-  })
-
-  it('should use expanded directory icon when the directory flag but not root flag is true while expanded', async () => {
-    const wrapper = factory.wrap({ directory: true, root: false, expanded: true })
-
-    expect(wrapper.vm.icon).toBe('mdi-folder-open')
-  })
-
-  it('should use expanded directory icon when the directory flag but not root flag is true while expanded, but title format check fails', async () => {
-    format.mockImplementationOnce(() => { throw new Error() })
-
-    const wrapper = factory.wrap({ directory: true, root: false, expanded: true })
-
-    expect(wrapper.vm.icon).toBe('mdi-folder-open-outline')
-  })
-
-  it('should use file icon when both the directory and root flags are not true', async () => {
-    const wrapper = factory.wrap({ directory: false, root: false })
-
-    expect(wrapper.vm.icon).toBe('mdi-file')
-  })
-
-  it('should use file outline icon when both the directory and root flags are not true, but title format check fails', async () => {
-    format.mockImplementationOnce(() => { throw new Error() })
-
-    const wrapper = factory.wrap({ directory: false, root: false })
-
-    expect(wrapper.vm.icon).toBe('mdi-file-outline')
-  })
-
-  it('should translate template options into context menu items when templates are loaded', async () => {
-    const wrapper = factory.wrap({ directory: false, root: false })
-
-    const items = await wrapper.vm.load_templates()
-    expect(items).not.toBeNull()
-    expect(items.length).toBe(3)
-
-    const event = jest.fn()
-    wrapper.vm.$on('template', event)
-
-    expect(event).toHaveBeenCalledTimes(0)
-
-    await items[0].action('/project/first')
-
-    expect(event).toHaveBeenCalledTimes(1)
-  })
-
-  it('should translate action options into context menu items when actions are loaded', async () => {
-    const wrapper = factory.wrap({ directory: false, root: false })
-
-    const items = await wrapper.vm.load_actions()
-    expect(items).not.toBeNull()
-    expect(items.length).toBe(3)
-
-    const event = jest.fn()
-    wrapper.vm.$on('action', event)
-
-    expect(event).toHaveBeenCalledTimes(0)
-
-    await items[0].action('/project/first')
-
-    expect(event).toHaveBeenCalledTimes(1)
-
-    await items[0].action('/project/first')
   })
 })

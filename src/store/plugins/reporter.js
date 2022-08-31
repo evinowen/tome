@@ -1,8 +1,6 @@
 export default store => {
   const dispatch = store.dispatch
-  store.dispatch = (type, ...params) => {
-    return dispatch.apply(store, [type, ...params]).catch((error) => {
-      store.dispatch('error', error)
-    })
+  store.dispatch = async (...params) => {
+    return new Promise(resolve => resolve(dispatch(...params))).catch((error) => dispatch('error', error))
   }
 }

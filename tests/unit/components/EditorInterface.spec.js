@@ -89,6 +89,13 @@ describe('EditorInterface.vue', () => {
         tree: null,
         ghost: null,
         selected: {
+          path: '/project/path.md',
+          name: 'path.md',
+          relative: 'path.md',
+          extension: '.md',
+          image: false,
+          directory: false,
+          expanded: false,
           readonly: false,
           document: {
             content: '# README\n'
@@ -155,25 +162,6 @@ describe('EditorInterface.vue', () => {
     await wrapper.vm.input()
 
     expect(event).toHaveBeenCalledTimes(1)
-  })
-
-  it('should update the interface to plain text on refresh when document is read only', async () => {
-    const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    store.state.files.selected.readonly = true
-    wrapper.vm.$options.computed.readonly.call(wrapper.vm, true)
-
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-    await wrapper.vm.refresh()
-
-    expect(codemirror.setOption).toHaveBeenCalledTimes(2)
-
-    expect(codemirror.setOption.mock.calls[0][0]).toBe('readOnly')
-    expect(codemirror.setOption.mock.calls[0][1]).toBe(true)
-
-    expect(codemirror.setOption.mock.calls[1][0]).toBe('mode')
-    expect(codemirror.setOption.mock.calls[1][1]).toBeNull()
   })
 
   it('should render current content using marked', async () => {

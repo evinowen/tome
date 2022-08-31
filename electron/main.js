@@ -1,19 +1,30 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 
 const path = require('path')
 
-require('./components/clipboard').register()
-require('./components/file').register()
-require('./components/git').register()
-require('./components/metadata').register()
-require('./components/path').register()
-require('./components/ssl').register()
-require('./components/window').register()
+const register = (win) => {
+  ipcMain.removeAllListeners()
+
+  require('./components/actions').register(win)
+  require('./components/clipboard').register(win)
+  require('./components/file').register(win)
+  require('./components/git').register(win)
+  require('./components/metadata').register(win)
+  require('./components/path').register(win)
+  require('./components/ssl').register(win)
+  require('./components/templates').register(win)
+  require('./components/window').register(win)
+}
 
 let win = null
 
 const createWindow = () => {
+  let development = false
   let frame = false
+
+  if (process.env.NODE_ENV === 'development') {
+    development = true
+  }
 
   if (process.env.FRAME_WINDOW) {
     frame = true
@@ -24,15 +35,17 @@ const createWindow = () => {
     height: 600,
     frame,
     show: false,
-    backgroundColor: 'transparent',
     webPreferences: {
+      webSecurity: !development,
       nodeIntegration: true,
       contextIsolation: false,
       preload: path.join(__dirname, 'preload.js')
     }
   })
 
-  if (process.env.NODE_ENV === 'development') {
+  register(win)
+
+  if (development) {
     win.loadURL('http://localhost:8080/')
   } else {
     win.loadFile('index.html')
