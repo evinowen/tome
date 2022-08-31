@@ -2,7 +2,7 @@
   <v-footer
     app
     class="pa-0"
-    style="position: absolute; z-index: 1000;"
+    style="position: fixed; z-index: 1000;"
     height=18
   >
     <library-button v-model=library @open=open @close="$emit('close')" :disabled="disabled_unless()" />

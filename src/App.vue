@@ -96,10 +96,22 @@
 html, body {
   font-size: 12px !important;
   overflow: hidden !important;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
-.v-application {
+.v-application,
+.v-application--wrap {
   font-family: "Montserrat" !important;
+  overflow: hidden !important;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .v-icon.v-icon {
