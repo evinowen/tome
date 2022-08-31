@@ -17,6 +17,9 @@ describe('store/modules/templates', () => {
   let files
   let post
 
+  const message = jest.fn()
+  const error = jest.fn()
+
   beforeEach(() => {
     window._.reset_disk()
 
@@ -39,6 +42,7 @@ describe('store/modules/templates', () => {
         ghost: jest.fn((context, criteria) => {
           post = criteria.post
         }),
+        load: jest.fn(),
         select: jest.fn(),
         save: jest.fn()
       }
@@ -46,10 +50,9 @@ describe('store/modules/templates', () => {
 
     localVue = createLocalVue()
     localVue.use(Vuex)
+
     store = new Vuex.Store(cloneDeep({
-      actions: {
-        message: jest.fn()
-      },
+      actions: { message, error },
       modules: {
         files,
         templates
@@ -108,6 +111,39 @@ describe('store/modules/templates', () => {
 
     await store.dispatch('templates/load', { path: project })
     await store.dispatch('templates/execute', { name: template, target })
+
+    expect(message).toHaveBeenCalledTimes(1)
+    expect(error).toHaveBeenCalledTimes(0)
+  })
+
+  it('should dispatch load and select if result is returned from template when execute is dispatched', async () => {
+    window.api.template_invoke.mockImplementation(() => ({ success: true, result: '/path' }))
+
+    const project = '/project'
+    const template = 'example.template.a'
+    const target = '/project/first'
+
+    await store.dispatch('templates/load', { path: project })
+    await store.dispatch('templates/execute', { name: template, target })
+
+    expect(message).toHaveBeenCalledTimes(1)
+    expect(error).toHaveBeenCalledTimes(0)
+    expect(files.actions.load).toHaveBeenCalledTimes(1)
+    expect(files.actions.select).toHaveBeenCalledTimes(1)
+  })
+
+  it('should provide error if executed template failed when execute is dispatched', async () => {
+    window.api.template_invoke.mockImplementation(() => ({ success: false, message: 'Error Message' }))
+
+    const project = '/project'
+    const template = 'example.template.a'
+    const target = '/project/first'
+
+    await store.dispatch('templates/load', { path: project })
+    await store.dispatch('templates/execute', { name: template, target })
+
+    expect(message).toHaveBeenCalledTimes(0)
+    expect(error).toHaveBeenCalledTimes(1)
   })
 
   it('should fail gracefully when invalid template name is provided when execute is dispatched', async () => {

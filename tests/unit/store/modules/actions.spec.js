@@ -26,6 +26,9 @@ describe('store/modules/actions', () => {
   let files
   let post
 
+  const message = jest.fn()
+  const error = jest.fn()
+
   beforeEach(() => {
     window._.reset_disk()
 
@@ -55,10 +58,9 @@ describe('store/modules/actions', () => {
 
     localVue = createLocalVue()
     localVue.use(Vuex)
+
     store = new Vuex.Store(cloneDeep({
-      actions: {
-        message: jest.fn()
-      },
+      actions: { message, error },
       modules: {
         actions,
         files
@@ -93,8 +95,6 @@ describe('store/modules/actions', () => {
 
     await store.dispatch('actions/load', { path: project })
 
-    expect(store.state.actions.path).toBeNull()
-    expect(store.state.actions.base).toBeNull()
     expect(store.state.actions.options).toEqual([])
   })
 
@@ -105,8 +105,6 @@ describe('store/modules/actions', () => {
 
     await store.dispatch('actions/load', { path: project })
 
-    expect(store.state.actions.path).toBeNull()
-    expect(store.state.actions.base).toBeNull()
     expect(store.state.actions.options).toEqual([])
   })
 
@@ -117,6 +115,23 @@ describe('store/modules/actions', () => {
 
     await store.dispatch('actions/load', { path: project })
     await store.dispatch('actions/execute', { name: action, target })
+
+    expect(message).toHaveBeenCalledTimes(1)
+    expect(error).toHaveBeenCalledTimes(0)
+  })
+
+  it('should provide error if executed action failed when execute is dispatched', async () => {
+    window.api.action_invoke.mockImplementation(() => ({ success: false, message: 'Error Message' }))
+
+    const project = '/project'
+    const action = 'example.action.a'
+    const target = '/project/first'
+
+    await store.dispatch('actions/load', { path: project })
+    await store.dispatch('actions/execute', { name: action, target })
+
+    expect(message).toHaveBeenCalledTimes(0)
+    expect(error).toHaveBeenCalledTimes(1)
   })
 
   it('should fail gracefully when invalid action name is provided when execute is dispatched', async () => {
