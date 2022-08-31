@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <system-bar title="tome" @settings="settings = !settings" />
+    <system-bar title="tome" :settings=settings @settings="settings = !settings" />
 
     <settings v-model="settings" />
 
