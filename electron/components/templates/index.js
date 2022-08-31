@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const { cloneDeep } = require('lodash')
 const Mustache = require('mustache')
-const { dir } = require('console')
+const is_text_path = require('is-text-path')
 
 const TemplateFileType = {
   INACCESSABLE: -1,
@@ -52,6 +52,10 @@ class TemplateFile {
     }
   }
 
+  text () {
+    return is_text_path(this.path.target.absolute)
+  }
+
   async type () {
     const stats = await new Promise(
       (resolve) => fs.lstat(this.path.target.absolute, (error, stats) => error ? resolve(null) : resolve(stats))
@@ -86,6 +90,12 @@ class TemplateFile {
   async mkdir () {
     return await new Promise(
       (resolve, reject) => fs.mkdir(this.path.target.absolute, (error) => error ? reject(error) : resolve(true))
+    )
+  }
+
+  async copy (target) {
+    return await new Promise(
+      (resolve, reject) => fs.copyFile(this.path.target.absolute, target, (error, data) => error ? reject(error) : resolve(true))
     )
   }
 
@@ -223,18 +233,22 @@ class Template {
         throw new Error(`Template file ${this.destination.path.target.absolute} already exists and would be overwritten`)
     }
 
-    const raw = await this.source.read()
+    if (this.source.text()) {
+      const raw = await this.source.read()
 
-    const metadata = {
-      config,
-      source: this.source.path.target.absolute,
-      desination: this.destination.path.target.absolute,
-      ...compute
+      const metadata = {
+        config,
+        source: this.source.path.target.absolute,
+        desination: this.destination.path.target.absolute,
+        ...compute
+      }
+
+      const rendered = Mustache.render(raw, metadata)
+
+      await this.destination.write(rendered)
+    } else {
+      await this.source.copy(this.destination.path.target.absolute)
     }
-
-    const rendered = Mustache.render(raw, metadata)
-
-    await this.destination.write(rendered)
 
     return null
   }
