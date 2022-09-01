@@ -246,13 +246,7 @@ export default {
 
       return item
     },
-    blur: async function (context, criteria) {
-      const item = await context.dispatch('identify', criteria)
-
-      if (item !== context.state.selected) {
-        return null
-      }
-
+    blur: async function (context) {
       context.commit('edit', { edit: false })
       context.commit('blur')
 

@@ -34,7 +34,7 @@
               v-model=input
               dense small autofocus
               :rules=rules
-              @blur="$emit('blur', { path })"
+              @blur="$emit('blur')"
               @focus=focus
               @input="error = null"
               @keyup.enter="valid ? submit() : null"
