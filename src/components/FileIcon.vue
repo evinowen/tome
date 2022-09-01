@@ -6,7 +6,7 @@
       {{ icon }}
     </v-icon>
     <v-icon v-if="badge"
-      :key=badge
+      :key=path
       :class="[ `file-icon-badge`, expanded ? 'file-icon-expanded' : '', modifier ]"
       :color="alert ? 'red' : ''"
     >
@@ -71,8 +71,8 @@
 .v-icon.v-icon.file-icon-badge {
   --tome-file-icon-badge: calc(var(--tome-file-icon-factor) * 10px);
   --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 9px);
-  --tome-file-icon-badge-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 8px);
-  --tome-file-icon-badge-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 8px) + 1px);
+  --tome-file-icon-badge-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 7px);
+  --tome-file-icon-badge-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 7px) + 1px);
   --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * -1.5px);
   --tome-file-icon-badge-right: calc(var(--tome-file-icon-factor) * 1.5px);
 
@@ -102,6 +102,14 @@
 
 .file-icon-large .modify-cog {
   -webkit-animation: rotating 2s linear infinite;
+}
+
+.modify-book {
+  --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 12px) !important;
+}
+
+.modify-eye {
+  --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 10px) !important;
 }
 
 .modify-js {
@@ -164,9 +172,10 @@ export default {
             return 'mdi-lock'
 
           case 'tome':
-            return 'mdi-alpha-t-circle'
+            return this.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
 
-          case 'tome-feature':
+          case 'tome-feature-actions':
+          case 'tome-feature-templates':
             return 'mdi-cog'
 
           case 'tome-action':
@@ -200,6 +209,9 @@ export default {
       switch (this.badge) {
         case 'mdi-cog':
           return 'modify-cog'
+
+        case 'mdi-eye-circle':
+          return 'modify-eye'
 
         case 'mdi-language-javascript':
           return 'modify-js'
