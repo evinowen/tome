@@ -35,7 +35,7 @@
 }
 
 .file-icon-button {
-  --tome-file-icon-button: calc(var(--tome-file-icon-factor) * 18px);
+  --tome-file-icon-button: calc(var(--tome-file-icon-factor) * 20px);
 
   width: var(--tome-file-icon-button) !important;
   min-width: var(--tome-file-icon-button) !important;
@@ -51,7 +51,7 @@
 }
 
 .file-icon-icon-badged {
-  --tome-file-icon-icon-badged-circle-x: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 9px));
+  --tome-file-icon-icon-badged-circle-x: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 10px));
   --tome-file-icon-icon-badged-circle-y: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 7px));
   --tome-file-icon-icon-badged-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 9px);
   --tome-file-icon-icon-badged-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 9px) + 1px);
@@ -73,8 +73,8 @@
   --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 9px);
   --tome-file-icon-badge-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 7px);
   --tome-file-icon-badge-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 7px) + 1px);
-  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * -1.5px);
-  --tome-file-icon-badge-right: calc(var(--tome-file-icon-factor) * 1.5px);
+  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * 0.5 * -3px);
+  --tome-file-icon-badge-right: calc(var(--tome-file-icon-factor) * 0.5 * 6px);
 
   position: absolute;
   width: var(--tome-file-icon-badge) !important;
