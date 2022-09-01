@@ -48,6 +48,7 @@ describe('store/modules/actions', () => {
       },
       actions: {
         create: jest.fn(),
+        identify: jest.fn((context, criteria) => ({})),
         ghost: jest.fn((context, criteria) => {
           post = criteria.post
         }),
@@ -73,8 +74,7 @@ describe('store/modules/actions', () => {
   })
 
   it('should populate empty values when initalized', async () => {
-    expect(store.state.actions.path).toBeNull()
-    expect(store.state.actions.base).toBeNull()
+    expect(store.state.actions.target).toBeNull()
     expect(store.state.actions.options).toEqual([])
   })
 
@@ -83,8 +83,9 @@ describe('store/modules/actions', () => {
 
     await store.dispatch('actions/load', { path: project })
 
-    expect(store.state.actions.path).toEqual(project)
-    expect(store.state.actions.base).toEqual('/project/.tome/actions')
+    expect(store.state.actions.target).not.toBeNull()
+    expect(store.state.actions.target.base).toEqual(project)
+    expect(store.state.actions.target.absolute).toEqual('/project/.tome/actions')
     expect(store.state.actions.options.length).toBeGreaterThan(0)
   })
 
@@ -95,6 +96,8 @@ describe('store/modules/actions', () => {
 
     await store.dispatch('actions/load', { path: project })
 
+    expect(store.state.actions.target).not.toBeNull()
+    expect(store.state.actions.target.base).toEqual(project)
     expect(store.state.actions.options).toEqual([])
   })
 
@@ -105,6 +108,8 @@ describe('store/modules/actions', () => {
 
     await store.dispatch('actions/load', { path: project })
 
+    expect(store.state.actions.target).not.toBeNull()
+    expect(store.state.actions.target.base).toEqual(project)
     expect(store.state.actions.options).toEqual([])
   })
 
@@ -144,6 +149,10 @@ describe('store/modules/actions', () => {
   })
 
   it('should trigger a file ghost and post processing when ghost is dispatched', async () => {
+    const project = '/project'
+
+    await store.dispatch('actions/load', { path: project })
+
     expect(post).toBeNull()
     expect(files.actions.ghost).toHaveBeenCalledTimes(0)
 
@@ -152,7 +161,6 @@ describe('store/modules/actions', () => {
     expect(post).not.toBeNull()
     expect(files.actions.ghost).toHaveBeenCalledTimes(1)
 
-    const project = '/project'
     await post(project)
 
     expect(files.actions.create).toHaveBeenCalledTimes(1)

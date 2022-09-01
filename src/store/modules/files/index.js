@@ -53,7 +53,7 @@ export default {
       const { edit } = data
       state.editing = edit
 
-      if (!state.editing && state.selected.ephemeral) {
+      if (!state.editing && state.selected?.ephemeral) {
         const { parent } = state.ghost
         parent.exercise()
         state.ghost = null
@@ -114,6 +114,10 @@ export default {
 
       if (item) {
         return item
+      }
+
+      if (path === context.state.tree.base.path) {
+        return context.state.tree.base
       }
 
       const relative = await context.state.tree.relative(path)
@@ -246,13 +250,7 @@ export default {
 
       return item
     },
-    blur: async function (context, criteria) {
-      const item = await context.dispatch('identify', criteria)
-
-      if (item !== context.state.selected) {
-        return null
-      }
-
+    blur: async function (context) {
       context.commit('edit', { edit: false })
       context.commit('blur')
 

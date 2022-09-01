@@ -39,6 +39,7 @@ describe('store/modules/templates', () => {
       },
       actions: {
         create: jest.fn(),
+        identify: jest.fn((context, criteria) => ({})),
         ghost: jest.fn((context, criteria) => {
           post = criteria.post
         }),
@@ -65,8 +66,7 @@ describe('store/modules/templates', () => {
   })
 
   it('should populate empty values when initalized', async () => {
-    expect(store.state.templates.path).toBeNull()
-    expect(store.state.templates.base).toBeNull()
+    expect(store.state.templates.target).toBeNull()
     expect(store.state.templates.options).toEqual([])
   })
 
@@ -75,8 +75,9 @@ describe('store/modules/templates', () => {
 
     await store.dispatch('templates/load', { path: project })
 
-    expect(store.state.templates.path).toEqual(project)
-    expect(store.state.templates.base).toEqual('/project/.tome/templates')
+    expect(store.state.templates.target).not.toBeNull()
+    expect(store.state.templates.target.base).toEqual(project)
+    expect(store.state.templates.target.absolute).toEqual('/project/.tome/templates')
     expect(store.state.templates.options.length).toBeGreaterThan(0)
   })
 
@@ -87,8 +88,8 @@ describe('store/modules/templates', () => {
 
     await store.dispatch('templates/load', { path: project })
 
-    expect(store.state.templates.path).toBeNull()
-    expect(store.state.templates.base).toBeNull()
+    expect(store.state.templates.target).not.toBeNull()
+    expect(store.state.templates.target.base).toEqual(project)
     expect(store.state.templates.options).toEqual([])
   })
 
@@ -99,8 +100,8 @@ describe('store/modules/templates', () => {
 
     await store.dispatch('templates/load', { path: project })
 
-    expect(store.state.templates.path).toBeNull()
-    expect(store.state.templates.base).toBeNull()
+    expect(store.state.templates.target).not.toBeNull()
+    expect(store.state.templates.target.base).toEqual(project)
     expect(store.state.templates.options).toEqual([])
   })
 
@@ -156,6 +157,10 @@ describe('store/modules/templates', () => {
   })
 
   it('should trigger a file ghost and post processing when ghost is dispatched', async () => {
+    const project = '/project'
+
+    await store.dispatch('templates/load', { path: project })
+
     expect(post).toBeNull()
     expect(files.actions.ghost).toHaveBeenCalledTimes(0)
 
@@ -163,8 +168,6 @@ describe('store/modules/templates', () => {
 
     expect(post).not.toBeNull()
     expect(files.actions.ghost).toHaveBeenCalledTimes(1)
-
-    const project = '/project'
     await post(project)
 
     expect(files.actions.create).toHaveBeenCalledTimes(2)

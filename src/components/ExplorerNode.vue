@@ -34,7 +34,7 @@
               v-model=input
               dense small autofocus
               :rules=rules
-              @blur="$emit('blur', { path })"
+              @blur="$emit('blur')"
               @focus=focus
               @input="error = null"
               @keyup.enter="valid ? submit() : null"
@@ -311,14 +311,14 @@ export default {
 
       const special = []
 
-      if (['tome', 'tome-templates'].includes(this.relationship)) {
+      if (['root', 'tome', 'tome-feature-templates'].includes(this.relationship)) {
         special.push({
           title: 'New Template',
           action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path })
         })
       }
 
-      if (['tome', 'tome-actions'].includes(this.relationship)) {
+      if (['root', 'tome', 'tome-feature-actions'].includes(this.relationship)) {
         special.push({
           title: 'New Action',
           action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.ACTION, target: path })
@@ -375,8 +375,8 @@ export default {
       ]
 
       push(this.directory ? expand : [])
-      push(this.system ? [] : script)
       push(special.length && this.system ? special : [])
+      push(this.system && !this.root ? [] : script)
       push(file)
       push(clipboard)
       push(move)
