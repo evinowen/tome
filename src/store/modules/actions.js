@@ -9,8 +9,6 @@ const create = (context) => async (path) => {
 
   await context.dispatch('files/select', { item: index_item }, { root: true })
 
-  await context.dispatch('load', { path: index_item }, { root: true })
-
   await context.dispatch('load', { path: context.state.target.base })
 }
 
