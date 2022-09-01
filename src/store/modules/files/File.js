@@ -40,7 +40,8 @@ export default class File {
     Root: 'root',
     Git: 'git',
     Tome: 'tome',
-    TomeFeature: 'tome-feature',
+    TomeFeatureTemplates: 'tome-feature-templates',
+    TomeFeatureActions: 'tome-feature-actions',
     TomeTemplate: 'tome-template',
     TomeAction: 'tome-action',
     TomeFile: 'tome-file'
@@ -53,12 +54,22 @@ export default class File {
       '.tome': {
         map: {
           base: File.System.Tome,
-          child: File.System.TomeFeature,
           descendant: File.System.TomeFile
         },
         children: {
-          'templates': { map: { child: File.System.TomeTemplate } },
-          'actions': { map: { child: File.System.TomeAction } }
+          'templates': {
+            map: {
+              base: File.System.TomeFeatureTemplates,
+              child: File.System.TomeTemplate
+            }
+          },
+          'actions': {
+            base: File.System.TomeFeatureActions,
+            map: {
+              base: File.System.TomeFeatureTemplates,
+              child: File.System.TomeAction
+            }
+          }
         }
       }
     }
