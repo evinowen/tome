@@ -1,14 +1,50 @@
 <template>
-  <div>
-    <!-- <v-icon v-if=hide class="failed">mdi-cancel</v-icon> -->
+  <div ref="preview"
+    :class="[ 'image-preview', zoom ? 'image-preview-zoom' : '' ]"
+  >
     <file-icon v-if=hide size="large" image alert disabled />
-    <img v-else :src="src" @error="error" />
+    <img v-else
+      :src=src
+      :class="[ 'preview', zoom ? 'preview-zoom' : '' ]"
+      @click=click
+      @error=error
+    />
   </div>
 </template>
 
 <style scoped>
+.image-preview {
+  overflow: overlay;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.image-preview-zoom {
+  overflow: overlay;
+  display: flex;
+  align-items: flex-start;
+  justify-content: start;
+  height: 100%;
+}
+
 .preview {
-  max-width: 100%;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.5);
+  margin: auto;
+  width: auto;
+  height: auto;
+  max-width: 95%;
+  max-height: 95%;
+  cursor: zoom-in;
+}
+
+.preview-zoom {
+  width: auto;
+  height: auto;
+  max-width: unset;
+  max-height: unset;
+  cursor: zoom-out;
 }
 
 .failed {
@@ -19,7 +55,6 @@
 </style>
 
 <script>
-// import { VIcon } from 'vuetify/lib'
 import FileIcon from '@/components/FileIcon.vue'
 
 export default {
@@ -28,11 +63,33 @@ export default {
     src: { type: String }
   },
   data: () => ({
-    hide: false
+    hide: false,
+    zoom: false
   }),
   methods: {
     error: function () {
       this.hide = true
+    },
+    click: async function (event) {
+      console.log('test!')
+      console.log(event.target.offsetWidth, event.target.offsetHeight)
+
+      const scroll_x = event.offsetX / event.target.offsetWidth
+      const scroll_y = event.offsetY / event.target.offsetHeight
+
+      this.zoom = !this.zoom
+      await this.$nextTick()
+
+      console.log(event.target.offsetWidth, event.target.offsetHeight)
+
+      console.log(scroll_x, scroll_x * event.target.offsetWidth)
+      console.log(scroll_y, scroll_y * event.target.offsetHeight)
+
+      const top = (scroll_y * event.target.offsetHeight) - (this.$refs.preview.offsetHeight * 0.5)
+      const left = (scroll_x * event.target.offsetWidth) - (this.$refs.preview.offsetWidth * 0.5)
+      const behavior = 'instant'
+
+      this.$refs.preview.scrollTo({ top, left, behavior })
     }
   }
 }

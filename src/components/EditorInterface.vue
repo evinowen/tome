@@ -26,10 +26,10 @@
           />
         </div>
         <div class="fill-height" v-show="view === 'empty'">
-          <empty-view class="fill-height">
-            <div v-if=selected>
-              <image-preview v-if=selected.image :src=selected.path />
-              <file-icon v-else
+          <template v-if=selected>
+            <image-preview v-if=selected.image :src=selected.path />
+            <empty-view  v-else class="fill-height">
+              <file-icon
                 :path=selected.path
                 :directory=selected.directory
                 :extension=selected.extension
@@ -42,8 +42,8 @@
               <v-divider v-if=selected.name class="mt-4" />
               <div style="font-size: 2em;">{{ selected.name }}</div>
               <div style="font-size: 1.3em; opacity: 0.6">{{ selected.relative }}</div>
-            </div>
-          </empty-view>
+            </empty-view>
+          </template>
         </div>
       </div>
     </template>

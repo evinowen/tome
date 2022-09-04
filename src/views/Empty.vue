@@ -1,5 +1,5 @@
 <template>
-  <v-container fill-height fluid class="main_screen">
+  <v-container fill-height fluid class="view">
     <v-row align="center" justify="center">
         <v-col class="text-center">
           <slot></slot>
@@ -9,8 +9,8 @@
 
 </template>
 
-<style>
-.main_screen {
+<style scoped>
+.view {
   background-image:
     repeating-linear-gradient(
       45deg,
