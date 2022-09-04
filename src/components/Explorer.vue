@@ -1,37 +1,51 @@
 <template>
-  <explorer-node v-if=root
-    root
-    :name=tome.name
-    :path=tome.path
-    :active=active
-    :edit=editing
-    :enabled=enabled
-    :title=configuration.format_titles
-    :format=format
-    :hold=hold
-    :relationship=root.relationship
-    :children=root.children
-    :expanded=root.expanded
+  <div class="explorer-root">
+    <explorer-node v-if=root
+      root
+      :name=tome.name
+      :path=tome.path
+      :active=active
+      :edit=editing
+      :enabled=enabled
+      :title=configuration.format_titles
+      :format=format
+      :hold=hold
+      :relationship=root.relationship
+      :children=root.children
+      :expanded=root.expanded
 
-    @context="$emit('context', $event)"
-    @select=select
-    @paste="$emit('paste', $event)"
+      @context="$emit('context', $event)"
+      @select=select
+      @paste="$emit('paste', $event)"
 
-    @toggle=toggle
-    @open=open
-    @edit=edit
-    @submit=submit
-    @blur=blur
-    @drag=drag
-    @drop=drop
-    @create=create
+      @toggle=toggle
+      @open=open
+      @edit=edit
+      @submit=submit
+      @blur=blur
+      @drag=drag
+      @drop=drop
+      @create=create
 
-    @template=template
-    @action=action
+      @template=template
+      @action=action
 
-    ref="explorer_root"
-  />
+      ref="explorer_root"
+    />
+  </div>
 </template>
+
+<style>
+/* .explorer-root {
+  margin-left: 3px;
+  border-left: 1px dotted rgba(128, 128, 128, 0.2)
+} */
+.explorer-root {
+  /* padding-left: 3px; */
+  border-left:4px solid rgba(128, 128, 128, 0.1);
+  height: 100%;
+}
+</style>
 
 <script>
 import store from '@/store'

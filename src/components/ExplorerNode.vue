@@ -15,6 +15,7 @@
         @click.left.stop="$emit('select', { path })"
         @click.right.stop="locked || $emit('context', { instance, event: $event })"
       >
+        <v-flex shrink class="explorer-node-indent" :style="{ width: `${depth * 6}px`}" ></v-flex>
         <file-icon
           class="mr-1"
           :path=path
@@ -69,6 +70,7 @@
         :enabled=enabled
         :title=title
 
+        :depth="depth + 1"
         v-on="$listeners"
       />
     </v-container>
@@ -126,7 +128,7 @@
 
 .explorer-node-drop {
   height: 18px;
-  margin: 2px 2px 0 0;
+  margin: 0;
   text-overflow: ellipsis;
 }
 
@@ -184,12 +186,11 @@
 }
 
 .explorer-node-container {
-  border: dotted black;
-  border-width: 0 0 0 1px;
+  border: none;
   width: auto !important;
   min-height: 8px;
-  padding: 0 0 0 4px !important;
-  margin: 0 0 6px 4px !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .explorer-node:hover {
@@ -251,7 +252,8 @@ export default {
     format: { type: Function },
     directory: { type: Boolean, default: true },
     children: { type: Array },
-    root: { type: Boolean }
+    root: { type: Boolean },
+    depth: { type: Number, default: 0 }
   },
   data: () => ({
     valid: false,
