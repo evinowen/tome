@@ -120,6 +120,11 @@
 .modify-json {
   --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 7.5px) !important;
 }
+
+.v-btn.file-icon-button:active .modify-lock,
+.modify-lock:active {
+  color: darkorange !important;
+}
 </style>
 
 <script>
