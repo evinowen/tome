@@ -71,19 +71,11 @@ export default {
       this.hide = true
     },
     click: async function (event) {
-      console.log('test!')
-      console.log(event.target.offsetWidth, event.target.offsetHeight)
-
       const scroll_x = event.offsetX / event.target.offsetWidth
       const scroll_y = event.offsetY / event.target.offsetHeight
 
       this.zoom = !this.zoom
       await this.$nextTick()
-
-      console.log(event.target.offsetWidth, event.target.offsetHeight)
-
-      console.log(scroll_x, scroll_x * event.target.offsetWidth)
-      console.log(scroll_y, scroll_y * event.target.offsetHeight)
 
       const top = (scroll_y * event.target.offsetHeight) - (this.$refs.preview.offsetHeight * 0.5)
       const left = (scroll_x * event.target.offsetWidth) - (this.$refs.preview.offsetWidth * 0.5)
