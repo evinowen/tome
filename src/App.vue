@@ -82,11 +82,11 @@
 }
 
 ::-webkit-scrollbar-corner {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0,0,0,0.1);
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0,0,0,0.1);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -94,6 +94,7 @@
 }
 
 html, body {
+  scrollbar-gutter: auto;
   font-size: 12px !important;
   overflow: hidden !important;
   position: fixed;

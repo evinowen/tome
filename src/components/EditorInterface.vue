@@ -1,7 +1,7 @@
 <template>
   <split-pane :min-percent='5' :default-percent='25' split="vertical">
     <template slot="paneL">
-      <div class="fit" style="overflow-y: scroll;">
+      <div class="fit" style="overflow-y: overlay;">
         <explorer ref="explorer" :enabled=explore @context="$emit('context', $event)" />
       </div>
     </template>
