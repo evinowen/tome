@@ -84,7 +84,7 @@
   margin: 12px;
   margin-top: 0px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: overlay;
   border-top: 1px dotted rgba(0, 0, 0, 0.2);
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
   color: var(--v-secondary-lighten5) !important;
