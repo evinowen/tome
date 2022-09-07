@@ -2,7 +2,7 @@
   <split-pane :min-percent='5' :default-percent='25' split="vertical">
     <template slot="paneL">
       <div class="fit" style="overflow-y: overlay;">
-        <explorer ref="explorer" :enabled=explore @context="$emit('context', $event)" />
+        <explorer ref="explorer" :enabled=explore />
       </div>
     </template>
 
@@ -14,7 +14,7 @@
             id="editor-interface-rendered"
             class="pa-2"
             v-html="rendered"
-            @contextmenu="$emit('context', { selection: { context }, event: $event })"
+            @contextmenu=context
           />
         </div>
         <div class="fill-height" v-show="view === 'edit'">
@@ -22,13 +22,13 @@
             ref="editor"
             :options="codemirror_options"
             @inputRead=input
-            @contextmenu="(cm, event) => $emit('context', { selection: { context }, event })"
+            @contextmenu="(cm, event) => context(event)"
           />
         </div>
         <div class="fill-height" v-show="view === 'empty'">
           <template v-if=selected>
             <image-preview v-if=selected.image :src=selected.path />
-            <empty-view  v-else class="fill-height">
+            <empty-view v-else class="fill-height">
               <file-icon
                 :path=selected.path
                 :directory=selected.directory
@@ -117,10 +117,6 @@ import EmptyView from '@/views/Empty.vue'
 import store from '@/store'
 
 export default {
-  props: {
-    edit: { type: Boolean, default: false },
-    commit: { type: Boolean, default: false }
-  },
   data: () => ({
     error: '',
     overlay: null,
@@ -141,6 +137,9 @@ export default {
     this.mark = new Mark('#editor-interface-rendered')
   },
   computed: {
+    system: function () {
+      return store.state.system
+    },
     codemirror: function () {
       return this.$refs.editor.codemirror
     },
@@ -179,7 +178,7 @@ export default {
     view: function () {
       if (this.selected) {
         if (!(this.selected.image || this.selected.directory)) {
-          if (this.edit) {
+          if (this.system.edit) {
             return 'edit'
           }
         }
@@ -215,45 +214,6 @@ export default {
           await this.input()
         }
       }))
-    },
-    context: function () {
-      return [
-        {
-          title: 'Action',
-          load: () => this.actions
-        },
-        { divider: true },
-        {
-          title: 'Cut',
-          active: () => this.edit && !this.readonly,
-          action: () => {
-            const selection = this.codemirror.getSelection()
-
-            clipboard.writeText(selection)
-            this.codemirror.replaceSelection('')
-          }
-        },
-        {
-          title: 'Copy',
-          action: () => {
-            let selection
-            if (this.edit) {
-              selection = this.codemirror.getSelection()
-            } else {
-              selection = document.getSelection().toString()
-            }
-
-            clipboard.writeText(selection)
-          }
-        },
-        {
-          title: 'Paste',
-          active: () => this.edit && !this.readonly,
-          action: () => {
-            this.codemirror.replaceSelection(clipboard.readText())
-          }
-        }
-      ]
     },
     codemirror_options: function () {
       return {
@@ -292,6 +252,52 @@ export default {
     }
   },
   methods: {
+    context: async function (event) {
+      const items = [
+        {
+          title: 'Action',
+          load: () => this.actions
+        },
+        { divider: true },
+        {
+          title: 'Cut',
+          active: () => this.edit && !this.readonly,
+          action: () => {
+            const selection = this.codemirror.getSelection()
+
+            clipboard.writeText(selection)
+            this.codemirror.replaceSelection('')
+          }
+        },
+        {
+          title: 'Copy',
+          action: () => {
+            let selection
+            if (this.edit) {
+              selection = this.codemirror.getSelection()
+            } else {
+              selection = document.getSelection().toString()
+            }
+
+            clipboard.writeText(selection)
+          }
+        },
+        {
+          title: 'Paste',
+          active: () => this.edit && !this.readonly,
+          action: () => {
+            this.codemirror.replaceSelection(clipboard.readText())
+          }
+        }
+      ]
+
+      const position = {
+        x: event.clientX,
+        y: event.clientY
+      }
+
+      await store.dispatch('context/open', { items, position })
+    },
     refresh: async function (reset = false) {
       await this.debounce_save.flush()
 

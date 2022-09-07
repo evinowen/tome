@@ -13,7 +13,7 @@
       <v-layout
         v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
         @click.left.stop="$emit('select', { path })"
-        @click.right.stop="locked || $emit('context', { instance, event: $event })"
+        @click.right.stop=context
       >
         <v-flex shrink class="explorer-node-indent" :style="{ width: `${depth * 6}px`}" ></v-flex>
         <file-icon
@@ -283,14 +283,76 @@ export default {
         action: (path) => this.$emit('template', { name, target: path })
       }))
     },
-    context: function () {
-      const menu = []
-      const push = (items) => {
-        if (menu.length) {
-          menu.push({ divider: true })
+    instance: function () {
+      return this
+    },
+    display: function () {
+      if (this.title && !this.system) {
+        try {
+          return this.format(this.name, this.directory)
+        } catch (e) {
+          return (this.ephemeral || this.name) ? this.name : ' - '
+        }
+      }
+
+      return this.name
+    },
+    visible: function () {
+      return this.root || this.ephemeral || !(this.title && (this.display === '' || this.system))
+    },
+    rules: function () {
+      let rules = [
+        (value) => !this.error || this.error,
+        (value) => String(value).search(/[^\w\s.-]/g) === -1 || 'special characters are not allowed.',
+        (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'
+      ]
+
+      if (this.title) {
+        rules = [
+          ...rules,
+          (value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.'
+        ]
+      } else if (!this.directory) {
+        rules = [
+          ...rules,
+          (value) => String(value).search(/[.]\w+$/g) !== -1 || 'file extension is required.',
+          (value) => String(value).search(/^.+[.]\w+/g) !== -1 || 'file name is required.'
+        ]
+      }
+
+      return rules
+    },
+    alert: function () {
+      if (this.system || this.ephemeral) {
+        return false
+      }
+
+      if (this.relationship === 'tome-file') {
+        return false
+      }
+
+      try {
+        this.format(this.name, this.directory)
+      } catch (error) {
+        return true
+      }
+
+      return false
+    }
+  },
+  methods: {
+    context: async function (event) {
+      if (this.locked) {
+        return
+      }
+
+      const items = []
+      const push = (array) => {
+        if (items.length) {
+          items.push({ divider: true })
         }
 
-        menu.push(...items)
+        items.push(...array)
       }
 
       const expand = [
@@ -383,66 +445,13 @@ export default {
       push(clipboard)
       push(move)
 
-      return menu
-    },
-    instance: function () {
-      return this
-    },
-    display: function () {
-      if (this.title && !this.system) {
-        try {
-          return this.format(this.name, this.directory)
-        } catch (e) {
-          return (this.ephemeral || this.name) ? this.name : ' - '
-        }
+      const position = {
+        x: event.clientX,
+        y: event.clientY
       }
 
-      return this.name
+      await store.dispatch('context/open', { target: this.path, title: this.path, items, position })
     },
-    visible: function () {
-      return this.root || this.ephemeral || !(this.title && (this.display === '' || this.system))
-    },
-    rules: function () {
-      let rules = [
-        (value) => !this.error || this.error,
-        (value) => String(value).search(/[^\w\s.-]/g) === -1 || 'special characters are not allowed.',
-        (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'
-      ]
-
-      if (this.title) {
-        rules = [
-          ...rules,
-          (value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.'
-        ]
-      } else if (!this.directory) {
-        rules = [
-          ...rules,
-          (value) => String(value).search(/[.]\w+$/g) !== -1 || 'file extension is required.',
-          (value) => String(value).search(/^.+[.]\w+/g) !== -1 || 'file name is required.'
-        ]
-      }
-
-      return rules
-    },
-    alert: function () {
-      if (this.system || this.ephemeral) {
-        return false
-      }
-
-      if (this.relationship === 'tome-file') {
-        return false
-      }
-
-      try {
-        this.format(this.name, this.directory)
-      } catch (error) {
-        return true
-      }
-
-      return false
-    }
-  },
-  methods: {
     drag_start: function (event) {
       if (this.system) {
         event.preventDefault()

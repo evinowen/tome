@@ -6,9 +6,11 @@ import { DateTime } from 'luxon'
 import tome from './modules/tome'
 import library from './modules/library'
 import files from './modules/files'
+import system from './modules/system'
 import templates from './modules/templates'
 import actions from './modules/actions'
 import configuration from './modules/configuration'
+import context from './modules/context'
 import clipboard from './modules/clipboard'
 import search from './modules/search'
 
@@ -82,8 +84,10 @@ export default new Vuex.Store({
     templates,
     actions,
     configuration,
+    context,
     clipboard,
-    search
+    search,
+    system
   },
   plugins: [
     reporter,

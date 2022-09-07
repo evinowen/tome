@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer :value=value @input="$emit('input', $event)" fixed stateless width="100%" style="z-index: 1000; height: auto; top: 25px; bottom: 18px">
+  <v-navigation-drawer :value=value @input="$event || close" fixed stateless width="100%" style="z-index: 1000; max-width: 900px; height: auto; top: 25px; bottom: 18px">
     <v-container fluid class="pb-0" style="height: 100%;">
       <v-row>
         <v-col>
@@ -217,7 +217,7 @@
       <v-row class="mb-3"></v-row>
       <div ref="base" class="pb-3 actions">
         <v-divider class="mt-0 mb-2"></v-divider>
-        <v-btn small color="primary" @click.stop="$emit('input', false)">
+        <v-btn small color="primary" @click.stop=close>
           Done
         </v-btn>
       </div>
@@ -264,6 +264,9 @@ export default {
     }
   },
   methods: {
+    close: async function () {
+      await store.dispatch('system/settings', false)
+    },
     assign_value: async function (name, value) {
       await store.dispatch('configuration/update', { [name]: value })
       this.debounce_save()

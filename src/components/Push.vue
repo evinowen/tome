@@ -1,10 +1,10 @@
 <template>
-  <v-navigation-drawer :value=value @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px">
+  <v-navigation-drawer :value=value @input="$event || close" fixed right stateless width="100%" style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px">
     <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%;">
         <div class="flex-grow-0">
           <div>
-            <v-btn tile icon class="float-right" color="black" @click.stop="$emit('close')">
+            <v-btn tile icon class="float-right" color="black" @click.stop=close>
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
             <h1>Push</h1>
@@ -71,7 +71,7 @@
             :history=pending
             @push=push
           />
-          <v-btn color="warning" @click.stop="$emit('close')">
+          <v-btn color="warning" @click.stop=close>
             <v-icon class="mr-2">mdi-cancel</v-icon>
             Cancel
           </v-btn>
@@ -165,6 +165,9 @@ export default {
     }
   },
   methods: {
+    close: async function () {
+      await store.dispatch('system/push', false)
+    },
     add_remote: async function (name, url) {
       await store.dispatch('tome/create-remote', { name, url })
     },

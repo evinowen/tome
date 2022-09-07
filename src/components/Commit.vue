@@ -1,10 +1,10 @@
 <template>
-  <v-navigation-drawer :value=value @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px;">
+  <v-navigation-drawer :value=value @input="$event || close" fixed right stateless width="100%" style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px;">
     <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%; ">
         <div class="flex-grow-0">
           <div>
-            <v-btn tile icon class="float-right" color="black" @click.stop="$emit('close')">
+            <v-btn tile icon class="float-right" color="black" @click.stop=close>
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
             <h1>Commit</h1>
@@ -92,7 +92,7 @@
             :waiting="working"
             :push=push
           />
-          <v-btn color="warning" @click.stop="$emit('close')">
+          <v-btn color="warning" @click.stop=close>
             <v-icon class="mr-2">mdi-cancel</v-icon>
             Cancel
           </v-btn>
@@ -194,6 +194,9 @@ export default {
     }
   },
   methods: {
+    close: async function () {
+      await store.dispatch('system/commit', false)
+    },
     resize: function () {
       this.offset = this.$refs.list.clientHeight
     },
@@ -202,8 +205,7 @@ export default {
     },
     diff: async function (file) {
       await store.dispatch('tome/diff', { path: file.path })
-
-      this.$emit('patch')
+      await store.dispatch('system/patch', true)
     },
     stage: async function (path) {
       await store.dispatch('tome/stage', path)

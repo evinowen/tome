@@ -1,49 +1,48 @@
 <template>
   <div>
     <div v-shortkey.once="['esc']" @shortkey=escape />
-    <div v-shortkey.once="['ctrl', '`']" @shortkey="$emit('console')" />
-    <div v-shortkey.once="['ctrl', 'e']" @shortkey="$emit('edit')" />
-    <div v-shortkey.once="['ctrl', 's']" @shortkey="$emit('commit')" />
+    <div v-shortkey.once="['ctrl', '`']" @shortkey="layer('console')" />
+    <div v-shortkey.once="['ctrl', 'e']" @shortkey="layer('edit')" />
+    <div v-shortkey.once="['ctrl', 's']" @shortkey="layer('commit')" />
     <div v-shortkey.once="['ctrl', 'shift', 's']" @shortkey="$emit('quick-commit')" />
-    <div v-shortkey.once="['ctrl', 'p']" @shortkey="$emit('push')" />
-    <div v-shortkey.once="['ctrl', 'f']" @shortkey="$emit('search')" />
+    <div v-shortkey.once="['ctrl', 'p']" @shortkey="layer('push')" />
+    <div v-shortkey.once="['ctrl', 'f']" @shortkey="layer('search')" />
     <div v-shortkey.once="['ctrl', 'o']" @shortkey="$emit('open')" />
   </div>
 </template>
 
 <script>
+import store from '@/store'
+
 export default {
-  props: {
-    settings: { type: Boolean, default: false },
-    patch: { type: Boolean, default: false },
-    search: { type: Boolean, default: false },
-    edit: { type: Boolean, default: false },
-    branch: { type: Boolean, default: false },
-    commit: { type: Boolean, default: false },
-    push: { type: Boolean, default: false },
-    console: { type: Boolean, default: false }
+  computed: {
+    system: function () {
+      return store.state.system
+    }
   },
   methods: {
-    escape: function () {
-      if (this.settings) {
-        this.$emit('settings')
-      } else if (this.console) {
-        this.$emit('console')
-      } else if (this.patch) {
-        this.$emit('patch')
-      } else if (this.search) {
-        this.$emit('search')
-      } else if (this.branch) {
-        this.$emit('branch')
-      } else if (this.push) {
-        this.$emit('push')
-      } else if (this.commit) {
-        this.$emit('commit')
-      } else if (this.edit) {
-        this.$emit('edit')
-      } else {
-        this.$emit('settings')
+    escape: async function () {
+      const layers = [
+        'settings',
+        'console',
+        'patch',
+        'search',
+        'branch',
+        'push',
+        'commit',
+        'edit'
+      ]
+
+      for (const layer of layers) {
+        if (this.system[layer]) {
+          return await store.dispatch(`system/${layer}`, false)
+        }
       }
+
+      return await store.dispatch('system/settings', true)
+    },
+    layer: async function (layer) {
+      return await store.dispatch(`system/${layer}`, !this.system[layer])
     }
   }
 }

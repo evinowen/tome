@@ -1,77 +1,31 @@
 <template>
   <v-app id="inspire">
-    <system-bar title="tome" :settings=settings @settings="settings = !settings" />
-
-    <settings v-model="settings" />
-
-    <branch v-if=tome.loaded v-model=branch @close="branch = false" @patch="patch = true" />
-    <commit ref="commit" v-if=tome.loaded v-model=commit @close="commit = false" @patch="patch = true" :confirm=commit_confirm @confirm="commit_confirm = $event" @push=quick_push />
-    <push ref="push" v-if=tome.loaded v-model=push @close="push = false" @patch="patch = true" :confirm=push_confirm @confirm="push_confirm = $event" />
-
-    <patch v-if=tome.loaded v-model=patch @close="patch = false" />
-
-    <console v-model=console @close="console = false" />
+    <system-bar title="tome" />
+    <settings :value=system.settings />
+    <template v-if=tome.loaded>
+      <branch :value=system.branch />
+      <commit ref="commit" :value=system.commit />
+      <push ref="push" :value=system.push />
+      <patch :value=system.patch />
+    </template>
 
     <editor-interface
       v-show=tome.path
       ref="interface"
-      :edit=edit
+      :edit=system.edit
       :commit=false
       :push=false
       @save=debounce_save
-      @context=open_context
     />
     <empty-view v-show=!tome.path />
 
-    <context-menu-service
-      v-model=context.visible
-      :title=context.title
-      :target=context.target
-      :items=context.items
-      :position_x=context.position.x
-      :position_y=context.position.y
-    />
+    <context-menu-service />
 
-    <search-service v-show=search />
-    <shortcut-service
-      :settings=settings
-      :patch=patch
-      :search=search
-      :edit=edit
-      :branch=branch
-      :commit=commit
-      :push=push
-      :console=console
+    <search-service v-show=system.search />
+    <shortcut-service />
 
-      @settings="settings = !settings"
-      @patch="patch = !patch"
-      @search="search = !search"
-      @edit="edit = !edit"
-      @branch="branch = !branch"
-      @commit="commit = edit ? !commit : false"
-      @push="push = edit ? !push : false"
-      @console="console = !console"
-
-      @quick-commit=quick_commit
-    />
-
-    <action-bar
-      :waiting=0
-      :edit=edit
-      :branch=branch
-      :commit=commit
-      :push=push
-      :console=console
-      :disabled="settings"
-      @open=set_tome
-      @close=clear_tome
-      @edit=toggle
-      @branch="branch = !branch"
-      @commit="commit = !commit"
-      @push="push = !push"
-      @console="console = !console"
-      @search="search = !search"
-    />
+    <console :value=system.console />
+    <action-bar />
   </v-app>
 </template>
 
@@ -122,7 +76,7 @@ html, body {
 </style>
 
 <script>
-import store from './store'
+import store from '@/store'
 import { debounce } from 'lodash'
 
 import ContextMenuService from './components/ContextMenuService.vue'
@@ -146,31 +100,14 @@ export default {
     source: String
   },
   data: () => ({
-    settings: false,
-    branch: false,
-    edit: false,
-    patch: false,
-    commit: false,
-    commit_confirm: false,
-    push: false,
-    push_confirm: false,
-    console: false,
-    search: false,
-
-    context: {
-      visible: false,
-      title: null,
-      target: null,
-      items: [],
-      position: { x: 0, y: 0 },
-      options: {}
-    },
-
     error: null
   }),
   computed: {
     tome: function () {
       return store.state.tome
+    },
+    system: function () {
+      return store.state.system
     },
     debounce_save: function () {
       return debounce(this.save, 1000)
@@ -181,43 +118,6 @@ export default {
       const { path, content } = state
 
       await store.dispatch('files/save', { path, content })
-    },
-    set_tome: async function (file_path) {
-      await store.dispatch('library/add', file_path)
-      await store.dispatch('tome/load', file_path)
-      await store.dispatch('files/initialize', { path: file_path })
-      await store.dispatch('tome/inspect')
-    },
-    clear_tome: async function () {
-      await store.dispatch('tome/clear')
-    },
-    open_context: async function (state) {
-      const { instance, selection, event } = state
-
-      const data = {}
-
-      this.context.title = ' ಠ_ಠ '
-
-      delete this.context.target
-      delete this.context.items
-
-      if (instance) {
-        instance.$emit('input', instance)
-        data.title = instance.path
-        data.target = instance.path
-        data.items = instance.context
-      }
-
-      if (selection) {
-        data.title = 'Content'
-        data.items = selection.context
-      }
-
-      Object.assign(this.context, {
-        visible: true,
-        position: { x: event.clientX, y: event.clientY },
-        ...data
-      })
     },
     toggle: async function () {
       this.debounce_save.flush()

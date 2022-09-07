@@ -108,6 +108,9 @@ export default {
     stack: ''
   }),
   methods: {
+    close: async function () {
+      await store.dispatch('system/console', false)
+    },
     show_stack: function (stack) {
       this.stack = stack.trim()
 
