@@ -1,6 +1,7 @@
 export default {
   namespaced: true,
   state: {
+    maximized: false,
     branch: false,
     commit: false,
     console: false,
@@ -21,6 +22,25 @@ export default {
     }
   },
   actions: {
+    hydrate: async function (context) {
+      const maximized = await window.api.is_window_maximized()
+      context.commit('set', { maximized })
+    },
+    minimize: async function (context) {
+      await window.api.minimize_window()
+      context.commit('set', { maximized: false })
+    },
+    restore: async function (context) {
+      await window.api.restore_window()
+      context.commit('set', { maximized: false })
+    },
+    maximize: async function (context) {
+      await window.api.maximize_window()
+      context.commit('set', { maximized: true })
+    },
+    exit: async function () {
+      await window.api.close_window()
+    },
     open: async function (context, path) {
       await context.dispatch('library/add', path, { root: true })
       await context.dispatch('tome/load', path, { root: true })

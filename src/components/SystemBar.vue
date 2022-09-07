@@ -17,7 +17,7 @@
     <v-btn tile icon small @click.stop="maximize" system-bar-maximize>
       <v-icon>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
     </v-btn>
-    <v-btn tile icon small @click.stop="close" system-bar-close>
+    <v-btn tile icon small @click.stop="exit" system-bar-close>
       <v-icon>mdi-window-close</v-icon>
     </v-btn>
   </v-system-bar>
@@ -56,13 +56,10 @@ import store from '@/store'
 
 export default {
   components: { VBtn, VIcon, VSystemBar, VSpacer },
-  data: () => ({
-    maximized: false
-  }),
-  mounted: async function () {
-    this.maximized = await window.api.is_window_maximized()
-  },
   computed: {
+    maximized: function () {
+      return store.state.system.maximized
+    },
     icon: function () {
       return store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
     },
@@ -74,31 +71,19 @@ export default {
     settings: async function () {
       await store.dispatch('system/settings', !store.state.system.settings)
     },
-    minimize: async function (event) {
-      await window.api.minimize_window()
-
-      this.$emit('minimized')
+    minimize: async function () {
+      await store.dispatch('system/minimize')
     },
-    maximize: async function (event) {
-      if (await window.api.is_window_maximized()) {
-        await window.api.restore_window()
-        this.maximized = false
-
-        this.$emit('restored')
+    maximize: async function () {
+      if (this.maximized) {
+        await store.dispatch('system/restore')
       } else {
-        await window.api.maximize_window()
-        this.maximized = true
-
-        this.$emit('maximized')
+        await store.dispatch('system/maximize')
       }
     },
-    close: async function (event) {
-      await window.api.close_window()
-
-      this.$emit('closed')
+    exit: async function (event) {
+      await store.dispatch('system/exit')
     }
-
   }
-
 }
 </script>
