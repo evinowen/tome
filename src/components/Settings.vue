@@ -214,6 +214,30 @@
           </v-container>
         </v-col>
       </v-row>
+      <v-divider class="mt-4 mb-5"></v-divider>
+      <v-row>
+        <v-col>
+          <v-layout>
+            <v-flex shrink>
+              <v-layout class="tome">
+                <v-flex shrink style="text-align: center;"><img src="logo.png"/></v-flex>
+                <v-flex grow justify-center align-self-center>
+                  <h3>Tome</h3>
+                  version {{ version }}
+                </v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex v-if=process grow style="font-size: 0.8em; text-align: right; opacity: 0.6;">
+              <b>electron</b> {{ process.versions.electron }}<br />
+              <b>chromium</b> {{ process.versions.chrome }}<br />
+              <b>node</b> {{ process.versions.node }}<br />
+              <b>v8</b> {{ process.versions.v8 }}<br />
+              <v-divider></v-divider>
+              <b>sandboxed</b> {{ process.sandboxed ? 'true' : 'false' }}<br />
+            </v-flex>
+          </v-layout>
+        </v-col>
+      </v-row>
       <v-row class="mb-3"></v-row>
       <div ref="base" class="pb-3 actions">
         <v-divider class="mt-0 mb-2"></v-divider>
@@ -225,16 +249,25 @@
   </v-navigation-drawer>
 </template>
 
-<style>
+<style scoped>
+.tome {
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+  margin: auto;
+  width: 200px;
+  padding: 6px;
+  text-align: center;
+}
+
 .actions {
   backdrop-filter: blur(2px);
+  bottom: 0px;
   position: sticky;
-  bottom: 0px
 }
 </style>
 
 <script>
-import { VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/lib'
+import { VLayout, VFlex, VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/lib'
 import { debounce } from 'lodash'
 import store from '@/store'
 import ThemePreview from './ThemePreview.vue'
@@ -248,9 +281,14 @@ export default {
   },
   data: () => ({
     obscure_passphrase: true,
-    public_key: null
+    public_key: null,
+    version: null,
+    process: null
   }),
   mounted: async function () {
+    this.version = await window.api.app_getVersion()
+    this.process = await window.api.app_getProcess()
+
     store.watch(state => [state.configuration.private_key, state.configuration.passphrase], async () => {
       this.public_key = await window.api.ssl_generate_public_key(this.configuration.private_key, this.configuration.passphrase)
     })
@@ -292,7 +330,9 @@ export default {
     KeyfileInput,
     KeyfileOutput,
     ThemePreview,
-    ThemeColorPicker
+    ThemeColorPicker,
+    VLayout,
+    VFlex
   }
 }
 </script>
