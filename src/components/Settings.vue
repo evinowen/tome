@@ -223,17 +223,23 @@
                 <v-flex shrink style="text-align: center;"><img src="logo.png"/></v-flex>
                 <v-flex grow justify-center align-self-center>
                   <h3>Tome</h3>
-                  version {{ version }}
+                  version {{ system.version }}
                 </v-flex>
               </v-layout>
             </v-flex>
-            <v-flex v-if=process grow style="font-size: 0.8em; text-align: right; opacity: 0.6;">
-              <b>electron</b> {{ process.versions.electron }}<br />
-              <b>chromium</b> {{ process.versions.chrome }}<br />
-              <b>node</b> {{ process.versions.node }}<br />
-              <b>v8</b> {{ process.versions.v8 }}<br />
+            <v-flex grow>
+              <sea-game />
+            </v-flex>
+            <v-flex v-if=system.process
+              shrink
+              style="font-size: 0.8em; text-align: right; opacity: 0.6;"
+            >
+              <b>electron</b> {{ system.process.versions.electron }}<br />
+              <b>chromium</b> {{ system.process.versions.chrome }}<br />
+              <b>node</b> {{ system.process.versions.node }}<br />
+              <b>v8</b> {{ system.process.versions.v8 }}<br />
               <v-divider></v-divider>
-              <b>sandboxed</b> {{ process.sandboxed ? 'true' : 'false' }}<br />
+              <b>sandboxed</b> {{ system.process.sandboxed ? 'true' : 'false' }}<br />
             </v-flex>
           </v-layout>
         </v-col>
@@ -287,6 +293,9 @@ export default {
   computed: {
     configuration: function () {
       return store.state.configuration
+    },
+    system: function () {
+      return store.state.system
     },
     debounce_save: function () {
       return debounce(this.save, 1000)

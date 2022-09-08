@@ -58,6 +58,7 @@ export default new Vuex.Store({
 
       context.commit('hydrate', { application_path, configuration_path, library_path })
 
+      await context.dispatch('system/load')
       await context.dispatch('configuration/load', context.state.configuration_path)
 
       await context.dispatch('message', `Configuration established at ${context.state.configuration_path}`)

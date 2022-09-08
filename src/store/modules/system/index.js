@@ -1,6 +1,8 @@
 export default {
   namespaced: true,
   state: {
+    version: null,
+    process: null,
     maximized: false,
     branch: false,
     commit: false,
@@ -12,6 +14,10 @@ export default {
     settings: false
   },
   mutations: {
+    load: function (state, { version, process }) {
+      state.version = version
+      state.process = process
+    },
     set: function (state, data) {
       for (const key in data) {
         state[key] = data[key] === true
@@ -22,7 +28,11 @@ export default {
     }
   },
   actions: {
-    hydrate: async function (context) {
+    load: async function (context) {
+      const version = await window.api.app_getVersion()
+      const process = await window.api.app_getProcess()
+      context.commit('load', { version, process })
+
       const maximized = await window.api.is_window_maximized()
       context.commit('set', { maximized })
     },
