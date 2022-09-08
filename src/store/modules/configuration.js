@@ -8,6 +8,7 @@ export default {
     name: '',
     email: '',
     private_key: '',
+    public_key: '',
     passphrase: '',
     format_titles: true,
     dark_mode: true,
@@ -54,12 +55,22 @@ export default {
       const raw = await window.api.file_contents(target)
       const data = JSON.parse(raw) || {}
 
-      context.commit('set', data)
+      await context.dispatch('update', data)
+    },
+    generate: async function (context, passphrase) {
+      const { path: private_key } = await window.api.ssl_generate_private_key(passphrase)
 
-      await context.dispatch('present')
+      await context.dispatch('update', { private_key, passphrase })
     },
     update: async function (context, data) {
       context.commit('set', data)
+
+      const { data: public_key } = await window.api.ssl_generate_public_key(
+        context.state.private_key,
+        context.state.passphrase
+      )
+
+      context.commit('set', { public_key })
 
       await context.dispatch('present')
     },

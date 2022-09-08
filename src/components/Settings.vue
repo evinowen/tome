@@ -21,7 +21,7 @@
             id="settings_private_key"
             :value=configuration.private_key
             @input="assign_value('private_key', $event)"
-            forge @forge="generate_key('private_key', configuration.passphrase)"
+            forge @forge="generate_key(configuration.passphrase)"
           />
         </v-col>
       </v-row>
@@ -39,7 +39,7 @@
       </v-row>
       <v-row dense>
         <v-col>
-          <keyfile-output label="public key" :value="public_key ? public_key.data : null"  />
+          <keyfile-output label="public key" :value=configuration.public_key />
         </v-col>
       </v-row>
       <v-row dense>
@@ -281,18 +281,9 @@ export default {
   },
   data: () => ({
     obscure_passphrase: true,
-    public_key: null,
     version: null,
     process: null
   }),
-  mounted: async function () {
-    this.version = await window.api.app_getVersion()
-    this.process = await window.api.app_getProcess()
-
-    store.watch(state => [state.configuration.private_key, state.configuration.passphrase], async () => {
-      this.public_key = await window.api.ssl_generate_public_key(this.configuration.private_key, this.configuration.passphrase)
-    })
-  },
   computed: {
     configuration: function () {
       return store.state.configuration
@@ -309,10 +300,8 @@ export default {
       await store.dispatch('configuration/update', { [name]: value })
       this.debounce_save()
     },
-    generate_key: async function (name, passphrase) {
-      const private_key = await window.api.ssl_generate_private_key(passphrase)
-
-      await this.assign_value('private_key', private_key.path)
+    generate_key: async function (passphrase) {
+      await store.dispatch('configuration/generate', passphrase)
     },
     save: async function () {
       await store.dispatch('configuration/write', store.state.configuration_path)
