@@ -1,4 +1,5 @@
 export default {
+  namespaced: true,
   state: {
     error: null,
     action: null,
@@ -21,6 +22,9 @@ export default {
     }
   },
   actions: {
+    text: async function (context, value) {
+      await window.api.clipboard_text(value)
+    },
     cut: async function (context, content) {
       context.commit('set', {
         action: 'cut',

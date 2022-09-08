@@ -411,17 +411,17 @@ export default {
       const clipboard = [
         {
           title: 'Cut',
-          action: async (path) => await store.dispatch('cut', { type: 'file', target: path }),
+          action: async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
           active: () => !this.system
         },
         {
           title: 'Copy',
-          action: async (path) => await store.dispatch('copy', { type: 'file', target: path })
+          action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path })
         },
         {
           title: 'Paste',
           active: () => store.state.clipboard.content,
-          action: async (path) => await store.dispatch('paste', { type: 'file', target: path })
+          action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path })
         }
       ]
 
