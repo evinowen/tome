@@ -109,6 +109,10 @@ export default class File {
     return new FileLoadContract(this, payload)
   }
 
+  async open (container) {
+    await window.api.file_open(this.path, container)
+  }
+
   async read () {
     const { path } = this
     const content = await window.api.file_contents(path)

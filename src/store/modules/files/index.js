@@ -174,6 +174,12 @@ export default {
 
       return item
     },
+    open: async function (context, criteria) {
+      const { container = false } = criteria
+      const item = await context.dispatch('identify', criteria)
+
+      await item.open(container)
+    },
     ghost: async function (context, criteria) {
       const { directory = false, post = null } = criteria
       const item = await context.dispatch('load', criteria)

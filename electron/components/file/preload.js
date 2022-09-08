@@ -14,6 +14,7 @@ module.exports = {
   file_contents: (target) => ipcRenderer.invoke('file_contents', target),
   file_write: (target, content) => ipcRenderer.invoke('file_write', target, content),
   file_rename: (target, proposed) => ipcRenderer.invoke('file_rename', target, proposed),
+  file_open: (target, container) => ipcRenderer.invoke('file_open', target, container),
   file_delete: (target) => ipcRenderer.invoke('file_delete', target),
   select_directory: () => ipcRenderer.invoke('select_directory'),
   directory_list: (target) => ipcRenderer.invoke('directory_list', target),

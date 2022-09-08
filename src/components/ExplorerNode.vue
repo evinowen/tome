@@ -392,11 +392,11 @@ export default {
       const file = [
         {
           title: 'Open',
-          action: (path) => this.$emit('open', { type: 'file', target: path })
+          action: (path) => this.$emit('open', { target: path })
         },
         {
           title: 'Open Folder',
-          action: (path) => this.$emit('open', { type: 'file', target: path, parent: true })
+          action: (path) => this.$emit('open', { target: path, container: true })
         },
         {
           title: 'New File',

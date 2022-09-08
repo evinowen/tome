@@ -1,4 +1,4 @@
-const { ipcMain, dialog, BrowserWindow } = require('electron')
+const { ipcMain, dialog, shell, BrowserWindow } = require('electron')
 
 const fs = require('fs')
 const path = require('path')
@@ -93,6 +93,14 @@ module.exports = {
 
     ipcMain.handle('file_rename', async (event, target, proposed) => {
       await new Promise((resolve, reject) => fs.rename(target, proposed, (err) => err ? reject(err) : resolve(true)))
+    })
+
+    ipcMain.handle('file_open', async (event, target, container = false) => {
+      if (container) {
+        shell.openPath(path.dirname(target))
+      } else {
+        shell.openPath(target)
+      }
     })
 
     ipcMain.handle('file_delete', async (event, target) => {
