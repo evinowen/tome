@@ -41,16 +41,6 @@ export default {
     exit: async function () {
       await window.api.close_window()
     },
-    open: async function (context, path) {
-      await context.dispatch('library/add', path, { root: true })
-      await context.dispatch('tome/load', path, { root: true })
-      await context.dispatch('files/initialize', { path: path }, { root: true })
-      await context.dispatch('tome/inspect', null, { root: true })
-    },
-    close: async function (context, path) {
-      await context.dispatch('tome/clear', null, { root: true })
-      await context.dispatch('files/clear', null, { root: true })
-    },
     perform: async function (context, performance) {
     },
     branch: async function (context, value) {
