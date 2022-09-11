@@ -39,9 +39,6 @@ export default {
           state[key] = data[key] === true
         }
       }
-    },
-    search: function (state, value) {
-      state.search = value
     }
   },
   actions: {

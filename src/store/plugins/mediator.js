@@ -1,13 +1,13 @@
 import action from './mediations/action'
 import metadata from './mediations/metadata'
 import template from './mediations/template'
-import tome from './mediations/tome'
+import identity from './mediations/identity'
 
 const mediations = [
   action,
+  identity,
   metadata,
-  template,
-  tome
+  template
 ]
 
 export default store => mediations.forEach(mediation => mediation(store))

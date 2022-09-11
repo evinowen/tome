@@ -49,6 +49,28 @@ describe('store/modules/search', () => {
     expect(store.state.search.case_sensitive).toBe(true)
   })
 
+  it('should return when path is not set and execute is dispatched', async () => {
+    expect(store.state.search.path).toBe(null)
+
+    await store.dispatch('search/execute')
+
+    expect(window.api.search_path).not.toHaveBeenCalled()
+  })
+
+  it('should return when query is not set and execute is dispatched', async () => {
+    const path = '/project'
+    const query = null
+
+    expect(store.state.search.query).toBe('')
+
+    await store.dispatch('search/query', { path, query })
+
+    await store.dispatch('search/multifile', true)
+    await store.dispatch('search/execute')
+
+    expect(window.api.search_path).not.toHaveBeenCalled()
+  })
+
   it('should set the search query when the query action is dispatched', async () => {
     const path = '/project'
     const query = 'example search'
@@ -58,6 +80,29 @@ describe('store/modules/search', () => {
     await store.dispatch('search/query', { path, query })
 
     expect(store.state.search.query).toBe(query)
+  })
+
+  it('should not search path if multifile is false when the query action is dispatched', async () => {
+    const path = '/project'
+    const query = 'example search'
+
+    expect(store.state.search.query).toBe('')
+
+    await store.dispatch('search/query', { path, query })
+
+    expect(window.api.search_path).not.toHaveBeenCalled()
+  })
+
+  it('should search search path if multifile is false when the query action is dispatched', async () => {
+    const path = '/project'
+    const query = 'example search'
+
+    expect(store.state.search.query).toBe('')
+
+    await store.dispatch('search/multifile', true)
+    await store.dispatch('search/query', { path, query })
+
+    expect(window.api.search_path).toHaveBeenCalled()
   })
 
   it('should clear the search query when the clear action is dispatched', async () => {

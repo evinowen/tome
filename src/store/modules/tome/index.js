@@ -83,15 +83,6 @@ export default {
     },
     metadata: function (state, data) {
       Object.assign(state.metadata, data)
-    },
-    signature: function (state, data) {
-      const { name, email } = data
-
-      state.signature.name = name
-      state.signature.email = email
-    },
-    message: function (state, message) {
-      state.message = message
     }
   },
   actions: {

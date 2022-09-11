@@ -29,7 +29,7 @@ export default {
   },
   actions: {
     open: async function (context, state) {
-      const { target = null, title = 'Content', items = [], position } = state
+      const { target = null, title = 'Content', items = [], position } = state || {}
 
       context.commit('fill', items)
       context.commit('show', { target, title, position })

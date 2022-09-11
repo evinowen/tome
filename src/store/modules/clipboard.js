@@ -22,6 +22,9 @@ export default {
     }
   },
   actions: {
+    clear: function (context) {
+      context.commit('clear')
+    },
     text: async function (context, value) {
       if (value) {
         return await window.api.clipboard_writetext(value)
