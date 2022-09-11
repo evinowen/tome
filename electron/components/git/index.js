@@ -58,6 +58,7 @@ module.exports = {
     })
 
     ipcMain.handle('stage_repository', async (event, query) => {
+      console.log('Stage Repository', { query })
       await repository.stage(query, async (type, path) => {
         let wording
         if (type === 'add') {
@@ -71,20 +72,29 @@ module.exports = {
     })
 
     ipcMain.handle('reset_repository', async (event, query) => {
+      console.log('Reset Repository', { query })
       await repository.reset(query, async (type, path) => {
         console.log(`Reseting path ${path}`)
       })
     })
 
     ipcMain.handle('push_repository', async (event) => {
+      console.log('Push Repository')
       await repository.push()
     })
 
+    ipcMain.handle('clear_remote_repository', async (event) => {
+      console.log('Clear Remote Repository')
+      repository.clearRemoteBranch()
+    })
+
     ipcMain.handle('load_remote_url_repository', async (event, url) => {
+      console.log('Load Remote URL Repository', { url })
       await repository.loadRemoteBranch(url)
     })
 
-    ipcMain.handle('remote_repository', async (event, url) => {
+    ipcMain.handle('remote_repository', async (event) => {
+      console.log('Remote Repository')
       const result = {
         remote: repository.remote,
         pending: repository.pending
@@ -94,6 +104,7 @@ module.exports = {
     })
 
     ipcMain.handle('commit_repository', async (event, name, email, message) => {
+      console.log('Commit Repository', { name, email, message })
       const oid = await repository.commit(name, email, message)
 
       return oid.tostrS()

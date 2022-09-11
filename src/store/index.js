@@ -40,11 +40,7 @@ export default new Vuex.Store({
         type,
         message,
         stack,
-        datetime: DateTime.now(),
-        format: {
-          date: DateTime.DATE_SHORT,
-          time: DateTime.TIME_24_WITH_SHORT_OFFSET
-        }
+        datetime: DateTime.now()
       })
     }
   },

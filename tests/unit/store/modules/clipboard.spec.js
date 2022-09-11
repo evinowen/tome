@@ -58,7 +58,7 @@ describe('store/modules/clipboard.js', () => {
       target: '/path/to/copy/item'
     }
 
-    await store.dispatch('copy', cut_content)
+    await store.dispatch('clipboard/copy', cut_content)
 
     expect(store.state.clipboard.action).toBe('copy')
     expect(store.state.clipboard.content).toBe(cut_content)
@@ -70,7 +70,7 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/a.md'
     }
 
-    await store.dispatch('cut', cut_content)
+    await store.dispatch('clipboard/cut', cut_content)
 
     expect(store.state.clipboard.action).toBe('cut')
     expect(store.state.clipboard.content).toBe(cut_content)
@@ -84,7 +84,7 @@ describe('store/modules/clipboard.js', () => {
 
     expect(store.state.clipboard.error).toBeFalsy()
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeTruthy()
   })
@@ -96,14 +96,14 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/z.md'
     }
 
-    await store.dispatch('cut', cut_content)
+    await store.dispatch('clipboard/cut', cut_content)
 
     const paste_content = {
       type: 'path',
       target: '/project/second/w.md'
     }
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeTruthy()
   })
@@ -114,14 +114,14 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/a.md'
     }
 
-    await store.dispatch('cut', cut_content)
+    await store.dispatch('clipboard/cut', cut_content)
 
     const paste_content = {
       type: 'path',
       target: '/project/second/a.md'
     }
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
     expect(window.api.file_rename).toHaveBeenCalledTimes(1)
@@ -133,14 +133,14 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/a'
     }
 
-    await store.dispatch('cut', cut_content)
+    await store.dispatch('clipboard/cut', cut_content)
 
     const paste_content = {
       type: 'path',
       target: '/project/first/b'
     }
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeTruthy()
   })
@@ -151,14 +151,14 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/a.md'
     }
 
-    await store.dispatch('cut', cut_content)
+    await store.dispatch('clipboard/cut', cut_content)
 
     const paste_content = {
       type: 'path',
       target: '/project/second/z.md'
     }
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
     expect(window.api.file_rename).toHaveBeenCalledTimes(1)
@@ -170,14 +170,14 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/a.md'
     }
 
-    await store.dispatch('copy', copy_content)
+    await store.dispatch('clipboard/copy', copy_content)
 
     const paste_content = {
       type: 'path',
       target: '/project/second/z.md'
     }
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
     expect(window.api.file_copy).toHaveBeenCalledTimes(1)

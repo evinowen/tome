@@ -280,6 +280,7 @@ import ThemePreview from './ThemePreview.vue'
 import KeyfileInput from './KeyfileInput.vue'
 import KeyfileOutput from './KeyfileOutput.vue'
 import ThemeColorPicker from './ThemeColorPicker.vue'
+import SeaGame from './SeaGame.vue'
 
 export default {
   props: {
@@ -330,7 +331,8 @@ export default {
     ThemePreview,
     ThemeColorPicker,
     VLayout,
-    VFlex
+    VFlex,
+    SeaGame
   }
 }
 </script>

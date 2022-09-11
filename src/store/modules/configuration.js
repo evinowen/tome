@@ -57,6 +57,9 @@ export default {
 
       await context.dispatch('update', data)
     },
+    read: async function (context, key) {
+      return context.state[key]
+    },
     generate: async function (context, passphrase) {
       const { path: private_key } = await window.api.ssl_generate_private_key(passphrase)
 

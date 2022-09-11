@@ -16,9 +16,9 @@
           <v-data-table
             dense disable-sort class="my-0 commit-history"
             :headers=headers
-            :items=history
+            :items=tome.history
             :hide-default-footer="true"
-            :items-per-page="history.length"
+            :items-per-page="tome.history.length"
             @click:row=diff
           >
             <template v-slot:item.oid="{ item }">
@@ -115,8 +115,8 @@ export default {
     ]
   }),
   computed: {
-    history: function () {
-      return store.state.tome.history
+    tome: function () {
+      return store.state.tome
     }
   },
   methods: {

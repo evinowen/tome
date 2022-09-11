@@ -1,11 +1,11 @@
 import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-import PushConfirm from '@/components/PushConfirm.vue'
+import ThemePreview from '@/components/ThemePreview.vue'
 
-describe('PushConfirm.vue', () => {
+describe('ThemePreview.vue', () => {
   let vuetify
 
-  const factory = assemble(PushConfirm)
+  const factory = assemble(ThemePreview)
     .context(() => ({ vuetify }))
 
   beforeEach(() => {

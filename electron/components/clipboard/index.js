@@ -5,8 +5,12 @@ const path = require('path')
 
 module.exports = {
   register: () => {
-    ipcMain.handle('clipboard_text', async (event, text) => {
+    ipcMain.handle('clipboard_writetext', async (event, text) => {
       clipboard.writeText(text)
+    })
+
+    ipcMain.handle('clipboard_text', async (event) => {
+      return clipboard.readText()
     })
 
     ipcMain.handle('clipboard_paste', async (event, action, source, target) => {

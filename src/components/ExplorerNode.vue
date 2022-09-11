@@ -13,7 +13,7 @@
       <v-layout
         v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
         @click.left.stop="$emit('select', { path })"
-        @click.right.stop=context
+        @click.right.stop=contextmenu
       >
         <v-flex shrink class="explorer-node-indent" :style="{ width: `${depth * 6}px`}" ></v-flex>
         <file-icon
@@ -338,14 +338,8 @@ export default {
       }
 
       return false
-    }
-  },
-  methods: {
-    context: async function (event) {
-      if (this.locked) {
-        return
-      }
-
+    },
+    context: function () {
       const items = []
       const push = (array) => {
         if (items.length) {
@@ -445,12 +439,22 @@ export default {
       push(clipboard)
       push(move)
 
+      return items
+    }
+  },
+  methods: {
+    contextmenu: async function (event) {
+      if (this.locked) {
+        return
+      }
+
+
       const position = {
         x: event.clientX,
         y: event.clientY
       }
 
-      await store.dispatch('context/open', { target: this.path, title: this.path, items, position })
+      await store.dispatch('context/open', { target: this.path, title: this.path, items: this.context, position })
     },
     drag_start: function (event) {
       if (this.system) {

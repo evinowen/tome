@@ -4,10 +4,10 @@
     <div v-shortkey.once="['ctrl', '`']" @shortkey="layer('console')" />
     <div v-shortkey.once="['ctrl', 'e']" @shortkey="layer('edit')" />
     <div v-shortkey.once="['ctrl', 's']" @shortkey="layer('commit')" />
-    <div v-shortkey.once="['ctrl', 'shift', 's']" @shortkey="$emit('quick-commit')" />
+    <div v-shortkey.once="['ctrl', 'shift', 's']" @shortkey="perform('quick-commit')" />
     <div v-shortkey.once="['ctrl', 'p']" @shortkey="layer('push')" />
     <div v-shortkey.once="['ctrl', 'f']" @shortkey="layer('search')" />
-    <div v-shortkey.once="['ctrl', 'o']" @shortkey="$emit('open')" />
+    <div v-shortkey.once="['ctrl', 'o']" @shortkey="select()" />
   </div>
 </template>
 
@@ -43,6 +43,12 @@ export default {
     },
     layer: async function (layer) {
       return await store.dispatch(`system/${layer}`, !this.system[layer])
+    },
+    perform: async function (performance) {
+      await store.dispatch('system/perform', performance)
+    },
+    select: async function () {
+      await store.dispatch('library/select')
     }
   }
 }

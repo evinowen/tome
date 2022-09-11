@@ -105,7 +105,7 @@ export default {
       await store.dispatch('files/select', { path })
     },
     open: async function (state) {
-      const { target, container } = state
+      const { target, container = false } = state
 
       await store.dispatch('files/open', { path: target, container })
     },

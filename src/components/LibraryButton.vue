@@ -11,7 +11,7 @@
 
     <v-list dense>
       <v-list-item dense
-        v-for="(item, index) in history"
+        v-for="(item, index) in library.history"
         :key="index"
         @click="open(item)"
       >
@@ -72,6 +72,14 @@ export default {
     value: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false }
   },
+  computed: {
+    tome: function () {
+      return store.state.tome
+    },
+    library: function () {
+      return store.state.library
+    }
+  },
   methods: {
     select: async function () {
       await store.dispatch('library/select')
@@ -79,16 +87,8 @@ export default {
     open: async function (item) {
       await store.dispatch('library/open', item)
     },
-    close: async function (item) {
+    close: async function () {
       await store.dispatch('library/close')
-    }
-  },
-  computed: {
-    tome: function () {
-      return store.state.tome
-    },
-    history: function () {
-      return store.state.library.history
     }
   }
 }

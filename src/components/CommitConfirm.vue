@@ -46,7 +46,7 @@
           ref="commit"
           color="warning"
           text @click="$emit('commit')"
-          :disabled="staging || waiting || message.length < 1"
+          :disabled="staging || waiting"
         >
           <v-progress-circular
             :indeterminate="waiting"
@@ -58,7 +58,7 @@
           Proceed
         </v-btn>
         <v-spacer></v-spacer>
-        <v-btn :depressed=push :color="push ? 'warning' : ''" text @click="$emit('push', $event)">
+        <v-btn :depressed=push :color="push ? 'warning' : ''" text @click="$emit('push', !push)">
           <v-icon class="mr-2">{{ push ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}</v-icon>
           Push
         </v-btn>
@@ -113,6 +113,11 @@ import {
   VTextarea
 } from 'vuetify/lib'
 
+export const CommitConfirmMessages = {
+  Staging: 'Commit details are being staged ... ',
+  Ready: 'Commit is prepared and ready to publish'
+}
+
 export default {
   components: {
     VIcon,
@@ -147,9 +152,9 @@ export default {
   computed: {
     status: function () {
       if (this.staging) {
-        return 'Commit details are being staged ... '
+        return CommitConfirmMessages.Staging
       } else {
-        return 'Commit is prepared and ready to publish'
+        return CommitConfirmMessages.Ready
       }
     }
   }

@@ -51,10 +51,18 @@ describe('src/store/index.js', () => {
     expect(store.state.events.length).toBe(1)
   })
 
-  it('should store error event on dispatch of error action', async () => {
+  it('should store error event on dispatch of error action with string', async () => {
     expect(store.state.events.length).toBe(0)
 
     await store.dispatch('error', 'Error!')
+
+    expect(store.state.events.length).toBe(1)
+  })
+
+  it('should store error event on dispatch of error action with Error object', async () => {
+    expect(store.state.events.length).toBe(0)
+
+    await store.dispatch('error', new Error('Error!'))
 
     expect(store.state.events.length).toBe(1)
   })

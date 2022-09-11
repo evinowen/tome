@@ -1,35 +1,30 @@
 import { assemble } from '@/../tests/helpers'
-import Vue from 'vue'
 import Vuetify from 'vuetify'
 import store from '@/store'
-
 import ExplorerNode from '@/components/ExplorerNode.vue'
 
-jest.mock('@/store', () => ({
-  state: {
-    clipboard: {
-      content: { type: 'file', target: '/path' }
-    },
-    tome: {
-      path: '/project'
-    },
-    templates: {
-      options: ['one', 'two', 'three']
-    },
-    actions: {
-      options: ['one', 'two', 'three']
-    }
-  },
-  dispatch: jest.fn()
-}))
-
-Vue.use(Vuetify)
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 describe('ExplorerNode.vue', () => {
   let vuetify
 
   beforeEach(() => {
     vuetify = new Vuetify()
+
+    store.state = {
+      clipboard: {
+        content: { type: 'file', target: '/path' }
+      },
+      tome: {
+        path: '/project'
+      },
+      templates: {
+        options: ['one', 'two', 'three']
+      },
+      actions: {
+        options: ['one', 'two', 'three']
+      }
+    }
   })
 
   afterEach(() => {
@@ -330,57 +325,39 @@ describe('ExplorerNode.vue', () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    let action
-    wrapper.vm.context.forEach(item => {
-      if (item.title === 'Cut') {
-        action = item.action
-      }
-    })
-
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
-    await action()
+    await wrapper.vm.context.find(item => item.title === 'Cut').action()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toBe('cut')
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/cut')
+
+    expect(action).toBeDefined()
   })
 
   it('should emit open event when Copy context menu action is called', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    let action
-    wrapper.vm.context.forEach(item => {
-      if (item.title === 'Copy') {
-        action = item.action
-      }
-    })
-
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
-    await action()
+    await wrapper.vm.context.find(item => item.title === 'Copy').action()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toBe('copy')
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/copy')
+
+    expect(action).toBeDefined()
   })
 
   it('should dispatch paste action when Paste context menu action is called', async () => {
     const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    let action
-    wrapper.vm.context.forEach(item => {
-      if (item.title === 'Paste') {
-        action = item.action
-      }
-    })
-
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
-    await action()
+    await wrapper.vm.context.find(item => item.title === 'Paste').action()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toBe('paste')
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/paste')
+
+    expect(action).toBeDefined()
   })
 
   it('should return true for paste active state when store has paste value', async () => {

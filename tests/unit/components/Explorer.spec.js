@@ -1,51 +1,38 @@
 import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-import { shell } from 'electron'
 import { v4 as uuidv4 } from 'uuid'
 import store from '@/store'
-
 import Explorer from '@/components/Explorer.vue'
 import { ExplorerNodeGhostType } from '@/components/ExplorerNode.vue'
 
-import builders from '@/../tests/builders'
-
-Object.assign(window, builders.window())
-
-jest.mock('@/store', () => ({
-  state: {
-    tome: {
-      name: 'project',
-      path: '/project'
-    },
-    configuration: {
-      format_titles: false
-    },
-    files: {
-      active: null,
-      content: null,
-      error: null,
-      tree: {
-        base: {
-          expanded: false,
-          children: []
-        }
-      }
-    }
-  },
-  dispatch: jest.fn()
-}))
-
-jest.mock('electron', () => ({
-  shell: {
-    openPath: jest.fn()
-  }
-}))
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 describe('Explorer.vue', () => {
   let vuetify
 
   beforeEach(() => {
     vuetify = new Vuetify()
+
+    store.state = {
+      tome: {
+        name: 'project',
+        path: '/project'
+      },
+      configuration: {
+        format_titles: false
+      },
+      files: {
+        active: null,
+        content: null,
+        error: null,
+        tree: {
+          base: {
+            expanded: false,
+            children: []
+          }
+        }
+      }
+    }
 
     children.length = 0
     children.push(
@@ -306,29 +293,24 @@ describe('Explorer.vue', () => {
     expect(store.dispatch.mock.calls[0][0]).toBe('files/ghost')
   })
 
-  it('should attempt to open target file of open method call', async () => {
+  it('should dispatch files/open with path when open is called with state', async () => {
     const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-    store.dispatch.mockClear()
 
-    expect(shell.openPath).toHaveBeenCalledTimes(0)
+    await wrapper.vm.open({ target: '/project/third', container: false })
 
-    await wrapper.vm.open({ path: '/project/third' })
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'files/open')
 
-    expect(shell.openPath).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
   })
 
-  it('should attempt to open directory of file of open method call when parent flag is true', async () => {
+  it('should dispatch files/open with path when open is called with state when container is true', async () => {
     const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(shell.openPath).toHaveBeenCalledTimes(0)
-    expect(window.api.path_dirname).toHaveBeenCalledTimes(0)
+    await wrapper.vm.open({ target: '/project/third', container: true })
 
-    await wrapper.vm.open({ path: '/project/third', parent: true })
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'files/open')
 
-    expect(shell.openPath).toHaveBeenCalledTimes(1)
-    expect(window.api.path_dirname).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
   })
 
   it('should instruct the template service to execute when template is called', async () => {

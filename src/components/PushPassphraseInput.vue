@@ -44,11 +44,6 @@ export default {
   },
   data: () => ({
     obscured: true
-  }),
-  computed: {
-    button_color: function () {
-      return this.stored ? 'orange' : 'grey'
-    }
-  }
+  })
 }
 </script>

@@ -23,7 +23,11 @@ export default {
   },
   actions: {
     text: async function (context, value) {
-      await window.api.clipboard_text(value)
+      if (value) {
+        return await window.api.clipboard_writetext(value)
+      } else {
+        return await window.api.clipboard_readtext()
+      }
     },
     cut: async function (context, content) {
       context.commit('set', {

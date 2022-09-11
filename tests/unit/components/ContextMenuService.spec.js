@@ -1,11 +1,11 @@
 import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-import PushConfirm from '@/components/PushConfirm.vue'
+import ContextMenuService from '@/components/ContextMenuService.vue'
 
-describe('PushConfirm.vue', () => {
+describe('ContextMenuService.vue', () => {
   let vuetify
 
-  const factory = assemble(PushConfirm)
+  const factory = assemble(ContextMenuService)
     .context(() => ({ vuetify }))
 
   beforeEach(() => {

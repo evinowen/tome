@@ -22,7 +22,7 @@
             ref="editor"
             :options="codemirror_options"
             @inputRead=input
-            @contextmenu="(cm, event) => context(event)"
+            @contextmenu="(cm, event) => contextmenu(event)"
           />
         </div>
         <div class="fill-height" v-show="view === 'empty'">
@@ -106,7 +106,6 @@
 
 <script>
 import { VDivider } from 'vuetify/lib'
-import { clipboard } from 'electron'
 import { debounce, delay } from 'lodash'
 import marked from 'marked'
 import Mark from 'mark.js'
@@ -145,6 +144,9 @@ export default {
     },
     explore: function () {
       return !(this.commit || this.push)
+    },
+    edit: function () {
+      return store.state.system.edit
     },
     active: function () {
       return store.state.files.active
@@ -231,6 +233,46 @@ export default {
     },
     debounce_save: function () {
       return debounce((path) => this.save(path), 500)
+    },
+    context: function () {
+      return [
+        {
+          title: 'Action',
+          load: () => this.actions
+        },
+        { divider: true },
+        {
+          title: 'Cut',
+          active: () => this.system.edit && !this.readonly,
+          action: async () => {
+            const selection = this.codemirror.getSelection()
+
+            await store.dispatch('clipboard/text', selection)
+            this.codemirror.replaceSelection('')
+          }
+        },
+        {
+          title: 'Copy',
+          action: async () => {
+            let selection
+            if (this.system.edit) {
+              selection = this.codemirror.getSelection()
+            } else {
+              selection = document.getSelection().toString()
+            }
+
+            await store.dispatch('clipboard/text', selection)
+          }
+        },
+        {
+          title: 'Paste',
+          active: () => this.system.edit && !this.readonly,
+          action: async () => {
+            const clipboard = await store.dispatch('clipboard/text')
+            this.codemirror.replaceSelection(clipboard)
+          }
+        }
+      ]
     }
   },
   watch: {
@@ -252,51 +294,13 @@ export default {
     }
   },
   methods: {
-    context: async function (event) {
-      const items = [
-        {
-          title: 'Action',
-          load: () => this.actions
-        },
-        { divider: true },
-        {
-          title: 'Cut',
-          active: () => this.edit && !this.readonly,
-          action: () => {
-            const selection = this.codemirror.getSelection()
-
-            clipboard.writeText(selection)
-            this.codemirror.replaceSelection('')
-          }
-        },
-        {
-          title: 'Copy',
-          action: () => {
-            let selection
-            if (this.edit) {
-              selection = this.codemirror.getSelection()
-            } else {
-              selection = document.getSelection().toString()
-            }
-
-            clipboard.writeText(selection)
-          }
-        },
-        {
-          title: 'Paste',
-          active: () => this.edit && !this.readonly,
-          action: () => {
-            this.codemirror.replaceSelection(clipboard.readText())
-          }
-        }
-      ]
-
+    contextmenu: async function (event) {
       const position = {
         x: event.clientX,
         y: event.clientY
       }
 
-      await store.dispatch('context/open', { items, position })
+      await store.dispatch('context/open', { items: this.context, position })
     },
     refresh: async function (reset = false) {
       await this.debounce_save.flush()
@@ -339,7 +343,7 @@ export default {
 
       const content = content_array.join('\n')
 
-      await this.$emit('save', { path, content })
+      await store.dispatch('files/save', { path, content })
     },
     search: async function () {
       if (this.overlay) {
@@ -365,7 +369,7 @@ export default {
         return
       }
 
-      if (this.edit) {
+      if (this.system.edit) {
         this.overlay = {
           token: (stream) => {
             this.regex.lastIndex = stream.pos
@@ -420,7 +424,7 @@ export default {
       await this.navigate()
     },
     navigate: async function () {
-      if (this.edit) {
+      if (this.system.edit) {
         if (!this.overlay) {
           return
         }

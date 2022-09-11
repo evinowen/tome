@@ -14,6 +14,7 @@ describe('store/modules/tome.js', () => {
   let store
 
   let root_actions
+  let configuration
 
   beforeEach(() => {
     localVue = createLocalVue()
@@ -24,9 +25,16 @@ describe('store/modules/tome.js', () => {
       error: jest.fn()
     }
 
+    configuration = {
+      namespaced: true,
+      actions: {
+        read: jest.fn()
+      }
+    }
+
     store = new Vuex.Store(cloneDeep({
       actions: root_actions,
-      modules: { tome }
+      modules: { tome, configuration }
     }))
   })
 
@@ -56,14 +64,6 @@ describe('store/modules/tome.js', () => {
     await store.dispatch('tome/stage', './path.md')
 
     expect(window.api.stage_repository).toHaveBeenCalledTimes(1)
-  })
-
-  it('should dispatch message when staged file is an addition on dispatch of stage action', async () => {
-    await store.dispatch('tome/load', '/path/to/repository')
-
-    await store.dispatch('tome/stage', './path.md')
-
-    expect(root_actions.message).toHaveBeenCalledTimes(2)
   })
 
   it('should dispatch error when file fails to stage on dispatch of stage action', async () => {
@@ -159,25 +159,20 @@ describe('store/modules/tome.js', () => {
     expect(store.state.tome.staging).toEqual(0)
   })
 
-  it('should instruct the repository to store credentials on dispatch of credentials action', async () => {
-    await store.dispatch('tome/load', '/path/to/repository')
-
-    const credentials = {
-      private_key: './test_rsa',
-      passphrase: '1234'
-    }
-
-    await store.dispatch('tome/credentials', credentials)
-
-    expect(window.api.credential_repository).toHaveBeenCalledTimes(1)
-  })
-
   it('should instruct the repository to load remote by url on dispatch of remote action', async () => {
     await store.dispatch('tome/load', '/path/to/repository')
 
-    const url = 'git@git.example.com:remote.git'
+    const credentials = {
+      key: './test_rsa',
+      passphrase: '1234'
+    }
 
-    await store.dispatch('tome/remote', url)
+    await store.dispatch('tome/credentials/key', credentials.key)
+    await store.dispatch('tome/credentials/passphrase', credentials.passphrase)
+
+    const name = 'origin'
+
+    await store.dispatch('tome/remote', name)
 
     expect(window.api.load_remote_url_repository).toHaveBeenCalledTimes(1)
   })
@@ -186,15 +181,16 @@ describe('store/modules/tome.js', () => {
     await store.dispatch('tome/load', '/path/to/repository')
 
     const credentials = {
-      private_key: './test_rsa',
+      key: './test_rsa',
       passphrase: '1234'
     }
 
-    await store.dispatch('tome/credentials', credentials)
+    await store.dispatch('tome/credentials/key', credentials.key)
+    await store.dispatch('tome/credentials/passphrase', credentials.passphrase)
 
-    const url = 'git@git.example.com:remote.git'
+    const name = 'origin'
 
-    await store.dispatch('tome/remote', url)
+    await store.dispatch('tome/remote', name)
 
     await store.dispatch('tome/push')
 
@@ -217,11 +213,12 @@ describe('store/modules/tome.js', () => {
     expect(store.state.tome.metadata.readme).toEqual(readme)
   })
 
-  it('should store signature data on dispatch of signature action', async () => {
+  it('should store signature data on dispatch of signature actions', async () => {
     const name = 'Fred'
     const email = 'fred@example.com'
 
-    await store.dispatch('tome/signature', { name, email })
+    await store.dispatch('tome/signature/name', name)
+    await store.dispatch('tome/signature/email', email)
 
     expect(store.state.tome.signature.name).toEqual(name)
     expect(store.state.tome.signature.email).toEqual(email)
@@ -230,8 +227,8 @@ describe('store/modules/tome.js', () => {
   it('should store commit message on dispatch of message action', async () => {
     const message = 'Commit Message'
 
-    await store.dispatch('tome/message', message)
+    await store.dispatch('tome/signature/message', message)
 
-    expect(store.state.tome.message).toEqual(message)
+    expect(store.state.tome.signature.message).toEqual(message)
   })
 })

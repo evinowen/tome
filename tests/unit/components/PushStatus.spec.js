@@ -1,38 +1,23 @@
-import Vue from 'vue'
+import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-
 import PushStatus from '@/components/PushStatus.vue'
-
-import { createLocalVue, mount } from '@vue/test-utils'
-
-Vue.use(Vuetify)
-const localVue = createLocalVue()
 
 describe('PushStatus.vue', () => {
   let vuetify
-  let wrapper
+
+  const factory = assemble(PushStatus)
+    .context(() => ({ vuetify }))
 
   beforeEach(() => {
     vuetify = new Vuetify()
-
-    wrapper = mount(
-      PushStatus,
-      {
-        localVue,
-        vuetify
-      }
-    )
   })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  it('should mount and set prop and data defaults', async () => {
-    expect(wrapper.vm.active).toEqual(false)
-    expect(wrapper.vm.loading).toEqual(false)
-    expect(wrapper.vm.match).toEqual(false)
-    expect(wrapper.vm.error).toEqual('')
-    expect(wrapper.vm.history).toEqual([])
+  it('should mount into test scafolding without error', async () => {
+    const wrapper = factory.wrap()
+    expect(wrapper).toBeDefined()
   })
 })

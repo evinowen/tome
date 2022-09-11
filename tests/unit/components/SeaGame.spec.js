@@ -1,11 +1,11 @@
 import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-import PushConfirm from '@/components/PushConfirm.vue'
+import SeaGame from '@/components/SeaGame.vue'
 
-describe('PushConfirm.vue', () => {
+describe('SeaGame.vue', () => {
   let vuetify
 
-  const factory = assemble(PushConfirm)
+  const factory = assemble(SeaGame)
     .context(() => ({ vuetify }))
 
   beforeEach(() => {

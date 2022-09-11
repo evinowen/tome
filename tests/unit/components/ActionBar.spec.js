@@ -1,44 +1,36 @@
 import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-
-import ActionBar from '@/components/ActionBar.vue'
 import store from '@/store'
+import ActionBar from '@/components/ActionBar.vue'
 
-import builders from '@/../tests/builders'
-
-Object.assign(window, builders.window())
-
-jest.mock('@/store', () => ({
-  state: {},
-  dispatch: jest.fn()
-}))
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 describe('ActionBar.vue', () => {
+  let vuetify
+
   const branch = false
   const commit = false
   const push = false
 
   const factory = assemble(ActionBar, { branch, commit, push })
-    .context(() => ({ stubs: { LibraryButton: true, RepositoryButton: true } }))
-    .hook(({ context, localVue }) => {
-      localVue.use(Vuetify)
-      context.vuetify = new Vuetify()
-    })
+    .context(() => ({
+      vuetify,
+      stubs: { LibraryButton: true, RepositoryButton: true }
+    }))
 
   beforeEach(() => {
-    window._.reset_dialog()
+    vuetify = new Vuetify()
 
     store.state = {
+      system: {
+        edit: false
+      },
       tome: {
         path: './tome_path',
         name: 'Name',
         branch: {
           name: 'master',
           error: null
-        },
-        status: {
-          available: { new: 0, renamed: 0, modified: 0, deleted: 0 },
-          staged: { new: 0, renamed: 0, modified: 0, deleted: 0 }
         },
         metadata: {
           readme: null,
@@ -54,94 +46,101 @@ describe('ActionBar.vue', () => {
     jest.clearAllMocks()
   })
 
-  it('should emit "open" event with path when open called with path', async () => {
+  it('should dispatch system/open with path when open is called with path', async () => {
     const wrapper = factory.wrap()
-    const event = jest.fn()
-
-    wrapper.vm.$on('open', event)
-
-    expect(event).toHaveBeenCalledTimes(0)
 
     const path = './file_path'
     await wrapper.vm.open(path)
 
-    expect(event).toHaveBeenCalledTimes(1)
-    expect(event.mock.calls[0][0]).toBe(path)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/open')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual(path)
   })
 
-  it('should pass dialog selected file to "open" event with path when open called without a path', async () => {
+  it('should close library when open is called', async () => {
     const wrapper = factory.wrap()
-    const event = jest.fn()
+    wrapper.setData({ library: true })
 
-    wrapper.vm.$on('open', event)
+    const path = './file_path'
+    await wrapper.vm.open(path)
 
-    expect(event).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.open()
-
-    expect(event).toHaveBeenCalledTimes(1)
-    expect(event.mock.calls[0][0]).toBe('/project')
+    expect(wrapper.vm.library).toBe(false)
   })
 
-  it('should not emit an "open" event when open called without a path and dialog is canceled', async () => {
+  it('should dispatch system/close when close is called', async () => {
     const wrapper = factory.wrap()
-    window._.trip_canceled_dialog()
 
-    const event = jest.fn()
+    await wrapper.vm.close()
 
-    wrapper.vm.$on('open', event)
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/close')
 
-    expect(event).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.open()
-
-    expect(event).toHaveBeenCalledTimes(0)
+    expect(action).toBeDefined()
   })
 
-  it('should not emit an "open" event when open called without a path and file is not included', async () => {
+  it('should dispatch system/edit with inverse of current system edit when edit is called', async () => {
     const wrapper = factory.wrap()
-    window._.trip_empty_dialog()
 
-    const event = jest.fn()
+    await wrapper.vm.edit()
 
-    wrapper.vm.$on('open', event)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/edit')
 
-    expect(event).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.open()
-
-    expect(event).toHaveBeenCalledTimes(0)
+    expect(action).toBeDefined()
+    expect(data).toEqual(true)
   })
 
-  it('should return value of diabled when true is passed into disabled_unless', async () => {
+  it('should dispatch system/branch with inverse of current system branch when branch is called', async () => {
     const wrapper = factory.wrap()
-    expect(wrapper.vm.disabled).toEqual(false)
 
-    const disabled = wrapper.vm.disabled_unless(true)
+    await wrapper.vm.branch()
 
-    expect(disabled).toEqual(false)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/branch')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual(true)
   })
 
-  it('should return OR of toggle values when false is passed into disabled_unless', async () => {
-    const wrapper = factory.wrap({ branch: true })
-
-    expect(wrapper.vm.disabled).toEqual(false)
-    expect(wrapper.vm.branch).toEqual(true)
-    expect(wrapper.vm.commit).toEqual(false)
-    expect(wrapper.vm.push).toEqual(false)
-
-    const disabled = wrapper.vm.disabled_unless(false)
-
-    expect(disabled).toEqual(true)
-  })
-
-  it('should dispatch file select with path when open_file called with path', async () => {
+  it('should dispatch system/commit with inverse of current system commit when commit is called', async () => {
     const wrapper = factory.wrap()
-    const path = '/project'
-    await wrapper.vm.open_file(path)
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toEqual('files/select')
-    expect(store.dispatch.mock.calls[0][1]).toEqual({ path })
+    await wrapper.vm.commit()
+
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/commit')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual(true)
+  })
+
+  it('should dispatch system/push with inverse of current system push when push is called', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.push()
+
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/push')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual(true)
+  })
+
+  it('should dispatch system/console with inverse of current system console when console is called', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.console()
+
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/console')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual(true)
+  })
+
+  it('should dispatch system/search with inverse of current system search when search is called', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.search()
+
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/search')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual(true)
   })
 })

@@ -1,11 +1,11 @@
 import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-import PushConfirm from '@/components/PushConfirm.vue'
+import FileIcon from '@/components/FileIcon.vue'
 
-describe('PushConfirm.vue', () => {
+describe('FileIcon.vue', () => {
   let vuetify
 
-  const factory = assemble(PushConfirm)
+  const factory = assemble(FileIcon)
     .context(() => ({ vuetify }))
 
   beforeEach(() => {

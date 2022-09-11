@@ -11,13 +11,9 @@ class Repository {
     this.name = _path.basename(this.path)
 
     this.repository = null
-    this.branch = null
-
     this.remotes = null
-    this.remote = null
 
     this.ahead = false
-    this.pending = []
 
     this.available = []
     this.staged = []
@@ -29,6 +25,9 @@ class Repository {
     this.passphrase = null
 
     this.patches = null
+
+    this.clearBranch()
+    this.clearRemoteBranch()
   }
 
   storeCredentials (private_key, public_key, passphrase) {
@@ -146,6 +145,10 @@ class Repository {
     }
   }
 
+  clearBranch () {
+    this.branch = null
+  }
+
   async loadBranch () {
     if (this.repository.headUnborn()) {
       this.loadUnbornBranch()
@@ -186,11 +189,10 @@ class Repository {
   }
 
   async loadRemoteBranch (url) {
+    this.clearRemoteBranch()
+
     this.remote = this.remotes.find(remote => remote.url === url)
     this.remote_object = this.remote_map[this.remote.name]
-    this.remote_branch = null
-
-    this.pending = []
 
     await this.remote_object.connect(NodeGit.Enums.DIRECTION.FETCH, this.generateConnectionHooks())
 
@@ -222,6 +224,14 @@ class Repository {
 
       local_commit = await local_commit.parent(0)
     } while (local_commit)
+  }
+
+  clearRemoteBranch () {
+    this.remote = null
+    this.remote_object = null
+    this.remote_branch = null
+
+    this.pending = []
   }
 
   matchRemoteBranchReference (references) {
@@ -370,7 +380,7 @@ class Repository {
 
     if (query === '*') {
       for (let i = 0; i < this.staged.length; i++) {
-        await this.resetPath(index, this.staged[i].path, notify)
+        await this.resetPath(head, this.staged[i].path, notify)
       }
     } else {
       await this.resetPath(head, query, notify)
@@ -384,7 +394,7 @@ class Repository {
       notify('reset', path)
     }
 
-    await NodeGit.Reset.default(this.repository, head, path)
+    await NodeGit.Reset.default(this.repository, head, [path])
   }
 
   async commit (name, email, message) {

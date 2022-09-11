@@ -1,20 +1,9 @@
 import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-
+import store from '@/store'
 import SystemBar from '@/components/SystemBar.vue'
 
-import builders from '@/../tests/builders'
-
-Object.assign(window, builders.window())
-
-jest.mock('@/store', () => ({
-  state: {
-    tome: {
-      name: 'Test Title'
-    }
-  },
-  dispatch: jest.fn()
-}))
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 describe('SystemBar.vue', () => {
   const title = 'Test Title'
@@ -23,58 +12,78 @@ describe('SystemBar.vue', () => {
 
   const factory = assemble(SystemBar, { title })
     .context(() => ({ vuetify, stubs: { VIcon: true } }))
-    .hook(({ context }) => {
-      vuetify = new Vuetify()
-    })
+
+  beforeEach(() => {
+    vuetify = new Vuetify()
+
+    store.state = {
+      system: {
+        maximized: false,
+        settings: false
+      }
+    }
+  })
 
   afterEach(async () => {
-    await window.api.maximize_window()
     jest.clearAllMocks()
   })
 
-  it('renders props.title when passed', () => {
+  it('should mount into test scafolding without error', async () => {
     const wrapper = factory.wrap()
-
-    expect(wrapper.find('[system-bar-title]').text()).toEqual(title)
+    expect(wrapper).toBeDefined()
   })
 
-  it('calls method to close the application window when close button is clicked', async () => {
+  it('should dispatch system/settings with inverted settings value when settings is called', async () => {
+    const value = store.state.system.settings
     const wrapper = factory.wrap()
 
-    wrapper.find('[system-bar-close]').trigger('click')
-    await wrapper.vm.$nextTick()
+    await wrapper.vm.settings()
 
-    expect(window.api.close_window).toHaveBeenCalledTimes(1)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/settings')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual(!value)
   })
 
-  it('calls method to minimize the application window when minimize button is clicked', async () => {
+  it('should dispatch system/minimize when minimize is called', async () => {
     const wrapper = factory.wrap()
 
-    wrapper.find('[system-bar-minimize]').trigger('click')
-    await wrapper.vm.$nextTick()
+    await wrapper.vm.minimize()
 
-    expect(window.api.minimize_window).toHaveBeenCalledTimes(1)
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/minimize')
+
+    expect(action).toBeDefined()
   })
 
-  it('calls method to maximize the application window when maximize button is clicked and window is not maximized', async () => {
+  it('should dispatch system/maximize when maximize is called and window is not maximized', async () => {
     const wrapper = factory.wrap()
 
-    window.api.minimize_window()
+    await wrapper.vm.maximize()
 
-    wrapper.find('[system-bar-maximize]').trigger('click')
-    await wrapper.vm.$nextTick()
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/maximize')
 
-    expect(window.api.restore_window).toHaveBeenCalledTimes(0)
-    expect(window.api.maximize_window).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
   })
 
-  it('calls method to restore the application window when maximize button is clicked and window is maximized', async () => {
+  it('should dispatch system/restore when maximize is called and window is maximized', async () => {
+    store.state.system.maximized = true
+
     const wrapper = factory.wrap()
 
-    wrapper.find('[system-bar-maximize]').trigger('click')
-    await wrapper.vm.$nextTick()
+    await wrapper.vm.maximize()
 
-    expect(window.api.restore_window).toHaveBeenCalledTimes(1)
-    expect(window.api.maximize_window).toHaveBeenCalledTimes(0)
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/restore')
+
+    expect(action).toBeDefined()
+  })
+
+  it('should dispatch system/exit when exit is called', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.exit()
+
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/exit')
+
+    expect(action).toBeDefined()
   })
 })

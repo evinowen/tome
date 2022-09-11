@@ -1,11 +1,11 @@
 import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-import PushConfirm from '@/components/PushConfirm.vue'
+import ImagePreview from '@/components/ImagePreview.vue'
 
-describe('PushConfirm.vue', () => {
+describe('ImagePreview.vue', () => {
   let vuetify
 
-  const factory = assemble(PushConfirm)
+  const factory = assemble(ImagePreview)
     .context(() => ({ vuetify }))
 
   beforeEach(() => {
@@ -19,5 +19,15 @@ describe('PushConfirm.vue', () => {
   it('should mount into test scafolding without error', async () => {
     const wrapper = factory.wrap()
     expect(wrapper).toBeDefined()
+  })
+
+  it('should set hide to true when error is called', async () => {
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.hide).toBe(false)
+
+    await wrapper.vm.error()
+
+    expect(wrapper.vm.hide).toBe(true)
   })
 })

@@ -13,6 +13,7 @@ module.exports = {
   stage_repository: (query) => ipcRenderer.invoke('stage_repository', query),
   reset_repository: (query) => ipcRenderer.invoke('reset_repository', query),
   push_repository: () => ipcRenderer.invoke('push_repository'),
+  clear_remote_repository: (url) => ipcRenderer.invoke('clear_remote_repository'),
   load_remote_url_repository: (url) => ipcRenderer.invoke('load_remote_url_repository', url),
   commit_repository: (name, email, message) => ipcRenderer.invoke('commit_repository', name, email, message)
 }

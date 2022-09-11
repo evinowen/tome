@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 
 const path = require('path')
+const util = require('util')
 
 const register = (win) => {
   ipcMain.removeAllListeners()
@@ -18,7 +19,9 @@ const register = (win) => {
 
 let win = null
 
-const createWindow = () => {
+app.onAsync = util.promisify(app.on)
+
+const createWindow = async () => {
   let development = false
   let frame = false
 
@@ -43,31 +46,33 @@ const createWindow = () => {
     }
   })
 
-  register(win)
-
-  if (development) {
-    win.loadURL('http://localhost:8080/')
-  } else {
-    win.loadFile('index.html')
-  }
-
   win.on('closed', () => {
     win = null
   })
 
-  win.once('ready-to-show', () => {
-    win.show()
-  })
+  register(win)
+
+  if (development) {
+    await win.loadURL('http://localhost:8080/')
+  } else {
+    await win.loadFile('index.html')
+  }
+
+  win.show()
 }
 
-app.whenReady().then(() => {
-  createWindow()
+app.whenReady().then(async () => {
+  await createWindow()
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  app.onAsync('activate', async () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      await createWindow()
+    }
   })
 })
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
+app.onAsync('window-all-closed', async () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
 })

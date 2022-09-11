@@ -1,27 +1,15 @@
-import Vue from 'vue'
+import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-
-import CommitConfirm from '@/components/CommitConfirm.vue'
-
-import { createLocalVue, mount } from '@vue/test-utils'
-
-Vue.use(Vuetify)
-const localVue = createLocalVue()
+import CommitConfirm, { CommitConfirmMessages } from '@/components/CommitConfirm.vue'
 
 describe('CommitConfirm.vue', () => {
   let vuetify
-  let wrapper
+
+  const factory = assemble(CommitConfirm)
+    .context(() => ({ vuetify }))
 
   beforeEach(() => {
     vuetify = new Vuetify()
-
-    wrapper = mount(
-      CommitConfirm,
-      {
-        localVue,
-        vuetify
-      }
-    )
   })
 
   afterEach(() => {
@@ -29,8 +17,16 @@ describe('CommitConfirm.vue', () => {
   })
 
   it('should set status to ready message when staging is false', async () => {
-    wrapper.setProps({ staging: false })
+    const wrapper = factory.wrap()
+    await wrapper.setProps({ staging: false })
 
-    expect(wrapper.vm.status).toEqual('Commit is prepared and ready to publish')
+    expect(wrapper.vm.status).toEqual(CommitConfirmMessages.Ready)
+  })
+
+  it('should set status to staging message when staging is true', async () => {
+    const wrapper = factory.wrap()
+    await wrapper.setProps({ staging: true })
+
+    expect(wrapper.vm.status).toEqual(CommitConfirmMessages.Staging)
   })
 })

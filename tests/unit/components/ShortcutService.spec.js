@@ -2,209 +2,89 @@ import { assemble } from '@/../tests/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import VueShortKey from 'vue-shortkey'
-
+import store from '@/store'
 import ShortcutService from '@/components/ShortcutService.vue'
 
-Vue.use(Vuetify)
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
+
 Vue.use(VueShortKey)
 
-describe('Console.vue', () => {
+describe('ShortcutService.vue', () => {
+  let vuetify
+
   const factory = assemble(ShortcutService)
-    .hook(({ context, localVue }) => {
-      localVue.use(Vuetify)
-      context.vuetify = new Vuetify()
-    })
+    .context(() => ({ vuetify }))
+
+  beforeEach(() => {
+    vuetify = new Vuetify()
+
+    store.state = {
+      system: {
+        example: false,
+        settings: false,
+        console: false,
+        patch: false,
+        search: false,
+        branch: false,
+        push: false,
+        commit: false,
+        edit: false
+      }
+    }
+  })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  it('should emit settings event if no other flags are enabled on call to escape', async () => {
-    const event = jest.fn()
-
-    const wrapper = factory.wrap({
-      settings: false,
-      console: false,
-      patch: false,
-      search: false,
-      branch: false,
-      push: false,
-      commit: false,
-      edit: false
-    })
-
-    wrapper.vm.$on('settings', event)
-
-    wrapper.vm.escape()
-
-    expect(event).toHaveBeenCalledTimes(1)
+  it('should mount into test scafolding without error', async () => {
+    const wrapper = factory.wrap()
+    expect(wrapper).toBeDefined()
   })
 
-  it('should emit settings event if settings flag is enabled on call to escape', async () => {
-    const event = jest.fn()
+  it('should dispatch system/settings with true when escape is called and no flags are set', async () => {
+    const wrapper = factory.wrap()
 
-    const wrapper = factory.wrap({
-      settings: true,
-      console: true,
-      patch: true,
-      search: true,
-      branch: true,
-      push: true,
-      commit: true,
-      edit: true
-    })
+    await wrapper.vm.escape()
 
-    wrapper.vm.$on('settings', event)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/settings')
 
-    wrapper.vm.escape()
-
-    expect(event).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
+    expect(data).toEqual(true)
   })
 
-  it('should emit console event if console flag is enabled on call to escape', async () => {
-    const event = jest.fn()
+  it('should dispatch system flag for layer name with inverse value when layer is called with a layer name', async () => {
+    const value = store.state.system.example
+    const wrapper = factory.wrap()
 
-    const wrapper = factory.wrap({
-      settings: false,
-      console: true,
-      patch: true,
-      search: true,
-      branch: true,
-      push: true,
-      commit: true,
-      edit: true
-    })
+    const layer = 'example'
+    await wrapper.vm.layer(layer)
 
-    wrapper.vm.$on('console', event)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/example')
 
-    wrapper.vm.escape()
-
-    expect(event).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
+    expect(data).toEqual(!value)
   })
 
-  it('should emit patch event if patch flag is enabled on call to escape', async () => {
-    const event = jest.fn()
+  it('should dispatch system/perform with perform name when perform is called with a name', async () => {
+    const wrapper = factory.wrap()
 
-    const wrapper = factory.wrap({
-      settings: false,
-      console: false,
-      patch: true,
-      search: true,
-      branch: true,
-      push: true,
-      commit: true,
-      edit: true
-    })
+    const performance = 'example-performance'
+    await wrapper.vm.perform(performance)
 
-    wrapper.vm.$on('patch', event)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/perform')
 
-    wrapper.vm.escape()
-
-    expect(event).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
+    expect(data).toEqual(performance)
   })
 
-  it('should emit search event if search flag is enabled on call to escape', async () => {
-    const event = jest.fn()
+  it('should dispatch library/select when select is called', async () => {
+    const wrapper = factory.wrap()
 
-    const wrapper = factory.wrap({
-      settings: false,
-      console: false,
-      patch: false,
-      search: true,
-      branch: true,
-      push: true,
-      commit: true,
-      edit: true
-    })
+    await wrapper.vm.select()
 
-    wrapper.vm.$on('search', event)
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'library/select')
 
-    wrapper.vm.escape()
-
-    expect(event).toHaveBeenCalledTimes(1)
-  })
-
-  it('should emit branch event if branch flag is enabled on call to escape', async () => {
-    const event = jest.fn()
-
-    const wrapper = factory.wrap({
-      settings: false,
-      console: false,
-      patch: false,
-      search: false,
-      branch: true,
-      push: true,
-      commit: true,
-      edit: true
-    })
-
-    wrapper.vm.$on('branch', event)
-
-    wrapper.vm.escape()
-
-    expect(event).toHaveBeenCalledTimes(1)
-  })
-
-  it('should emit push event if push flag is enabled on call to escape', async () => {
-    const event = jest.fn()
-
-    const wrapper = factory.wrap({
-      settings: false,
-      console: false,
-      patch: false,
-      search: false,
-      branch: false,
-      push: true,
-      commit: true,
-      edit: true
-    })
-
-    wrapper.vm.$on('push', event)
-
-    wrapper.vm.escape()
-
-    expect(event).toHaveBeenCalledTimes(1)
-  })
-
-  it('should emit commit event if commit flag is enabled on call to escape', async () => {
-    const event = jest.fn()
-
-    const wrapper = factory.wrap({
-      settings: false,
-      console: false,
-      patch: false,
-      search: false,
-      branch: false,
-      push: false,
-      commit: true,
-      edit: true
-    })
-
-    wrapper.vm.$on('commit', event)
-
-    wrapper.vm.escape()
-
-    expect(event).toHaveBeenCalledTimes(1)
-  })
-
-  it('should emit edit event if edit flag is enabled on call to escape', async () => {
-    const event = jest.fn()
-
-    const wrapper = factory.wrap({
-      settings: false,
-      console: false,
-      patch: false,
-      search: false,
-      branch: false,
-      push: false,
-      commit: false,
-      edit: true
-    })
-
-    wrapper.vm.$on('edit', event)
-
-    wrapper.vm.escape()
-
-    expect(event).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
   })
 })

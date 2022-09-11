@@ -1,105 +1,103 @@
 import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-
 import store from '@/store'
 import SearchService from '@/components/SearchService.vue'
 
-import builders from '@/../tests/builders'
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-Object.assign(window, builders.window())
-
-jest.mock('@/store', () => ({
-  state: {
-    tome: {
-      name: 'project',
-      path: '/project'
-    },
-    configuration: {
-      format_titles: false
-    },
-    files: {
-      active: null,
-      content: null,
-      error: null,
-      tree: {}
-    },
-    search: {
-      index: null,
-      query: null,
-      results: null,
-      navigation: {
-        target: 0,
-        total: 0
-      }
-    }
-  },
-  dispatch: jest.fn()
-}))
-
-describe('SearchService', () => {
+describe('SearchService.vue', () => {
   let vuetify
 
   const factory = assemble(SearchService)
-    .hook(({ context, localVue }) => {
-      localVue.use(Vuetify)
+    .context(() => ({ vuetify }))
 
-      vuetify = new Vuetify()
-      context.vuetify = vuetify
-    })
+  beforeEach(() => {
+    vuetify = new Vuetify()
+
+    store.state = {
+      search: {
+        case_sensitive: false,
+        status: null,
+        index: null,
+        query: null,
+        navigation: {
+          target: 0,
+          total: 0
+        },
+        multifile: false,
+        regex_query: false,
+        results: null
+      },
+      tome: {
+        path: '/project'
+      }
+    }
+  })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  it('should execute a search against the search module when a query is inputted', async () => {
-    const query = 'test query'
-
+  it('should mount into test scafolding without error', async () => {
     const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.update(query)
-
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toBe('search/query')
+    expect(wrapper).toBeDefined()
   })
 
-  it('should instruct search module to navigate to next result when next is called', async () => {
+  it('should dispatch search/query with query when update is called with a query', async () => {
     const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
+    const query = '/project'
+    await wrapper.vm.update(query)
+
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'search/query')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual({ path: store.state.tome.path, query })
+  })
+
+  it('should dispatch search/next when next is called', async () => {
+    const wrapper = factory.wrap()
 
     await wrapper.vm.next()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toBe('search/next')
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'search/next')
+
+    expect(action).toBeDefined()
   })
 
-  it('should instruct search module to navigate to previous result when previous is called', async () => {
+  it('should dispatch search/previous when previous is called', async () => {
     const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
 
     await wrapper.vm.previous()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toBe('search/previous')
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'search/previous')
+
+    expect(action).toBeDefined()
   })
 
-  it('should instruct file module to select a result when select is called', async () => {
-    const path = '/project/path/to/file'
-
+  it('should dispatch files/select with path when select is called with path', async () => {
     const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
-
+    const path = '/project/file.md'
     await wrapper.vm.select(path)
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toBe('files/select')
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'files/select')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual({ path })
+  })
+
+  it('should dispatch search/navigate with target when select is called with a positive target', async () => {
+    const wrapper = factory.wrap()
+
+    const path = '/project/file.md'
+    const target = 1
+    const total = 1
+    await wrapper.vm.select(path, target, total)
+
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'search/navigate')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual({ target, total })
   })
 })

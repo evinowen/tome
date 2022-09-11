@@ -81,7 +81,7 @@ export default {
         await store.dispatch('system/maximize')
       }
     },
-    exit: async function (event) {
+    exit: async function () {
       await store.dispatch('system/exit')
     }
   }

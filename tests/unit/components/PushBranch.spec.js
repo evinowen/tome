@@ -1,11 +1,11 @@
 import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-import PushConfirm from '@/components/PushConfirm.vue'
+import PushBranch from '@/components/PushBranch.vue'
 
-describe('PushConfirm.vue', () => {
+describe('PushBranch.vue', () => {
   let vuetify
 
-  const factory = assemble(PushConfirm)
+  const factory = assemble(PushBranch)
     .context(() => ({ vuetify }))
 
   beforeEach(() => {

@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon'
+
 const reset = () => ({
   name: '',
   path: '',
@@ -12,11 +14,6 @@ const reset = () => ({
     available: [],
     staged: []
   },
-  signature: {
-    email: '',
-    name: ''
-  },
-  message: '',
   remote: null,
   repository: null,
   metadata: {
@@ -67,6 +64,13 @@ export default {
       state.push_working = flag
     },
     remote: function (state, data) {
+      state.remote = null
+      state.pending = []
+
+      if (data === null) {
+        return
+      }
+
       const { remote, pending } = data
 
       state.remote = remote
@@ -95,12 +99,29 @@ export default {
       context.commit('clear')
     },
     load: async function (context, path) {
+      await context.dispatch('message', `Loading tome at ${path} ... `, { root: true })
+
       const repository = await window.api.load_repository(path)
 
       context.commit('initialize', repository)
       context.commit('load')
 
       await context.dispatch('inspect')
+
+      await context.dispatch('signature/name')
+      await context.dispatch('signature/email')
+      await context.dispatch('signature/message')
+
+      const passphrase = await context.dispatch('configuration/read', 'passphrase', { root: true })
+      await context.dispatch('credentials/passphrase', passphrase)
+
+      const key = await context.dispatch('configuration/read', 'private_key', { root: true })
+      await context.dispatch('credentials/key', key)
+
+      const remote = await context.dispatch('configuration/read', 'default_remote', { root: true })
+      await context.dispatch('remote', remote)
+
+      await context.dispatch('message', `${repository.name} ready`, { root: true })
     },
     stage: async function (context, query) {
       context.commit('staging', true)
@@ -159,8 +180,7 @@ export default {
     commit: async function (context) {
       context.commit('commit', true)
 
-      const { name, email } = context.state.signature
-      const message = context.state.message
+      const { name, email, message } = context.state.signature
 
       await context.dispatch('message', `Creating commit "${message}" ...`, { root: true })
 
@@ -176,20 +196,36 @@ export default {
 
       context.commit('commit', false)
     },
-    credentials: async function (context, credentials) {
-      const { private_key, passphrase } = credentials
+    remote: async function (context, name) {
+      await window.api.clear_remote_repository()
+      context.commit('remote', null)
+
+      if (!name) {
+        return
+      }
+
+      const { key: private_key, passphrase } = context.state.credentials
+
+      if (!private_key) {
+        return
+      }
 
       const { path: public_key } = await window.api.ssl_generate_public_key(private_key, passphrase)
 
       await window.api.credential_repository(private_key, public_key, passphrase)
-    },
-    remote: async function (context, url) {
-      await window.api.load_remote_url_repository(url)
+
+      const remote = context.state.remotes.find((remote) => remote.name === name)
+      await window.api.load_remote_url_repository(remote.url)
 
       const result = await window.api.remote_repository()
       context.commit('remote', result)
     },
     push: async function (context) {
+      const { key: private_key, passphrase } = context.state.credentials
+      const { path: public_key } = await window.api.ssl_generate_public_key(private_key, passphrase)
+
+      await window.api.credential_repository(private_key, public_key, passphrase)
+
       context.commit('push', true)
 
       await context.dispatch('message', `Pushing to remote ${context.state.remote.name} ...`, { root: true })
@@ -203,14 +239,61 @@ export default {
     metadata: function (context, data) {
       context.commit('metadata', data)
     },
-    signature: function (context, data) {
-      context.commit('signature', data)
-    },
-    message: function (context, message) {
-      context.commit('message', message)
-    },
     staging: function (context, advance) {
       context.commit('staging', advance)
+    }
+  },
+  modules: {
+    credentials: {
+      namespaced: true,
+      state: {
+        key: null,
+        passphrase: null
+      },
+      mutations: {
+        set: function (state, data) {
+          for (const key in data) {
+            state[key] = data[key]
+          }
+        }
+      },
+      actions: {
+        key: async function (context, value) {
+          context.commit('set', { key: value })
+        },
+        passphrase: async function (context, value) {
+          context.commit('set', { passphrase: value })
+        }
+      }
+    },
+    signature: {
+      namespaced: true,
+      state: {
+        name: null,
+        email: null,
+        message: null
+      },
+      mutations: {
+        set: function (state, data) {
+          for (const key in data) {
+            state[key] = data[key]
+          }
+        }
+      },
+      actions: {
+        name: async function (context, value) {
+          const name = value || await context.dispatch('configuration/read', 'name', { root: true })
+          context.commit('set', { name })
+        },
+        email: async function (context, value) {
+          const email = value || await context.dispatch('configuration/read', 'email', { root: true })
+          context.commit('set', { email })
+        },
+        message: function (context, value) {
+          const message = value || `Update for ${DateTime.now().toISODate()}`
+          context.commit('set', { message })
+        }
+      }
     }
   }
 }
