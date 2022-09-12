@@ -448,7 +448,6 @@ export default {
         return
       }
 
-
       const position = {
         x: event.clientX,
         y: event.clientY

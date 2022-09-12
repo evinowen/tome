@@ -182,7 +182,6 @@ export default {
     },
     open: async function (context, criteria) {
       const { container = false } = criteria
-      console.log(criteria.path)
       const item = await context.dispatch('identify', criteria)
 
       await item.open(container)

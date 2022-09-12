@@ -73,7 +73,6 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.format_titles).toBe(true)
   })
 
-
   it('should set values from object when update is dispatched', async () => {
     const update = {
       name: 'New Name',
