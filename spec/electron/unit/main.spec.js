@@ -149,6 +149,9 @@ describe('ElectronMain', () => {
     await promise
 
     expect(electron.app.on).toHaveBeenCalled()
-    expect(electron.app.quit).toHaveBeenCalled()
+
+    if (process.platform !== 'darwin') {
+      expect(electron.app.quit).toHaveBeenCalled()
+    }
   })
 })
