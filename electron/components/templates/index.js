@@ -5,6 +5,7 @@ const path = require('path')
 const { cloneDeep } = require('lodash')
 const Mustache = require('mustache')
 const is_text_path = require('is-text-path')
+const { promise_with_reject } = require('@/../electron/promise')
 
 const TemplateFileType = {
   INACCESSABLE: -1,
@@ -57,9 +58,7 @@ class TemplateFile {
   }
 
   async type () {
-    const stats = await new Promise(
-      (resolve) => fs.lstat(this.path.target.absolute, (error, stats) => error ? resolve(null) : resolve(stats))
-    )
+    const stats = await promise_with_reject(fs.lstat)(this.path.target.absolute).catch(() => null)
 
     if (!stats) {
       return TemplateFileType.INACCESSABLE
@@ -69,34 +68,24 @@ class TemplateFile {
   }
 
   async read () {
-    return await new Promise(
-      (resolve, reject) => fs.readFile(this.path.target.absolute, 'utf8', (error, data) => error ? reject(error) : resolve(data))
-    )
+    return promise_with_reject(fs.readFile)(this.path.target.absolute, 'utf8')
   }
 
   async readdir () {
     const options = { withFileTypes: true }
-    return await new Promise(
-      (resolve, reject) => fs.readdir(this.path.target.absolute, options, (error, files) => error ? reject(error) : resolve(files))
-    )
+    return promise_with_reject(fs.readdir)(this.path.target.absolute, options)
   }
 
   async write (content) {
-    return await new Promise(
-      (resolve, reject) => fs.writeFile(this.path.target.absolute, content, (error) => error ? reject(error) : resolve(true))
-    )
+    return promise_with_reject(fs.writeFile)(this.path.target.absolute, content)
   }
 
   async mkdir () {
-    return await new Promise(
-      (resolve, reject) => fs.mkdir(this.path.target.absolute, (error) => error ? reject(error) : resolve(true))
-    )
+    return promise_with_reject(fs.mkdir)(this.path.target.absolute)
   }
 
   async copy (target) {
-    return await new Promise(
-      (resolve, reject) => fs.copyFile(this.path.target.absolute, target, (error, data) => error ? reject(error) : resolve(true))
-    )
+    return promise_with_reject(fs.copyFile)(this.path.target.absolute, target)
   }
 
   static make (target) {
@@ -178,8 +167,8 @@ class Template {
     for (const result of results) {
       const source = new TemplateFile(this.source.path.root, this.source.path.target.absolute, result.name)
 
-      const ext = path.extname(source.path.target.absolute)
-      if (result.isFile() && ext === '.json') {
+      const extension = path.extname(source.path.target.absolute)
+      if (result.isFile() && extension === '.json') {
         const content = await source.read()
         Object.assign(context.config, JSON.parse(content))
         continue
@@ -223,7 +212,7 @@ class Template {
   }
 
   async construct_file () {
-    const { compute = {}, config = {} } = this.context
+    const { compute , config } = this.context
 
     switch (await this.destination.type()) {
       case TemplateFileType.DIRECTORY:

@@ -4,41 +4,52 @@ const fs = require('fs')
 const path = require('path')
 const vm = require('vm')
 
+const environment = {
+  require,
+  console
+}
+
 const timeout = 30000
 
+const { promise_with_reject } = require('@/../electron/promise')
+
 module.exports = {
+  data: () => ({
+    environment,
+    timeout
+  }),
   register: () => {
     ipcMain.handle('action_invoke', async (event, source, target, selection) => {
-      const stats = await new Promise((resolve, reject) => fs.lstat(source, (err, stats) => err ? reject(err) : resolve(stats)))
+      const stats = await promise_with_reject(fs.lstat)(source)
 
       const source_script = stats.isDirectory() ? path.join(source, 'index.js') : source
 
-      const contents_raw = await new Promise((resolve, reject) => fs.readFile(source_script, 'utf8', (error, data) => error ? reject(error) : resolve(data)))
+      const contents_raw = await promise_with_reject(fs.readFile)(source_script, 'utf8')
 
       const script = vm.createScript(contents_raw)
 
       const content = async (data = null) => {
         if (data) {
-          await new Promise((resolve, reject) => fs.writeFile(target, data, (err) => err ? reject(err) : resolve(true)))
+          await promise_with_reject(fs.writeFile)(target, data)
         } else {
-          return await new Promise((resolve, reject) => fs.readFile(target, 'utf8', (error, data) => error ? reject(error) : resolve(data)))
+          return await promise_with_reject(fs.readFile)(target, 'utf8')
         }
       }
 
-      const context = { require, console, source, target, content, selection }
+      const context = { ...environment, content, source, target, selection }
 
       context.require = (query) => {
         const absolute = path.join(source, query)
 
         if (absolute !== source) {
           try {
-            const resolved = require.resolve(absolute)
-            delete require.cache[resolved]
-            return require(absolute)
+            const resolved = environment.require.resolve(absolute)
+            delete environment.require.cache[resolved]
+            return environment.require(absolute)
           } catch (error) { }
         }
 
-        return require(query)
+        return environment.require(query)
       }
 
       const options = { timeout }

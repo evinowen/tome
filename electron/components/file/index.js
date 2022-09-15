@@ -1,8 +1,9 @@
-const { ipcMain, dialog, shell, BrowserWindow } = require('electron')
+const { ipcMain, dialog, shell } = require('electron')
 
 const fs = require('fs')
 const path = require('path')
 const chokidar = require('chokidar')
+const { promise_with_reject, promise_access } = require('@/../electron/promise')
 
 const search = {
   target: null,
@@ -10,27 +11,25 @@ const search = {
   files: []
 }
 
-const excluded_filenames = [
+const excluded_filenames = new Set([
   '.git',
   '.tome'
-]
+])
 
 let watcher = null
 
 module.exports = {
   register: (win) => {
     ipcMain.on('file_subscribe', (event, target) => {
-      const relay = (event, path) => {
-        win.webContents.send('file_subscription_update', { event, path })
-      }
-
       const options = {
         cwd: target,
         ignored: ['.git'],
         ignoreInitial: true
       }
 
-      watcher = chokidar.watch(target, options).on('all', relay)
+      watcher = chokidar.watch(target, options).on('all', (event, path) => {
+        win.webContents.send('file_subscription_update', { event, path })
+      })
     })
 
     ipcMain.handle('file_clear_subscriptions', async (event) => {
@@ -39,25 +38,23 @@ module.exports = {
       }
     })
 
-    ipcMain.handle('file_exists', async (event, target) =>
-      new Promise((resolve, reject) => fs.access(target, (error, data) => error ? resolve(false) : resolve(true))))
+    ipcMain.handle('file_exists', async (event, target) => promise_access(target))
 
     ipcMain.handle('file_is_directory', async (event, target) => {
-      const stats = await new Promise((resolve, reject) => fs.lstat(target, (err, stats) => err ? reject(err) : resolve(stats)))
-
+      const stats = await promise_with_reject(fs.lstat)(target)
       return stats.isDirectory()
     })
 
     ipcMain.handle('file_create_directory', async (event, target) => {
-      if (await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(true) : resolve(false)))) {
-        await new Promise((resolve, reject) => fs.mkdir(target, (err) => err ? reject(err) : resolve(true)))
+      if (!await promise_access(target)) {
+        await promise_with_reject(fs.mkdir)(target)
       }
 
-      return await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(false) : resolve(true)))
+      return promise_access(target)
     })
 
     ipcMain.handle('file_list_directory', async (event, target) => {
-      const results = await new Promise((resolve, reject) => fs.readdir(target, { withFileTypes: true }, (err, files) => err ? reject(err) : resolve(files)))
+      const results = await promise_with_reject(fs.readdir)(target, { withFileTypes: true })
 
       const files = []
       for (const result of results) {
@@ -70,32 +67,31 @@ module.exports = {
       return files
     })
 
-    ipcMain.handle('file_contents', async (event, target) =>
-      new Promise((resolve, reject) => fs.readFile(target, 'utf8', (error, data) => error ? reject(error) : resolve(data))))
+    ipcMain.handle('file_contents', async (event, target) => promise_with_reject(fs.readFile)(target, 'utf8'))
 
     ipcMain.handle('file_create', async (event, target, directory) => {
-      if (await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(false) : resolve(true)))) {
+      if (await promise_access(target)) {
         return false
       }
 
       if (directory) {
-        await new Promise((resolve, reject) => fs.mkdir(target, (err) => err ? reject(err) : resolve(true)))
+        await promise_with_reject(fs.mkdir)(target)
       } else {
-        await new Promise((resolve, reject) => fs.writeFile(target, '', (err) => err ? reject(err) : resolve(true)))
+        await promise_with_reject(fs.writeFile)(target, '')
       }
 
-      return await new Promise((resolve, reject) => fs.access(target, (err) => err ? resolve(false) : resolve(true)))
+      return promise_access(target)
     })
 
     ipcMain.handle('file_write', async (event, target, content) => {
-      await new Promise((resolve, reject) => fs.writeFile(target, content, 'utf8', (err) => err ? reject(err) : resolve()))
+      await promise_with_reject(fs.writeFile)(target, content)
     })
 
     ipcMain.handle('file_rename', async (event, target, proposed) => {
-      await new Promise((resolve, reject) => fs.rename(target, proposed, (err) => err ? reject(err) : resolve(true)))
+      await promise_with_reject(fs.rename)(target, proposed)
     })
 
-    ipcMain.handle('file_open', async (event, target, container = false) => {
+    ipcMain.handle('file_open', async (event, target, container) => {
       if (container) {
         shell.openPath(path.dirname(target))
       } else {
@@ -105,16 +101,15 @@ module.exports = {
 
     ipcMain.handle('file_delete', async (event, target) => {
       const unlink = async (target) => {
-        const status = await new Promise((resolve, reject) => fs.lstat(target, (err, status) => err ? reject(err) : resolve(status)))
+        const status = await promise_with_reject(fs.lstat)(target)
         if (status.isDirectory()) {
-          const files = await new Promise((resolve, reject) => fs.readdir(target, (err, status) => err ? reject(err) : resolve(status)))
-
+          const files = await promise_with_reject(fs.readdir)(target)
           for (const file of files) {
-            await unlink(await path.join(target, file))
+            await unlink(path.join(target, file))
           }
         }
 
-        await new Promise((resolve, reject) => fs.unlink(target, (err) => err ? reject(err) : resolve(true)))
+        await promise_with_reject(fs.unlink)(target)
       }
 
       await unlink(target)
@@ -122,27 +117,26 @@ module.exports = {
 
     ipcMain.handle('select_directory', (event) => {
       console.log('Select Directory')
-      const window = BrowserWindow.getFocusedWindow()
       const options = {
         title: 'Select Tome Directory',
         properties: ['openDirectory']
       }
 
-      return dialog.showOpenDialog(window, options)
+      return dialog.showOpenDialog(win, options)
     })
 
     ipcMain.handle('directory_list', async (event, target) => {
       try {
-        const stats = await new Promise((resolve, reject) => fs.lstat(target, (err, stats) => err ? reject(err) : resolve(stats)))
+        const stats = await promise_with_reject(fs.lstat)(target)
 
         if (!stats.isDirectory()) {
           return
         }
-      } catch (error) {
+      } catch {
         return
       }
 
-      return new Promise((resolve, reject) => fs.readdir(target, (err, files) => err ? reject(err) : resolve(files)))
+      return promise_with_reject(fs.readdir)(target)
     })
 
     ipcMain.handle('search_path', async (event, target, criteria) => {
@@ -153,14 +147,14 @@ module.exports = {
     })
 
     ipcMain.handle('search_next', async (event) => {
-      if (!search.targets.length) {
+      if (search.targets.length === 0) {
         return { path: null }
       }
 
       const target = search.targets.shift()
       const matches = []
 
-      const stats = await new Promise((resolve, reject) => fs.lstat(target, (err, stats) => err ? reject(err) : resolve(stats)))
+      const stats = await promise_with_reject(fs.lstat)(target)
 
       const directory = stats.isDirectory()
 
@@ -181,17 +175,17 @@ module.exports = {
       }
 
       if (directory) {
-        const results = await new Promise((resolve, reject) => fs.readdir(target, (err, files) => err ? reject(err) : resolve(files)))
+        const results = await promise_with_reject(fs.readdir)(target)
 
         for (const result of results) {
-          if (excluded_filenames.includes(result)) {
+          if (excluded_filenames.has(result)) {
             continue
           }
 
           search.targets.push(path.join(target, result))
         }
       } else {
-        const contents_raw = await new Promise((resolve, reject) => fs.readFile(target, 'utf8', (error, data) => error ? reject(error) : resolve(data)))
+        const contents_raw = await promise_with_reject(fs.readFile)(target, 'utf8')
 
         const contents = regex || search.criteria.case_sensitive ? contents_raw : contents_raw.toLowerCase()
 
@@ -234,7 +228,7 @@ module.exports = {
           }
 
           if (line === null) {
-            line = contents_raw.substring(line_start, line_end)
+            line = contents_raw.slice(line_start, line_end)
           }
 
           matches.push({ index, line })

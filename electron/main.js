@@ -61,18 +61,22 @@ const createWindow = async () => {
   win.show()
 }
 
-app.whenReady().then(async () => {
-  await createWindow()
+try {
+  module.exports = app.whenReady().then(async () => {
+    await createWindow()
 
-  app.onAsync('activate', async () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      await createWindow()
+    app.onAsync('activate', async () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        await createWindow()
+      }
+    })
+  })
+
+  app.onAsync('window-all-closed', async () => {
+    if (process.platform !== 'darwin') {
+      app.quit()
     }
   })
-})
-
-app.onAsync('window-all-closed', async () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+} catch (error) {
+  console.error('Exiting due to fundamental error in main process', error)
+}

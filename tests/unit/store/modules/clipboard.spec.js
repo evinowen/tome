@@ -8,28 +8,6 @@ import builders from '@/../tests/builders'
 
 Object.assign(window, builders.window())
 
-// const _window = {
-//   api: {
-//     clipboard_paste: jest.fn()
-//   }
-// }
-
-// jest.spyOn(window, 'window', 'get').mockImplementation(() => _window)
-
-// const fs_copy_callback = (mode, callback) => (callback || mode)(null)
-// const fs_copy_callback_error = (mode, callback) => (callback || mode)('error!')
-
-// const _lstat = {
-//   isDirectory: jest.fn(() => true)
-// }
-
-// const fs = {
-//   rename: jest.fn((old_path, new_path, callback) => callback(null)),
-//   copyFile: jest.fn((src, dest, mode, callback) => fs_copy_callback(mode, callback)),
-//   access: jest.fn((path, callback) => callback(new Error('error!'))),
-//   lstat: jest.fn((path, callback) => callback(null, _lstat))
-// }
-
 describe('store/modules/clipboard.js', () => {
   let localVue
   let store

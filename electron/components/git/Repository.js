@@ -174,7 +174,7 @@ class Repository {
       head_line_index = Math.min(head_line_index_r, head_line_index)
     }
 
-    const head_trimmed = head_raw.substring(0, head_line_index)
+    const head_trimmed = head_raw.slice(0, head_line_index)
 
     const head_parsed = head_trimmed.match(/^ref: refs\/heads\/(.*)$/m)
 
@@ -281,7 +281,7 @@ class Repository {
 
   async inspectWithOptions (options) {
     return this.repository.getStatus(options)
-      .then(res => res.map(status => {
+      .then(result => result.map(status => {
         let type = RepositoryFile.Type.UNKNOWN
 
         if (status.isNew()) {

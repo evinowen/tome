@@ -1,5 +1,5 @@
 
-const { ipcRenderer } = window.require('electron')
+const { ipcRenderer } = require('electron')
 
 module.exports = {
   load_repository: (path) => ipcRenderer.invoke('load_repository', path),
