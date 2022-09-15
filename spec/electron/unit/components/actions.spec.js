@@ -89,7 +89,6 @@ describe('ActionsComponent', () => {
     const name = 'action'
 
     const result = await preload.action_invoke(name)
-    console.log(result)
 
     expect(result.success).toBeTruthy()
   })

@@ -74,7 +74,6 @@ module.exports = {
   },
 
   get_content: (target) => {
-    console.log('content!', target, content[target])
     return content[target] || ''
   },
 

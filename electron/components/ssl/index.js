@@ -5,7 +5,7 @@ const fs = require('fs')
 const path = require('path')
 const tmp = require('tmp-promise')
 
-const { promise_with_reject } = require('@/../electron/promise')
+const { promise_with_reject } = require('../../promise')
 
 module.exports = {
   register: () => {

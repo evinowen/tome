@@ -5,8 +5,7 @@ const path = require('path')
 const { cloneDeep } = require('lodash')
 const Mustache = require('mustache')
 const is_text_path = require('is-text-path')
-const { promise_with_reject } = require('@/../electron/promise')
-
+const { promise_with_reject } = require('../../promise')
 const TemplateFileType = {
   INACCESSABLE: -1,
   FILE: 0,

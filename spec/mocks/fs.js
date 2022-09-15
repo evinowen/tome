@@ -2,7 +2,6 @@ const disk = require("./support/disk")
 const path = require("./path")
 
 const lstat_return = (target) => {
-  console.log('FS LSTAT RETURN', target)
   if (!disk.has_disk(target)) {
     return null
   }

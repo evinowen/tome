@@ -3,7 +3,7 @@ const { ipcMain, dialog, shell } = require('electron')
 const fs = require('fs')
 const path = require('path')
 const chokidar = require('chokidar')
-const { promise_with_reject, promise_access } = require('@/../electron/promise')
+const { promise_with_reject, promise_access } = require('../../promise')
 
 const search = {
   target: null,

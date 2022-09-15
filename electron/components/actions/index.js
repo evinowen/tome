@@ -11,7 +11,7 @@ const environment = {
 
 const timeout = 30000
 
-const { promise_with_reject } = require('@/../electron/promise')
+const { promise_with_reject } = require('../../promise')
 
 module.exports = {
   data: () => ({

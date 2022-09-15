@@ -45,6 +45,6 @@ describe('TemplatesComponent', () => {
 
     const result = await preload.template_invoke(source, target)
 
-    console.log(result)
+    expect(result.success).toBeTruthy()
   })
 })

@@ -3,7 +3,7 @@ const { ipcMain, clipboard } = require('electron')
 const fs = require('fs')
 const path = require('path')
 
-const { promise_with_reject, promise_with_boolean } = require('@/../electron/promise')
+const { promise_with_reject, promise_with_boolean } = require('../../promise')
 
 module.exports = {
   register: () => {
