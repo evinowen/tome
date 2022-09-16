@@ -55,14 +55,14 @@
       "entitlements": "build/entitlements.plist",
       "entitlementsInherit": "build/entitlements.plist",
       "gatekeeperAssess": false,
-      "category": "public.app-category.developer-tools",
-      "dmg": {
-        "sign": false
-      }
+      "category": "public.app-category.developer-tools"
     },
     "win": {
       "icon": "build/icon.ico",
       "target": "NSIS"
+    },
+    "dmg": {
+      "sign": false
     },
     "afterSign": "build/notarize.js"
   },
