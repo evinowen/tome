@@ -162,8 +162,11 @@ jobs:
       run: npm install
 
     - name: Load Certificate
-      run: build/certificate.win.ps1
+      run: |
+        $Env:CERTIFICATE_BYTES = [Convert]::FromBase64String($env:CERTIFICATE_BASE64)
+        [IO.File]::WriteAllBytes($Env:CERTIFICATE_P12, $Env:CERTIFICATE_BYTES)
       env:
+        CERTIFICATE_P12: "certificate.p12"
         CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_WIN_APPLICATION }}
 
     - name: Build Packages for Electron
@@ -222,8 +225,17 @@ jobs:
       run: npm install
 
     - name: Load Certificate
-      run: chmod +x build/certificate.macOS.sh && build/certificate.macOS.sh
+      run: |
+        echo $CERTIFICATE_BASE64 | base64 --decode > $CERTIFICATE_P12
+        security create-keychain -p actions $KEY_CHAIN
+        security default-keychain -s $KEY_CHAIN
+        security unlock-keychain -p actions $KEY_CHAIN
+        security import $CERTIFICATE_P12 -k $KEY_CHAIN -T /usr/bin/codesign;
+        security set-key-partition-list -S apple-tool:,apple: -s -k actions $KEY_CHAIN
+        rm $CERTIFICATE_P12
       env:
+        KEY_CHAIN: "build.keychain"
+        CERTIFICATE_P12: "certificate.p12"
         CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_OSX_APPLICATION }}
 
     - name: Build Packages for Electron
