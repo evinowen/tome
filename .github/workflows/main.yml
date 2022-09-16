@@ -162,9 +162,9 @@ jobs:
       run: npm install
 
     - name: Load Certificate
-      run: build/build.certificate.win.sh
-        env:
-          CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_WIN_APPLICATION }}
+      run: build/certificate.win.sh
+      env:
+        CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_WIN_APPLICATION }}
 
     - name: Build Packages for Electron
       run: npm run electron-rebuild
@@ -222,9 +222,9 @@ jobs:
       run: npm install
 
     - name: Load Certificate
-      run: chmod +x build/build.certificate.macOS.sh && build/build.certificate.macOS.sh
-        env:
-          CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_OSX_APPLICATION }}
+      run: chmod +x build/certificate.macOS.sh && build/certificate.macOS.sh
+      env:
+        CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_OSX_APPLICATION }}
 
     - name: Build Packages for Electron
       run: npm run electron-rebuild
