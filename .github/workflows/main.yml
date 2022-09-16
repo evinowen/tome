@@ -161,12 +161,18 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
+    - name: Load Certificate
+      run: build/build.certificate.win.sh
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_WIN_APPLICATION }}
+
     - name: Build Packages for Electron
       run: npm run electron-rebuild
       env:
         # Must disable test_ssl_new as it fails with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ssl_new"
+        CSC_LINK: "./certificate.p12"
 
     - name: Lint Renderer Process
       run: npm run lint-renderer
@@ -215,12 +221,20 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
+    - name: Load Certificate
+      run: chmod +x build/build.certificate.macOS.sh && build/build.certificate.macOS.sh
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_OSX_APPLICATION }}
+
     - name: Build Packages for Electron
       run: npm run electron-rebuild
       env:
         # Must disable test_ssl_new as it fails with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ui -test_pem -test_ssl_new"
+        CSC_KEYCHAIN: "build.keychain"
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
     - name: Lint Renderer Process
       run: npm run lint-renderer
@@ -247,6 +261,74 @@ jobs:
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+
+  draft_release:
+    needs: [ version_validation, build_on_ubuntu, build_on_win, build_on_macos ]
+    runs-on: ubuntu-latest
+    if: github.REF != 'refs/heads/master'
+    steps:
+    - name: Load Target Package Version
+      run: |
+        PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        draft: true
+        release_name: ${{ env.PACKAGE_VERSION }}-${{ env.GITHUB_SHA }}
+
+    - name: Download Debian Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+
+    - name: Upload Debian Setup Artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc${{ env.GITHUB_SHA }}.deb
+        asset_content_type: application/deb
+
+    - name: Download Windows Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+
+    - name: Upload Windows Setup Artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc${{ env.GITHUB_SHA }}.exe
+        asset_content_type: application/exe
+
+    - name: Download MacOS Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+
+    - name: Upload macOS Setup Artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc${{ env.GITHUB_SHA }}.dmg
+        asset_content_type: application/dmg
 
   publish_release:
     needs: [ version_validation, build_on_ubuntu, build_on_win, build_on_macos ]
