@@ -1,35 +1,26 @@
 <template>
   <v-system-bar
-    window height=25
+    window
+    height=25
     class="pa-0"
     style="user-select: none;"
   >
-
-    <v-btn tile icon small @click.stop="$emit('settings')" :class="[ settings ? 'rotate' : '']" >
-      <v-icon>{{ settings ? 'mdi-cog' : 'mdi-circle-medium' }}</v-icon>
+    <v-btn tile icon small @click.stop=settings>
+      <v-icon>{{ icon }}</v-icon>
     </v-btn>
-
     <v-spacer></v-spacer>
-
-    <span system-bar-title v-if=tome.name>{{ tome.name }}</span>
-    <span system-bar-title v-else><small style="color: #999">tome</small></span>
-
+    <span system-bar-title :style="{ opacity: (title ? 1 : 0.4)}">{{ title || 'tome' }}</span>
     <v-spacer></v-spacer>
-
     <v-btn tile icon small @click.stop="minimize" system-bar-minimize>
       <v-icon>mdi-window-minimize</v-icon>
     </v-btn>
-
     <v-btn tile icon small @click.stop="maximize" system-bar-maximize>
       <v-icon>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
     </v-btn>
-
-    <v-btn tile icon small @click.stop="close" system-bar-close>
+    <v-btn tile icon small @click.stop="exit" system-bar-close>
       <v-icon>mdi-window-close</v-icon>
     </v-btn>
-
   </v-system-bar>
-
 </template>
 
 <style scoped>
@@ -65,54 +56,34 @@ import store from '@/store'
 
 export default {
   components: { VBtn, VIcon, VSystemBar, VSpacer },
-  props: {
-    title: { type: String, default: '' },
-    settings: { type: Boolean, default: false }
-  },
-
-  data: () => ({
-    maximized: false
-
-  }),
-
-  mounted: async function () {
-    this.maximized = await window.api.is_window_maximized()
-  },
-
   computed: {
-    tome: function () {
-      return store.state.tome
+    maximized: function () {
+      return store.state.system.maximized
+    },
+    icon: function () {
+      return store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
+    },
+    title: function () {
+      return store.state.tome?.name || null
     }
   },
-
   methods: {
-    minimize: async function (event) {
-      await window.api.minimize_window()
-
-      this.$emit('minimized')
+    settings: async function () {
+      await store.dispatch('system/settings', !store.state.system.settings)
     },
-
-    maximize: async function (event) {
-      if (await window.api.is_window_maximized()) {
-        await window.api.restore_window()
-        this.maximized = false
-
-        this.$emit('restored')
+    minimize: async function () {
+      await store.dispatch('system/minimize')
+    },
+    maximize: async function () {
+      if (this.maximized) {
+        await store.dispatch('system/restore')
       } else {
-        await window.api.maximize_window()
-        this.maximized = true
-
-        this.$emit('maximized')
+        await store.dispatch('system/maximize')
       }
     },
-
-    close: async function (event) {
-      await window.api.close_window()
-
-      this.$emit('closed')
+    exit: async function () {
+      await store.dispatch('system/exit')
     }
-
   }
-
 }
 </script>

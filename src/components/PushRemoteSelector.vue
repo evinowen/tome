@@ -6,8 +6,9 @@
     <v-card-actions>
       <v-select
         ref="select"
-        :value="value"
+        :value=value
         :items="items"
+        item-value="name"
         label="Remote"
         @change="$emit('input', $event)"
         dense clearable class="mt-4"
@@ -67,7 +68,7 @@ import { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard
 export default {
   components: { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer },
   props: {
-    value: { type: Object, default: () => {} },
+    value: { type: String },
     items: { type: Array, default: () => [] }
   },
   data: () => ({

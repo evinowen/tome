@@ -1,28 +1,32 @@
 <template>
-  <v-navigation-drawer :value=value @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px;">
+  <v-navigation-drawer :value=system.commit @input="$event || close" fixed right stateless width="100%" style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px;">
     <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%; ">
         <div class="flex-grow-0">
           <div>
-            <v-btn tile icon class="float-right" color="black" @click.stop="$emit('close')">
+            <v-btn tile icon class="float-right" color="black" @click.stop=close>
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
             <h1>Commit</h1>
           </div>
           <div style="clear: both" ></div>
           <v-text-field
-            v-model="input.name"
+            :value=system.signature.name
+            :placeholder=configuration.name
+            @input=sign_name
             label="Name"
-            required small
+            required small persistent-placeholder
           ></v-text-field>
           <v-text-field
-            v-model="input.email"
+            :value=system.signature.email
+            :placeholder=configuration.email
+            @input=sign_email
             label="E-mail"
-            required small
+            required small persistent-placeholder
           ></v-text-field>
-          <v-textarea
-            :value=message
-            @input=update_message
+          <v-textarea persistent-placeholder
+            :value=system.signature.message
+            @input=sign_message
             :counter="50"
             label="Message"
             required
@@ -80,19 +84,19 @@
         <div ref="base" class="flex-grow-0 pb-3 actions">
           <v-divider class="mb-2"></v-divider>
           <commit-confirm
-            :value=confirm @input="$emit('confirm', $event)"
+            :value=system.commit_confirm @input=confirm
             @commit=commit
-            @push="push = !push"
-            :name="signature.name"
-            :email="signature.email"
-            :message="message"
-            @message=update_message
+            @push=push
+            :name=tome.signature.name
+            :email=tome.signature.email
+            :message=tome.signature.message
+            @message=sign_message
             :disabled="staged.length < 1"
             :staging="staging"
             :waiting="working"
-            :push=push
+            :push=system.commit_push
           />
-          <v-btn color="warning" @click.stop="$emit('close')">
+          <v-btn color="warning" @click.stop=close>
             <v-icon class="mr-2">mdi-cancel</v-icon>
             Cancel
           </v-btn>
@@ -131,51 +135,20 @@ import {
   VTextarea,
   Resize
 } from 'vuetify/lib'
-import { DateTime } from 'luxon'
 import store from '@/store'
 import CommitList from '@/components/CommitList'
 import CommitConfirm from '@/components/CommitConfirm'
 
 export default {
-  props: {
-    value: { type: Boolean, default: false },
-    confirm: { type: Boolean, default: false }
-  },
   data: () => ({
-    push: false,
-    input: {
-      name: '',
-      email: '',
-      message: ''
-    },
     offset: 0
   }),
-  mounted: function () {
-    this.input.name = this.configuration.name
-    this.input.email = this.configuration.email
-  },
-  watch: {
-    confirm: async function (value) {
-      if (value) {
-        const name = this.input.name || this.configuration.name
-        const email = this.input.email || this.configuration.email
-
-        await store.dispatch('tome/signature', { name, email })
-
-        if (store.state.tome.message === '') {
-          await store.dispatch('tome/message', `Updates for ${DateTime.now().toISODate()}`)
-        }
-
-        this.push = store.state.configuration.auto_push
-      }
-    }
-  },
   computed: {
-    signature: function () {
-      return store.state.tome.signature
+    system: function () {
+      return store.state.system
     },
-    message: function () {
-      return store.state.tome.message
+    tome: function () {
+      return store.state.tome
     },
     staging: function () {
       return store.state.tome.staging > 0
@@ -194,16 +167,33 @@ export default {
     }
   },
   methods: {
+    sign_name: async function (value) {
+      await store.dispatch('system/signature/name', value)
+    },
+    sign_email: async function (value) {
+      await store.dispatch('system/signature/email', value)
+    },
+    sign_message: async function (value) {
+      await store.dispatch('system/signature/message', value)
+    },
+    close: async function () {
+      await store.dispatch('system/commit', false)
+    },
+    confirm: async function (value) {
+      await store.dispatch('system/commit_confirm', value)
+    },
+    push: async function (value) {
+      await store.dispatch('system/commit_push', value)
+    },
     resize: function () {
       this.offset = this.$refs.list.clientHeight
     },
-    update_message: async function (message) {
+    message: async function (message) {
       await store.dispatch('tome/message', message)
     },
     diff: async function (file) {
       await store.dispatch('tome/diff', { path: file.path })
-
-      this.$emit('patch')
+      await store.dispatch('system/patch', true)
     },
     stage: async function (path) {
       await store.dispatch('tome/stage', path)
@@ -212,16 +202,7 @@ export default {
       await store.dispatch('tome/reset', path)
     },
     commit: async function () {
-      await store.dispatch('tome/commit')
-
-      await store.dispatch('tome/message', '')
-
-      this.$emit('confirm', false)
-      this.$emit('close')
-
-      if (this.push) {
-        this.$emit('push')
-      }
+      await store.dispatch('system/perform', 'commit')
     }
   },
   components: {

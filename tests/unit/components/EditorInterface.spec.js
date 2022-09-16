@@ -1,22 +1,14 @@
 import { assemble } from '@/../tests/helpers'
-
-import { clipboard } from 'electron'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
-
 import store from '@/store'
 import SplitPane from 'vue-splitpane'
 import EditorInterface from '@/components/EditorInterface.vue'
 
-jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
+global.document.getSelection = jest.fn(() => '')
 
-jest.mock('electron', () => ({
-  clipboard: {
-    readText: jest.fn(),
-    writeText: jest.fn()
-  }
-}))
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 jest.mock('lodash', () => ({
   debounce: (callback) => {
@@ -36,7 +28,6 @@ jest.mock('mark.js', () => {
   }
 })
 
-Vue.use(Vuetify)
 Vue.component('split-pane', SplitPane)
 
 function GenerateElementList (array) {
@@ -114,6 +105,9 @@ describe('EditorInterface.vue', () => {
       },
       configuration: {
         dark_mode: false
+      },
+      system: {
+        edit: false
       }
     })
   })
@@ -149,19 +143,32 @@ describe('EditorInterface.vue', () => {
     context.vuetify = vuetify
   })
 
-  it('should emit a save event when input method is called and changes have been made', async () => {
-    const event = jest.fn()
-
+  it('should mount into test scafolding without error', async () => {
     const wrapper = factory.wrap()
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    expect(wrapper).toBeDefined()
+  })
 
-    wrapper.vm.$on('save', event)
+  it('should dispatch files/save with path and content when save is called with path', async () => {
+    const wrapper = factory.wrap()
 
-    expect(event).toHaveBeenCalledTimes(0)
+    const path = './file_path'
+    await wrapper.vm.save(path)
+
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'files/save')
+
+    expect(action).toBeDefined()
+    expect(data).toBeDefined()
+    expect(data.path).toEqual(path)
+    expect(data.content).toBeDefined()
+  })
+
+  it('should redirect to save with active path when input is called', async () => {
+    const wrapper = factory.wrap()
+    wrapper.vm.save = jest.fn()
 
     await wrapper.vm.input()
 
-    expect(event).toHaveBeenCalledTimes(1)
+    expect(wrapper.vm.save).toHaveBeenCalledTimes(1)
   })
 
   it('should render current content using marked', async () => {
@@ -222,15 +229,14 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should trigger search when the edit attribute changes', async () => {
-    const wrapper = factory.wrap({ edit: false })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.state.system.edit = false
 
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
-
+    const wrapper = factory.wrap()
     wrapper.vm.search = jest.fn()
+    expect(wrapper.vm.search).toHaveBeenCalledTimes(0)
 
-    await wrapper.setProps({ edit: true })
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    store.state.system.edit = true
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.search).toHaveBeenCalledTimes(1)
   })
@@ -252,7 +258,8 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should update search highlight when the search query changes in edit mode', async () => {
-    const wrapper = factory.wrap({ edit: true })
+    store.state.system.edit = true
+    const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     store.state.files.active = '/project/path'
@@ -283,7 +290,8 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should align search selection with target selection when higher then target and navigate triggers in edit mode', async () => {
-    const wrapper = factory.wrap({ edit: true })
+    store.state.system.edit = true
+    const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     store.state.files.selected.document.content = '# Mock'
@@ -308,7 +316,8 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should set a functional CodeMirror mode object to overlay when search query changes in edit mode', async () => {
-    const wrapper = factory.wrap({ edit: true })
+    store.state.system.edit = true
+    const wrapper = factory.wrap()
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     store.state.files.active = '/project/path'
@@ -337,84 +346,54 @@ describe('EditorInterface.vue', () => {
     expect(token_none.skipToEnd).toHaveBeenCalledTimes(1)
   })
 
-  it('should set clipboard with codemirror data when cut is called in edit mode', async () => {
-    const wrapper = factory.wrap({ edit: true })
-
+  it('should dispatch clipboard/text with codemirror data when cut is called in edit mode', async () => {
+    store.state.system.edit = true
     store.state.files.active = '/project/path'
 
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    const wrapper = factory.wrap()
+    await wrapper.vm.context.find(item => item.title === 'Cut').action()
 
-    let action
-    wrapper.vm.context.forEach(item => {
-      if (item.title === 'Cut') {
-        action = item.action
-      }
-    })
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
 
-    action()
-
-    expect(wrapper.vm.$refs.editor.codemirror.getSelection).toHaveBeenCalledTimes(1)
-    expect(wrapper.vm.$refs.editor.codemirror.replaceSelection).toHaveBeenCalledTimes(1)
-    expect(clipboard.writeText).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
+    expect(data).toBeDefined()
   })
 
-  it('should set clipboard with codemirror data when copy is called in edit mode', async () => {
-    const wrapper = factory.wrap({ edit: true })
-
+  it('should dispatch clipboard/text with codemirror data when copy is called in edit mode', async () => {
+    store.state.system.edit = true
     store.state.files.active = '/project/path'
 
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    const wrapper = factory.wrap()
+    await wrapper.vm.context.find(item => item.title === 'Copy').action()
 
-    let action
-    wrapper.vm.context.forEach(item => {
-      if (item.title === 'Copy') {
-        action = item.action
-      }
-    })
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
 
-    action()
-
-    expect(wrapper.vm.$refs.editor.codemirror.getSelection).toHaveBeenCalledTimes(1)
-    expect(clipboard.writeText).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
+    expect(data).toBeDefined()
   })
 
-  it('should set clipboard with document data when copy is called in read mode', async () => {
-    document.getSelection = jest.fn(() => 'selected text')
+  it('should dispatch clipboard/text with codemirror data when copy is called in read mode', async () => {
+    store.state.system.edit = false
+    store.state.files.active = '/project/path'
 
-    const wrapper = factory.wrap({})
-    await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
+    const wrapper = factory.wrap()
+    await wrapper.vm.context.find(item => item.title === 'Copy').action()
 
-    const event = jest.fn()
-    wrapper.vm.$on('context', event)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
 
-    let action
-    wrapper.vm.context.forEach(item => {
-      if (item.title === 'Copy') {
-        action = item.action
-      }
-    })
-
-    action()
-
-    expect(document.getSelection).toHaveBeenCalledTimes(1)
-    expect(clipboard.writeText).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
+    expect(data).toBeDefined()
   })
 
   it('should paste clipboard into codemirror when paste is called in edit mode', async () => {
-    const wrapper = factory.wrap({ edit: true })
+    store.state.system.edit = true
+    const wrapper = factory.wrap()
 
     store.state.files.active = '/project/path'
 
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    let action
-    wrapper.vm.context.forEach(item => {
-      if (item.title === 'Paste') {
-        action = item.action
-      }
-    })
-
-    action()
+    await wrapper.vm.context.find(item => item.title === 'Paste').action()
 
     expect(wrapper.vm.$refs.editor.codemirror.replaceSelection).toHaveBeenCalledTimes(1)
   })
@@ -448,9 +427,10 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should enable cut when in edit mode', async () => {
-    const wrapper = factory.wrap({ edit: true })
-
+    store.state.system.edit = true
     store.state.files.active = '/project/path'
+
+    const wrapper = factory.wrap()
 
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
@@ -465,9 +445,10 @@ describe('EditorInterface.vue', () => {
   })
 
   it('should enable paste when in edit mode', async () => {
-    const wrapper = factory.wrap({ edit: true })
-
+    store.state.system.edit = true
     store.state.files.active = '/project/path'
+
+    const wrapper = factory.wrap({ edit: true })
 
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 

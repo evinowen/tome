@@ -1,5 +1,14 @@
+const repository = (path) => ({
+  path,
+  remotes: [{
+    name: 'origin',
+    url: 'git@git.example.com:remote.git'
+  }]
+})
+
 export default {
-  load_repository: jest.fn(async (path) => ({ test: 'test' })),
+  load_repository: jest.fn(async (path) => repository(path)),
+  clear_remote_repository: jest.fn(),
   inspect_repository: jest.fn(),
   refresh_repository: jest.fn(() => ({ available: {}, staged: {} })),
   refresh_patches_repository: jest.fn(() => ({ patches: {} })),

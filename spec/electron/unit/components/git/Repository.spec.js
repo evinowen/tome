@@ -1,5 +1,7 @@
-import Repository from '@/../electron/components/git/Repository'
-import NodeGit from 'nodegit'
+const Repository = require('@/../electron/components/git/Repository')
+const fs = require('fs')
+const path = require('path')
+const NodeGit = require('nodegit')
 
 jest.mock('@/../electron/components/git/RepositoryPatch')
 
@@ -9,17 +11,15 @@ jest.mock('electron', () => ({
   }
 }))
 
-const _path_basename = path => String(path).substring(String(path).lastIndexOf('/') + 1)
+jest.mock('fs', () => ({
+  readFileSync: jest.fn((target, options) => 'ref: refs/heads/master\r\ndata\r\ndata\r\n'),
+  existsSync: jest.fn((target) => true)
+}))
 
-const fs = {
-  readFileSync: jest.fn((path, options) => 'ref: refs/heads/master\r\ndata\r\ndata\r\n'),
-  existsSync: jest.fn((path) => true)
-}
-
-const path = {
-  basename: jest.fn(_path_basename),
+jest.mock('path', () => ({
+  basename: jest.fn((target) => String(target).slice(String(target).lastIndexOf('/') + 1)),
   join: jest.fn((first, second) => String(first).replace(/\/$/g, '').concat('/').concat(String(second).replace(/^\/|\/$/g, '')))
-}
+}))
 
 jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {}, Diff: { LINE: 1 } }))
 
@@ -124,12 +124,14 @@ const nodegit_diff = {
   patches: jest.fn(() => nodegit_patches)
 }
 
-NodeGit.Cred = {
+NodeGit.Credential = {
   sshKeyNew: jest.fn((username, public_key, private_key, passphrase) => ({
     username, public_key, private_key, passphrase
   }))
 }
+
 NodeGit.DiffOptions = jest.fn()
+
 NodeGit.Diff = {
   treeToWorkdir: jest.fn(() => nodegit_diff),
   OPTION: {
@@ -139,25 +141,32 @@ NodeGit.Diff = {
     RECURSE_UNTRACKED_DIRS: 0
   }
 }
+
 NodeGit.Enums = {
   DIRECTION: {
     FETCH: 0
   }
 }
+
 NodeGit.Reference = {
   nameToId: jest.fn(() => nodegit_branch)
 }
+
 NodeGit.Repository = {
   open: jest.fn((path) => nodegit_repository),
   init: jest.fn((path, is_bare) => nodegit_repository)
 }
+
 NodeGit.Reset = {
   default: jest.fn()
 }
+
 NodeGit.Signature = {
   now: jest.fn(() => ({}))
 }
+
 NodeGit.StatusOptions = jest.fn()
+
 NodeGit.Status = {
   SHOW: {
     INDEX_AND_WORKDIR: 0,
@@ -179,8 +188,8 @@ NodeGit.Status = {
     RENAMES_FROM_REWRITES: 2048,
     NO_REFRESH: 4096,
     UPDATE_INDEX: 8192,
-    INCLUDE_UNREADABLE: 16384,
-    INCLUDE_UNREADABLE_AS_UNTRACKED: 32768
+    INCLUDE_UNREADABLE: 16_384,
+    INCLUDE_UNREADABLE_AS_UNTRACKED: 32_768
   }
 }
 
@@ -194,12 +203,12 @@ describe('Repository.js', () => {
   })
 
   it('should initalize member variables on construction', async () => {
-    const path = './test_path'
-    const name = _path_basename(path)
+    const target = './test_path'
+    const name = path.basename(target)
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
-    expect(repository.path).toEqual(path)
+    expect(repository.path).toEqual(target)
     expect(repository.name).toEqual(name)
 
     expect(repository.repository).toEqual(null)
@@ -222,11 +231,12 @@ describe('Repository.js', () => {
   })
 
   it('should remember credentials set by storeCredentials', async () => {
+    const target = './test_path'
     const private_key = './test_rsa'
     const public_key = './test_rsa.pub'
     const passphrase = '1234'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     repository.storeCredentials(private_key, public_key, passphrase)
 
     expect(repository.private_key).toEqual('./test_rsa')
@@ -235,13 +245,14 @@ describe('Repository.js', () => {
   })
 
   it('should return callbacks object for NodeGit on call to generateConnectionHooks ', async () => {
+    const target = './test_path'
     const private_key = './test_rsa'
     const public_key = './test_rsa.pub'
     const passphrase = '1234'
     const url = 'git@git.example.com:remote.git'
     const username = 'git'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     repository.storeCredentials(private_key, public_key, passphrase)
     const hooks = await repository.generateConnectionHooks()
 
@@ -259,9 +270,9 @@ describe('Repository.js', () => {
     nodegit_commit.parentcount.mockReturnValueOnce(1)
     nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
 
-    const path = './test_path'
+    const target = './test_path'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     repository.loadOpenOrInit = jest.fn()
     repository.validateRepositoryCondition = jest.fn()
     repository.loadHistory = jest.fn()
@@ -281,9 +292,9 @@ describe('Repository.js', () => {
     nodegit_commit.parentcount.mockReturnValueOnce(1)
     nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
 
-    const path = './test_path'
+    const target = './test_path'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
     await repository.load()
 
@@ -296,15 +307,15 @@ describe('Repository.js', () => {
 
     NodeGit.Repository.open.mockReturnValueOnce(null)
 
-    const path = './test_path'
+    const target = './test_path'
 
     expect.assertions(1)
 
     try {
-      const repository = new Repository(path)
+      const repository = new Repository(target)
       await repository.load()
-    } catch (e) {
-      expect(e.message).toEqual('No Repository!')
+    } catch (error) {
+      expect(error.message).toEqual('No Repository!')
     }
   })
 
@@ -314,15 +325,15 @@ describe('Repository.js', () => {
 
     nodegit_repository.headDetached.mockRejectedValueOnce(true)
 
-    const path = './test_path'
+    const target = './test_path'
 
     expect.assertions(1)
 
     try {
-      const repository = new Repository(path)
+      const repository = new Repository(target)
       await repository.load()
-    } catch (e) {
-      expect(e.message).toEqual('Head Detached')
+    } catch (error) {
+      expect(error.message).toEqual('Head Detached')
     }
   })
 
@@ -332,15 +343,15 @@ describe('Repository.js', () => {
 
     nodegit_repository.isMerging.mockRejectedValueOnce(true)
 
-    const path = './test_path'
+    const target = './test_path'
 
     expect.assertions(1)
 
     try {
-      const repository = new Repository(path)
+      const repository = new Repository(target)
       await repository.load()
-    } catch (e) {
-      expect(e.message).toEqual('Merging')
+    } catch (error) {
+      expect(error.message).toEqual('Merging')
     }
   })
 
@@ -350,15 +361,15 @@ describe('Repository.js', () => {
 
     nodegit_repository.isRebasing.mockRejectedValueOnce(true)
 
-    const path = './test_path'
+    const target = './test_path'
 
     expect.assertions(1)
 
     try {
-      const repository = new Repository(path)
+      const repository = new Repository(target)
       await repository.load()
-    } catch (e) {
-      expect(e.message).toEqual('Rebasing')
+    } catch (error) {
+      expect(error.message).toEqual('Rebasing')
     }
   })
 
@@ -368,9 +379,9 @@ describe('Repository.js', () => {
 
     nodegit_repository.headUnborn.mockReturnValueOnce(true)
 
-    const path = './test_path'
+    const target = './test_path'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
     await repository.load()
 
@@ -382,10 +393,10 @@ describe('Repository.js', () => {
     nodegit_commit.parentcount.mockReturnValue(1)
     nodegit_commit.parent.mockReturnValue(nodegit_commit)
 
-    const path = './test_path'
+    const target = './test_path'
     const url = 'git@git.example.com:remote.git'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     await repository.load()
     await repository.loadRemoteBranch(url)
 
@@ -394,9 +405,9 @@ describe('Repository.js', () => {
   })
 
   it('should call and wait inspectStaged and inspectAvailable on inspect', async () => {
-    const path = './test_path'
+    const target = './test_path'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     repository.inspectStaged = jest.fn()
     repository.inspectAvailable = jest.fn()
 
@@ -408,9 +419,9 @@ describe('Repository.js', () => {
   })
 
   it('should pass options to inspect stage to inspectWithOptions on call to inspectStage', async () => {
-    const path = './test_path'
+    const target = './test_path'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     repository.inspectWithOptions = jest.fn()
 
     await repository.load()
@@ -420,9 +431,9 @@ describe('Repository.js', () => {
   })
 
   it('should pass options to inspect available to inspectWithOptions on call to inspectAvailable ', async () => {
-    const path = './test_path'
+    const target = './test_path'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     repository.inspectWithOptions = jest.fn()
 
     await repository.load()
@@ -432,10 +443,10 @@ describe('Repository.js', () => {
   })
 
   it('should load status of files updated based on options on call to inspectWithOptions ', async () => {
-    const path = './test_path'
+    const target = './test_path'
     const options = {}
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
     await repository.load()
     await repository.inspectWithOptions(options)
@@ -444,10 +455,10 @@ describe('Repository.js', () => {
   })
 
   it('should retrieve NodeGit diff for commit OID and pass to compilePatchesFromDiff on call to diffCommit', async () => {
-    const path = './test_path'
+    const target = './test_path'
     const oid = '1234'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     repository.compilePatchesFromDiff = jest.fn()
 
     await repository.load()
@@ -457,22 +468,22 @@ describe('Repository.js', () => {
   })
 
   it('should retrieve NodeGit diff for a path and pass to compilePatchesFromDiff on call to diffPath ', async () => {
-    const path = './test_path'
-    const file_path = './test_path/file.md'
+    const target = './test_path'
+    const file_target = './test_path/file.md'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     repository.compilePatchesFromDiff = jest.fn()
 
     await repository.load()
-    await repository.diffPath(file_path)
+    await repository.diffPath(file_target)
 
     expect(repository.compilePatchesFromDiff).toHaveBeenCalledTimes(1)
   })
 
   it('should load NodeGit patches into RepositoryPatch objects and store on call to compilePatchesFromDiff', async () => {
-    const path = './test_path'
+    const target = './test_path'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
     await repository.load()
 
@@ -483,9 +494,9 @@ describe('Repository.js', () => {
   })
 
   it('should stage all available files with stagePath when query is "*" on call to stage', async () => {
-    const path = './test_path'
+    const target = './test_path'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     repository.stagePath = jest.fn()
 
     await repository.load()
@@ -502,41 +513,41 @@ describe('Repository.js', () => {
   })
 
   it('should stage provided path add with stagePath when query is a path on call to stage', async () => {
-    const path = './test_path'
-    const file_path = './test_path/file.md'
+    const target = './test_path'
+    const file_target = './test_path/file.md'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
     const notify = jest.fn()
 
     await repository.load()
-    await repository.stage(file_path, notify)
+    await repository.stage(file_target, notify)
 
     expect(notify).toHaveBeenCalledTimes(1)
     expect(nodegit_repository_index.addByPath).toHaveBeenCalledTimes(1)
   })
 
   it('should stage provided path remove with stagePath when query is a path on call to stage', async () => {
-    const path = './test_path'
-    const file_path = './test_path/file.md'
+    const target = './test_path'
+    const file_target = './test_path/file.md'
 
     fs.existsSync.mockReturnValue(false)
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
     const notify = jest.fn()
 
     await repository.load()
-    await repository.stage(file_path, notify)
+    await repository.stage(file_target, notify)
 
     expect(notify).toHaveBeenCalledTimes(1)
     expect(nodegit_repository_index.removeByPath).toHaveBeenCalledTimes(1)
   })
 
   it('should reset all staged files with resetPath when query is "*" on call to reset', async () => {
-    const path = './test_path'
+    const target = './test_path'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
     repository.resetPath = jest.fn()
 
     await repository.load()
@@ -553,27 +564,27 @@ describe('Repository.js', () => {
   })
 
   it('should reset provided path with resetPath when query is a path on call to reset', async () => {
-    const path = './test_path'
-    const file_path = './test_path/file.md'
+    const target = './test_path'
+    const file_target = './test_path/file.md'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
     const notify = jest.fn()
 
     await repository.load()
-    await repository.reset(file_path, notify)
+    await repository.reset(file_target, notify)
 
     expect(notify).toHaveBeenCalledTimes(1)
     expect(NodeGit.Reset.default).toHaveBeenCalledTimes(1)
   })
 
   it('should create a commit with provided information on call to commit', async () => {
-    const path = './test_path'
+    const target = './test_path'
     const name = 'Test Name'
     const email = 'text@example.com'
     const message = 'Test Commit Message'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
     await repository.load()
     await repository.commit(name, email, message)
@@ -582,9 +593,9 @@ describe('Repository.js', () => {
   })
 
   it('should fail to push if no remote is loaded on call to push', async () => {
-    const path = './test_path'
+    const target = './test_path'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
     await repository.load()
     await repository.push()
@@ -593,10 +604,10 @@ describe('Repository.js', () => {
   })
 
   it('should push current branch to the loaded remote on call to push', async () => {
-    const path = './test_path'
+    const target = './test_path'
     const url = 'git@git.example.com:remote.git'
 
-    const repository = new Repository(path)
+    const repository = new Repository(target)
 
     await repository.load()
     await repository.loadRemoteBranch(url)

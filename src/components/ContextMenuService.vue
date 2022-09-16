@@ -1,16 +1,16 @@
 <template>
   <context-menu-node
-    v-if=value
+    v-if=context.visible
     v-resize=resize
-    :window_x="window_x"
-    :window_y="window_y"
-    :position_x="position_x"
-    :position_y="position_y"
-    :title=title
-    :target=target
-    :items=items
+    :window_x=window_x
+    :window_y=window_y
+    :position_x=context.position.x
+    :position_y=context.position.y
+    :title=context.title
+    :target=context.target
+    :items=context.items
     :layer=10000
-    @close="$emit('input', false)"
+    @close=close
     root
     ref="root"
   />
@@ -19,16 +19,9 @@
 <script>
 import { Resize } from 'vuetify/lib'
 import ContextMenuNode from './ContextMenuNode'
+import store from '@/store'
 
 export default {
-  props: {
-    value: { type: Boolean, default: false },
-    title: { type: String, default: null },
-    target: { type: String },
-    items: { type: Array },
-    position_x: { type: Number, default: 0 },
-    position_y: { type: Number, default: 0 }
-  },
   components: { ContextMenuNode },
   directives: { Resize },
   data: () => ({
@@ -36,10 +29,18 @@ export default {
     window_y: 0,
     visible: true
   }),
+  computed: {
+    context: function () {
+      return store.state.context
+    }
+  },
   methods: {
     resize: function () {
       this.window_x = window.innerWidth
       this.window_y = window.innerHeight
+    },
+    close: async function () {
+      await store.dispatch('context/close')
     }
   }
 }

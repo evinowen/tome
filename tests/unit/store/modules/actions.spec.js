@@ -125,8 +125,36 @@ describe('store/modules/actions', () => {
     expect(error).toHaveBeenCalledTimes(0)
   })
 
+  it('should execute actions with specific message provided when execute is dispatched', async () => {
+    window.api.action_invoke.mockImplementationOnce(() => ({ success: true, message: 'specific message' }))
+
+    const project = '/project'
+    const action = 'example.action.a'
+    const target = '/project/first'
+
+    await store.dispatch('actions/load', { path: project })
+    await store.dispatch('actions/execute', { name: action, target })
+
+    expect(message).toHaveBeenCalledTimes(1)
+    expect(error).toHaveBeenCalledTimes(0)
+  })
+
   it('should provide error if executed action failed when execute is dispatched', async () => {
     window.api.action_invoke.mockImplementation(() => ({ success: false, message: 'Error Message' }))
+
+    const project = '/project'
+    const action = 'example.action.a'
+    const target = '/project/first'
+
+    await store.dispatch('actions/load', { path: project })
+    await store.dispatch('actions/execute', { name: action, target })
+
+    expect(message).toHaveBeenCalledTimes(0)
+    expect(error).toHaveBeenCalledTimes(1)
+  })
+
+  it('should provide error with default message if executed action failed and no message provided when execute is dispatched', async () => {
+    window.api.action_invoke.mockImplementation(() => ({ success: false }))
 
     const project = '/project'
     const action = 'example.action.a'

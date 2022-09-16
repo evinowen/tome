@@ -7,7 +7,7 @@ class RepositoryFile {
     UNKNOWN: 0
   }
 
-  constructor (path, type) {
+  constructor(path, type) {
     this.path = path
     this.type = type || File.Type.UNKNOWN
   }

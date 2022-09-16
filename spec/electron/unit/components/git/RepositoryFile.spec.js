@@ -1,5 +1,7 @@
 import RepositoryFile from '@/../electron/components/git/RepositoryFile'
 
+jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {}, Diff: { LINE: 1 } }))
+
 describe('Repository.js', () => {
   it('should store constructor input values', async () => {
     const path = './test_file.txt'
@@ -7,7 +9,7 @@ describe('Repository.js', () => {
 
     const repository_file = new RepositoryFile(path, type)
 
-    expect(repository_file.path).toEqual(path)
+    expect(repository_file.path).toEqual(   path)
     expect(repository_file.type).toEqual(type)
   })
 })

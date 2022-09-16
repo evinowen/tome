@@ -5,14 +5,16 @@ const fs = require('fs')
 const path = require('path')
 const tmp = require('tmp-promise')
 
+const { promise_with_reject } = require('../../promise')
+
 module.exports = {
   register: () => {
     ipcMain.handle('ssl_generate_public_key', async (event, target, passphrase = null) => {
-      if (target === '') {
+      if (!target) {
         return { path: '', data: '' }
       }
 
-      const data = await new Promise((resolve, reject) => fs.readFile(target, 'utf8', (error, data) => error ? reject(error) : resolve(data)))
+      const data = await promise_with_reject(fs.readFile)(target, 'utf8')
 
       const private_key = passphrase ? forge.pki.decryptRsaPrivateKey(data, passphrase) : forge.pki.privateKeyFromPem(data)
 
@@ -22,23 +24,23 @@ module.exports = {
 
       const { path: ssh_public_key_path } = await tmp.file()
 
-      await new Promise((resolve, reject) => fs.writeFile(ssh_public_key_path, ssh_public_key, (err) => err ? reject(err) : resolve(true)))
+      await promise_with_reject(fs.writeFile)(ssh_public_key_path, ssh_public_key)
 
       return { path: ssh_public_key_path, data: ssh_public_key }
     })
 
-    ipcMain.handle('ssl_generate_private_key', async (event, passphrase = null) => {
+    ipcMain.handle('ssl_generate_private_key', async (event, passphrase) => {
       const { privateKey: private_key } = await new Promise((resolve, reject) => {
         forge.pki.rsa.generateKeyPair(
           { bits: 2048, workers: 2 },
-          (err, keypair) => err ? reject(err) : resolve(keypair)
+          (error, keypair) => error ? reject(error) : resolve(keypair)
         )
       })
 
       const ssh_private_key = forge.ssh.privateKeyToOpenSSH(private_key, passphrase)
       const ssh_private_key_path = path.join(app.getPath('userData'), 'id_rsa')
 
-      await new Promise((resolve, reject) => fs.writeFile(ssh_private_key_path, ssh_private_key, (err) => err ? reject(err) : resolve(true)))
+      await promise_with_reject(fs.writeFile)(ssh_private_key_path, ssh_private_key)
 
       return { path: ssh_private_key_path, data: ssh_private_key }
     })

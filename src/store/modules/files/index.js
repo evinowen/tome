@@ -24,6 +24,9 @@ export default {
     initialize: function (state, tree) {
       state.tree = tree
     },
+    clear: function (state) {
+      state.tree = null
+    },
     load: function (state, contract) {
       const { item, payload } = contract
 
@@ -109,6 +112,9 @@ export default {
 
       await context.dispatch('toggle', tree.base)
     },
+    clear: async function (context) {
+      context.commit('clear')
+    },
     identify: async function (context, criteria) {
       const { item = null, path = null } = criteria
 
@@ -173,6 +179,12 @@ export default {
       }
 
       return item
+    },
+    open: async function (context, criteria) {
+      const { container = false } = criteria
+      const item = await context.dispatch('identify', criteria)
+
+      await item.open(container)
     },
     ghost: async function (context, criteria) {
       const { directory = false, post = null } = criteria

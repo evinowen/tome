@@ -1,10 +1,10 @@
 <template>
-  <v-navigation-drawer :value=value @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 100; height: auto; top: 25px; bottom: 18px">
+  <v-navigation-drawer :value=system.push @input="$event || close" fixed right stateless width="100%" style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px">
     <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%;">
         <div class="flex-grow-0">
           <div>
-            <v-btn tile icon class="float-right" color="black" @click.stop="$emit('close')">
+            <v-btn tile icon class="float-right" color="black" @click.stop=close>
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
             <h1>Push</h1>
@@ -15,14 +15,21 @@
             <v-card-title class="pa-2">
               Credentials
             </v-card-title>
-
-            <keyfile-input v-model=input.private_key.value small storable :stored=configuration.private_key />
-            <push-passphrase-input v-model=input.passphrase.value :stored=configuration.passphrase small storable />
+            <keyfile-input small storable
+              :value=tome.credentials.key
+              @input=credential_key
+              :stored=configuration.private_key
+            />
+            <push-passphrase-input small storable
+              :value=tome.credentials.passphrase
+              @input=credential_passphrase
+              :stored=configuration.passphrase
+            />
           </v-card>
 
           <push-remote-selector
-            v-model=input.remotes.value
-            :items=remotes
+            :value="tome.remote ? tome.remote.name : null"
+            :items=tome.remotes
             @input=select_remote
             @change=add_remote
           />
@@ -30,7 +37,7 @@
           <v-container fluid>
             <v-row align="center" justify="center">
               <v-col>
-                <push-branch :name=branch />
+                <push-branch :name=tome.branch />
               </v-col>
 
               <v-col cols=1 class="text-center pa-0" align-center>
@@ -39,10 +46,10 @@
 
               <v-col>
                 <push-branch
-                  :loading="input.branch.loading"
-                  :disabled="!input.branch.reference"
-                  :url="remote && remote.branch ? remote.branch.name : null"
-                  :name="remote && remote.branch ? remote.branch.short : null"
+                  :loading="false"
+                  :disabled="!(tome.remote && tome.remote.branch)"
+                  :url="tome.remote && tome.remote.branch ? tome.remote.branch.name : null"
+                  :name="tome.remote && tome.remote.branch ? tome.remote.branch.short : null"
                 />
               </v-col>
             </v-row>
@@ -53,10 +60,10 @@
 
         <div class="flex-grow-1 mb-3">
           <push-status
-            :active="input.remotes.value != null"
-            :loading=input.branch.loading
-            :error=input.branch.error
-            :match="pending.length <= 0"
+            :active="tome.remote != null"
+            :loading="false"
+            error=""
+            :match="pending && pending.length <= 0"
             :history=pending
             @click=diff
           />
@@ -65,13 +72,13 @@
         <div ref="base" class="flex-grow-0 pb-3 actions">
           <v-divider class="mt-0 mb-2"></v-divider>
           <push-confirm
-            :value=confirm @input="$emit('confirm', $event)"
-            :disabled="!(input.private_key.value && pending.length)"
-            :waiting=working
-            :history=pending
+            :value=system.push_confirm @input=confirm
+            :disabled="!(configuration.key && pending && pending.length)"
+            :waiting=tome.push_working
+            :history=tome.pending
             @push=push
           />
-          <v-btn color="warning" @click.stop="$emit('close')">
+          <v-btn color="warning" @click.stop=close>
             <v-icon class="mr-2">mdi-cancel</v-icon>
             Cancel
           </v-btn>
@@ -100,107 +107,42 @@ import PushStatus from './PushStatus.vue'
 import PushConfirm from './PushConfirm.vue'
 
 export default {
-  props: {
-    value: { type: Boolean, default: false },
-    confirm: { type: Boolean, default: false }
-  },
-  data: () => ({
-    input: {
-      remotes: {
-        selected: null,
-        value: null,
-        list: [],
-        edit: false,
-        input: {
-          name: '',
-          url: ''
-        }
-      },
-      private_key: {
-        value: ''
-      },
-      passphrase: {
-        value: ''
-      },
-      branch: {
-        error: '',
-        loading: false,
-        loaded: false,
-        ahead: false,
-        history: [],
-        headers: [
-          { text: '', value: 'oid', width: '60px' },
-          { text: '', value: 'message', width: '' }
-        ]
-      }
-    }
-  }),
   computed: {
-    remotes: function () {
-      return store.state.tome.remotes
+    system: function () {
+      return store.state.system
     },
-    remote: function () {
-      return store.state.tome.remote
-    },
-    pending: function () {
-      return store.state.tome.pending
-    },
-    branch: function () {
-      return store.state.tome.branch
+    tome: function () {
+      return store.state.tome
     },
     configuration: function () {
       return store.state.configuration
-    },
-    working: function () {
-      return store.state.tome.push_working
-    }
-  },
-  mounted: async function () {
-    if (this.configuration.private_key) {
-      this.input.private_key.value = this.configuration.private_key
-    }
-
-    if (this.configuration.passphrase) {
-      this.input.passphrase.value = this.configuration.passphrase
     }
   },
   methods: {
+    close: async function () {
+      await store.dispatch('system/push', false)
+    },
+    credential_key: async function (value) {
+      await store.dispatch('tome/credentials/key', value)
+    },
+    credential_passphrase: async function (value) {
+      await store.dispatch('tome/credentials/passphrase', value)
+    },
+    confirm: async function (value) {
+      await store.dispatch('system/push_confirm', value)
+    },
     add_remote: async function (name, url) {
       await store.dispatch('tome/create-remote', { name, url })
     },
-    select_remote: async function (remote) {
-      if (!remote) {
-        return
-      }
-
-      this.input.remotes.value = remote
-
-      this.input.branch.reference = null
-      this.input.branch.loading = true
-      this.input.branch.loaded = false
-      this.input.branch.ahead = false
-
-      const credentials = {
-        private_key: this.input.private_key.value,
-        passphrase: this.input.passphrase.value
-      }
-
-      await store.dispatch('tome/credentials', credentials)
-      await store.dispatch('tome/remote', remote.url)
-
-      this.input.branch.loading = false
+    select_remote: async function (name) {
+      await store.dispatch('tome/remote', name)
     },
     diff: async function (commit) {
       await store.dispatch('tome/diff', { commit: commit.oid })
-
-      this.$emit('patch')
+      await store.dispatch('system/patch', true)
     },
     push: async function () {
-      await store.dispatch('tome/push')
-
-      this.$emit('confirm', false)
-
-      this.$emit('close')
+      await store.dispatch('system/perform', 'push')
     }
   },
   components: {

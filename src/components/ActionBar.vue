@@ -2,10 +2,10 @@
   <v-footer
     app
     class="pa-0"
-    style="position: fixed; z-index: 1000;"
+    style="z-index: 1000;"
     height=18
   >
-    <library-button v-model=library @open=open @close="$emit('close')" :disabled="disabled_unless()" />
+    <library-button v-model=library @open=open @close=close :disabled="disabled_unless()" />
 
     <v-divider inset vertical />
 
@@ -18,12 +18,11 @@
         :contributors=tome.metadata.contributors
         :license=tome.metadata.license
         :disabled="disabled_unless()"
-        @open=open_file
       />
 
       <v-divider inset vertical />
 
-      <v-btn v-if="tome.branch" tile small class="button px-2" color="primary" @click.stop="$emit('branch')" :disabled="disabled_unless(branch)">
+      <v-btn v-if="tome.branch" tile small class="button px-2" color="primary" @click.stop="branch" :disabled="disabled_unless(system.branch)">
         {{ tome.branch }}
       </v-btn>
       <v-btn v-else-if="tome.branch.error" tile small icon class="button pl-1 pr-2" color="error">
@@ -36,8 +35,8 @@
     </template>
 
     <v-btn tile icon small class="console button"
-      @click.stop="$emit('console')"
-      :disabled="disabled_unless(console || commit || push)"
+      @click.stop=console
+      :disabled="disabled_unless(system.console || system.commit || system.push)"
       :color="status === 'error' ? 'error' : ''"
     >
       <v-icon small>{{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}</v-icon>&nbsp;{{ message }}
@@ -46,20 +45,20 @@
     <template v-if="tome.path">
       <v-divider inset vertical />
 
-      <v-switch action-bar-edit :value="edit" @click.stop="$emit('edit')" dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()"></v-switch>
+      <v-switch action-bar-edit :value="edit" @click.stop=edit dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()"></v-switch>
 
       <v-divider inset vertical />
 
       <v-expand-x-transition>
-        <div v-show="edit" style="overflow: hidden; white-space: nowrap;">
+        <div v-show="system.edit" style="overflow: hidden; white-space: nowrap;">
           <div style="height: 18px">
             <!-- SAVE BUTTON -->
-            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop="$emit('commit')" :disabled="disabled_unless(commit)">
+            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop=commit :disabled="disabled_unless(system.commit)">
               <v-icon small>mdi-content-save</v-icon>
             </v-btn>
 
             <!-- PUSH BUTTON -->
-            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" @click.stop="$emit('push')" :disabled="disabled_unless(push)">
+            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" @click.stop=push :disabled="disabled_unless(system.push)">
               <v-icon small>mdi-upload-multiple</v-icon>
             </v-btn>
 
@@ -70,7 +69,7 @@
       <v-divider inset vertical />
 
       <!-- SEARCH BUTTON -->
-      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" @click.stop="$emit('search')" :disabled="disabled_unless()">
+      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" @click.stop=search :disabled="disabled_unless()">
         <v-icon small>mdi-magnify</v-icon>
       </v-btn>
 
@@ -154,56 +153,13 @@ import LibraryButton from './LibraryButton.vue'
 import RepositoryButton from './RepositoryButton.vue'
 
 export default {
-  props: {
-    menu: { type: Array, default: () => [] },
-    waiting: { type: Number, default: 0 },
-    waiting_max: { type: Number, default: 3 },
-    edit: { type: Boolean, default: false },
-    branch: { type: Boolean, default: false },
-    commit: { type: Boolean, default: false },
-    push: { type: Boolean, default: false },
-    console: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false }
-  },
-
   data: () => ({
     library: false
   }),
-
-  methods: {
-    open: async function (path) {
-      this.library = false
-
-      if (path) {
-        this.$emit('open', path)
-      } else {
-        const result = await window.api.select_directory()
-
-        if (result.canceled) {
-          return
-        }
-
-        if (!result.filePaths.length) {
-          this.$emit('close')
-          return
-        }
-
-        this.$emit('open', result.filePaths[0])
-      }
-    },
-    open_file: async function (path) {
-      await store.dispatch('files/select', { path })
-    },
-    disabled_unless: function (unless) {
-      if (unless) {
-        return this.disabled
-      }
-
-      return this.disabled || this.branch || this.commit || this.push || this.console
-    }
-  },
-
   computed: {
+    system: function () {
+      return store.state.system
+    },
     tome: function () {
       return store.state.tome
     },
@@ -212,9 +168,46 @@ export default {
     },
     message: function () {
       return store.state.message
+    },
+    disabled: function () {
+      const system = store.state.system
+      return system.settings || system.branch || system.commit || system.push || system.console
     }
   },
+  methods: {
+    open: async function (path) {
+      this.library = false
+      await store.dispatch('system/open', path)
+    },
+    close: async function () {
+      await store.dispatch('system/close')
+    },
+    edit: async function () {
+      await store.dispatch('system/edit', !this.system.edit)
+    },
+    branch: async function () {
+      await store.dispatch('system/branch', !this.system.branch)
+    },
+    commit: async function () {
+      await store.dispatch('system/commit', !this.system.commit)
+    },
+    push: async function () {
+      await store.dispatch('system/push', !this.system.push)
+    },
+    console: async function () {
+      await store.dispatch('system/console', !this.system.console)
+    },
+    search: async function () {
+      await store.dispatch('system/search', !this.system.search)
+    },
+    disabled_unless: function (unless) {
+      if (unless) {
+        return this.system.settings
+      }
 
+      return this.disabled
+    }
+  },
   components: {
     VIcon,
     VBtn,

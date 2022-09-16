@@ -8,28 +8,6 @@ import builders from '@/../tests/builders'
 
 Object.assign(window, builders.window())
 
-// const _window = {
-//   api: {
-//     clipboard_paste: jest.fn()
-//   }
-// }
-
-// jest.spyOn(window, 'window', 'get').mockImplementation(() => _window)
-
-// const fs_copy_callback = (mode, callback) => (callback || mode)(null)
-// const fs_copy_callback_error = (mode, callback) => (callback || mode)('error!')
-
-// const _lstat = {
-//   isDirectory: jest.fn(() => true)
-// }
-
-// const fs = {
-//   rename: jest.fn((old_path, new_path, callback) => callback(null)),
-//   copyFile: jest.fn((src, dest, mode, callback) => fs_copy_callback(mode, callback)),
-//   access: jest.fn((path, callback) => callback(new Error('error!'))),
-//   lstat: jest.fn((path, callback) => callback(null, _lstat))
-// }
-
 describe('store/modules/clipboard.js', () => {
   let localVue
   let store
@@ -58,10 +36,27 @@ describe('store/modules/clipboard.js', () => {
       target: '/path/to/copy/item'
     }
 
-    await store.dispatch('copy', cut_content)
+    await store.dispatch('clipboard/copy', cut_content)
 
     expect(store.state.clipboard.action).toBe('copy')
     expect(store.state.clipboard.content).toBe(cut_content)
+  })
+
+  it('should populate empty values when clear is called', async () => {
+    const cut_content = {
+      type: 'path',
+      target: '/path/to/copy/item'
+    }
+
+    await store.dispatch('clipboard/copy', cut_content)
+
+    expect(store.state.clipboard.action).toBe('copy')
+    expect(store.state.clipboard.content).toBe(cut_content)
+
+    await store.dispatch('clipboard/clear')
+
+    expect(store.state.clipboard.action).toBe(null)
+    expect(store.state.clipboard.content).toBe(null)
   })
 
   it('should set action and load value on path cut', async () => {
@@ -70,7 +65,7 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/a.md'
     }
 
-    await store.dispatch('cut', cut_content)
+    await store.dispatch('clipboard/cut', cut_content)
 
     expect(store.state.clipboard.action).toBe('cut')
     expect(store.state.clipboard.content).toBe(cut_content)
@@ -84,9 +79,57 @@ describe('store/modules/clipboard.js', () => {
 
     expect(store.state.clipboard.error).toBeFalsy()
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeTruthy()
+  })
+
+  it('should call clipboard_paste if paste triggered with clipboard', async () => {
+    const cut_content = {
+      type: 'path',
+      target: '/path/to/copy/item'
+    }
+
+    await store.dispatch('clipboard/copy', cut_content)
+
+    expect(store.state.clipboard.action).toBe('copy')
+    expect(store.state.clipboard.content).toBe(cut_content)
+
+    const paste_content = {
+      type: 'path',
+      target: '/project/second/z.md'
+    }
+
+    expect(store.state.clipboard.error).toBeFalsy()
+
+    await store.dispatch('clipboard/paste', paste_content)
+
+    expect(store.state.clipboard.error).toBeFalsy()
+    expect(window.api.clipboard_paste).toHaveBeenCalled()
+  })
+
+  it('should call clipboard_writetext if text called with a value', async () => {
+    const value = 'value'
+    await store.dispatch('clipboard/text', value)
+
+    expect(window.api.clipboard_writetext).toHaveBeenCalled()
+  })
+
+  it('should call clipboard_readtext if text called without a value', async () => {
+    await store.dispatch('clipboard/text')
+
+    expect(window.api.clipboard_readtext).toHaveBeenCalled()
+  })
+
+  it('should return clipboard text value if text called without a value', async () => {
+    const value = 'value'
+    await store.dispatch('clipboard/text', value)
+
+    expect(window.api.clipboard_writetext).toHaveBeenCalled()
+
+    const result = await store.dispatch('clipboard/text')
+
+    expect(result).toEqual(value)
   })
 
   /*
@@ -96,14 +139,14 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/z.md'
     }
 
-    await store.dispatch('cut', cut_content)
+    await store.dispatch('clipboard/cut', cut_content)
 
     const paste_content = {
       type: 'path',
       target: '/project/second/w.md'
     }
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeTruthy()
   })
@@ -114,14 +157,14 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/a.md'
     }
 
-    await store.dispatch('cut', cut_content)
+    await store.dispatch('clipboard/cut', cut_content)
 
     const paste_content = {
       type: 'path',
       target: '/project/second/a.md'
     }
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
     expect(window.api.file_rename).toHaveBeenCalledTimes(1)
@@ -133,14 +176,14 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/a'
     }
 
-    await store.dispatch('cut', cut_content)
+    await store.dispatch('clipboard/cut', cut_content)
 
     const paste_content = {
       type: 'path',
       target: '/project/first/b'
     }
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeTruthy()
   })
@@ -151,14 +194,14 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/a.md'
     }
 
-    await store.dispatch('cut', cut_content)
+    await store.dispatch('clipboard/cut', cut_content)
 
     const paste_content = {
       type: 'path',
       target: '/project/second/z.md'
     }
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
     expect(window.api.file_rename).toHaveBeenCalledTimes(1)
@@ -170,14 +213,14 @@ describe('store/modules/clipboard.js', () => {
       target: '/project/first/a.md'
     }
 
-    await store.dispatch('copy', copy_content)
+    await store.dispatch('clipboard/copy', copy_content)
 
     const paste_content = {
       type: 'path',
       target: '/project/second/z.md'
     }
 
-    await store.dispatch('paste', paste_content)
+    await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
     expect(window.api.file_copy).toHaveBeenCalledTimes(1)

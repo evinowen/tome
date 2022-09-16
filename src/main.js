@@ -20,28 +20,32 @@ import 'codemirror/addon/search/searchcursor.js'
 
 import VueShortKey from 'vue-shortkey'
 
-Vue.component('split-pane', SplitPane)
+async function main () {
+  Vue.component('split-pane', SplitPane)
 
-Vue.use(VueCodemirror, {
-  events: ['contextmenu', 'inputRead'],
-  options: {
-    tabSize: 4,
-    theme: 'base16-dark',
-    lineNumbers: true,
-    line: true,
-    autoRefresh: true
-  }
-})
+  Vue.use(VueCodemirror, {
+    events: ['contextmenu', 'inputRead'],
+    options: {
+      tabSize: 4,
+      theme: 'base16-dark',
+      lineNumbers: true,
+      line: true,
+      autoRefresh: true
+    }
+  })
 
-Vue.use(VueShortKey)
+  Vue.use(VueShortKey)
 
-Vue.config.productionTip = false
+  Vue.config.productionTip = false
 
-store.dispatch('hydrate')
+  await store.dispatch('hydrate')
 
-new Vue({
-  router,
-  store,
-  vuetify,
-  render: h => h(App)
-}).$mount('#app')
+  new Vue({
+    router,
+    store,
+    vuetify,
+    render: h => h(App)
+  }).$mount('#app')
+}
+
+export default main()

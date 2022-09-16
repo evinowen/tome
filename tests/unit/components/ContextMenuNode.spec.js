@@ -1,7 +1,5 @@
 import { assemble } from '@/../tests/helpers'
-import Vue from 'vue'
 import Vuetify from 'vuetify'
-
 import ContextMenuNode from '@/components/ContextMenuNode.vue'
 
 global.ResizeObserver = class {
@@ -9,12 +7,8 @@ global.ResizeObserver = class {
     this.listener = listener
   }
 
-  observe (object) {
-
-  }
+  observe (object) { }
 }
-
-Vue.use(Vuetify)
 
 const item_none = {
   title: 'None',

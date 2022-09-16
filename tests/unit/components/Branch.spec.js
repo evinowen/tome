@@ -1,98 +1,85 @@
-import { remote } from 'electron'
-import Vue from 'vue'
+import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-
-import Branch from '@/components/Branch.vue'
 import store from '@/store'
-
-import { createLocalVue, mount } from '@vue/test-utils'
+import Branch from '@/components/Branch.vue'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-Vue.use(Vuetify)
-
-jest.mock('electron', () => ({
-  remote: {
-    dialog: jest.fn()
-  }
-
-}))
-
-remote.dialog = {
-  showOpenDialog: jest.fn()
-}
-
-const localVue = createLocalVue()
-
 describe('Branch.vue', () => {
   let vuetify
-  let wrapper
+  let value
+
+  const factory = assemble(Branch, { value })
+    .context(() => ({
+      vuetify,
+      stubs: { VDataTable: true }
+    }))
 
   beforeEach(() => {
     vuetify = new Vuetify()
+    value = true
 
     store.state = {
       tome: {
         history: []
       }
     }
-
-    const value = true
-
-    wrapper = mount(
-      Branch,
-      {
-        localVue,
-        vuetify,
-        stubs: {
-          VDataTable: true
-        },
-        propsData: {
-          value
-        }
-      }
-    )
   })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
+  it('should dispatch system/branch with false when close is called', async () => {
+    const wrapper = factory.wrap()
+
+    expect(store.dispatch).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.close()
+
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/branch')
+
+    expect(action).toBeDefined()
+    expect(data).toEqual(false)
+  })
+
   it('should call store to load commit OID into patch when diff is called', async () => {
+    const wrapper = factory.wrap()
+
     const event = jest.fn()
 
     wrapper.vm.$on('edit', event)
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
-    const commit = {
-      oid: 1
-    }
+    await wrapper.vm.diff({ oid: 1 })
 
-    await wrapper.vm.diff(commit)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'tome/diff')
 
-    expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toEqual('tome/diff')
-    expect(store.dispatch.mock.calls[0][1]).toEqual({ commit: 1 })
+    expect(action).toBeDefined()
+    expect(data).toEqual({ commit: 1 })
   })
 
-  it('should emit patch event when diff is called', async () => {
+  it('should dispatch system/patch with true when diff is called', async () => {
+    const wrapper = factory.wrap()
+
     const event = jest.fn()
 
     wrapper.vm.$on('patch', event)
 
     expect(event).toHaveBeenCalledTimes(0)
 
-    const commit = {
-      oid: 1
-    }
+    await wrapper.vm.diff({ oid: 1 })
 
-    await wrapper.vm.diff(commit)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/patch')
 
-    expect(event).toHaveBeenCalledTimes(1)
+    expect(action).toBeDefined()
+    expect(data).toEqual(true)
   })
 
   it('should format date into ISO format on call to format_date', async () => {
+    const wrapper = factory.wrap()
+
     const event = jest.fn()
 
     wrapper.vm.$on('patch', event)

@@ -1,7 +1,7 @@
 <template>
   <v-menu :value=value @input="$emit('input', $event)" >
     <template v-slot:activator="{ on, attrs }">
-      <v-btn v-if="tome.path" action-bar-bookshelf tile icon small color="accent" class="pa-0" v-bind="attrs" @click.stop="$emit('close')" :disabled=disabled>
+      <v-btn v-if="tome.path" action-bar-bookshelf tile icon small color="accent" class="pa-0" v-bind="attrs" @click.stop=close :disabled=disabled>
         <v-icon small style="transform: rotate(180deg);">mdi-exit-to-app</v-icon>
       </v-btn>
       <v-btn v-else action-bar-bookshelf tile icon small color="accent" class="pa-0" v-bind="attrs" v-on="on" :disabled=disabled>
@@ -11,15 +11,15 @@
 
     <v-list dense>
       <v-list-item dense
-        v-for="(item, index) in history"
+        v-for="(item, index) in library.history"
         :key="index"
-        @click.stop="$emit('open', item)"
+        @click="open(item)"
       >
         <v-icon small class="mr-1">mdi-book</v-icon>
         <v-list-item-title>{{ item }}</v-list-item-title>
       </v-list-item>
       <v-divider></v-divider>
-      <v-list-item @click.stop="$emit('open')">
+      <v-list-item @click=select>
         <v-icon small class="mr-1">mdi-folder-open</v-icon>
         <v-list-item-title>Select ...</v-list-item-title>
       </v-list-item>
@@ -72,28 +72,23 @@ export default {
     value: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false }
   },
-  methods: {
-    open: async function (event) {
-      const result = await window.api.select_directory()
-
-      if (result.canceled) {
-        return
-      }
-
-      if (!result.filePaths.length) {
-        this.$emit('close')
-        return
-      }
-
-      this.$emit('open', result.filePaths[0])
-    }
-  },
   computed: {
     tome: function () {
       return store.state.tome
     },
-    history: function () {
-      return store.state.library.history
+    library: function () {
+      return store.state.library
+    }
+  },
+  methods: {
+    select: async function () {
+      await store.dispatch('library/select')
+    },
+    open: async function (item) {
+      await store.dispatch('library/open', item)
+    },
+    close: async function () {
+      await store.dispatch('library/close')
     }
   }
 }

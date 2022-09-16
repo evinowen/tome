@@ -13,7 +13,7 @@
       <v-layout
         v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
         @click.left.stop="$emit('select', { path })"
-        @click.right.stop="locked || $emit('context', { instance, event: $event })"
+        @click.right.stop=contextmenu
       >
         <v-flex shrink class="explorer-node-indent" :style="{ width: `${depth * 6}px`}" ></v-flex>
         <file-icon
@@ -283,108 +283,6 @@ export default {
         action: (path) => this.$emit('template', { name, target: path })
       }))
     },
-    context: function () {
-      const menu = []
-      const push = (items) => {
-        if (menu.length) {
-          menu.push({ divider: true })
-        }
-
-        menu.push(...items)
-      }
-
-      const expand = [
-        {
-          title: 'Expand',
-          action: null
-        }
-      ]
-
-      const script = [
-        {
-          title: 'Template',
-          load: () => this.templates
-        },
-        {
-          title: 'Action',
-          load: () => this.actions
-        }
-      ]
-
-      const special = []
-
-      if (['root', 'tome', 'tome-feature-templates'].includes(this.relationship)) {
-        special.push({
-          title: 'New Template',
-          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path })
-        })
-      }
-
-      if (['root', 'tome', 'tome-feature-actions'].includes(this.relationship)) {
-        special.push({
-          title: 'New Action',
-          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.ACTION, target: path })
-        })
-      }
-
-      const file = [
-        {
-          title: 'Open',
-          action: (path) => this.$emit('open', { type: 'file', target: path })
-        },
-        {
-          title: 'Open Folder',
-          action: (path) => this.$emit('open', { type: 'file', target: path, parent: true })
-        },
-        {
-          title: 'New File',
-          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.FILE, target: path })
-        },
-        {
-          title: 'New Folder',
-          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path })
-        }
-      ]
-
-      const clipboard = [
-        {
-          title: 'Cut',
-          action: async (path) => await store.dispatch('cut', { type: 'file', target: path }),
-          active: () => !this.system
-        },
-        {
-          title: 'Copy',
-          action: async (path) => await store.dispatch('copy', { type: 'file', target: path })
-        },
-        {
-          title: 'Paste',
-          active: () => store.state.clipboard.content,
-          action: async (path) => await store.dispatch('paste', { type: 'file', target: path })
-        }
-      ]
-
-      const move = [
-        {
-          title: 'Rename',
-          action: async (path) => this.$emit('edit', { target: path }),
-          active: () => !this.system
-        },
-        {
-          title: 'Delete',
-          action: async (path) => this.$emit('delete', { target: path }),
-          active: () => !this.system
-        }
-      ]
-
-      push(this.directory ? expand : [])
-      push(special.length && this.system ? special : [])
-      push(this.system && !this.root ? [] : script)
-      push(file)
-      push(clipboard)
-      push(move)
-
-      return menu
-    },
     instance: function () {
       return this
     },
@@ -440,9 +338,123 @@ export default {
       }
 
       return false
+    },
+    context: function () {
+      const items = []
+      const push = (array) => {
+        if (items.length) {
+          items.push({ divider: true })
+        }
+
+        items.push(...array)
+      }
+
+      const expand = [
+        {
+          title: 'Expand',
+          action: null
+        }
+      ]
+
+      const script = [
+        {
+          title: 'Template',
+          load: () => this.templates
+        },
+        {
+          title: 'Action',
+          load: () => this.actions
+        }
+      ]
+
+      const special = []
+
+      if (['root', 'tome', 'tome-feature-templates'].includes(this.relationship)) {
+        special.push({
+          title: 'New Template',
+          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path })
+        })
+      }
+
+      if (['root', 'tome', 'tome-feature-actions'].includes(this.relationship)) {
+        special.push({
+          title: 'New Action',
+          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.ACTION, target: path })
+        })
+      }
+
+      const file = [
+        {
+          title: 'Open',
+          action: (path) => this.$emit('open', { target: path })
+        },
+        {
+          title: 'Open Folder',
+          action: (path) => this.$emit('open', { target: path, container: true })
+        },
+        {
+          title: 'New File',
+          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.FILE, target: path })
+        },
+        {
+          title: 'New Folder',
+          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path })
+        }
+      ]
+
+      const clipboard = [
+        {
+          title: 'Cut',
+          action: async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
+          active: () => !this.system
+        },
+        {
+          title: 'Copy',
+          action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path })
+        },
+        {
+          title: 'Paste',
+          active: () => store.state.clipboard.content,
+          action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path })
+        }
+      ]
+
+      const move = [
+        {
+          title: 'Rename',
+          action: async (path) => this.$emit('edit', { target: path }),
+          active: () => !this.system
+        },
+        {
+          title: 'Delete',
+          action: async (path) => this.$emit('delete', { target: path }),
+          active: () => !this.system
+        }
+      ]
+
+      push(this.directory ? expand : [])
+      push(special.length && this.system ? special : [])
+      push(this.system && !this.root ? [] : script)
+      push(file)
+      push(clipboard)
+      push(move)
+
+      return items
     }
   },
   methods: {
+    contextmenu: async function (event) {
+      if (this.locked) {
+        return
+      }
+
+      const position = {
+        x: event.clientX,
+        y: event.clientY
+      }
+
+      await store.dispatch('context/open', { target: this.path, title: this.path, items: this.context, position })
+    },
     drag_start: function (event) {
       if (this.system) {
         event.preventDefault()

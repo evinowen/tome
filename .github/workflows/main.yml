@@ -77,8 +77,17 @@ jobs:
           # be revoked in the current GitHub Actions environment.
           TESTS: "-test_ui -test_pem -test_ssl_new"
 
-      - name: Test Renderer
+      - name: Lint Renderer Process
+        run: npm run lint-renderer
+
+      - name: Test Renderer Process
         run: npm run test-renderer
+
+      - name: Lint Main Process
+        run: npm run lint-electron
+
+      - name: Test Main Process
+        run: npm run test-electron
 
       - name: Build Renderer
         run: npm run build-renderer
@@ -159,8 +168,17 @@ jobs:
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ssl_new"
 
-    - name: Test Renderer
+    - name: Lint Renderer Process
+      run: npm run lint-renderer
+
+    - name: Test Renderer Process
       run: npm run test-renderer
+
+    - name: Lint Main Process
+      run: npm run lint-electron
+
+    - name: Test Main Process
+      run: npm run test-electron
 
     - name: Build Renderer
       run: npm run build-renderer
@@ -204,8 +222,17 @@ jobs:
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ui -test_pem -test_ssl_new"
 
-    - name: Test Renderer
+    - name: Lint Renderer Process
+      run: npm run lint-renderer
+
+    - name: Test Renderer Process
       run: npm run test-renderer
+
+    - name: Lint Main Process
+      run: npm run lint-electron
+
+    - name: Test Main Process
+      run: npm run test-electron
 
     - name: Build Renderer
       run: npm run build-renderer

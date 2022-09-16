@@ -19,10 +19,6 @@ export default {
     },
     multifile: function (state, value) {
       state.multifile = value
-
-      if (!value) {
-        state.results = []
-      }
     },
     regex_query: function (state, value) {
       state.regex_query = value

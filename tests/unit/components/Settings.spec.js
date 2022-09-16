@@ -1,10 +1,9 @@
-import Vue from 'vue'
+import { assemble } from '@/../tests/helpers'
 import Vuetify from 'vuetify'
-
-import Settings from '@/components/Settings.vue'
 import store from '@/store'
+import Settings from '@/components/Settings.vue'
 
-import { createLocalVue, mount } from '@vue/test-utils'
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 jest.mock('lodash/debounce', () => (callback) => {
   callback.cancel = jest.fn()
@@ -12,95 +11,105 @@ jest.mock('lodash/debounce', () => (callback) => {
   return callback
 })
 
-jest.mock('@/store', () => ({
-  state: {
-    configuration: {
-      name: '',
-      email: '',
-      private_key: '',
-      passphrase: '',
-      format_titles: false,
-      dark_mode: false,
-      auto_push: false,
-      default_remote: 'origin',
-      light_primary: '',
-      light_primary_enabled: false,
-      light_secondary: '',
-      light_secondary_enabled: false,
-      light_accent: '',
-      light_accent_enabled: false,
-      light_error: '',
-      light_error_enabled: false,
-      light_info: '',
-      light_info_enabled: false,
-      light_warning: '',
-      light_warning_enabled: false,
-      light_success: '',
-      light_success_enabled: false,
-      dark_primary: '',
-      dark_primary_enabled: false,
-      dark_secondary: '',
-      dark_secondary_enabled: false,
-      dark_accent: '',
-      dark_accent_enabled: false,
-      dark_error: '',
-      dark_error_enabled: false,
-      dark_info: '',
-      dark_info_enabled: false,
-      dark_warning: '',
-      dark_warning_enabled: false,
-      dark_success: '',
-      dark_success_enabled: false
-    }
-  },
-  dispatch: jest.fn()
-}))
-
-Vue.use(Vuetify)
-const localVue = createLocalVue()
-
 describe('Settings.vue', () => {
   let vuetify
-  let wrapper
+
+  const factory = assemble(Settings)
+    .context(() => ({
+      vuetify,
+      stubs: {
+        KeyfileInput: true
+      }
+    }))
 
   beforeEach(() => {
     vuetify = new Vuetify()
 
-    wrapper = mount(
-      Settings,
-      {
-        localVue,
-        vuetify,
-        stubs: {
-          KeyfileInput: true
-        }
+    store.state = {
+      configuration: {
+        name: '',
+        email: '',
+        private_key: '',
+        passphrase: '',
+        format_titles: false,
+        dark_mode: false,
+        auto_push: false,
+        default_remote: 'origin',
+        light_primary: '',
+        light_primary_enabled: false,
+        light_secondary: '',
+        light_secondary_enabled: false,
+        light_accent: '',
+        light_accent_enabled: false,
+        light_error: '',
+        light_error_enabled: false,
+        light_info: '',
+        light_info_enabled: false,
+        light_warning: '',
+        light_warning_enabled: false,
+        light_success: '',
+        light_success_enabled: false,
+        dark_primary: '',
+        dark_primary_enabled: false,
+        dark_secondary: '',
+        dark_secondary_enabled: false,
+        dark_accent: '',
+        dark_accent_enabled: false,
+        dark_error: '',
+        dark_error_enabled: false,
+        dark_info: '',
+        dark_info_enabled: false,
+        dark_warning: '',
+        dark_warning_enabled: false,
+        dark_success: '',
+        dark_success_enabled: false
+      },
+      system: {
+        version: '0.0.0',
+        process: null
       }
-    )
+    }
   })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  it('should mount and set prop and data defaults', async () => {
-    expect(wrapper.vm.value).toEqual(false)
+  it('should mount into test scafolding without error', async () => {
+    const wrapper = factory.wrap()
+    expect(wrapper).toBeDefined()
   })
 
-  it('should assign value to configuration option on call to assign_value', async () => {
-    expect(wrapper.vm.value).toEqual(false)
+  it('should dispatch system/settings with false when close is called', async () => {
+    const wrapper = factory.wrap()
 
-    const name = 'name'
-    const value = 'value'
+    await wrapper.vm.close()
 
-    await wrapper.vm.assign_value(name, value)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/settings')
 
-    expect(store.dispatch.mock.calls[0][0]).toEqual('configuration/update')
-    expect(store.dispatch.mock.calls[0][1]).toEqual({ [name]: value })
+    expect(action).toBeDefined()
+    expect(data).toBe(false)
   })
 
-  it('should dispatch configuration write on call to save', async () => {
+  it('should dispatch configuration/generate with passphrase when generate_key is called with passphrase', async () => {
+    const passphrase = 'password'
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.generate_key(passphrase)
+
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'configuration/generate')
+
+    expect(action).toBeDefined()
+    expect(data).toBe(passphrase)
+  })
+
+  it('should dispatch configuration/write when save is called', async () => {
+    const wrapper = factory.wrap()
+
     await wrapper.vm.save()
 
-    expect(store.dispatch.mock.calls[0][0]).toEqual('configuration/write')
+    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'configuration/write')
+
+    expect(action).toBeDefined()
   })
 })

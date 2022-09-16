@@ -49,7 +49,6 @@
 
 <script>
 import store from '@/store'
-import { shell } from 'electron'
 import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
 export default {
@@ -106,15 +105,9 @@ export default {
       await store.dispatch('files/select', { path })
     },
     open: async function (state) {
-      const { target, parent } = state
+      const { target, container = false } = state
 
-      let path = target
-
-      if (parent) {
-        path = await window.api.path_dirname(target)
-      }
-
-      shell.openPath(path)
+      await store.dispatch('files/open', { path: target, container })
     },
     edit: async (state) => await store.dispatch('files/edit', { path: state.target }),
     create: async function (state) {

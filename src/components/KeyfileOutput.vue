@@ -25,6 +25,7 @@
 
 <script>
 import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
+import store from '@/store'
 
 export default {
   components: { VIcon, VBtn, VTextField, VLayout, VFlex },
@@ -35,7 +36,7 @@ export default {
   },
   methods: {
     copy: async function () {
-      await window.api.clipboard_text(this.value)
+      await store.dispatch('clipboard/text', this.value)
     }
   }
 }

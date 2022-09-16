@@ -1,52 +1,56 @@
+import { assemble } from '@/../tests/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
-import VueShortKey from 'vue-shortkey'
-
+import store from '@/store'
 import RepositoryButton from '@/components/RepositoryButton.vue'
 
-import { createLocalVue, mount } from '@vue/test-utils'
+jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 Vue.use(Vuetify)
-Vue.use(VueShortKey)
 
-const localVue = createLocalVue()
-
-describe('Console.vue', () => {
+describe('RepositoryButton.vue', () => {
   let vuetify
-  let wrapper
+
+  const factory = assemble(RepositoryButton)
+    .context(() => ({ vuetify }))
 
   beforeEach(() => {
     vuetify = new Vuetify()
-
-    wrapper = mount(
-      RepositoryButton,
-      {
-        localVue,
-        vuetify
-      }
-    )
   })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  it('should emit open event with path and close on call to open', async () => {
-    const event = jest.fn()
+  it('should mount into test scafolding without error', async () => {
+    const wrapper = factory.wrap()
+    expect(wrapper).toBeDefined()
+  })
+
+  it('should dispatch files/select with path when open is called with a path', async () => {
+    const wrapper = factory.wrap()
 
     wrapper.setData({ value: true })
-
-    wrapper.vm.$on('open', event)
-
-    expect(event).toHaveBeenCalledTimes(0)
     expect(wrapper.vm.value).toBe(true)
 
-    const path = '/readme.md'
+    const path = '/project'
+    await wrapper.vm.open(path)
 
-    wrapper.vm.open(path)
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'files/select')
 
-    expect(event).toHaveBeenCalledTimes(1)
-    expect(event.mock.calls[0][0]).toEqual(path)
+    expect(action).toBeDefined()
+    expect(data).toEqual({ path })
+  })
+
+  it('should set value to false open is called with a path', async () => {
+    const wrapper = factory.wrap()
+
+    wrapper.setData({ value: true })
+    expect(wrapper.vm.value).toBe(true)
+
+    const path = '/project'
+    await wrapper.vm.open(path)
+
     expect(wrapper.vm.value).toBe(false)
   })
 })

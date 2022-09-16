@@ -51,6 +51,8 @@
 
 <script>
 import { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu } from 'vuetify/lib'
+import store from '@/store'
+
 export default {
   components: { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu },
   props: {
@@ -66,9 +68,9 @@ export default {
     value: false
   }),
   methods: {
-    open: function (path) {
+    open: async function (path) {
       this.value = false
-      this.$emit('open', path)
+      await store.dispatch('files/select', { path })
     }
   }
 }

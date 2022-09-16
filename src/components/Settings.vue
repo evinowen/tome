@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer :value=value @input="$emit('input', $event)" fixed stateless width="100%" style="z-index: 1000; height: auto; top: 25px; bottom: 18px">
+  <v-navigation-drawer :value=value @input="$event || close" fixed stateless width="100%" style="z-index: 1000; max-width: 900px; height: auto; top: 25px; bottom: 18px">
     <v-container fluid class="pb-0" style="height: 100%;">
       <v-row>
         <v-col>
@@ -21,7 +21,7 @@
             id="settings_private_key"
             :value=configuration.private_key
             @input="assign_value('private_key', $event)"
-            forge @forge="generate_key('private_key', configuration.passphrase)"
+            forge @forge="generate_key(configuration.passphrase)"
           />
         </v-col>
       </v-row>
@@ -39,7 +39,7 @@
       </v-row>
       <v-row dense>
         <v-col>
-          <keyfile-output label="public key" :value="public_key ? public_key.data : null"  />
+          <keyfile-output label="public key" :value=configuration.public_key />
         </v-col>
       </v-row>
       <v-row dense>
@@ -214,10 +214,40 @@
           </v-container>
         </v-col>
       </v-row>
+      <v-divider class="mt-4 mb-5"></v-divider>
+      <v-row>
+        <v-col>
+          <v-layout>
+            <v-flex shrink>
+              <v-layout class="tome">
+                <v-flex shrink style="text-align: center;"><img src="logo.png"/></v-flex>
+                <v-flex grow justify-center align-self-center>
+                  <h3>Tome</h3>
+                  version {{ system.version }}
+                </v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex grow>
+              <sea-game />
+            </v-flex>
+            <v-flex v-if=system.process
+              shrink
+              style="font-size: 0.8em; text-align: right; opacity: 0.6;"
+            >
+              <b>electron</b> {{ system.process.versions.electron }}<br />
+              <b>chromium</b> {{ system.process.versions.chrome }}<br />
+              <b>node</b> {{ system.process.versions.node }}<br />
+              <b>v8</b> {{ system.process.versions.v8 }}<br />
+              <v-divider></v-divider>
+              <b>sandboxed</b> {{ system.process.sandboxed ? 'true' : 'false' }}<br />
+            </v-flex>
+          </v-layout>
+        </v-col>
+      </v-row>
       <v-row class="mb-3"></v-row>
       <div ref="base" class="pb-3 actions">
         <v-divider class="mt-0 mb-2"></v-divider>
-        <v-btn small color="primary" @click.stop="$emit('input', false)">
+        <v-btn small color="primary" @click.stop=close>
           Done
         </v-btn>
       </div>
@@ -225,22 +255,32 @@
   </v-navigation-drawer>
 </template>
 
-<style>
+<style scoped>
+.tome {
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+  margin: auto;
+  width: 200px;
+  padding: 6px;
+  text-align: center;
+}
+
 .actions {
   backdrop-filter: blur(2px);
+  bottom: 0px;
   position: sticky;
-  bottom: 0px
 }
 </style>
 
 <script>
-import { VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/lib'
+import { VLayout, VFlex, VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/lib'
 import { debounce } from 'lodash'
 import store from '@/store'
 import ThemePreview from './ThemePreview.vue'
 import KeyfileInput from './KeyfileInput.vue'
 import KeyfileOutput from './KeyfileOutput.vue'
 import ThemeColorPicker from './ThemeColorPicker.vue'
+import SeaGame from './SeaGame.vue'
 
 export default {
   props: {
@@ -248,30 +288,30 @@ export default {
   },
   data: () => ({
     obscure_passphrase: true,
-    public_key: null
+    version: null,
+    process: null
   }),
-  mounted: async function () {
-    store.watch(state => [state.configuration.private_key, state.configuration.passphrase], async () => {
-      this.public_key = await window.api.ssl_generate_public_key(this.configuration.private_key, this.configuration.passphrase)
-    })
-  },
   computed: {
     configuration: function () {
       return store.state.configuration
+    },
+    system: function () {
+      return store.state.system
     },
     debounce_save: function () {
       return debounce(this.save, 1000)
     }
   },
   methods: {
+    close: async function () {
+      await store.dispatch('system/settings', false)
+    },
     assign_value: async function (name, value) {
       await store.dispatch('configuration/update', { [name]: value })
       this.debounce_save()
     },
-    generate_key: async function (name, passphrase) {
-      const private_key = await window.api.ssl_generate_private_key(passphrase)
-
-      await this.assign_value('private_key', private_key.path)
+    generate_key: async function (passphrase) {
+      await store.dispatch('configuration/generate', passphrase)
     },
     save: async function () {
       await store.dispatch('configuration/write', store.state.configuration_path)
@@ -289,7 +329,10 @@ export default {
     KeyfileInput,
     KeyfileOutput,
     ThemePreview,
-    ThemeColorPicker
+    ThemeColorPicker,
+    VLayout,
+    VFlex,
+    SeaGame
   }
 }
 </script>

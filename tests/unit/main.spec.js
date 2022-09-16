@@ -34,8 +34,11 @@ describe('main.js', () => {
     jest.clearAllMocks()
   })
 
-  it('is able to be mocked and prepared for testing', () => {
-    jest.isolateModules(() => { require('@/main.js') })
+  it('is able to be mocked and prepared for testing', async () => {
+    let promise
+    jest.isolateModules(() => { promise = require('@/main.js') })
+
+    await promise
 
     expect(_Vue._createElement).toHaveBeenCalledTimes(1)
     expect(_Vue.$mount).toHaveBeenCalledTimes(1)

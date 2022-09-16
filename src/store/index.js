@@ -6,9 +6,11 @@ import { DateTime } from 'luxon'
 import tome from './modules/tome'
 import library from './modules/library'
 import files from './modules/files'
+import system from './modules/system'
 import templates from './modules/templates'
 import actions from './modules/actions'
 import configuration from './modules/configuration'
+import context from './modules/context'
 import clipboard from './modules/clipboard'
 import search from './modules/search'
 
@@ -38,11 +40,7 @@ export default new Vuex.Store({
         type,
         message,
         stack,
-        datetime: DateTime.now(),
-        format: {
-          date: DateTime.DATE_SHORT,
-          time: DateTime.TIME_24_WITH_SHORT_OFFSET
-        }
+        datetime: DateTime.now()
       })
     }
   },
@@ -56,6 +54,7 @@ export default new Vuex.Store({
 
       context.commit('hydrate', { application_path, configuration_path, library_path })
 
+      await context.dispatch('system/load')
       await context.dispatch('configuration/load', context.state.configuration_path)
 
       await context.dispatch('message', `Configuration established at ${context.state.configuration_path}`)
@@ -82,8 +81,10 @@ export default new Vuex.Store({
     templates,
     actions,
     configuration,
+    context,
     clipboard,
-    search
+    search,
+    system
   },
   plugins: [
     reporter,

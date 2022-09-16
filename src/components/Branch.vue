@@ -1,10 +1,10 @@
 <template>
-  <v-navigation-drawer :value=value @input="$emit('input', $event)" fixed right stateless width="100%" style="z-index: 110; height: auto; top: 25px; bottom: 18px;">
+  <v-navigation-drawer :value=value @input="$event || close" fixed right stateless width="100%" style="z-index: 110; max-width: 900px; height: auto; top: 25px; bottom: 18px;">
     <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%;">
         <div class="flex-grow-0">
           <div>
-            <v-btn tile icon class="float-right" color="black" @click.stop="$emit('close')">
+            <v-btn tile icon class="float-right" color="black" @click.stop=close>
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
             <h1>Branch</h1>
@@ -16,9 +16,9 @@
           <v-data-table
             dense disable-sort class="my-0 commit-history"
             :headers=headers
-            :items=history
+            :items=tome.history
             :hide-default-footer="true"
-            :items-per-page="history.length"
+            :items-per-page="tome.history.length"
             @click:row=diff
           >
             <template v-slot:item.oid="{ item }">
@@ -34,7 +34,7 @@
 
         <div ref="base" class="flex-grow-0 pb-3 actions">
           <v-divider class="mt-0 mb-2"></v-divider>
-          <v-btn small color="primary" @click.stop="$emit('close')">
+          <v-btn small color="primary" @click.stop=close>
             Done
           </v-btn>
         </div>
@@ -115,15 +115,17 @@ export default {
     ]
   }),
   computed: {
-    history: function () {
-      return store.state.tome.history
+    tome: function () {
+      return store.state.tome
     }
   },
   methods: {
+    close: async function () {
+      await store.dispatch('system/branch', false)
+    },
     diff: async function (commit) {
       await store.dispatch('tome/diff', { commit: commit.oid })
-
-      this.$emit('patch')
+      await store.dispatch('system/patch', true)
     },
     format_date: function (date) {
       return DateTime.fromJSDate(date).toISODate()
