@@ -240,7 +240,7 @@ jobs:
 
     - name: Import Certification
       run: |
-        security import $CERTIFICATE_P12 -k $KEYCHAIN -T /usr/bin/codesign;
+        security import $CERTIFICATE_P12 -k $KEYCHAIN -T /usr/bin/codesign
         security set-key-partition-list -S apple-tool:,apple: -s -k actions $KEYCHAIN
       env:
         CERTIFICATE_P12: "certificate.p12"
