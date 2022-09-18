@@ -277,7 +277,7 @@ jobs:
     - name: Build Installer
       run: npm run build
       env:
-        DEBUG: electron-builder
+        DEBUG: electron-builder,electron-osx-sign*
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Upload Setup Artifact
