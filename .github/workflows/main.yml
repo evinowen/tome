@@ -240,10 +240,11 @@ jobs:
 
     - name: Import Certification
       run: |
-        security import $CERTIFICATE_P12 -k $KEYCHAIN -T /usr/bin/codesign
+        security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
         security set-key-partition-list -S apple-tool:,apple: -s -k actions $KEYCHAIN
       env:
         CERTIFICATE_P12: "certificate.p12"
+        CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_OSX_APPLICATION }}
         KEYCHAIN: "build.keychain"
 
     - name: Build Packages for Electron
