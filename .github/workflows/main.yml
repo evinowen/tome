@@ -93,9 +93,10 @@ jobs:
         run: npm run build-renderer
 
       - name: Build Installer
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run build
+        env:
+          DEBUG: electron-builder
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Upload Setup Artifact
         uses: actions/upload-artifact@v3
@@ -193,9 +194,10 @@ jobs:
       run: npm run build-renderer
 
     - name: Build Installer
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: npm run build
+      env:
+        DEBUG: electron-builder
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
@@ -273,9 +275,10 @@ jobs:
       run: npm run build-renderer
 
     - name: Build Installer
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: npm run build
+      env:
+        DEBUG: electron-builder
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
