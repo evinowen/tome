@@ -26,7 +26,7 @@
     "trailingComma": "none"
   },
   "build": {
-    "appId": "com.electron.tome",
+    "appId": "com.evinowen.tome",
     "productName": "Tome",
     "artifactName": "Tome.Setup.${version}.${ext}",
     "npmRebuild": false,
