@@ -237,6 +237,7 @@ jobs:
         security create-keychain -p actions $KEYCHAIN
         security default-keychain -s $KEYCHAIN
         security unlock-keychain -p actions $KEYCHAIN
+        security set-keychain-settings -lut 7200 $KEYCHAIN
       env:
         KEYCHAIN: "build.keychain"
 
