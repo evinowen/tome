@@ -68,7 +68,7 @@
     "dmg": {
       "sign": false
     },
-    "afterSign": "build/notarize.js"
+    "afterSign": "./build/notarize.js"
   },
   "dependencies": {
     "@fontsource/montserrat": "^4.5.10",
