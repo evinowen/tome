@@ -256,9 +256,6 @@ jobs:
         # Must disable test_ssl_new as it fails with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ui -test_pem -test_ssl_new"
-        CSC_KEYCHAIN: "build.keychain"
-        APPLE_ID: ${{ secrets.APPLE_ID }}
-        APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
     - name: Lint Renderer Process
       run: npm run lint-renderer
@@ -280,6 +277,9 @@ jobs:
       env:
         DEBUG: electron-builder,electron-osx-sign*
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        CSC_KEYCHAIN: build.keychain
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
