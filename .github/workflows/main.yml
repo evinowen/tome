@@ -177,6 +177,7 @@ jobs:
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ssl_new"
         CSC_LINK: "./certificate.p12"
+        CSC_KEY_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_WIN_APPLICATION }}
 
     - name: Lint Renderer Process
       run: npm run lint-renderer
