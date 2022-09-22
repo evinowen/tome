@@ -53,13 +53,14 @@
       "target": "deb"
     },
     "mac": {
-      "icon": "build/icon.512.png",
-      "target": "dmg",
-      "hardenedRuntime": true,
+      "asarUnpack": "**/*.node",
+      "category": "public.app-category.productivity",
       "entitlements": "build/entitlements.plist",
       "entitlementsInherit": "build/entitlements.plist",
       "gatekeeperAssess": false,
-      "category": "public.app-category.developer-tools"
+      "hardenedRuntime": true,
+      "icon": "build/icon.512.png",
+      "target": "dmg"
     },
     "win": {
       "icon": "build/icon.ico",
