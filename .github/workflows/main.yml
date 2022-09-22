@@ -164,8 +164,8 @@ jobs:
 
     - name: Load Certificate
       run: |
-        $Env:CERTIFICATE_BYTES = [Convert]::FromBase64String($env:CERTIFICATE_BASE64)
-        [IO.File]::WriteAllBytes($Env:CERTIFICATE_P12, $Env:CERTIFICATE_BYTES)
+        $bytes = [Convert]::FromBase64String($env:CERTIFICATE_BASE64)
+        [IO.File]::WriteAllBytes($Env:CERTIFICATE_P12, $bytes)
       env:
         CERTIFICATE_P12: "certificate.p12"
         CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_WIN_APPLICATION }}
