@@ -34,11 +34,7 @@
       "main": "electron/main.js"
     },
     "files": [
-      "!node_modules/nodegit",
-      "node_modules/nodegit/package.json",
-      "node_modules/nodegit/dist/**",
-      "node_modules/nodegit/build/Release/nodegit.node",
-      "package.json",
+      "!node_modules/nodegit/vendor",
       "electron",
       {
         "from": "dist-renderer",
