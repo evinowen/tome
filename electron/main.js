@@ -6,17 +6,29 @@ const util = require('util')
 log.info('Main Process Start')
 
 const register = (win) => {
+  log.info('Reset listeners for IPC communication')
   ipcMain.removeAllListeners()
 
-  require('./components/actions').register(win)
-  require('./components/clipboard').register(win)
-  require('./components/file').register(win)
-  require('./components/git').register(win)
-  require('./components/metadata').register(win)
-  require('./components/path').register(win)
-  require('./components/ssl').register(win)
-  require('./components/templates').register(win)
-  require('./components/window').register(win)
+  log.info('Register main process components')
+
+  const components = [
+    'actions',
+    'clipboard',
+    'file',
+    'git',
+    'metadata',
+    'path',
+    'ssl',
+    'templates',
+    'window'
+  ]
+
+  for (const component of components) {
+    log.info(`Register component ${component}`)
+    require(`./components/${component}`).register(win)
+  }
+
+  log.info('Component registration complete')
 }
 
 let win = null
@@ -50,18 +62,24 @@ const createWindow = async () => {
     }
   })
 
+  log.info('Window Built')
+
   win.on('closed', () => {
+    log.info('Process event: window closed', process.platform)
     win = null
   })
 
+  log.info('Begin component registration with built window')
   register(win)
 
+  log.info('Load window index')
   if (development) {
     await win.loadURL('http://localhost:8080/')
   } else {
     await win.loadFile('index.html')
   }
 
+  log.info('Show window')
   win.show()
 }
 
@@ -71,7 +89,7 @@ try {
     await createWindow()
 
     app.onAsync('activate', async () => {
-      log.info('Process event: activate', process.platform)
+      log.info('Process event: application activate', process.platform)
       if (BrowserWindow.getAllWindows().length === 0) {
         log.info('Process currently without window, calling to build window')
         await createWindow()
@@ -80,7 +98,7 @@ try {
   })
 
   app.onAsync('window-all-closed', async () => {
-    log.info('Process event: window-all-closed', process.platform)
+    log.info('Process event: application window-all-closed', process.platform)
     if (process.platform !== 'darwin') {
       log.info('Process non-darwin, calling to quit application')
       app.quit()
