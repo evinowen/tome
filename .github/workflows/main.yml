@@ -176,8 +176,6 @@ jobs:
         # Must disable test_ssl_new as it fails with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ssl_new"
-        CSC_LINK: "./certificate.p12"
-        CSC_KEY_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_WIN_APPLICATION }}
 
     - name: Lint Renderer Process
       run: npm run lint-renderer
@@ -199,6 +197,8 @@ jobs:
       env:
         DEBUG: electron-builder
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        CSC_LINK: "certificate.p12"
+        CSC_KEY_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_WIN_APPLICATION }}
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
