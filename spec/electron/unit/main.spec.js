@@ -10,6 +10,7 @@ jest.mock('@/../electron/components/ssl', () => ({ register: jest.fn(), data: je
 jest.mock('@/../electron/components/templates', () => ({ register: jest.fn(), data: jest.fn() }))
 jest.mock('@/../electron/components/window', () => ({ register: jest.fn(), data: jest.fn() }))
 
+jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
   app: {},
   BrowserWindow: jest.fn(),

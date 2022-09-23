@@ -1,5 +1,5 @@
 const { ipcMain, clipboard } = require('electron')
-
+const log = require('electron-log')
 const fs = require('fs')
 const path = require('path')
 
@@ -30,7 +30,7 @@ module.exports = {
         }
       } catch (error) {
         // The destination does not exist
-        console.log(error)
+        log.error(error)
         throw new Error('Destination does not exist')
       }
 

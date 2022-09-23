@@ -2,6 +2,7 @@ import RepositoryPatch from '@/../electron/components/git/RepositoryPatch'
 
 jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {}, Diff: { LINE: 1 } }))
 
+jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
   remote: {
     require: jest.fn()

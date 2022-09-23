@@ -8,8 +8,6 @@ import builders from '@/../tests/builders'
 
 Object.assign(window, builders.window())
 
-jest.mock('electron', () => ({ remote: {} }))
-
 describe('store/modules/search', () => {
   let localVue
   let store

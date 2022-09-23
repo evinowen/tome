@@ -1,6 +1,6 @@
 const { ipcMain } = require('electron')
 const Repository = require('./Repository')
-
+const log = require('electron-log')
 let repository
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
     ipcMain.handle('load_repository', async (event, path) => {
       repository = new Repository(path)
 
-      console.log('Load Repository', path)
+      log.info('Load Repository', path)
       await repository.load()
 
       return {
@@ -59,13 +59,13 @@ module.exports = {
           wording = 'as removal'
         }
 
-        console.log(`Staging path ${path} ${wording}`)
+        log.info(`Staging path ${path} ${wording}`)
       })
     })
 
     ipcMain.handle('reset_repository', async (event, query) => {
       await repository.reset(query, async (type, path) => {
-        console.log(`Reseting path ${path}`)
+        log.info(`Reseting path ${path}`)
       })
     })
 
