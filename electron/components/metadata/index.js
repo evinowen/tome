@@ -7,7 +7,7 @@ module.exports = {
     })
 
     ipcMain.handle('app_getVersion', async (event) => {
-      return process.env.npm_package_version
+      return process.env.npm_package_version || app.getVersion()
     })
 
     ipcMain.handle('app_getProcess', async (event) => {
