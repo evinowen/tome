@@ -1,6 +1,6 @@
 {
   "name": "tome",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "license": "MIT",
   "author": "Evin Owen <git@evinowen.net>",
   "description": "Git integrated cross-platform markdown pseudoeditor application built in Electron",
@@ -26,7 +26,7 @@
     "trailingComma": "none"
   },
   "build": {
-    "appId": "com.electron.tome",
+    "appId": "com.evinowen.tome",
     "productName": "Tome",
     "artifactName": "Tome.Setup.${version}.${ext}",
     "npmRebuild": false,
@@ -34,7 +34,7 @@
       "main": "electron/main.js"
     },
     "files": [
-      "package.json",
+      "!node_modules/nodegit/vendor",
       "electron",
       {
         "from": "dist-renderer",
@@ -49,13 +49,23 @@
       "target": "deb"
     },
     "mac": {
+      "asarUnpack": "**/*.node",
+      "category": "public.app-category.productivity",
+      "entitlements": "build/entitlements.plist",
+      "entitlementsInherit": "build/entitlements.plist",
+      "gatekeeperAssess": false,
+      "hardenedRuntime": true,
       "icon": "build/icon.512.png",
       "target": "dmg"
     },
     "win": {
       "icon": "build/icon.ico",
       "target": "NSIS"
-    }
+    },
+    "dmg": {
+      "sign": false
+    },
+    "afterSign": "./build/notarize.js"
   },
   "dependencies": {
     "@fontsource/montserrat": "^4.5.10",
@@ -64,6 +74,7 @@
     "cli-truncate": "^2.1.0",
     "core-js": "^3.6.4",
     "cross-env": "^7.0.2",
+    "electron-log": "^4.4.8",
     "image-extensions": "^1.1.0",
     "is-text-path": "^2.0.0",
     "lodash": "^4.17.15",
@@ -96,6 +107,7 @@
     "babel-eslint": "11.0.0-beta.2",
     "electron": "^18.2.4",
     "electron-builder": "^23.0.3",
+    "electron-notarize": "^1.2.1",
     "electron-rebuild": "^3.2.7",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.0.0",

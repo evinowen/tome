@@ -13,6 +13,7 @@ const { environment } = _component.data()
 environment.require = jest.fn()
 environment.require.resolve = jest.fn(() => 'example')
 
+jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
   ipcMain: { handle: jest.fn() },
   ipcRenderer: { invoke: jest.fn() }

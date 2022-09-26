@@ -5,6 +5,7 @@ const NodeGit = require('nodegit')
 
 jest.mock('@/../electron/components/git/RepositoryPatch')
 
+jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
   remote: {
     require: jest.fn()

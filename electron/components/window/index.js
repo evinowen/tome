@@ -1,4 +1,5 @@
 const { ipcMain } = require('electron')
+const log = require('electron-log')
 
 module.exports = {
   register: (win) => {
@@ -7,22 +8,22 @@ module.exports = {
     })
 
     ipcMain.handle('minimize_window', (event) => {
-      console.log('Minimize Window')
+      log.info('Minimize Window')
       win.minimize()
     })
 
     ipcMain.handle('maximize_window', (event) => {
-      console.log('Maximize Window')
+      log.info('Maximize Window')
       win.maximize()
     })
 
     ipcMain.handle('restore_window', (event) => {
-      console.log('Restore Window')
+      log.info('Restore Window')
       win.restore()
     })
 
     ipcMain.handle('close_window', (event) => {
-      console.log('Close Window')
+      log.info('Close Window')
       win.close()
     })
   }

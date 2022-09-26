@@ -1,7 +1,7 @@
 const { MSICreator } = require('electron-wix-msi')
 const path = require('path')
 
-let interval;
+const interval = setInterval(() => process.stdout.write('.'), 1000)
 
 async function execute () {
   const appDirectory = path.resolve(__dirname, '../dist_electron/win-unpacked')
@@ -14,7 +14,7 @@ async function execute () {
     name: 'Tome',
     version: '0.0.0',
     outputDirectory
-  });
+  })
 
   await creator.create()
   await creator.compile()
@@ -27,5 +27,3 @@ async function execute () {
 execute()
   .catch((e) => { console.log(e) })
   .finally(() => { process.exit() })
-
-interval = setInterval(() => process.stdout.write('.'), 1000)

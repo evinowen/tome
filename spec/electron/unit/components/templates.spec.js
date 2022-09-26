@@ -10,6 +10,7 @@ const preload = require('@/../electron/components/templates/preload')
 
 let ipcMainMap
 
+jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
   ipcMain: { handle: jest.fn() },
   ipcRenderer: { invoke: jest.fn() }

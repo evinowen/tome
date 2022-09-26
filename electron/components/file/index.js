@@ -1,5 +1,5 @@
 const { ipcMain, dialog, shell } = require('electron')
-
+const log = require('electron-log')
 const fs = require('fs')
 const path = require('path')
 const chokidar = require('chokidar')
@@ -116,7 +116,7 @@ module.exports = {
     })
 
     ipcMain.handle('select_directory', (event) => {
-      console.log('Select Directory')
+      log.info('Select Directory')
       const options = {
         title: 'Select Tome Directory',
         properties: ['openDirectory']

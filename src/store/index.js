@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import { DateTime } from 'luxon'
+import log from 'electron-log'
 
 import tome from './modules/tome'
 import library from './modules/library'
@@ -64,9 +65,11 @@ export default new Vuex.Store({
       await context.dispatch('message', 'Welcome to Tome')
     },
     message: function (context, message) {
+      log.info(message)
       context.commit('log', { type: 'info', message })
     },
     error: function (context, error) {
+      log.error(error)
       if (error instanceof Error) {
         context.commit('log', { type: 'error', message: error.message, stack: error.stack })
       } else {
