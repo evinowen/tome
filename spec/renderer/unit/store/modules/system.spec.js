@@ -48,9 +48,9 @@ describe('store/modules/system.js', () => {
 
     await store.dispatch('system/load')
 
-    expect(window.api.app_getVersion).toHaveBeenCalled()
-    expect(window.api.app_getProcess).toHaveBeenCalled()
-    expect(window.api.is_window_maximized).toHaveBeenCalled()
+    expect(window.api.app.getVersion).toHaveBeenCalled()
+    expect(window.api.app.getProcess).toHaveBeenCalled()
+    expect(window.api.window.is_maximized).toHaveBeenCalled()
   })
 
   it('should return current state for key on read dispatch', async () => {
@@ -66,7 +66,7 @@ describe('store/modules/system.js', () => {
 
     await store.dispatch('system/minimize')
 
-    expect(window.api.minimize_window).toHaveBeenCalled()
+    expect(window.api.window.minimize).toHaveBeenCalled()
     expect(store.state.system.maximized).toBe(false)
   })
 
@@ -75,7 +75,7 @@ describe('store/modules/system.js', () => {
 
     await store.dispatch('system/restore')
 
-    expect(window.api.restore_window).toHaveBeenCalled()
+    expect(window.api.window.restore).toHaveBeenCalled()
     expect(store.state.system.maximized).toBe(false)
   })
 
@@ -84,7 +84,7 @@ describe('store/modules/system.js', () => {
 
     await store.dispatch('system/maximize')
 
-    expect(window.api.maximize_window).toHaveBeenCalled()
+    expect(window.api.window.maximize).toHaveBeenCalled()
     expect(store.state.system.maximized).toBe(true)
   })
 
@@ -93,7 +93,7 @@ describe('store/modules/system.js', () => {
 
     await store.dispatch('system/exit')
 
-    expect(window.api.close_window).toHaveBeenCalled()
+    expect(window.api.window.close).toHaveBeenCalled()
   })
 
   const flags = [

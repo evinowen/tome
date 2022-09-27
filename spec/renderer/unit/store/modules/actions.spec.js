@@ -126,7 +126,7 @@ describe('store/modules/actions', () => {
   })
 
   it('should execute actions with specific message provided when execute is dispatched', async () => {
-    window.api.action_invoke.mockImplementationOnce(() => ({ success: true, message: 'specific message' }))
+    window.api.action.invoke.mockImplementationOnce(() => ({ success: true, message: 'specific message' }))
 
     const project = '/project'
     const action = 'example.action.a'
@@ -140,7 +140,7 @@ describe('store/modules/actions', () => {
   })
 
   it('should provide error if executed action failed when execute is dispatched', async () => {
-    window.api.action_invoke.mockImplementation(() => ({ success: false, message: 'Error Message' }))
+    window.api.action.invoke.mockImplementation(() => ({ success: false, message: 'Error Message' }))
 
     const project = '/project'
     const action = 'example.action.a'
@@ -154,7 +154,7 @@ describe('store/modules/actions', () => {
   })
 
   it('should provide error with default message if executed action failed and no message provided when execute is dispatched', async () => {
-    window.api.action_invoke.mockImplementation(() => ({ success: false }))
+    window.api.action.invoke.mockImplementation(() => ({ success: false }))
 
     const project = '/project'
     const action = 'example.action.a'

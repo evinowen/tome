@@ -37,32 +37,32 @@ describe('WindowComponent', () => {
     jest.clearAllMocks()
   })
 
-  it('should return maximized state upon call to is_window_maximized', async () => {
-    await preload.is_window_maximized()
+  it('should return maximized state upon call to is_maximized', async () => {
+    await preload.window.is_maximized()
 
     expect(win.isMaximized).toHaveBeenCalled()
   })
 
-  it('should call for window to minimize upon call to minimize_window', async () => {
-    await preload.minimize_window()
+  it('should call for window to minimize upon call to minimize', async () => {
+    await preload.window.minimize()
 
     expect(win.minimize).toHaveBeenCalled()
   })
 
-  it('should call for window to maximize upon call to maximize_window', async () => {
-    await preload.maximize_window()
+  it('should call for window to maximize upon call to maximize', async () => {
+    await preload.window.maximize()
 
     expect(win.maximize).toHaveBeenCalled()
   })
 
-  it('should call for window to restore upon call to restore_window', async () => {
-    await preload.restore_window()
+  it('should call for window to restore upon call to restore', async () => {
+    await preload.window.restore()
 
     expect(win.restore).toHaveBeenCalled()
   })
 
-  it('should call for window to close upon call to close_window', async () => {
-    await preload.close_window()
+  it('should call for window to close upon call to close', async () => {
+    await preload.window.close()
 
     expect(win.close).toHaveBeenCalled()
   })

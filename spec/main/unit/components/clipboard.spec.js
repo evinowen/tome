@@ -62,59 +62,59 @@ describe('ClipboardComponent', () => {
     jest.clearAllMocks()
   })
 
-  it('should call to write text to clipboard upon call to clipboard_writetext', async () => {
+  it('should call to write text to clipboard upon call to writetext', async () => {
     const text = 'text'
-    await preload.clipboard_writetext(text)
+    await preload.clipboard.writetext(text)
 
     expect_call_parameters_to_return(electron.clipboard.writeText, [text], undefined)
   })
 
-  it('should call for and return clipboard text upon call to clipboard_readtext', async () => {
-    const result = await preload.clipboard_readtext()
+  it('should call for and return clipboard text upon call to readtext', async () => {
+    const result = await preload.clipboard.readtext()
 
     expect_call_parameters_to_return(electron.clipboard.readText, [], result)
   })
 
-  it('should rename source upon call to clipboard_paste as cut', async () => {
+  it('should rename source upon call to paste as cut', async () => {
     fs.access.mockImplementationOnce((path, callback) => callback())
 
     const action = 'cut'
     const source = '/file.start.md'
     const target = '/file.end.md'
 
-    await preload.clipboard_paste(action, source, target)
+    await preload.clipboard.paste(action, source, target)
 
     expect(fs.copyFile).not.toHaveBeenCalled()
     expect(fs.rename).toHaveBeenCalled()
   })
 
-  it('should copy source upon call to clipboard_paste as copy', async () => {
+  it('should copy source upon call to paste as copy', async () => {
     fs.access.mockImplementationOnce((path, callback) => callback())
 
     const action = 'copy'
     const source = '/file.start.md'
     const target = '/file.end.md'
 
-    await preload.clipboard_paste(action, source, target)
+    await preload.clipboard.paste(action, source, target)
 
     expect(fs.copyFile).toHaveBeenCalled()
     expect(fs.rename).not.toHaveBeenCalled()
   })
 
-  it('should throw error destination does not exist upon call to clipboard_paste', async () => {
+  it('should throw error destination does not exist upon call to paste', async () => {
     fs.lstat.mockImplementationOnce((path, callback) => callback(new Error('Mock Error')))
 
     const action = 'copy'
     const source = '/project'
     const target = '/project'
 
-    await expect(preload.clipboard_paste(action, source, target)).rejects.toBeDefined()
+    await expect(preload.clipboard.paste(action, source, target)).rejects.toBeDefined()
 
     expect(fs.copyFile).not.toHaveBeenCalled()
     expect(fs.rename).not.toHaveBeenCalled()
   })
 
-  it('should throw error when source and destination match upon call to clipboard_paste', async () => {
+  it('should throw error when source and destination match upon call to paste', async () => {
     path.dirname.mockImplementationOnce((path) => path)
     fs_lstat_return.isDirectory.mockImplementationOnce(() => true)
 
@@ -122,7 +122,7 @@ describe('ClipboardComponent', () => {
     const source = '/project'
     const target = '/project'
 
-    await expect(preload.clipboard_paste(action, source, target)).rejects.toBeDefined()
+    await expect(preload.clipboard.paste(action, source, target)).rejects.toBeDefined()
 
     expect(fs.copyFile).not.toHaveBeenCalled()
     expect(fs.rename).not.toHaveBeenCalled()

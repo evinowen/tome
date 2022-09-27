@@ -105,27 +105,27 @@ describe('store/modules/clipboard.js', () => {
     await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
-    expect(window.api.clipboard_paste).toHaveBeenCalled()
+    expect(window.api.clipboard.paste).toHaveBeenCalled()
   })
 
   it('should call clipboard_writetext if text called with a value', async () => {
     const value = 'value'
     await store.dispatch('clipboard/text', value)
 
-    expect(window.api.clipboard_writetext).toHaveBeenCalled()
+    expect(window.api.clipboard.writetext).toHaveBeenCalled()
   })
 
   it('should call clipboard_readtext if text called without a value', async () => {
     await store.dispatch('clipboard/text')
 
-    expect(window.api.clipboard_readtext).toHaveBeenCalled()
+    expect(window.api.clipboard.readtext).toHaveBeenCalled()
   })
 
   it('should return clipboard text value if text called without a value', async () => {
     const value = 'value'
     await store.dispatch('clipboard/text', value)
 
-    expect(window.api.clipboard_writetext).toHaveBeenCalled()
+    expect(window.api.clipboard.writetext).toHaveBeenCalled()
 
     const result = await store.dispatch('clipboard/text')
 
@@ -167,7 +167,7 @@ describe('store/modules/clipboard.js', () => {
     await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
-    expect(window.api.file_rename).toHaveBeenCalledTimes(1)
+    expect(window.api.file.rename).toHaveBeenCalledTimes(1)
   })
 
   it('should fail gracefully when destination is not going to change', async () => {
@@ -204,7 +204,7 @@ describe('store/modules/clipboard.js', () => {
     await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
-    expect(window.api.file_rename).toHaveBeenCalledTimes(1)
+    expect(window.api.file.rename).toHaveBeenCalledTimes(1)
   })
 
   it('should paste stored content using copyFile if action is copied', async () => {
@@ -223,7 +223,7 @@ describe('store/modules/clipboard.js', () => {
     await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
-    expect(window.api.file_copy).toHaveBeenCalledTimes(1)
+    expect(window.api.file.copy).toHaveBeenCalledTimes(1)
   })
   */
 })

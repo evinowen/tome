@@ -45,7 +45,7 @@ describe('store/modules/files', () => {
 
     expect(store.state.files.tree).toBeNull()
 
-    window.api.file_subscribe.mockImplementationOnce(async (event, target) => {
+    window.api.file.subscribe.mockImplementationOnce(async (event, target) => {
       await target(null, { event: ChokidarEvent.ADD, path })
     })
 
@@ -53,8 +53,8 @@ describe('store/modules/files', () => {
 
     expect(store.state.files.tree).not.toBeNull()
 
-    expect(window.api.file_clear_subscriptions).toHaveBeenCalledTimes(1)
-    expect(window.api.file_subscribe).toHaveBeenCalledTimes(1)
+    expect(window.api.file.clear_subscriptions).toHaveBeenCalledTimes(1)
+    expect(window.api.file.subscribe).toHaveBeenCalledTimes(1)
   })
 
   it('should reconstruct the file tree on reinitialize', async () => {
@@ -157,7 +157,7 @@ describe('store/modules/files', () => {
 
     await store.dispatch('files/save', { path: target, content })
 
-    expect(window.api.file_write).toHaveBeenCalledTimes(1)
+    expect(window.api.file.write).toHaveBeenCalledTimes(1)
   })
 
   it('should place the ghost adjacent to the target provided', async () => {
@@ -221,11 +221,11 @@ describe('store/modules/files', () => {
     const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
-    expect(window.api.file_create_directory).toHaveBeenCalledTimes(0)
+    expect(window.api.file.create_directory).toHaveBeenCalledTimes(0)
 
     await store.dispatch('files/submit', { path: directory, input, title: false })
 
-    expect(window.api.file_create_directory).toHaveBeenCalledTimes(1)
+    expect(window.api.file.create_directory).toHaveBeenCalledTimes(1)
   })
 
   it('should fail gracefully when creating a new item that already exists', async () => {
@@ -241,7 +241,7 @@ describe('store/modules/files', () => {
     const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
-    expect(window.api.file_create_directory).toHaveBeenCalledTimes(0)
+    expect(window.api.file.create_directory).toHaveBeenCalledTimes(0)
 
     await expect(store.dispatch('files/submit', { path: directory, input, title: false })).rejects.toBeDefined()
   })
@@ -259,11 +259,11 @@ describe('store/modules/files', () => {
     const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
-    expect(window.api.file_create).toHaveBeenCalledTimes(0)
+    expect(window.api.file.create).toHaveBeenCalledTimes(0)
 
     await store.dispatch('files/submit', { path: directory, input, title: false })
 
-    expect(window.api.file_create).toHaveBeenCalledTimes(1)
+    expect(window.api.file.create).toHaveBeenCalledTimes(1)
   })
 
   it('should rename item on submit when item is not ephemeral', async () => {

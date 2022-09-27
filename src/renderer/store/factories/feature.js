@@ -17,14 +17,14 @@ export default (feature, create, execute) => ({
     load: async function (context, { path }) {
       const target = {
         base: path,
-        absolute: await window.api.path_join(path, '.tome', feature)
+        absolute: await window.api.path.join(path, '.tome', feature)
       }
 
-      target.relative = await window.api.path_relative(path, target.absolute)
+      target.relative = await window.api.path.relative(path, target.absolute)
 
       context.commit('target', target)
 
-      const options = await window.api.directory_list(context.state.target.absolute)
+      const options = await window.api.file.directory_list(context.state.target.absolute)
 
       if (!options || options.length < 1) {
         return
@@ -39,7 +39,7 @@ export default (feature, create, execute) => ({
         return
       }
 
-      const source = await window.api.path_join(context.state.target.absolute, name)
+      const source = await window.api.path.join(context.state.target.absolute, name)
 
       return await (execute(context))({ source, ...data })
     },
@@ -51,7 +51,7 @@ export default (feature, create, execute) => ({
       await context.dispatch('files/ghost', { path, directory: true, post: create(context) }, { root: true })
     },
     prepare: async function (context) {
-      const targets = context.state.target.relative.split(await window.api.path_sep())
+      const targets = context.state.target.relative.split(await window.api.path.sep())
 
       let path = context.state.target.base
       let parent = await context.dispatch('files/identify', { path }, { root: true })
@@ -61,7 +61,7 @@ export default (feature, create, execute) => ({
           throw new Error(`Cannot ensure ${feature} feature file structure.`)
         }
 
-        path = await window.api.path_join(path, target)
+        path = await window.api.path.join(path, target)
 
         const item = await context.dispatch('files/identify', { path }, { root: true })
 

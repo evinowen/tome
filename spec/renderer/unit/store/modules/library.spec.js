@@ -66,7 +66,7 @@ describe('store/modules/library.js', () => {
   })
 
   it('should load without records file on load dispatch', async () => {
-    await window.api.file_delete('./library.json')
+    await window.api.file.delete('./library.json')
     const store = factory.wrap()
 
     expect(store.state.library.path).toEqual('')
@@ -81,7 +81,7 @@ describe('store/modules/library.js', () => {
   })
 
   it('should load if file history fails on load dispatch', async () => {
-    window.api.file_contents.mockImplementationOnce(() => null)
+    window.api.file.contents.mockImplementationOnce(() => null)
 
     const store = factory.wrap()
 
@@ -97,7 +97,7 @@ describe('store/modules/library.js', () => {
   })
 
   it('should load even without records on load dispatch', async () => {
-    window.api.file_contents.mockImplementationOnce(() => '\n\n\n\n\n\n')
+    window.api.file.contents.mockImplementationOnce(() => '\n\n\n\n\n\n')
     const store = factory.wrap()
 
     expect(store.state.library.path).toEqual('')
@@ -193,7 +193,7 @@ describe('store/modules/library.js', () => {
     const store = factory.wrap()
 
     await store.dispatch('library/select')
-    expect(window.api.select_directory).toHaveBeenCalled()
+    expect(window.api.file.select_directory).toHaveBeenCalled()
   })
 
   it('should return quickly when select cancelled with undefined result on select dispatch', async () => {

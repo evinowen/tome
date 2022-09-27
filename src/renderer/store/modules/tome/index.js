@@ -92,7 +92,7 @@ export default {
     load: async function (context, path) {
       await context.dispatch('message', `Loading tome at ${path} ... `, { root: true })
 
-      const repository = await window.api.load_repository(path)
+      const repository = await window.api.repository.load(path)
 
       context.commit('initialize', repository)
       context.commit('load')
@@ -119,7 +119,7 @@ export default {
 
       try {
         await context.dispatch('message', `Staging query ${query}`, { root: true })
-        await window.api.stage_repository(query)
+        await window.api.repository.stage(query)
 
         await context.dispatch('inspect')
         await context.dispatch('message', 'Stage complete', { root: true })
@@ -135,7 +135,7 @@ export default {
 
       try {
         await context.dispatch('message', `Reseting query ${query}`, { root: true })
-        await window.api.reset_repository(query)
+        await window.api.repository.reset(query)
 
         await context.dispatch('inspect')
         await context.dispatch('message', 'Reset complete', { root: true })
@@ -147,12 +147,12 @@ export default {
       }
     },
     inspect: async function (context) {
-      await window.api.inspect_repository()
+      await window.api.repository.inspect()
 
       await context.dispatch('refresh')
     },
     refresh: async function (context) {
-      const result = await window.api.refresh_repository()
+      const result = await window.api.repository.refresh()
 
       await context.commit('refresh', result)
     },
@@ -160,12 +160,12 @@ export default {
       const { path, commit } = data
 
       if (path) {
-        await window.api.diff_path_repository(path)
+        await window.api.repository.diff_path(path)
       } else if (commit) {
-        await window.api.diff_commit_repository(commit)
+        await window.api.repository.diff_commit(commit)
       }
 
-      const result = await window.api.refresh_patches_repository()
+      const result = await window.api.repository.refresh_patches()
       context.commit('patches', result)
     },
     commit: async function (context) {
@@ -175,7 +175,7 @@ export default {
 
       await context.dispatch('message', `Creating commit "${message}" ...`, { root: true })
 
-      const oid = await window.api.commit_repository(name, email, message)
+      const oid = await window.api.repository.commit(name, email, message)
 
       await context.dispatch('message', `Commit "${message}" ${oid} created`, { root: true })
 
@@ -188,7 +188,7 @@ export default {
       context.commit('commit', false)
     },
     remote: async function (context, name) {
-      await window.api.clear_remote_repository()
+      await window.api.repository.clear_remote()
       context.commit('remote', null)
 
       if (!name) {
@@ -201,27 +201,27 @@ export default {
         return
       }
 
-      const { path: public_key } = await window.api.ssl_generate_public_key(private_key, passphrase)
+      const { path: public_key } = await window.api.ssl.generate_public_key(private_key, passphrase)
 
-      await window.api.credential_repository(private_key, public_key, passphrase)
+      await window.api.repository.credential(private_key, public_key, passphrase)
 
       const remote = context.state.remotes.find((remote) => remote.name === name)
-      await window.api.load_remote_url_repository(remote.url)
+      await window.api.repository.load_remote_url(remote.url)
 
-      const result = await window.api.remote_repository()
+      const result = await window.api.repository.remote()
       context.commit('remote', result)
     },
     push: async function (context) {
       const { key: private_key, passphrase } = context.state.credentials
-      const { path: public_key } = await window.api.ssl_generate_public_key(private_key, passphrase)
+      const { path: public_key } = await window.api.ssl.generate_public_key(private_key, passphrase)
 
-      await window.api.credential_repository(private_key, public_key, passphrase)
+      await window.api.repository.credential(private_key, public_key, passphrase)
 
       context.commit('push', true)
 
       await context.dispatch('message', `Pushing to remote ${context.state.remote.name} ...`, { root: true })
 
-      await window.api.push_repository()
+      await window.api.repository.push()
 
       await context.dispatch('message', `Push to remote ${context.state.remote.name} complete`, { root: true })
 

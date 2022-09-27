@@ -3,9 +3,9 @@ import image_extensions from 'image-extensions'
 
 export class FileDirent {
   static async convert (dirent, parent) {
-    const path = await window.api.path_join(parent.path, dirent.name)
-    const relative = await window.api.path_relative(parent.base.path, path)
-    const extension = await window.api.path_extension(path)
+    const path = await window.api.path.join(parent.path, dirent.name)
+    const relative = await window.api.path.relative(parent.base.path, path)
+    const extension = await window.api.path.extension(path)
 
     const file = new File({
       name: dirent.name,
@@ -110,16 +110,16 @@ export default class File {
   }
 
   async open (container) {
-    await window.api.file_open(this.path, container)
+    await window.api.file.open(this.path, container)
   }
 
   async read () {
     const { path } = this
-    const content = await window.api.file_contents(path)
+    const content = await window.api.file.contents(path)
 
     return {
       path,
-      title: await window.api.path_basename(path),
+      title: await window.api.path.basename(path),
       content
     }
   }
@@ -168,7 +168,7 @@ export default class File {
   }
 
   async populate () {
-    const dirents = await window.api.file_list_directory(this.path)
+    const dirents = await window.api.file.list_directory(this.path)
 
     const children = []
 
@@ -188,14 +188,14 @@ export default class File {
   }
 
   async create (name, directory = false) {
-    const path = await window.api.path_join(this.path, name)
+    const path = await window.api.path.join(this.path, name)
 
     let result = false
 
     if (directory) {
-      result = await window.api.file_create_directory(path)
+      result = await window.api.file.create_directory(path)
     } else {
-      result = await window.api.file_create(path)
+      result = await window.api.file.create(path)
     }
 
     if (!result) {
@@ -206,31 +206,31 @@ export default class File {
   }
 
   async rename (basename) {
-    const dirname = await window.api.path_dirname(this.path)
+    const dirname = await window.api.path.dirname(this.path)
 
-    const path = await window.api.path_join(dirname, basename)
+    const path = await window.api.path.join(dirname, basename)
 
-    await window.api.file_rename(this.path, path)
+    await window.api.file.rename(this.path, path)
 
     return path
   }
 
   async move (target) {
-    const basename = await window.api.path_basename(this.path)
-    const dirname = await window.api.path_dirname(target)
-    const path = await window.api.path_join(dirname, basename)
+    const basename = await window.api.path.basename(this.path)
+    const dirname = await window.api.path.dirname(target)
+    const path = await window.api.path.join(dirname, basename)
 
-    await window.api.file_rename(this.path, path)
+    await window.api.file.rename(this.path, path)
 
     return path
   }
 
   async write (content) {
-    await window.api.file_write(this.path, content)
+    await window.api.file.write(this.path, content)
   }
 
   async delete () {
-    await window.api.file_delete(this.path)
+    await window.api.file.delete(this.path)
   }
 
   static sort (children) {
@@ -261,7 +261,7 @@ export default class File {
 
   static async relate (instance) {
     let node = File.Relationships
-    const items = instance.relative.split(await window.api.path_sep())
+    const items = instance.relative.split(await window.api.path.sep())
 
     const evaluate = (...nodes) => {
       for (const node of nodes) {

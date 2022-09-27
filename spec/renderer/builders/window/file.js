@@ -116,19 +116,21 @@ const _search_next_result = {
 }
 
 export default {
-  file_subscribe: jest.fn(),
-  file_clear_subscriptions: jest.fn(),
-  file_contents: jest.fn(_file_contents),
-  file_create: jest.fn(_file_create),
-  file_create_directory: jest.fn(_file_create_directory),
-  file_exists: jest.fn(_file_exists),
-  file_delete: jest.fn(_file_delete),
-  file_is_directory: jest.fn(_file_is_directory),
-  file_list_directory: jest.fn(_file_list_directory),
-  file_rename: jest.fn(_file_rename),
-  file_write: jest.fn(_file_write),
-  directory_list: jest.fn(_directory_list),
-  select_directory: jest.fn(_select_directory),
-  search_path: jest.fn(),
-  search_next: jest.fn().mockReturnValue({ path: null }).mockReturnValueOnce(_search_next_result)
+  file: {
+    subscribe: jest.fn(),
+    clear_subscriptions: jest.fn(),
+    contents: jest.fn(_file_contents),
+    create: jest.fn(_file_create),
+    create_directory: jest.fn(_file_create_directory),
+    exists: jest.fn(_file_exists),
+    delete: jest.fn(_file_delete),
+    is_directory: jest.fn(_file_is_directory),
+    list_directory: jest.fn(_file_list_directory),
+    rename: jest.fn(_file_rename),
+    write: jest.fn(_file_write),
+    directory_list: jest.fn(_directory_list),
+    select_directory: jest.fn(_select_directory),
+    search_path: jest.fn(),
+    search_next: jest.fn().mockReturnValue({ path: null }).mockReturnValueOnce(_search_next_result)
+  }
 }

@@ -87,10 +87,10 @@ export default {
         case_sensitive: context.state.case_sensitive
       }
 
-      await window.api.search_path(target, criteria)
+      await window.api.file.search_path(target, criteria)
 
       while (true) {
-        const result = await window.api.search_next()
+        const result = await window.api.file.search_next()
 
         if (result.path === null) {
           break

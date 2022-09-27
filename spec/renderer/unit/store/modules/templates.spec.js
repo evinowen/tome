@@ -118,7 +118,7 @@ describe('store/modules/templates', () => {
   })
 
   it('should dispatch load and select if result is returned from template when execute is dispatched', async () => {
-    window.api.template_invoke.mockImplementation(() => ({ success: true, result: '/path' }))
+    window.api.template.invoke.mockImplementation(() => ({ success: true, result: '/path' }))
 
     const project = '/project'
     const template = 'example.template.a'
@@ -134,7 +134,7 @@ describe('store/modules/templates', () => {
   })
 
   it('should provide error if executed template failed when execute is dispatched', async () => {
-    window.api.template_invoke.mockImplementation(() => ({ success: false, message: 'Error Message' }))
+    window.api.template.invoke.mockImplementation(() => ({ success: false, message: 'Error Message' }))
 
     const project = '/project'
     const template = 'example.template.a'

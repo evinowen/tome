@@ -59,15 +59,15 @@ describe('store/modules/tome.js', () => {
   it('should instruct the repository to stage the query on dispatch of stage action', async () => {
     await store.dispatch('tome/load', '/path/to/repository')
 
-    expect(window.api.load_repository).toHaveBeenCalledTimes(1)
+    expect(window.api.repository.load).toHaveBeenCalledTimes(1)
 
     await store.dispatch('tome/stage', './path.md')
 
-    expect(window.api.stage_repository).toHaveBeenCalledTimes(1)
+    expect(window.api.repository.stage).toHaveBeenCalledTimes(1)
   })
 
   it('should dispatch error when file fails to stage on dispatch of stage action', async () => {
-    window.api.stage_repository.mockImplementationOnce((query, callback) => { throw new Error('Error!') })
+    window.api.repository.stage.mockImplementationOnce((query, callback) => { throw new Error('Error!') })
 
     await store.dispatch('tome/load', '/path/to/repository')
 
@@ -83,11 +83,11 @@ describe('store/modules/tome.js', () => {
 
     await store.dispatch('tome/reset', './path.md')
 
-    expect(window.api.reset_repository).toHaveBeenCalledTimes(1)
+    expect(window.api.repository.reset).toHaveBeenCalledTimes(1)
   })
 
   it('should dispatch error when file fails to reset on dispatch of reset action', async () => {
-    window.api.reset_repository.mockImplementationOnce((query, callback) => { throw new Error('Error!') })
+    window.api.repository.reset.mockImplementationOnce((query, callback) => { throw new Error('Error!') })
 
     await store.dispatch('tome/load', '/path/to/repository')
 
@@ -101,11 +101,11 @@ describe('store/modules/tome.js', () => {
   it('should instruct the repository to run inspect cycle on dispatch of inspect action', async () => {
     await store.dispatch('tome/load', '/path/to/repository')
 
-    expect(window.api.inspect_repository).toHaveBeenCalledTimes(1)
+    expect(window.api.repository.inspect).toHaveBeenCalledTimes(1)
 
     await store.dispatch('tome/inspect')
 
-    expect(window.api.inspect_repository).toHaveBeenCalledTimes(2)
+    expect(window.api.repository.inspect).toHaveBeenCalledTimes(2)
   })
 
   it('should instruct the repository to calculate diff for path on dispatch of diff action with path', async () => {
@@ -115,7 +115,7 @@ describe('store/modules/tome.js', () => {
 
     await store.dispatch('tome/diff', { path })
 
-    expect(window.api.diff_path_repository).toHaveBeenCalledTimes(1)
+    expect(window.api.repository.diff_path).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the repository to calculate diff for commit on dispatch of diff action with commit', async () => {
@@ -125,7 +125,7 @@ describe('store/modules/tome.js', () => {
 
     await store.dispatch('tome/diff', { commit })
 
-    expect(window.api.diff_commit_repository).toHaveBeenCalledTimes(1)
+    expect(window.api.repository.diff_commit).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the repository to commit staged with details on dispatch of commit action', async () => {
@@ -139,7 +139,7 @@ describe('store/modules/tome.js', () => {
 
     await store.dispatch('tome/commit', data)
 
-    expect(window.api.commit_repository).toHaveBeenCalledTimes(1)
+    expect(window.api.repository.commit).toHaveBeenCalledTimes(1)
   })
 
   it('should clear staging counter on dispatch of commit action', async () => {
@@ -174,7 +174,7 @@ describe('store/modules/tome.js', () => {
 
     await store.dispatch('tome/remote', name)
 
-    expect(window.api.load_remote_url_repository).toHaveBeenCalledTimes(1)
+    expect(window.api.repository.load_remote_url).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the repository to push to loaded remote on dispatch of push action', async () => {
@@ -194,7 +194,7 @@ describe('store/modules/tome.js', () => {
 
     await store.dispatch('tome/push')
 
-    expect(window.api.push_repository).toHaveBeenCalledTimes(1)
+    expect(window.api.repository.push).toHaveBeenCalledTimes(1)
   })
 
   it('should store metadata file locations on dispatch of metadata action', async () => {

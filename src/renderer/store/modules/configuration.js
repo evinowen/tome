@@ -52,7 +52,7 @@ export default {
   },
   actions: {
     load: async function (context, target) {
-      const raw = await window.api.file_contents(target)
+      const raw = await window.api.file.contents(target)
       const data = JSON.parse(raw) || {}
 
       await context.dispatch('update', data)
@@ -61,14 +61,14 @@ export default {
       return context.state[key]
     },
     generate: async function (context, passphrase) {
-      const { path: private_key } = await window.api.ssl_generate_private_key(passphrase)
+      const { path: private_key } = await window.api.ssl.generate_private_key(passphrase)
 
       await context.dispatch('update', { private_key, passphrase })
     },
     update: async function (context, data) {
       context.commit('set', data)
 
-      const { data: public_key } = await window.api.ssl_generate_public_key(
+      const { data: public_key } = await window.api.ssl.generate_public_key(
         context.state.private_key,
         context.state.passphrase
       )
@@ -78,7 +78,7 @@ export default {
       await context.dispatch('present')
     },
     write: async function (context, path) {
-      await window.api.file_write(path, JSON.stringify(context.state))
+      await window.api.file.write(path, JSON.stringify(context.state))
     },
     present: async function (context) {
       Vuetify.framework.theme.dark = context.state.dark_mode

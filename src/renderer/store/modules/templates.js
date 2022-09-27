@@ -23,7 +23,7 @@ const create = (context) => async (path) => {
 }
 
 const execute = (context) => async ({ name, source, target }) => {
-  const { success, result = null } = await window.api.template_invoke(source, target)
+  const { success, result = null } = await window.api.template.invoke(source, target)
 
   if (success) {
     if (result) {

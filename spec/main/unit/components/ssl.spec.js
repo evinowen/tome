@@ -71,17 +71,17 @@ describe('SSLComponent', () => {
     jest.clearAllMocks()
   })
 
-  it('should return empty object if no target is provided upon call to ssl_generate_public_key', async () => {
-    const result = await preload.ssl_generate_public_key()
+  it('should return empty object if no target is provided upon call to generate_public_key', async () => {
+    const result = await preload.ssl.generate_public_key()
     expect(result).toEqual({ path: '', data: '' })
 
     expect(forge.pki.decryptRsaPrivateKey).not.toHaveBeenCalled()
     expect(forge.pki.privateKeyFromPem).not.toHaveBeenCalled()
   })
 
-  it('should generate public key without decryption if not passphrase is provided upon call to ssl_generate_public_key', async () => {
+  it('should generate public key without decryption if not passphrase is provided upon call to generate_public_key', async () => {
     const target = '/id_rsa'
-    const result = await preload.ssl_generate_public_key(target)
+    const result = await preload.ssl.generate_public_key(target)
 
     expect(forge.pki.decryptRsaPrivateKey).not.toHaveBeenCalled()
     expect(forge.pki.privateKeyFromPem).toHaveBeenCalled()
@@ -89,10 +89,10 @@ describe('SSLComponent', () => {
     expect_call_parameters_to_return(tmp.file, [], result.path)
   })
 
-  it('should generate public key after decryption if passphrase is provided upon call to ssl_generate_public_key', async () => {
+  it('should generate public key after decryption if passphrase is provided upon call to generate_public_key', async () => {
     const target = '/id_rsa'
     const passphrase = 'password'
-    const result = await preload.ssl_generate_public_key(target, passphrase)
+    const result = await preload.ssl.generate_public_key(target, passphrase)
 
     expect(forge.pki.decryptRsaPrivateKey).toHaveBeenCalled()
     expect(forge.pki.privateKeyFromPem).not.toHaveBeenCalled()
@@ -100,9 +100,9 @@ describe('SSLComponent', () => {
     expect_call_parameters_to_return(tmp.file, [], result.path)
   })
 
-  it('should generate key upon call to ssl_generate_private_key', async () => {
+  it('should generate key upon call to generate_private_key', async () => {
     const passphrase = 'password'
-    const result = await preload.ssl_generate_private_key(passphrase)
+    const result = await preload.ssl.generate_private_key(passphrase)
 
     expect(forge.pki.rsa.generateKeyPair).toHaveBeenCalled()
     expect(forge.ssh.privateKeyToOpenSSH).toHaveBeenCalled()

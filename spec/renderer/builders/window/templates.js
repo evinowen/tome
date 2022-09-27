@@ -1,3 +1,5 @@
 export default {
-  template_invoke: jest.fn(() => ({ success: true }))
+  template: {
+    invoke: jest.fn(() => ({ success: true }))
+  }
 }

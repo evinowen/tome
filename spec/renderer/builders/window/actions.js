@@ -1,3 +1,5 @@
 export default {
-  action_invoke: jest.fn(() => ({ success: true }))
+  action: {
+    invoke: jest.fn(() => ({ success: true }))
+  }
 }

@@ -40,11 +40,11 @@ describe('TemplatesComponent', () => {
     jest.clearAllMocks()
   })
 
-  it('should find and invoke template upon call to template_invoke', async () => {
+  it('should find and invoke template upon call to invoke', async () => {
     const source = '/project/.tome/templates/example.template.a'
     const target = '/project/.tome/first'
 
-    const result = await preload.template_invoke(source, target)
+    const result = await preload.template.invoke(source, target)
 
     expect(result.success).toBeTruthy()
   })

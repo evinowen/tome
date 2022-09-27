@@ -13,7 +13,7 @@ const create = (context) => async (path) => {
 }
 
 const execute = (context) => async ({ name, source, target, selection }) => {
-  const result = await window.api.action_invoke(source, target, selection)
+  const result = await window.api.action.invoke(source, target, selection)
 
   if (result.success) {
     const message = String(`Action ${name} complete`).concat(result.message ? `: ${result.message}` : '')

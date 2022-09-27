@@ -27,9 +27,9 @@ export default {
     },
     text: async function (context, value) {
       if (value) {
-        return await window.api.clipboard_writetext(value)
+        return await window.api.clipboard.writetext(value)
       } else {
-        return await window.api.clipboard_readtext()
+        return await window.api.clipboard.readtext()
       }
     },
     cut: async function (context, content) {
@@ -52,7 +52,7 @@ export default {
 
       const source = context.state.content.target
 
-      await window.api.clipboard_paste(context.state.action, source, content.target)
+      await window.api.clipboard.paste(context.state.action, source, content.target)
     }
   }
 }

@@ -50,7 +50,7 @@ describe('store/modules/configuration.js', () => {
   it('should load json from provided file when load is dispatched', async () => {
     await store.dispatch('configuration/load', 'config.json')
 
-    expect(window.api.file_contents).toHaveBeenCalledTimes(1)
+    expect(window.api.file.contents).toHaveBeenCalledTimes(1)
 
     expect(store.state.configuration.name).toBe('Test User')
     expect(store.state.configuration.email).toBe('testuser@example.com')
@@ -60,11 +60,11 @@ describe('store/modules/configuration.js', () => {
   })
 
   it('should load when input file is not able to be parsed when load is dispatched', async () => {
-    window.api.file_contents.mockImplementationOnce(() => null)
+    window.api.file.contents.mockImplementationOnce(() => null)
 
     await store.dispatch('configuration/load', 'config.json')
 
-    expect(window.api.file_contents).toHaveBeenCalledTimes(1)
+    expect(window.api.file.contents).toHaveBeenCalledTimes(1)
 
     expect(store.state.configuration.name).toBe('')
     expect(store.state.configuration.email).toBe('')
@@ -90,7 +90,7 @@ describe('store/modules/configuration.js', () => {
   it('should save json from provided file when configuration write is dispatched', async () => {
     await store.dispatch('configuration/write', 'config.json')
 
-    expect(window.api.file_write).toHaveBeenCalledTimes(1)
+    expect(window.api.file.write).toHaveBeenCalledTimes(1)
   })
 
   it('should return value requested when configuration read is dispatched', async () => {
@@ -102,7 +102,7 @@ describe('store/modules/configuration.js', () => {
   it('should request new ssl key when configuration generate is dispatched', async () => {
     await store.dispatch('configuration/generate', 'passphrase')
 
-    expect(window.api.ssl_generate_private_key).toHaveBeenCalledTimes(1)
+    expect(window.api.ssl.generate_private_key).toHaveBeenCalledTimes(1)
   })
 
   it('should present with light mode colors when update is dispatched and dark_mode is false', async () => {

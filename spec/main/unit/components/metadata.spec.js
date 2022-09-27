@@ -31,21 +31,21 @@ describe('MetadataComponent', () => {
     jest.clearAllMocks()
   })
 
-  it('should call for and return application path of target upon call to app_getPath', async () => {
+  it('should call for and return application path of target upon call to getPath', async () => {
     const target = 'main'
-    const result = await preload.app_getPath(target)
+    const result = await preload.app.getPath(target)
 
     expect_call_parameters_to_return(electron.app.getPath, [target], result)
   })
 
-  it('should return process version upon call to app_getPath', async () => {
-    const result = await preload.app_getVersion()
+  it('should return process version upon call to getPath', async () => {
+    const result = await preload.app.getVersion()
 
     expect(result).toBe(process.env.npm_package_version)
   })
 
-  it('should return process data upon call to app_getProcess', async () => {
-    const result = await preload.app_getProcess()
+  it('should return process data upon call to getProcess', async () => {
+    const result = await preload.app.getProcess()
 
     expect(result).not.toBeUndefined()
   })

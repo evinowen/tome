@@ -27,8 +27,8 @@ export default class FileTree {
   }
 
   async listen (listener) {
-    await window.api.file_clear_subscriptions()
-    window.api.file_subscribe(this.base.path, listener)
+    await window.api.file.clear_subscriptions()
+    window.api.file.subscribe(this.base.path, listener)
   }
 
   static async make (path) {
@@ -39,7 +39,7 @@ export default class FileTree {
       directory: true
     })
 
-    const separator = await window.api.path_sep()
+    const separator = await window.api.path.sep()
 
     return new FileTree(file, separator)
   }
@@ -71,7 +71,7 @@ export default class FileTree {
   }
 
   async relative (path) {
-    return await window.api.path_relative(this.base.path, path)
+    return await window.api.path.relative(this.base.path, path)
   }
 
   identify (relative) {

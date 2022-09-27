@@ -52,7 +52,7 @@ describe('store/modules/search', () => {
 
     await store.dispatch('search/execute')
 
-    expect(window.api.search_path).not.toHaveBeenCalled()
+    expect(window.api.file.search_path).not.toHaveBeenCalled()
   })
 
   it('should return when query is not set and execute is dispatched', async () => {
@@ -66,7 +66,7 @@ describe('store/modules/search', () => {
     await store.dispatch('search/multifile', true)
     await store.dispatch('search/execute')
 
-    expect(window.api.search_path).not.toHaveBeenCalled()
+    expect(window.api.file.search_path).not.toHaveBeenCalled()
   })
 
   it('should set the search query when the query action is dispatched', async () => {
@@ -88,7 +88,7 @@ describe('store/modules/search', () => {
 
     await store.dispatch('search/query', { path, query })
 
-    expect(window.api.search_path).not.toHaveBeenCalled()
+    expect(window.api.file.search_path).not.toHaveBeenCalled()
   })
 
   it('should search search path if multifile is false when the query action is dispatched', async () => {
@@ -100,7 +100,7 @@ describe('store/modules/search', () => {
     await store.dispatch('search/multifile', true)
     await store.dispatch('search/query', { path, query })
 
-    expect(window.api.search_path).toHaveBeenCalled()
+    expect(window.api.file.search_path).toHaveBeenCalled()
   })
 
   it('should clear the search query when the clear action is dispatched', async () => {

@@ -86,20 +86,20 @@ describe('ActionsComponent', () => {
     jest.clearAllMocks()
   })
 
-  it('should find and invoke action upon call to action_invoke', async () => {
+  it('should find and invoke action upon call to invoke', async () => {
     const name = 'action'
 
-    const result = await preload.action_invoke(name)
+    const result = await preload.action.invoke(name)
 
     expect(result.success).toBeTruthy()
   })
 
-  it('should find and invoke action but return error on exception upon call to action_invoke', async () => {
+  it('should find and invoke action but return error on exception upon call to invoke', async () => {
     vm_script_success = false
 
     const name = 'action'
 
-    const result = await preload.action_invoke(name)
+    const result = await preload.action.invoke(name)
 
     expect(result.success).toBeFalsy()
   })

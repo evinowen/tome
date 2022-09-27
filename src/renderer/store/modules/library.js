@@ -31,8 +31,8 @@ export default {
     load: async function (context, path) {
       const history = []
 
-      if (await window.api.file_exists(path)) {
-        const raw = await window.api.file_contents(path)
+      if (await window.api.file.exists(path)) {
+        const raw = await window.api.file.contents(path)
 
         if (raw) {
           const lines = raw.split(/[\n\r]+/).map(line => line.trim())
@@ -48,7 +48,7 @@ export default {
       context.commit('set', { path, history })
     },
     select: async function (context) {
-      const result = await window.api.select_directory()
+      const result = await window.api.file.select_directory()
 
       if (result.canceled) {
         return
@@ -83,7 +83,7 @@ export default {
         content += String(path).concat(os.EOL)
       }
 
-      await window.api.file_write(context.state.path, content)
+      await window.api.file.write(context.state.path, content)
     }
   }
 }

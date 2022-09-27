@@ -43,30 +43,30 @@ export default {
   },
   actions: {
     load: async function (context) {
-      const version = await window.api.app_getVersion()
-      const process = await window.api.app_getProcess()
+      const version = await window.api.app.getVersion()
+      const process = await window.api.app.getProcess()
       context.commit('load', { version, process })
 
-      const maximized = await window.api.is_window_maximized()
+      const maximized = await window.api.window.is_maximized()
       context.commit('set', { maximized })
     },
     read: async function (context, key) {
       return context.state[key]
     },
     minimize: async function (context) {
-      await window.api.minimize_window()
+      await window.api.window.minimize()
       context.commit('set', { maximized: false })
     },
     restore: async function (context) {
-      await window.api.restore_window()
+      await window.api.window.restore()
       context.commit('set', { maximized: false })
     },
     maximize: async function (context) {
-      await window.api.maximize_window()
+      await window.api.window.maximize()
       context.commit('set', { maximized: true })
     },
     exit: async function () {
-      await window.api.close_window()
+      await window.api.window.close()
     },
     perform: async function (context, performance) {
       const dispatch = (action, data) => context.dispatch(action, data, { root: true })
