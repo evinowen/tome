@@ -1,5 +1,4 @@
-const { ipcMain } = require('electron')
-
+const factory = require('../factory')
 const fs = require('fs')
 const path = require('path')
 const vm = require('vm')
@@ -13,13 +12,9 @@ const timeout = 30000
 
 const { promise_with_reject } = require('../../promise')
 
-module.exports = {
-  data: () => ({
-    environment,
-    timeout
-  }),
-  register: () => {
-    ipcMain.handle('action_invoke', async (event, source, target, selection) => {
+module.exports = factory(
+  ({ handle }, win) => {
+    handle('action-invoke', async (event, source, target, selection) => {
       const stats = await promise_with_reject(fs.lstat)(source)
 
       const source_script = stats.isDirectory() ? path.join(source, 'index.js') : source
@@ -65,5 +60,6 @@ module.exports = {
         return { success: false, message: error ? String(error) : null }
       }
     })
-  }
-}
+  },
+  () => ({ environment, timeout })
+)

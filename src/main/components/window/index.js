@@ -1,30 +1,25 @@
-const { ipcMain } = require('electron')
-const log = require('electron-log')
+const factory = require('../factory')
 
-module.exports = {
-  register: (win) => {
-    ipcMain.handle('is_window_maximized', (event) => {
+module.exports = factory(
+  ({ handle }, win) => {
+    handle('is-window-maximized', (event) => {
       return win.isMaximized()
     })
 
-    ipcMain.handle('minimize_window', (event) => {
-      log.info('Minimize Window')
+    handle('minimize-window', (event) => {
       win.minimize()
     })
 
-    ipcMain.handle('maximize_window', (event) => {
-      log.info('Maximize Window')
+    handle('maximize-window', (event) => {
       win.maximize()
     })
 
-    ipcMain.handle('restore_window', (event) => {
-      log.info('Restore Window')
+    handle('restore-window', (event) => {
       win.restore()
     })
 
-    ipcMain.handle('close_window', (event) => {
-      log.info('Close Window')
+    handle('close-window', (event) => {
       win.close()
     })
   }
-}
+)

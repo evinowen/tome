@@ -1,5 +1,5 @@
-const { ipcMain, app } = require('electron')
-
+const factory = require('../factory')
+const { app } = require('electron')
 const forge = require('node-forge')
 const fs = require('fs')
 const path = require('path')
@@ -7,9 +7,9 @@ const tmp = require('tmp-promise')
 
 const { promise_with_reject } = require('../../promise')
 
-module.exports = {
-  register: () => {
-    ipcMain.handle('ssl_generate_public_key', async (event, target, passphrase = null) => {
+module.exports = factory(
+  ({ handle }, win) => {
+    handle('ssl-generate-public-key', async (event, target, passphrase = null) => {
       if (!target) {
         return { path: '', data: '' }
       }
@@ -29,7 +29,7 @@ module.exports = {
       return { path: ssh_public_key_path, data: ssh_public_key }
     })
 
-    ipcMain.handle('ssl_generate_private_key', async (event, passphrase) => {
+    handle('ssl-generate-private-key', async (event, passphrase) => {
       const { privateKey: private_key } = await new Promise((resolve, reject) => {
         forge.pki.rsa.generateKeyPair(
           { bits: 2048, workers: 2 },
@@ -45,4 +45,4 @@ module.exports = {
       return { path: ssh_private_key_path, data: ssh_private_key }
     })
   }
-}
+)

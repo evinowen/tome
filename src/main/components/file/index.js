@@ -1,5 +1,5 @@
-const { ipcMain, dialog, shell } = require('electron')
-const log = require('electron-log')
+const factory = require('../factory')
+const { dialog, shell } = require('electron')
 const fs = require('fs')
 const path = require('path')
 const chokidar = require('chokidar')
@@ -18,9 +18,9 @@ const excluded_filenames = new Set([
 
 let watcher = null
 
-module.exports = {
-  register: (win) => {
-    ipcMain.on('file_subscribe', (event, target) => {
+module.exports = factory(
+  ({ handle, on }, win) => {
+    on('file-subscribe', (event, target) => {
       const options = {
         cwd: target,
         ignored: ['.git'],
@@ -32,20 +32,20 @@ module.exports = {
       })
     })
 
-    ipcMain.handle('file_clear_subscriptions', async (event) => {
+    handle('file-clear-subscriptions', async (event) => {
       if (watcher) {
         await watcher.close()
       }
     })
 
-    ipcMain.handle('file_exists', async (event, target) => promise_access(target))
+    handle('file-exists', async (event, target) => promise_access(target))
 
-    ipcMain.handle('file_is_directory', async (event, target) => {
+    handle('file-is-directory', async (event, target) => {
       const stats = await promise_with_reject(fs.lstat)(target)
       return stats.isDirectory()
     })
 
-    ipcMain.handle('file_create_directory', async (event, target) => {
+    handle('file-create-directory', async (event, target) => {
       if (!await promise_access(target)) {
         await promise_with_reject(fs.mkdir)(target)
       }
@@ -53,7 +53,7 @@ module.exports = {
       return promise_access(target)
     })
 
-    ipcMain.handle('file_list_directory', async (event, target) => {
+    handle('file-list-directory', async (event, target) => {
       const results = await promise_with_reject(fs.readdir)(target, { withFileTypes: true })
 
       const files = []
@@ -67,9 +67,9 @@ module.exports = {
       return files
     })
 
-    ipcMain.handle('file_contents', async (event, target) => promise_with_reject(fs.readFile)(target, 'utf8'))
+    handle('file-contents', async (event, target) => promise_with_reject(fs.readFile)(target, 'utf8'))
 
-    ipcMain.handle('file_create', async (event, target, directory) => {
+    handle('file-create', async (event, target, directory) => {
       if (await promise_access(target)) {
         return false
       }
@@ -83,15 +83,15 @@ module.exports = {
       return promise_access(target)
     })
 
-    ipcMain.handle('file_write', async (event, target, content) => {
+    handle('file-write', async (event, target, content) => {
       await promise_with_reject(fs.writeFile)(target, content)
     })
 
-    ipcMain.handle('file_rename', async (event, target, proposed) => {
+    handle('file-rename', async (event, target, proposed) => {
       await promise_with_reject(fs.rename)(target, proposed)
     })
 
-    ipcMain.handle('file_open', async (event, target, container) => {
+    handle('file-open', async (event, target, container) => {
       if (container) {
         shell.openPath(path.dirname(target))
       } else {
@@ -99,7 +99,7 @@ module.exports = {
       }
     })
 
-    ipcMain.handle('file_delete', async (event, target) => {
+    handle('file-delete', async (event, target) => {
       const unlink = async (target) => {
         const status = await promise_with_reject(fs.lstat)(target)
         if (status.isDirectory()) {
@@ -115,8 +115,7 @@ module.exports = {
       await unlink(target)
     })
 
-    ipcMain.handle('select_directory', (event) => {
-      log.info('Select Directory')
+    handle('select-directory', (event) => {
       const options = {
         title: 'Select Tome Directory',
         properties: ['openDirectory']
@@ -125,7 +124,7 @@ module.exports = {
       return dialog.showOpenDialog(win, options)
     })
 
-    ipcMain.handle('directory_list', async (event, target) => {
+    handle('directory-list', async (event, target) => {
       try {
         const stats = await promise_with_reject(fs.lstat)(target)
 
@@ -139,14 +138,14 @@ module.exports = {
       return promise_with_reject(fs.readdir)(target)
     })
 
-    ipcMain.handle('search_path', async (event, target, criteria) => {
+    handle('search-path', async (event, target, criteria) => {
       search.target = target
       search.criteria = criteria
       search.length = 0
       search.targets = [target]
     })
 
-    ipcMain.handle('search_next', async (event) => {
+    handle('search-next', async (event) => {
       if (search.targets.length === 0) {
         return { path: null }
       }
@@ -246,4 +245,4 @@ module.exports = {
       }
     })
   }
-}
+)

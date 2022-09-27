@@ -1,18 +1,17 @@
-const { ipcMain } = require('electron')
-
+const factory = require('../factory')
 const path = require('path')
 
-module.exports = {
-  register: () => {
-    ipcMain.handle('path_basename', (event, query) => {
+module.exports = factory(
+  ({ handle }, win) => {
+    handle('path-basename', (event, query) => {
       return path.basename(query)
     })
 
-    ipcMain.handle('path_dirname', (event, query) => {
+    handle('path-dirname', (event, query) => {
       return path.dirname(query)
     })
 
-    ipcMain.handle('path_extension', (event, query) => {
+    handle('path-extension', (event, query) => {
       const string = path.extname(query)
 
       if (!string) {
@@ -22,16 +21,16 @@ module.exports = {
       return string.toLowerCase()
     })
 
-    ipcMain.handle('path_join', (event, targets) => {
+    handle('path-join', (event, targets) => {
       return path.join(...targets)
     })
 
-    ipcMain.handle('path_relative', (event, base, query) => {
+    handle('path-relative', (event, base, query) => {
       return path.relative(base, query)
     })
 
-    ipcMain.handle('path_sep', (event) => {
+    handle('path-sep', (event) => {
       return path.sep
     })
   }
-}
+)

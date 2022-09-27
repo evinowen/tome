@@ -1,12 +1,12 @@
-const { ipcMain } = require('electron')
+const factory = require('../factory')
 const Repository = require('./Repository')
 const log = require('electron-log')
+
 let repository
 
-module.exports = {
-  data: () => ({ repository }),
-  register: () => {
-    ipcMain.handle('load_repository', async (event, path) => {
+module.exports = factory(
+  ({ handle }, win) => {
+    handle('load-repository', async (event, path) => {
       repository = new Repository(path)
 
       log.info('Load Repository', path)
@@ -23,34 +23,34 @@ module.exports = {
       }
     })
 
-    ipcMain.handle('inspect_repository', async (event) => {
+    handle('inspect-repository', async (event) => {
       await repository.inspect()
     })
 
-    ipcMain.handle('refresh_repository', async (event) => {
+    handle('refresh-repository', async (event) => {
       return {
         available: repository.available,
         staged: repository.staged
       }
     })
 
-    ipcMain.handle('refresh_patches_repository', async (event) => {
+    handle('refresh-patches-repository', async (event) => {
       return { patches: repository.patches }
     })
 
-    ipcMain.handle('diff_path_repository', async (event, path) => {
+    handle('diff-path-repository', async (event, path) => {
       await repository.diffPath(path)
     })
 
-    ipcMain.handle('diff_commit_repository', async (event, commit) => {
+    handle('diff-commit-repository', async (event, commit) => {
       return repository.diffCommit(commit)
     })
 
-    ipcMain.handle('credential_repository', async (event, private_key, public_key, passphrase) => {
+    handle('credential-repository', async (event, private_key, public_key, passphrase) => {
       repository.storeCredentials(private_key, public_key, passphrase)
     })
 
-    ipcMain.handle('stage_repository', async (event, query) => {
+    handle('stage-repository', async (event, query) => {
       await repository.stage(query, async (type, path) => {
         let wording
         if (type === 'add') {
@@ -63,25 +63,25 @@ module.exports = {
       })
     })
 
-    ipcMain.handle('reset_repository', async (event, query) => {
+    handle('reset-repository', async (event, query) => {
       await repository.reset(query, async (type, path) => {
         log.info(`Reseting path ${path}`)
       })
     })
 
-    ipcMain.handle('push_repository', async (event) => {
+    handle('push-repository', async (event) => {
       await repository.push()
     })
 
-    ipcMain.handle('clear_remote_repository', async (event) => {
+    handle('clear-remote-repository', async (event) => {
       repository.clearRemoteBranch()
     })
 
-    ipcMain.handle('load_remote_url_repository', async (event, url) => {
+    handle('load-remote-url-repository', async (event, url) => {
       await repository.loadRemoteBranch(url)
     })
 
-    ipcMain.handle('remote_repository', async (event) => {
+    handle('remote-repository', async (event) => {
       const result = {
         remote: repository.remote,
         pending: repository.pending
@@ -90,10 +90,11 @@ module.exports = {
       return result
     })
 
-    ipcMain.handle('commit_repository', async (event, name, email, message) => {
+    handle('commit-repository', async (event, name, email, message) => {
       const oid = await repository.commit(name, email, message)
 
       return oid.tostrS()
     })
-  }
-}
+  },
+  () => ({ repository })
+)

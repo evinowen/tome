@@ -1,21 +1,22 @@
-const { ipcMain, clipboard } = require('electron')
+const factory = require('../factory')
+const { clipboard } = require('electron')
 const log = require('electron-log')
 const fs = require('fs')
 const path = require('path')
 
 const { promise_with_reject, promise_with_boolean } = require('../../promise')
 
-module.exports = {
-  register: () => {
-    ipcMain.handle('clipboard_writetext', async (event, text) => {
+module.exports = factory(
+  ({ handle }, win) => {
+    handle('clipboard-writetext', async (event, text) => {
       clipboard.writeText(text)
     })
 
-    ipcMain.handle('clipboard_readtext', async (event) => {
+    handle('clipboard-readtext', async (event) => {
       return clipboard.readText()
     })
 
-    ipcMain.handle('clipboard_paste', async (event, action, source, target) => {
+    handle('clipboard-paste', async (event, action, source, target) => {
       // Determine the directory where the file will go
       let directory = target
       try {
@@ -64,4 +65,4 @@ module.exports = {
       }
     })
   }
-}
+)
