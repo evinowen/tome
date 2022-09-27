@@ -1,4 +1,4 @@
-const factory = require('../factory')
+const component = require('../factory')
 const fs = require('fs')
 const path = require('path')
 const { cloneDeep } = require('lodash')
@@ -243,9 +243,9 @@ class Template {
 
 class TemplateLeaf extends Template { }
 
-module.exports = factory(
-  ({ handle }, win) => {
-    handle('template-invoke', async (event, source, target) => {
+module.exports = component('template')(
+  ({ handle }) => {
+    handle('invoke', async (event, source, target) => {
       const name = path.basename(source)
 
       const compute = {}

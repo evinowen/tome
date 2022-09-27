@@ -1,4 +1,4 @@
-const factory = require('../factory')
+const component = require('../factory')
 const { clipboard } = require('electron')
 const log = require('electron-log')
 const fs = require('fs')
@@ -6,17 +6,17 @@ const path = require('path')
 
 const { promise_with_reject, promise_with_boolean } = require('../../promise')
 
-module.exports = factory(
-  ({ handle }, win) => {
-    handle('clipboard-writetext', async (event, text) => {
+module.exports = component('clipboard')(
+  ({ handle }) => {
+    handle('writetext', async (event, text) => {
       clipboard.writeText(text)
     })
 
-    handle('clipboard-readtext', async (event) => {
+    handle('readtext', async (event) => {
       return clipboard.readText()
     })
 
-    handle('clipboard-paste', async (event, action, source, target) => {
+    handle('paste', async (event, action, source, target) => {
       // Determine the directory where the file will go
       let directory = target
       try {

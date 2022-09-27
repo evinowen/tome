@@ -1,4 +1,4 @@
-const factory = require('../factory')
+const component = require('../factory')
 const { dialog, shell } = require('electron')
 const fs = require('fs')
 const path = require('path')
@@ -18,9 +18,9 @@ const excluded_filenames = new Set([
 
 let watcher = null
 
-module.exports = factory(
+module.exports = component('file')(
   ({ handle, on }, win) => {
-    on('file-subscribe', (event, target) => {
+    on('events', (event, target) => {
       const options = {
         cwd: target,
         ignored: ['.git'],
@@ -28,24 +28,24 @@ module.exports = factory(
       }
 
       watcher = chokidar.watch(target, options).on('all', (event, path) => {
-        win.webContents.send('file_subscription_update', { event, path })
+        win.webContents.send('file-events', { event, path })
       })
     })
 
-    handle('file-clear-subscriptions', async (event) => {
+    handle('clear-subscriptions', async (event) => {
       if (watcher) {
         await watcher.close()
       }
     })
 
-    handle('file-exists', async (event, target) => promise_access(target))
+    handle('exists', async (event, target) => promise_access(target))
 
-    handle('file-is-directory', async (event, target) => {
+    handle('is-directory', async (event, target) => {
       const stats = await promise_with_reject(fs.lstat)(target)
       return stats.isDirectory()
     })
 
-    handle('file-create-directory', async (event, target) => {
+    handle('create-directory', async (event, target) => {
       if (!await promise_access(target)) {
         await promise_with_reject(fs.mkdir)(target)
       }
@@ -53,7 +53,7 @@ module.exports = factory(
       return promise_access(target)
     })
 
-    handle('file-list-directory', async (event, target) => {
+    handle('list-directory', async (event, target) => {
       const results = await promise_with_reject(fs.readdir)(target, { withFileTypes: true })
 
       const files = []
@@ -67,9 +67,9 @@ module.exports = factory(
       return files
     })
 
-    handle('file-contents', async (event, target) => promise_with_reject(fs.readFile)(target, 'utf8'))
+    handle('contents', async (event, target) => promise_with_reject(fs.readFile)(target, 'utf8'))
 
-    handle('file-create', async (event, target, directory) => {
+    handle('create', async (event, target, directory) => {
       if (await promise_access(target)) {
         return false
       }
@@ -83,15 +83,15 @@ module.exports = factory(
       return promise_access(target)
     })
 
-    handle('file-write', async (event, target, content) => {
+    handle('write', async (event, target, content) => {
       await promise_with_reject(fs.writeFile)(target, content)
     })
 
-    handle('file-rename', async (event, target, proposed) => {
+    handle('rename', async (event, target, proposed) => {
       await promise_with_reject(fs.rename)(target, proposed)
     })
 
-    handle('file-open', async (event, target, container) => {
+    handle('open', async (event, target, container) => {
       if (container) {
         shell.openPath(path.dirname(target))
       } else {
@@ -99,7 +99,7 @@ module.exports = factory(
       }
     })
 
-    handle('file-delete', async (event, target) => {
+    handle('delete', async (event, target) => {
       const unlink = async (target) => {
         const status = await promise_with_reject(fs.lstat)(target)
         if (status.isDirectory()) {

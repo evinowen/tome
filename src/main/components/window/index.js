@@ -1,24 +1,24 @@
-const factory = require('../factory')
+const component = require('../factory')
 
-module.exports = factory(
+module.exports = component('window')(
   ({ handle }, win) => {
-    handle('is-window-maximized', (event) => {
+    handle('is-maximized', (event) => {
       return win.isMaximized()
     })
 
-    handle('minimize-window', (event) => {
+    handle('minimize', (event) => {
       win.minimize()
     })
 
-    handle('maximize-window', (event) => {
+    handle('maximize', (event) => {
       win.maximize()
     })
 
-    handle('restore-window', (event) => {
+    handle('restore', (event) => {
       win.restore()
     })
 
-    handle('close-window', (event) => {
+    handle('close', (event) => {
       win.close()
     })
   }

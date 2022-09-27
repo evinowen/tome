@@ -1,7 +1,7 @@
-const { ipcRenderer } = require('electron')
+const invoke = require('../invoke')('clipboard')
 
 module.exports = {
-  clipboard_writetext: (text) => ipcRenderer.invoke('clipboard-writetext', text),
-  clipboard_readtext: (text) => ipcRenderer.invoke('clipboard-readtext'),
-  clipboard_paste: (path) => ipcRenderer.invoke('clipboard-paste', path)
+  clipboard_writetext: invoke('writetext'),
+  clipboard_readtext: invoke('readtext'),
+  clipboard_paste: invoke('paste')
 }

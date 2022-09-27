@@ -1,6 +1,6 @@
-const { ipcRenderer } = require('electron')
+const invoke = require('../invoke')('ssl')
 
 module.exports = {
-  ssl_generate_public_key: (target, passphrase) => ipcRenderer.invoke('ssl-generate-public-key', target, passphrase),
-  ssl_generate_private_key: (passphrase) => ipcRenderer.invoke('ssl-generate-private-key', passphrase)
+  ssl_generate_public_key: invoke('generate-public-key'),
+  ssl_generate_private_key: invoke('generate-private-key')
 }

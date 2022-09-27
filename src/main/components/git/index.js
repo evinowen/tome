@@ -1,12 +1,12 @@
-const factory = require('../factory')
+const component = require('../factory')
 const Repository = require('./Repository')
 const log = require('electron-log')
 
 let repository
 
-module.exports = factory(
-  ({ handle }, win) => {
-    handle('load-repository', async (event, path) => {
+module.exports = component('repository')(
+  ({ handle }) => {
+    handle('load', async (event, path) => {
       repository = new Repository(path)
 
       log.info('Load Repository', path)
@@ -23,34 +23,34 @@ module.exports = factory(
       }
     })
 
-    handle('inspect-repository', async (event) => {
+    handle('inspect', async (event) => {
       await repository.inspect()
     })
 
-    handle('refresh-repository', async (event) => {
+    handle('refresh', async (event) => {
       return {
         available: repository.available,
         staged: repository.staged
       }
     })
 
-    handle('refresh-patches-repository', async (event) => {
+    handle('refresh-patches', async (event) => {
       return { patches: repository.patches }
     })
 
-    handle('diff-path-repository', async (event, path) => {
+    handle('diff-path', async (event, path) => {
       await repository.diffPath(path)
     })
 
-    handle('diff-commit-repository', async (event, commit) => {
+    handle('diff-commit', async (event, commit) => {
       return repository.diffCommit(commit)
     })
 
-    handle('credential-repository', async (event, private_key, public_key, passphrase) => {
+    handle('credential', async (event, private_key, public_key, passphrase) => {
       repository.storeCredentials(private_key, public_key, passphrase)
     })
 
-    handle('stage-repository', async (event, query) => {
+    handle('stage', async (event, query) => {
       await repository.stage(query, async (type, path) => {
         let wording
         if (type === 'add') {
@@ -63,25 +63,25 @@ module.exports = factory(
       })
     })
 
-    handle('reset-repository', async (event, query) => {
+    handle('reset', async (event, query) => {
       await repository.reset(query, async (type, path) => {
         log.info(`Reseting path ${path}`)
       })
     })
 
-    handle('push-repository', async (event) => {
+    handle('push', async (event) => {
       await repository.push()
     })
 
-    handle('clear-remote-repository', async (event) => {
+    handle('clear-remote', async (event) => {
       repository.clearRemoteBranch()
     })
 
-    handle('load-remote-url-repository', async (event, url) => {
+    handle('load-remote-url', async (event, url) => {
       await repository.loadRemoteBranch(url)
     })
 
-    handle('remote-repository', async (event) => {
+    handle('remote', async (event) => {
       const result = {
         remote: repository.remote,
         pending: repository.pending
@@ -90,7 +90,7 @@ module.exports = factory(
       return result
     })
 
-    handle('commit-repository', async (event, name, email, message) => {
+    handle('commit', async (event, name, email, message) => {
       const oid = await repository.commit(name, email, message)
 
       return oid.tostrS()

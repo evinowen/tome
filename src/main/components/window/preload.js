@@ -1,9 +1,9 @@
-const { ipcRenderer } = require('electron')
+const invoke = require('../invoke')('window')
 
 module.exports = {
-  is_window_maximized: () => ipcRenderer.invoke('is-window-maximized'),
-  restore_window: () => ipcRenderer.invoke('restore-window'),
-  maximize_window: () => ipcRenderer.invoke('maximize-window'),
-  minimize_window: () => ipcRenderer.invoke('minimize-window'),
-  close_window: () => ipcRenderer.invoke('close-window')
+  is_window_maximized: invoke('is-maximized'),
+  restore_window: invoke('restore'),
+  maximize_window: invoke('maximize'),
+  minimize_window: invoke('minimize'),
+  close_window: invoke('close')
 }

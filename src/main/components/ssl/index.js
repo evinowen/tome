@@ -1,4 +1,4 @@
-const factory = require('../factory')
+const component = require('../factory')
 const { app } = require('electron')
 const forge = require('node-forge')
 const fs = require('fs')
@@ -7,9 +7,9 @@ const tmp = require('tmp-promise')
 
 const { promise_with_reject } = require('../../promise')
 
-module.exports = factory(
-  ({ handle }, win) => {
-    handle('ssl-generate-public-key', async (event, target, passphrase = null) => {
+module.exports = component('ssl')(
+  ({ handle }) => {
+    handle('generate-public-key', async (event, target, passphrase = null) => {
       if (!target) {
         return { path: '', data: '' }
       }
@@ -29,7 +29,7 @@ module.exports = factory(
       return { path: ssh_public_key_path, data: ssh_public_key }
     })
 
-    handle('ssl-generate-private-key', async (event, passphrase) => {
+    handle('generate-private-key', async (event, passphrase) => {
       const { privateKey: private_key } = await new Promise((resolve, reject) => {
         forge.pki.rsa.generateKeyPair(
           { bits: 2048, workers: 2 },

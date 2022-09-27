@@ -1,7 +1,7 @@
-const { ipcRenderer } = require('electron')
+const invoke = require('../invoke')('app')
 
 module.exports = {
-  app_getPath: (path) => ipcRenderer.invoke('app-getPath', path),
-  app_getVersion: () => ipcRenderer.invoke('app-getVersion'),
-  app_getProcess: () => ipcRenderer.invoke('app-getProcess')
+  app_getPath: invoke('getPath'),
+  app_getVersion: invoke('getVersion'),
+  app_getProcess: invoke('getProcess')
 }

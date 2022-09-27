@@ -1,5 +1,5 @@
-const { ipcRenderer } = require('electron')
+const invoke = require('../invoke')('action')
 
 module.exports = {
-  action_invoke: (source, target, selection) => ipcRenderer.invoke('action-invoke', source, target, selection)
+  action_invoke: invoke('invoke')
 }

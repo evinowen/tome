@@ -1,17 +1,17 @@
-const factory = require('../factory')
+const component = require('../factory')
 const path = require('path')
 
-module.exports = factory(
-  ({ handle }, win) => {
-    handle('path-basename', (event, query) => {
+module.exports = component('path')(
+  ({ handle }) => {
+    handle('basename', (event, query) => {
       return path.basename(query)
     })
 
-    handle('path-dirname', (event, query) => {
+    handle('dirname', (event, query) => {
       return path.dirname(query)
     })
 
-    handle('path-extension', (event, query) => {
+    handle('extension', (event, query) => {
       const string = path.extname(query)
 
       if (!string) {
@@ -21,15 +21,15 @@ module.exports = factory(
       return string.toLowerCase()
     })
 
-    handle('path-join', (event, targets) => {
+    handle('join', (event, targets) => {
       return path.join(...targets)
     })
 
-    handle('path-relative', (event, base, query) => {
+    handle('relative', (event, base, query) => {
       return path.relative(base, query)
     })
 
-    handle('path-sep', (event) => {
+    handle('sep', (event) => {
       return path.sep
     })
   }

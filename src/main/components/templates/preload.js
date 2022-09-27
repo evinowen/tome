@@ -1,5 +1,5 @@
-const { ipcRenderer } = require('electron')
+const invoke = require('../invoke')('template')
 
 module.exports = {
-  template_invoke: (source, target) => ipcRenderer.invoke('template-invoke', source, target)
+  template_invoke: invoke('invoke')
 }
