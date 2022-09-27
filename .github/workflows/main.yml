@@ -70,30 +70,30 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
-    - name: Build Packages for Electron
-      run: npm run electron-rebuild
+    - name: Build Application Packages
+      run: npm run rebuild-electron
       env:
         # Must disable test_ssl_new as it fails with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ui -test_pem -test_ssl_new"
 
-    - name: Lint Renderer Process
+    - name: Lint Renderer
       run: npm run lint-renderer
 
-    - name: Test Renderer Process
+    - name: Test Renderer
       run: npm run test-renderer
-
-    - name: Lint Main Process
-      run: npm run lint-electron
-
-    - name: Test Main Process
-      run: npm run test-electron
 
     - name: Build Renderer
       run: npm run build-renderer
 
-    - name: Build Installer
-      run: npm run build
+    - name: Lint Main
+      run: npm run lint-main
+
+    - name: Test Main
+      run: npm run test-main
+
+    - name: Build Application
+      run: npm run build-electron
       env:
         DEBUG: electron-builder
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -101,7 +101,7 @@ jobs:
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ env.GITHUB_SHA }}.deb
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
 
   build_on_win:
@@ -170,30 +170,30 @@ jobs:
         CERTIFICATE_P12: "certificate.p12"
         CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_WIN_APPLICATION }}
 
-    - name: Build Packages for Electron
-      run: npm run electron-rebuild
+    - name: Build Application Packages
+      run: npm run rebuild-electron
       env:
         # Must disable test_ssl_new as it fails with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ssl_new"
 
-    - name: Lint Renderer Process
+    - name: Lint Renderer
       run: npm run lint-renderer
 
-    - name: Test Renderer Process
+    - name: Test Renderer
       run: npm run test-renderer
-
-    - name: Lint Main Process
-      run: npm run lint-electron
-
-    - name: Test Main Process
-      run: npm run test-electron
 
     - name: Build Renderer
       run: npm run build-renderer
 
-    - name: Build Installer
-      run: npm run build
+    - name: Lint Main
+      run: npm run lint-main
+
+    - name: Test Main
+      run: npm run test-main
+
+    - name: Build Application
+      run: npm run build-electron
       env:
         DEBUG: electron-builder
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -203,7 +203,7 @@ jobs:
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ env.GITHUB_SHA }}.exe
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   build_on_macos:
@@ -251,30 +251,30 @@ jobs:
         CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_OSX_APPLICATION }}
         KEYCHAIN: "build.keychain"
 
-    - name: Build Packages for Electron
-      run: npm run electron-rebuild
+    - name: Build Application Packages
+      run: npm run rebuild-electron
       env:
         # Must disable test_ssl_new as it fails with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_ui -test_pem -test_ssl_new"
 
-    - name: Lint Renderer Process
+    - name: Lint Renderer
       run: npm run lint-renderer
 
-    - name: Test Renderer Process
+    - name: Test Renderer
       run: npm run test-renderer
-
-    - name: Lint Main Process
-      run: npm run lint-electron
-
-    - name: Test Main Process
-      run: npm run test-electron
 
     - name: Build Renderer
       run: npm run build-renderer
 
-    - name: Build Installer
-      run: npm run build
+    - name: Lint Main
+      run: npm run lint-main
+
+    - name: Test Main
+      run: npm run test-main
+
+    - name: Build Application
+      run: npm run build-electron
       env:
         DEBUG: electron-builder,electron-osx-sign*
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -285,7 +285,7 @@ jobs:
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ env.GITHUB_SHA }}.dmg
         path: dist/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   publish_release:
@@ -311,7 +311,7 @@ jobs:
     - name: Download Debian Setup Artifacts
       uses: actions/download-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ env.GITHUB_SHA }}.deb
         path: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
 
     - name: Upload Debian Setup Artifacts
@@ -327,7 +327,7 @@ jobs:
     - name: Download Windows Setup Artifacts
       uses: actions/download-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ env.GITHUB_SHA }}.exe
         path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
     - name: Upload Windows Setup Artifacts
@@ -343,7 +343,7 @@ jobs:
     - name: Download MacOS Setup Artifacts
       uses: actions/download-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ env.GITHUB_SHA }}.dmg
         path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
     - name: Upload macOS Setup Artifacts
@@ -355,5 +355,3 @@ jobs:
         asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
         asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
         asset_content_type: application/dmg
-
-
