@@ -23,32 +23,17 @@ module.exports = component('repository')(
       }
     })
 
-    handle('inspect', async (event) => {
-      await repository.inspect()
-    })
+    handle('inspect', async (event) => await repository.inspect())
 
-    handle('refresh', async (event) => {
-      return {
-        available: repository.available,
-        staged: repository.staged
-      }
-    })
+    handle('refresh', async (event) => ({ available: repository.available, staged: repository.staged }))
 
-    handle('refresh-patches', async (event) => {
-      return { patches: repository.patches }
-    })
+    handle('refresh-patches', async (event) => ({ patches: repository.patches }))
 
-    handle('diff-path', async (event, path) => {
-      await repository.diffPath(path)
-    })
+    handle('diff-path', async (event, path) => await repository.diffPath(path))
 
-    handle('diff-commit', async (event, commit) => {
-      return repository.diffCommit(commit)
-    })
+    handle('diff-commit', async (event, commit) => repository.diffCommit(commit))
 
-    handle('credential', async (event, private_key, public_key, passphrase) => {
-      repository.storeCredentials(private_key, public_key, passphrase)
-    })
+    handle('credential', async (event, private_key, public_key, passphrase) => repository.storeCredentials(private_key, public_key, passphrase))
 
     handle('stage', async (event, query) => {
       await repository.stage(query, async (type, path) => {
@@ -69,17 +54,11 @@ module.exports = component('repository')(
       })
     })
 
-    handle('push', async (event) => {
-      await repository.push()
-    })
+    handle('push', async (event) => await repository.push())
 
-    handle('clear-remote', async (event) => {
-      repository.clearRemoteBranch()
-    })
+    handle('clear-remote', async (event) => repository.clearRemoteBranch())
 
-    handle('load-remote-url', async (event, url) => {
-      await repository.loadRemoteBranch(url)
-    })
+    handle('load-remote-url', async (event, url) => await repository.loadRemoteBranch(url))
 
     handle('remote', async (event) => {
       const result = {

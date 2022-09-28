@@ -3,13 +3,9 @@ const path = require('path')
 
 module.exports = component('path')(
   ({ handle }) => {
-    handle('basename', (event, query) => {
-      return path.basename(query)
-    })
+    handle('basename', (event, query) => path.basename(query))
 
-    handle('dirname', (event, query) => {
-      return path.dirname(query)
-    })
+    handle('dirname', (event, query) => path.dirname(query))
 
     handle('extension', (event, query) => {
       const string = path.extname(query)
@@ -21,16 +17,10 @@ module.exports = component('path')(
       return string.toLowerCase()
     })
 
-    handle('join', (event, targets) => {
-      return path.join(...targets)
-    })
+    handle('join', (event, targets) => path.join(...targets))
 
-    handle('relative', (event, base, query) => {
-      return path.relative(base, query)
-    })
+    handle('relative', (event, base, query) => path.relative(base, query))
 
-    handle('sep', (event) => {
-      return path.sep
-    })
+    handle('sep', (event) => path.sep)
   }
 )
