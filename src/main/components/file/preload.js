@@ -1,4 +1,3 @@
-const { ipcRenderer } = require('electron')
 const invoke = require('../invoke')('file')
 const subscribe = require('../subscribe')('file')
 

@@ -20,7 +20,7 @@ let watcher = null
 
 module.exports = component('file')(
   ({ handle, on }, win) => {
-    on('events', (event, target) => {
+    on('events', (channel, target) => {
       const options = {
         cwd: target,
         ignored: ['.git'],
@@ -28,24 +28,24 @@ module.exports = component('file')(
       }
 
       watcher = chokidar.watch(target, options).on('all', (event, path) => {
-        win.webContents.send('file-events', { event, path })
+        win.webContents.send(channel, { event, path })
       })
     })
 
-    handle('clear-subscriptions', async (event) => {
+    handle('clear-subscriptions', async () => {
       if (watcher) {
         await watcher.close()
       }
     })
 
-    handle('exists', async (event, target) => promise_access(target))
+    handle('exists', async (target) => promise_access(target))
 
-    handle('is-directory', async (event, target) => {
+    handle('is-directory', async (target) => {
       const stats = await promise_with_reject(fs.lstat)(target)
       return stats.isDirectory()
     })
 
-    handle('create-directory', async (event, target) => {
+    handle('create-directory', async (target) => {
       if (!await promise_access(target)) {
         await promise_with_reject(fs.mkdir)(target)
       }
@@ -53,7 +53,7 @@ module.exports = component('file')(
       return promise_access(target)
     })
 
-    handle('list-directory', async (event, target) => {
+    handle('list-directory', async (target) => {
       const results = await promise_with_reject(fs.readdir)(target, { withFileTypes: true })
 
       const files = []
@@ -67,9 +67,9 @@ module.exports = component('file')(
       return files
     })
 
-    handle('contents', async (event, target) => promise_with_reject(fs.readFile)(target, 'utf8'))
+    handle('contents', async (target) => promise_with_reject(fs.readFile)(target, 'utf8'))
 
-    handle('create', async (event, target, directory) => {
+    handle('create', async (target, directory) => {
       if (await promise_access(target)) {
         return false
       }
@@ -83,15 +83,15 @@ module.exports = component('file')(
       return promise_access(target)
     })
 
-    handle('write', async (event, target, content) => {
+    handle('write', async (target, content) => {
       await promise_with_reject(fs.writeFile)(target, content)
     })
 
-    handle('rename', async (event, target, proposed) => {
+    handle('rename', async (target, proposed) => {
       await promise_with_reject(fs.rename)(target, proposed)
     })
 
-    handle('open', async (event, target, container) => {
+    handle('open', async (target, container) => {
       if (container) {
         shell.openPath(path.dirname(target))
       } else {
@@ -99,7 +99,7 @@ module.exports = component('file')(
       }
     })
 
-    handle('delete', async (event, target) => {
+    handle('delete', async (target) => {
       const unlink = async (target) => {
         const status = await promise_with_reject(fs.lstat)(target)
         if (status.isDirectory()) {
@@ -115,7 +115,7 @@ module.exports = component('file')(
       await unlink(target)
     })
 
-    handle('select-directory', (event) => {
+    handle('select-directory', () => {
       const options = {
         title: 'Select Tome Directory',
         properties: ['openDirectory']
@@ -124,7 +124,7 @@ module.exports = component('file')(
       return dialog.showOpenDialog(win, options)
     })
 
-    handle('directory-list', async (event, target) => {
+    handle('directory-list', async (target) => {
       try {
         const stats = await promise_with_reject(fs.lstat)(target)
 
@@ -138,14 +138,14 @@ module.exports = component('file')(
       return promise_with_reject(fs.readdir)(target)
     })
 
-    handle('search-path', async (event, target, criteria) => {
+    handle('search-path', async (target, criteria) => {
       search.target = target
       search.criteria = criteria
       search.length = 0
       search.targets = [target]
     })
 
-    handle('search-next', async (event) => {
+    handle('search-next', async () => {
       if (search.targets.length === 0) {
         return { path: null }
       }

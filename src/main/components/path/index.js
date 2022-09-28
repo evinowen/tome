@@ -3,11 +3,11 @@ const path = require('path')
 
 module.exports = component('path')(
   ({ handle }) => {
-    handle('basename', (event, query) => path.basename(query))
+    handle('basename', (query) => path.basename(query))
 
-    handle('dirname', (event, query) => path.dirname(query))
+    handle('dirname', (query) => path.dirname(query))
 
-    handle('extension', (event, query) => {
+    handle('extension', (query) => {
       const string = path.extname(query)
 
       if (!string) {
@@ -17,10 +17,10 @@ module.exports = component('path')(
       return string.toLowerCase()
     })
 
-    handle('join', (event, targets) => path.join(...targets))
+    handle('join', (targets) => path.join(...targets))
 
-    handle('relative', (event, base, query) => path.relative(base, query))
+    handle('relative', (base, query) => path.relative(base, query))
 
-    handle('sep', (event) => path.sep)
+    handle('sep', () => path.sep)
   }
 )

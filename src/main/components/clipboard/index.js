@@ -8,15 +8,15 @@ const { promise_with_reject, promise_with_boolean } = require('../../promise')
 
 module.exports = component('clipboard')(
   ({ handle }) => {
-    handle('writetext', async (event, text) => {
+    handle('writetext', async (text) => {
       clipboard.writeText(text)
     })
 
-    handle('readtext', async (event) => {
+    handle('readtext', async () => {
       return clipboard.readText()
     })
 
-    handle('paste', async (event, action, source, target) => {
+    handle('paste', async (action, source, target) => {
       // Determine the directory where the file will go
       let directory = target
       try {

@@ -6,7 +6,7 @@ let repository
 
 module.exports = component('repository')(
   ({ handle }) => {
-    handle('load', async (event, path) => {
+    handle('load', async (path) => {
       repository = new Repository(path)
 
       log.info('Load Repository', path)
@@ -23,19 +23,19 @@ module.exports = component('repository')(
       }
     })
 
-    handle('inspect', async (event) => await repository.inspect())
+    handle('inspect', async () => await repository.inspect())
 
-    handle('refresh', async (event) => ({ available: repository.available, staged: repository.staged }))
+    handle('refresh', async () => ({ available: repository.available, staged: repository.staged }))
 
-    handle('refresh-patches', async (event) => ({ patches: repository.patches }))
+    handle('refresh-patches', async () => ({ patches: repository.patches }))
 
-    handle('diff-path', async (event, path) => await repository.diffPath(path))
+    handle('diff-path', async (path) => await repository.diffPath(path))
 
-    handle('diff-commit', async (event, commit) => repository.diffCommit(commit))
+    handle('diff-commit', async (commit) => repository.diffCommit(commit))
 
-    handle('credential', async (event, private_key, public_key, passphrase) => repository.storeCredentials(private_key, public_key, passphrase))
+    handle('credential', async (private_key, public_key, passphrase) => repository.storeCredentials(private_key, public_key, passphrase))
 
-    handle('stage', async (event, query) => {
+    handle('stage', async (query) => {
       await repository.stage(query, async (type, path) => {
         let wording
         if (type === 'add') {
@@ -48,19 +48,19 @@ module.exports = component('repository')(
       })
     })
 
-    handle('reset', async (event, query) => {
+    handle('reset', async (query) => {
       await repository.reset(query, async (type, path) => {
         log.info(`Reseting path ${path}`)
       })
     })
 
-    handle('push', async (event) => await repository.push())
+    handle('push', async () => await repository.push())
 
-    handle('clear-remote', async (event) => repository.clearRemoteBranch())
+    handle('clear-remote', async () => repository.clearRemoteBranch())
 
-    handle('load-remote-url', async (event, url) => await repository.loadRemoteBranch(url))
+    handle('load-remote-url', async (url) => await repository.loadRemoteBranch(url))
 
-    handle('remote', async (event) => {
+    handle('remote', async () => {
       const result = {
         remote: repository.remote,
         pending: repository.pending
@@ -69,7 +69,7 @@ module.exports = component('repository')(
       return result
     })
 
-    handle('commit', async (event, name, email, message) => {
+    handle('commit', async (name, email, message) => {
       const oid = await repository.commit(name, email, message)
 
       return oid.tostrS()

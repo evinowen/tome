@@ -45,7 +45,7 @@ describe('store/modules/files', () => {
 
     expect(store.state.files.tree).toBeNull()
 
-    window.api.file.subscribe.mockImplementationOnce(async (event, target) => {
+    window.api.file.subscribe.mockImplementationOnce(async (target) => {
       await target(null, { event: ChokidarEvent.ADD, path })
     })
 

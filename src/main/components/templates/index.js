@@ -245,7 +245,7 @@ class TemplateLeaf extends Template { }
 
 module.exports = component('template')(
   ({ handle }) => {
-    handle('invoke', async (event, source, target) => {
+    handle('invoke', async (source, target) => {
       const name = path.basename(source)
 
       const compute = {}

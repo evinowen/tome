@@ -14,7 +14,7 @@ const { promise_with_reject } = require('../../promise')
 
 module.exports = component('action')(
   ({ handle }) => {
-    handle('invoke', async (event, source, target, selection) => {
+    handle('invoke', async (source, target, selection) => {
       const stats = await promise_with_reject(fs.lstat)(source)
 
       const source_script = stats.isDirectory() ? path.join(source, 'index.js') : source

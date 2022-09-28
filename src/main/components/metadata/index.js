@@ -3,10 +3,10 @@ const { app } = require('electron')
 
 module.exports = component('app')(
   ({ handle }) => {
-    handle('getPath', async (event, name) => app.getPath(name))
+    handle('getPath', async (name) => app.getPath(name))
 
-    handle('getVersion', async (event) => process.env.npm_package_version || app.getVersion())
+    handle('getVersion', async () => process.env.npm_package_version || app.getVersion())
 
-    handle('getProcess', async (event) => ({ versions: process.versions, sandboxed: process.sandboxed === true }))
+    handle('getProcess', async () => ({ versions: process.versions, sandboxed: process.sandboxed === true }))
   }
 )

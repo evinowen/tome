@@ -89,7 +89,7 @@ export default {
 
       context.commit('initialize', tree)
 
-      await tree.listen(async (_, data) => {
+      await tree.listen(async (data) => {
         const { event, path: relative } = data
         const identity = context.state.tree.identify(relative)
 

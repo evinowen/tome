@@ -9,7 +9,7 @@ const { promise_with_reject } = require('../../promise')
 
 module.exports = component('ssl')(
   ({ handle }) => {
-    handle('generate-public-key', async (event, target, passphrase = null) => {
+    handle('generate-public-key', async (target, passphrase = null) => {
       if (!target) {
         return { path: '', data: '' }
       }
@@ -29,7 +29,7 @@ module.exports = component('ssl')(
       return { path: ssh_public_key_path, data: ssh_public_key }
     })
 
-    handle('generate-private-key', async (event, passphrase) => {
+    handle('generate-private-key', async (passphrase) => {
       const { privateKey: private_key } = await new Promise((resolve, reject) => {
         forge.pki.rsa.generateKeyPair(
           { bits: 2048, workers: 2 },
