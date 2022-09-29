@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import App from '@/App.vue'
-import router from '@/router'
 import store from '@/store'
 import vuetify from '@/plugins/vuetify'
 
@@ -41,7 +40,6 @@ async function main () {
   await store.dispatch('hydrate')
 
   new Vue({
-    router,
     store,
     vuetify,
     render: h => h(App)
