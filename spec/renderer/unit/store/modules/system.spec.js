@@ -11,7 +11,7 @@ import QuickPush from '@/store/modules/system/QuickPush'
 
 Object.assign(window, builders.window())
 
-describe('store/modules/system.js', () => {
+describe('store/modules/system', () => {
   let localVue
   let system
   let configuration

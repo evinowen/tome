@@ -10,7 +10,7 @@ Object.assign(window, builders.window())
 
 window._.set_content(['./first_path', './second_path', './third_path'].join('\n'))
 
-describe('store/modules/library.js', () => {
+describe('store/modules/library', () => {
   let localVue
 
   let library

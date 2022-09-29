@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import { createLocalVue } from '@vue/test-utils'
 import template from '@/store/plugins/mediations/action'
 
-describe('store/plugins/mediations/template.js', () => {
+describe('store/plugins/mediations/action', () => {
   let localVue
   let store
 

@@ -58,7 +58,7 @@ jest.mock('tmp-promise', () => ({
 
 tmp.file.mockImplementation(() => random_string(16, true))
 
-describe('SSLComponent', () => {
+describe('components/ssl', () => {
   let component
 
   beforeEach(() => {

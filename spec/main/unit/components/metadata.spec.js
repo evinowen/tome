@@ -18,7 +18,7 @@ jest.mock('electron', () => ({
 electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
 electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
-describe('MetadataComponent', () => {
+describe('components/metadata', () => {
   let component
 
   beforeEach(() => {

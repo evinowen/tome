@@ -2,7 +2,7 @@ import RepositoryFile from '@/components/git/RepositoryFile'
 
 jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {}, Diff: { LINE: 1 } }))
 
-describe('Repository.js', () => {
+describe('components/git/RepositoryFile', () => {
   it('should store constructor input values', async () => {
     const path = './test_file.txt'
     const type = RepositoryFile.Type.NEW

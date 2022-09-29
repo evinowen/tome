@@ -8,7 +8,7 @@ import builders from '?/builders'
 
 Object.assign(window, builders.window())
 
-describe('store/modules/clipboard.js', () => {
+describe('store/modules/clipboard', () => {
   let localVue
   let store
 

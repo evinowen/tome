@@ -4,7 +4,7 @@ import { createLocalVue } from '@vue/test-utils'
 import _context from '@/store/modules/context'
 import { cloneDeep } from 'lodash'
 
-describe('store/modules/context.js', () => {
+describe('store/modules/context', () => {
   let localVue
 
   let context

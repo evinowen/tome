@@ -57,7 +57,7 @@ chokidar.watch.mockImplementation((target, options) => chokidar_watcher)
 jest.mock('fs', () => require('?/mocks/fs'))
 jest.mock('path', () => require('?/mocks/path'))
 
-describe('FileComponent', () => {
+describe('components/file', () => {
   let component
 
   beforeEach(() => {

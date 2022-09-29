@@ -16,7 +16,7 @@ jest.mock('@/store/modules/clipboard')
 jest.mock('@/store/modules/search')
 jest.mock('@/store/plugins/mediator')
 
-describe('src/store/index.js', () => {
+describe('store', () => {
   let localVue
   let store
 

@@ -71,7 +71,7 @@ jest.mock('vm', () => ({
 vm.createScript.mockImplementation(() => vm_script)
 
 
-describe('ActionsComponent', () => {
+describe('components/actions', () => {
   let component
 
   beforeEach(() => {

@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import { createLocalVue } from '@vue/test-utils'
 import identity from '@/store/plugins/mediations/identity'
 
-describe('store/plugins/mediations/identity.js', () => {
+describe('store/plugins/mediations/identity', () => {
   let localVue
   let store
   let repository

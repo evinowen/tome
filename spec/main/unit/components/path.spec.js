@@ -33,7 +33,7 @@ path.parse.mockImplementation(() => ({ name: random_string(), ext: random_string
 path.join.mockImplementation((...input) => input.join('/'))
 path.relative.mockImplementation(() => random_string(16, true))
 
-describe('PathComponent', () => {
+describe('components/path', () => {
   let component
   let win
 

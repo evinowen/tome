@@ -9,7 +9,7 @@ jest.mock('electron', () => ({
   }
 }))
 
-describe('RepositoryPatch.js', () => {
+describe('components/git/RepositoryPatch', () => {
   let patch
   let file
   let hunks

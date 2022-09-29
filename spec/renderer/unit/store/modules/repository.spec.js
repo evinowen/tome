@@ -9,7 +9,7 @@ import builders from '?/builders'
 
 Object.assign(window, builders.window())
 
-describe('store/modules/repository.js', () => {
+describe('store/modules/repository', () => {
   let localVue
   let store
 

@@ -16,7 +16,7 @@ window._.set_content(JSON.stringify({
   dark_mode: true
 }))
 
-describe('store/modules/configuration.js', () => {
+describe('store/modules/configuration', () => {
   let localVue
   let store
 

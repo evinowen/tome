@@ -25,7 +25,7 @@ Vue.mockImplementation((options) => {
 
 Vue.config = {}
 
-describe('main.js', () => {
+describe('main', () => {
   beforeEach(() => {
   })
 

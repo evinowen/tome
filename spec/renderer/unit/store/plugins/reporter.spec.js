@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import { createLocalVue } from '@vue/test-utils'
 import reporter from '@/store/plugins/reporter'
 
-describe('store/plugins/reporter.js', () => {
+describe('store/plugins/reporter', () => {
   let localVue
   let store
   let object

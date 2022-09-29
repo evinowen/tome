@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import { createLocalVue } from '@vue/test-utils'
 import metadata from '@/store/plugins/mediations/metadata'
 
-describe('store/plugins/mediations/metadata.js', () => {
+describe('store/plugins/mediations/metadata', () => {
   let localVue
   let store
   let object

@@ -194,7 +194,7 @@ NodeGit.Status = {
   }
 }
 
-describe('Repository.js', () => {
+describe('components/git/Repository', () => {
   beforeEach(() => {
 
   })

@@ -25,7 +25,7 @@ jest.mock('mustache', () => ({ render: jest.fn() }))
 
 Mustache.render.mockImplementation(() => 'Mock Rendered')
 
-describe('TemplatesComponent', () => {
+describe('components/templates', () => {
   let component
 
   beforeEach(() => {

@@ -12,7 +12,7 @@ const _Vue = {
 Vue.mockImplementation(() => _Vue)
 Vue.config = {}
 
-describe('src/plugins/vuetify.js', () => {
+describe('vuetify', () => {
   afterEach(() => {
     jest.clearAllMocks()
   })

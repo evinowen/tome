@@ -49,7 +49,7 @@ path.dirname.mockImplementation(() => random_string(16, true))
 path.parse.mockImplementation(() => ({ name: random_string(), ext: random_string() }))
 path.join.mockImplementation((...input) => input.join('/'))
 
-describe('ClipboardComponent', () => {
+describe('components/clipboard', () => {
   let component
 
   beforeEach(() => {

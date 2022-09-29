@@ -61,7 +61,7 @@ electron.BrowserWindow.mockImplementation((options) => {
 })
 electron.BrowserWindow.getAllWindows = jest.fn(() => [])
 
-describe('ElectronMain', () => {
+describe('main', () => {
   const _platform = process.platform
   const _environment = process.env
 
