@@ -2,8 +2,8 @@
   <div class="explorer-root">
     <explorer-node v-if=root
       root
-      :name=tome.name
-      :path=tome.path
+      :name=repository.name
+      :path=repository.path
       :active=active
       :edit=editing
       :enabled=enabled
@@ -60,8 +60,8 @@ export default {
     hold: null
   }),
   computed: {
-    tome: function () {
-      return store.state.tome
+    repository: function () {
+      return store.state.repository
     },
     configuration: function () {
       return store.state.configuration

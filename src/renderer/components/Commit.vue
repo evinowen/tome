@@ -87,9 +87,9 @@
             :value=system.commit_confirm @input=confirm
             @commit=commit
             @push=push
-            :name=tome.signature.name
-            :email=tome.signature.email
-            :message=tome.signature.message
+            :name=repository.signature.name
+            :email=repository.signature.email
+            :message=repository.signature.message
             @message=sign_message
             :disabled="staged.length < 1"
             :staging="staging"
@@ -147,23 +147,23 @@ export default {
     system: function () {
       return store.state.system
     },
-    tome: function () {
-      return store.state.tome
+    repository: function () {
+      return store.state.repository
     },
     staging: function () {
-      return store.state.tome.staging > 0
+      return store.state.repository.staging > 0
     },
     staged: function () {
-      return store.state.tome.status.staged
+      return store.state.repository.status.staged
     },
     available: function () {
-      return store.state.tome.status.available
+      return store.state.repository.status.available
     },
     configuration: function () {
       return store.state.configuration
     },
     working: function () {
-      return store.state.tome.commit_working
+      return store.state.repository.commit_working
     }
   },
   methods: {
@@ -189,17 +189,17 @@ export default {
       this.offset = this.$refs.list.clientHeight
     },
     message: async function (message) {
-      await store.dispatch('tome/message', message)
+      await store.dispatch('repository/message', message)
     },
     diff: async function (file) {
-      await store.dispatch('tome/diff', { path: file.path })
+      await store.dispatch('repository/diff', { path: file.path })
       await store.dispatch('system/patch', true)
     },
     stage: async function (path) {
-      await store.dispatch('tome/stage', path)
+      await store.dispatch('repository/stage', path)
     },
     reset: async function (path) {
-      await store.dispatch('tome/reset', path)
+      await store.dispatch('repository/reset', path)
     },
     commit: async function () {
       await store.dispatch('system/perform', 'commit')

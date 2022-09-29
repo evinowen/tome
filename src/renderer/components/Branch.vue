@@ -16,9 +16,9 @@
           <v-data-table
             dense disable-sort class="my-0 commit-history"
             :headers=headers
-            :items=tome.history
+            :items=repository.history
             :hide-default-footer="true"
-            :items-per-page="tome.history.length"
+            :items-per-page="repository.history.length"
             @click:row=diff
           >
             <template v-slot:item.oid="{ item }">
@@ -115,8 +115,8 @@ export default {
     ]
   }),
   computed: {
-    tome: function () {
-      return store.state.tome
+    repository: function () {
+      return store.state.repository
     }
   },
   methods: {
@@ -124,7 +124,7 @@ export default {
       await store.dispatch('system/branch', false)
     },
     diff: async function (commit) {
-      await store.dispatch('tome/diff', { commit: commit.oid })
+      await store.dispatch('repository/diff', { commit: commit.oid })
       await store.dispatch('system/patch', true)
     },
     format_date: function (date) {

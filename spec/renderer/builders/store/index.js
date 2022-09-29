@@ -7,7 +7,7 @@ import search from './modules/search'
 export default function () {
   return new Vuex.Store({
     state: {
-      tome: {
+      repository: {
         name: 'project',
         path: '/project'
       },

@@ -30,7 +30,7 @@ export default {
   namespaced: true,
   state: reset(),
   mutations: {
-    clear: function (state, path) {
+    clear: function (state) {
       Object.assign(state, reset())
     },
     initialize: function (state, repository) {
@@ -90,7 +90,7 @@ export default {
       context.commit('clear')
     },
     load: async function (context, path) {
-      await context.dispatch('message', `Loading tome at ${path} ... `, { root: true })
+      await context.dispatch('message', `Loading repository at ${path} ... `, { root: true })
 
       const repository = await window.api.repository.load(path)
 

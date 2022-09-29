@@ -12,7 +12,7 @@ describe('store/plugins/mediations/metadata.js', () => {
     localVue = createLocalVue()
     localVue.use(Vuex)
 
-    const tome = {
+    const repository = {
       namespaced: true,
       actions: {
         metadata: jest.fn()
@@ -26,7 +26,7 @@ describe('store/plugins/mediations/metadata.js', () => {
         }
       },
       modules: {
-        tome
+        repository
       },
       plugins: [
         metadata
@@ -58,6 +58,6 @@ describe('store/plugins/mediations/metadata.js', () => {
     await localVue.nextTick()
     await localVue.nextTick()
 
-    expect(object.modules.tome.actions.metadata).toHaveBeenCalledTimes(4)
+    expect(object.modules.repository.actions.metadata).toHaveBeenCalledTimes(4)
   })
 })

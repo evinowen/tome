@@ -14,14 +14,14 @@ describe('store/modules/library.js', () => {
   let localVue
 
   let library
-  let tome
+  let repository
   let files
 
   const factory = {
     wrap: () => new Vuex.Store({
       modules: {
         library,
-        tome,
+        repository,
         files
       }
     })
@@ -36,7 +36,7 @@ describe('store/modules/library.js', () => {
 
     library = cloneDeep(_library)
 
-    tome = {
+    repository = {
       namespaced: true,
       actions: {
         load: jest.fn(),
@@ -219,7 +219,7 @@ describe('store/modules/library.js', () => {
     const store = factory.wrap()
     await store.dispatch('library/close')
 
-    expect(tome.actions.clear).toHaveBeenCalled()
+    expect(repository.actions.clear).toHaveBeenCalled()
     expect(files.actions.clear).toHaveBeenCalled()
   })
 })

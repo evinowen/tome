@@ -20,7 +20,7 @@ describe('Branch.vue', () => {
     value = true
 
     store.state = {
-      tome: {
+      repository: {
         history: []
       }
     }
@@ -54,7 +54,7 @@ describe('Branch.vue', () => {
 
     await wrapper.vm.diff({ oid: 1 })
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'tome/diff')
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/diff')
 
     expect(action).toBeDefined()
     expect(data).toEqual({ commit: 1 })

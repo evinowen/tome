@@ -220,7 +220,7 @@ export default {
   },
   methods: {
     update: async function (query) {
-      const path = store.state.tome.path
+      const path = store.state.repository.path
       await store.dispatch('search/query', { path, query })
     },
     next: async () => await store.dispatch('search/next'),

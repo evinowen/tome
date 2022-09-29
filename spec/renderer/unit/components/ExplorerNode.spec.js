@@ -15,7 +15,7 @@ describe('ExplorerNode.vue', () => {
       clipboard: {
         content: { type: 'file', target: '/path' }
       },
-      tome: {
+      repository: {
         path: '/project'
       },
       templates: {

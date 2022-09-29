@@ -5,8 +5,8 @@ export default class Commit {
     await dispatch('message', 'Perform Commit')
 
     try {
-      await dispatch('tome/commit')
-      await dispatch('tome/signature/message')
+      await dispatch('repository/commit')
+      await dispatch('repository/signature/message')
 
       await dispatch('message', 'Commit done')
     } catch (error) {

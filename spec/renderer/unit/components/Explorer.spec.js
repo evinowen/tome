@@ -14,7 +14,7 @@ describe('Explorer.vue', () => {
     vuetify = new Vuetify()
 
     store.state = {
-      tome: {
+      repository: {
         name: 'project',
         path: '/project'
       },

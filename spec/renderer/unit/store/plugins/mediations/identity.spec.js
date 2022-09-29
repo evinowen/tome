@@ -6,14 +6,14 @@ import identity from '@/store/plugins/mediations/identity'
 describe('store/plugins/mediations/identity.js', () => {
   let localVue
   let store
-  let tome
+  let repository
   let system
 
   beforeEach(() => {
     localVue = createLocalVue()
     localVue.use(Vuex)
 
-    tome = {
+    repository = {
       namespaced: true,
       actions: {
         remote: jest.fn()
@@ -82,7 +82,7 @@ describe('store/plugins/mediations/identity.js', () => {
 
     store = new Vuex.Store({
       modules: {
-        tome,
+        repository,
         system
       },
       plugins: [
@@ -95,59 +95,59 @@ describe('store/plugins/mediations/identity.js', () => {
     jest.clearAllMocks()
   })
 
-  it('should dispatch tome remote action when tome key value changes', async () => {
-    expect(tome.modules.signature.actions.name).toHaveBeenCalledTimes(0)
+  it('should dispatch repository signature name action when tome key value changes', async () => {
+    expect(repository.modules.signature.actions.name).toHaveBeenCalledTimes(0)
 
     await store.dispatch('system/signature', { key: 'name', value: 'value' })
 
-    expect(tome.modules.signature.actions.name).toHaveBeenCalledTimes(1)
+    expect(repository.modules.signature.actions.name).toHaveBeenCalledTimes(1)
   })
 
-  it('should dispatch tome remote action when tome key value changes', async () => {
-    expect(tome.modules.signature.actions.email).toHaveBeenCalledTimes(0)
+  it('should dispatch repository signature email action when tome key value changes', async () => {
+    expect(repository.modules.signature.actions.email).toHaveBeenCalledTimes(0)
 
     await store.dispatch('system/signature', { key: 'email', value: 'value' })
 
-    expect(tome.modules.signature.actions.email).toHaveBeenCalledTimes(1)
+    expect(repository.modules.signature.actions.email).toHaveBeenCalledTimes(1)
   })
 
-  it('should dispatch tome remote action when tome key value changes', async () => {
-    expect(tome.modules.signature.actions.message).toHaveBeenCalledTimes(0)
+  it('should dispatch repository signature message action when tome key value changes', async () => {
+    expect(repository.modules.signature.actions.message).toHaveBeenCalledTimes(0)
 
     await store.dispatch('system/signature', { key: 'message', value: 'value' })
 
-    expect(tome.modules.signature.actions.message).toHaveBeenCalledTimes(1)
+    expect(repository.modules.signature.actions.message).toHaveBeenCalledTimes(1)
   })
 
-  it('should dispatch tome remote action when tome key value changes', async () => {
-    expect(tome.modules.credentials.actions.private_key).toHaveBeenCalledTimes(0)
+  it('should dispatch repository credentials private_key action when tome key value changes', async () => {
+    expect(repository.modules.credentials.actions.private_key).toHaveBeenCalledTimes(0)
 
     await store.dispatch('system/credentials', { key: 'private_key', value: 'value' })
 
-    expect(tome.modules.credentials.actions.private_key).toHaveBeenCalledTimes(1)
+    expect(repository.modules.credentials.actions.private_key).toHaveBeenCalledTimes(1)
   })
 
-  it('should dispatch tome remote action when tome key value changes', async () => {
-    expect(tome.modules.credentials.actions.passphrase).toHaveBeenCalledTimes(0)
+  it('should dispatch repository credentials passphrase action when tome key value changes', async () => {
+    expect(repository.modules.credentials.actions.passphrase).toHaveBeenCalledTimes(0)
 
     await store.dispatch('system/credentials', { key: 'passphrase', value: 'value' })
 
-    expect(tome.modules.credentials.actions.passphrase).toHaveBeenCalledTimes(1)
+    expect(repository.modules.credentials.actions.passphrase).toHaveBeenCalledTimes(1)
   })
 
-  it('should dispatch tome remote action when tome key value changes', async () => {
-    expect(tome.actions.remote).toHaveBeenCalledTimes(0)
+  it('should dispatch repository remote action when tome key value changes', async () => {
+    expect(repository.actions.remote).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('tome/credentials/set', { key: 'key', value: 'value' })
+    await store.dispatch('repository/credentials/set', { key: 'key', value: 'value' })
 
-    expect(tome.actions.remote).toHaveBeenCalledTimes(1)
+    expect(repository.actions.remote).toHaveBeenCalledTimes(1)
   })
 
-  it('should dispatch tome remote action when tome passphrase value changes', async () => {
-    expect(tome.actions.remote).toHaveBeenCalledTimes(0)
+  it('should dispatch repository remote action when tome passphrase value changes', async () => {
+    expect(repository.actions.remote).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('tome/credentials/set', { key: 'passphrase', value: 'value' })
+    await store.dispatch('repository/credentials/set', { key: 'passphrase', value: 'value' })
 
-    expect(tome.actions.remote).toHaveBeenCalledTimes(1)
+    expect(repository.actions.remote).toHaveBeenCalledTimes(1)
   })
 })

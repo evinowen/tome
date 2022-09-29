@@ -5,7 +5,7 @@ import builders from '?/builders'
 
 Object.assign(window, builders.window())
 
-jest.mock('@/store/modules/tome')
+jest.mock('@/store/modules/repository')
 jest.mock('@/store/modules/configuration')
 jest.mock('@/store/modules/library')
 jest.mock('@/store/modules/files')

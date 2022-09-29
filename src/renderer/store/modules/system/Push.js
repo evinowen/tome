@@ -4,7 +4,7 @@ export default class Push {
   static async perform (dispatch) {
     await dispatch('message', 'Perform Push')
 
-    await dispatch('tome/push')
+    await dispatch('repository/push')
 
     await new Promise((resolve) => delay(resolve, 500))
 

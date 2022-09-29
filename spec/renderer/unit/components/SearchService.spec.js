@@ -28,7 +28,7 @@ describe('SearchService.vue', () => {
         regex_query: false,
         results: null
       },
-      tome: {
+      repository: {
         path: '/project'
       }
     }
@@ -52,7 +52,7 @@ describe('SearchService.vue', () => {
     const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'search/query')
 
     expect(action).toBeDefined()
-    expect(data).toEqual({ path: store.state.tome.path, query })
+    expect(data).toEqual({ path: store.state.repository.path, query })
   })
 
   it('should dispatch search/next when next is called', async () => {

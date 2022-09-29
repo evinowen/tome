@@ -8,7 +8,7 @@ describe('store/plugins/mediations/template.js', () => {
   let store
 
   let templates
-  let tome
+  let repository
 
   beforeEach(() => {
     localVue = createLocalVue()
@@ -24,7 +24,7 @@ describe('store/plugins/mediations/template.js', () => {
       }
     }
 
-    tome = {
+    repository = {
       namespaced: true,
       state: {
         path: null
@@ -45,7 +45,7 @@ describe('store/plugins/mediations/template.js', () => {
       state: { },
       modules: {
         templates,
-        tome
+        repository
       },
       plugins: [
         template
@@ -57,10 +57,10 @@ describe('store/plugins/mediations/template.js', () => {
     jest.clearAllMocks()
   })
 
-  it('should dispatch template load action when tome path changes', async () => {
+  it('should dispatch template load action when repository path changes', async () => {
     expect(templates.actions.load).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('tome/path', '/project')
+    await store.dispatch('repository/path', '/project')
 
     expect(templates.actions.load).toHaveBeenCalledTimes(1)
   })

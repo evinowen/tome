@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 import { DateTime } from 'luxon'
 import log from 'electron-log'
 
-import tome from './modules/tome'
+import repository from './modules/repository'
 import library from './modules/library'
 import files from './modules/files'
 import system from './modules/system'
@@ -78,7 +78,7 @@ export default new Vuex.Store({
     }
   },
   modules: {
-    tome,
+    repository,
     library,
     files,
     templates,

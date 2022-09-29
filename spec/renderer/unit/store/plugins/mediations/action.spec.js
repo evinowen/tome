@@ -8,7 +8,7 @@ describe('store/plugins/mediations/template.js', () => {
   let store
 
   let actions
-  let tome
+  let repository
 
   beforeEach(() => {
     localVue = createLocalVue()
@@ -24,7 +24,7 @@ describe('store/plugins/mediations/template.js', () => {
       }
     }
 
-    tome = {
+    repository = {
       namespaced: true,
       state: {
         path: null
@@ -45,7 +45,7 @@ describe('store/plugins/mediations/template.js', () => {
       state: { },
       modules: {
         actions,
-        tome
+        repository
       },
       plugins: [
         template
@@ -60,7 +60,7 @@ describe('store/plugins/mediations/template.js', () => {
   it('should dispatch template load action when tome path changes', async () => {
     expect(actions.actions.load).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('tome/path', '/project')
+    await store.dispatch('repository/path', '/project')
 
     expect(actions.actions.load).toHaveBeenCalledTimes(1)
   })

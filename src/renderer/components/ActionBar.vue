@@ -9,25 +9,25 @@
 
     <v-divider inset vertical />
 
-    <template v-if="tome.path">
+    <template v-if="repository.path">
       <repository-button
-        :name=tome.name
-        :path=tome.path
-        :readme=tome.metadata.readme
-        :authors=tome.metadata.authors
-        :contributors=tome.metadata.contributors
-        :license=tome.metadata.license
+        :name=repository.name
+        :path=repository.path
+        :readme=repository.metadata.readme
+        :authors=repository.metadata.authors
+        :contributors=repository.metadata.contributors
+        :license=repository.metadata.license
         :disabled="disabled_unless()"
       />
 
       <v-divider inset vertical />
 
-      <v-btn v-if="tome.branch" tile small class="button px-2" color="primary" @click.stop="branch" :disabled="disabled_unless(system.branch)">
-        {{ tome.branch }}
+      <v-btn v-if="repository.branch" tile small class="button px-2" color="primary" @click.stop="branch" :disabled="disabled_unless(system.branch)">
+        {{ repository.branch }}
       </v-btn>
-      <v-btn v-else-if="tome.branch.error" tile small icon class="button pl-1 pr-2" color="error">
+      <v-btn v-else-if="repository.branch.error" tile small icon class="button pl-1 pr-2" color="error">
         <v-icon small class="pr-1">mdi-alert-box</v-icon>
-        {{ tome.branch.error }}
+        {{ repository.branch.error }}
       </v-btn>
 
       <v-divider inset vertical />
@@ -42,7 +42,7 @@
       <v-icon small>{{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}</v-icon>&nbsp;{{ message }}
     </v-btn>
 
-    <template v-if="tome.path">
+    <template v-if="repository.path">
       <v-divider inset vertical />
 
       <v-switch action-bar-edit :value="edit" @click.stop=edit dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()"></v-switch>
@@ -160,8 +160,8 @@ export default {
     system: function () {
       return store.state.system
     },
-    tome: function () {
-      return store.state.tome
+    repository: function () {
+      return store.state.repository
     },
     status: function () {
       return store.state.status

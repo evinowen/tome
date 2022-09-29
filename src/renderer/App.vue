@@ -2,15 +2,15 @@
   <v-app id="inspire">
     <system-bar title="tome" />
     <settings :value=system.settings />
-    <template v-if=tome.loaded>
+    <template v-if=repository.loaded>
       <branch :value=system.branch />
       <commit ref="commit" />
       <push ref="push" />
       <patch :value=system.patch />
     </template>
 
-    <editor-interface v-show=tome.path ref="interface" />
-    <empty-view v-show=!tome.path />
+    <editor-interface v-show=repository.path ref="interface" />
+    <empty-view v-show=!repository.path />
 
     <context-menu-service />
 
@@ -89,8 +89,8 @@ import ShortcutService from './components/ShortcutService.vue'
 
 export default {
   computed: {
-    tome: function () {
-      return store.state.tome
+    repository: function () {
+      return store.state.repository
     },
     system: function () {
       return store.state.system

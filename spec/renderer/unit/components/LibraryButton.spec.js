@@ -20,7 +20,7 @@ describe('LibraryButton.vue', () => {
       library: {
         history: []
       },
-      tome: {
+      repository: {
         path: './tome_path'
       }
     }

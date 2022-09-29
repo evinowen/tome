@@ -33,7 +33,7 @@ describe('Commit.vue', () => {
           message: ''
         }
       },
-      tome: {
+      repository: {
         status: {
           staged: [],
           available: []
@@ -125,19 +125,19 @@ describe('Commit.vue', () => {
     expect(data).toEqual(true)
   })
 
-  it('should dispatch tome/message with message when message is called with message', async () => {
+  it('should dispatch repository/message with message when message is called with message', async () => {
     const wrapper = factory.wrap()
 
     const message = 'Test Message'
     await wrapper.vm.message(message)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'tome/message')
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/message')
 
     expect(action).toBeDefined()
     expect(data).toEqual(message)
   })
 
-  it('should dispatch tome/diff with path when diff is called with file', async () => {
+  it('should dispatch repository/diff with path when diff is called with file', async () => {
     const wrapper = factory.wrap()
 
     const file = {
@@ -146,7 +146,7 @@ describe('Commit.vue', () => {
 
     await wrapper.vm.diff(file)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'tome/diff')
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/diff')
 
     expect(action).toBeDefined()
     expect(data).toEqual({ path: file.path })
@@ -167,25 +167,25 @@ describe('Commit.vue', () => {
     expect(data).toEqual(true)
   })
 
-  it('should dispatch tome/stage with path when stage is called with path', async () => {
+  it('should dispatch repository/stage with path when stage is called with path', async () => {
     const wrapper = factory.wrap()
 
     const path = './file.md'
     await wrapper.vm.stage(path)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'tome/stage')
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/stage')
 
     expect(action).toBeDefined()
     expect(data).toEqual(path)
   })
 
-  it('should dispatch tome/reset with path when reset is called with path', async () => {
+  it('should dispatch repository/reset with path when reset is called with path', async () => {
     const wrapper = factory.wrap()
 
     const path = './file.md'
     await wrapper.vm.reset(path)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'tome/reset')
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/reset')
 
     expect(action).toBeDefined()
     expect(data).toEqual(path)

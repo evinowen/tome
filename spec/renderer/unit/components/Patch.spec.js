@@ -35,7 +35,7 @@ describe('Patch.vue', () => {
     height = 100
 
     store.state = {
-      tome: {
+      repository: {
         patches: []
       }
     }

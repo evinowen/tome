@@ -1,7 +1,7 @@
 <template>
   <v-menu :value=value @input="$emit('input', $event)" >
     <template v-slot:activator="{ on, attrs }">
-      <v-btn v-if="tome.path" action-bar-bookshelf tile icon small color="accent" class="pa-0" v-bind="attrs" @click.stop=close :disabled=disabled>
+      <v-btn v-if="repository.path" action-bar-bookshelf tile icon small color="accent" class="pa-0" v-bind="attrs" @click.stop=close :disabled=disabled>
         <v-icon small style="transform: rotate(180deg);">mdi-exit-to-app</v-icon>
       </v-btn>
       <v-btn v-else action-bar-bookshelf tile icon small color="accent" class="pa-0" v-bind="attrs" v-on="on" :disabled=disabled>
@@ -73,8 +73,8 @@ export default {
     disabled: { type: Boolean, default: false }
   },
   computed: {
-    tome: function () {
-      return store.state.tome
+    repository: function () {
+      return store.state.repository
     },
     library: function () {
       return store.state.library

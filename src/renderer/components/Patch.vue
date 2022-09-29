@@ -87,7 +87,7 @@ export default {
   }),
   computed: {
     patches: function () {
-      return store.state.tome.patches
+      return store.state.repository.patches
     }
   },
   methods: {

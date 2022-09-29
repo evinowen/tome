@@ -22,7 +22,7 @@ describe('Push.vue', () => {
         private_key: '',
         passphrase: ''
       },
-      tome: {
+      repository: {
         name: 'Name',
         branch: 'master',
         pending: [],
@@ -57,7 +57,7 @@ describe('Push.vue', () => {
 
     await wrapper.vm.diff({ oid: 1 })
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'tome/diff')
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/diff')
 
     expect(action).toBeDefined()
     expect(data).toEqual({ commit: 1 })
@@ -78,7 +78,7 @@ describe('Push.vue', () => {
     expect(data).toEqual('push')
   })
 
-  it('should dispatch tome/remote with name when select_remote is called', async () => {
+  it('should dispatch repository/remote with name when select_remote is called', async () => {
     const wrapper = factory.wrap()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
@@ -87,7 +87,7 @@ describe('Push.vue', () => {
 
     await wrapper.vm.select_remote(remote)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'tome/remote')
+    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/remote')
 
     expect(action).toBeDefined()
     expect(data).toEqual(remote)
@@ -104,7 +104,7 @@ describe('Push.vue', () => {
     await wrapper.vm.add_remote(name, url)
 
     expect(store.dispatch).toHaveBeenCalledTimes(1)
-    expect(store.dispatch.mock.calls[0][0]).toEqual('tome/create-remote')
+    expect(store.dispatch.mock.calls[0][0]).toEqual('repository/create-remote')
     expect(store.dispatch.mock.calls[0][1]).toEqual({ name, url })
   })
 })

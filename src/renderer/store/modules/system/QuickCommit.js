@@ -14,7 +14,7 @@ export default class QuickCommit {
 
       await new Promise((resolve) => delay(resolve, 500))
 
-      await dispatch('tome/stage', '*')
+      await dispatch('repository/stage', '*')
       await dispatch('system/perform', 'commit')
     } catch (error) {
       await dispatch('error', 'Quick Commit failed')

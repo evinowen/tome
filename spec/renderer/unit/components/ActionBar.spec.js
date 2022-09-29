@@ -25,7 +25,7 @@ describe('ActionBar.vue', () => {
       system: {
         edit: false
       },
-      tome: {
+      repository: {
         path: './tome_path',
         name: 'Name',
         branch: {
