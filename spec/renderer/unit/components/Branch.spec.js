@@ -1,11 +1,11 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import Branch from '@/components/Branch.vue'
+import Branch from '@/components/Branch'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-describe('Branch.vue', () => {
+describe('components/Branch', () => {
   let vuetify
   let value
 

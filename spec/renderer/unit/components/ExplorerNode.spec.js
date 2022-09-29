@@ -1,11 +1,11 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import ExplorerNode from '@/components/ExplorerNode.vue'
+import ExplorerNode from '@/components/ExplorerNode'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-describe('ExplorerNode.vue', () => {
+describe('components/ExplorerNode', () => {
   let vuetify
 
   beforeEach(() => {

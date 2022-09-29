@@ -2,11 +2,11 @@ import { assemble } from '?/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
-import PushRemoteSelector from '@/components/PushRemoteSelector.vue'
+import PushRemoteSelector from '@/components/PushRemoteSelector'
 
 Vue.use(Vuetify)
 
-describe('PushRemoteSelector.vue', () => {
+describe('components/PushRemoteSelector', () => {
   let vuetify
 
   const factory = assemble(PushRemoteSelector)

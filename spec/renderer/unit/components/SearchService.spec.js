@@ -1,11 +1,11 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import SearchService from '@/components/SearchService.vue'
+import SearchService from '@/components/SearchService'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-describe('SearchService.vue', () => {
+describe('components/SearchService', () => {
   let vuetify
 
   const factory = assemble(SearchService)

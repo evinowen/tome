@@ -99,12 +99,12 @@
 <script>
 import { VNavigationDrawer, VContainer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCol, VRow } from 'vuetify/lib'
 import store from '@/store'
-import KeyfileInput from './KeyfileInput.vue'
-import PushPassphraseInput from './PushPassphraseInput.vue'
-import PushRemoteSelector from './PushRemoteSelector.vue'
-import PushBranch from './PushBranch.vue'
-import PushStatus from './PushStatus.vue'
-import PushConfirm from './PushConfirm.vue'
+import KeyfileInput from './KeyfileInput'
+import PushPassphraseInput from './PushPassphraseInput'
+import PushRemoteSelector from './PushRemoteSelector'
+import PushBranch from './PushBranch'
+import PushStatus from './PushStatus'
+import PushConfirm from './PushConfirm'
 
 export default {
   computed: {

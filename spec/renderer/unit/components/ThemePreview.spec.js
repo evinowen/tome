@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import ThemePreview from '@/components/ThemePreview.vue'
+import ThemePreview from '@/components/ThemePreview'
 
-describe('ThemePreview.vue', () => {
+describe('components/ThemePreview', () => {
   let vuetify
 
   const factory = assemble(ThemePreview)

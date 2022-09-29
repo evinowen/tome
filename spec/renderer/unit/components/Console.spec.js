@@ -2,7 +2,7 @@ import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import { DateTime } from 'luxon'
 import store from '@/store'
-import Console from '@/components/Console.vue'
+import Console from '@/components/Console'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
@@ -11,7 +11,7 @@ const format = {
   time: DateTime.TIME_24_WITH_SHORT_OFFSET
 }
 
-describe('Console.vue', () => {
+describe('components/Console', () => {
   let vuetify
   let value = true
 

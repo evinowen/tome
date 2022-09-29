@@ -3,13 +3,13 @@ import Vue from 'vue'
 import Vuetify from 'vuetify'
 import VueShortKey from 'vue-shortkey'
 import store from '@/store'
-import ShortcutService from '@/components/ShortcutService.vue'
+import ShortcutService from '@/components/ShortcutService'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 Vue.use(VueShortKey)
 
-describe('ShortcutService.vue', () => {
+describe('components/ShortcutService', () => {
   let vuetify
 
   const factory = assemble(ShortcutService)

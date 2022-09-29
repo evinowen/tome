@@ -1,12 +1,12 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import Commit from '@/components/Commit.vue'
+import Commit from '@/components/Commit'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {} }))
 
-describe('Commit.vue', () => {
+describe('components/Commit', () => {
   let vuetify
 
   const factory = assemble(Commit)

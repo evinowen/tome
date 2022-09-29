@@ -2,12 +2,12 @@ import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import { v4 as uuidv4 } from 'uuid'
 import store from '@/store'
-import Explorer from '@/components/Explorer.vue'
-import { ExplorerNodeGhostType } from '@/components/ExplorerNode.vue'
+import Explorer from '@/components/Explorer'
+import { ExplorerNodeGhostType } from '@/components/ExplorerNode'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-describe('Explorer.vue', () => {
+describe('components/ExplorerNode', () => {
   let vuetify
 
   beforeEach(() => {

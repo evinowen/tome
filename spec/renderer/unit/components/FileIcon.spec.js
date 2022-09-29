@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import FileIcon from '@/components/FileIcon.vue'
+import FileIcon from '@/components/FileIcon'
 
-describe('FileIcon.vue', () => {
+describe('components/FileIcon', () => {
   let vuetify
 
   const factory = assemble(FileIcon)

@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import PushConfirm from '@/components/PushConfirm.vue'
+import PushConfirm from '@/components/PushConfirm'
 
-describe('PushConfirm.vue', () => {
+describe('components/PushConfirm', () => {
   let vuetify
 
   const factory = assemble(PushConfirm)

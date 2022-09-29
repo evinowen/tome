@@ -276,11 +276,11 @@
 import { VLayout, VFlex, VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/lib'
 import { debounce } from 'lodash'
 import store from '@/store'
-import ThemePreview from './ThemePreview.vue'
-import KeyfileInput from './KeyfileInput.vue'
-import KeyfileOutput from './KeyfileOutput.vue'
-import ThemeColorPicker from './ThemeColorPicker.vue'
-import SeaGame from './SeaGame.vue'
+import ThemePreview from './ThemePreview'
+import KeyfileInput from './KeyfileInput'
+import KeyfileOutput from './KeyfileOutput'
+import ThemeColorPicker from './ThemeColorPicker'
+import SeaGame from './SeaGame'
 
 export default {
   props: {

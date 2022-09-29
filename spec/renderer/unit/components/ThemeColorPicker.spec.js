@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import ThemeColorPicker from '@/components/ThemeColorPicker.vue'
+import ThemeColorPicker from '@/components/ThemeColorPicker'
 
-describe('ThemeColorPicker.vue', () => {
+describe('components/ThemeColorPicker', () => {
   let vuetify
   const enabled = true
   const value = '#000000'

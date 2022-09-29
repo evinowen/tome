@@ -1,6 +1,6 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import CommitList from '@/components/CommitList.vue'
+import CommitList from '@/components/CommitList'
 
 const RepositoryFile = {
   Type: {
@@ -12,7 +12,7 @@ const RepositoryFile = {
   }
 }
 
-describe('CommitList.vue', () => {
+describe('components/CommitList', () => {
   let vuetify
   let height
 

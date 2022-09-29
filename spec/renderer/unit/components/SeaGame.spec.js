@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import SeaGame from '@/components/SeaGame.vue'
+import SeaGame from '@/components/SeaGame'
 
-describe('SeaGame.vue', () => {
+describe('components/SeaGame', () => {
   let vuetify
 
   const factory = assemble(SeaGame)

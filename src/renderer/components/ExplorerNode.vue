@@ -224,7 +224,7 @@
 <script>
 import { VContainer, VLayout, VFlex, VForm, VTextField } from 'vuetify/lib'
 import store from '@/store'
-import FileIcon from '@/components/FileIcon.vue'
+import FileIcon from '@/components/FileIcon'
 
 export const ExplorerNodeGhostType = {
   FILE: 'file',

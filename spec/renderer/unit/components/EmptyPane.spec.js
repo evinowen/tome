@@ -2,7 +2,7 @@ import { assemble } from '?/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 
-import EmptyPane from '@/components/EmptyPane.vue'
+import EmptyPane from '@/components/EmptyPane'
 
 Vue.use(Vuetify)
 

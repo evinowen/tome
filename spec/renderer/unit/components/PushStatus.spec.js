@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import PushStatus from '@/components/PushStatus.vue'
+import PushStatus from '@/components/PushStatus'
 
-describe('PushStatus.vue', () => {
+describe('components/PushStatus', () => {
   let vuetify
 
   const factory = assemble(PushStatus)

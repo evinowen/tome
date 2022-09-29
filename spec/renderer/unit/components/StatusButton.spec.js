@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import StatusButton from '@/components/StatusButton.vue'
+import StatusButton from '@/components/StatusButton'
 
-describe('StatusButton.vue', () => {
+describe('components/StatusButton', () => {
   let vuetify
 
   const factory = assemble(StatusButton)

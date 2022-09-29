@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import store from '@/store'
 import SplitPane from 'vue-splitpane'
-import EditorInterface from '@/components/EditorInterface.vue'
+import EditorInterface from '@/components/EditorInterface'
 
 global.document.getSelection = jest.fn(() => '')
 
@@ -43,7 +43,7 @@ function GenerateElementList (array) {
 const markjs_results_with_parents = GenerateElementList(['one-parent', 'one', 'two-parent', 'two', 'three-parent', 'three'])
 const markjs_results = GenerateElementList(['one', 'two', 'three'])
 
-describe('EditorInterface.vue', () => {
+describe('components/EditorInterface', () => {
   let vuetify
 
   const codemirror_cursor = {

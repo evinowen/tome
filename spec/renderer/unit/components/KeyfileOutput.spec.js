@@ -1,11 +1,11 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import KeyfileOutput from '@/components/KeyfileOutput.vue'
+import KeyfileOutput from '@/components/KeyfileOutput'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-describe('KeyfileOutput.vue', () => {
+describe('components/KeyfileOutput', () => {
   let vuetify
 
   const factory = assemble(KeyfileOutput)

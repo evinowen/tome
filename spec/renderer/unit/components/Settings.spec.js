@@ -1,7 +1,7 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import Settings from '@/components/Settings.vue'
+import Settings from '@/components/Settings'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
@@ -11,7 +11,7 @@ jest.mock('lodash/debounce', () => (callback) => {
   return callback
 })
 
-describe('Settings.vue', () => {
+describe('components/Settings', () => {
   let vuetify
 
   const factory = assemble(Settings)

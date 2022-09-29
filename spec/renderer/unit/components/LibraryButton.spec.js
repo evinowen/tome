@@ -1,11 +1,11 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import LibraryButton from '@/components/LibraryButton.vue'
+import LibraryButton from '@/components/LibraryButton'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-describe('LibraryButton.vue', () => {
+describe('components/LibraryButton', () => {
   let vuetify
   let value
   let stored

@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import PushPassphraseInput from '@/components/PushPassphraseInput.vue'
+import PushPassphraseInput from '@/components/PushPassphraseInput'
 
-describe('PushConfirm.vue', () => {
+describe('components/PushPassphraseInput', () => {
   let vuetify
 
   const factory = assemble(PushPassphraseInput)

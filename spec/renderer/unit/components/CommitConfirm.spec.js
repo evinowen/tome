@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import CommitConfirm, { CommitConfirmMessages } from '@/components/CommitConfirm.vue'
+import CommitConfirm, { CommitConfirmMessages } from '@/components/CommitConfirm'
 
-describe('CommitConfirm.vue', () => {
+describe('components/CommitConfirm', () => {
   let vuetify
 
   const factory = assemble(CommitConfirm)

@@ -49,7 +49,7 @@
 
 <script>
 import store from '@/store'
-import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode.vue'
+import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode'
 
 export default {
   props: {

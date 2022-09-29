@@ -149,8 +149,8 @@
 <script>
 import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
 import store from '@/store'
-import LibraryButton from './LibraryButton.vue'
-import RepositoryButton from './RepositoryButton.vue'
+import LibraryButton from './LibraryButton'
+import RepositoryButton from './RepositoryButton'
 
 export default {
   data: () => ({

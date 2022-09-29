@@ -55,7 +55,7 @@
 </style>
 
 <script>
-import FileIcon from '@/components/FileIcon.vue'
+import FileIcon from '@/components/FileIcon'
 
 export default {
   components: { FileIcon },

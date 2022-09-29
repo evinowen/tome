@@ -1,11 +1,11 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import SystemBar from '@/components/SystemBar.vue'
+import SystemBar from '@/components/SystemBar'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-describe('SystemBar.vue', () => {
+describe('components/SystemBar', () => {
   const title = 'Test Title'
 
   let vuetify

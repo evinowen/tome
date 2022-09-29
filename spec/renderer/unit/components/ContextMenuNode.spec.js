@@ -1,6 +1,6 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import ContextMenuNode from '@/components/ContextMenuNode.vue'
+import ContextMenuNode from '@/components/ContextMenuNode'
 
 global.ResizeObserver = class {
   constructor (listener) {
@@ -25,7 +25,7 @@ const item_action = {
   action: jest.fn()
 }
 
-describe('ContextMenuNode.vue', () => {
+describe('components/ContextMenuNode', () => {
   let vuetify
 
   let value = null

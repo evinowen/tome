@@ -1,11 +1,11 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import ActionBar from '@/components/ActionBar.vue'
+import ActionBar from '@/components/ActionBar'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-describe('ActionBar.vue', () => {
+describe('components/ActionBar', () => {
   let vuetify
 
   const branch = false

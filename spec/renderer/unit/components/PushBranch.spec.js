@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import PushBranch from '@/components/PushBranch.vue'
+import PushBranch from '@/components/PushBranch'
 
-describe('PushBranch.vue', () => {
+describe('components/PushBranch', () => {
   let vuetify
 
   const factory = assemble(PushBranch)

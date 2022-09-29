@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import ContextMenuService from '@/components/ContextMenuService.vue'
+import ContextMenuService from '@/components/ContextMenuService'
 
-describe('ContextMenuService.vue', () => {
+describe('components/ContextMenuService', () => {
   let vuetify
 
   const factory = assemble(ContextMenuService)

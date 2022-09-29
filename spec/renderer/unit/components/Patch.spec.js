@@ -1,7 +1,7 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import Patch from '@/components/Patch.vue'
+import Patch from '@/components/Patch'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
@@ -19,7 +19,7 @@ class RepositoryPatch {
   }
 }
 
-describe('Patch.vue', () => {
+describe('components/Patch', () => {
   let vuetify
   let height
 

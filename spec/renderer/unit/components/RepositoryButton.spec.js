@@ -2,13 +2,13 @@ import { assemble } from '?/helpers'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import RepositoryButton from '@/components/RepositoryButton.vue'
+import RepositoryButton from '@/components/RepositoryButton'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 Vue.use(Vuetify)
 
-describe('RepositoryButton.vue', () => {
+describe('components/RepositoryButton', () => {
   let vuetify
 
   const factory = assemble(RepositoryButton)

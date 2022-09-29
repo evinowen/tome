@@ -1,11 +1,11 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
-import Push from '@/components/Push.vue'
+import Push from '@/components/Push'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
-describe('Push.vue', () => {
+describe('components/Push', () => {
   let vuetify
 
   const factory = assemble(Push)

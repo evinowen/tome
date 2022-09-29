@@ -1,8 +1,8 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
-import KeyfileInput from '@/components/KeyfileInput.vue'
+import KeyfileInput from '@/components/KeyfileInput'
 
-describe('KeyfileInput.vue', () => {
+describe('components/KeyfileInput', () => {
   let vuetify
 
   const factory = assemble(KeyfileInput)

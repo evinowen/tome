@@ -1,9 +1,9 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 
-import App from '@/components/App.vue'
+import App from '@/components/App'
 
-describe('App.vue', () => {
+describe('components/App', () => {
   let vuetify
 
   const factory = assemble(App)
