@@ -35,7 +35,7 @@ describe('main', () => {
 
   it('is able to be mocked and prepared for testing', async () => {
     let promise
-    jest.isolateModules(() => { promise = require('@/main.js') })
+    jest.isolateModules(() => { promise = require('@/main') })
 
     await promise
 
