@@ -10,7 +10,7 @@
     </template>
 
     <editor-interface v-show=repository.path ref="interface" />
-    <empty-view v-show=!repository.path />
+    <empty-pane v-show=!repository.path />
 
     <context-menu-service />
 
@@ -83,7 +83,7 @@ import Commit from './components/Commit.vue'
 import Push from './components/Push.vue'
 import Console from './components/Console.vue'
 import EditorInterface from './components/EditorInterface.vue'
-import EmptyView from '@/views/Empty.vue'
+import EmptyPane from '@/components/EmptyPane.vue'
 import ActionBar from './components/ActionBar.vue'
 import ShortcutService from './components/ShortcutService.vue'
 
@@ -106,7 +106,7 @@ export default {
     Push,
     Console,
     EditorInterface,
-    EmptyView,
+    EmptyPane,
     ActionBar,
     ContextMenuService,
     SearchService,

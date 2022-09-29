@@ -28,7 +28,7 @@
         <div class="fill-height" v-show="view === 'empty'">
           <template v-if=selected>
             <image-preview v-if=selected.image :src=selected.path />
-            <empty-view v-else class="fill-height">
+            <empty-pane v-else class="fill-height">
               <file-icon
                 :path=selected.path
                 :directory=selected.directory
@@ -42,7 +42,7 @@
               <v-divider v-if=selected.name class="mt-4" />
               <div style="font-size: 2em;">{{ selected.name }}</div>
               <div style="font-size: 1.3em; opacity: 0.6">{{ selected.relative }}</div>
-            </empty-view>
+            </empty-pane>
           </template>
         </div>
       </div>
@@ -112,7 +112,7 @@ import Mark from 'mark.js'
 import Explorer from '@/components/Explorer.vue'
 import FileIcon from '@/components/FileIcon.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
-import EmptyView from '@/views/Empty.vue'
+import EmptyPane from '@/components/EmptyPane.vue'
 import store from '@/store'
 
 export default {
@@ -475,7 +475,7 @@ export default {
   components: {
     VDivider,
     Explorer,
-    EmptyView,
+    EmptyPane,
     FileIcon,
     ImagePreview
   }

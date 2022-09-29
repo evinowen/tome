@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import EmptyContent from '../views/Empty.vue'
+import EmptyPane from '../components/EmptyPane.vue'
 
 Vue.use(VueRouter)
 
@@ -8,7 +8,7 @@ const routes = [
   {
     path: '/',
     name: 'EmptyContent',
-    component: EmptyContent
+    component: EmptyPane
   }
 ]
 

@@ -125,7 +125,7 @@ describe('EditorInterface.vue', () => {
       stubs: {
         ActionView: true,
         CommitView: true,
-        EmptyView: true,
+        EmptyPane: true,
         PushView: true,
         Explorer: true,
         Codemirror: {

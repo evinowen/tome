@@ -18,7 +18,7 @@ describe('App.vue', () => {
         Push: true,
         Console: true,
         EditorInterface: true,
-        EmptyView: true,
+        EmptyPane: true,
         ActionBar: true,
         ContextMenuService: true,
         SearchService: true,
