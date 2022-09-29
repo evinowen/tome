@@ -71,21 +71,21 @@ html, body {
 <script>
 import store from '@/store'
 
-import ContextMenuService from './components/ContextMenuService.vue'
-import SearchService from './components/SearchService.vue'
+import ContextMenuService from '@/components/ContextMenuService.vue'
+import SearchService from '@/components/SearchService.vue'
 
 import { VApp } from 'vuetify/lib'
-import SystemBar from './components/SystemBar.vue'
-import Settings from './components/Settings.vue'
-import Branch from './components/Branch.vue'
-import Patch from './components/Patch.vue'
-import Commit from './components/Commit.vue'
-import Push from './components/Push.vue'
-import Console from './components/Console.vue'
-import EditorInterface from './components/EditorInterface.vue'
+import SystemBar from '@/components/SystemBar.vue'
+import Settings from '@/components/Settings.vue'
+import Branch from '@/components/Branch.vue'
+import Patch from '@/components/Patch.vue'
+import Commit from '@/components/Commit.vue'
+import Push from '@/components/Push.vue'
+import Console from '@/components/Console.vue'
+import EditorInterface from '@/components/EditorInterface.vue'
 import EmptyPane from '@/components/EmptyPane.vue'
-import ActionBar from './components/ActionBar.vue'
-import ShortcutService from './components/ShortcutService.vue'
+import ActionBar from '@/components/ActionBar.vue'
+import ShortcutService from '@/components/ShortcutService.vue'
 
 export default {
   computed: {

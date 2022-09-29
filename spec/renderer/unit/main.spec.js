@@ -4,7 +4,7 @@ jest.mock('vue')
 jest.mock('vue-codemirror', () => ({}))
 jest.mock('vue-splitpane', () => ({}))
 
-jest.mock('@/App.vue', () => ({}))
+jest.mock('@/components/App.vue', () => ({}))
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 jest.mock('@/plugins/vuetify', () => ({}))
 

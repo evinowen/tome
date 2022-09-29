@@ -1,7 +1,7 @@
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 
-import App from '@/App.vue'
+import App from '@/components/App.vue'
 
 describe('App.vue', () => {
   let vuetify
