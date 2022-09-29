@@ -1,5 +1,5 @@
 import Vuex from 'vuex'
-import Vuetify from '@/plugins/vuetify'
+import vuetify from '@/vuetify'
 import { createLocalVue } from '@vue/test-utils'
 import configuration from '@/store/modules/configuration'
 import { cloneDeep } from 'lodash'
@@ -114,7 +114,7 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.light_primary_enabled).toBe(true)
     expect(store.state.configuration.light_primary).toBe('#FFFFFF')
 
-    expect(Vuetify.framework.theme.themes.light.primary).toBe(update.light_primary)
+    expect(vuetify.framework.theme.themes.light.primary).toBe(update.light_primary)
   })
 
   it('should present with dark mode colors when update is dispatched and dark_mode is true', async () => {
@@ -126,6 +126,6 @@ describe('store/modules/configuration.js', () => {
     expect(store.state.configuration.dark_primary_enabled).toBe(true)
     expect(store.state.configuration.dark_primary).toBe('#000000')
 
-    expect(Vuetify.framework.theme.themes.dark.primary).toBe(update.dark_primary)
+    expect(vuetify.framework.theme.themes.dark.primary).toBe(update.dark_primary)
   })
 })

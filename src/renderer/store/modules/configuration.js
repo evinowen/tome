@@ -1,4 +1,4 @@
-import Vuetify from '@/plugins/vuetify'
+import vuetify from '@/vuetify'
 
 const default_colors = {}
 
@@ -81,18 +81,18 @@ export default {
       await window.api.file.write(path, JSON.stringify(context.state))
     },
     present: async function (context) {
-      Vuetify.framework.theme.dark = context.state.dark_mode
+      vuetify.framework.theme.dark = context.state.dark_mode
 
-      if (!Vuetify.framework.theme.dark && !default_colors.light) {
-        const colors = Vuetify.framework.theme.themes.light
+      if (!vuetify.framework.theme.dark && !default_colors.light) {
+        const colors = vuetify.framework.theme.themes.light
         default_colors.light = {}
         for (const color in colors) {
           default_colors.light[color] = colors[color]
         }
       }
 
-      if (Vuetify.framework.theme.dark && !default_colors.dark) {
-        const colors = Vuetify.framework.theme.themes.dark
+      if (vuetify.framework.theme.dark && !default_colors.dark) {
+        const colors = vuetify.framework.theme.themes.dark
         default_colors.dark = {}
         for (const color in colors) {
           default_colors.dark[color] = colors[color]
@@ -109,13 +109,13 @@ export default {
         'success'
       ]
 
-      const theme = Vuetify.framework.theme.dark ? 'dark' : 'light'
+      const theme = vuetify.framework.theme.dark ? 'dark' : 'light'
 
       for (const color of colors) {
         if (context.state[`${theme}_${color}_enabled`]) {
-          Vuetify.framework.theme.themes[theme][color] = context.state[`${theme}_${color}`]
+          vuetify.framework.theme.themes[theme][color] = context.state[`${theme}_${color}`]
         } else {
-          Vuetify.framework.theme.themes[theme][color] = default_colors[theme][color]
+          vuetify.framework.theme.themes[theme][color] = default_colors[theme][color]
         }
       }
     }
