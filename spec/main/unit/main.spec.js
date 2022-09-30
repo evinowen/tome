@@ -3,7 +3,7 @@ import electron from 'electron'
 jest.mock('@/components/actions', () => ({ register: jest.fn(), data: jest.fn() }))
 jest.mock('@/components/clipboard', () => ({ register: jest.fn(), data: jest.fn() }))
 jest.mock('@/components/file', () => ({ register: jest.fn(), data: jest.fn() }))
-jest.mock('@/components/git', () => ({ register: jest.fn(), data: jest.fn() }))
+jest.mock('@/components/repository', () => ({ register: jest.fn(), data: jest.fn() }))
 jest.mock('@/components/metadata', () => ({ register: jest.fn(), data: jest.fn() }))
 jest.mock('@/components/path', () => ({ register: jest.fn(), data: jest.fn() }))
 jest.mock('@/components/ssl', () => ({ register: jest.fn(), data: jest.fn() }))

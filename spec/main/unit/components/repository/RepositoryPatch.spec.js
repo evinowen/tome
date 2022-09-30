@@ -1,4 +1,4 @@
-import RepositoryPatch from '@/components/git/RepositoryPatch'
+import RepositoryPatch from '@/components/repository/RepositoryPatch'
 
 jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {}, Diff: { LINE: 1 } }))
 
@@ -9,7 +9,7 @@ jest.mock('electron', () => ({
   }
 }))
 
-describe('components/git/RepositoryPatch', () => {
+describe('components/repository/RepositoryPatch', () => {
   let patch
   let file
   let hunks

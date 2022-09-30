@@ -1,9 +1,9 @@
 const { cloneDeep } = require('lodash')
 const electron = require('electron')
 const nodegit = require('nodegit')
-const Repository = require('@/components/git/Repository')
-const _component = require('@/components/git')
-const preload = require('@/components/git/preload')
+const Repository = require('@/components/repository/Repository')
+const _component = require('@/components/repository')
+const preload = require('@/components/repository/preload')
 
 let ipcMainMap
 
@@ -29,9 +29,9 @@ nodegit.Repository = {
   init: jest.fn()
 }
 
-jest.mock('@/components/git/Repository', () => require('?/mocks/components/git/Repository'))
+jest.mock('@/components/repository/Repository', () => require('?/mocks/components/repository/Repository'))
 
-describe('GitComponent', () => {
+describe('components/repository', () => {
   let component
 
   beforeEach(() => {

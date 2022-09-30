@@ -15,7 +15,7 @@ const register = (win) => {
     'actions',
     'clipboard',
     'file',
-    'git',
+    'repository',
     'metadata',
     'path',
     'ssl',

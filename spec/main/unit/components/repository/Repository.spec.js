@@ -1,9 +1,9 @@
-const Repository = require('@/components/git/Repository')
+const Repository = require('@/components/repository/Repository')
 const fs = require('fs')
 const path = require('path')
 const NodeGit = require('nodegit')
 
-jest.mock('@/components/git/RepositoryPatch')
+jest.mock('@/components/repository/RepositoryPatch')
 
 jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
@@ -194,10 +194,7 @@ NodeGit.Status = {
   }
 }
 
-describe('components/git/Repository', () => {
-  beforeEach(() => {
-
-  })
+describe('components/repository/Repository', () => {
 
   afterEach(() => {
     jest.clearAllMocks()

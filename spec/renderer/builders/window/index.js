@@ -3,7 +3,7 @@ import clipboard from './clipboard'
 import disk from './disk'
 import dialog from './dialog'
 import file from './file'
-import git from './git'
+import repository from './repository'
 import metadata from './metadata'
 import path from './path'
 import ssl from './ssl'
@@ -20,7 +20,7 @@ export default function (callable) {
       ...actions,
       ...clipboard,
       ...file,
-      ...git,
+      ...repository,
       ...metadata,
       ...path,
       ...ssl,
