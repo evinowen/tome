@@ -65,7 +65,7 @@ npm run lint-renderer
 npm run test-renderer
 ```
 
-### Install Workflow
+### Build Workflow
 Build the renderer &mdash; this operation outputs renderer artifacts to `./dist/renderer`
 ```
 npm run build-renderer
