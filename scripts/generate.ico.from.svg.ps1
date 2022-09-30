@@ -12,10 +12,21 @@ magick convert -background none $Root\..\assets\icon\tome.svg -resize 1024x1024 
 
 magick convert -background none $Root\..\assets\icon\tome.svg $Root\..\docs\logo.png
 
-magick $Root\..\assets\icon\tome.1024.png `
+magick $Root\..\assets\icon\tome.512.png `
   -background none `
-  -gravity center -extent 2048x1024 `
+  -gravity west -extent 1024x512 `
+  -weight Bold -fill white -stroke white `
+  -pointsize 200 -strokewidth 0 -annotate +512+0 'tome' `
+  -weight Medium -fill white -stroke white `
+  -pointsize 24 -strokewidth 0 -annotate +526+100 'git integrated cross-platform markdown editor' `
+  -compress zip $Root\..\assets\icon\tome.github.tmp.png
+
+magick $Root\..\assets\icon\tome.github.tmp.png `
+  -background none `
+  -gravity center -extent 1280x640 `
   -compress zip $Root\..\assets\icon\tome.github.png
+
+rm $Root\..\assets\icon\tome.github.tmp.png
 
 magick $Root\..\assets\icon\tome.svg `
   -define icon:auto-resize=256 `

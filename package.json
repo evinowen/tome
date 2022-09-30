@@ -3,7 +3,7 @@
   "version": "0.6.0",
   "license": "MIT",
   "author": "Evin Owen <git@evinowen.net>",
-  "description": "Git integrated cross-platform markdown pseudoeditor application built in Electron",
+  "description": "git integrated cross-platform markdown editor",
   "main": "main.js",
   "scripts": {
     "serve-renderer": "./node_modules/.bin/vue-cli-service serve",
