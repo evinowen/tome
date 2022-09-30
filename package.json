@@ -1,23 +1,23 @@
 {
   "name": "tome",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "license": "MIT",
   "author": "Evin Owen <git@evinowen.net>",
-  "description": "Git integrated cross-platform markdown pseudoeditor application built in Electron",
+  "description": "git integrated cross-platform markdown editor",
   "main": "main.js",
   "scripts": {
     "serve-renderer": "./node_modules/.bin/vue-cli-service serve",
-    "lint-renderer": "./node_modules/.bin/vue-cli-service lint --no-fix src/**/*.vue src/**/*.js tests/**/*.js",
-    "test-renderer": "./node_modules/.bin/cross-env-shell ./node_modules/.bin/vue-cli-service test:unit",
-    "build-renderer": "./node_modules/.bin/vue-cli-service --dest dist-renderer build",
-    "lint-electron": "./node_modules/.bin/eslint spec/**/*.js electron/**/*.js",
-    "lint-electron-config": "./node_modules/.bin/eslint --print-config electron/main.js",
-    "test-electron": "./node_modules/.bin/jest --config=jest.config.main.js ./electron",
-    "electron": "./node_modules/.bin/cross-env-shell NODE_ENV=development \"./node_modules/.bin/electron electron/main.js\"",
-    "electron-framed": "./node_modules/.bin/cross-env-shell NODE_ENV=development FRAME_WINDOW=1 \"./node_modules/.bin/electron electron/main.js\"",
-    "electron-rebuild": "./node_modules/.bin/electron-rebuild",
-    "pack": "./node_modules/.bin/electron-builder --dir",
-    "build": "./node_modules/.bin/electron-builder"
+    "lint-renderer": "./node_modules/.bin/vue-cli-service lint --no-fix src/renderer/**/*.vue src/renderer/**/*.js spec/renderer/**/*.js",
+    "test-renderer": "./node_modules/.bin/cross-env-shell ./node_modules/.bin/vue-cli-service test:unit --config=spec/renderer/jest.config.js",
+    "build-renderer": "./node_modules/.bin/vue-cli-service --dest dist/renderer build",
+    "lint-main": "./node_modules/.bin/eslint spec/main/**/*.js src/main/**/*.js",
+    "lint-main-config": "./node_modules/.bin/eslint --print-config src/main/main.js",
+    "test-main": "./node_modules/.bin/jest --config=spec/main/jest.config.js",
+    "serve-main": "./node_modules/.bin/cross-env-shell NODE_ENV=development \"./node_modules/.bin/electron src/main/main.js\"",
+    "serve-main-framed": "./node_modules/.bin/cross-env-shell NODE_ENV=development FRAME_WINDOW=1 \"./node_modules/.bin/electron src/main/main.js\"",
+    "build-electron": "./node_modules/.bin/electron-builder",
+    "rebuild-electron": "./node_modules/.bin/electron-rebuild",
+    "pack-electron": "./node_modules/.bin/electron-builder --dir"
   },
   "prettier": {
     "singleQuote": true,
@@ -31,19 +31,22 @@
     "artifactName": "Tome.Setup.${version}.${ext}",
     "npmRebuild": false,
     "extraMetadata": {
-      "main": "electron/main.js"
+      "main": "src/main/main.js"
     },
     "files": [
       "!node_modules/nodegit/vendor",
-      "electron",
+      "src/main",
       {
-        "from": "dist-renderer",
+        "from": "dist/renderer",
         "to": "",
         "filter": [
           "**/*"
         ]
       }
     ],
+    "directories": {
+      "output": "dist/main"
+    },
     "linux": {
       "icon": "build/icon.256.png",
       "target": "deb"
@@ -89,7 +92,6 @@
     "uuid": "^7.0.3",
     "vue": "^2.6.11",
     "vue-codemirror": "^4.0.6",
-    "vue-router": "^3.1.5",
     "vue-shortkey": "^3.1.7",
     "vue-splitpane": "^1.0.6",
     "vue-template-compiler": "^2.6.14",
