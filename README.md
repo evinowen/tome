@@ -94,3 +94,9 @@ Or from bash:
 ```
 rm -rf ./node_modules/nodegit/vendor/openssl
 ```
+
+## License
+
+Copyright (c) Evin Owen. All rights reserved.
+
+Licensed under the [MIT](LICENSE.txt) license.
