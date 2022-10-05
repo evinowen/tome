@@ -1,4 +1,7 @@
-class RepositoryFile {
+export default class RepositoryFile {
+  path = ''
+  type = ''
+
   static Type = {
     NEW: 1,
     MODIFIED: 2,
@@ -9,8 +12,6 @@ class RepositoryFile {
 
   constructor(path, type) {
     this.path = path
-    this.type = type || File.Type.UNKNOWN
+    this.type = type || RepositoryFile.Type.UNKNOWN
   }
 }
-
-module.exports = RepositoryFile

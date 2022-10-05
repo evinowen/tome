@@ -1,30 +1,50 @@
-const NodeGit = require('nodegit')
-const RepositoryFile = require('./RepositoryFile')
-const RepositoryPatch = require('./RepositoryPatch')
+import NodeGit from 'nodegit'
+import RepositoryFile from './RepositoryFile'
+import RepositoryPatch from './RepositoryPatch'
 
-const _path = require('path')
-const _fs = require('fs')
+import * as _path from 'path'
+import * as _fs from 'fs'
 
-class Repository {
+interface NodeGitRemoteHead {
+  oid(): NodeGit.Oid
+}
+
+class RepositoryNotLoadedError extends Error {}
+class RepositoryBranchNotSelectedError extends Error {}
+class RepositoryRemoteNotLoadedError extends Error {}
+class RepositoryRemoteNotFoundError extends Error {}
+
+class RepositoryPublicKeyNotSetError extends Error {}
+class RepositoryPrivateKeyNotSetError extends Error {}
+
+export default class Repository {
+  path: string
+  name: string
+  branch: string|null = null
+
+  repository: NodeGit.Repository|null = null
+
+  private_key: string|null = null
+  public_key: string|null = null
+  passphrase: string|null = null
+
+  ahead = false
+  remote: { name: string, url: string }|null = null
+  remote_branch: { name: string, short: string, object: NodeGitRemoteHead }|null = null
+  remotes: { name: string, url: string }[] = []
+  remote_map: Map<string, NodeGit.Remote>|null = null
+  remote_object: NodeGit.Remote|null = null
+
+  patches: RepositoryPatch[] = []
+  available: RepositoryFile[] = []
+  staged: RepositoryFile[] = []
+
+  pending:{ oid: string, date: Date, message: string }[] = []
+  history:{ oid: string, date: Date, message: string }[] = []
+
   constructor (path) {
     this.path = path
     this.name = _path.basename(this.path)
-
-    this.repository = null
-    this.remotes = null
-
-    this.ahead = false
-
-    this.available = []
-    this.staged = []
-
-    this.history = []
-
-    this.private_key = null
-    this.public_key = null
-    this.passphrase = null
-
-    this.patches = null
 
     this.clearBranch()
     this.clearRemoteBranch()
@@ -36,27 +56,34 @@ class Repository {
     this.passphrase = passphrase
   }
 
-  generateConnectionHooks () {
-    const credentials = {
-      private_key: this.private_key,
-      public_key: this.public_key,
-      passphrase: this.passphrase
-    }
+  generateConnectionHooks (): NodeGit.RemoteCallbacks {
 
-    const hooks = {
-      certificateCheck_break: 10,
+    const hooks:NodeGit.RemoteCallbacks = {
       certificateCheck: () => 0
     }
 
-    if (this.private_key) {
-      hooks.credentials = function (url, username) {
-        if (credentials.private_key) {
-          if (!hooks.certificateCheck_break--) {
-            throw new Error('hook.certificateCheck_break exceeded')
-          }
+    if (this.private_key === null) {
+      throw new RepositoryPrivateKeyNotSetError()
+    }
 
-          return NodeGit.Credential.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase)
+    if (this.public_key === null) {
+      throw new RepositoryPublicKeyNotSetError()
+    }
+
+    const credentials = {
+      private_key: this.private_key,
+      public_key: this.public_key,
+      passphrase: this.passphrase || ''
+    }
+
+    let attempts = 10
+    hooks.credentials = function (url, username) {
+      if (credentials.private_key) {
+        if (!attempts--) {
+          throw new Error('hook.certificateCheck_break exceeded')
         }
+
+        return NodeGit.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase)
       }
     }
 
@@ -104,6 +131,10 @@ class Repository {
   }
 
   async loadHistory () {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     let commit
 
     try {
@@ -132,6 +163,10 @@ class Repository {
   }
 
   async loadRemotes () {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     const list = await this.repository.getRemotes()
 
     this.remotes = list.map(remote => ({
@@ -150,6 +185,10 @@ class Repository {
   }
 
   async loadBranch () {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     if (this.repository.headUnborn()) {
       this.loadUnbornBranch()
     } else {
@@ -184,25 +223,50 @@ class Repository {
   }
 
   async loadBornBranch () {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     const branch = await this.repository.head()
     this.branch = branch.shorthand()
   }
 
   async loadRemoteBranch (url) {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
+    if (this.branch === null) {
+      throw new RepositoryBranchNotSelectedError()
+    }
+
     this.clearRemoteBranch()
 
-    this.remote = this.remotes.find(remote => remote.url === url)
+    this.remote = this.remotes.find(remote => remote.url === url) || null
+
+    if (this.remote === null) {
+      throw new RepositoryRemoteNotFoundError()
+    }
+
+    if (this.remote_map === null) {
+      throw new RepositoryRemoteNotLoadedError()
+    }
+
     this.remote_object = this.remote_map[this.remote.name]
+
+    if (this.remote_object === null) {
+      throw new RepositoryRemoteNotLoadedError()
+    }
 
     await this.remote_object.connect(NodeGit.Enums.DIRECTION.FETCH, this.generateConnectionHooks())
 
     const references = await this.remote_object.referenceList()
 
     this.remote_branch = this.matchRemoteBranchReference(references)
-    this.remote.branch = {
-      name: this.remote_branch.name,
-      short: this.remote_branch.short
-    }
+    // this.remote.branch = {
+    //   name: this.remote_branch.name,
+    //   short: this.remote_branch.short
+    // }
 
     let local_commit = await this.repository.getReferenceCommit(this.branch)
     const remote_commit = await this.repository.getCommit(this.remote_branch.object.oid())
@@ -235,11 +299,12 @@ class Repository {
   }
 
   matchRemoteBranchReference (references) {
-    let result
+    let result: { name: string, short: string, object: NodeGitRemoteHead }|null = null
 
     references.forEach(reference => {
-      const object = {
+      const object: { name: string, short: string, object: NodeGitRemoteHead } = {
         name: reference.name(),
+        short: '',
         object: reference
       }
 
@@ -264,22 +329,27 @@ class Repository {
   }
 
   async inspectStaged () {
-    const options = new NodeGit.StatusOptions()
-    options.show = NodeGit.Status.SHOW.INDEX_ONLY
+    const options:NodeGit.StatusOptions = {
+      show: NodeGit.Status.SHOW.INDEX_ONLY
+    }
 
     this.staged = await this.inspectWithOptions(options)
   }
 
   async inspectAvailable () {
-    const options = new NodeGit.StatusOptions()
-
-    options.show = NodeGit.Status.SHOW.WORKDIR_ONLY
-    options.flags = NodeGit.Status.OPT.INCLUDE_UNTRACKED + NodeGit.Status.OPT.RECURSE_UNTRACKED_DIRS
+    const options:NodeGit.StatusOptions = {
+      show: NodeGit.Status.SHOW.WORKDIR_ONLY,
+      flags: NodeGit.Status.OPT.INCLUDE_UNTRACKED + NodeGit.Status.OPT.RECURSE_UNTRACKED_DIRS
+    }
 
     this.available = await this.inspectWithOptions(options)
   }
 
   async inspectWithOptions (options) {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     return this.repository.getStatus(options)
       .then(result => result.map(status => {
         let type = RepositoryFile.Type.UNKNOWN
@@ -299,6 +369,10 @@ class Repository {
   }
 
   async diffCommit (oid) {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     await this.repository.refreshIndex()
 
     const commit = await this.repository.getCommit(oid)
@@ -313,17 +387,21 @@ class Repository {
   }
 
   async diffPath (path) {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     const head = await this.repository.getBranchCommit(await this.repository.head())
     const tree = await head.getTree()
 
-    const options = new NodeGit.DiffOptions()
-
-    options.pathspec = path
-    options.flags += NodeGit.Diff.OPTION.DISABLE_PATHSPEC_MATCH
-    options.flags += NodeGit.Diff.OPTION.INCLUDE_UNREADABLE
-    options.flags += NodeGit.Diff.OPTION.INCLUDE_UNTRACKED
-    options.flags += NodeGit.Diff.OPTION.RECURSE_UNTRACKED_DIRS
-    options.flags += NodeGit.Diff.OPTION.SHOW_UNTRACKED_CONTENT
+    const options:NodeGit.DiffOptions = {
+      pathspec: path,
+      flags: NodeGit.Diff.OPTION.DISABLE_PATHSPEC_MATCH
+        + NodeGit.Diff.OPTION.INCLUDE_UNREADABLE
+        + NodeGit.Diff.OPTION.INCLUDE_UNTRACKED
+        + NodeGit.Diff.OPTION.RECURSE_UNTRACKED_DIRS
+        + NodeGit.Diff.OPTION.SHOW_UNTRACKED_CONTENT
+    }
 
     const diff = await NodeGit.Diff.treeToWorkdir(this.repository, tree, options)
 
@@ -343,6 +421,10 @@ class Repository {
   }
 
   async stage (query, notify) {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     const index = await this.repository.refreshIndex()
 
     if (query === '*') {
@@ -375,6 +457,10 @@ class Repository {
   }
 
   async reset (query, notify) {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     const index = await this.repository.refreshIndex()
     const head = await this.repository.getBranchCommit(await this.repository.head())
 
@@ -390,6 +476,10 @@ class Repository {
   }
 
   async resetPath (head, path, notify) {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     if (notify) {
       notify('reset', path)
     }
@@ -398,9 +488,13 @@ class Repository {
   }
 
   async commit (name, email, message) {
+    if (this.repository === null) {
+      throw new RepositoryNotLoadedError()
+    }
+
     const index = await this.repository.refreshIndex()
     const oid = await index.writeTree()
-    const parents = []
+    const parents:NodeGit.Commit[] = []
 
     if (!this.repository.headUnborn()) {
       const head = await NodeGit.Reference.nameToId(this.repository, 'HEAD')
@@ -415,14 +509,20 @@ class Repository {
   }
 
   async push () {
-    if (this.remote) {
-      const refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`
-      const options = {
-        callbacks: this.generateConnectionHooks()
-      }
-
-      await this.remote_object.push([refspec], options)
+    if (this.remote === null) {
+      throw new RepositoryRemoteNotLoadedError()
     }
+
+    if (this.remote_object === null) {
+      throw new RepositoryRemoteNotLoadedError()
+    }
+
+    const refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`
+    const options = {
+      callbacks: this.generateConnectionHooks()
+    }
+
+    await this.remote_object.push([refspec], options)
   }
 }
 

@@ -1,7 +1,7 @@
-const { ipcMain } = require('electron')
-const log = require('electron-log')
+import { ipcMain } from 'electron'
+import * as log from 'electron-log'
 
-module.exports = (namespace) => {
+export default (namespace) => {
   const handle = (channel, listener) => {
     ipcMain.handle([namespace, channel].join('-'), async (...parameters) => {
       const { processId, frameId } = parameters.shift()
@@ -20,8 +20,11 @@ module.exports = (namespace) => {
     })
   }
 
-  return (register, data) => ({
-    register: (win) => register({ handle, on: event }, win),
+  return (register, data = {}) => ({
+    register: (win) => {
+      log.info(`Register component ${namespace}`)
+      return register({ handle, on: event }, win)
+    },
     data
   })
 }

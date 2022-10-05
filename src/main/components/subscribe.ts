@@ -1,7 +1,7 @@
-const { ipcRenderer } = require('electron')
-const log = require('electron-log')
+import { ipcRenderer } from 'electron'
+import * as log from 'electron-log'
 
-module.exports = (namespace) => (channel) => (...parameters) => (listener) => {
+export default (namespace) => (channel) => (...parameters) => (listener) => {
   const named_channel = [namespace, channel].join('-')
   const named_channel_return = [named_channel, 'return'].join('-')
   ipcRenderer.send(named_channel, named_channel_return, ...parameters)

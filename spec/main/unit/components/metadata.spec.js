@@ -33,19 +33,19 @@ describe('components/metadata', () => {
 
   it('should call for and return application path of target upon call to getPath', async () => {
     const target = 'main'
-    const result = await preload.app.getPath(target)
+    const result = await preload.getPath(target)
 
     expect_call_parameters_to_return(electron.app.getPath, [target], result)
   })
 
   it('should return process version upon call to getPath', async () => {
-    const result = await preload.app.getVersion()
+    const result = await preload.getVersion()
 
     expect(result).toBe(process.env.npm_package_version)
   })
 
   it('should return process data upon call to getProcess', async () => {
-    const result = await preload.app.getProcess()
+    const result = await preload.getProcess()
 
     expect(result).not.toBeUndefined()
   })

@@ -1,4 +1,4 @@
-const { cloneDeep, random } = require('lodash')
+const { cloneDeep } = require('lodash')
 const electron = require('electron')
 const fs = require('fs')
 const path = require('path')
@@ -64,13 +64,13 @@ describe('components/clipboard', () => {
 
   it('should call to write text to clipboard upon call to writetext', async () => {
     const text = 'text'
-    await preload.clipboard.writetext(text)
+    await preload.writetext(text)
 
     expect_call_parameters_to_return(electron.clipboard.writeText, [text], undefined)
   })
 
   it('should call for and return clipboard text upon call to readtext', async () => {
-    const result = await preload.clipboard.readtext()
+    const result = await preload.readtext()
 
     expect_call_parameters_to_return(electron.clipboard.readText, [], result)
   })
@@ -82,7 +82,7 @@ describe('components/clipboard', () => {
     const source = '/file.start.md'
     const target = '/file.end.md'
 
-    await preload.clipboard.paste(action, source, target)
+    await preload.paste(action, source, target)
 
     expect(fs.copyFile).not.toHaveBeenCalled()
     expect(fs.rename).toHaveBeenCalled()
@@ -95,7 +95,7 @@ describe('components/clipboard', () => {
     const source = '/file.start.md'
     const target = '/file.end.md'
 
-    await preload.clipboard.paste(action, source, target)
+    await preload.paste(action, source, target)
 
     expect(fs.copyFile).toHaveBeenCalled()
     expect(fs.rename).not.toHaveBeenCalled()
@@ -108,7 +108,7 @@ describe('components/clipboard', () => {
     const source = '/project'
     const target = '/project'
 
-    await expect(preload.clipboard.paste(action, source, target)).rejects.toBeDefined()
+    await expect(preload.paste(action, source, target)).rejects.toBeDefined()
 
     expect(fs.copyFile).not.toHaveBeenCalled()
     expect(fs.rename).not.toHaveBeenCalled()
@@ -122,7 +122,7 @@ describe('components/clipboard', () => {
     const source = '/project'
     const target = '/project'
 
-    await expect(preload.clipboard.paste(action, source, target)).rejects.toBeDefined()
+    await expect(preload.paste(action, source, target)).rejects.toBeDefined()
 
     expect(fs.copyFile).not.toHaveBeenCalled()
     expect(fs.rename).not.toHaveBeenCalled()

@@ -32,7 +32,7 @@ const fs_lstat_return = {
   isDirectory: jest.fn(() => true)
 }
 
-const optional = (first, second) => second ? second : first
+const optional = (first, second) => second || first
 
 fs.lstat.mockImplementation((path, callback) => callback(null, fs_lstat_return))
 fs.readFile.mockImplementation((target, encoding, callback) => callback(null, random_string(128)))
@@ -65,10 +65,10 @@ const vm_script = {
 }
 
 jest.mock('vm', () => ({
-  createScript: jest.fn()
+  Script: jest.fn()
 }))
 
-vm.createScript.mockImplementation(() => vm_script)
+vm.Script.mockImplementation(() => vm_script)
 
 
 describe('components/actions', () => {
@@ -89,7 +89,7 @@ describe('components/actions', () => {
   it('should find and invoke action upon call to invoke', async () => {
     const name = 'action'
 
-    const result = await preload.action.invoke(name)
+    const result = await preload.invoke(name)
 
     expect(result.success).toBeTruthy()
   })
@@ -99,7 +99,7 @@ describe('components/actions', () => {
 
     const name = 'action'
 
-    const result = await preload.action.invoke(name)
+    const result = await preload.invoke(name)
 
     expect(result.success).toBeFalsy()
   })

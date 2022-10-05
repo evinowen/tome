@@ -1,6 +1,6 @@
-const component = require('../factory')
+import component from '../factory'
 
-module.exports = component('window')(
+export = component('window')(
   ({ handle }, win) => {
     handle('is-maximized', () => win.isMaximized())
 

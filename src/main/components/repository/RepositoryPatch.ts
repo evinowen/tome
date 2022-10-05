@@ -1,8 +1,10 @@
-const NodeGit = require('nodegit')
-const _path = require('path')
+import NodeGit from 'nodegit'
+import * as _path from 'path'
 
-class RepositoryPatch {
-  static LineType = NodeGit.Diff.LINE
+export default class RepositoryPatch {
+  name = ''
+  path = ''
+  lines: { type: NodeGit.Diff.LINE, line: string }[] = []
 
   constructor () {
     this.name = ''
@@ -28,7 +30,7 @@ class RepositoryPatch {
     const hunks = await patch.hunks()
     for (const hunk of hunks) {
       this.lines.push({
-        type: RepositoryPatch.LineType.HUNK_HDR,
+        type: NodeGit.Diff.LINE.HUNK_HDR,
         line: hunk.header()
       })
 
@@ -42,5 +44,3 @@ class RepositoryPatch {
     }
   }
 }
-
-module.exports = RepositoryPatch

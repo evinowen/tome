@@ -1,10 +1,7 @@
 const { cloneDeep } = require('lodash')
 const electron = require('electron')
 const { reset_disk } = require('?/mocks/support/disk')
-const fs = require('fs')
-const path = require('path')
 const Mustache = require('mustache')
-const { random_string } = require('?/helpers')(expect)
 const _component = require('@/components/templates')
 const preload = require('@/components/templates/preload')
 
@@ -44,7 +41,7 @@ describe('components/templates', () => {
     const source = '/project/.tome/templates/example.template.a'
     const target = '/project/.tome/first'
 
-    const result = await preload.template.invoke(source, target)
+    const result = await preload.invoke(source, target)
 
     expect(result.success).toBeTruthy()
   })

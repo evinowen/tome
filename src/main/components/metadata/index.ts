@@ -1,7 +1,7 @@
-const component = require('../factory')
-const { app } = require('electron')
+import component from '../factory'
+import { app } from 'electron'
 
-module.exports = component('app')(
+export = component('app')(
   ({ handle }) => {
     handle('getPath', async (name) => app.getPath(name))
 

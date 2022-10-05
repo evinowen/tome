@@ -1,27 +1,30 @@
-const component = require('../factory')
-const fs = require('fs')
-const path = require('path')
-const vm = require('vm')
+import component from '../factory'
+import log from 'electron-log'
+import * as fs from 'fs'
+import * as path from 'path'
+import { Script } from 'vm'
+import { promise_with_reject } from '../../promise'
 
 const environment = {
   require,
-  console
+  console: {
+    log: (...parameters) => log.info(...parameters),
+    error: (...parameters) => log.error(...parameters)
+  }
 }
 
 const timeout = 30000
 
-const { promise_with_reject } = require('../../promise')
-
-module.exports = component('action')(
+export = component('action')(
   ({ handle }) => {
     handle('invoke', async (source, target, selection) => {
-      const stats = await promise_with_reject(fs.lstat)(source)
+      const stats = await promise_with_reject<fs.Dirent>(fs.lstat)(source)
 
       const source_script = stats.isDirectory() ? path.join(source, 'index.js') : source
 
-      const contents_raw = await promise_with_reject(fs.readFile)(source_script, 'utf8')
+      const contents_raw = await promise_with_reject<string>(fs.readFile)(source_script, 'utf8')
 
-      const script = vm.createScript(contents_raw)
+      const script = new Script(contents_raw)
 
       const content = async (data = null) => {
         if (data) {
@@ -31,9 +34,7 @@ module.exports = component('action')(
         }
       }
 
-      const context = { ...environment, content, source, target, selection }
-
-      context.require = (query) => {
+      const require = (query) => {
         const absolute = path.join(source, query)
 
         if (absolute !== source) {
@@ -41,11 +42,15 @@ module.exports = component('action')(
             const resolved = environment.require.resolve(absolute)
             delete environment.require.cache[resolved]
             return environment.require(absolute)
-          } catch (error) { }
+          } catch (error) {
+            log.error(error)
+          }
         }
 
         return environment.require(query)
       }
+
+      const context = { ...environment, content, source, target, selection, require }
 
       const options = { timeout }
 

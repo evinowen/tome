@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash'
 import electron from 'electron'
 
 jest.mock('@/components/actions', () => ({ register: jest.fn(), data: jest.fn() }))
@@ -21,6 +22,9 @@ jest.mock('electron', () => ({
   },
 }))
 
+jest.mock('path', () => ({
+  join: jest.fn()
+}))
 
 let app_run
 electron.app.on = jest.fn(async (type, callback) => {
@@ -62,20 +66,17 @@ electron.BrowserWindow.mockImplementation((options) => {
 electron.BrowserWindow.getAllWindows = jest.fn(() => [])
 
 describe('main', () => {
-  const _platform = process.platform
-  const _environment = process.env
+  const _platform = cloneDeep(process.platform)
+  const _environment = cloneDeep(process.env)
 
   beforeEach(() => {
     app_run = ['ready']
 
-    process.env.NODE_ENV = 'production'
-    delete process.env.FRAME_WINDOW
+    Object.defineProperty(process, 'env', { value: cloneDeep(_environment) })
+    Object.defineProperty(process, 'platform', { value: cloneDeep(_platform) })
   })
 
   afterEach(() => {
-    process.env = _environment
-    Object.defineProperty(process, 'platform', { value: _platform })
-
     jest.clearAllMocks()
   })
 

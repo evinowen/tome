@@ -35,7 +35,6 @@ path.relative.mockImplementation(() => random_string(16, true))
 
 describe('components/path', () => {
   let component
-  let win
 
   beforeEach(() => {
     ipcMainMap = new Map()
@@ -50,21 +49,21 @@ describe('components/path', () => {
 
   it('should call for and return basename of target upon call to basename', async () => {
     const target = '/project'
-    const result = await preload.path.basename(target)
+    const result = await preload.basename(target)
 
     expect_call_parameters_to_return(path.basename, [target], result)
   })
 
   it('should call for and return dirname of target upon call to basename', async () => {
     const target = '/project'
-    const result = await preload.path.dirname(target)
+    const result = await preload.dirname(target)
 
     expect_call_parameters_to_return(path.dirname, [target], result)
   })
 
   it('should call for and return lower case extension of target upon call to extension', async () => {
     const target = '/project/FILE.MD'
-    const result = await preload.path.extension(target)
+    const result = await preload.extension(target)
 
     expect_call_parameters_to_return(path.extname, [target], result.toLowerCase())
   })
@@ -73,7 +72,7 @@ describe('components/path', () => {
     path.extname.mockImplementationOnce(() => '')
 
     const target = '/project/FILE.MD'
-    await preload.path.extension(target)
+    await preload.extension(target)
 
     expect_call_parameters_to_return(path.extname, [target], undefined)
   })
@@ -81,21 +80,21 @@ describe('components/path', () => {
   it('should call for and return joined path upon call to join', async () => {
     const dirname = '/project'
     const basename = 'FILE.MD'
-    const result = await preload.path.join(dirname, basename)
+    const result = await preload.join(dirname, basename)
 
     expect_call_parameters_to_return(path.join, [dirname, basename], result)
   })
 
   it('should call for and return relative path upon call to relative', async () => {
     const target = '/project/FILE.MD'
-    const result = await preload.path.relative(target)
+    const result = await preload.relative(target)
 
     expect_call_parameters_to_return(path.relative, [target], result)
   })
 
   it('should return value of path separator upon call to sep', async () => {
     const target = '/project/FILE.MD'
-    const result = await preload.path.sep(target)
+    const result = await preload.sep(target)
 
     expect(result).toBe(path.sep)
   })

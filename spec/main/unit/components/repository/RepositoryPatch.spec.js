@@ -1,6 +1,19 @@
 import RepositoryPatch from '@/components/repository/RepositoryPatch'
+import NodeGit from 'nodegit'
 
-jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {}, Diff: { LINE: 1 } }))
+jest.mock('nodegit', () => ({
+  Reset: {},
+  Reference: {},
+  Signature: {},
+  Diff: {
+    LINE: {
+      HUNK_HDR: 72,
+      VALUE_A: 1,
+      VALUE_B: 2,
+      VALUE_C: 3
+    }
+  }
+}))
 
 jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
@@ -23,15 +36,15 @@ describe('components/repository/RepositoryPatch', () => {
 
     lines = [
       {
-        origin: jest.fn(() => RepositoryPatch.LineType.CONTEXT),
+        origin: jest.fn(() => NodeGit.Diff.LINE.VALUE_A),
         content: jest.fn(() => 'first line')
       },
       {
-        origin: jest.fn(() => RepositoryPatch.LineType.ADDITION),
+        origin: jest.fn(() => NodeGit.Diff.LINE.VALUE_B),
         content: jest.fn(() => 'second line')
       },
       {
-        origin: jest.fn(() => RepositoryPatch.LineType.DELETION),
+        origin: jest.fn(() => NodeGit.Diff.LINE.VALUE_C),
         content: jest.fn(() => 'third line')
       }
     ]
@@ -61,16 +74,16 @@ describe('components/repository/RepositoryPatch', () => {
 
     expect(repository_patch.lines.length).toEqual(4)
 
-    expect(repository_patch.lines[0].type).toEqual(RepositoryPatch.LineType.HUNK_HDR)
+    expect(repository_patch.lines[0].type).toEqual(NodeGit.Diff.LINE.HUNK_HDR)
     expect(repository_patch.lines[0].line).toEqual('header')
 
-    expect(repository_patch.lines[1].type).toEqual(RepositoryPatch.LineType.CONTEXT)
+    expect(repository_patch.lines[1].type).toEqual(NodeGit.Diff.LINE.VALUE_A)
     expect(repository_patch.lines[1].line).toEqual('first line')
 
-    expect(repository_patch.lines[2].type).toEqual(RepositoryPatch.LineType.ADDITION)
+    expect(repository_patch.lines[2].type).toEqual(NodeGit.Diff.LINE.VALUE_B)
     expect(repository_patch.lines[2].line).toEqual('second line')
 
-    expect(repository_patch.lines[3].type).toEqual(RepositoryPatch.LineType.DELETION)
+    expect(repository_patch.lines[3].type).toEqual(NodeGit.Diff.LINE.VALUE_C)
     expect(repository_patch.lines[3].line).toEqual('third line')
   })
 

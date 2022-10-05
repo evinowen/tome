@@ -1,7 +1,6 @@
 const { cloneDeep } = require('lodash')
 const electron = require('electron')
 const nodegit = require('nodegit')
-const Repository = require('@/components/repository/Repository')
 const _component = require('@/components/repository')
 const preload = require('@/components/repository/preload')
 
@@ -46,18 +45,18 @@ describe('components/repository', () => {
 
   it('should store constructor upon call to load', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
   })
 
   it('should call inspect on repository upon call to inspect', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
-    await preload.repository.inspect()
+    await preload.inspect()
 
     const { repository } = component.data()
     expect(repository.inspect).toHaveBeenCalled()
@@ -65,29 +64,29 @@ describe('components/repository', () => {
 
   it('should return new data upon call to refresh', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
-    await preload.repository.refresh()
+    await preload.refresh()
   })
 
   it('should return new data upon call to refresh_patches', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
-    await preload.repository.refresh_patches()
+    await preload.refresh_patches()
   })
 
   it('should call diffPath on repository upon call to diff_path', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
-    await preload.repository.diff_path('')
+    await preload.diff_path('')
 
     const { repository } = component.data()
     expect(repository.diffPath).toHaveBeenCalled()
@@ -95,11 +94,11 @@ describe('components/repository', () => {
 
   it('should call diffCommit upon call to diff_commit', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
-    await preload.repository.diff_commit('')
+    await preload.diff_commit('')
 
     const { repository } = component.data()
     expect(repository.diffCommit).toHaveBeenCalled()
@@ -107,7 +106,7 @@ describe('components/repository', () => {
 
   it('should call storeCredentials upon call to credential', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
@@ -115,7 +114,7 @@ describe('components/repository', () => {
     const public_key = 'public-key'
     const passphrase = 'password'
 
-    await preload.repository.credential(private_key, public_key, passphrase)
+    await preload.credential(private_key, public_key, passphrase)
 
     const { repository } = component.data()
     expect(repository.storeCredentials).toHaveBeenCalled()
@@ -123,35 +122,35 @@ describe('components/repository', () => {
 
   it('should execute file stage with query upon call to stage with add', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
     const target = 'file.md'
 
-    await preload.repository.stage(target)
+    await preload.stage(target)
   })
 
   it('should execute file stage with query upon call to stage with remove', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
     const target = 'file.md'
 
-    await preload.repository.stage(target)
+    await preload.stage(target)
   })
 
   it('should execute file reset upon call to reset', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
     const query = 'file.md'
 
-    await preload.repository.reset(query)
+    await preload.reset(query)
 
     const { repository } = component.data()
     expect(repository.reset).toHaveBeenCalled()
@@ -159,11 +158,11 @@ describe('components/repository', () => {
 
   it('should call push upon call to push', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
-    await preload.repository.push()
+    await preload.push()
 
     const { repository } = component.data()
     expect(repository.push).toHaveBeenCalled()
@@ -171,11 +170,11 @@ describe('components/repository', () => {
 
   it('should clear select branch upon call to clear_remote', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
-    await preload.repository.clear_remote()
+    await preload.clear_remote()
 
     const { repository } = component.data()
     expect(repository.clearRemoteBranch).toHaveBeenCalled()
@@ -183,13 +182,13 @@ describe('components/repository', () => {
 
   it('should load branch by URL upon call to load_remote_url', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
     const url = 'git@git.example.com:remote.git'
 
-    await preload.repository.load_remote_url(url)
+    await preload.load_remote_url(url)
 
     const { repository } = component.data()
     expect(repository.loadRemoteBranch).toHaveBeenCalled()
@@ -197,18 +196,18 @@ describe('components/repository', () => {
 
   it('should fetch repository status upon call to remote', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
-    await preload.repository.remote()
+    await preload.remote()
 
     expect(result).toBeDefined()
   })
 
   it('should call commit upon call to commit', async () => {
     const path = '/project'
-    const result = await preload.repository.load(path)
+    const result = await preload.load(path)
 
     expect(result.path).toBe(path)
 
@@ -216,7 +215,7 @@ describe('components/repository', () => {
     const email = 'jdoe@example.com'
     const message = 'Commit Message'
 
-    await preload.repository.commit(name, email, message)
+    await preload.commit(name, email, message)
 
     const { repository } = component.data()
     expect(repository.commit).toHaveBeenCalled()

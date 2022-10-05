@@ -125,7 +125,7 @@ const nodegit_diff = {
   patches: jest.fn(() => nodegit_patches)
 }
 
-NodeGit.Credential = {
+NodeGit.Cred = {
   sshKeyNew: jest.fn((username, public_key, private_key, passphrase) => ({
     username, public_key, private_key, passphrase
   }))
@@ -212,7 +212,7 @@ describe('components/repository/Repository', () => {
     expect(repository.repository).toEqual(null)
     expect(repository.branch).toEqual(null)
 
-    expect(repository.remotes).toEqual(null)
+    expect(repository.remotes).toEqual([])
     expect(repository.remote).toEqual(null)
 
     expect(repository.ahead).toEqual(false)
@@ -225,7 +225,7 @@ describe('components/repository/Repository', () => {
     expect(repository.public_key).toEqual(null)
     expect(repository.passphrase).toEqual(null)
 
-    expect(repository.patches).toEqual(null)
+    expect(repository.patches).toEqual([])
   })
 
   it('should remember credentials set by storeCredentials', async () => {
@@ -269,8 +269,13 @@ describe('components/repository/Repository', () => {
     nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
 
     const target = './test_path'
+    const private_key = './test_rsa'
+    const public_key = './test_rsa.pub'
+    const passphrase = '1234'
 
     const repository = new Repository(target)
+    repository.storeCredentials(private_key, public_key, passphrase)
+
     repository.loadOpenOrInit = jest.fn()
     repository.validateRepositoryCondition = jest.fn()
     repository.loadHistory = jest.fn()
@@ -291,8 +296,12 @@ describe('components/repository/Repository', () => {
     nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
 
     const target = './test_path'
+    const private_key = './test_rsa'
+    const public_key = './test_rsa.pub'
+    const passphrase = '1234'
 
     const repository = new Repository(target)
+    repository.storeCredentials(private_key, public_key, passphrase)
 
     await repository.load()
 
@@ -392,9 +401,14 @@ describe('components/repository/Repository', () => {
     nodegit_commit.parent.mockReturnValue(nodegit_commit)
 
     const target = './test_path'
+    const private_key = './test_rsa'
+    const public_key = './test_rsa.pub'
+    const passphrase = '1234'
     const url = 'git@git.example.com:remote.git'
 
     const repository = new Repository(target)
+    repository.storeCredentials(private_key, public_key, passphrase)
+
     await repository.load()
     await repository.loadRemoteBranch(url)
 
@@ -592,20 +606,26 @@ describe('components/repository/Repository', () => {
 
   it('should fail to push if no remote is loaded on call to push', async () => {
     const target = './test_path'
+    const private_key = './test_rsa'
+    const public_key = './test_rsa.pub'
+    const passphrase = '1234'
 
     const repository = new Repository(target)
+    repository.storeCredentials(private_key, public_key, passphrase)
 
     await repository.load()
-    await repository.push()
-
-    expect(nodegit_remote.push).toHaveBeenCalledTimes(0)
+    await expect(repository.push()).rejects.toThrow()
   })
 
   it('should push current branch to the loaded remote on call to push', async () => {
     const target = './test_path'
+    const private_key = './test_rsa'
+    const public_key = './test_rsa.pub'
+    const passphrase = '1234'
     const url = 'git@git.example.com:remote.git'
 
     const repository = new Repository(target)
+    repository.storeCredentials(private_key, public_key, passphrase)
 
     await repository.load()
     await repository.loadRemoteBranch(url)

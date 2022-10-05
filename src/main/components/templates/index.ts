@@ -1,10 +1,11 @@
-const component = require('../factory')
-const fs = require('fs')
-const path = require('path')
-const { cloneDeep } = require('lodash')
-const Mustache = require('mustache')
-const is_text_path = require('is-text-path')
-const { promise_with_reject } = require('../../promise')
+import component from '../factory'
+import * as fs from 'fs'
+import * as path from 'path'
+import { cloneDeep } from 'lodash'
+import * as Mustache from 'mustache'
+import is_text_path from 'is-text-path'
+import { promise_with_reject } from '../../promise'
+
 const TemplateFileType = {
   INACCESSABLE: -1,
   FILE: 0,
@@ -12,6 +13,14 @@ const TemplateFileType = {
 }
 
 class TemplateFile {
+  name: string
+  shown: boolean
+  path: {
+    root: string|null,
+    parent: { absolute: string|null, relative: string|null }
+    target: { absolute: string|null, relative: string|null }
+  }
+
   constructor (root, directory, name) {
     this.shown = true
     this.path = {
@@ -26,7 +35,7 @@ class TemplateFile {
       }
     }
 
-    this.path.parent.relative = path.relative(this.path.root, this.path.parent.absolute)
+    this.path.parent.relative = path.relative(this.path.root || '', this.path.parent.absolute || '')
 
     this.target(name)
   }
@@ -43,8 +52,8 @@ class TemplateFile {
 
   refresh () {
     if (this.shown) {
-      this.path.target.absolute = path.join(this.path.parent.absolute, this.name)
-      this.path.target.relative = path.relative(this.path.root, this.path.target.absolute)
+      this.path.target.absolute = path.join(this.path.parent.absolute || '', this.name)
+      this.path.target.relative = path.relative(this.path.root || '', this.path.target.absolute)
     } else {
       this.path.target.absolute = this.path.parent.absolute
       this.path.target.relative = this.path.parent.relative
@@ -52,11 +61,11 @@ class TemplateFile {
   }
 
   text () {
-    return is_text_path(this.path.target.absolute)
+    return is_text_path(this.path.target.absolute || '')
   }
 
   async type () {
-    const stats = await promise_with_reject(fs.lstat)(this.path.target.absolute).catch(() => null)
+    const stats = await promise_with_reject<fs.Stats>(fs.lstat)(this.path.target.absolute).catch(() => null)
 
     if (!stats) {
       return TemplateFileType.INACCESSABLE
@@ -66,12 +75,12 @@ class TemplateFile {
   }
 
   async read () {
-    return promise_with_reject(fs.readFile)(this.path.target.absolute, 'utf8')
+    return promise_with_reject<string>(fs.readFile)(this.path.target.absolute, 'utf8')
   }
 
-  async readdir () {
+  async readdir (): Promise<fs.Dirent[]> {
     const options = { withFileTypes: true }
-    return promise_with_reject(fs.readdir)(this.path.target.absolute, options)
+    return promise_with_reject<fs.Dirent[]>(fs.readdir)(this.path.target.absolute, options)
   }
 
   async write (content) {
@@ -99,13 +108,25 @@ class TemplateFile {
 }
 
 class Template {
+  context: {
+    compute: object,
+    config: {
+      directory: boolean,
+      index: string|null
+    }
+  }
+
+  source: TemplateFile
+  destination: TemplateFile
+  index: boolean
+
   constructor (source, destination, context) {
     this.source = TemplateFile.make(source)
     this.destination = TemplateFile.make(destination)
 
     this.context = context
 
-    this.index = this.source.path.target.relative === this.context.config.index
+    this.index = this.source.path.target.relative === (this.context.config.index || '')
   }
 
   static translate (input) {
@@ -160,12 +181,12 @@ class Template {
 
     const results = await this.source.readdir()
 
-    const sources = []
+    const sources: TemplateFile[] = []
 
     for (const result of results) {
       const source = new TemplateFile(this.source.path.root, this.source.path.target.absolute, result.name)
 
-      const extension = path.extname(source.path.target.absolute)
+      const extension = path.extname(source.path.target.absolute || '')
       if (result.isFile() && extension === '.json') {
         const content = await source.read()
         Object.assign(context.config, JSON.parse(content))
@@ -188,9 +209,9 @@ class Template {
       }
     }
 
-    let index = null
+    let index: string|null = null
 
-    const leafs = []
+    const leafs: TemplateLeaf[] = []
 
     for (const source of sources) {
       const destination = new TemplateFile(this.destination.path.root, this.destination.path.target.absolute, source.name)
@@ -198,7 +219,7 @@ class Template {
       const leaf = new TemplateLeaf(source, destination, context)
 
       if (leaf.index) {
-        index = leaf
+        index = leaf.destination.path.target.absolute
       }
 
       leafs.push(leaf)
@@ -206,7 +227,7 @@ class Template {
 
     await Promise.all(leafs.map((leaf) => leaf.construct()))
 
-    return index?.destination.path.target.absolute
+    return index
   }
 
   async construct_file () {
@@ -243,7 +264,7 @@ class Template {
 
 class TemplateLeaf extends Template { }
 
-module.exports = component('template')(
+export = component('template')(
   ({ handle }) => {
     handle('invoke', async (source, target) => {
       const name = path.basename(source)

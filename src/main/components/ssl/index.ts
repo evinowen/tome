@@ -1,24 +1,23 @@
-const component = require('../factory')
-const { app } = require('electron')
-const forge = require('node-forge')
-const fs = require('fs')
-const path = require('path')
-const tmp = require('tmp-promise')
+import component from '../factory'
+import { app } from 'electron'
+import * as forge from 'node-forge'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as tmp from 'tmp-promise'
+import { promise_with_reject } from '../../promise'
 
-const { promise_with_reject } = require('../../promise')
-
-module.exports = component('ssl')(
+export = component('ssl')(
   ({ handle }) => {
-    handle('generate-public-key', async (target, passphrase = null) => {
+    handle('generate-public-key', async (target, passphrase: string|null = null) => {
       if (!target) {
         return { path: '', data: '' }
       }
 
-      const data = await promise_with_reject(fs.readFile)(target, 'utf8')
+      const data = await promise_with_reject<string>(fs.readFile)(target, 'utf8')
 
       const private_key = passphrase ? forge.pki.decryptRsaPrivateKey(data, passphrase) : forge.pki.privateKeyFromPem(data)
 
-      const public_key = forge.pki.setRsaPublicKey(private_key.n, private_key.e)
+      const public_key = forge.pki.rsa.setPublicKey(private_key.n, private_key.e)
 
       const ssh_public_key = forge.ssh.publicKeyToOpenSSH(public_key)
 
@@ -30,7 +29,7 @@ module.exports = component('ssl')(
     })
 
     handle('generate-private-key', async (passphrase) => {
-      const { privateKey: private_key } = await new Promise((resolve, reject) => {
+      const { privateKey: private_key } = await new Promise<forge.pki.rsa.KeyPair>((resolve, reject) => {
         forge.pki.rsa.generateKeyPair(
           { bits: 2048, workers: 2 },
           (error, keypair) => error ? reject(error) : resolve(keypair)

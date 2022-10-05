@@ -2,7 +2,7 @@ module.exports = {
   rootDir: '../..',
   testMatch: ['<rootDir>/spec/main/unit/**/*.spec.js'],
   collectCoverage: true,
-  collectCoverageFrom: ['<rootDir>/src/main/**/*.js'],
+  collectCoverageFrom: ['<rootDir>/dist/main/**/*.js'],
   coverageDirectory: '<rootDir>/reports/main/coverage',
   coverageThreshold: {
     global: {
@@ -13,7 +13,7 @@ module.exports = {
     }
   },
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/main/$1',
+    '^@/(.*)$': '<rootDir>/dist/main/$1',
     '^[?]/(.*)$': '<rootDir>/spec/main/$1'
   },
   reporters: [

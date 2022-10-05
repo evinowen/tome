@@ -38,31 +38,31 @@ describe('components/window', () => {
   })
 
   it('should return maximized state upon call to is_maximized', async () => {
-    await preload.window.is_maximized()
+    await preload.is_maximized()
 
     expect(win.isMaximized).toHaveBeenCalled()
   })
 
   it('should call for window to minimize upon call to minimize', async () => {
-    await preload.window.minimize()
+    await preload.minimize()
 
     expect(win.minimize).toHaveBeenCalled()
   })
 
   it('should call for window to maximize upon call to maximize', async () => {
-    await preload.window.maximize()
+    await preload.maximize()
 
     expect(win.maximize).toHaveBeenCalled()
   })
 
   it('should call for window to restore upon call to restore', async () => {
-    await preload.window.restore()
+    await preload.restore()
 
     expect(win.restore).toHaveBeenCalled()
   })
 
   it('should call for window to close upon call to close', async () => {
-    await preload.window.close()
+    await preload.close()
 
     expect(win.close).toHaveBeenCalled()
   })

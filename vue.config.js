@@ -10,8 +10,12 @@ module.exports = {
   transpileDependencies: [
     'vuetify'
   ],
+  devServer: {
+    hot: false,
+    liveReload: false
+  },
   configureWebpack: {
-    target: 'electron-renderer',
+    target: 'web',
     resolve: {
       alias: {
         '@': path.resolve('src/renderer'),

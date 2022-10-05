@@ -44,7 +44,7 @@ const readdir_files = (target, options) => {
   return files
 }
 
-const optional = (first, second) => second ? second : first
+const optional = (first, second) => second || first
 
 module.exports = {
   _: {

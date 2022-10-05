@@ -1,12 +1,24 @@
-const component = require('../factory')
-const { dialog, shell } = require('electron')
-const fs = require('fs')
-const path = require('path')
-const chokidar = require('chokidar')
-const { promise_with_reject, promise_access } = require('../../promise')
+import component from '../factory'
+import { dialog, shell } from 'electron'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as chokidar from 'chokidar'
+import { promise_with_reject, promise_access } from '../../promise'
 
-const search = {
+const search:{
+  target: string|null,
+  targets: string[],
+  length: number,
+  criteria: {
+    query: string,
+    regex_query: boolean,
+    case_sensitive: boolean,
+  }|null,
+  files: string[]
+} = {
   target: null,
+  targets: [],
+  length: 0,
   criteria: null,
   files: []
 }
@@ -16,9 +28,9 @@ const excluded_filenames = new Set([
   '.tome'
 ])
 
-let watcher = null
+let watcher:chokidar.FSWatcher|null = null
 
-module.exports = component('file')(
+export = component('file')(
   ({ handle, on }, win) => {
     on('events', (channel, target) => {
       const options = {
@@ -41,7 +53,7 @@ module.exports = component('file')(
     handle('exists', async (target) => promise_access(target))
 
     handle('is-directory', async (target) => {
-      const stats = await promise_with_reject(fs.lstat)(target)
+      const stats = await promise_with_reject<fs.Dirent>(fs.lstat)(target)
       return stats.isDirectory()
     })
 
@@ -54,9 +66,9 @@ module.exports = component('file')(
     })
 
     handle('list-directory', async (target) => {
-      const results = await promise_with_reject(fs.readdir)(target, { withFileTypes: true })
+      const results = await promise_with_reject<fs.Dirent[]>(fs.readdir)(target, { withFileTypes: true })
 
-      const files = []
+      const files:{ name: string, directory: boolean }[] = []
       for (const result of results) {
         files.push({
           name: result.name,
@@ -101,9 +113,9 @@ module.exports = component('file')(
 
     handle('delete', async (target) => {
       const unlink = async (target) => {
-        const status = await promise_with_reject(fs.lstat)(target)
+        const status = await promise_with_reject<fs.Dirent>(fs.lstat)(target)
         if (status.isDirectory()) {
-          const files = await promise_with_reject(fs.readdir)(target)
+          const files = await promise_with_reject<string>(fs.readdir)(target)
           for (const file of files) {
             await unlink(path.join(target, file))
           }
@@ -116,7 +128,7 @@ module.exports = component('file')(
     })
 
     handle('select-directory', () => {
-      const options = {
+      const options:Electron.OpenDialogOptions = {
         title: 'Select Tome Directory',
         properties: ['openDirectory']
       }
@@ -126,7 +138,7 @@ module.exports = component('file')(
 
     handle('directory-list', async (target) => {
       try {
-        const stats = await promise_with_reject(fs.lstat)(target)
+        const stats = await promise_with_reject<fs.Dirent>(fs.lstat)(target)
 
         if (!stats.isDirectory()) {
           return
@@ -151,16 +163,20 @@ module.exports = component('file')(
       }
 
       const target = search.targets.shift()
-      const matches = []
+      const matches:{ index: number, line: string|null }[] = []
 
-      const stats = await promise_with_reject(fs.lstat)(target)
+      const stats = await promise_with_reject<fs.Dirent>(fs.lstat)(target)
 
       const directory = stats.isDirectory()
+
+      if (search.criteria === null) {
+        return
+      }
 
       const regex = search.criteria.regex_query ? new RegExp(search.criteria.query, String('g').concat(search.criteria.case_sensitive ? '' : 'i')) : null
       const query = regex || search.criteria.case_sensitive ? search.criteria.query : search.criteria.query.toLowerCase()
 
-      const path_relative = path.relative(search.target, target)
+      const path_relative = path.relative(search.target || '', target || '')
       let path_matched = -1
 
       if (regex) {
@@ -174,17 +190,17 @@ module.exports = component('file')(
       }
 
       if (directory) {
-        const results = await promise_with_reject(fs.readdir)(target)
+        const results = await promise_with_reject<string[]>(fs.readdir)(target)
 
         for (const result of results) {
           if (excluded_filenames.has(result)) {
             continue
           }
 
-          search.targets.push(path.join(target, result))
+          search.targets.push(path.join(target || '', result))
         }
       } else {
-        const contents_raw = await promise_with_reject(fs.readFile)(target, 'utf8')
+        const contents_raw = await promise_with_reject<string>(fs.readFile)(target, 'utf8')
 
         const contents = regex || search.criteria.case_sensitive ? contents_raw : contents_raw.toLowerCase()
 
@@ -198,8 +214,9 @@ module.exports = component('file')(
         }
 
         let line = null
+        const loop = true
 
-        while (true) {
+        while (loop) {
           if (regex) {
             const match = regex.exec(contents_raw)
 

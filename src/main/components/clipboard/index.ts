@@ -1,12 +1,11 @@
-const component = require('../factory')
-const { clipboard } = require('electron')
-const log = require('electron-log')
-const fs = require('fs')
-const path = require('path')
+import component from '../factory'
+import { clipboard } from 'electron'
+import * as log from 'electron-log'
+import * as fs from 'fs'
+import * as path from 'path'
+import { promise_with_reject, promise_with_boolean } from '../../promise'
 
-const { promise_with_reject, promise_with_boolean } = require('../../promise')
-
-module.exports = component('clipboard')(
+export = component('clipboard')(
   ({ handle }) => {
     handle('writetext', async (text) => {
       clipboard.writeText(text)
@@ -22,7 +21,7 @@ module.exports = component('clipboard')(
       try {
         // Load the file status of the target to determine if
         // a file or directory is being targetted.
-        const status = await promise_with_reject(fs.lstat)(target)
+        const status = await promise_with_reject<fs.Dirent>(fs.lstat)(target)
 
         if (!status.isDirectory()) {
           // The destination is a file, use the parent

@@ -1,7 +1,7 @@
-const component = require('../factory')
-const path = require('path')
+import component from '../factory'
+import * as path from 'path'
 
-module.exports = component('path')(
+export = component('path')(
   ({ handle }) => {
     handle('basename', (query) => path.basename(query))
 

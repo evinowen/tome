@@ -6,14 +6,15 @@ module.exports = {
     jest: true
   },
   extends: [
-    'plugin:unicorn/recommended'
+    'standard',
+    'prettier'
   ],
-  parser: 'babel-eslint',
-  plugins: ['unicorn'],
+  parser: '@typescript-eslint/parser',
+  plugins: [
+    'prettier',
+    '@typescript-eslint'
+  ],
   rules: {
-    'unicorn/filename-case': 'off',
-    'unicorn/prefer-module': 'off',
-    'unicorn/no-null': 'off',
     'quote-props': ['error', 'consistent'],
     'camelcase': 'off',
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',

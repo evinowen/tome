@@ -2,7 +2,6 @@ const { cloneDeep } = require('lodash')
 const electron = require('electron')
 const { reset_disk } = require('?/mocks/support/disk')
 const fs = require('fs')
-const path = require('path')
 const chokidar = require('chokidar')
 const { random_string } = require('?/helpers')(expect)
 const _component = require('@/components/file')
@@ -46,8 +45,8 @@ jest.mock('chokidar', () => ({
 
 const chokidar_watcher = {
   close: jest.fn(),
-  on: function (channel, callback) {
-    callback('event', 'path')
+  on: function (channel, listener) {
+    listener('event', 'path')
     return this
   }
 }
@@ -59,6 +58,7 @@ jest.mock('path', () => require('?/mocks/path'))
 
 describe('components/file', () => {
   let component
+  let win
 
   beforeEach(() => {
     reset_disk()
@@ -82,7 +82,7 @@ describe('components/file', () => {
   it('should create a watcher upon call to subscribe', async () => {
     const target = '/project'
     const listener = jest.fn()
-    await preload.file.subscribe(target, listener)
+    await preload.subscribe(target, listener)
 
     expect(chokidar.watch).toHaveBeenCalled()
     expect(listener).toHaveBeenCalled()
@@ -91,17 +91,17 @@ describe('components/file', () => {
   it('should close watcher upon call to clear_subscriptions', async () => {
     const target = '/project'
     const listener = jest.fn()
-    await preload.file.subscribe(target, listener)
+    await preload.subscribe(target, listener)
 
     expect(chokidar.watch).toHaveBeenCalled()
     expect(listener).toHaveBeenCalled()
 
-    await preload.file.clear_subscriptions()
+    await preload.clear_subscriptions()
   })
 
   it('should return target access upon call to exists', async () => {
     const target = '/project/a.md'
-    const result = await preload.file.exists(target)
+    const result = await preload.exists(target)
 
     expect(fs.access).toHaveBeenCalled()
     expect(result).not.toBeUndefined()
@@ -110,7 +110,7 @@ describe('components/file', () => {
 
   it('should return if target is directory upon call to is_directory', async () => {
     const target = '/project'
-    const result = await preload.file.is_directory(target)
+    const result = await preload.is_directory(target)
 
     expect(fs.lstat).toHaveBeenCalled()
     expect(result).toBe(fs._.lstat_return(target).isDirectory())
@@ -118,14 +118,14 @@ describe('components/file', () => {
 
   it('should create directory upon call to create_directory', async () => {
     const target = '/project/new.directory'
-    await preload.file.create_directory(target)
+    await preload.create_directory(target)
 
     expect(fs.mkdir).toHaveBeenCalled()
   })
 
   it('should load file list upon call to list_directory', async () => {
     const target = '/project'
-    const result = await preload.file.list_directory(target)
+    const result = await preload.list_directory(target)
 
     expect(fs.readdir).toHaveBeenCalled()
     expect(result).not.toBeFalsy()
@@ -133,14 +133,14 @@ describe('components/file', () => {
 
   it('should read file contents upon call to contents', async () => {
     const target = '/project/a.md'
-    await preload.file.contents(target)
+    await preload.contents(target)
 
     expect(fs.readFile).toHaveBeenCalled()
   })
 
   it('should write a blank file upon call to create', async () => {
     const target = '/project/new.md'
-    await preload.file.create(target)
+    await preload.create(target)
 
     expect(fs.mkdir).not.toHaveBeenCalled()
     expect(fs.writeFile).toHaveBeenCalled()
@@ -149,7 +149,7 @@ describe('components/file', () => {
   it('should write file content upon call to write', async () => {
     const target = '/project/a.md'
     const content = 'File Content'
-    await preload.file.write(target, content)
+    await preload.write(target, content)
 
     expect(fs.writeFile).toHaveBeenCalled()
   })
@@ -157,7 +157,7 @@ describe('components/file', () => {
   it('should rename target file upon call to rename', async () => {
     const target = '/project/a.md'
     const proposed = '/project/a.new.md'
-    await preload.file.rename(target, proposed)
+    await preload.rename(target, proposed)
 
     expect(fs.rename).toHaveBeenCalled()
   })
@@ -165,7 +165,7 @@ describe('components/file', () => {
   it('should open target upon call to open with false container flag', async () => {
     const target = '/project/a.md'
     const container = false
-    await preload.file.open(target, container)
+    await preload.open(target, container)
 
     expect(electron.shell.openPath).toHaveBeenCalled()
   })
@@ -173,41 +173,41 @@ describe('components/file', () => {
   it('should open container for target upon call to open with true container flag', async () => {
     const target = '/project/a.md'
     const container = true
-    await preload.file.open(target, container)
+    await preload.open(target, container)
 
     expect(electron.shell.openPath).toHaveBeenCalled()
   })
 
   it('should unlink target upon call to delete', async () => {
     const target = '/project/a.md'
-    await preload.file.delete(target)
+    await preload.delete(target)
 
     expect(fs.unlink).toHaveBeenCalled()
   })
 
   it('should perform recursive unlink of target upon call to delete for directory', async () => {
     const target = '/project'
-    await preload.file.delete(target)
+    await preload.delete(target)
 
     expect(fs.unlink).toHaveBeenCalled()
   })
 
   it('should open file dialog select upon call to select_directory', async () => {
-    await preload.file.select_directory()
+    await preload.select_directory()
 
     expect(electron.dialog.showOpenDialog).toHaveBeenCalled()
   })
 
   it('should return undefined upon call to directory_list with non-directory target', async () => {
     const target = '/project/a.md'
-    await preload.file.directory_list(target)
+    await preload.directory_list(target)
 
     expect(fs.readdir).not.toHaveBeenCalled()
   })
 
   it('should return file list upon call to directory_list with directory target', async () => {
     const target = '/project'
-    await preload.file.directory_list(target)
+    await preload.directory_list(target)
 
     expect(fs.readdir).toHaveBeenCalled()
   })
@@ -220,7 +220,7 @@ describe('components/file', () => {
       regex_query: false
     }
 
-    await preload.file.search_path(target, criteria)
+    await preload.search_path(target, criteria)
   })
 
   it('should run search upon call to search_next', async () => {
@@ -231,9 +231,9 @@ describe('components/file', () => {
       regex_query: false
     }
 
-    await preload.file.search_path(target, criteria)
+    await preload.search_path(target, criteria)
 
-    await preload.file.search_next()
+    await preload.search_next()
   })
 
   it('should run case_sensitive search upon call to search_next with case_sensitive criteria', async () => {
@@ -244,9 +244,9 @@ describe('components/file', () => {
       regex_query: false
     }
 
-    await preload.file.search_path(target, criteria)
-    await preload.file.search_next()
-    await preload.file.search_next()
+    await preload.search_path(target, criteria)
+    await preload.search_next()
+    await preload.search_next()
   })
 
   it('should run regex search upon call to search_next with regex', async () => {
@@ -257,8 +257,8 @@ describe('components/file', () => {
       regex_query: true
     }
 
-    await preload.file.search_path(target, criteria)
-    await preload.file.search_next()
+    await preload.search_path(target, criteria)
+    await preload.search_next()
   })
 
   it('should run regex search upon call to search_next with case_sensitive regex', async () => {
@@ -269,7 +269,7 @@ describe('components/file', () => {
       regex_query: true
     }
 
-    await preload.file.search_path(target, criteria)
-    await preload.file.search_next()
+    await preload.search_path(target, criteria)
+    await preload.search_next()
   })
 })

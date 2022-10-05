@@ -1,10 +1,10 @@
-const component = require('../factory')
-const Repository = require('./Repository')
-const log = require('electron-log')
+import component from '../factory'
+import Repository from './Repository'
+import * as log from 'electron-log'
 
 let repository
 
-module.exports = component('repository')(
+export = component('repository')(
   ({ handle }) => {
     handle('load', async (path) => {
       repository = new Repository(path)
