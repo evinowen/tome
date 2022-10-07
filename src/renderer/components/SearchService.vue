@@ -2,13 +2,13 @@
   <div class="search-container">
     <v-toolbar class="search-box">
       <v-item-group dense multiple class="search-buttons">
-        <v-btn small tile :depressed=multifile @click="flag('multifile', !multifile)" :color="multifile ? 'primary' : ''">
+        <v-btn small tile :depressed=multifile :color="multifile ? 'primary' : ''" @click="flag('multifile', !multifile)">
           <v-icon>mdi-file-multiple</v-icon>
         </v-btn>
-        <v-btn small tile :depressed=case_sensitive  @click="flag('case_sensitive', !case_sensitive)" :color="case_sensitive ? 'primary' : ''">
+        <v-btn small tile :depressed=case_sensitive :color="case_sensitive ? 'primary' : ''" @click="flag('case_sensitive', !case_sensitive)">
           <v-icon>mdi-format-letter-case</v-icon>
         </v-btn>
-        <v-btn small tile :depressed=regex_query @click="flag('regex_query', !regex_query)" :color="regex_query ? 'primary' : ''">
+        <v-btn small tile :depressed=regex_query :color="regex_query ? 'primary' : ''" @click="flag('regex_query', !regex_query)">
           <v-icon>mdi-regex</v-icon>
         </v-btn>
       </v-item-group>
@@ -17,22 +17,26 @@
           <v-text-field
             ref="input"
             :value=query
-            @input=debounce_update
-            @click:clear=debounce_clear
-            @keydown.enter=next
-            @keydown.esc="$emit('close')"
             rows=1
             :messages=status
-            clearable single-line hide-details
+            clearable
+            single-line
+            hide-details
             :prepend-icon="regex_query ? 'mdi-slash-forward' : ' '"
-            :append-outer-icon="regex_query ? 'mdi-slash-forward' : ' '"
+            :append-outer-icon="regex_query ? 'mdi-slash-forward' : ' '" @input=debounce_update @click:clear=debounce_clear
+            @keydown.enter=next
+            @keydown.esc="$emit('close')"
           />
         </v-flex>
       </v-layout>
-      <div class="search-navigation" v-if=navigation>
+      <div v-if=navigation class="search-navigation">
         <v-item-group dense multiple class="search-buttons">
-          <v-btn small tile @click=previous :disabled=!query><v-icon>mdi-chevron-left</v-icon></v-btn>
-          <v-btn small tile @click=next :disabled=!query><v-icon>mdi-chevron-right</v-icon></v-btn>
+          <v-btn small tile :disabled=!query @click=previous>
+            <v-icon>mdi-chevron-left</v-icon>
+          </v-btn>
+          <v-btn small tile :disabled=!query @click=next>
+            <v-icon>mdi-chevron-right</v-icon>
+          </v-btn>
         </v-item-group>
         <div><small>{{ navigation.total ? navigation.target : '-' }} / {{ navigation.total }}</small></div>
       </div>
@@ -45,8 +49,12 @@
               class="search-file"
               @click="select(result.path.absolute, 1, result.matches.length)"
             >
-              <v-icon small class="pr-1">{{ result.directory ? 'mdi-folder' : 'mdi-file' }}</v-icon>
-              <v-flex grow>{{ result.path.relative }}</v-flex>
+              <v-icon small class="pr-1">
+                {{ result.directory ? 'mdi-folder' : 'mdi-file' }}
+              </v-icon>
+              <v-flex grow>
+                {{ result.path.relative }}
+              </v-flex>
               <small>{{ result.path.absolute }}</small>
             </v-layout>
             <v-layout
@@ -54,7 +62,9 @@
               class="search-result"
               @click="select(result.path.absolute, index + 1, result.matches.length)"
             >
-              <v-flex grow>{{ match.line }}</v-flex>
+              <v-flex grow>
+                {{ match.line }}
+              </v-flex>
             </v-layout>
           </div>
         </div>
@@ -174,12 +184,13 @@
 
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition } from 'vuetify/lib'
 import { debounce } from 'lodash'
 import store from '@/store'
 
-export default {
+export default Vue.extend({
   name: 'SearchService',
   props: { },
   components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition },
@@ -239,6 +250,5 @@ export default {
       return await this.debounce_update('')
     }
   }
-}
-
+})
 </script>

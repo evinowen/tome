@@ -10,20 +10,20 @@
         :items="items"
         item-value="name"
         label="Remote"
-        @change="$emit('input', $event)"
-        dense clearable class="mt-4"
+        dense
+        clearable class="mt-4" @change="$emit('input', $event)"
       >
-        <template v-slot:selection="data">
+        <template #selection="data">
           {{ data.item.name }}
           <v-spacer />
           <small>{{ data.item.url }}</small>
         </template>
-        <template v-slot:item="data">
+        <template #item="data">
           {{ data.item.name }}
           <v-spacer />
           {{ data.item.url }}
         </template>
-        <template v-slot:append-outer>
+        <template #append-outer>
           <v-btn icon :color="edit ? 'warning' : 'darken-1'" @click.stop="edit = !edit">
             <v-icon>mdi-square-edit-outline</v-icon>
           </v-btn>
@@ -35,27 +35,27 @@
       <div v-show="edit" class="px-6">
         <form>
           <v-row dense background="red">
-              <v-col cols="12" sm="3">
-                <v-text-field
-                  v-model="form.name"
-                  label="Name"
-                  required dense
-                />
-              </v-col>
-              <v-col cols="12" sm="9">
-                <v-text-field
-                  v-model="form.url"
-                  label="URL"
-                  required dense
-                  append-outer-icon="mdi-plus-thick"
-                >
-                  <template v-slot:append-outer>
-                    <v-btn ref="create" icon color="success" @click.stop="create">
-                      <v-icon>mdi-plus-thick</v-icon>
-                    </v-btn>
-                  </template>
-                </v-text-field>
-              </v-col>
+            <v-col cols="12" sm="3">
+              <v-text-field
+                v-model="form.name"
+                label="Name"
+                required dense
+              />
+            </v-col>
+            <v-col cols="12" sm="9">
+              <v-text-field
+                v-model="form.url"
+                label="URL"
+                required dense
+                append-outer-icon="mdi-plus-thick"
+              >
+                <template #append-outer>
+                  <v-btn ref="create" icon color="success" @click.stop="create">
+                    <v-icon>mdi-plus-thick</v-icon>
+                  </v-btn>
+                </template>
+              </v-text-field>
+            </v-col>
           </v-row>
         </form>
       </div>
@@ -63,12 +63,13 @@
   </v-card>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer } from 'vuetify/lib'
-export default {
+export default Vue.extend({
   components: { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer },
   props: {
-    value: { type: String },
+    value: { type: String, default: '' },
     items: { type: Array, default: () => [] }
   },
   data: () => ({
@@ -86,5 +87,5 @@ export default {
       this.$emit('input', remote)
     }
   }
-}
+})
 </script>

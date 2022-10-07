@@ -1,6 +1,6 @@
 <template>
   <v-layout style="height: 100%;" @click.stop=click>
-    <v-flex grow class="sea" ref="sea" >
+    <v-flex ref="sea" grow class="sea">
       <div ref="boat" class="boat">
         <v-icon>mdi-sail-boat</v-icon>
       </div>
@@ -85,10 +85,11 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VLayout, VFlex, VIcon } from 'vuetify/lib'
 
-export default {
+export default Vue.extend({
   components: { VLayout, VFlex, VIcon },
   data: () => ({
     ticker: null,
@@ -118,9 +119,9 @@ export default {
     clearInterval(this.ticker)
     this.ticker = setInterval(() => this.tick(), 50)
   },
-  unmounted: function () {
-    clearInterval(this.ticker)
-  },
+  // unmounted: function () {
+  //   clearInterval(this.ticker)
+  // },
   computed: {
   },
   methods: {
@@ -236,5 +237,5 @@ export default {
       this.$refs.distance.style.top = `${this.cannon.distance.y - 3}px`
     }
   }
-}
+})
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer :value=system.push @input="$event || close" fixed right stateless width="100%" style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px">
+  <v-navigation-drawer :value=system.push fixed right stateless width="100%" style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px" @input="$event || close">
     <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%;">
         <div class="flex-grow-0">
@@ -9,21 +9,21 @@
             </v-btn>
             <h1>Push</h1>
           </div>
-          <div style="clear: both" ></div>
+          <div style="clear: both" />
 
           <v-card dense class="my-2">
             <v-card-title class="pa-2">
               Credentials
             </v-card-title>
             <keyfile-input small storable
-              :value=repository.credentials.key
-              @input=credential_key
-              :stored=configuration.private_key
+                           :value=repository.credentials.key
+                           :stored=configuration.private_key
+                           @input=credential_key
             />
             <push-passphrase-input small storable
-              :value=repository.credentials.passphrase
-              @input=credential_passphrase
-              :stored=configuration.passphrase
+                                   :value=repository.credentials.passphrase
+                                   :stored=configuration.passphrase
+                                   @input=credential_passphrase
             />
           </v-card>
 
@@ -41,7 +41,9 @@
               </v-col>
 
               <v-col cols=1 class="text-center pa-0" align-center>
-                <v-icon align-center x-large>mdi-chevron-right</v-icon>
+                <v-icon align-center x-large>
+                  mdi-chevron-right
+                </v-icon>
               </v-col>
 
               <v-col>
@@ -55,7 +57,7 @@
             </v-row>
           </v-container>
 
-          <v-divider class="mt-4 mb-2"></v-divider>
+          <v-divider class="mt-4 mb-2" />
         </div>
 
         <div class="flex-grow-1 mb-3">
@@ -70,16 +72,18 @@
         </div>
 
         <div ref="base" class="flex-grow-0 pb-3 actions">
-          <v-divider class="mt-0 mb-2"></v-divider>
+          <v-divider class="mt-0 mb-2" />
           <push-confirm
-            :value=system.push_confirm @input=confirm
-            :disabled="!(configuration.key && pending && pending.length)"
+            :value=system.push_confirm :disabled="!(configuration.key && pending && pending.length)"
             :waiting=repository.push_working
             :history=repository.pending
+            @input=confirm
             @push=push
           />
           <v-btn color="warning" @click.stop=close>
-            <v-icon class="mr-2">mdi-cancel</v-icon>
+            <v-icon class="mr-2">
+              mdi-cancel
+            </v-icon>
             Cancel
           </v-btn>
         </div>
@@ -96,17 +100,18 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VNavigationDrawer, VContainer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCol, VRow } from 'vuetify/lib'
 import store from '@/store'
-import KeyfileInput from './KeyfileInput'
-import PushPassphraseInput from './PushPassphraseInput'
-import PushRemoteSelector from './PushRemoteSelector'
-import PushBranch from './PushBranch'
-import PushStatus from './PushStatus'
-import PushConfirm from './PushConfirm'
+import KeyfileInput from './KeyfileInput.vue'
+import PushPassphraseInput from './PushPassphraseInput.vue'
+import PushRemoteSelector from './PushRemoteSelector.vue'
+import PushBranch from './PushBranch.vue'
+import PushStatus from './PushStatus.vue'
+import PushConfirm from './PushConfirm.vue'
 
-export default {
+export default Vue.extend({
   computed: {
     system: function () {
       return store.state.system
@@ -162,5 +167,5 @@ export default {
     PushStatus,
     PushConfirm
   }
-}
+})
 </script>

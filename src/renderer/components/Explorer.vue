@@ -1,6 +1,8 @@
 <template>
   <div class="explorer-root">
-    <explorer-node v-if=root
+    <explorer-node
+      v-if=root
+      ref="explorer_root"
       root
       :name=repository.name
       :path=repository.path
@@ -13,11 +15,9 @@
       :relationship=root.relationship
       :children=root.children
       :expanded=root.expanded
-
       @context="$emit('context', $event)"
       @select=select
       @paste="$emit('paste', $event)"
-
       @toggle=toggle
       @open=open
       @edit=edit
@@ -26,11 +26,8 @@
       @drag=drag
       @drop=drop
       @create=create
-
       @template=template
       @action=action
-
-      ref="explorer_root"
     />
   </div>
 </template>
@@ -47,14 +44,15 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import store from '@/store'
-import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode'
+import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
-export default {
+export default Vue.extend({
   props: {
-    value: { type: Object },
-    enabled: { type: Boolean }
+    value: { type: Object, default: () => ({}) },
+    enabled: { type: Boolean, default: false }
   },
   data: () => ({
     hold: null
@@ -77,22 +75,22 @@ export default {
     }
   },
   methods: {
-    format: function (name, directory, error) {
+    format: function (name, directory) {
       if (!name) {
         throw new Error('Name provided is falsey')
       }
 
-      if (name.match(/[^a-z0-9.-]/)) {
+      if (name.match(/[^\d.a-z-]/)) {
         throw new Error('Name contains invalid characters')
       }
 
       const words = String(name).split('.')
 
-      if (words.length && !directory) {
+      if (words.length > 0 && !directory) {
         words.pop()
       }
 
-      return words.map(item => String(item).substring(0, 1).toUpperCase().concat(item.substring(1))).join(' ').trim()
+      return words.map(item => String(item).slice(0, 1).toUpperCase().concat(item.slice(1))).join(' ').trim()
     },
     toggle: async function (state) {
       const { path } = state
@@ -146,5 +144,5 @@ export default {
     action: async (state) => await store.dispatch('actions/execute', state)
   },
   components: { ExplorerNode }
-}
+})
 </script>

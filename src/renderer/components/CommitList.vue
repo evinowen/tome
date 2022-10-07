@@ -18,18 +18,19 @@
         class="my-2"
         @click:row="$emit('click', $event)"
       >
-        <template v-slot:item.type="{ item }">
+        <template #item.type="{ item }">
           <v-btn tile icon x-small :color="file_color(item.type)">
-            <v-icon small class="mr-1">{{ file_icon(item.type) }}</v-icon>
+            <v-icon small class="mr-1">
+              {{ file_icon(item.type) }}
+            </v-icon>
             {{ file_type(item.type) }}
           </v-btn>
         </template>
 
-        <template v-slot:item.action="{ item }">
+        <template #item.action="{ item }">
           <v-btn tile icon x-small @click.stop="$emit('input', item.path)">
             <v-icon>{{ icon }}</v-icon>
           </v-btn>
-
         </template>
       </v-data-table>
     </div>
@@ -75,7 +76,8 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VDataTable, VCard, VCardTitle, VBtn, VIcon, Resize } from 'vuetify/lib'
 
 class RepositoryFile {
@@ -88,7 +90,7 @@ class RepositoryFile {
   }
 }
 
-export default {
+export default Vue.extend({
   components: { VDataTable, VCard, VCardTitle, VBtn, VIcon },
   props: {
     title: { type: String, default: 'List' },
@@ -158,5 +160,5 @@ export default {
   directives: {
     Resize
   }
-}
+})
 </script>

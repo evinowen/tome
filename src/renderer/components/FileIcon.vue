@@ -1,14 +1,14 @@
 <template>
-  <v-btn tile text x-small @click.stop="$emit('click')" :class="[ `file-icon-${size}`, `file-icon-button`, disabled ? 'file-icon-disabled' : '' ]">
+  <v-btn tile text x-small :class="[ `file-icon-${size}`, `file-icon-button`, disabled ? 'file-icon-disabled' : '' ]" @click.stop="$emit('click')">
     <v-icon
       :class="[ `file-icon-icon`, expanded ? 'file-icon-expanded' : '', badge ? `file-icon-icon-badged` : '' ]"
     >
       {{ icon }}
     </v-icon>
     <v-icon v-if="badge"
-      :key=path
-      :class="[ `file-icon-badge`, expanded ? 'file-icon-expanded' : '', modifier ]"
-      :color="alert ? 'red' : ''"
+            :key=path
+            :class="[ `file-icon-badge`, expanded ? 'file-icon-expanded' : '', modifier ]"
+            :color="alert ? 'red' : ''"
     >
       {{ badge }}
     </v-icon>
@@ -127,20 +127,21 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VBtn, VIcon } from 'vuetify/lib'
 
-export default {
+export default Vue.extend({
   components: { VBtn, VIcon },
   props: {
-    path: { type: String },
-    extension: { type: String },
-    relationship: { type: String },
-    directory: { type: Boolean },
-    expanded: { type: Boolean },
-    selected: { type: Boolean },
-    image: { type: Boolean },
-    alert: { type: Boolean },
+    path: { type: String, default: '' },
+    extension: { type: String, default: '' },
+    relationship: { type: String, default: '' },
+    directory: { type: Boolean, default: false },
+    expanded: { type: Boolean, default: false },
+    selected: { type: Boolean, default: false },
+    image: { type: Boolean, default: false },
+    alert: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
     size: { type: String, default: 'small' }
   },
@@ -168,47 +169,47 @@ export default {
       return 'mdi-newspaper-variant'
     },
     badge: function () {
-      const set = () => {
-        switch (this.relationship) {
-          case 'root':
-            return null
+      let base = this.alert ? 'mdi-alert-circle' : null
 
-          case 'git':
-            return 'mdi-lock'
-
-          case 'tome':
-            return this.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
-
-          case 'tome-feature-actions':
-          case 'tome-feature-templates':
-            return 'mdi-cog'
-
-          case 'tome-action':
-            return 'mdi-play-circle'
-
-          case 'tome-template':
-            return 'mdi-lightning-bolt-circle'
-        }
-
-        if (this.image) {
+      switch (this.relationship) {
+        case 'root':
           return null
-        }
 
-        if (this.relationship === 'tome-file') {
-          switch (this.extension) {
-            case '.md':
-              return 'mdi-arrow-down-bold-circle'
+        case 'git':
+          return 'mdi-lock'
 
-            case '.js':
-              return 'mdi-language-javascript'
+        case 'tome':
+          return this.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
 
-            case '.json':
-              return 'mdi-code-json'
-          }
+        case 'tome-feature-actions':
+        case 'tome-feature-templates':
+          return 'mdi-cog'
+
+        case 'tome-action':
+          return 'mdi-play-circle'
+
+        case 'tome-template':
+          return 'mdi-lightning-bolt-circle'
+      }
+
+      if (this.image) {
+        return base
+      }
+
+      if (this.relationship === 'tome-file') {
+        switch (this.extension) {
+          case '.md':
+            return 'mdi-arrow-down-bold-circle'
+
+          case '.js':
+            return 'mdi-language-javascript'
+
+          case '.json':
+            return 'mdi-code-json'
         }
       }
 
-      return set() || (this.alert ? 'mdi-alert-circle' : null)
+      return base
     },
     modifier: function () {
       switch (this.badge) {
@@ -231,5 +232,5 @@ export default {
       return null
     }
   }
-}
+})
 </script>

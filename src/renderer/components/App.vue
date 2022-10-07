@@ -68,26 +68,27 @@ html, body {
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import store from '@/store'
 
-import ContextMenuService from '@/components/ContextMenuService'
-import SearchService from '@/components/SearchService'
+import ContextMenuService from '@/components/ContextMenuService.vue'
+import SearchService from '@/components/SearchService.vue'
 
 import { VApp } from 'vuetify/lib'
-import SystemBar from '@/components/SystemBar'
-import Settings from '@/components/Settings'
-import Branch from '@/components/Branch'
-import Patch from '@/components/Patch'
-import Commit from '@/components/Commit'
-import Push from '@/components/Push'
-import Console from '@/components/Console'
-import EditorInterface from '@/components/EditorInterface'
-import EmptyPane from '@/components/EmptyPane'
-import ActionBar from '@/components/ActionBar'
-import ShortcutService from '@/components/ShortcutService'
+import SystemBar from '@/components/SystemBar.vue'
+import Settings from '@/components/Settings.vue'
+import Branch from '@/components/Branch.vue'
+import Patch from '@/components/Patch.vue'
+import Commit from '@/components/Commit.vue'
+import Push from '@/components/Push.vue'
+import Console from '@/components/Console.vue'
+import EditorInterface from '@/components/EditorInterface.vue'
+import EmptyPane from '@/components/EmptyPane.vue'
+import ActionBar from '@/components/ActionBar.vue'
+import ShortcutService from '@/components/ShortcutService.vue'
 
-export default {
+export default Vue.extend({
   computed: {
     repository: function () {
       return store.state.repository
@@ -112,5 +113,5 @@ export default {
     SearchService,
     ShortcutService
   }
-}
+})
 </script>

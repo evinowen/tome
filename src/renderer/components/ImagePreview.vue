@@ -1,14 +1,14 @@
 <template>
   <div ref="preview"
-    :class="[ 'image-preview', zoom ? 'image-preview-zoom' : '' ]"
+       :class="[ 'image-preview', zoom ? 'image-preview-zoom' : '' ]"
   >
     <file-icon v-if=hide size="large" image alert disabled />
     <img v-else
-      :src=src
-      :class="[ 'preview', zoom ? 'preview-zoom' : '' ]"
-      @click=click
-      @error=error
-    />
+         :src=src
+         :class="[ 'preview', zoom ? 'preview-zoom' : '' ]"
+         @click=click
+         @error=error
+    >
   </div>
 </template>
 
@@ -54,13 +54,14 @@
 }
 </style>
 
-<script>
-import FileIcon from '@/components/FileIcon'
+<script lang="ts">
+import Vue from 'vue'
+import FileIcon from '@/components/FileIcon.vue'
 
-export default {
+export default Vue.extend({
   components: { FileIcon },
   props: {
-    src: { type: String }
+    src: { type: String, default: '' },
   },
   data: () => ({
     hide: false,
@@ -84,5 +85,5 @@ export default {
       this.$refs.preview.scrollTo({ top, left, behavior })
     }
   }
-}
+})
 </script>

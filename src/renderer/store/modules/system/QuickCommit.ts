@@ -1,7 +1,7 @@
 import { delay } from 'lodash'
 
 export default class QuickCommit {
-  static async perform (dispatch) {
+  static async perform (dispatch: (action: string, data?: any) => Promise<boolean>) {
     await dispatch('message', 'Perform Quick Commit')
 
     try {

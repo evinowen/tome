@@ -1,8 +1,11 @@
-import factory from '@/store/factories/feature'
+import { ActionContext } from 'vuex'
+import factory, { State as FactoryState } from '../factories/feature'
 
 export const ActionBaseIndex = 'resolve(\'done\')\n'
 
-const create = (context) => async (path) => {
+export type State = FactoryState
+
+const create = (context: ActionContext<State, any>) => async (path: string) => {
   const index_item = await context.dispatch('files/create', { path, name: 'index.js' }, { root: true })
 
   await context.dispatch('files/save', { item: index_item, content: ActionBaseIndex }, { root: true })
@@ -12,7 +15,8 @@ const create = (context) => async (path) => {
   await context.dispatch('load', { path: context.state.target.base })
 }
 
-const execute = (context) => async ({ name, source, target, selection }) => {
+const execute = (context: ActionContext<State, any>) => async (data: { name: string, source: string, target: string, selection: string }) => {
+  const { source, target, selection } = data
   const result = await window.api.action.invoke(source, target, selection)
 
   if (result.success) {

@@ -9,10 +9,12 @@
     </v-flex>
     <v-btn
       tile icon :small=small style="height: auto;"
-      @click.stop=copy
       :disabled="value === ''"
+      @click.stop=copy
     >
-      <v-icon small>mdi-content-copy</v-icon>
+      <v-icon small>
+        mdi-content-copy
+      </v-icon>
     </v-btn>
   </v-layout>
 </template>
@@ -23,11 +25,12 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
 import store from '@/store'
 
-export default {
+export default Vue.extend({
   components: { VIcon, VBtn, VTextField, VLayout, VFlex },
   props: {
     value: { type: String, default: '' },
@@ -39,5 +42,5 @@ export default {
       await store.dispatch('clipboard/text', this.value)
     }
   }
-}
+})
 </script>

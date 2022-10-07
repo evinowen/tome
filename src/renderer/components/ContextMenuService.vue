@@ -1,6 +1,7 @@
 <template>
   <context-menu-node
     v-if=context.visible
+    ref="root"
     v-resize=resize
     :window_x=window_x
     :window_y=window_y
@@ -10,18 +11,18 @@
     :target=context.target
     :items=context.items
     :layer=10000
-    @close=close
     root
-    ref="root"
+    @close=close
   />
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { Resize } from 'vuetify/lib'
-import ContextMenuNode from './ContextMenuNode'
+import ContextMenuNode from './ContextMenuNode.vue'
 import store from '@/store'
 
-export default {
+export default Vue.extend({
   components: { ContextMenuNode },
   directives: { Resize },
   data: () => ({
@@ -43,5 +44,5 @@ export default {
       await store.dispatch('context/close')
     }
   }
-}
+})
 </script>

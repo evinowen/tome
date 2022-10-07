@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer :value=value @input="$event || close" fixed right stateless width="100%" style="z-index: 110; max-width: 900px; height: auto; top: 25px; bottom: 18px;">
+  <v-navigation-drawer :value=value fixed right stateless width="100%" style="z-index: 110; max-width: 900px; height: auto; top: 25px; bottom: 18px;" @input="$event || close">
     <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%;">
         <div class="flex-grow-0">
@@ -9,7 +9,7 @@
             </v-btn>
             <h1>Patch</h1>
           </div>
-          <div style="clear: both" ></div>
+          <div style="clear: both" />
         </div>
 
         <div class="flex-grow-1 mb-3">
@@ -32,7 +32,7 @@
         </div>
 
         <div ref="base" class="flex-grow-0 pb-3 actions">
-          <v-divider class="mt-0 mb-2"></v-divider>
+          <v-divider class="mt-0 mb-2" />
           <v-btn small color="primary" @click.stop=close>
             Done
           </v-btn>
@@ -59,7 +59,8 @@ pre {
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText } from 'vuetify/lib'
 
 import store from '@/store'
@@ -78,7 +79,7 @@ class RepositoryPatch {
   }
 }
 
-export default {
+export default Vue.extend({
   components: { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText },
   props: {
     value: { type: Boolean, default: false }
@@ -119,5 +120,5 @@ export default {
       }
     }
   }
-}
+})
 </script>

@@ -1,4 +1,10 @@
+import { MutationTree, ActionTree } from 'vuex'
+import File from './File'
 import FileTree, { FileIdentity, FileIdentityContract } from './FileTree'
+
+class FileTreeNotEstablishedError extends Error {}
+class FileNotSelectedError extends Error {}
+class FileSubmitFailureError extends Error {}
 
 export const ChokidarEvent = {
   ADD: 'add',
@@ -7,20 +13,21 @@ export const ChokidarEvent = {
   DELETE_DIR: 'unlinkDir'
 }
 
+export class State {
+  active: string|null = null
+  content: string|null = null
+  error: string|null = null
+  tree: FileTree|null = null
+  ghost: File|null = null
+  selected: File|null = null
+  editing: boolean = false
+  post?: (path: string) => void
+}
+
 export default {
   namespaced: true,
-  state: {
-    active: null,
-    content: null,
-    error: null,
-    tree: null,
-    ghost: null,
-    selected: null,
-    editing: false,
-    post: null,
-    watcher: null
-  },
-  mutations: {
+  state: new State,
+  mutations: <MutationTree<State>>{
     initialize: function (state, tree) {
       state.tree = tree
     },
@@ -57,9 +64,10 @@ export default {
       state.editing = edit
 
       if (!state.editing && state.selected?.ephemeral) {
-        const { parent } = state.ghost
-        parent.exercise()
-        state.ghost = null
+        if (state.ghost !== null) {
+          state.ghost.exercise()
+          state.ghost = null
+        }
       }
     },
     haunt: function (state, data) {
@@ -83,13 +91,17 @@ export default {
       state.error = error
     }
   },
-  actions: {
+  actions: <ActionTree<State, any>>{
     initialize: async function (context, { path }) {
       const tree = await FileTree.make(path)
 
       context.commit('initialize', tree)
 
       await tree.listen(async (data) => {
+        if (context.state.tree === null) {
+          throw new FileTreeNotEstablishedError()
+        }
+
         const { event, path: relative } = data
         const identity = context.state.tree.identify(relative)
 
@@ -118,6 +130,10 @@ export default {
     identify: async function (context, criteria) {
       const { item = null, path = null } = criteria
 
+      if (context.state.tree === null) {
+        throw new FileTreeNotEstablishedError()
+      }
+
       if (item) {
         return item
       }
@@ -127,9 +143,10 @@ export default {
       }
 
       const relative = await context.state.tree.relative(path)
-      let identity = context.state.tree.identify(relative)
+      let identity = context.state.tree.identify(relative || '')
 
-      while (true) {
+      const loop = true
+      while (loop) {
         if (!identity) {
           throw new Error(`File path ${path} does not exist`)
         }
@@ -144,7 +161,7 @@ export default {
 
           identity = await FileTree.search(identity.item, identity.queue)
         } else {
-          throw new Error(`File path ${path} failed to identify`)
+          throw new TypeError(`File path ${path} failed to identify`)
         }
       }
 
@@ -232,9 +249,13 @@ export default {
 
       let item = context.state.selected
 
+      if (item === null) {
+        throw new FileNotSelectedError()
+      }
+
       context.commit('edit', { edit: false })
 
-      let name = input.toLowerCase().replace(/[ .-]+/g, '.').replace(/[^a-z0-9.-]/g, '')
+      let name = input.toLowerCase().replace(/[ .-]+/g, '.').replace(/[^\d.a-z-]/g, '')
 
       const { ephemeral, parent, directory } = item
 
@@ -248,10 +269,14 @@ export default {
         item = await context.dispatch('rename', { item, name })
       }
 
+      if (item === null) {
+        throw new FileSubmitFailureError()
+      }
+
       await context.dispatch('select', { item })
 
       if (context.state.post) {
-        await context.state.post(item.path)
+        await context.state.post(item.path || '')
       }
 
       return item

@@ -19,11 +19,11 @@ export default store => {
     await store.dispatch('repository/credentials/passphrase', value)
   })
 
-  store.watch(state => state.repository.credentials.key, async (value) => {
+  store.watch(state => state.repository.credentials.key, async () => {
     await store.dispatch('repository/remote')
   })
 
-  store.watch(state => state.repository.credentials.passphrase, async (value) => {
+  store.watch(state => state.repository.credentials.passphrase, async () => {
     await store.dispatch('repository/remote')
   })
 }

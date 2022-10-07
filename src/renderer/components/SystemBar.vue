@@ -8,16 +8,16 @@
     <v-btn tile icon small @click.stop=settings>
       <v-icon>{{ icon }}</v-icon>
     </v-btn>
-    <v-spacer></v-spacer>
+    <v-spacer />
     <span system-bar-title :style="{ opacity: (title ? 1 : 0.4)}">{{ title || 'tome' }}</span>
-    <v-spacer></v-spacer>
-    <v-btn tile icon small @click.stop="minimize" system-bar-minimize>
+    <v-spacer />
+    <v-btn tile icon small system-bar-minimize @click.stop="minimize">
       <v-icon>mdi-window-minimize</v-icon>
     </v-btn>
-    <v-btn tile icon small @click.stop="maximize" system-bar-maximize>
+    <v-btn tile icon small system-bar-maximize @click.stop="maximize">
       <v-icon>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
     </v-btn>
-    <v-btn tile icon small @click.stop="exit" system-bar-close>
+    <v-btn tile icon small system-bar-close @click.stop="exit">
       <v-icon>mdi-window-close</v-icon>
     </v-btn>
   </v-system-bar>
@@ -50,11 +50,12 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VBtn, VIcon, VSystemBar, VSpacer } from 'vuetify/lib'
 import store from '@/store'
 
-export default {
+export default Vue.extend({
   components: { VBtn, VIcon, VSystemBar, VSpacer },
   computed: {
     maximized: function () {
@@ -85,5 +86,5 @@ export default {
       await store.dispatch('system/exit')
     }
   }
-}
+})
 </script>

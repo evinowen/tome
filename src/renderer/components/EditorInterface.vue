@@ -8,16 +8,16 @@
 
     <template slot="paneR">
       <div v-show="active" class="fit">
-        <div class="fill-height" v-show="view === 'rendered'">
+        <div v-show="view === 'rendered'" class="fill-height">
           <div
-            ref="rendered"
             id="editor-interface-rendered"
+            ref="rendered"
             class="pa-2"
-            v-html="rendered"
             @contextmenu=context
+            v-html="rendered"
           />
         </div>
-        <div class="fill-height" v-show="view === 'edit'">
+        <div v-show="view === 'edit'" class="fill-height">
           <codemirror
             ref="editor"
             :options="codemirror_options"
@@ -25,7 +25,7 @@
             @contextmenu="(cm, event) => contextmenu(event)"
           />
         </div>
-        <div class="fill-height" v-show="view === 'empty'">
+        <div v-show="view === 'empty'" class="fill-height">
           <template v-if=selected>
             <image-preview v-if=selected.image :src=selected.path />
             <empty-pane v-else class="fill-height">
@@ -40,8 +40,12 @@
                 disabled
               />
               <v-divider v-if=selected.name class="mt-4" />
-              <div style="font-size: 2em;">{{ selected.name }}</div>
-              <div style="font-size: 1.3em; opacity: 0.6">{{ selected.relative }}</div>
+              <div style="font-size: 2em;">
+                {{ selected.name }}
+              </div>
+              <div style="font-size: 1.3em; opacity: 0.6">
+                {{ selected.relative }}
+              </div>
             </empty-pane>
           </template>
         </div>
@@ -104,18 +108,19 @@
 
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VDivider } from 'vuetify/lib'
 import { debounce, delay } from 'lodash'
 import marked from 'marked'
 import Mark from 'mark.js'
-import Explorer from '@/components/Explorer'
-import FileIcon from '@/components/FileIcon'
-import ImagePreview from '@/components/ImagePreview'
-import EmptyPane from '@/components/EmptyPane'
+import Explorer from '@/components/Explorer.vue'
+import FileIcon from '@/components/FileIcon.vue'
+import ImagePreview from '@/components/ImagePreview.vue'
+import EmptyPane from '@/components/EmptyPane.vue'
 import store from '@/store'
 
-export default {
+export default Vue.extend({
   data: () => ({
     error: '',
     overlay: null,
@@ -350,7 +355,7 @@ export default {
         this.codemirror.removeOverlay(this.overlay, true)
       }
 
-      await new Promise((resolve, reject) => {
+      await new Promise((resolve) => {
         this.mark.unmark({ done: resolve })
       })
 
@@ -361,7 +366,7 @@ export default {
 
       try {
         this.regex = new RegExp(
-          this.regex_query ? this.query : String(this.query).replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&'),
+          this.regex_query ? this.query : String(this.query).replace(/[$()*+./?[\\\]^{|}-]/g, '\\$&'),
           String('g').concat(this.case_sensitive ? '' : 'i')
         )
       } catch (error) {
@@ -399,7 +404,7 @@ export default {
 
         await store.dispatch('search/navigate', { total, target: null })
       } else {
-        const total = await new Promise((resolve, reject) => {
+        const total = await new Promise((resolve) => {
           this.mark.markRegExp(
             this.regex,
             {
@@ -456,7 +461,9 @@ export default {
           try {
             this.codemirror.setSelection(from, to)
             this.codemirror.scrollIntoView({ from, to })
-          } catch (_) { }
+          } catch (error) {
+            // Do nothing
+          }
         }
       } else {
         if (this.focus) {
@@ -479,5 +486,5 @@ export default {
     FileIcon,
     ImagePreview
   }
-}
+})
 </script>

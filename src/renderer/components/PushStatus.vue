@@ -3,15 +3,18 @@
     <template v-if=active>
       <template v-if=loading>
         <v-list-item>
-          <v-list-item-avatar color="darken-1">
-          </v-list-item-avatar>
+          <v-list-item-avatar color="darken-1" />
           <v-list-item-content>
-            <v-list-item-title class="headline">&mdash;</v-list-item-title>
+            <v-list-item-title class="headline">
+              &mdash;
+            </v-list-item-title>
             <v-list-item-subtitle>Loading ... </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-divider></v-divider>
-        <v-card-text class="text-center">&mdash;</v-card-text>
+        <v-divider />
+        <v-card-text class="text-center">
+          &mdash;
+        </v-card-text>
       </template>
 
       <template v-else-if=error>
@@ -20,14 +23,18 @@
             <v-icon>mdi-alert</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <v-list-item-title class="headline">Error</v-list-item-title>
+            <v-list-item-title class="headline">
+              Error
+            </v-list-item-title>
             <v-list-item-subtitle>{{ error }}</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-text class="text-center">
           <v-btn @click.stop="$emit('reload')">
-            <v-icon class="mr-2">mdi-reload</v-icon>
+            <v-icon class="mr-2">
+              mdi-reload
+            </v-icon>
             Retry
           </v-btn>
         </v-card-text>
@@ -39,12 +46,16 @@
             <v-icon>mdi-thumb-up</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <v-list-item-title class="headline">Match</v-list-item-title>
+            <v-list-item-title class="headline">
+              Match
+            </v-list-item-title>
             <v-list-item-subtitle>The local repository history matches the remote repository</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-divider></v-divider>
-        <v-card-text class="text-center">&mdash;</v-card-text>
+        <v-divider />
+        <v-card-text class="text-center">
+          &mdash;
+        </v-card-text>
       </template>
 
       <template v-else>
@@ -53,7 +64,9 @@
             <v-icon>mdi-check</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <v-list-item-title class="headline">Compare</v-list-item-title>
+            <v-list-item-title class="headline">
+              Compare
+            </v-list-item-title>
             <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
@@ -66,7 +79,7 @@
             :items-per-page="history.length"
             @click:row="$emit('click', $event)"
           >
-            <template v-slot:item.oid="{ item }">
+            <template #item.oid="{ item }">
               <v-btn tile icon x-small color="success">
                 {{ item.oid.substring(0, 7) }}
               </v-btn>
@@ -74,7 +87,6 @@
           </v-data-table>
         </v-container>
       </template>
-
     </template>
 
     <template v-else>
@@ -83,12 +95,16 @@
           <v-icon>mdi-cursor-pointer</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title class="headline">Select Remote</v-list-item-title>
+          <v-list-item-title class="headline">
+            Select Remote
+          </v-list-item-title>
           <v-list-item-subtitle>Choose a remote to compare to the local repository</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
-      <v-divider></v-divider>
-      <v-card-text class="text-center">&mdash;</v-card-text>
+      <v-divider />
+      <v-card-text class="text-center">
+        &mdash;
+      </v-card-text>
     </template>
   </v-card>
 </template>
@@ -135,7 +151,8 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import {
   VIcon,
   VListItem,
@@ -151,7 +168,7 @@ import {
   VBtn
 } from 'vuetify/lib'
 
-export default {
+export default Vue.extend({
   components: {
     VIcon,
     VListItem,
@@ -179,5 +196,5 @@ export default {
       { text: '', value: 'message', width: '' }
     ]
   })
-}
+})
 </script>

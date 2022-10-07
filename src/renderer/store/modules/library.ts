@@ -1,12 +1,15 @@
-import os from 'os'
+import { MutationTree, ActionTree } from 'vuex'
+// import * as os from 'os'
+
+export class State {
+  path: string = ''
+  history: string[] = []
+}
 
 export default {
   namespaced: true,
-  state: {
-    path: '',
-    history: []
-  },
-  mutations: {
+  state: new State,
+  mutations: <MutationTree<State>>{
     set: function (state, data) {
       const { path, history } = data
       state.path = path
@@ -27,12 +30,14 @@ export default {
       }
     }
   },
-  actions: {
+  actions: <ActionTree<State, any>>{
     load: async function (context, path) {
       const history = []
 
       if (await window.api.file.exists(path)) {
+        console.log('file.contents library actions', path)
         const raw = await window.api.file.contents(path)
+        console.log('file.contents library actions')
 
         if (raw) {
           const lines = raw.split(/[\n\r]+/).map(line => line.trim())
@@ -64,26 +69,27 @@ export default {
       await context.dispatch('files/initialize', { path: path }, { root: true })
       await context.dispatch('repository/inspect', null, { root: true })
     },
-    close: async function (context, path) {
+    close: async function (context) {
       await context.dispatch('repository/clear', null, { root: true })
       await context.dispatch('files/clear', null, { root: true })
     },
     add: async function (context, path) {
       context.commit('add', path)
-      await context.dispatch('record')
+      // await context.dispatch('record')
     },
     remove: async function (context, path) {
       context.commit('remove', path)
-      await context.dispatch('record')
+      // await context.dispatch('record')
     },
     record: async function (context) {
-      let content = ''
+      // let content = ''
 
-      for (const path of context.state.history) {
-        content += String(path).concat(os.EOL)
-      }
+      // for (const path of context.state.history) {
+      //   content += String(path).concat(os.EOL)
+      // }
 
-      await window.api.file.write(context.state.path, content)
+      // // TODO: Move use of os module to main where it belongs
+      // await window.api.file.write(context.state.path, content)
     }
   }
 }

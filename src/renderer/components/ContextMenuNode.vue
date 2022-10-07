@@ -1,27 +1,30 @@
 <template>
-  <div ref="node" class="context-menu" v-click-outside="{ handler: () => $emit('close'), closeConditional: () => root, include }">
+  <div ref="node" v-click-outside="{ handler: () => $emit('close'), closeConditional: () => root, include }" class="context-menu">
     <v-list dense class="context-menu-list">
-      <v-subheader>{{ title || '&nbsp;'}}</v-subheader>
-      <v-divider></v-divider>
+      <v-subheader>{{ title || '&nbsp;' }}</v-subheader>
+      <v-divider />
       <v-list-item-group>
         <div v-for="(item, index) in items" :key="index">
-          <v-divider v-if=item.divider></v-divider>
-          <v-list-item v-else
-            @click.stop="execute(item.action)"
-            @mouseover="promote(index)"
+          <v-divider v-if=item.divider />
+          <v-list-item
+            v-else
             :disabled="item.active ? !item.active() : false"
             :inactive="item.action ? false : true"
+            @click.stop="execute(item.action)"
+            @mouseover="promote(index)"
           >
             <v-list-item-title class='item' style="line-height: 16px !important;">
               <v-layout>
                 <v-flex shrink class="menu-arrow">
-                  <v-icon small v-show="local_flip_x && (item.items || item.load)">
+                  <v-icon v-show="local_flip_x && (item.items || item.load)" small>
                     {{ local_flip_x && (item.items || item.load) ? "mdi-menu-left" : "" }}
                   </v-icon>
                 </v-flex>
-                <v-flex grow>{{ item.title }}</v-flex>
+                <v-flex grow>
+                  {{ item.title }}
+                </v-flex>
                 <v-flex shrink class="menu-arrow">
-                  <v-icon small v-show="!local_flip_x && (item.items || item.load)">
+                  <v-icon v-show="!local_flip_x && (item.items || item.load)" small>
                     {{ !local_flip_x && (item.items || item.load) ? "mdi-menu-right" : "" }}
                   </v-icon>
                 </v-flex>
@@ -88,18 +91,20 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VLayout, VFlex, VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VIcon, VDivider, ClickOutside } from 'vuetify/lib'
+import ResizeObserver from 'resize-observer-polyfill'
 
-export default {
+export default Vue.extend({
   name: 'ContextMenuNode',
   components: { VLayout, VFlex, VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VIcon, VDivider },
   directives: { ClickOutside },
   props: {
     title: { type: String, default: null },
     root: { type: Boolean, default: false },
-    target: { type: String },
-    items: { type: Array },
+    target: { type: String, default: null },
+    items: { type: Array, default: () => [] },
     position_x: { type: Number, default: 0 },
     position_y: { type: Number, default: 0 },
     flip_x: { type: Boolean, default: null },
@@ -138,8 +143,8 @@ export default {
     }
   },
   methods: {
-    include: function (param) {
-      const result = Array.from(this.$refs.node.querySelectorAll('*,* > *'))
+    include: function () {
+      const result = [...this.$refs.node.querySelectorAll('*,* > *')]
       return result
     },
     resize: function () {
@@ -225,5 +230,5 @@ export default {
       await action(this.target)
     }
   }
-}
+})
 </script>

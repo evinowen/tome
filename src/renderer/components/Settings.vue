@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer :value=value @input="$event || close" fixed stateless width="100%" style="z-index: 1000; max-width: 900px; height: auto; top: 25px; bottom: 18px">
+  <v-navigation-drawer :value=value fixed stateless width="100%" style="z-index: 1000; max-width: 900px; height: auto; top: 25px; bottom: 18px" @input="$event || close">
     <v-container fluid class="pb-0" style="height: 100%;">
       <v-row>
         <v-col>
@@ -17,11 +17,11 @@
       <v-row dense>
         <v-col xs=12 sm=12>
           <keyfile-input
-            label="private key"
             id="settings_private_key"
+            label="private key"
             :value=configuration.private_key
-            @input="assign_value('private_key', $event)"
-            forge @forge="generate_key(configuration.passphrase)"
+            forge
+            @input="assign_value('private_key', $event)" @forge="generate_key(configuration.passphrase)"
           />
         </v-col>
       </v-row>
@@ -49,7 +49,7 @@
       </v-row>
       <v-row dense>
         <v-col xs=12 sm=5 md=3 lg=2>
-          <v-switch :input-value=configuration.auto_push label="Automatic Push" @change="assign_value('auto_push', $event || false)"></v-switch>
+          <v-switch :input-value=configuration.auto_push label="Automatic Push" @change="assign_value('auto_push', $event || false)" />
         </v-col>
         <v-col xs=12 sm=7 md=9 lg=12>
           <v-text-field small label="default remote" :value=configuration.default_remote @input="assign_value('default_remote', $event)" />
@@ -58,13 +58,13 @@
       <v-row dense>
         <v-col>
           <h3>Display Options</h3>
-          <v-switch :input-value=configuration.format_titles label="Format Titles" @change="assign_value('format_titles', $event || false)"></v-switch>
+          <v-switch :input-value=configuration.format_titles label="Format Titles" @change="assign_value('format_titles', $event || false)" />
         </v-col>
       </v-row>
       <v-row dense>
         <v-col>
           <h3>Theme Colors</h3>
-          <v-switch :input-value=configuration.dark_mode label="Dark Mode" @change="assign_value('dark_mode', $event || false)"></v-switch>
+          <v-switch :input-value=configuration.dark_mode label="Dark Mode" @change="assign_value('dark_mode', $event || false)" />
         </v-col>
       </v-row>
       <v-row dense>
@@ -214,13 +214,15 @@
           </v-container>
         </v-col>
       </v-row>
-      <v-divider class="mt-4 mb-5"></v-divider>
+      <v-divider class="mt-4 mb-5" />
       <v-row>
         <v-col>
           <v-layout>
             <v-flex shrink>
               <v-layout class="tome">
-                <v-flex shrink style="text-align: center;"><img src="logo.png"/></v-flex>
+                <v-flex shrink style="text-align: center;">
+                  <img src="logo.png">
+                </v-flex>
                 <v-flex grow justify-center align-self-center>
                   <h3>Tome</h3>
                   version {{ system.version }}
@@ -231,22 +233,22 @@
               <sea-game />
             </v-flex>
             <v-flex v-if=system.process
-              shrink
-              style="font-size: 0.8em; text-align: right; opacity: 0.6;"
+                    shrink
+                    style="font-size: 0.8em; text-align: right; opacity: 0.6;"
             >
-              <b>electron</b> {{ system.process.versions.electron }}<br />
-              <b>chromium</b> {{ system.process.versions.chrome }}<br />
-              <b>node</b> {{ system.process.versions.node }}<br />
-              <b>v8</b> {{ system.process.versions.v8 }}<br />
-              <v-divider></v-divider>
-              <b>sandboxed</b> {{ system.process.sandboxed ? 'true' : 'false' }}<br />
+              <b>electron</b> {{ system.process.versions.electron }}<br>
+              <b>chromium</b> {{ system.process.versions.chrome }}<br>
+              <b>node</b> {{ system.process.versions.node }}<br>
+              <b>v8</b> {{ system.process.versions.v8 }}<br>
+              <v-divider />
+              <b>sandboxed</b> {{ system.process.sandboxed ? 'true' : 'false' }}<br>
             </v-flex>
           </v-layout>
         </v-col>
       </v-row>
-      <v-row class="mb-3"></v-row>
+      <v-row class="mb-3" />
       <div ref="base" class="pb-3 actions">
-        <v-divider class="mt-0 mb-2"></v-divider>
+        <v-divider class="mt-0 mb-2" />
         <v-btn small color="primary" @click.stop=close>
           Done
         </v-btn>
@@ -272,17 +274,18 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VLayout, VFlex, VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/lib'
 import { debounce } from 'lodash'
 import store from '@/store'
-import ThemePreview from './ThemePreview'
-import KeyfileInput from './KeyfileInput'
-import KeyfileOutput from './KeyfileOutput'
-import ThemeColorPicker from './ThemeColorPicker'
-import SeaGame from './SeaGame'
+import ThemePreview from './ThemePreview.vue'
+import KeyfileInput from './KeyfileInput.vue'
+import KeyfileOutput from './KeyfileOutput.vue'
+import ThemeColorPicker from './ThemeColorPicker.vue'
+import SeaGame from './SeaGame.vue'
 
-export default {
+export default Vue.extend({
   props: {
     value: { type: Boolean, default: false }
   },
@@ -334,5 +337,5 @@ export default {
     VFlex,
     SeaGame
   }
-}
+})
 </script>

@@ -5,7 +5,7 @@
     style="z-index: 1000;"
     height=18
   >
-    <library-button v-model=library @open=open @close=close :disabled="disabled_unless()" />
+    <library-button v-model=library :disabled="disabled_unless()" @open=open @close=close />
 
     <v-divider inset vertical />
 
@@ -22,30 +22,33 @@
 
       <v-divider inset vertical />
 
-      <v-btn v-if="repository.branch" tile small class="button px-2" color="primary" @click.stop="branch" :disabled="disabled_unless(system.branch)">
+      <v-btn v-if="repository.branch" tile small class="button px-2" color="primary" :disabled="disabled_unless(system.branch)" @click.stop="branch">
         {{ repository.branch }}
       </v-btn>
       <v-btn v-else-if="repository.branch.error" tile small icon class="button pl-1 pr-2" color="error">
-        <v-icon small class="pr-1">mdi-alert-box</v-icon>
+        <v-icon small class="pr-1">
+          mdi-alert-box
+        </v-icon>
         {{ repository.branch.error }}
       </v-btn>
 
       <v-divider inset vertical />
-
     </template>
 
     <v-btn tile icon small class="console button"
-      @click.stop=console
-      :disabled="disabled_unless(system.console || system.commit || system.push)"
-      :color="status === 'error' ? 'error' : ''"
+           :disabled="disabled_unless(system.console || system.commit || system.push)"
+           :color="status === 'error' ? 'error' : ''"
+           @click.stop=console
     >
-      <v-icon small>{{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}</v-icon>&nbsp;{{ message }}
+      <v-icon small>
+        {{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}
+      </v-icon>&nbsp;{{ message }}
     </v-btn>
 
     <template v-if="repository.path">
       <v-divider inset vertical />
 
-      <v-switch action-bar-edit :value="edit" @click.stop=edit dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()"></v-switch>
+      <v-switch action-bar-edit :value="edit" dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()" @click.stop=edit />
 
       <v-divider inset vertical />
 
@@ -53,15 +56,18 @@
         <div v-show="system.edit" style="overflow: hidden; white-space: nowrap;">
           <div style="height: 18px">
             <!-- SAVE BUTTON -->
-            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop=commit :disabled="disabled_unless(system.commit)">
-              <v-icon small>mdi-content-save</v-icon>
+            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" :disabled="disabled_unless(system.commit)" @click.stop=commit>
+              <v-icon small>
+                mdi-content-save
+              </v-icon>
             </v-btn>
 
             <!-- PUSH BUTTON -->
-            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" @click.stop=push :disabled="disabled_unless(system.push)">
-              <v-icon small>mdi-upload-multiple</v-icon>
+            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" :disabled="disabled_unless(system.push)" @click.stop=push>
+              <v-icon small>
+                mdi-upload-multiple
+              </v-icon>
             </v-btn>
-
           </div>
         </div>
       </v-expand-x-transition>
@@ -69,12 +75,12 @@
       <v-divider inset vertical />
 
       <!-- SEARCH BUTTON -->
-      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" @click.stop=search :disabled="disabled_unless()">
-        <v-icon small>mdi-magnify</v-icon>
+      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" :disabled="disabled_unless()" @click.stop=search>
+        <v-icon small>
+          mdi-magnify
+        </v-icon>
       </v-btn>
-
     </template>
-
   </v-footer>
 </template>
 
@@ -146,13 +152,14 @@
 
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
 import store from '@/store'
-import LibraryButton from './LibraryButton'
-import RepositoryButton from './RepositoryButton'
+import LibraryButton from './LibraryButton.vue'
+import RepositoryButton from './RepositoryButton.vue'
 
-export default {
+export default Vue.extend({
   data: () => ({
     library: false
   }),
@@ -218,5 +225,5 @@ export default {
     LibraryButton,
     RepositoryButton
   }
-}
+})
 </script>

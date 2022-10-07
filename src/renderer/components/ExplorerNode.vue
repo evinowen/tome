@@ -1,21 +1,21 @@
 <template>
-  <v-container class="pa-0" style="user-select: none; clear: both;" v-show="visible">
+  <v-container v-show="visible" class="pa-0" style="user-select: none; clear: both;">
     <div ref=draggable
-      class="explorer-node-drop"
-      droppable :draggable="!(root || system)"
-      @dragstart.stop=drag_start
-      @dragend.stop=drag_end
-      @dragenter.stop=drag_enter
-      @dragover.prevent.stop
-      @dragleave.stop=drag_leave
-      @drop.stop=drop
+         class="explorer-node-drop"
+         droppable :draggable="!(root || system)"
+         @dragstart.stop=drag_start
+         @dragend.stop=drag_end
+         @dragenter.stop=drag_enter
+         @dragover.prevent.stop
+         @dragleave.stop=drag_leave
+         @drop.stop=drop
     >
       <v-layout
-        v-bind:class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
+        :class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
         @click.left.stop="$emit('select', { path })"
         @click.right.stop=contextmenu
       >
-        <v-flex shrink class="explorer-node-indent" :style="{ width: `${depth * 6}px`}" ></v-flex>
+        <v-flex shrink class="explorer-node-indent" :style="{ width: `${depth * 6}px`}" />
         <file-icon
           class="mr-1"
           :path=path
@@ -41,15 +41,15 @@
               @keyup.enter="valid ? submit() : null"
             />
             <v-text-field
-              @click.left.stop="$emit('select', { path })"
-              v-show="!(selected && edit)" ref="input" :value=display readonly dense small class="pa-0" />
+              v-show="!(selected && edit)"
+              ref="input" :value=display readonly dense small class="pa-0" @click.left.stop="$emit('select', { path })"
+            />
           </v-form>
         </v-flex>
       </v-layout>
     </div>
     <div style="height: 2px;" />
     <v-container v-if=directory v-show=expanded class="explorer-node-container">
-
       <explorer-node
         v-for="child in children"
         :key=child.uuid
@@ -221,10 +221,11 @@
 
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VContainer, VLayout, VFlex, VForm, VTextField } from 'vuetify/lib'
 import store from '@/store'
-import FileIcon from '@/components/FileIcon'
+import FileIcon from '@/components/FileIcon.vue'
 
 export const ExplorerNodeGhostType = {
   FILE: 'file',
@@ -233,26 +234,26 @@ export const ExplorerNodeGhostType = {
   ACTION: 'action'
 }
 
-export default {
+export default Vue.extend({
   name: 'ExplorerNode',
   components: { VContainer, VLayout, VFlex, VForm, VTextField, FileIcon },
   props: {
-    uuid: { type: String },
+    uuid: { type: String, default: '' },
     enabled: { type: Boolean, default: false },
     expanded: { type: Boolean, default: false },
     ephemeral: { type: Boolean, default: false },
-    title: { type: Boolean },
+    title: { type: Boolean, default: false },
     name: { type: String, default: '' },
-    path: { type: String },
-    extension: { type: String },
+    path: { type: String, default: '' },
+    extension: { type: String, default: '' },
     image: { type: Boolean, default: false },
-    relationship: { type: String },
-    active: { type: String },
-    edit: { type: Boolean },
-    format: { type: Function },
+    relationship: { type: String, default: '' },
+    active: { type: String, default: '' },
+    edit: { type: Boolean, default: false },
+    format: { type: Function, default: null },
     directory: { type: Boolean, default: true },
-    children: { type: Array },
-    root: { type: Boolean },
+    children: { type: Array, default: () => [] },
+    root: { type: Boolean, default: false },
     depth: { type: Number, default: 0 }
   },
   data: () => ({
@@ -268,8 +269,8 @@ export default {
       return this.relationship === 'git'
     },
     system: function () {
-      const relationships = ['root', 'git', 'tome', 'tome-templates', 'tome-actions']
-      return relationships.includes(this.relationship)
+      const relationships = new Set(['root', 'git', 'tome', 'tome-templates', 'tome-actions'])
+      return relationships.has(this.relationship)
     },
     actions: function () {
       return store.state.actions.options.map(name => ({
@@ -290,7 +291,7 @@ export default {
       if (this.title && !this.system) {
         try {
           return this.format(this.name, this.directory)
-        } catch (e) {
+        } catch (error) {
           return (this.ephemeral || this.name) ? this.name : ' - '
         }
       }
@@ -300,24 +301,18 @@ export default {
     visible: function () {
       return this.root || this.ephemeral || !(this.title && (this.display === '' || this.system))
     },
-    rules: function () {
-      let rules = [
-        (value) => !this.error || this.error,
-        (value) => String(value).search(/[^\w\s.-]/g) === -1 || 'special characters are not allowed.',
+    rules: function (): ((value: string) => boolean|string)[] {
+      let rules:((value: string) => boolean|string)[] = [
+        () => !this.error || this.error,
+        (value) => String(value).search(/[^\s\w.-]/g) === -1 || 'special characters are not allowed.',
         (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'
       ]
 
       if (this.title) {
-        rules = [
-          ...rules,
-          (value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.'
-        ]
+        rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
       } else if (!this.directory) {
-        rules = [
-          ...rules,
-          (value) => String(value).search(/[.]\w+$/g) !== -1 || 'file extension is required.',
-          (value) => String(value).search(/^.+[.]\w+/g) !== -1 || 'file name is required.'
-        ]
+        rules.push((value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.')
+        rules.push((value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.')
       }
 
       return rules
@@ -342,7 +337,7 @@ export default {
     context: function () {
       const items = []
       const push = (array) => {
-        if (items.length) {
+        if (items.length > 0) {
           items.push({ divider: true })
         }
 
@@ -433,7 +428,7 @@ export default {
       ]
 
       push(this.directory ? expand : [])
-      push(special.length && this.system ? special : [])
+      push(special.length > 0 && this.system ? special : [])
       push(this.system && !this.root ? [] : script)
       push(file)
       push(clipboard)
@@ -492,5 +487,5 @@ export default {
       this.$emit('submit', { input: this.input, title: this.title })
     }
   }
-}
+})
 </script>

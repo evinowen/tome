@@ -1,36 +1,42 @@
 <template>
   <v-layout class="key-border pt-1">
     <v-flex class="pa-1">
-      <input ref="input" type="file" style="display: none" @change="input" />
+      <input ref="input" type="file" style="display: none" @change="input">
       <v-text-field
         :value="value || ' '" :label=label
         :class="[ value ? 'v-text-field-green' : 'v-text-field-red' ]"
         :color="value ? 'green' : 'red'"
         :prepend-inner-icon="value ? 'mdi-lock-open' : 'mdi-lock'"
-        @click.stop="$refs.input.click()"
-        readonly outlined hide-details dense
+        readonly
+        outlined hide-details dense @click.stop="$refs.input.click()"
       />
     </v-flex>
     <v-btn
       tile icon :small=small style="height: auto;"
-      @click.stop="$emit('input', '')"
       :disabled="value === ''"
+      @click.stop="$emit('input', '')"
     >
-      <v-icon small>mdi-close</v-icon>
+      <v-icon small>
+        mdi-close
+      </v-icon>
     </v-btn>
     <v-btn v-if=forge
-      tile icon :small=small style="height: auto;"
-      @click.stop="$emit('forge')"
-      :disabled="value !== ''"
+           tile icon :small=small style="height: auto;"
+           :disabled="value !== ''"
+           @click.stop="$emit('forge')"
     >
-      <v-icon small>mdi-anvil</v-icon>
+      <v-icon small>
+        mdi-anvil
+      </v-icon>
     </v-btn>
     <v-btn v-if=storable
-      tile icon :small=small style="height: auto;"
-      :disabled="stored === ''"
-      @click.stop="$emit('input', stored)"
+           tile icon :small=small style="height: auto;"
+           :disabled="stored === ''"
+           @click.stop="$emit('input', stored)"
     >
-      <v-icon small>mdi-cog</v-icon>
+      <v-icon small>
+        mdi-cog
+      </v-icon>
     </v-btn>
   </v-layout>
 </template>
@@ -56,10 +62,11 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
 
-export default {
+export default Vue.extend({
   components: { VIcon, VBtn, VTextField, VLayout, VFlex },
   props: {
     value: { type: String, default: '' },
@@ -78,7 +85,7 @@ export default {
   methods: {
     input: async function (event) {
       const files = event.target.files || event.dataTransfer.files
-      const file = files.length ? files[0] : null
+      const file = files.length > 0 ? files[0] : null
 
       if (!file.path) {
         return
@@ -88,5 +95,5 @@ export default {
       this.$refs.input.value = ''
     }
   }
-}
+})
 </script>

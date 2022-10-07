@@ -1,6 +1,6 @@
 export default class RepositoryFile {
   path = ''
-  type = ''
+  type = 0
 
   static Type = {
     NEW: 1,

@@ -1,10 +1,23 @@
-export default (feature, create, execute) => ({
+import { MutationTree, ActionTree, ActionContext } from 'vuex'
+
+interface FeatureTarget {
+  base: string|null
+  absolute: string|null
+  relative: string|null
+}
+
+export type FeatureCreateFunction = (context: ActionContext<State, any>) => (path: string) => Promise<void>
+export type FeatureExecuteFunction = (context: ActionContext<State, any>) => (data: {name: string, source: string, target: string, selection: string}) => Promise<void>
+
+export class State {
+  target: FeatureTarget = { base: null, absolute: null, relative: null }
+  options: string[] = []
+}
+
+export default (feature: string, create: FeatureCreateFunction, execute: (arg0: any) => any) => ({
   namespaced: true,
-  state: {
-    target: null,
-    options: []
-  },
-  mutations: {
+  state: new State,
+  mutations: <MutationTree<State>>{
     target: function (state, target) {
       state.target = target
     },
@@ -13,20 +26,22 @@ export default (feature, create, execute) => ({
       state.options.push(...options)
     }
   },
-  actions: {
+  actions: <ActionTree<State, any>>{
     load: async function (context, { path }) {
-      const target = {
-        base: path,
-        absolute: await window.api.path.join(path, '.tome', feature)
-      }
+      const absolute = await window.api.path.join(path, '.tome', feature)
+      const relative = await window.api.path.relative(path, absolute)
 
-      target.relative = await window.api.path.relative(path, target.absolute)
+      const target = <FeatureTarget>{
+        base: path,
+        absolute,
+        relative
+      }
 
       context.commit('target', target)
 
-      const options = await window.api.file.directory_list(context.state.target.absolute)
+      const options = await window.api.file.directory_list(context.state.target.absolute || '')
 
-      if (!options || options.length < 1) {
+      if (!options || options.length === 0) {
         return
       }
 
@@ -35,11 +50,11 @@ export default (feature, create, execute) => ({
     execute: async function (context, data) {
       const { name } = data
 
-      if (context.state.options.indexOf(name) < 0) {
+      if (!context.state.options.includes(name)) {
         return
       }
 
-      const source = await window.api.path.join(context.state.target.absolute, name)
+      const source = await window.api.path.join(context.state.target.absolute || '', name)
 
       return await (execute(context))({ source, ...data })
     },
@@ -51,7 +66,7 @@ export default (feature, create, execute) => ({
       await context.dispatch('files/ghost', { path, directory: true, post: create(context) }, { root: true })
     },
     prepare: async function (context) {
-      const targets = context.state.target.relative.split(await window.api.path.sep())
+      const targets = (context.state.target.relative || '').split(await window.api.path.sep())
 
       let path = context.state.target.base
       let parent = await context.dispatch('files/identify', { path }, { root: true })
@@ -61,7 +76,7 @@ export default (feature, create, execute) => ({
           throw new Error(`Cannot ensure ${feature} feature file structure.`)
         }
 
-        path = await window.api.path.join(path, target)
+        path = await window.api.path.join(path || '', target)
 
         const item = await context.dispatch('files/identify', { path }, { root: true })
 

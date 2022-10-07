@@ -1,7 +1,7 @@
 import { delay } from 'lodash'
 
 export default class QuickPush {
-  static async perform (dispatch) {
+  static async perform (dispatch: (action: string, data?: any) => Promise<boolean>) {
     await dispatch('message', 'Perform Quick Push')
 
     await dispatch('system/edit', true)

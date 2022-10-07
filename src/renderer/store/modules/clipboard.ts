@@ -1,11 +1,15 @@
+import { MutationTree, ActionTree } from 'vuex'
+
+export class State {
+  error: string|null = null
+  action: string|null = null
+  content: { type: string, target: string }|null = null
+}
+
 export default {
   namespaced: true,
-  state: {
-    error: null,
-    action: null,
-    content: null
-  },
-  mutations: {
+  state: new State,
+  mutations: <MutationTree<State>>{
     set: function (state, data) {
       const { action, content } = data
 
@@ -21,7 +25,7 @@ export default {
       state.error = message
     }
   },
-  actions: {
+  actions: <ActionTree<State, any>>{
     clear: function (context) {
       context.commit('clear')
     },
@@ -52,7 +56,7 @@ export default {
 
       const source = context.state.content.target
 
-      await window.api.clipboard.paste(context.state.action, source, content.target)
+      await window.api.clipboard.paste(context.state.action || '', source, content.target)
     }
   }
 }

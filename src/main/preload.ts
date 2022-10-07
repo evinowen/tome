@@ -20,3 +20,4 @@ contextBridge.exposeInMainWorld('api', {
   templates,
   window
 })
+1

@@ -1,7 +1,7 @@
 import Vue from 'vue'
-import App from '@/components/App'
-import store from '@/store'
-import vuetify from '@/vuetify'
+import App from '@/components/App.vue'
+import store from './store'
+import vuetify from './vuetify'
 
 import SplitPane from 'vue-splitpane'
 
@@ -20,7 +20,7 @@ import 'codemirror/addon/search/searchcursor.js'
 import VueShortKey from 'vue-shortkey'
 
 async function main () {
-  Vue.component('split-pane', SplitPane)
+  Vue.component('SplitPane', SplitPane)
 
   Vue.use(VueCodemirror, {
     events: ['contextmenu', 'inputRead'],

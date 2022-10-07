@@ -1,42 +1,75 @@
+import { MutationTree, ActionTree } from 'vuex'
 import { DateTime } from 'luxon'
 
-const reset = () => ({
-  name: '',
-  path: '',
-  branch: '',
-  history: [],
-  patches: [],
-  remotes: [],
-  pending: [],
-  loaded: false,
-  staging: 0,
-  status: {
-    available: [],
-    staged: []
-  },
-  remote: null,
-  repository: null,
-  metadata: {
+class RepositoryNotLoadedError extends Error {}
+class RepositoryRemoteNotLoadedError extends Error {}
+class RepositoryRemoteNotFoundError extends Error {}
+
+interface RepositoryPayload {
+  name: string,
+  path: string,
+  history: { oid: string, date: Date, message: string }[],
+  branch: string|null,
+  remotes: { name: string, url: string }[],
+  available: { path: string, type: number }[],
+  staged: { path: string, type: number }[]
+}
+
+interface RepositoryStatus {
+  available: { path: string, type: number }[]
+  staged: { path: string, type: number }[]
+}
+
+interface RepositoryMetadata {
+  readme: string|null
+  license: string|null
+  authors: string|null
+  contributors: string|null
+}
+
+interface RepositoryPatches {
+  name: string
+  path: string
+  lines: { type: number, line: string }[]
+}
+
+export class State {
+  name: string = ''
+  path: string =  ''
+  branch: string|null =  null
+  history: { oid: string, date: Date, message: string }[] = []
+  patches: RepositoryPatches[] = []
+  remotes: { name: string, url: string }[] = []
+  loaded: boolean = false
+  staging: number = 0
+  status: RepositoryStatus = { available: [], staged: [] }
+  remote: { name: string, url: string }|null = null
+  repository: RepositoryPayload|null = null
+  metadata: RepositoryMetadata = {
     readme: null,
     license: null,
     authors: null,
     contributors: null
-  },
-  commit_working: false,
-  push_working: false
-})
+  }
+  commit_working: boolean = false
+  push_working:  boolean = false
+}
 
 export default {
   namespaced: true,
-  state: reset(),
-  mutations: {
+  state: new State,
+  mutations: <MutationTree<State>>{
     clear: function (state) {
-      Object.assign(state, reset())
+      Object.assign(state, new State)
     },
     initialize: function (state, repository) {
       state.repository = repository
     },
     load: function (state) {
+      if (state.repository === null) {
+        throw new RepositoryNotLoadedError()
+      }
+
       state.name = state.repository.name
       state.path = state.repository.path
       state.history = state.repository.history
@@ -63,18 +96,8 @@ export default {
     push: function (state, flag) {
       state.push_working = flag
     },
-    remote: function (state, data) {
-      state.remote = null
-      state.pending = []
-
-      if (data === null) {
-        return
-      }
-
-      const { remote, pending } = data
-
+    remote: function (state, remote) {
       state.remote = remote
-      state.pending = pending
     },
     patches: function (state, data) {
       const { patches } = data
@@ -85,7 +108,7 @@ export default {
       Object.assign(state.metadata, data)
     }
   },
-  actions: {
+  actions: <ActionTree<State, any>>{
     clear: async function (context) {
       context.commit('clear')
     },
@@ -123,9 +146,9 @@ export default {
 
         await context.dispatch('inspect')
         await context.dispatch('message', 'Stage complete', { root: true })
-      } catch (err) {
+      } catch (error) {
         await context.dispatch('error', 'Stage failed', { root: true })
-        throw err
+        throw error
       } finally {
         context.commit('staging', false)
       }
@@ -139,9 +162,9 @@ export default {
 
         await context.dispatch('inspect')
         await context.dispatch('message', 'Reset complete', { root: true })
-      } catch (err) {
+      } catch (error) {
         await context.dispatch('error', 'Reset failed', { root: true })
-        throw err
+        throw error
       } finally {
         context.commit('staging', false)
       }
@@ -171,7 +194,9 @@ export default {
     commit: async function (context) {
       context.commit('commit', true)
 
-      const { name, email, message } = context.state.signature
+      const name = await context.dispatch('signature/read', 'name')
+      const email = await context.dispatch('signature/read', 'email')
+      const message = await context.dispatch('signature/read', 'message')
 
       await context.dispatch('message', `Creating commit "${message}" ...`, { root: true })
 
@@ -195,7 +220,8 @@ export default {
         return
       }
 
-      const { key: private_key, passphrase } = context.state.credentials
+      const private_key = await context.dispatch('credentials/read', 'key')
+      const passphrase = await context.dispatch('credentials/read', 'passphrase')
 
       if (!private_key) {
         return
@@ -206,13 +232,24 @@ export default {
       await window.api.repository.credential(private_key, public_key, passphrase)
 
       const remote = context.state.remotes.find((remote) => remote.name === name)
+
+      if (!remote) {
+        throw new RepositoryRemoteNotFoundError()
+      }
+
       await window.api.repository.load_remote_url(remote.url)
 
       const result = await window.api.repository.remote()
       context.commit('remote', result)
     },
     push: async function (context) {
-      const { key: private_key, passphrase } = context.state.credentials
+      if (context.state.remote === null) {
+        throw new RepositoryRemoteNotLoadedError()
+      }
+
+      const private_key = await context.dispatch('credentials/read', 'key')
+      const passphrase = await context.dispatch('credentials/read', 'passphrase')
+
       const { path: public_key } = await window.api.ssl.generate_public_key(private_key, passphrase)
 
       await window.api.repository.credential(private_key, public_key, passphrase)
@@ -241,14 +278,12 @@ export default {
         key: null,
         passphrase: null
       },
-      mutations: {
+      mutations: <MutationTree<State>>{
         set: function (state, data) {
-          for (const key in data) {
-            state[key] = data[key]
-          }
+          Object.assign(state, data)
         }
       },
-      actions: {
+      actions: <ActionTree<State, any>>{
         key: async function (context, value) {
           context.commit('set', { key: value })
         },
@@ -264,14 +299,12 @@ export default {
         email: null,
         message: null
       },
-      mutations: {
+      mutations: <MutationTree<State>>{
         set: function (state, data) {
-          for (const key in data) {
-            state[key] = data[key]
-          }
+          Object.assign(state, data)
         }
       },
-      actions: {
+      actions: <ActionTree<State, any>>{
         name: async function (context, value) {
           const name = value || await context.dispatch('configuration/read', 'name', { root: true })
           context.commit('set', { name })

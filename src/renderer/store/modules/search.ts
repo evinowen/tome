@@ -1,3 +1,26 @@
+import { MutationTree, ActionTree } from 'vuex'
+
+interface SearchResult {
+  path: null|{
+    absolute: string,
+    relative: string,
+    matched: number
+  },
+  directory: boolean,
+  matches: { index: number, line: string }[]
+}
+
+export class State {
+  status: string|null = ''
+  path: string|null = null
+  query: string|null = ''
+  multifile = false
+  regex_query = false
+  case_sensitive = false
+  results: SearchResult[] = []
+  navigation: { target: number, total: number } = { target: 0, total: 0}
+}
+
 export default {
   namespaced: true,
   state: {
@@ -12,7 +35,7 @@ export default {
       total: 0
     }
   },
-  mutations: {
+  mutations: <MutationTree<State>>{
     clear: function (state) {
       state.query = null
       state.results = []
@@ -47,7 +70,7 @@ export default {
       }
     }
   },
-  actions: {
+  actions: <ActionTree<State, any>>{
     multifile: async function (context, value) {
       context.commit('multifile', value)
     },
@@ -82,17 +105,18 @@ export default {
       const target = context.state.path
       const criteria = {
         query: context.state.query,
-        multifile: context.state.query,
+        multifile: context.state.multifile,
         regex_query: context.state.regex_query,
         case_sensitive: context.state.case_sensitive
       }
 
       await window.api.file.search_path(target, criteria)
 
-      while (true) {
+      const loop = true
+      while (loop) {
         const result = await window.api.file.search_next()
 
-        if (result.path === null) {
+        if (result === null || result.path === null) {
           break
         }
 
@@ -104,13 +128,23 @@ export default {
           break
         }
 
-        for (const key in criteria) {
-          if (criteria[key] !== context.state[key]) {
-            break
-          }
+        if ('query' in criteria && criteria.query !== context.state.query) {
+          break
         }
 
-        if (result.path.matched > -1 || result.matches.length) {
+        if ('multifile' in criteria && criteria.multifile !== context.state.multifile) {
+          break
+        }
+
+        if ('regex_query' in criteria && criteria.regex_query !== context.state.regex_query) {
+          break
+        }
+
+        if ('case_sensitive' in criteria && criteria.case_sensitive !== context.state.case_sensitive) {
+          break
+        }
+
+        if (result.path.matched > -1 || result.matches.length > 0) {
           context.commit('result', result)
         }
       }

@@ -1,13 +1,21 @@
+import { MutationTree, ActionTree } from 'vuex'
+
+export class State {
+  visible: boolean = false
+  target: string|null = null
+  position: { x: number, y: number } = { x: 0, y: 0 }
+  title: string = ''
+  items: ContextItem[] = []
+}
+
+class ContextItem {
+
+}
+
 export default {
   namespaced: true,
-  state: {
-    visible: false,
-    target: null,
-    position: { x: 0, y: 0 },
-    title: '',
-    items: []
-  },
-  mutations: {
+  state: new State,
+  mutations: <MutationTree<State>>{
     fill: function (state, items) {
       state.items = items
     },
@@ -27,7 +35,7 @@ export default {
       state.visible = false
     }
   },
-  actions: {
+  actions: <ActionTree<State, any>>{
     open: async function (context, state) {
       const { target = null, title = 'Content', items = [], position } = state || {}
 

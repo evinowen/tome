@@ -11,10 +11,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import store from '@/store'
 
-export default {
+export default Vue.extend({
   computed: {
     system: function () {
       return store.state.system

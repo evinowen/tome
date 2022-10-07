@@ -1,26 +1,45 @@
 import Vue from 'vue'
-import Vuex from 'vuex'
+import Vuex, { MutationTree, ActionTree } from 'vuex'
 
 import { DateTime } from 'luxon'
-import log from 'electron-log'
 
-import repository from './modules/repository'
-import library from './modules/library'
-import files from './modules/files'
-import system from './modules/system'
-import templates from './modules/templates'
-import actions from './modules/actions'
-import configuration from './modules/configuration'
-import context from './modules/context'
-import clipboard from './modules/clipboard'
-import search from './modules/search'
+import repository, { State as RepositoryState } from './modules/repository'
+import library, { State as LibraryState } from './modules/library'
+import files, { State as FilesState } from './modules/files'
+import system, { State as SystemState } from './modules/system'
+import templates, { State as TemplatesState }from './modules/templates'
+import actions, { State as ActionsState } from './modules/actions'
+import configuration, { State as ConfigurationState } from './modules/configuration'
+import context, { State as ContextState } from './modules/context'
+import clipboard , { State as CliboardState }from './modules/clipboard'
+import search, { State as SearchState } from './modules/search'
 
 import reporter from './plugins/reporter'
 import mediator from './plugins/mediator'
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
+interface State {
+  events: { type: string, message: string, stack: string, datetime: DateTime }[]
+  status: string
+  message: string
+  application_path: string
+  configuration_path: string
+  library_path: string
+
+  repository: RepositoryState
+  library: LibraryState
+  files: FilesState
+  system: SystemState
+  templates: TemplatesState
+  actions: ActionsState
+  configuration: ConfigurationState
+  context: ContextState
+  clipboard: CliboardState
+  search: SearchState
+}
+
+export default new Vuex.Store<State>({
   state: {
     events: [],
     status: '',
@@ -28,8 +47,8 @@ export default new Vuex.Store({
     application_path: '',
     configuration_path: '',
     library_path: ''
-  },
-  mutations: {
+  } as unknown as State,
+  mutations: <MutationTree<State>>{
     hydrate: function (state, data) {
       Object.assign(state, data)
     },
@@ -45,7 +64,7 @@ export default new Vuex.Store({
       })
     }
   },
-  actions: {
+  actions: <ActionTree<State, any>>({
     hydrate: async function (context) {
       const application_path = await window.api.app.getPath('userData')
       const configuration_path = await window.api.path.join(application_path, 'config.json')
@@ -65,18 +84,16 @@ export default new Vuex.Store({
       await context.dispatch('message', 'Welcome to Tome')
     },
     message: function (context, message) {
-      log.info(message)
       context.commit('log', { type: 'info', message })
     },
     error: function (context, error) {
-      log.error(error)
       if (error instanceof Error) {
         context.commit('log', { type: 'error', message: error.message, stack: error.stack })
       } else {
         context.commit('log', { type: 'error', message: String(error) })
       }
     }
-  },
+  }),
   modules: {
     repository,
     library,

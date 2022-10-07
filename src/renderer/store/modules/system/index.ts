@@ -1,3 +1,4 @@
+import { MutationTree, ActionTree } from 'vuex'
 import Commit from './Commit'
 import QuickCommit from './QuickCommit'
 import Push from './Push'
@@ -10,38 +11,36 @@ export const SystemPerformances = {
   QuickPush: 'quick-push'
 }
 
+export class State {
+  version: string|null = null
+  process: string|null = null
+  maximized = false
+  branch = false
+  commit = false
+  commit_confirm = false
+  commit_push = false
+  console = false
+  edit = false
+  patch = false
+  push = false
+  push_confirm = false
+  search = false
+  settings = false
+}
+
 export default {
   namespaced: true,
-  state: {
-    version: null,
-    process: null,
-    maximized: false,
-    branch: false,
-    commit: false,
-    commit_confirm: false,
-    commit_push: false,
-    console: false,
-    edit: false,
-    patch: false,
-    push: false,
-    push_confirm: false,
-    search: false,
-    settings: false
-  },
-  mutations: {
+  state: new State,
+  mutations: <MutationTree<State>>{
     load: function (state, { version, process }) {
       state.version = version
       state.process = process
     },
     set: function (state, data) {
-      for (const key in data) {
-        if (data[key] !== null) {
-          state[key] = data[key] === true
-        }
-      }
+      Object.assign(state, data)
     }
   },
-  actions: {
+  actions: <ActionTree<State, any>>{
     load: async function (context) {
       const version = await window.api.app.getVersion()
       const process = await window.api.app.getProcess()
@@ -51,7 +50,38 @@ export default {
       context.commit('set', { maximized })
     },
     read: async function (context, key) {
-      return context.state[key]
+      switch (key) {
+        case 'version':
+          return context.state.version
+        case 'process':
+          return context.state.process
+        case 'maximized':
+          return context.state.maximized
+        case 'branch':
+          return context.state.branch
+        case 'commit':
+          return context.state.commit
+        case 'commit_confirm':
+          return context.state.commit_confirm
+        case 'commit_push':
+          return context.state.commit_push
+        case 'console':
+          return context.state.console
+        case 'edit':
+          return context.state.edit
+        case 'patch':
+          return context.state.patch
+        case 'push':
+          return context.state.push
+        case 'push_confirm':
+          return context.state.push_confirm
+        case 'search':
+          return context.state.search
+        case 'settings':
+          return context.state.settings
+      }
+
+      return null
     },
     minimize: async function (context) {
       await window.api.window.minimize()
@@ -69,7 +99,8 @@ export default {
       await window.api.window.close()
     },
     perform: async function (context, performance) {
-      const dispatch = (action, data) => context.dispatch(action, data, { root: true })
+      const dispatch: (action: string, data?: any) => Promise<boolean>
+       = async (action: string, data?: any) => await context.dispatch(action, data, { root: true }) === true
 
       switch (performance) {
         case SystemPerformances.Commit:
@@ -146,14 +177,12 @@ export default {
         key: null,
         passphrase: null
       },
-      mutations: {
+      mutations: <MutationTree<State>>{
         set: function (state, data) {
-          for (const key in data) {
-            state[key] = data[key]
-          }
+          Object.assign(state, data)
         }
       },
-      actions: {
+      actions: <ActionTree<State, any>>{
         key: async function (context, value) {
           context.commit('set', { key: value })
         },
@@ -169,14 +198,12 @@ export default {
         email: null,
         message: null
       },
-      mutations: {
+      mutations: <MutationTree<State>>{
         set: function (state, data) {
-          for (const key in data) {
-            state[key] = data[key]
-          }
+          Object.assign(state, data)
         }
       },
-      actions: {
+      actions: <ActionTree<State, any>>{
         name: async function (context, value) {
           context.commit('set', { name: value })
         },

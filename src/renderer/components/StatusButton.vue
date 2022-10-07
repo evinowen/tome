@@ -10,7 +10,7 @@
       :width="2"
       color="warning"
       class="mr-2"
-    ></v-progress-circular>
+    />
     <strong v-if="available_added" class="green--text">{{ available_added }}</strong>
     <strong v-else>0</strong>
     <strong>/</strong>
@@ -25,8 +25,10 @@
   </v-btn>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
   props: {
     waiting: { type: Number, default: 0 },
     waiting_max: { type: Number, default: 3 },
@@ -49,5 +51,5 @@ export default {
       return this.staged_new + this.staged_renamed + this.staged_modified
     }
   }
-}
+})
 </script>

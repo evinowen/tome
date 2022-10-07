@@ -1,8 +1,10 @@
 <template>
-  <v-dialog :value=value @input="$emit('input', $event)" persistent max-width="600px">
-    <template v-slot:activator="{ on }">
-      <v-btn class="mr-4" v-on="on" :disabled=disabled>
-        <v-icon class="mr-2">mdi-upload-multiple</v-icon>
+  <v-dialog :value=value persistent max-width="600px" @input="$emit('input', $event)">
+    <template #activator="{ on }">
+      <v-btn class="mr-4" :disabled=disabled v-on="on">
+        <v-icon class="mr-2">
+          mdi-upload-multiple
+        </v-icon>
         Push
       </v-btn>
     </template>
@@ -12,7 +14,9 @@
           <v-icon>mdi-upload-multiple</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title class="headline">Push</v-list-item-title>
+          <v-list-item-title class="headline">
+            Push
+          </v-list-item-title>
           <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -24,7 +28,7 @@
           hide-default-footer
           dense disable-sort class="my-0 commit-history"
         >
-          <template v-slot:item.oid="{ item }">
+          <template #item.oid="{ item }">
             <v-btn tile icon x-small color="warning">
               {{ item.oid.substring(0, 7) }}
             </v-btn>
@@ -35,8 +39,8 @@
         <v-btn
           ref="push_confirm"
           color="warning"
-          text @click="$emit('push')"
-          :disabled=waiting
+          text :disabled=waiting
+          @click="$emit('push')"
         >
           <v-progress-circular
             :indeterminate=waiting
@@ -44,12 +48,14 @@
             :width="2"
             color="warning"
             class="mr-2"
-          ></v-progress-circular>
+          />
           Proceed
         </v-btn>
-        <v-spacer></v-spacer>
-        <v-btn color="darken-1" text @click="$emit('input', false)" :disabled=waiting>
-          <v-icon class="mr-2">mdi-exit-to-app</v-icon>
+        <v-spacer />
+        <v-btn color="darken-1" text :disabled=waiting @click="$emit('input', false)">
+          <v-icon class="mr-2">
+            mdi-exit-to-app
+          </v-icon>
           Back
         </v-btn>
       </v-card-actions>
@@ -94,7 +100,8 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import {
   VContainer,
   VDialog,
@@ -112,7 +119,7 @@ import {
   VListItemContent
 } from 'vuetify/lib'
 
-export default {
+export default Vue.extend({
   components: {
     VContainer,
     VDialog,
@@ -141,5 +148,5 @@ export default {
       { text: '', value: 'message', width: '' }
     ]
   })
-}
+})
 </script>
