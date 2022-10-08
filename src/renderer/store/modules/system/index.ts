@@ -1,8 +1,8 @@
 import { MutationTree, ActionTree } from 'vuex'
-import Commit from './Commit'
-import QuickCommit from './QuickCommit'
-import Push from './Push'
-import QuickPush from './QuickPush'
+import Commit from './commit'
+import QuickCommit from './quick_commit'
+import Push from './push'
+import QuickPush from './quick_push'
 
 export const SystemPerformances = {
   Commit: 'commit',

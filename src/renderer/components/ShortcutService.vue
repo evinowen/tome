@@ -52,6 +52,5 @@ export default Vue.extend({
       await store.dispatch('library/select')
     }
   }
-}
-
+})
 </script>

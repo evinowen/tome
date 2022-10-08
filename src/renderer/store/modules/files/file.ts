@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import * as image_extensions from 'image-extensions'
+// import * as image_extensions from 'image-extensions'
 
 export class FileDirent {
   static async convert (dirent: { name: string, directory: boolean }, parent: File) {
@@ -188,7 +188,8 @@ export default class File {
   }
 
   get image () {
-    return image_extensions.includes(String(this.extension).slice(1))
+    return false
+    // return image_extensions.includes(String(this.extension).slice(1))
   }
 
   render (document: string) {
@@ -199,7 +200,8 @@ export default class File {
 
   fill (children: File[]) {
     this.loaded = true
-    this.children.splice(0, this.children.length, ...children)
+    this.children.splice(0, this.children.length)
+    this.children.concat(children)
     this.updated = Date.now()
   }
 

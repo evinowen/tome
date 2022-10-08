@@ -1,6 +1,6 @@
 import { MutationTree, ActionTree } from 'vuex'
-import File from './File'
-import FileTree, { FileIdentity, FileIdentityContract } from './FileTree'
+import File from './file'
+import FileTree, { FileIdentity, FileIdentityContract } from './file_tree'
 
 class FileTreeNotEstablishedError extends Error {}
 class FileNotSelectedError extends Error {}

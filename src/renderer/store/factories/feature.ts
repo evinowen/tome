@@ -14,7 +14,7 @@ export class State {
   options: string[] = []
 }
 
-export default (feature: string, create: FeatureCreateFunction, execute: (arg0: any) => any) => ({
+export default (feature: string, create: FeatureCreateFunction, execute: (data: any) => any) => ({
   namespaced: true,
   state: new State,
   mutations: <MutationTree<State>>{

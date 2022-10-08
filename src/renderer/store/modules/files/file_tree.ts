@@ -1,4 +1,4 @@
-import File, { FileRelationshipType } from './File'
+import File, { FileRelationshipType } from './file'
 
 export class FileIdentity {
   item: File|null
@@ -67,7 +67,7 @@ export default class FileTree {
     }
 
     if ((!element.directory) || (!element.loaded)) {
-      return new FileIdentityContract(element, [name || '', ...queue])
+      return new FileIdentityContract(element, [name || ''].concat(queue))
     }
 
     const children = element.children
