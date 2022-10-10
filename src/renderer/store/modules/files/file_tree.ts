@@ -67,7 +67,7 @@ export default class FileTree {
     }
 
     if ((!element.directory) || (!element.loaded)) {
-      return new FileIdentityContract(element, [name || ''].concat(queue))
+      return new FileIdentityContract(element, [name || '', ...queue])
     }
 
     const children = element.children

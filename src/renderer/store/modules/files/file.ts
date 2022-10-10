@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
-// import * as image_extensions from 'image-extensions'
+import is_text_path from 'is-text-path'
+import mime from 'mime-types'
 
 export class FileDirent {
   static async convert (dirent: { name: string, directory: boolean }, parent: File) {
@@ -23,8 +24,15 @@ export class FileDirent {
   }
 }
 
-class FileLoadPayload {
+interface FileDocument {
+  path: string
+  title: string
+  content: string
+}
 
+class FileLoadPayload {
+  children?: File[] = []
+  document?: FileDocument
 }
 
 export class FileLoadContract {
@@ -53,7 +61,7 @@ interface FileConstructor {
   ghost?: File
   expanded?: boolean
   ephemeral?: boolean
-  document?: string
+  document?: FileDocument
   updated?: number
   clean?: boolean
   readonly?: boolean
@@ -102,7 +110,7 @@ export default class File {
   ghost: File|null = null
   expanded: boolean = false
   ephemeral: boolean = false
-  document: string|null = null
+  document: FileDocument|null = null
   updated: number|null = null
   clean: boolean = true
   readonly: boolean = false
@@ -157,12 +165,12 @@ export default class File {
 
   async load () {
     const { directory } = this
-    let payload
 
+    const payload = new FileLoadPayload
     if (directory) {
-      payload = await this.populate()
+      payload.children = await this.populate()
     } else {
-      payload = await this.read()
+      payload.document = await this.read()
     }
 
     return new FileLoadContract(this, payload)
@@ -173,12 +181,8 @@ export default class File {
   }
 
   async read () {
-    console.log('file.contents read')
     const { path } = this
-    console.log('file.contents read with path', path)
     const content = await window.api.file.contents(path || '')
-
-    console.log('file.contents read done')
 
     return {
       path,
@@ -187,21 +191,37 @@ export default class File {
     }
   }
 
-  get image () {
-    return false
-    // return image_extensions.includes(String(this.extension).slice(1))
+  get plaintext () {
+    return is_text_path(this.path)
   }
 
-  render (document: string) {
+  get image () {
+    if (this.plaintext) {
+      return false
+    }
+
+    const mime_type = mime.lookup(this.path)
+
+    if (mime_type === false) {
+      return false
+    }
+
+    if (mime_type.startsWith('image')) {
+      return true
+    }
+
+    return false
+  }
+
+  render (payload: FileLoadPayload) {
     this.loaded = true
-    this.document = document
+    this.document = payload.document
     this.updated = Date.now()
   }
 
-  fill (children: File[]) {
+  fill (payload: FileLoadPayload) {
     this.loaded = true
-    this.children.splice(0, this.children.length)
-    this.children.concat(children)
+    this.children.splice(0, this.children.length, ...payload.children)
     this.updated = Date.now()
   }
 
@@ -397,7 +417,7 @@ export default class File {
         continue
       }
 
-      if (node instanceof FileRelationship) {
+      if (typeof node === 'object') {
         const { map } = node
 
         if (map && map.base) {

@@ -59,7 +59,7 @@
         :path=child.path
         :extension=child.extension
         :image=child.image
-        :relationship=child.relationship
+        :relationship="''.concat(child.relationship)"
         :children=child.children
         :directory=child.directory
         :expanded=child.expanded

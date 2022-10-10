@@ -33,34 +33,69 @@ interface RepositoryPatches {
   lines: { type: number, line: string }[]
 }
 
-export class State {
-  name: string = ''
-  path: string =  ''
-  branch: string|null =  null
-  history: { oid: string, date: Date, message: string }[] = []
-  patches: RepositoryPatches[] = []
-  remotes: { name: string, url: string }[] = []
-  loaded: boolean = false
-  staging: number = 0
-  status: RepositoryStatus = { available: [], staged: [] }
-  remote: { name: string, url: string }|null = null
-  repository: RepositoryPayload|null = null
-  metadata: RepositoryMetadata = {
-    readme: null,
-    license: null,
-    authors: null,
-    contributors: null
+export interface State {
+  name: string
+  path: string
+  branch: string|null
+  history: { oid: string, date: Date, message: string }[]
+  pending: { oid: string, date: Date, message: string }[]
+  patches: RepositoryPatches[]
+  remotes: { name: string, url: string }[]
+  loaded: boolean
+  staging: number
+  status: RepositoryStatus
+  remote: { name: string, url: string }|null
+  repository: RepositoryPayload|null
+  metadata: RepositoryMetadata
+  commit_working: boolean
+  push_working: boolean
+
+  credentials: CredentialState
+  signature: SignatureState
+}
+
+export interface CredentialState {
+  key: string|null
+  passphrase: string|null
+}
+
+export interface SignatureState {
+  name: string|null
+  email: string|null
+  message: string|null
+}
+
+function InitialState (): State {
+  return <State>{
+    name: '',
+    path: '',
+    branch: null,
+    history: [],
+    pending: [],
+    patches: [],
+    remotes: [],
+    loaded: false,
+    staging: 0,
+    status: { available: [], staged: [] },
+    remote: null,
+    repository: null,
+    metadata: {
+      readme: null,
+      license: null,
+      authors: null,
+      contributors: null,
+    },
+    commit_working: false,
+    push_working: false
   }
-  commit_working: boolean = false
-  push_working:  boolean = false
 }
 
 export default {
   namespaced: true,
-  state: new State,
+  state: InitialState(),
   mutations: <MutationTree<State>>{
     clear: function (state) {
-      Object.assign(state, new State)
+      Object.assign(state, InitialState())
     },
     initialize: function (state, repository) {
       state.repository = repository
@@ -194,9 +229,7 @@ export default {
     commit: async function (context) {
       context.commit('commit', true)
 
-      const name = await context.dispatch('signature/read', 'name')
-      const email = await context.dispatch('signature/read', 'email')
-      const message = await context.dispatch('signature/read', 'message')
+      const { name, email, message } = context.state.signature
 
       await context.dispatch('message', `Creating commit "${message}" ...`, { root: true })
 
@@ -220,8 +253,7 @@ export default {
         return
       }
 
-      const private_key = await context.dispatch('credentials/read', 'key')
-      const passphrase = await context.dispatch('credentials/read', 'passphrase')
+      const { key: private_key, passphrase } = context.state.credentials
 
       if (!private_key) {
         return
@@ -247,8 +279,7 @@ export default {
         throw new RepositoryRemoteNotLoadedError()
       }
 
-      const private_key = await context.dispatch('credentials/read', 'key')
-      const passphrase = await context.dispatch('credentials/read', 'passphrase')
+      const { key: private_key, passphrase } = context.state.credentials
 
       const { path: public_key } = await window.api.ssl.generate_public_key(private_key, passphrase)
 
@@ -274,16 +305,16 @@ export default {
   modules: {
     credentials: {
       namespaced: true,
-      state: {
+      state: <CredentialState>{
         key: null,
         passphrase: null
       },
-      mutations: <MutationTree<State>>{
+      mutations: <MutationTree<CredentialState>>{
         set: function (state, data) {
           Object.assign(state, data)
         }
       },
-      actions: <ActionTree<State, any>>{
+      actions: <ActionTree<CredentialState, any>>{
         key: async function (context, value) {
           context.commit('set', { key: value })
         },
@@ -294,17 +325,17 @@ export default {
     },
     signature: {
       namespaced: true,
-      state: {
+      state: <SignatureState>{
         name: null,
         email: null,
         message: null
       },
-      mutations: <MutationTree<State>>{
+      mutations: <MutationTree<SignatureState>>{
         set: function (state, data) {
           Object.assign(state, data)
         }
       },
-      actions: <ActionTree<State, any>>{
+      actions: <ActionTree<SignatureState, any>>{
         name: async function (context, value) {
           const name = value || await context.dispatch('configuration/read', 'name', { root: true })
           context.commit('set', { name })

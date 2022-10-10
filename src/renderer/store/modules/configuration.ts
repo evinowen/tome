@@ -71,9 +71,7 @@ export default {
   },
   actions: <ActionTree<State, any>>{
     load: async function (context, target) {
-      console.log('file.contents config actions', target)
       const raw = await window.api.file.contents(target)
-      console.log('file.contents config actions')
       const data = JSON.parse(raw) || {}
 
       await context.dispatch('update', data)

@@ -65,8 +65,8 @@
             :active="repository.remote != null"
             :loading="false"
             error=""
-            :match="pending && pending.length <= 0"
-            :history=pending
+            :match="repository.pending && repository.pending.length <= 0"
+            :history=repository.pending
             @click=diff
           />
         </div>
@@ -74,7 +74,7 @@
         <div ref="base" class="flex-grow-0 pb-3 actions">
           <v-divider class="mt-0 mb-2" />
           <push-confirm
-            :value=system.push_confirm :disabled="!(configuration.key && pending && pending.length)"
+            :value=system.push_confirm :disabled="!(configuration.key && repository.pending && repository.pending.length)"
             :waiting=repository.push_working
             :history=repository.pending
             @input=confirm

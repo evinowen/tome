@@ -12,7 +12,7 @@
       :title=configuration.format_titles
       :format=format
       :hold=hold
-      :relationship=root.relationship
+      :relationship="''.concat(root.relationship)"
       :children=root.children
       :expanded=root.expanded
       @context="$emit('context', $event)"

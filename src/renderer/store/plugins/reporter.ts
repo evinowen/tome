@@ -4,7 +4,6 @@ export default store => {
     return new Promise(resolve => resolve(dispatch(...parameters)))
       .catch((error) => {
         dispatch('error', error)
-        // throw error
       })
   }
 }

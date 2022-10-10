@@ -34,7 +34,7 @@
                 :directory=selected.directory
                 :extension=selected.extension
                 :image=selected.image
-                :relationship=selected.relationship
+                :relationship="''.concat(selected.relationship)"
                 :expanded=selected.expanded
                 size="large"
                 disabled

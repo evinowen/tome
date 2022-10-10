@@ -14,6 +14,7 @@ export = {
   list_directory: invoke('list-directory'),
   contents: invoke('contents'),
   write: invoke('write'),
+  write_library: invoke('write-library'),
   rename: invoke('rename'),
   open: invoke('open'),
   delete: invoke('delete'),

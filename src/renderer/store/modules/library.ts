@@ -1,5 +1,4 @@
 import { MutationTree, ActionTree } from 'vuex'
-// import * as os from 'os'
 
 export class State {
   path: string = ''
@@ -35,9 +34,7 @@ export default {
       const history = []
 
       if (await window.api.file.exists(path)) {
-        console.log('file.contents library actions', path)
         const raw = await window.api.file.contents(path)
-        console.log('file.contents library actions')
 
         if (raw) {
           const lines = raw.split(/[\n\r]+/).map(line => line.trim())
@@ -75,21 +72,14 @@ export default {
     },
     add: async function (context, path) {
       context.commit('add', path)
-      // await context.dispatch('record')
+      await context.dispatch('record')
     },
     remove: async function (context, path) {
       context.commit('remove', path)
-      // await context.dispatch('record')
+      await context.dispatch('record')
     },
     record: async function (context) {
-      // let content = ''
-
-      // for (const path of context.state.history) {
-      //   content += String(path).concat(os.EOL)
-      // }
-
-      // // TODO: Move use of os module to main where it belongs
-      // await window.api.file.write(context.state.path, content)
+      await window.api.file.write_library(context.state.path, context.state.history)
     }
   }
 }

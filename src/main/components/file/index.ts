@@ -3,6 +3,7 @@ import { dialog, shell } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as chokidar from 'chokidar'
+import * as os from 'os'
 import { promise_with_reject, promise_access } from '../../promise'
 
 const search:{
@@ -96,6 +97,16 @@ export = component('file')(
     })
 
     handle('write', async (target, content) => {
+      await promise_with_reject(fs.writeFile)(target, content)
+    })
+
+    handle('write-library', async (target, items) => {
+      let content = ''
+
+      for (const item of items) {
+        content += String(item).concat(os.EOL)
+      }
+
       await promise_with_reject(fs.writeFile)(target, content)
     })
 

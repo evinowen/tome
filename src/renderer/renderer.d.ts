@@ -45,6 +45,7 @@ export interface API {
     list_directory: (target: string) => Promise<{ name: string, directory: boolean }[]>,
     contents: (target: string) => Promise<string>,
     write: (target: string, content: string) => Promise<void>,
+    write_library: (target: string, items: string[]) => Promise<void>,
     rename: (target: string, proposed: string) => Promise<void>,
     open: (target: string, container: boolean) => Promise<void>,
     delete: (target: string) => Promise<void>,
