@@ -121,11 +121,11 @@ export default {
       }
     },
     branch: async function (context, value = null) {
-      context.commit('set', { branch: value })
+      typeof value !== 'boolean' || context.commit('set', { branch: value })
       return context.state.branch
     },
     commit: async function (context, value = null) {
-      context.commit('set', { commit: value })
+      typeof value !== 'boolean' || context.commit('set', { commit: value })
       return context.state.commit
     },
     commit_confirm: async function (context, value = null) {
@@ -134,39 +134,39 @@ export default {
         await context.dispatch('commit_push', auto_push)
       }
 
-      context.commit('set', { commit_confirm: value })
+      typeof value !== 'boolean' || context.commit('set', { commit_confirm: value })
       return context.state.commit_confirm
     },
     commit_push: async function (context, value = null) {
-      context.commit('set', { commit_push: value })
+      typeof value !== 'boolean' || context.commit('set', { commit_push: value })
       return context.state.commit_push
     },
     console: async function (context, value = null) {
-      context.commit('set', { console: value })
+      typeof value !== 'boolean' || context.commit('set', { console: value })
       return context.state.console
     },
     edit: async function (context, value = null) {
-      context.commit('set', { edit: value })
+      typeof value !== 'boolean' || context.commit('set', { edit: value })
       return context.state.edit
     },
     patch: async function (context, value = null) {
-      context.commit('set', { patch: value })
+      typeof value !== 'boolean' || context.commit('set', { patch: value })
       return context.state.patch
     },
     push: async function (context, value = null) {
-      context.commit('set', { push: value })
+      typeof value !== 'boolean' || context.commit('set', { push: value })
       return context.state.push
     },
     push_confirm: async function (context, value = null) {
-      context.commit('set', { push_confirm: value })
+      typeof value !== 'boolean' || context.commit('set', { push_confirm: value })
       return context.state.push_confirm
     },
     search: async function (context, value = null) {
-      context.commit('set', { search: value })
+      typeof value !== 'boolean' || context.commit('set', { search: value })
       return context.state.search
     },
     settings: async function (context, value = null) {
-      context.commit('set', { settings: value })
+      typeof value !== 'boolean' || context.commit('set', { settings: value })
       return context.state.settings
     }
   },
@@ -184,10 +184,10 @@ export default {
       },
       actions: <ActionTree<State, any>>{
         key: async function (context, value) {
-          context.commit('set', { key: value })
+          typeof value === null || context.commit('set', { key: value })
         },
         passphrase: async function (context, value) {
-          context.commit('set', { passphrase: value })
+          typeof value === null || context.commit('set', { passphrase: value })
         }
       }
     },
@@ -205,13 +205,13 @@ export default {
       },
       actions: <ActionTree<State, any>>{
         name: async function (context, value) {
-          context.commit('set', { name: value })
+          typeof value === null || context.commit('set', { name: value })
         },
         email: async function (context, value) {
-          context.commit('set', { email: value })
+          typeof value === null || context.commit('set', { email: value })
         },
         message: function (context, value) {
-          context.commit('set', { message: value })
+          typeof value === null || context.commit('set', { message: value })
         }
       }
     }

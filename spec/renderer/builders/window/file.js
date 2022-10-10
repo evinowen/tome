@@ -90,6 +90,11 @@ const _file_write = async (path, value) => {
   return true
 }
 
+const _file_write_library = async (path, files) => {
+  set_disk(path, files.join('\n'))
+  return true
+}
+
 const _directory_list = async (path) => {
   const item = get_disk(path)
 
@@ -128,6 +133,7 @@ export default {
     list_directory: jest.fn(_file_list_directory),
     rename: jest.fn(_file_rename),
     write: jest.fn(_file_write),
+    write_library: jest.fn(_file_write_library),
     directory_list: jest.fn(_directory_list),
     select_directory: jest.fn(_select_directory),
     search_path: jest.fn(),

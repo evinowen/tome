@@ -4,10 +4,10 @@ import { createLocalVue } from '@vue/test-utils'
 import _system from '@/store/modules/system'
 import { cloneDeep } from 'lodash'
 import builders from '?/builders'
-import Commit from '@/store/modules/system/Commit'
-import QuickCommit from '@/store/modules/system/QuickCommit'
-import Push from '@/store/modules/system/Push'
-import QuickPush from '@/store/modules/system/QuickPush'
+import Commit from '@/store/modules/system/commit'
+import QuickCommit from '@/store/modules/system/quick_commit'
+import Push from '@/store/modules/system/push'
+import QuickPush from '@/store/modules/system/quick_push'
 
 Object.assign(window, builders.window())
 
