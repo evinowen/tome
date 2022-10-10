@@ -89,6 +89,9 @@ jobs:
     - name: Lint Main
       run: npm run lint-main
 
+    - name: Build Main
+      run: npm run build-main
+
     - name: Test Main
       run: npm run test-main
 
@@ -189,6 +192,9 @@ jobs:
     - name: Lint Main
       run: npm run lint-main
 
+    - name: Build Main
+      run: npm run build-main
+
     - name: Test Main
       run: npm run test-main
 
@@ -269,6 +275,9 @@ jobs:
 
     - name: Lint Main
       run: npm run lint-main
+
+    - name: Build Main
+      run: npm run build-main
 
     - name: Test Main
       run: npm run test-main
