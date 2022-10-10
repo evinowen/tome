@@ -74,7 +74,7 @@ describe('store/modules/actions', () => {
   })
 
   it('should populate empty values when initalized', async () => {
-    expect(store.state.actions.target).toEqual({ absolute: null, base: null, relative: null })
+    expect(store.state.actions.target).toEqual({ base: '', absolute: '', relative: '' })
     expect(store.state.actions.options).toEqual([])
   })
 

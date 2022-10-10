@@ -132,6 +132,7 @@ export default {
     is_directory: jest.fn(_file_is_directory),
     list_directory: jest.fn(_file_list_directory),
     rename: jest.fn(_file_rename),
+    open: jest.fn(),
     write: jest.fn(_file_write),
     write_library: jest.fn(_file_write_library),
     directory_list: jest.fn(_directory_list),

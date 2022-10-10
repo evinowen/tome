@@ -4,8 +4,8 @@ import mime from 'mime-types'
 
 export class FileDirent {
   static async convert (dirent: { name: string, directory: boolean }, parent: File) {
-    const path = await window.api.path.join(parent.path || '', dirent.name)
-    const relative = await window.api.path.relative(parent.base?.path || '', path)
+    const path = await window.api.path.join(parent.path, dirent.name)
+    const relative = await window.api.path.relative(parent.base?.path, path)
     const extension = await window.api.path.extension(path)
 
     const file = new File({
@@ -98,7 +98,7 @@ export default class File {
   uuid: string|null = uuidv4()
   name: string|null = null
   extension: string|null = null
-  path: string|null = null
+  path: string = ''
   relative: string|null = null
   relationship: FileRelationshipType|undefined|null = null
   parent: File|null = null
@@ -177,16 +177,16 @@ export default class File {
   }
 
   async open (container: boolean) {
-    await window.api.file.open(this.path || '', container)
+    await window.api.file.open(this.path, container)
   }
 
   async read () {
     const { path } = this
-    const content = await window.api.file.contents(path || '')
+    const content = await window.api.file.contents(path)
 
     return {
       path,
-      title: await window.api.path.basename(path || ''),
+      title: await window.api.path.basename(path),
       content
     }
   }
@@ -257,7 +257,7 @@ export default class File {
   }
 
   async populate () {
-    const dirents = await window.api.file.list_directory(this.path || '')
+    const dirents = await window.api.file.list_directory(this.path)
 
     const children = []
 
@@ -277,7 +277,7 @@ export default class File {
   }
 
   async create (name: string, directory = false) {
-    const path = await window.api.path.join(this.path || '', name)
+    const path = await window.api.path.join(this.path, name)
 
     let result = false
 
@@ -295,31 +295,31 @@ export default class File {
   }
 
   async rename (basename: string) {
-    const dirname = await window.api.path.dirname(this.path || '')
+    const dirname = await window.api.path.dirname(this.path)
 
     const path = await window.api.path.join(dirname, basename)
 
-    await window.api.file.rename(this.path || '', path)
+    await window.api.file.rename(this.path, path)
 
     return path
   }
 
   async move (target: string) {
-    const basename = await window.api.path.basename(this.path || '')
+    const basename = await window.api.path.basename(this.path)
     const dirname = await window.api.path.dirname(target)
     const path = await window.api.path.join(dirname, basename)
 
-    await window.api.file.rename(this.path || '', path)
+    await window.api.file.rename(this.path, path)
 
     return path
   }
 
   async write (content: string) {
-    await window.api.file.write(this.path || '', content)
+    await window.api.file.write(this.path, content)
   }
 
   async delete () {
-    await window.api.file.delete(this.path || '')
+    await window.api.file.delete(this.path)
   }
 
   static sort (children: File[]) {
@@ -337,11 +337,11 @@ export default class File {
   }
 
   static sort_compare (first: File, second: File) {
-    if ((first.path || '') === (second.path || '')) {
+    if ((first.path) === (second.path)) {
       return 0
     }
 
-    return ((first.path || '')  < (second.path || '') ? -1 : 1)
+    return ((first.path)  < (second.path) ? -1 : 1)
   }
 
   static async make (data: FileConstructor) {

@@ -40,6 +40,20 @@ describe('store/modules/files', () => {
     expect(store.state.files.tree).not.toBeNull()
   })
 
+  it('should remove the file tree on clear', async () => {
+    const path = '/project'
+
+    expect(store.state.files.tree).toBeNull()
+
+    await store.dispatch('files/initialize', { path })
+
+    expect(store.state.files.tree).not.toBeNull()
+
+    await store.dispatch('files/clear')
+
+    expect(store.state.files.tree).toBeNull()
+  })
+
   it('should configure event listener for updates to tree path on initialize', async () => {
     const path = '/project'
 
@@ -88,6 +102,19 @@ describe('store/modules/files', () => {
     await store.dispatch('files/toggle', { path: target })
 
     expect(item.expanded).toBeTruthy()
+  })
+
+  it('should call to open object on open', async () => {
+    const path = '/project'
+    const target = '/project/first'
+
+    expect(window.api.file.open).toHaveBeenCalledTimes(0)
+
+    await store.dispatch('files/initialize', { path })
+    await store.dispatch('files/load', { path })
+    await store.dispatch('files/open', { path: target })
+
+    expect(window.api.file.open).toHaveBeenCalledTimes(1)
   })
 
   it('should collapse an expanded item on toggle', async () => {

@@ -66,7 +66,7 @@ describe('store/modules/templates', () => {
   })
 
   it('should populate empty values when initalized', async () => {
-    expect(store.state.templates.target).toEqual({ absolute: null, base: null, relative: null })
+    expect(store.state.templates.target).toEqual({ base: '', absolute: '', relative: '' })
     expect(store.state.templates.options).toEqual([])
   })
 

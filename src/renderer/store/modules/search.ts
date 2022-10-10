@@ -18,23 +18,12 @@ export class State {
   regex_query = false
   case_sensitive = false
   results: SearchResult[] = []
-  navigation: { target: number, total: number } = { target: 0, total: 0}
+  navigation: { target: number, total: number } = { target: 1, total: 0}
 }
 
 export default {
   namespaced: true,
-  state: {
-    path: null,
-    query: '',
-    multifile: false,
-    regex_query: false,
-    case_sensitive: false,
-    results: [],
-    navigation: {
-      target: 1,
-      total: 0
-    }
-  },
+  state: new State(),
   mutations: <MutationTree<State>>{
     clear: function (state) {
       state.query = null

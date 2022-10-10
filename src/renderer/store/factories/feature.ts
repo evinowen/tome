@@ -1,16 +1,16 @@
 import { MutationTree, ActionTree, ActionContext } from 'vuex'
 
 interface FeatureTarget {
-  base: string|null
-  absolute: string|null
-  relative: string|null
+  base: string
+  absolute: string
+  relative: string
 }
 
 export type FeatureCreateFunction = (context: ActionContext<State, any>) => (path: string) => Promise<void>
 export type FeatureExecuteFunction = (context: ActionContext<State, any>) => (data: {name: string, source: string, target: string, selection: string}) => Promise<void>
 
 export class State {
-  target: FeatureTarget = { base: null, absolute: null, relative: null }
+  target: FeatureTarget = { base: '', absolute: '', relative: '' }
   options: string[] = []
 }
 
@@ -39,7 +39,7 @@ export default (feature: string, create: FeatureCreateFunction, execute: (data: 
 
       context.commit('target', target)
 
-      const options = await window.api.file.directory_list(context.state.target.absolute || '')
+      const options = await window.api.file.directory_list(context.state.target.absolute)
 
       if (!options || options.length === 0) {
         return
@@ -54,7 +54,7 @@ export default (feature: string, create: FeatureCreateFunction, execute: (data: 
         return
       }
 
-      const source = await window.api.path.join(context.state.target.absolute || '', name)
+      const source = await window.api.path.join(context.state.target.absolute, name)
 
       return await (execute(context))({ source, ...data })
     },
@@ -66,7 +66,7 @@ export default (feature: string, create: FeatureCreateFunction, execute: (data: 
       await context.dispatch('files/ghost', { path, directory: true, post: create(context) }, { root: true })
     },
     prepare: async function (context) {
-      const targets = (context.state.target.relative || '').split(await window.api.path.sep())
+      const targets = (context.state.target.relative).split(await window.api.path.sep())
 
       let path = context.state.target.base
       let parent = await context.dispatch('files/identify', { path }, { root: true })
@@ -76,7 +76,7 @@ export default (feature: string, create: FeatureCreateFunction, execute: (data: 
           throw new Error(`Cannot ensure ${feature} feature file structure.`)
         }
 
-        path = await window.api.path.join(path || '', target)
+        path = await window.api.path.join(path, target)
 
         const item = await context.dispatch('files/identify', { path }, { root: true })
 

@@ -94,9 +94,72 @@ describe('store/modules/configuration', () => {
   })
 
   it('should return value requested when configuration read is dispatched', async () => {
-    const value = await store.dispatch('configuration/read', 'default_remote')
+    const string_keys = [
+      'name',
+      'email',
+      'private_key',
+      'public_key',
+      'passphrase',
+      'default_remote',
+      'light_primary',
+      'light_secondary',
+      'light_accent',
+      'light_error',
+      'light_info',
+      'light_warning',
+      'light_success',
+      'dark_primary',
+      'dark_secondary',
+      'dark_accent',
+      'dark_error',
+      'dark_info',
+      'dark_warning',
+      'dark_success'
+    ]
 
-    expect(value).toBe('origin')
+    for (const key of string_keys) {
+      await store.dispatch('configuration/update', { [key]: 'value' })
+      const read = await store.dispatch('configuration/read', key)
+
+      if (key === 'public_key') {
+        expect(read).toBe('ssh-rsa 1234')
+      } else {
+        expect(read).toBe('value')
+      }
+    }
+
+    const boolean_keys = [
+      'format_titles',
+      'dark_mode',
+      'auto_push',
+      'light_primary_enabled',
+      'light_secondary_enabled',
+      'light_accent_enabled',
+      'light_error_enabled',
+      'light_info_enabled',
+      'light_warning_enabled',
+      'light_success_enabled',
+      'dark_primary_enabled',
+      'dark_secondary_enabled',
+      'dark_accent_enabled',
+      'dark_error_enabled',
+      'dark_info_enabled',
+      'dark_warning_enabled',
+      'dark_success_enabled'
+    ]
+
+    for (const key of boolean_keys) {
+      await store.dispatch('configuration/update', { [key]: true })
+      const read_true = await store.dispatch('configuration/read', key)
+      expect(read_true).toBe(true)
+
+      await store.dispatch('configuration/update', { [key]: false })
+      const read_false = await store.dispatch('configuration/read', key)
+      expect(read_false).toBe(false)
+    }
+
+    const read_null = await store.dispatch('configuration/read', 'not_real_key')
+    expect(read_null).toBeNull()
   })
 
   it('should request new ssl key when configuration generate is dispatched', async () => {

@@ -16,7 +16,6 @@ export const ChokidarEvent = {
 export class State {
   active: string|null = null
   content: string|null = null
-  error: string|null = null
   tree: FileTree|null = null
   ghost: File|null = null
   selected: File|null = null
@@ -84,11 +83,6 @@ export default {
     },
     blur: function (state) {
       state.selected = null
-    },
-    error: function (state, data) {
-      const { error } = data
-
-      state.error = error
     }
   },
   actions: <ActionTree<State, any>>{
