@@ -1,24 +1,6 @@
 import { MutationTree, ActionTree } from 'vuex'
 import vuetify from '../../vuetify'
 
-interface ConfigurationTheme {
-  [name: string]: string|undefined
-
-  primary?: string
-  secondary?: string
-  accent?: string
-  info?: string
-  warning?: string
-  error?: string
-  success?: string
-  anchor?: string
-}
-
-const default_colors = {
-  light: <ConfigurationTheme>{},
-  dark: <ConfigurationTheme>{}
-}
-
 export class State {
   [name: string]: string|boolean|undefined
 
@@ -177,43 +159,29 @@ export default {
       await window.api.file.write(path, JSON.stringify(context.state))
     },
     present: async function (context) {
-      // vuetify.framework.theme.dark = context.state.dark_mode
+      vuetify.framework.theme.dark = context.state.dark_mode
 
-      // if (!vuetify.framework.theme.dark && !default_colors.light) {
-      //   const colors = vuetify.framework.theme.themes.light
-      //   default_colors.light = {}
-      //   for (const color in colors) {
-      //     default_colors.light[color] = <string>colors[color]
-      //   }
-      // }
+      const presets = vuetify.preset.theme.themes
 
-      // if (vuetify.framework.theme.dark && !default_colors.dark) {
-      //   const colors = vuetify.framework.theme.themes.dark
-      //   default_colors.dark = {}
-      //   for (const color in colors) {
-      //     default_colors.dark[color] = <string>colors[color]
-      //   }
-      // }
+      const colors = [
+        'primary',
+        'secondary',
+        'accent',
+        'error',
+        'info',
+        'warning',
+        'success'
+      ]
 
-      // const colors = [
-      //   'primary',
-      //   'secondary',
-      //   'accent',
-      //   'error',
-      //   'info',
-      //   'warning',
-      //   'success'
-      // ]
+      const theme = vuetify.framework.theme.dark ? 'dark' : 'light'
 
-      // const theme = vuetify.framework.theme.dark ? 'dark' : 'light'
-
-      // for (const color of colors) {
-      //   if (context.state[`${theme}_${color}_enabled`]) {
-      //     vuetify.framework.theme.themes[theme][color] = <string>context.state[`${theme}_${color}`]
-      //   } else {
-      //     vuetify.framework.theme.themes[theme][color] = default_colors[theme][color]
-      //   }
-      // }
+      for (const color of colors) {
+        if (context.state[`${theme}_${color}_enabled`]) {
+          vuetify.framework.theme.themes[theme][color] = <string>context.state[`${theme}_${color}`]
+        } else {
+          vuetify.framework.theme.themes[theme][color] = presets[theme][color]
+        }
+      }
     }
   }
 }
