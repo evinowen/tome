@@ -21,7 +21,7 @@
   "main": "main.js",
   "dependencies": {
     "@fontsource/montserrat": "^4.5.13",
-    "@mdi/font": "^6.9.96",
+    "@mdi/font": "^7.0.96",
     "chokidar": "^3.5.3",
     "cli-truncate": "^2.1.0",
     "core-js": "^3.25.5",
