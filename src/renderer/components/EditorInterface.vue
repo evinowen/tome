@@ -112,7 +112,7 @@
 import Vue from 'vue'
 import { VDivider } from 'vuetify/lib'
 import { debounce, delay } from 'lodash'
-import marked from 'marked'
+import { marked } from 'marked'
 import Mark from 'mark.js'
 import Explorer from '@/components/Explorer.vue'
 import FileIcon from '@/components/FileIcon.vue'
@@ -167,7 +167,7 @@ export default Vue.extend({
     },
     rendered: function () {
       if (this.markdown) {
-        return marked(this.selected?.document?.content || '')
+        return marked.parse(this.selected?.document?.content || '')
       }
 
       if (this.html) {

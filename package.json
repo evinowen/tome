@@ -31,7 +31,7 @@
     "lodash": "^4.17.15",
     "luxon": "^2.0.1",
     "mark.js": "^8.11.1",
-    "marked": "^0.8.0",
+    "marked": "^4.1.1",
     "mime-types": "^2.1.35",
     "mustache": "^4.2.0",
     "node-forge": "^1.3.1",
