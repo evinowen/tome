@@ -51,12 +51,12 @@
   background: rgba(0, 0, 0, 0.05);
 }
 
-.v-text-field-red >>> fieldset {
+.v-text-field-red :deep() fieldset {
   color: red;
   border-color: red;
 }
 
-.v-text-field-green >>> fieldset {
+.v-text-field-green :deep() fieldset {
   color: green;
   border-color: green;
 }
