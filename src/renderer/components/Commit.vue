@@ -69,12 +69,12 @@
           <v-container fluid>
             <v-row>
               <v-col>
-                <v-btn ref="stage" tile :disabled="available.length < 1" @click.stop="stage('*')">
+                <v-btn ref="stage" tile :disabled="available.length === 0" @click.stop="stage('*')">
                   Stage All
                 </v-btn>
               </v-col>
               <v-col>
-                <v-btn ref="reset" tile :disabled="staged.length < 1" @click.stop="reset('*')">
+                <v-btn ref="reset" tile :disabled="staged.length === 0" @click.stop="reset('*')">
                   Reset All
                 </v-btn>
               </v-col>
@@ -87,7 +87,7 @@
             :value=system.commit_confirm :name=repository.signature.name
             :email=repository.signature.email
             :message=repository.signature.message
-            :disabled="staged.length < 1"
+            :disabled="staged.length === 0"
             :staging="staging"
             :waiting="working"
             :push=system.commit_push

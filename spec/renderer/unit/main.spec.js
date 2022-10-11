@@ -26,9 +26,6 @@ Vue.mockImplementation((options) => {
 Vue.config = {}
 
 describe('main', () => {
-  beforeEach(() => {
-  })
-
   afterEach(() => {
     jest.clearAllMocks()
   })

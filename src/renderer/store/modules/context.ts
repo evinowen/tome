@@ -8,8 +8,12 @@ export class State {
   items: ContextItem[] = []
 }
 
-class ContextItem {
-
+interface ContextItem {
+  divider?: boolean
+  title?: string
+  active?: () => boolean
+  action?: () => Promise<void>
+  load?: () => Promise<ContextItem[]>
 }
 
 export default {

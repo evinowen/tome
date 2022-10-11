@@ -225,9 +225,7 @@ export = component('file')(
         }
 
         let line
-        const loop = true
-
-        while (loop) {
+        for (;;) {
           if (regex) {
             const match = regex.exec(contents_raw)
 

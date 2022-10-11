@@ -229,7 +229,7 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should find a placeholder display name if title is set and format fails', async () => {
-    format.mockImplementationOnce(() => { throw new Error() })
+    format.mockImplementationOnce(() => { throw new Error('Mock Error') })
     const wrapper = factory.wrap({ title: true, format })
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
@@ -244,11 +244,11 @@ describe('components/ExplorerNode', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let action
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'Open') {
         action = item.action
       }
-    })
+    }
 
     expect(event).toHaveBeenCalledTimes(0)
 
@@ -265,11 +265,11 @@ describe('components/ExplorerNode', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let action
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'Open Folder') {
         action = item.action
       }
-    })
+    }
 
     expect(event).toHaveBeenCalledTimes(0)
 
@@ -287,11 +287,11 @@ describe('components/ExplorerNode', () => {
 
     let action
 
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'New File') {
         action = item.action
       }
-    })
+    }
 
     expect(event).toHaveBeenCalledTimes(0)
 
@@ -308,11 +308,11 @@ describe('components/ExplorerNode', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let action
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'New Folder') {
         action = item.action
       }
-    })
+    }
 
     expect(event).toHaveBeenCalledTimes(0)
 
@@ -365,11 +365,11 @@ describe('components/ExplorerNode', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let active
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'Paste') {
         active = item.active
       }
-    })
+    }
 
     expect(active()).toBeTruthy()
   })
@@ -382,11 +382,11 @@ describe('components/ExplorerNode', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let action
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'Rename') {
         action = item.action
       }
-    })
+    }
 
     expect(event).toHaveBeenCalledTimes(0)
 
@@ -403,11 +403,11 @@ describe('components/ExplorerNode', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let action
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'Delete') {
         action = item.action
       }
-    })
+    }
 
     expect(event).toHaveBeenCalledTimes(0)
 

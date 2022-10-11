@@ -7,7 +7,8 @@ global.ResizeObserver = class {
     this.listener = listener
   }
 
-  observe (object) { }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  observe (object) {}
 }
 
 const item_none = {

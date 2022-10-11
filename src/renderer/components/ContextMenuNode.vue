@@ -161,11 +161,9 @@ export default Vue.extend({
       for (let index = 0; index < target; index++) {
         const item = this.items[index]
 
-        if (item.divider) {
-          height += 1
-        } else {
-          height += 18
-        }
+        item.divider
+          ? height += 1
+          : height += 18
       }
 
       return height
@@ -182,8 +180,8 @@ export default Vue.extend({
 
       if (this.$refs.node) {
         this.$refs.node.style.zIndex = this.layer
-        this.$refs.node.style.left = String(this.local_position_x).concat('px')
-        this.$refs.node.style.top = String(this.local_position_y).concat('px')
+        this.$refs.node.style.left = `${this.local_position_x}px`
+        this.$refs.node.style.top = `${this.local_position_y}px`
       }
     },
     activate: function (index) {

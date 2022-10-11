@@ -28,7 +28,7 @@ jest.mock('mark.js', () => {
   }
 })
 
-Vue.component('split-pane', SplitPane)
+Vue.component('SplitPane', SplitPane)
 
 function GenerateElementList (array) {
   return array.map(item => ({
@@ -137,7 +137,7 @@ describe('components/EditorInterface', () => {
   )).hook(({ context, localVue }) => {
     localVue.use(Vuetify)
     localVue.use(Vuex)
-    localVue.component('split-pane', SplitPane)
+    localVue.component('SplitPane', SplitPane)
 
     vuetify = new Vuetify()
     context.vuetify = vuetify
@@ -403,11 +403,11 @@ describe('components/EditorInterface', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let active
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'Cut') {
         active = item.active
       }
-    })
+    }
 
     expect(active()).toBeFalsy()
   })
@@ -417,11 +417,11 @@ describe('components/EditorInterface', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let active
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'Paste') {
         active = item.active
       }
-    })
+    }
 
     expect(active()).toBeFalsy()
   })
@@ -435,11 +435,11 @@ describe('components/EditorInterface', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let active
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'Cut') {
         active = item.active
       }
-    })
+    }
 
     expect(active()).toBeTruthy()
   })
@@ -453,11 +453,11 @@ describe('components/EditorInterface', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
     let active
-    wrapper.vm.context.forEach(item => {
+    for (const item of wrapper.vm.context) {
       if (item.title === 'Paste') {
         active = item.active
       }
-    })
+    }
 
     expect(active()).toBeTruthy()
   })

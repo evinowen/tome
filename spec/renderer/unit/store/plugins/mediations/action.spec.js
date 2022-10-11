@@ -42,7 +42,7 @@ describe('store/plugins/mediations/action', () => {
     }
 
     store = new Vuex.Store({
-      state: { },
+      state: {},
       modules: {
         actions,
         repository

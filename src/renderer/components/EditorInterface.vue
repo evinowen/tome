@@ -184,10 +184,8 @@ export default Vue.extend({
     },
     view: function () {
       if (this.selected) {
-        if (!(this.selected.image || this.selected.directory)) {
-          if (this.system.edit) {
-            return 'edit'
-          }
+        if (this.system.edit && !(this.selected.image || this.selected.directory)) {
+          return 'edit'
         }
 
         if (this.rendered !== null) {
@@ -260,11 +258,10 @@ export default Vue.extend({
           title: 'Copy',
           action: async () => {
             let selection
-            if (this.system.edit) {
-              selection = this.codemirror.getSelection()
-            } else {
-              selection = document.getSelection().toString()
-            }
+
+            this.system.edit
+              ? selection = this.codemirror.getSelection()
+              : selection = document.getSelection().toString()
 
             await store.dispatch('clipboard/text', selection)
           }
@@ -380,7 +377,7 @@ export default Vue.extend({
             this.regex.lastIndex = stream.pos
             const match = this.regex.exec(stream.string)
             if (match && match.index === stream.pos) {
-              stream.pos += match[0].length || 1
+              stream.pos += match[0].length > 0 ? match[0].length : 1
               return 'searching'
             } else if (match) {
               stream.pos = match.index
@@ -461,7 +458,7 @@ export default Vue.extend({
           try {
             this.codemirror.setSelection(from, to)
             this.codemirror.scrollIntoView({ from, to })
-          } catch (error) {
+          } catch {
             // Do nothing
           }
         }

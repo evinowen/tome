@@ -1,11 +1,13 @@
 module.exports = {
   root: true,
   env: {
-    node: true
+    node: true,
+    browser: true,
+    es6: true,
   },
   extends: [
     'eslint:recommended',
-    // 'plugin:unicorn/recommended',
+    'plugin:unicorn/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:vue/recommended',
     '@vue/typescript',
@@ -16,18 +18,21 @@ module.exports = {
     plugins: ['@typescript-eslint', 'unicorn']
   },
   rules: {
+    'unicorn/prefer-top-level-await': 'off',
     'unicorn/filename-case': 'off',
     'unicorn/prefer-module': 'off',
     'unicorn/no-null': 'off',
+    'unicorn/switch-case-braces': 'off',
+    'unicorn/no-static-only-class': 'off',
     'quote-props': ['error', 'consistent'],
     'camelcase': 'off',
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    'no-console': 'error',
+    'no-debugger': 'error',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-inferrable-types': 'off',
-    '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/ban-types': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
     'vue/prop-name-casing': 'off',
     'vue/order-in-components': 'off',
     'vue/component-tags-order': 'off',

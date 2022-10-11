@@ -20,12 +20,12 @@ const execute = (context: ActionContext<State, any>) => async (data: { name: str
   const result = await window.api.action.invoke(source, target, selection)
 
   if (result.success) {
-    const message = String(`Action ${name} complete`).concat(result.message ? `: ${result.message}` : '')
+    const message = `Action ${name} complete${result.message ? `: ${result.message}` : ''}`
     await context.dispatch('message', message, { root: true })
 
     return result
   } else {
-    const message = String(`Action ${name} failed`).concat(result.message ? `: ${result.message}` : '')
+    const message = `Action ${name} failed${result.message ? `: ${result.message}` : ''}`
     await context.dispatch('error', message, { root: true })
   }
 }

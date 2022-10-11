@@ -13,7 +13,7 @@ export default store => {
     for (const file of files) {
       for (const type in patterns) {
         const regex = patterns[type]
-        if (file.name.match(regex)) {
+        if (regex.test(file.name)) {
           await store.dispatch('repository/metadata', { [type]: file.path })
         }
       }

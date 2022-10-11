@@ -291,7 +291,7 @@ export default Vue.extend({
       if (this.title && !this.system) {
         try {
           return this.format(this.name, this.directory)
-        } catch (error) {
+        } catch {
           return (this.ephemeral || this.name) ? this.name : ' - '
         }
       }
@@ -311,8 +311,10 @@ export default Vue.extend({
       if (this.title) {
         rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
       } else if (!this.directory) {
-        rules.push((value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.')
-        rules.push((value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.')
+        rules.push(
+          (value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.',
+          (value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.'
+        )
       }
 
       return rules
@@ -328,7 +330,7 @@ export default Vue.extend({
 
       try {
         this.format(this.name, this.directory)
-      } catch (error) {
+      } catch {
         return true
       }
 

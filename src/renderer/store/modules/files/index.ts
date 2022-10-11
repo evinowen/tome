@@ -62,21 +62,17 @@ export default {
       const { edit } = data
       state.editing = edit
 
-      if (!state.editing && state.selected?.ephemeral) {
-        if (state.ghost !== null) {
-          state.ghost.exercise()
-          state.ghost = null
-        }
+      if (!state.editing && state.selected?.ephemeral && state.ghost !== null) {
+        state.ghost.exercise()
+        state.ghost = null
       }
     },
     haunt: function (state, data) {
       const { item, directory, post } = data
 
-      if (!item.directory) {
-        state.ghost = item.parent.haunt(directory, item)
-      } else {
-        state.ghost = item.haunt(directory)
-      }
+      item.directory
+        ? state.ghost = item.haunt(directory)
+        : state.ghost = item.parent.haunt(directory, item)
 
       state.post = post
       state.editing = true
@@ -139,8 +135,7 @@ export default {
       const relative = await context.state.tree.relative(path)
       let identity = context.state.tree.identify(relative || '')
 
-      const loop = true
-      while (loop) {
+      for (;;) {
         if (!identity) {
           throw new Error(`File path ${path} does not exist`)
         }
@@ -241,9 +236,7 @@ export default {
     submit: async function (context, criteria) {
       const { input, title } = criteria
 
-      let item = context.state.selected
-
-      if (item === null) {
+      if (context.state.selected === null) {
         throw new FileNotSelectedError()
       }
 
@@ -251,17 +244,17 @@ export default {
 
       let name = input.toLowerCase().replace(/[ .-]+/g, '.').replace(/[^\d.a-z-]/g, '')
 
-      const { ephemeral, parent, directory } = item
+      const { ephemeral, parent, directory, path } = context.state.selected
 
       if (title && !directory) {
-        name = name.concat('.md')
+        name = `${name}.md`
       }
 
-      if (ephemeral) {
-        item = await context.dispatch('create', { item: parent, name, directory })
-      } else {
-        item = await context.dispatch('rename', { item, name })
-      }
+      let item
+
+      ephemeral
+        ? item = await context.dispatch('create', { item: parent, name, directory })
+        : item = await context.dispatch('rename', { item, name })
 
       if (item === null) {
         throw new FileSubmitFailureError()

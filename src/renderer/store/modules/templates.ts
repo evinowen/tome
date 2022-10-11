@@ -14,7 +14,7 @@ export const TemplateBaseIndex = '# New Template\n'
 
 const create = (context: ActionContext<State, any>) => async (path: string) => {
   const config_item = await context.dispatch('files/create', { path, name: 'config.json' }, { root: true })
-  const config_content = String(JSON.stringify(TemplateBaseConfiguration, null, 2)).concat('\n')
+  const config_content = `${JSON.stringify(TemplateBaseConfiguration, null, 2)}\n`
   await context.dispatch('files/save', { item: config_item, content: config_content }, { root: true })
   await context.dispatch('files/select', { item: config_item }, { root: true })
 

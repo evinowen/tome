@@ -74,7 +74,7 @@
         <div ref="base" class="flex-grow-0 pb-3 actions">
           <v-divider class="mt-0 mb-2" />
           <push-confirm
-            :value=system.push_confirm :disabled="!(configuration.key && repository.pending && repository.pending.length)"
+            :value=system.push_confirm :disabled="!(configuration.key && repository.pending && repository.pending.length > 0)"
             :waiting=repository.push_working
             :history=repository.pending
             @input=confirm

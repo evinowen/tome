@@ -84,8 +84,6 @@ export default Vue.extend({
   props: {
     value: { type: Boolean, default: false }
   },
-  data: () => ({
-  }),
   computed: {
     patches: function () {
       return store.state.repository.patches

@@ -80,11 +80,9 @@ export default (feature: string, create: FeatureCreateFunction, execute: (data: 
 
         const item = await context.dispatch('files/identify', { path }, { root: true })
 
-        if (!item) {
-          parent = await context.dispatch('files/create', { item: parent, name: target, directory: true }, { root: true })
-        } else {
-          parent = item
-        }
+        item
+          ? parent = item
+          : parent = await context.dispatch('files/create', { item: parent, name: target, directory: true }, { root: true })
       }
     }
   }

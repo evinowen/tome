@@ -76,11 +76,9 @@ export default Vue.extend({
       await store.dispatch('system/minimize')
     },
     maximize: async function () {
-      if (this.maximized) {
-        await store.dispatch('system/restore')
-      } else {
-        await store.dispatch('system/maximize')
-      }
+      this.maximized
+        ? await store.dispatch('system/restore')
+        : await store.dispatch('system/maximize')
     },
     exit: async function () {
       await store.dispatch('system/exit')

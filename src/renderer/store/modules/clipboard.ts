@@ -12,7 +12,7 @@ export default {
   mutations: <MutationTree<State>>{
     set: function (state, data) {
       const { action, content } = data
-
+1
       state.action = action
       state.content = content
     },
@@ -30,11 +30,9 @@ export default {
       context.commit('clear')
     },
     text: async function (context, value) {
-      if (value) {
-        return await window.api.clipboard.writetext(value)
-      } else {
-        return await window.api.clipboard.readtext()
-      }
+      return value
+        ? await window.api.clipboard.writetext(value)
+        : await window.api.clipboard.readtext()
     },
     cut: async function (context, content) {
       context.commit('set', {

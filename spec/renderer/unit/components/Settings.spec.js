@@ -5,6 +5,7 @@ import Settings from '@/components/Settings'
 
 jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
+// eslint-disable-next-line unicorn/consistent-function-scoping
 jest.mock('lodash/debounce', () => (callback) => {
   callback.cancel = jest.fn()
   callback.flush = jest.fn()

@@ -101,8 +101,7 @@ export default {
 
       await window.api.file.search_path(target, criteria)
 
-      const loop = true
-      while (loop) {
+      for (;;) {
         const result = await window.api.file.search_next()
 
         if (result === null || result.path === null) {

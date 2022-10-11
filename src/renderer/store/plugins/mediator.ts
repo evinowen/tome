@@ -10,4 +10,8 @@ const mediations = [
   template
 ]
 
-export default store => mediations.forEach(mediation => mediation(store))
+export default store => {
+  for (const mediation of mediations) {
+    mediation(store)
+  }
+}

@@ -25,7 +25,7 @@ export default {
                 'example.file.b.md': null,
                 'example.file.c.md': null
               },
-              'example.directory.b': { },
+              'example.directory.b': {},
               'config.json': null
             },
             'example.template.b': null,
@@ -122,7 +122,7 @@ export default {
         return
       }
 
-      if (path_split.length) {
+      if (path_split.length > 0) {
         current = current[name] = {}
       }
 

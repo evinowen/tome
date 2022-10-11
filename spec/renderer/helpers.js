@@ -3,17 +3,15 @@ import { createLocalVue, mount } from '@vue/test-utils'
 const respond = (routable) => {
   const _routable = routable || []
   const _mock = jest.fn(async (type, callback) => {
-    if (_routable.indexOf(type) < 0) {
-      return
+    if (_routable.includes(type)) {
+      await callback()
     }
-
-    await callback()
   })
 
   return { routable: _routable, mock: _mock }
 }
 
-const assemble = (object, default_props, default_listeners) => {
+const assemble = (object, default_properties, default_listeners) => {
   const factory = {
     trap: false,
     component: {
@@ -42,7 +40,7 @@ const assemble = (object, default_props, default_listeners) => {
     return factory
   }
 
-  factory.wrap = (props, listeners) => {
+  factory.wrap = (properties, listeners) => {
     if (!factory.trap) {
       factory.make()
     }
@@ -59,14 +57,14 @@ const assemble = (object, default_props, default_listeners) => {
       object,
       {
         localVue: factory.localVue,
-        ...(factory.context || {}),
+        ...factory.context,
         propsData: {
-          ...(default_props || {}),
-          ...(props || {})
+          ...default_properties,
+          ...properties
         },
         listeners: {
-          ...(default_listeners || {}),
-          ...(listeners || {})
+          ...default_listeners,
+          ...listeners
         }
       }
     )

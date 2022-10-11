@@ -192,7 +192,6 @@ import store from '@/store'
 
 export default Vue.extend({
   name: 'SearchService',
-  props: { },
   components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition },
   computed: {
     status: function () {

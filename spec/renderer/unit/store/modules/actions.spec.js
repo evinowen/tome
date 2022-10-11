@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import { createLocalVue } from '@vue/test-utils'
 import actions from '@/store/modules/actions'
 import { cloneDeep } from 'lodash'
-import vm from 'vm'
+import vm from 'node:vm'
 
 import builders from '?/builders'
 

@@ -16,7 +16,7 @@ export default class QuickCommit {
 
       await dispatch('repository/stage', '*')
       await dispatch('system/perform', 'commit')
-    } catch (error) {
+    } catch {
       await dispatch('error', 'Quick Commit failed')
       return
     }

@@ -41,8 +41,6 @@ export default Vue.extend({
     staged_modified: { type: Number, default: 0 },
     staged_removed: { type: Number, default: 0 }
   },
-  data: () => ({
-  }),
   computed: {
     available_added: function () {
       return this.available_new + this.available_renamed + this.available_modified

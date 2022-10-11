@@ -268,11 +268,9 @@ export default class File {
 
     let result = false
 
-    if (directory) {
-      result = await window.api.file.create_directory(path)
-    } else {
-      result = await window.api.file.create(path)
-    }
+    directory
+      ? result = await window.api.file.create_directory(path)
+      : result = await window.api.file.create(path)
 
     if (!result) {
       throw new Error(`Failed to create ${name} under directory ${this.path}`)
@@ -349,7 +347,7 @@ export default class File {
       descendant: null
     }
 
-    while (items.length) {
+    while (items.length > 0) {
       const item = items.shift()
 
       if (!item) {

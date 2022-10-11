@@ -158,11 +158,9 @@ export default Vue.extend({
   },
   computed: {
     status: function () {
-      if (this.staging) {
-        return CommitConfirmMessages.Staging
-      } else {
-        return CommitConfirmMessages.Ready
-      }
+      return this.staging
+        ? CommitConfirmMessages.Staging
+        : CommitConfirmMessages.Ready
     }
   }
 })

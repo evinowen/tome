@@ -122,8 +122,6 @@ export default Vue.extend({
   // unmounted: function () {
   //   clearInterval(this.ticker)
   // },
-  computed: {
-  },
   methods: {
     click: async function (event) {
       if (!this.$refs.sea) {

@@ -76,7 +76,9 @@ describe('store/modules/repository', () => {
 
     try {
       await store.dispatch('repository/stage', './path.md')
-    } catch (_) {}
+    } catch {
+      // do nothing
+    }
 
     expect(root_actions.error).toHaveBeenCalledTimes(1)
   })
@@ -96,7 +98,9 @@ describe('store/modules/repository', () => {
 
     try {
       await store.dispatch('repository/reset', './path.md')
-    } catch (_) {}
+    } catch {
+      // do nothing
+    }
 
     expect(root_actions.error).toHaveBeenCalledTimes(1)
   })

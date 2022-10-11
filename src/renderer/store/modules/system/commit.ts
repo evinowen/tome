@@ -9,7 +9,7 @@ export default class Commit {
       await dispatch('repository/signature/message')
 
       await dispatch('message', 'Commit done')
-    } catch (error) {
+    } catch {
       await dispatch('error', 'Commit failed')
       return
     } finally {

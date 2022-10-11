@@ -80,7 +80,7 @@ export default Vue.extend({
         throw new Error('Name provided is falsey')
       }
 
-      if (name.match(/[^\d.a-z-]/)) {
+      if (/[^\d.a-z-]/.test(name)) {
         throw new Error('Name contains invalid characters')
       }
 
@@ -90,7 +90,7 @@ export default Vue.extend({
         words.pop()
       }
 
-      return words.map(item => String(item).slice(0, 1).toUpperCase().concat(item.slice(1))).join(' ').trim()
+      return words.map(item => `${String(item).slice(0, 1).toUpperCase()}${item.slice(1)}`).join(' ').trim()
     },
     toggle: async function (state) {
       const { path } = state
