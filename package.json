@@ -10,7 +10,7 @@
   "scripts": {
     "build-electron": "./node_modules/.bin/electron-builder",
     "build-main": "./node_modules/.bin/cross-env-shell \"./node_modules/.bin/tsc -p src/main/tsconfig.json\"",
-    "build-renderer": "./node_modules/.bin/vue-cli-service --dest dist/renderer build",
+    "build-renderer": "./node_modules/.bin/vue-cli-service --dest dist/renderer build --no-module",
     "lint-main": "./node_modules/.bin/eslint spec/main/**/*.js src/main/**/*.ts",
     "lint-main-config": "./node_modules/.bin/eslint --print-config src/main/main.js",
     "lint-renderer": "./node_modules/.bin/vue-cli-service lint --no-fix src/renderer/**/*.vue src/renderer/**/*.ts spec/renderer/**/*.js",
