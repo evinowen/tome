@@ -105,7 +105,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.deb
-        path: dist/main/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
 
   build_on_win:
     needs: [ version_validation ]
@@ -210,7 +210,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
-        path: dist/main/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   build_on_macos:
     needs: [ version_validation ]
@@ -295,7 +295,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.dmg
-        path: dist/main/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   publish_release:
     needs: [ version_validation, build_on_ubuntu, build_on_win, build_on_macos ]
