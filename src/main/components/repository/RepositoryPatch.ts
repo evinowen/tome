@@ -1,5 +1,5 @@
 import NodeGit from 'nodegit'
-import * as _path from 'path'
+import * as _path from 'node:path'
 
 export default class RepositoryPatch {
   name = ''
@@ -19,11 +19,9 @@ export default class RepositoryPatch {
     const old_file_path = old_file.path()
     const new_file_path = new_file.path()
 
-    if (old_file_path === new_file_path) {
-      this.path = new_file_path
-    } else {
-      this.path = `${old_file_path} => ${new_file_path}`
-    }
+    old_file_path === new_file_path
+      ? this.path = new_file_path
+      : this.path = `${old_file_path} => ${new_file_path}`
 
     this.name = _path.basename(new_file_path)
 

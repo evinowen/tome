@@ -1,7 +1,7 @@
 const { cloneDeep } = require('lodash')
 const electron = require('electron')
 const forge = require('node-forge')
-const fs = require('fs')
+const fs = require('node:fs')
 const tmp = require('tmp-promise')
 const { random_string, expect_call_parameters_to_return } = require('?/helpers')(expect)
 const _component = require('@/components/ssl')
@@ -36,17 +36,17 @@ jest.mock('node-forge', () => ({
   }
 }))
 
-forge.pki.decryptRsaPrivateKey.mockImplementation((data, passphrase) => ({ n: random_string(), e: random_string() }))
-forge.pki.privateKeyFromPem.mockImplementation((data) => ({ n: random_string(), e: random_string() }))
-forge.pki.rsa.generateKeyPair.mockImplementation((options, callback) => callback(null, random_string()))
+forge.pki.decryptRsaPrivateKey.mockImplementation(() => ({ n: random_string(), e: random_string() }))
+forge.pki.privateKeyFromPem.mockImplementation(() => ({ n: random_string(), e: random_string() }))
+forge.pki.rsa.generateKeyPair.mockImplementation((options, callback) => callback(undefined, random_string()))
 
 jest.mock('fs', () => ({
   readFile: jest.fn(),
   writeFile: jest.fn()
 }))
 
-fs.readFile.mockImplementation((path, encoding, callback) => callback(null, random_string()))
-fs.writeFile.mockImplementation((file, data, callback) => callback(null))
+fs.readFile.mockImplementation((path, encoding, callback) => callback(undefined, random_string()))
+fs.writeFile.mockImplementation((file, data, callback) => callback())
 
 jest.mock('path', () => ({
   join: jest.fn()

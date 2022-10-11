@@ -1,8 +1,8 @@
 import component from '../factory'
 import { clipboard } from 'electron'
 import * as log from 'electron-log'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { promise_with_reject, promise_with_boolean } from '../../promise'
 
 export = component('clipboard')(
@@ -54,13 +54,15 @@ export = component('clipboard')(
       }
 
       switch (action) {
-        case 'cut':
+        case 'cut': {
           await promise_with_reject(fs.rename)(source, destination)
           break
+        }
 
-        case 'copy':
+        case 'copy': {
           await promise_with_reject(fs.copyFile)(source, destination, 0)
           break
+        }
       }
     })
   }

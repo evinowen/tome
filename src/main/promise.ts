@@ -1,4 +1,4 @@
-import * as fs from 'fs'
+import * as fs from 'node:fs'
 
 const callback_with_reject = (resolve, reject) => (error, ...values) => error ? reject(error) : resolve(...values)
 const callback_with_boolean = (resolve) => (error) => error ? resolve(false) : resolve(true)

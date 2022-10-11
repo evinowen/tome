@@ -1,14 +1,14 @@
 import component from '../factory'
 import { app } from 'electron'
 import * as forge from 'node-forge'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import * as tmp from 'tmp-promise'
 import { promise_with_reject } from '../../promise'
 
 export = component('ssl')(
   ({ handle }) => {
-    handle('generate-public-key', async (target, passphrase: string|null = null) => {
+    handle('generate-public-key', async (target, passphrase: string|undefined) => {
       if (!target) {
         return { path: '', data: '' }
       }

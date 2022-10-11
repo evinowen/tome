@@ -1,7 +1,7 @@
 const base36_upper = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const base36_lower = '0123456789abcdefghijklmnopqrstuvwxyz'
 
-module.exports = (expect) => ({
+module.exports = () => ({
   expect_call_parameters_to_return: (expect) => (callable, parameters, result) => {
     expect(callable).toHaveBeenCalled()
 
@@ -17,7 +17,7 @@ module.exports = (expect) => ({
   random_string: (length = 16, upper = true) => {
     let result = ''
     const base36 = upper ? base36_upper : base36_lower
-    for (let i = 0; i < length; i++) {
+    for (let index = 0; index < length; index++) {
       result += base36.charAt(Math.floor(Math.random() * base36.length))
     }
 

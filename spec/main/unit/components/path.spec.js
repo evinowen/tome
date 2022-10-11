@@ -1,6 +1,6 @@
 const { cloneDeep } = require('lodash')
 const electron = require('electron')
-const path = require('path')
+const path = require('node:path')
 const { random_string, expect_call_parameters_to_return } = require('?/helpers')(expect)
 const _component = require('@/components/path')
 const preload = require('@/components/path/preload')
@@ -74,7 +74,7 @@ describe('components/path', () => {
     const target = '/project/FILE.MD'
     await preload.extension(target)
 
-    expect_call_parameters_to_return(path.extname, [target], undefined)
+    expect_call_parameters_to_return(path.extname, [target])
   })
 
   it('should call for and return joined path upon call to join', async () => {

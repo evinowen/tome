@@ -1,27 +1,27 @@
 import component from '../factory'
 import { dialog, shell } from 'electron'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import * as os from 'node:os'
 import * as chokidar from 'chokidar'
-import * as os from 'os'
 import { promise_with_reject, promise_access } from '../../promise'
 import mime from 'mime-types'
 
 const search:{
-  target: string|null,
+  target: string|undefined,
   targets: string[],
   length: number,
   criteria: {
     query: string,
     regex_query: boolean,
     case_sensitive: boolean,
-  }|null,
+  }|undefined,
   files: string[]
 } = {
-  target: null,
+  target: undefined,
   targets: [],
   length: 0,
-  criteria: null,
+  criteria: undefined,
   files: []
 }
 
@@ -30,7 +30,7 @@ const excluded_filenames = new Set([
   '.tome'
 ])
 
-let watcher:chokidar.FSWatcher|null = null
+let watcher:chokidar.FSWatcher|undefined
 
 export = component('file')(
   ({ handle, on }, win) => {
@@ -91,11 +91,7 @@ export = component('file')(
         return false
       }
 
-      if (directory) {
-        await promise_with_reject(fs.mkdir)(target)
-      } else {
-        await promise_with_reject(fs.writeFile)(target, '')
-      }
+      directory ? await promise_with_reject(fs.mkdir)(target) : await promise_with_reject(fs.writeFile)(target, '')
 
       return promise_access(target)
     })
@@ -108,7 +104,7 @@ export = component('file')(
       let content = ''
 
       for (const item of items) {
-        content += String(item).concat(os.EOL)
+        content += `${item}${os.EOL}`
       }
 
       await promise_with_reject(fs.writeFile)(target, content)
@@ -174,21 +170,21 @@ export = component('file')(
 
     handle('search-next', async () => {
       if (search.targets.length === 0) {
-        return { path: null }
+        return { path: undefined }
       }
 
       const target = search.targets.shift()
-      const matches:{ index: number, line: string|null }[] = []
+      const matches:{ index: number, line: string|undefined }[] = []
 
       const stats = await promise_with_reject<fs.Dirent>(fs.lstat)(target)
 
       const directory = stats.isDirectory()
 
-      if (search.criteria === null) {
+      if (search.criteria === undefined) {
         return
       }
 
-      const regex = search.criteria.regex_query ? new RegExp(search.criteria.query, String('g').concat(search.criteria.case_sensitive ? '' : 'i')) : null
+      const regex = search.criteria.regex_query ? new RegExp(search.criteria.query, `g${search.criteria.case_sensitive ? '' : 'i'}`) : undefined
       const query = regex || search.criteria.case_sensitive ? search.criteria.query : search.criteria.query.toLowerCase()
 
       const path_relative = path.relative(search.target || '', target || '')
@@ -197,7 +193,7 @@ export = component('file')(
       if (regex) {
         const match = regex.exec(path_relative)
 
-        if (match !== null) {
+        if (match !== undefined) {
           path_matched = match.index
         }
       } else {
@@ -228,14 +224,14 @@ export = component('file')(
           line_end = contents.length
         }
 
-        let line = null
+        let line
         const loop = true
 
         while (loop) {
           if (regex) {
             const match = regex.exec(contents_raw)
 
-            if (match === null) {
+            if (match === undefined) {
               break
             } else {
               index = match.index
@@ -249,7 +245,7 @@ export = component('file')(
           }
 
           if (index >= line_end) {
-            line = null
+            line = undefined
             line_start = contents.lastIndexOf('\n', index)
             line_end = contents.indexOf('\n', index)
 
@@ -258,7 +254,7 @@ export = component('file')(
             }
           }
 
-          if (line === null) {
+          if (line === undefined) {
             line = contents_raw.slice(line_start, line_end)
           }
 

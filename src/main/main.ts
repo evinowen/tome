@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import * as log from 'electron-log'
-import * as path from 'path'
-import { EventEmitter } from 'events'
+import * as path from 'node:path'
+import { EventEmitter } from 'node:events'
 import ActionsComponent from './components/actions'
 import ClipboardComponent from './components/clipboard'
 import FileComponent from './components/file'
@@ -88,11 +88,9 @@ class Main {
     Main.register()
 
     log.info('Loading the window index')
-    if (development) {
-      await Main.window.loadURL('http://localhost:8080/')
-    } else {
-      await Main.window.loadFile('index.html')
-    }
+    development
+      ? await Main.window.loadURL('http://localhost:8080/')
+      : await Main.window.loadFile('index.html')
 
     log.info('Showing the window')
     Main.window.show()

@@ -1,8 +1,8 @@
 import component from '../factory'
 import log from 'electron-log'
-import * as fs from 'fs'
-import * as path from 'path'
-import { Script } from 'vm'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import { Script } from 'node:vm'
 import { promise_with_reject } from '../../promise'
 
 const environment = {
@@ -13,7 +13,7 @@ const environment = {
   }
 }
 
-const timeout = 30000
+const timeout = 30_000
 
 export = component('action')(
   ({ handle }) => {
@@ -26,7 +26,7 @@ export = component('action')(
 
       const script = new Script(contents_raw)
 
-      const content = async (data = null) => {
+      const content = async (data) => {
         if (data) {
           await promise_with_reject(fs.writeFile)(target, data)
         } else {
@@ -62,7 +62,7 @@ export = component('action')(
 
         return { success: true, message, selection: context.selection }
       } catch (error) {
-        return { success: false, message: error ? String(error) : null }
+        return { success: false, message: error ? String(error) : undefined }
       }
     })
   },

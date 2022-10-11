@@ -1,6 +1,6 @@
 import component from '../factory'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { cloneDeep } from 'lodash'
 import * as Mustache from 'mustache'
 import mime from 'mime-types'
@@ -16,9 +16,9 @@ class TemplateFile {
   name: string
   shown: boolean
   path: {
-    root: string|null,
-    parent: { absolute: string|null, relative: string|null }
-    target: { absolute: string|null, relative: string|null }
+    root: string|undefined,
+    parent: { absolute: string|undefined, relative: string|undefined }
+    target: { absolute: string|undefined, relative: string|undefined }
   }
 
   constructor (root, directory, name) {
@@ -27,11 +27,11 @@ class TemplateFile {
       root,
       parent: {
         absolute: directory,
-        relative: null
+        relative: undefined
       },
       target: {
-        absolute: null,
-        relative: null
+        absolute: undefined,
+        relative: undefined
       }
     }
 
@@ -66,7 +66,8 @@ class TemplateFile {
   }
 
   async type () {
-    const stats = await promise_with_reject<fs.Stats>(fs.lstat)(this.path.target.absolute).catch(() => null)
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const stats = await promise_with_reject<fs.Stats>(fs.lstat)(this.path.target.absolute).catch(() => {})
 
     if (!stats) {
       return TemplateFileType.INACCESSABLE
@@ -113,7 +114,7 @@ class Template {
     compute: object,
     config: {
       directory: boolean,
-      index: string|null
+      index: string|undefined
     }
   }
 
@@ -166,14 +167,17 @@ class Template {
     this.destination.target(target)
 
     switch (await this.source.type()) {
-      case TemplateFileType.INACCESSABLE:
+      case TemplateFileType.INACCESSABLE: {
         throw new Error(`Cannot access template source file ${this.source.path.target.absolute}`)
+      }
 
-      case TemplateFileType.DIRECTORY:
+      case TemplateFileType.DIRECTORY: {
         return await this.construct_directory()
+      }
 
-      case TemplateFileType.FILE:
+      case TemplateFileType.FILE: {
         return await this.construct_file()
+      }
     }
   }
 
@@ -201,16 +205,18 @@ class Template {
 
     if (this.destination.shown) {
       switch (await this.destination.type()) {
-        case TemplateFileType.FILE:
+        case TemplateFileType.FILE: {
           throw new Error(`Required directory ${this.destination.path.target.absolute} already exists as single file`)
+        }
 
-        case TemplateFileType.INACCESSABLE:
+        case TemplateFileType.INACCESSABLE: {
           await this.destination.mkdir()
           break
+        }
       }
     }
 
-    let index: string|null = null
+    let index: string|undefined
 
     const leafs: TemplateLeaf[] = []
 
@@ -235,11 +241,13 @@ class Template {
     const { compute , config } = this.context
 
     switch (await this.destination.type()) {
-      case TemplateFileType.DIRECTORY:
+      case TemplateFileType.DIRECTORY: {
         throw new Error(`Template file ${this.destination.path.target.absolute} already exists as a directory`)
+      }
 
-      case TemplateFileType.FILE:
+      case TemplateFileType.FILE: {
         throw new Error(`Template file ${this.destination.path.target.absolute} already exists and would be overwritten`)
+      }
     }
 
     if (this.source.text()) {
@@ -259,11 +267,11 @@ class Template {
       await this.source.copy(this.destination.path.target.absolute)
     }
 
-    return null
+    return
   }
 }
 
-class TemplateLeaf extends Template { }
+class TemplateLeaf extends Template {}
 
 export = component('template')(
   ({ handle }) => {

@@ -1,5 +1,5 @@
 import component from '../factory'
-import * as path from 'path'
+import * as path from 'node:path'
 
 export = component('path')(
   ({ handle }) => {

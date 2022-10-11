@@ -1,6 +1,6 @@
 const Repository = require('@/components/repository/Repository')
-const fs = require('fs')
-const path = require('path')
+const fs = require('node:fs')
+const path = require('node:path')
 const NodeGit = require('nodegit')
 
 jest.mock('@/components/repository/RepositoryPatch')
@@ -13,13 +13,13 @@ jest.mock('electron', () => ({
 }))
 
 jest.mock('fs', () => ({
-  readFileSync: jest.fn((target, options) => 'ref: refs/heads/master\r\ndata\r\ndata\r\n'),
-  existsSync: jest.fn((target) => true)
+  readFileSync: jest.fn(() => 'ref: refs/heads/master\r\ndata\r\ndata\r\n'),
+  existsSync: jest.fn(() => true)
 }))
 
 jest.mock('path', () => ({
   basename: jest.fn((target) => String(target).slice(String(target).lastIndexOf('/') + 1)),
-  join: jest.fn((first, second) => String(first).replace(/\/$/g, '').concat('/').concat(String(second).replace(/^\/|\/$/g, '')))
+  join: jest.fn((first, second) => `${String(first).replace(/\/$/g, '')}${String(second).replace(/^\/|\/$/g, '')}`)
 }))
 
 jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {}, Diff: { LINE: 1 } }))
@@ -61,7 +61,7 @@ const nodegit_commit = {
   date: jest.fn(),
   message: jest.fn(() => 'Commit Message'),
   parentcount: jest.fn(() => 0),
-  parent: jest.fn(() => null),
+  parent: jest.fn(),
   getParents: jest.fn(() => [nodegit_commit]),
   getTree: jest.fn(() => nodegit_tree)
 }
@@ -154,8 +154,8 @@ NodeGit.Reference = {
 }
 
 NodeGit.Repository = {
-  open: jest.fn((path) => nodegit_repository),
-  init: jest.fn((path, is_bare) => nodegit_repository)
+  open: jest.fn(() => nodegit_repository),
+  init: jest.fn(() => nodegit_repository)
 }
 
 NodeGit.Reset = {
@@ -209,11 +209,11 @@ describe('components/repository/Repository', () => {
     expect(repository.path).toEqual(target)
     expect(repository.name).toEqual(name)
 
-    expect(repository.repository).toEqual(null)
-    expect(repository.branch).toEqual(null)
+    expect(repository.repository).toBeUndefined()
+    expect(repository.branch).toBeUndefined()
 
     expect(repository.remotes).toEqual([])
-    expect(repository.remote).toEqual(null)
+    expect(repository.remote).toBeUndefined()
 
     expect(repository.ahead).toEqual(false)
     expect(repository.pending).toEqual([])
@@ -221,9 +221,9 @@ describe('components/repository/Repository', () => {
     expect(repository.available).toEqual([])
     expect(repository.staged).toEqual([])
 
-    expect(repository.private_key).toEqual(null)
-    expect(repository.public_key).toEqual(null)
-    expect(repository.passphrase).toEqual(null)
+    expect(repository.private_key).toBeUndefined()
+    expect(repository.public_key).toBeUndefined()
+    expect(repository.passphrase).toBeUndefined()
 
     expect(repository.patches).toEqual([])
   })
@@ -305,14 +305,14 @@ describe('components/repository/Repository', () => {
 
     await repository.load()
 
-    expect(repository.repository).not.toBeNull()
+    expect(repository.repository).not.toBeUndefined()
   })
 
   it('should throw Error if repository is not set on attempt to load', async () => {
     nodegit_commit.parentcount.mockReturnValueOnce(1)
     nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
 
-    NodeGit.Repository.open.mockReturnValueOnce(null)
+    NodeGit.Repository.open.mockReturnValueOnce()
 
     const target = './test_path'
 
@@ -392,7 +392,7 @@ describe('components/repository/Repository', () => {
 
     await repository.load()
 
-    expect(repository.repository).not.toBeNull()
+    expect(repository.repository).not.toBeUndefined()
   })
 
   it('should load and compare remote branch identified by url on call to loadRemoteBranch', async () => {
@@ -412,8 +412,8 @@ describe('components/repository/Repository', () => {
     await repository.load()
     await repository.loadRemoteBranch(url)
 
-    expect(repository.remote).not.toBeNull()
-    expect(repository.remote.branch).not.toBeNull()
+    expect(repository.remote).not.toBeUndefined()
+    expect(repository.remote.branch).not.toBeUndefined()
   })
 
   it('should call and wait inspectStaged and inspectAvailable on inspect', async () => {
@@ -501,7 +501,7 @@ describe('components/repository/Repository', () => {
 
     await repository.compilePatchesFromDiff(nodegit_diff)
 
-    expect(repository.patches).not.toBeNull()
+    expect(repository.patches).not.toBeUndefined()
     expect(repository.patches.length).toBeGreaterThanOrEqual(0)
   })
 

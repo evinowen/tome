@@ -1,8 +1,8 @@
 const { cloneDeep } = require('lodash')
 const electron = require('electron')
-const fs = require('fs')
-const path = require('path')
-const vm = require('vm')
+const fs = require('node:fs')
+const path = require('node:path')
+const vm = require('node:vm')
 const { random_string } = require('?/helpers')(expect)
 const _component = require('@/components/actions')
 const preload = require('@/components/actions/preload')
@@ -34,9 +34,9 @@ const fs_lstat_return = {
 
 const optional = (first, second) => second || first
 
-fs.lstat.mockImplementation((path, callback) => callback(null, fs_lstat_return))
-fs.readFile.mockImplementation((target, encoding, callback) => callback(null, random_string(128)))
-fs.writeFile.mockImplementation((target, content, encoding, callback) => optional(encoding, callback)(null))
+fs.lstat.mockImplementation((path, callback) => callback(undefined, fs_lstat_return))
+fs.readFile.mockImplementation((target, encoding, callback) => callback(undefined, random_string(128)))
+fs.writeFile.mockImplementation((target, content, encoding, callback) => optional(encoding, callback)())
 
 jest.mock('path', () => ({
   join: jest.fn()
@@ -47,7 +47,7 @@ path.join.mockImplementation((...input) => input.join('/'))
 let vm_script_success = true
 
 const vm_script = {
-  runInNewContext: jest.fn((context, options) => {
+  runInNewContext: jest.fn((context) => {
     const { require, resolve, content } = context
 
     const input = 'Test Content'

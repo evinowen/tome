@@ -1,7 +1,7 @@
 const { cloneDeep } = require('lodash')
 const electron = require('electron')
-const fs = require('fs')
-const path = require('path')
+const fs = require('node:fs')
+const path = require('node:path')
 const { random_string, expect_call_parameters_to_return } = require('?/helpers')(expect)
 const _component = require('@/components/clipboard')
 const preload = require('@/components/clipboard/preload')
@@ -33,9 +33,9 @@ const fs_lstat_return = {
 }
 
 fs.access.mockImplementation((path, callback) => callback(new Error('Mock Error')))
-fs.lstat.mockImplementation((path, callback) => callback(null, fs_lstat_return))
-fs.rename.mockImplementation((target, destination, callback) => callback(null))
-fs.copyFile.mockImplementation((target, destination, mode, callback) => callback(null))
+fs.lstat.mockImplementation((path, callback) => callback(undefined, fs_lstat_return))
+fs.rename.mockImplementation((target, destination, callback) => callback())
+fs.copyFile.mockImplementation((target, destination, mode, callback) => callback())
 
 jest.mock('path', () => ({
   basename: jest.fn(),
@@ -66,7 +66,7 @@ describe('components/clipboard', () => {
     const text = 'text'
     await preload.writetext(text)
 
-    expect_call_parameters_to_return(electron.clipboard.writeText, [text], undefined)
+    expect_call_parameters_to_return(electron.clipboard.writeText, [text])
   })
 
   it('should call for and return clipboard text upon call to readtext', async () => {

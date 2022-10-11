@@ -3,11 +3,11 @@ const path = require("./path")
 
 const lstat_return = (target) => {
   if (!disk.has_disk(target)) {
-    return null
+    return
   }
 
   const node = disk.get_disk(target)
-  const directory = node !== null
+  const directory = node !== undefined
 
   return {
     name: path.basename(target),
@@ -18,7 +18,7 @@ const lstat_return = (target) => {
 
 const readdir_files = (target, options) => {
   if (!disk.has_disk(target)) {
-    return null
+    return
   }
 
   let output = 'names'
@@ -29,7 +29,7 @@ const readdir_files = (target, options) => {
   const node = disk.get_disk(target)
   const files = []
   for (const item in node) {
-    const directory = node[item] !== null
+    const directory = node[item] !== undefined
     files.push(
       output === 'names'
       ? item
@@ -51,13 +51,13 @@ module.exports = {
     lstat_return,
     readdir_files
   },
-  access: jest.fn((target, callback) => callback(disk.has_disk(target) ? null : new Error('Mock Error'))),
-  copyFile: jest.fn((target, destination, mode, callback) => disk.set_disk(destination, disk.get_disk(target)) || optional(mode, callback)(null)),
-  lstat: jest.fn((target, callback) => callback(null, lstat_return(target))),
-  mkdir: jest.fn((target, callback) => disk.set_disk(target, []) || callback(null, lstat_return(target))),
-  rename: jest.fn((target, destination, callback) => disk.set_disk(destination, disk.get_disk(target)) || disk.unset_disk(target) || callback(null)),
-  readdir: jest.fn((target, options, callback) => optional(options, callback)(null, readdir_files(target, callback ? options : {}))),
-  readFile: jest.fn((target, encoding, callback) => callback(null, disk.get_content(target))),
-  writeFile: jest.fn((target, content, encoding, callback) => disk.set_disk(target, null) || disk.set_content(target, content) || optional(encoding, callback)(null)),
-  unlink: jest.fn((target, callback) => disk.unset_disk(target) || callback(null)),
+  access: jest.fn((target, callback) => callback(disk.has_disk(target) ? undefined : new Error('Mock Error'))),
+  copyFile: jest.fn((target, destination, mode, callback) => disk.set_disk(destination, disk.get_disk(target)) || optional(mode, callback)()),
+  lstat: jest.fn((target, callback) => callback(undefined, lstat_return(target))),
+  mkdir: jest.fn((target, callback) => disk.set_disk(target, []) || callback(undefined, lstat_return(target))),
+  rename: jest.fn((target, destination, callback) => disk.set_disk(destination, disk.get_disk(target)) || disk.unset_disk(target) || callback()),
+  readdir: jest.fn((target, options, callback) => optional(options, callback)(undefined, readdir_files(target, callback ? options : {}))),
+  readFile: jest.fn((target, encoding, callback) => callback(undefined, disk.get_content(target))),
+  writeFile: jest.fn((target, content, encoding, callback) => disk.set_disk(target, ) || disk.set_content(target, content) || optional(encoding, callback)()),
+  unlink: jest.fn((target, callback) => disk.unset_disk(target) || callback()),
 }

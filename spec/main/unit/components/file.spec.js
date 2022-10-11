@@ -1,7 +1,7 @@
 const { cloneDeep } = require('lodash')
 const electron = require('electron')
 const { reset_disk } = require('?/mocks/support/disk')
-const fs = require('fs')
+const fs = require('node:fs')
 const chokidar = require('chokidar')
 const { random_string } = require('?/helpers')(expect)
 const _component = require('@/components/file')
@@ -51,7 +51,7 @@ const chokidar_watcher = {
   }
 }
 
-chokidar.watch.mockImplementation((target, options) => chokidar_watcher)
+chokidar.watch.mockImplementation(() => chokidar_watcher)
 
 jest.mock('fs', () => require('?/mocks/fs'))
 jest.mock('path', () => require('?/mocks/path'))
@@ -105,7 +105,7 @@ describe('components/file', () => {
 
     expect(fs.access).toHaveBeenCalled()
     expect(result).not.toBeUndefined()
-    expect(result).not.toBeNull()
+    expect(result).not.toBeUndefined()
   })
 
   it('should return if target is directory upon call to is_directory', async () => {

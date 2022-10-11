@@ -1,9 +1,8 @@
 import NodeGit from 'nodegit'
 import RepositoryFile from './RepositoryFile'
 import RepositoryPatch from './RepositoryPatch'
-
-import * as _path from 'path'
-import * as _fs from 'fs'
+import * as _path from 'node:path'
+import * as _fs from 'node:fs'
 
 interface NodeGitRemoteHead {
   oid(): NodeGit.Oid
@@ -20,20 +19,20 @@ class RepositoryPrivateKeyNotSetError extends Error {}
 export default class Repository {
   path: string
   name: string
-  branch: string|null = null
+  branch: string|undefined = undefined
 
-  repository: NodeGit.Repository|null = null
+  repository: NodeGit.Repository|undefined = undefined
 
-  private_key: string|null = null
-  public_key: string|null = null
-  passphrase: string|null = null
+  private_key: string|undefined = undefined
+  public_key: string|undefined = undefined
+  passphrase: string|undefined = undefined
 
   ahead = false
-  remote: { name: string, url: string }|null = null
-  remote_branch: { name: string, short: string, object: NodeGitRemoteHead }|null = null
+  remote: { name: string, url: string }|undefined = undefined
+  remote_branch: { name: string, short: string, object: NodeGitRemoteHead }|undefined = undefined
   remotes: { name: string, url: string }[] = []
-  remote_map: Map<string, NodeGit.Remote>|null = null
-  remote_object: NodeGit.Remote|null = null
+  remote_map: Map<string, NodeGit.Remote>|undefined = undefined
+  remote_object: NodeGit.Remote|undefined = undefined
 
   patches: RepositoryPatch[] = []
   available: RepositoryFile[] = []
@@ -62,11 +61,11 @@ export default class Repository {
       certificateCheck: () => 0
     }
 
-    if (this.private_key === null) {
+    if (this.private_key === undefined) {
       throw new RepositoryPrivateKeyNotSetError()
     }
 
-    if (this.public_key === null) {
+    if (this.public_key === undefined) {
       throw new RepositoryPublicKeyNotSetError()
     }
 
@@ -105,11 +104,9 @@ export default class Repository {
   async loadOpenOrInit () {
     const path = _path.join(this.path, '.git')
 
-    if (_fs.existsSync(path)) {
-      this.repository = await NodeGit.Repository.open(this.path)
-    } else {
-      this.repository = await NodeGit.Repository.init(this.path, 0)
-    }
+    _fs.existsSync(path)
+      ? this.repository = await NodeGit.Repository.open(this.path)
+      : this.repository = await NodeGit.Repository.init(this.path, 0)
   }
 
   validateRepositoryCondition () {
@@ -131,7 +128,7 @@ export default class Repository {
   }
 
   async loadHistory () {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
@@ -141,7 +138,7 @@ export default class Repository {
       const head = await this.repository.head()
 
       commit = await this.repository.getBranchCommit(head)
-    } catch (error) {
+    } catch {
       return
     }
 
@@ -163,7 +160,7 @@ export default class Repository {
   }
 
   async loadRemotes () {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
@@ -181,11 +178,11 @@ export default class Repository {
   }
 
   clearBranch () {
-    this.branch = null
+    this.branch = undefined
   }
 
   async loadBranch () {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
@@ -223,7 +220,7 @@ export default class Repository {
   }
 
   async loadBornBranch () {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
@@ -232,29 +229,29 @@ export default class Repository {
   }
 
   async loadRemoteBranch (url) {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
-    if (this.branch === null) {
+    if (this.branch === undefined) {
       throw new RepositoryBranchNotSelectedError()
     }
 
     this.clearRemoteBranch()
 
-    this.remote = this.remotes.find(remote => remote.url === url) || null
+    this.remote = this.remotes.find(remote => remote.url === url) || undefined
 
-    if (this.remote === null) {
+    if (this.remote === undefined) {
       throw new RepositoryRemoteNotFoundError()
     }
 
-    if (this.remote_map === null) {
+    if (this.remote_map === undefined) {
       throw new RepositoryRemoteNotLoadedError()
     }
 
     this.remote_object = this.remote_map[this.remote.name]
 
-    if (this.remote_object === null) {
+    if (this.remote_object === undefined) {
       throw new RepositoryRemoteNotLoadedError()
     }
 
@@ -291,17 +288,17 @@ export default class Repository {
   }
 
   clearRemoteBranch () {
-    this.remote = null
-    this.remote_object = null
-    this.remote_branch = null
+    this.remote = undefined
+    this.remote_object = undefined
+    this.remote_branch = undefined
 
     this.pending = []
   }
 
   matchRemoteBranchReference (references) {
-    let result: { name: string, short: string, object: NodeGitRemoteHead }|null = null
+    let result: { name: string, short: string, object: NodeGitRemoteHead }|undefined
 
-    references.forEach(reference => {
+    for (const reference of references) {
       const object: { name: string, short: string, object: NodeGitRemoteHead } = {
         name: reference.name(),
         short: '',
@@ -317,7 +314,7 @@ export default class Repository {
           result = object
         }
       }
-    })
+    }
 
     return result
   }
@@ -346,7 +343,7 @@ export default class Repository {
   }
 
   async inspectWithOptions (options) {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
@@ -369,7 +366,7 @@ export default class Repository {
   }
 
   async diffCommit (oid) {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
@@ -387,7 +384,7 @@ export default class Repository {
   }
 
   async diffPath (path) {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
@@ -421,21 +418,21 @@ export default class Repository {
   }
 
   async stage (query, notify) {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
-    const index = await this.repository.refreshIndex()
+    const repository_index = await this.repository.refreshIndex()
 
     if (query === '*') {
-      for (let i = 0; i < this.available.length; i++) {
-        await this.stagePath(index, this.available[i].path, notify)
+      for (let index = 0; index < this.available.length; index++) {
+        await this.stagePath(repository_index, this.available[index].path, notify)
       }
     } else {
-      await this.stagePath(index, query, notify)
+      await this.stagePath(repository_index, query, notify)
     }
 
-    await index.write()
+    await repository_index.write()
   }
 
   async stagePath (index, path, notify) {
@@ -457,7 +454,7 @@ export default class Repository {
   }
 
   async reset (query, notify) {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
@@ -465,8 +462,8 @@ export default class Repository {
     const head = await this.repository.getBranchCommit(await this.repository.head())
 
     if (query === '*') {
-      for (let i = 0; i < this.staged.length; i++) {
-        await this.resetPath(head, this.staged[i].path, notify)
+      for (let index = 0; index < this.staged.length; index++) {
+        await this.resetPath(head, this.staged[index].path, notify)
       }
     } else {
       await this.resetPath(head, query, notify)
@@ -476,7 +473,7 @@ export default class Repository {
   }
 
   async resetPath (head, path, notify) {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
@@ -488,7 +485,7 @@ export default class Repository {
   }
 
   async commit (name, email, message) {
-    if (this.repository === null) {
+    if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
 
@@ -509,11 +506,11 @@ export default class Repository {
   }
 
   async push () {
-    if (this.remote === null) {
+    if (this.remote === undefined) {
       throw new RepositoryRemoteNotLoadedError()
     }
 
-    if (this.remote_object === null) {
+    if (this.remote_object === undefined) {
       throw new RepositoryRemoteNotLoadedError()
     }
 
