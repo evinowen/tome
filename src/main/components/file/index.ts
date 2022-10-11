@@ -5,6 +5,7 @@ import * as path from 'path'
 import * as chokidar from 'chokidar'
 import * as os from 'os'
 import { promise_with_reject, promise_access } from '../../promise'
+import mime from 'mime-types'
 
 const search:{
   target: string|null,
@@ -69,10 +70,13 @@ export = component('file')(
     handle('list-directory', async (target) => {
       const results = await promise_with_reject<fs.Dirent[]>(fs.readdir)(target, { withFileTypes: true })
 
-      const files:{ name: string, directory: boolean }[] = []
+      const files:{ name: string, mime: string, directory: boolean }[] = []
       for (const result of results) {
+        const mime_type = mime.lookup(path.join(target, result.name)) || 'text/plain'
+
         files.push({
           name: result.name,
+          mime: mime_type,
           directory: result.isDirectory()
         })
       }

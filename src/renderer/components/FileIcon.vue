@@ -169,7 +169,7 @@ export default Vue.extend({
       return 'mdi-newspaper-variant'
     },
     badge: function () {
-      let base = this.alert ? 'mdi-alert-circle' : null
+      const base = this.alert ? 'mdi-alert-circle' : null
 
       switch (this.relationship) {
         case 'root':

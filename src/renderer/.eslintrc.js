@@ -5,7 +5,7 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    'plugin:unicorn/recommended',
+    // 'plugin:unicorn/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:vue/recommended',
     '@vue/typescript',
@@ -27,12 +27,15 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-inferrable-types': 'off',
     '@typescript-eslint/ban-types': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
     'vue/prop-name-casing': 'off',
     'vue/order-in-components': 'off',
     'vue/component-tags-order': 'off',
     'vue/html-quotes': 'off',
     'vue/max-attributes-per-line': 'off',
     'vue/no-v-html': 'off',
-    'vue/valid-v-slot': 'off'
+    'vue/valid-v-slot': 'off',
+    'vue/first-attribute-linebreak': 'off',
+    'vue/multi-word-component-names': 'off'
   }
 }

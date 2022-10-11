@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { cloneDeep } from 'lodash'
 import * as Mustache from 'mustache'
-import is_text_path from 'is-text-path'
+import mime from 'mime-types'
 import { promise_with_reject } from '../../promise'
 
 const TemplateFileType = {
@@ -61,7 +61,8 @@ class TemplateFile {
   }
 
   text () {
-    return is_text_path(this.path.target.absolute || '')
+    const mime_type = mime.lookup(this.path.target.absolute || '') || 'text/plain'
+    return mime_type.startsWith('text')
   }
 
   async type () {

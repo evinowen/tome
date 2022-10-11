@@ -42,7 +42,7 @@ export interface API {
     is_directory: (target: string) => Promise<boolean>,
     create: (target: string) => Promise<boolean>,
     create_directory: (target: string) => Promise<boolean>,
-    list_directory: (target: string) => Promise<{ name: string, directory: boolean }[]>,
+    list_directory: (target: string) => Promise<{ name: string, mime: string, directory: boolean }[]>,
     contents: (target: string) => Promise<string>,
     write: (target: string, content: string) => Promise<void>,
     write_library: (target: string, items: string[]) => Promise<void>,

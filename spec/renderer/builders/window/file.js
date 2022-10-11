@@ -10,9 +10,9 @@ const _file_list_directory = async (path) => {
 
   for (const child in item) {
     if (item[child] == null) {
-      result.push({ name: child, directory: false })
+      result.push({ name: child, mime: 'text/plain', directory: false })
     } else {
-      result.push({ name: child, directory: true })
+      result.push({ name: child, mime: 'text/plain', directory: true })
     }
   }
 

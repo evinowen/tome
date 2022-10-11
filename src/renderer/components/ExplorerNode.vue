@@ -302,7 +302,7 @@ export default Vue.extend({
       return this.root || this.ephemeral || !(this.title && (this.display === '' || this.system))
     },
     rules: function (): ((value: string) => boolean|string)[] {
-      let rules:((value: string) => boolean|string)[] = [
+      const rules:((value: string) => boolean|string)[] = [
         () => !this.error || this.error,
         (value) => String(value).search(/[^\s\w.-]/g) === -1 || 'special characters are not allowed.',
         (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'

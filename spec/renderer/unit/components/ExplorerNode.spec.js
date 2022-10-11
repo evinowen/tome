@@ -42,7 +42,7 @@ describe('components/ExplorerNode', () => {
     open_folder: null,
     highlight: 'Highlight',
     directory: false,
-    format: format
+    format
   })
     .context(() => ({ vuetify }))
 

@@ -1,15 +1,14 @@
 import { v4 as uuidv4 } from 'uuid'
-import is_text_path from 'is-text-path'
-import mime from 'mime-types'
 
 export class FileDirent {
-  static async convert (dirent: { name: string, directory: boolean }, parent: File) {
+  static async convert (dirent: { name: string, mime: string, directory: boolean }, parent: File) {
     const path = await window.api.path.join(parent.path, dirent.name)
     const relative = await window.api.path.relative(parent.base?.path, path)
     const extension = await window.api.path.extension(path)
 
     const file = new File({
       name: dirent.name,
+      mime: dirent.mime,
       path,
       relative,
       extension,
@@ -49,6 +48,7 @@ interface FileConstructor {
   uuid?: string
   name?: string
   extension?: string
+  mime?: string
   path?: string
   relative?: string
   relationship?: FileRelationshipType,
@@ -98,6 +98,7 @@ export default class File {
   uuid: string|null = uuidv4()
   name: string|null = null
   extension: string|null = null
+  mime: string = ''
   path: string = ''
   relative: string|null = null
   relationship: FileRelationshipType|undefined|null = null
@@ -191,22 +192,8 @@ export default class File {
     }
   }
 
-  get plaintext () {
-    return is_text_path(this.path)
-  }
-
   get image () {
-    if (this.plaintext) {
-      return false
-    }
-
-    const mime_type = mime.lookup(this.path)
-
-    if (mime_type === false) {
-      return false
-    }
-
-    if (mime_type.startsWith('image')) {
+    if (this.mime.startsWith('image')) {
       return true
     }
 
