@@ -24,8 +24,8 @@ describe('store/modules/clipboard', () => {
   })
 
   it('should populate empty values when initalized', async () => {
-    expect(store.state.clipboard.action).toBe(null)
-    expect(store.state.clipboard.content).toBe(null)
+    expect(store.state.clipboard.action).toBe(undefined)
+    expect(store.state.clipboard.content).toBe(undefined)
 
     expect(store.state.clipboard.undefined).toBeUndefined()
   })
@@ -55,8 +55,8 @@ describe('store/modules/clipboard', () => {
 
     await store.dispatch('clipboard/clear')
 
-    expect(store.state.clipboard.action).toBe(null)
-    expect(store.state.clipboard.content).toBe(null)
+    expect(store.state.clipboard.action).toBe(undefined)
+    expect(store.state.clipboard.content).toBe(undefined)
   })
 
   it('should set action and load value on path cut', async () => {

@@ -45,7 +45,7 @@ describe('components/Console', () => {
 
     await wrapper.vm.close()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/console')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/console')
 
     expect(action).toBeDefined()
     expect(data).toEqual(false)

@@ -81,7 +81,7 @@ describe('store/modules/library', () => {
   })
 
   it('should load if file history fails on load dispatch', async () => {
-    window.api.file.contents.mockImplementationOnce(() => null)
+    window.api.file.contents.mockImplementationOnce(() => '')
 
     const store = factory.wrap()
 

@@ -28,7 +28,6 @@ module.exports = {
     'no-debugger': 'error',
     'quote-props': ['error', 'consistent'],
     'unicorn/filename-case': 'off',
-    'unicorn/no-null': 'off',
     'unicorn/no-static-only-class': 'off',
     'unicorn/prefer-module': 'off',
     'unicorn/prefer-top-level-await': 'off',

@@ -108,16 +108,16 @@ export default Vue.extend({
   },
   data: () => ({
     error: '',
-    overlay: null,
-    mark: null,
-    regex: null,
-    focus: null,
+    overlay: undefined,
+    mark: undefined,
+    regex: undefined,
+    focus: undefined,
     mode: {
       read: {
         results: []
       },
       write: {
-        cursor: null,
+        cursor: undefined,
         position: 0
       }
     }
@@ -156,7 +156,7 @@ export default Vue.extend({
         return (this.selected?.document?.content || '')
       }
 
-      return null
+      return ''
     },
     directory: function () {
       return this.selected?.directory || false
@@ -170,7 +170,7 @@ export default Vue.extend({
           return 'edit'
         }
 
-        if (this.rendered !== null) {
+        if (this.rendered !== undefined) {
           return 'rendered'
         }
       }
@@ -310,11 +310,11 @@ export default Vue.extend({
             break
 
           default:
-            this.codemirror.setOption('mode', null)
+            this.codemirror.setOption('mode')
             break
         }
       } else {
-        this.codemirror.setOption('mode', null)
+        this.codemirror.setOption('mode')
       }
 
       delay(() => this.codemirror.refresh(), 100)
@@ -342,7 +342,7 @@ export default Vue.extend({
       })
 
       if (!this.query) {
-        this.regex = null
+        this.regex = undefined
         return
       }
 
@@ -374,7 +374,7 @@ export default Vue.extend({
 
         this.codemirror.addOverlay(this.overlay, { opaque: true })
 
-        this.mode.write.cursor = null
+        this.mode.write.cursor = undefined
         this.mode.write.position = 0
 
         const cursor = this.codemirror.getSearchCursor(this.query, 0, { caseFold: true })
@@ -384,7 +384,7 @@ export default Vue.extend({
           total++
         }
 
-        await store.dispatch('search/navigate', { total, target: null })
+        await store.dispatch('search/navigate', { total, target: undefined })
       } else {
         const total = await new Promise((resolve) => {
           this.mark.markRegExp(
@@ -394,7 +394,7 @@ export default Vue.extend({
               separateWordSearch: false,
               acrossElements: false,
               done: total => {
-                store.dispatch('search/navigate', { total, target: null })
+                store.dispatch('search/navigate', { total, target: undefined })
                 resolve(total)
               }
             }

@@ -33,39 +33,39 @@ describe('store/modules/files', () => {
   it('should construct the file tree on initialize', async () => {
     const path = '/project'
 
-    expect(store.state.files.tree).toBeNull()
+    expect(store.state.files.tree).toBeUndefined()
 
     await store.dispatch('files/initialize', { path })
 
-    expect(store.state.files.tree).not.toBeNull()
+    expect(store.state.files.tree).not.toBeUndefined()
   })
 
   it('should remove the file tree on clear', async () => {
     const path = '/project'
 
-    expect(store.state.files.tree).toBeNull()
+    expect(store.state.files.tree).toBeUndefined()
 
     await store.dispatch('files/initialize', { path })
 
-    expect(store.state.files.tree).not.toBeNull()
+    expect(store.state.files.tree).not.toBeUndefined()
 
     await store.dispatch('files/clear')
 
-    expect(store.state.files.tree).toBeNull()
+    expect(store.state.files.tree).toBeUndefined()
   })
 
   it('should configure event listener for updates to tree path on initialize', async () => {
     const path = '/project'
 
-    expect(store.state.files.tree).toBeNull()
+    expect(store.state.files.tree).toBeUndefined()
 
     window.api.file.subscribe.mockImplementationOnce(async (target) => {
-      await target(null, { event: ChokidarEvent.ADD, path })
+      await target(undefined, { event: ChokidarEvent.ADD, path })
     })
 
     await store.dispatch('files/initialize', { path })
 
-    expect(store.state.files.tree).not.toBeNull()
+    expect(store.state.files.tree).not.toBeUndefined()
 
     expect(window.api.file.clear_subscriptions).toHaveBeenCalledTimes(1)
     expect(window.api.file.subscribe).toHaveBeenCalledTimes(1)
@@ -74,11 +74,11 @@ describe('store/modules/files', () => {
   it('should reconstruct the file tree on reinitialize', async () => {
     const path = '/project'
 
-    expect(store.state.files.tree).toBeNull()
+    expect(store.state.files.tree).toBeUndefined()
 
     await store.dispatch('files/initialize', { path })
 
-    expect(store.state.files.tree).not.toBeNull()
+    expect(store.state.files.tree).not.toBeUndefined()
 
     const first = store.state.files.tree
 
@@ -143,11 +143,11 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path })
     await store.dispatch('files/load', { path: directory })
 
-    expect(store.state.files.active).toBeNull()
+    expect(store.state.files.active).toBeUndefined()
 
     await store.dispatch('files/select', { path: directory })
 
-    expect(store.state.files.active).not.toBeNull()
+    expect(store.state.files.active).not.toBeUndefined()
   })
 
   it('should load the content from targed item on select when the item is a file', async () => {
@@ -160,11 +160,11 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/load', { path: target })
 
-    expect(store.state.files.content).toBeNull()
+    expect(store.state.files.content).toBeUndefined()
 
     await store.dispatch('files/select', { path: target })
 
-    expect(store.state.files.content).not.toBeNull()
+    expect(store.state.files.content).not.toBeUndefined()
   })
 
   it('should store the content of the selected item on save', async () => {
@@ -332,7 +332,7 @@ describe('store/modules/files', () => {
 
     const { item: item_after } = await identify(result)
 
-    expect(item_after).not.toBeNull()
+    expect(item_after).not.toBeUndefined()
     expect(item_after.name).not.toBe(item_before.name)
     expect(item_after.path).toBe(result)
     expect(item_after.name).toBe('new.file.name.md')
@@ -375,7 +375,7 @@ describe('store/modules/files', () => {
 
     const { item: item_previous } = await identify(target)
     const { item: item_current } = await identify(proposed)
-    expect(item_previous).toBeNull()
+    expect(item_previous).toBeUndefined()
     expect(item_current).toBeDefined()
   })
 
@@ -395,12 +395,13 @@ describe('store/modules/files', () => {
     expect(item_before).toBeDefined()
 
     await store.dispatch('files/move', { path: target, proposed: proposed_directory })
+
     await store.dispatch('files/load', { path: target_directory })
     await store.dispatch('files/load', { path: proposed_directory })
 
     const { item: item_previous } = await identify(target)
     const { item: item_current } = await identify(proposed)
-    expect(item_previous).toBeNull()
+    expect(item_previous).toBeUndefined()
     expect(item_current).toBeDefined()
   })
 
@@ -436,12 +437,12 @@ describe('store/modules/files', () => {
 
     const { item: item_before } = await identify(directory)
 
-    expect(item_before).not.toBeNull()
+    expect(item_before).not.toBeUndefined()
 
     await store.dispatch('files/delete', { path: directory })
 
     const { item: item_after } = await identify(directory)
 
-    expect(item_after).toBeNull()
+    expect(item_after).toBeUndefined()
   })
 })

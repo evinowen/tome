@@ -6,7 +6,7 @@ interface SearchCriteria {
 }
 
 interface SearchResult {
-  path: null|{
+  path: undefined|{
     absolute: string,
     relative: string,
     matched: number
@@ -19,7 +19,7 @@ interface RepositoryMetadata {
   name: string,
   path: string,
   history: { oid: string, date: Date, message: string }[],
-  branch: string|null,
+  branch?: string,
   remotes: { name: string, url: string }[],
   available: { path: string, type: number }[],
   staged: { path: string, type: number }[]
@@ -52,7 +52,7 @@ export interface API {
     select_directory: () => Promise<{ canceled: boolean, filePaths: string[] }>,
     directory_list: (target: string) => Promise<string[]>,
     search_path: (target: string, criteria: SearchCriteria) => Promise<void>,
-    search_next: () => Promise<SearchResult|null>
+    search_next: () => Promise<SearchResult>
   },
   app: {
     getPath: (name: string) => Promise<string>,
@@ -84,8 +84,8 @@ export interface API {
     commit: (name: string, email: string, message: string) => Promise<void>
   },
   ssl: {
-    generate_public_key: (target: string, passphrase: string|null) => Promise<{ path: string, data: string }>,
-    generate_private_key: (passphrase: string|null) => Promise<{ path: string, data: string }>
+    generate_public_key: (target: string, passphrase?: string) => Promise<{ path: string, data: string }>,
+    generate_private_key: (passphrase?: string) => Promise<{ path: string, data: string }>
   },
   template: {
     invoke: (source: string, target: string) => Promise<{ success: boolean, result: string }>

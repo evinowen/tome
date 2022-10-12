@@ -39,7 +39,7 @@ describe('components/SystemBar', () => {
 
     await wrapper.vm.settings()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/settings')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/settings')
 
     expect(action).toBeDefined()
     expect(data).toEqual(!value)
@@ -50,7 +50,7 @@ describe('components/SystemBar', () => {
 
     await wrapper.vm.minimize()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/minimize')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'system/minimize')
 
     expect(action).toBeDefined()
   })
@@ -60,7 +60,7 @@ describe('components/SystemBar', () => {
 
     await wrapper.vm.maximize()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/maximize')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'system/maximize')
 
     expect(action).toBeDefined()
   })
@@ -72,7 +72,7 @@ describe('components/SystemBar', () => {
 
     await wrapper.vm.maximize()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/restore')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'system/restore')
 
     expect(action).toBeDefined()
   })
@@ -82,7 +82,7 @@ describe('components/SystemBar', () => {
 
     await wrapper.vm.exit()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/exit')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'system/exit')
 
     expect(action).toBeDefined()
   })

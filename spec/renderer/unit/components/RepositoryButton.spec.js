@@ -36,7 +36,7 @@ describe('components/RepositoryButton', () => {
     const path = '/project'
     await wrapper.vm.open(path)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'files/select')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'files/select')
 
     expect(action).toBeDefined()
     expect(data).toEqual({ path })

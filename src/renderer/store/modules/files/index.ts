@@ -14,11 +14,11 @@ export const ChokidarEvent = {
 }
 
 export class State {
-  active: string|null = null
-  content: string|null = null
-  tree: FileTree|null = null
-  ghost: File|null = null
-  selected: File|null = null
+  active?: string
+  content?: string
+  tree?: FileTree
+  ghost?: File
+  selected?: File
   editing: boolean = false
   post?: (path: string) => void
 }
@@ -31,7 +31,7 @@ export default {
       state.tree = tree
     },
     clear: function (state) {
-      state.tree = null
+      state.tree = undefined
     },
     load: function (state, contract) {
       const { item, payload } = contract
@@ -62,9 +62,9 @@ export default {
       const { edit } = data
       state.editing = edit
 
-      if (!state.editing && state.selected?.ephemeral && state.ghost !== null) {
+      if (!state.editing && state.selected?.ephemeral && state.ghost !== undefined) {
         state.ghost.exercise()
-        state.ghost = null
+        state.ghost = undefined
       }
     },
     haunt: function (state, data) {
@@ -78,7 +78,7 @@ export default {
       state.editing = true
     },
     blur: function (state) {
-      state.selected = null
+      state.selected = undefined
     }
   },
   actions: <ActionTree<State, any>>{
@@ -88,7 +88,7 @@ export default {
       context.commit('initialize', tree)
 
       await tree.listen(async (data) => {
-        if (context.state.tree === null) {
+        if (context.state.tree === undefined) {
           throw new FileTreeNotEstablishedError()
         }
 
@@ -118,9 +118,9 @@ export default {
       context.commit('clear')
     },
     identify: async function (context, criteria) {
-      const { item = null, path = null } = criteria
+      const { item, path } = criteria
 
-      if (context.state.tree === null) {
+      if (context.state.tree === undefined) {
         throw new FileTreeNotEstablishedError()
       }
 
@@ -169,12 +169,11 @@ export default {
     },
     container: async function (context, criteria) {
       const item = await context.dispatch('identify', criteria)
-
       if (item.directory) {
         return item
       }
 
-      return parent
+      return item.parent
     },
     load: async function (context, criteria) {
       const item = await context.dispatch('identify', criteria)
@@ -193,7 +192,7 @@ export default {
       await item.open(container)
     },
     ghost: async function (context, criteria) {
-      const { directory = false, post = null } = criteria
+      const { directory = false, post } = criteria
       const item = await context.dispatch('load', criteria)
 
       await context.dispatch('select', { item })
@@ -236,7 +235,7 @@ export default {
     submit: async function (context, criteria) {
       const { input, title } = criteria
 
-      if (context.state.selected === null) {
+      if (context.state.selected === undefined) {
         throw new FileNotSelectedError()
       }
 
@@ -256,7 +255,7 @@ export default {
         ? item = await context.dispatch('create', { item: parent, name, directory })
         : item = await context.dispatch('rename', { item: context.state.selected, name })
 
-      if (item === null) {
+      if (item === undefined) {
         throw new FileSubmitFailureError()
       }
 

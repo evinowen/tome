@@ -9,7 +9,7 @@ interface RepositoryPayload {
   name: string,
   path: string,
   history: { oid: string, date: Date, message: string }[],
-  branch: string|null,
+  branch?: string,
   remotes: { name: string, url: string }[],
   available: { path: string, type: number }[],
   staged: { path: string, type: number }[]
@@ -21,10 +21,10 @@ interface RepositoryStatus {
 }
 
 interface RepositoryMetadata {
-  readme: string|null
-  license: string|null
-  authors: string|null
-  contributors: string|null
+  readme?: string
+  license?: string
+  authors?: string
+  contributors?: string
 }
 
 interface RepositoryPatches {
@@ -36,7 +36,7 @@ interface RepositoryPatches {
 export interface State {
   name: string
   path: string
-  branch: string|null
+  branch?: string
   history: { oid: string, date: Date, message: string }[]
   pending: { oid: string, date: Date, message: string }[]
   patches: RepositoryPatches[]
@@ -44,32 +44,31 @@ export interface State {
   loaded: boolean
   staging: number
   status: RepositoryStatus
-  remote: { name: string, url: string }|null
-  repository: RepositoryPayload|null
+  remote?: { name: string, url: string }
+  repository?: RepositoryPayload
   metadata: RepositoryMetadata
   commit_working: boolean
   push_working: boolean
-
   credentials: CredentialState
   signature: SignatureState
 }
 
 export interface CredentialState {
-  key: string|null
-  passphrase: string|null
+  key?: string
+  passphrase?: string
 }
 
 export interface SignatureState {
-  name: string|null
-  email: string|null
-  message: string|null
+  name?: string
+  email?: string
+  message?: string
 }
 
 function InitialState (): State {
   return <State>{
     name: '',
     path: '',
-    branch: null,
+    branch: undefined,
     history: [],
     pending: [],
     patches: [],
@@ -77,13 +76,13 @@ function InitialState (): State {
     loaded: false,
     staging: 0,
     status: { available: [], staged: [] },
-    remote: null,
-    repository: null,
+    remote: undefined,
+    repository: undefined,
     metadata: {
-      readme: null,
-      license: null,
-      authors: null,
-      contributors: null,
+      readme: undefined,
+      license: undefined,
+      authors: undefined,
+      contributors: undefined,
     },
     commit_working: false,
     push_working: false
@@ -101,7 +100,7 @@ export default {
       state.repository = repository
     },
     load: function (state) {
-      if (state.repository === null) {
+      if (state.repository === undefined) {
         throw new RepositoryNotLoadedError()
       }
 
@@ -247,7 +246,7 @@ export default {
     },
     remote: async function (context, name) {
       await window.api.repository.clear_remote()
-      context.commit('remote', null)
+      context.commit('remote')
 
       if (!name) {
         return
@@ -275,7 +274,7 @@ export default {
       context.commit('remote', result)
     },
     push: async function (context) {
-      if (context.state.remote === null) {
+      if (context.state.remote === undefined) {
         throw new RepositoryRemoteNotLoadedError()
       }
 
@@ -306,8 +305,8 @@ export default {
     credentials: {
       namespaced: true,
       state: <CredentialState>{
-        key: null,
-        passphrase: null
+        key: undefined,
+        passphrase: undefined
       },
       mutations: <MutationTree<CredentialState>>{
         set: function (state, data) {
@@ -326,9 +325,9 @@ export default {
     signature: {
       namespaced: true,
       state: <SignatureState>{
-        name: null,
-        email: null,
-        message: null
+        name: undefined,
+        email: undefined,
+        message: undefined
       },
       mutations: <MutationTree<SignatureState>>{
         set: function (state, data) {

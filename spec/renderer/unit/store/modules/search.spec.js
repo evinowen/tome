@@ -48,7 +48,7 @@ describe('store/modules/search', () => {
   })
 
   it('should return when path is not set and execute is dispatched', async () => {
-    expect(store.state.search.path).toBe(null)
+    expect(store.state.search.path).toBe(undefined)
 
     await store.dispatch('search/execute')
 
@@ -57,11 +57,10 @@ describe('store/modules/search', () => {
 
   it('should return when query is not set and execute is dispatched', async () => {
     const path = '/project'
-    const query = null
 
     expect(store.state.search.query).toBe('')
 
-    await store.dispatch('search/query', { path, query })
+    await store.dispatch('search/query', { path, query: undefined })
 
     await store.dispatch('search/multifile', true)
     await store.dispatch('search/execute')
@@ -115,7 +114,7 @@ describe('store/modules/search', () => {
 
     await store.dispatch('search/clear')
 
-    expect(store.state.search.query).toBeNull()
+    expect(store.state.search.query).toBeUndefined()
   })
 
   it('should store results when query is set', async () => {

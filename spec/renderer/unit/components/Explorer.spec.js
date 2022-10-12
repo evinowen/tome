@@ -22,9 +22,9 @@ describe('components/ExplorerNode', () => {
         format_titles: false
       },
       files: {
-        active: null,
-        content: null,
-        error: null,
+        active: undefined,
+        content: undefined,
+        error: undefined,
         tree: {
           base: {
             expanded: false,
@@ -126,7 +126,7 @@ describe('components/ExplorerNode', () => {
   it('is able to be mocked and prepared for testing', () => {
     const wrapper = factory.wrap()
 
-    expect(wrapper).not.toBeNull()
+    expect(wrapper).not.toBeUndefined()
   })
 
   it('store drag state when dragging begins in hold', async () => {
@@ -134,7 +134,7 @@ describe('components/ExplorerNode', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
     store.dispatch.mockClear()
 
-    expect(wrapper.vm.hold).toBeNull()
+    expect(wrapper.vm.hold).toBeUndefined()
 
     await wrapper.vm.$refs.explorer_root.$emit('drag', hold)
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
@@ -233,7 +233,7 @@ describe('components/ExplorerNode', () => {
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
     store.dispatch.mockClear()
 
-    expect(() => wrapper.vm.format(null, true)).toThrow(Error)
+    expect(() => wrapper.vm.format(undefined, true)).toThrow(Error)
   })
 
   it('should throw an exception for items formatted that are titled with invalid symbols', async () => {
@@ -298,7 +298,7 @@ describe('components/ExplorerNode', () => {
 
     await wrapper.vm.open({ target: '/project/third', container: false })
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'files/open')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'files/open')
 
     expect(action).toBeDefined()
   })
@@ -308,7 +308,7 @@ describe('components/ExplorerNode', () => {
 
     await wrapper.vm.open({ target: '/project/third', container: true })
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'files/open')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'files/open')
 
     expect(action).toBeDefined()
   })

@@ -60,7 +60,7 @@ describe('store/modules/configuration', () => {
   })
 
   it('should load when input file is not able to be parsed when load is dispatched', async () => {
-    window.api.file.contents.mockImplementationOnce(() => null)
+    window.api.file.contents.mockImplementationOnce(() => '')
 
     await store.dispatch('configuration/load', 'config.json')
 
@@ -158,8 +158,8 @@ describe('store/modules/configuration', () => {
       expect(read_false).toBe(false)
     }
 
-    const read_null = await store.dispatch('configuration/read', 'not_real_key')
-    expect(read_null).toBeNull()
+    const read_undefined = await store.dispatch('configuration/read', 'not_real_key')
+    expect(read_undefined).toBeUndefined()
   })
 
   it('should request new ssl key when configuration generate is dispatched', async () => {

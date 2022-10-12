@@ -27,7 +27,7 @@ describe('store/plugins/mediations/action', () => {
     repository = {
       namespaced: true,
       state: {
-        path: null
+        path: undefined
       },
       mutations: {
         path: (state, path) => {

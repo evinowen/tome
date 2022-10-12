@@ -22,7 +22,7 @@ describe('store/plugins/mediations/metadata', () => {
     object = {
       state: {
         files: {
-          tree: null
+          tree: undefined
         }
       },
       modules: {

@@ -1,5 +1,5 @@
 let disk
-let content = null
+let content
 
 const split = (path) => String(path).replace(/^\./, '').replace(/^\/|\/$/, '').split('/')
 
@@ -7,49 +7,49 @@ export default {
   return_disk: () => disk,
   reset_disk: () => {
     disk = {
-      'config.json': null,
-      'library.json': null,
+      'config.json': undefined,
+      'library.json': undefined,
       'project': {
         '.git': {},
         '.tome': {
           'actions': {
-            'example.action.a': { 'index.js': null },
-            'example.action.b': { 'index.js': null },
-            'example.action.c': { 'index.js': null }
+            'example.action.a': { 'index.js': undefined },
+            'example.action.b': { 'index.js': undefined },
+            'example.action.c': { 'index.js': undefined }
           },
           'templates': {
             'example.template.a': {
-              'example.file.a.md': null,
-              'example.file.b.md': null,
-              'example.file.c.md': null,
+              'example.file.a.md': undefined,
+              'example.file.b.md': undefined,
+              'example.file.c.md': undefined,
               'example.directory.a': {
-                'example.file.b.md': null,
-                'example.file.c.md': null
+                'example.file.b.md': undefined,
+                'example.file.c.md': undefined
               },
               'example.directory.b': {},
-              'config.json': null
+              'config.json': undefined
             },
-            'example.template.b': null,
-            'example.template.c': null
+            'example.template.b': undefined,
+            'example.template.c': undefined
           }
         },
-        'a.md': null,
-        'b.md': null,
+        'a.md': undefined,
+        'b.md': undefined,
         'first': {
-          'a.md': null,
-          'b.md': null,
-          'c.md': null
+          'a.md': undefined,
+          'b.md': undefined,
+          'c.md': undefined
         },
         'second': {
-          'b.md': null,
-          'c.md': null
+          'b.md': undefined,
+          'c.md': undefined
         },
-        'c.md': null,
-        'x.md': null,
-        'y.md': null,
-        'z.md': null,
+        'c.md': undefined,
+        'x.md': undefined,
+        'y.md': undefined,
+        'z.md': undefined,
         'third': {
-          'c.md': null
+          'c.md': undefined
         }
       }
     }

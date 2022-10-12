@@ -36,10 +36,10 @@ describe('components/ExplorerNode', () => {
     name: 'Name',
     path: '/pa/th/to/fi/le',
     active: 'Active',
-    populate: null,
-    new_file: null,
-    new_folder: null,
-    open_folder: null,
+    populate: undefined,
+    new_file: undefined,
+    new_folder: undefined,
+    open_folder: undefined,
     highlight: 'Highlight',
     directory: false,
     format
@@ -111,7 +111,7 @@ describe('components/ExplorerNode', () => {
         hasAttribute: jest.fn(() => true),
         classList: { remove: jest.fn() },
         closest: jest.fn(() => elm),
-        parentElement: null
+        parentElement: undefined
       }
     })
 
@@ -329,7 +329,7 @@ describe('components/ExplorerNode', () => {
 
     await wrapper.vm.context.find(item => item.title === 'Cut').action()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/cut')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/cut')
 
     expect(action).toBeDefined()
   })
@@ -342,7 +342,7 @@ describe('components/ExplorerNode', () => {
 
     await wrapper.vm.context.find(item => item.title === 'Copy').action()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/copy')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/copy')
 
     expect(action).toBeDefined()
   })
@@ -355,7 +355,7 @@ describe('components/ExplorerNode', () => {
 
     await wrapper.vm.context.find(item => item.title === 'Paste').action()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/paste')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/paste')
 
     expect(action).toBeDefined()
   })

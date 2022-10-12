@@ -64,7 +64,7 @@ export default Vue.extend({
       return store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
     },
     title: function () {
-      return store.state.repository?.name || null
+      return store.state.repository?.name || undefined
     }
   },
   methods: {

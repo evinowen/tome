@@ -46,7 +46,7 @@ describe('store/modules/repository', () => {
     await store.dispatch('repository/load', '/path/to/repository')
 
     expect(store.state.repository).toBeDefined()
-    expect(store.state.repository).not.toBeNull()
+    expect(store.state.repository).not.toBeUndefined()
   })
 
   it('should reset the repository state on dispatch of clear action', async () => {
@@ -55,8 +55,7 @@ describe('store/modules/repository', () => {
     await store.dispatch('repository/clear')
 
     expect(store.state.repository).toBeDefined()
-    expect(store.state.repository.repository).toBeDefined()
-    expect(store.state.repository.repository).toBeNull()
+    expect(store.state.repository.repository).toBeUndefined()
   })
 
   it('should instruct the repository to stage the query on dispatch of stage action', async () => {

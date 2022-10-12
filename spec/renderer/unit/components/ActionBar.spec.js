@@ -30,13 +30,13 @@ describe('components/ActionBar', () => {
         name: 'Name',
         branch: {
           name: 'master',
-          error: null
+          error: undefined
         },
         metadata: {
-          readme: null,
-          license: null,
-          authors: null,
-          contributors: null
+          readme: undefined,
+          license: undefined,
+          authors: undefined,
+          contributors: undefined
         }
       }
     }
@@ -52,7 +52,7 @@ describe('components/ActionBar', () => {
     const path = './file_path'
     await wrapper.vm.open(path)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/open')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/open')
 
     expect(action).toBeDefined()
     expect(data).toEqual(path)
@@ -73,7 +73,7 @@ describe('components/ActionBar', () => {
 
     await wrapper.vm.close()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/close')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'system/close')
 
     expect(action).toBeDefined()
   })
@@ -83,7 +83,7 @@ describe('components/ActionBar', () => {
 
     await wrapper.vm.edit()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/edit')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/edit')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)
@@ -94,7 +94,7 @@ describe('components/ActionBar', () => {
 
     await wrapper.vm.branch()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/branch')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/branch')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)
@@ -105,7 +105,7 @@ describe('components/ActionBar', () => {
 
     await wrapper.vm.commit()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/commit')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/commit')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)
@@ -116,7 +116,7 @@ describe('components/ActionBar', () => {
 
     await wrapper.vm.push()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/push')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/push')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)
@@ -127,7 +127,7 @@ describe('components/ActionBar', () => {
 
     await wrapper.vm.console()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/console')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/console')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)
@@ -138,7 +138,7 @@ describe('components/ActionBar', () => {
 
     await wrapper.vm.search()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/search')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/search')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)

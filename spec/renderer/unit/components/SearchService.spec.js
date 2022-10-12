@@ -17,16 +17,16 @@ describe('components/SearchService', () => {
     store.state = {
       search: {
         case_sensitive: false,
-        status: null,
-        index: null,
-        query: null,
+        status: undefined,
+        index: undefined,
+        query: undefined,
         navigation: {
           target: 0,
           total: 0
         },
         multifile: false,
         regex_query: false,
-        results: null
+        results: undefined
       },
       repository: {
         path: '/project'
@@ -49,7 +49,7 @@ describe('components/SearchService', () => {
     const query = '/project'
     await wrapper.vm.update(query)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'search/query')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'search/query')
 
     expect(action).toBeDefined()
     expect(data).toEqual({ path: store.state.repository.path, query })
@@ -60,7 +60,7 @@ describe('components/SearchService', () => {
 
     await wrapper.vm.next()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'search/next')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'search/next')
 
     expect(action).toBeDefined()
   })
@@ -70,7 +70,7 @@ describe('components/SearchService', () => {
 
     await wrapper.vm.previous()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'search/previous')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'search/previous')
 
     expect(action).toBeDefined()
   })
@@ -81,7 +81,7 @@ describe('components/SearchService', () => {
     const path = '/project/file.md'
     await wrapper.vm.select(path)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'files/select')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'files/select')
 
     expect(action).toBeDefined()
     expect(data).toEqual({ path })
@@ -95,7 +95,7 @@ describe('components/SearchService', () => {
     const total = 1
     await wrapper.vm.select(path, target, total)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'search/navigate')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'search/navigate')
 
     expect(action).toBeDefined()
     expect(data).toEqual({ target, total })

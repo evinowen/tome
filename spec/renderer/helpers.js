@@ -15,8 +15,8 @@ const assemble = (object, default_properties, default_listeners) => {
   const factory = {
     trap: false,
     component: {
-      context: null,
-      hook: null
+      context: undefined,
+      hook: undefined
     }
   }
 

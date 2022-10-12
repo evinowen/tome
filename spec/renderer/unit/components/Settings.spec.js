@@ -67,7 +67,7 @@ describe('components/Settings', () => {
       },
       system: {
         version: '0.0.0',
-        process: null
+        process: undefined
       }
     }
   })
@@ -86,7 +86,7 @@ describe('components/Settings', () => {
 
     await wrapper.vm.close()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/settings')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/settings')
 
     expect(action).toBeDefined()
     expect(data).toBe(false)
@@ -98,7 +98,7 @@ describe('components/Settings', () => {
 
     await wrapper.vm.generate_key(passphrase)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'configuration/generate')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'configuration/generate')
 
     expect(action).toBeDefined()
     expect(data).toBe(passphrase)
@@ -109,7 +109,7 @@ describe('components/Settings', () => {
 
     await wrapper.vm.save()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'configuration/write')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'configuration/write')
 
     expect(action).toBeDefined()
   })

@@ -47,7 +47,7 @@ describe('components/ShortcutService', () => {
 
     await wrapper.vm.escape()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/settings')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/settings')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)
@@ -60,7 +60,7 @@ describe('components/ShortcutService', () => {
     const layer = 'example'
     await wrapper.vm.layer(layer)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/example')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/example')
 
     expect(action).toBeDefined()
     expect(data).toEqual(!value)
@@ -72,7 +72,7 @@ describe('components/ShortcutService', () => {
     const performance = 'example-performance'
     await wrapper.vm.perform(performance)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/perform')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/perform')
 
     expect(action).toBeDefined()
     expect(data).toEqual(performance)
@@ -83,7 +83,7 @@ describe('components/ShortcutService', () => {
 
     await wrapper.vm.select()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'library/select')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'library/select')
 
     expect(action).toBeDefined()
   })

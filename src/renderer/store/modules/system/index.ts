@@ -12,8 +12,8 @@ export const SystemPerformances = {
 }
 
 export class State {
-  version: string|null = null
-  process: string|null = null
+  version?: string
+  process?: string
   maximized = false
   branch = false
   commit = false
@@ -81,7 +81,7 @@ export default {
           return context.state.settings
       }
 
-      return null
+      return
     },
     minimize: async function (context) {
       await window.api.window.minimize()
@@ -120,15 +120,15 @@ export default {
           break
       }
     },
-    branch: async function (context, value = null) {
+    branch: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { branch: value })
       return context.state.branch
     },
-    commit: async function (context, value = null) {
+    commit: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { commit: value })
       return context.state.commit
     },
-    commit_confirm: async function (context, value = null) {
+    commit_confirm: async function (context, value) {
       if (value) {
         const auto_push = await context.dispatch('configuration/read', 'auto_push', { root: true })
         await context.dispatch('commit_push', auto_push)
@@ -137,35 +137,35 @@ export default {
       typeof value !== 'boolean' || context.commit('set', { commit_confirm: value })
       return context.state.commit_confirm
     },
-    commit_push: async function (context, value = null) {
+    commit_push: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { commit_push: value })
       return context.state.commit_push
     },
-    console: async function (context, value = null) {
+    console: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { console: value })
       return context.state.console
     },
-    edit: async function (context, value = null) {
+    edit: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { edit: value })
       return context.state.edit
     },
-    patch: async function (context, value = null) {
+    patch: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { patch: value })
       return context.state.patch
     },
-    push: async function (context, value = null) {
+    push: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { push: value })
       return context.state.push
     },
-    push_confirm: async function (context, value = null) {
+    push_confirm: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { push_confirm: value })
       return context.state.push_confirm
     },
-    search: async function (context, value = null) {
+    search: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { search: value })
       return context.state.search
     },
-    settings: async function (context, value = null) {
+    settings: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { settings: value })
       return context.state.settings
     }
@@ -174,8 +174,8 @@ export default {
     credentials: {
       namespaced: true,
       state: {
-        key: null,
-        passphrase: null
+        key: undefined,
+        passphrase: undefined
       },
       mutations: <MutationTree<State>>{
         set: function (state, data) {
@@ -184,19 +184,19 @@ export default {
       },
       actions: <ActionTree<State, any>>{
         key: async function (context, value) {
-          typeof value === null || context.commit('set', { key: value })
+          typeof value === undefined || context.commit('set', { key: value })
         },
         passphrase: async function (context, value) {
-          typeof value === null || context.commit('set', { passphrase: value })
+          typeof value === undefined || context.commit('set', { passphrase: value })
         }
       }
     },
     signature: {
       namespaced: true,
       state: {
-        name: null,
-        email: null,
-        message: null
+        name: undefined,
+        email: undefined,
+        message: undefined
       },
       mutations: <MutationTree<State>>{
         set: function (state, data) {
@@ -205,13 +205,13 @@ export default {
       },
       actions: <ActionTree<State, any>>{
         name: async function (context, value) {
-          typeof value === null || context.commit('set', { name: value })
+          typeof value === undefined || context.commit('set', { name: value })
         },
         email: async function (context, value) {
-          typeof value === null || context.commit('set', { email: value })
+          typeof value === undefined || context.commit('set', { email: value })
         },
         message: function (context, value) {
-          typeof value === null || context.commit('set', { message: value })
+          typeof value === undefined || context.commit('set', { message: value })
         }
       }
     }

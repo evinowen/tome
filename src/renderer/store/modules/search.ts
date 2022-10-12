@@ -1,7 +1,7 @@
 import { MutationTree, ActionTree } from 'vuex'
 
 interface SearchResult {
-  path: null|{
+  path: undefined|{
     absolute: string,
     relative: string,
     matched: number
@@ -11,9 +11,9 @@ interface SearchResult {
 }
 
 export class State {
-  status: string|null = ''
-  path: string|null = null
-  query: string|null = ''
+  status?: string = ''
+  path?: string
+  query?: string = ''
   multifile = false
   regex_query = false
   case_sensitive = false
@@ -26,7 +26,7 @@ export default {
   state: new State(),
   mutations: <MutationTree<State>>{
     clear: function (state) {
-      state.query = null
+      state.query = undefined
       state.results = []
     },
     multifile: function (state, value) {
@@ -104,7 +104,7 @@ export default {
       for (;;) {
         const result = await window.api.file.search_next()
 
-        if (result === null || result.path === null) {
+        if (result === undefined || result.path === undefined) {
           break
         }
 
@@ -141,10 +141,10 @@ export default {
       context.commit('navigate', { total, target })
     },
     next: async function (context) {
-      context.commit('navigate', { target: context.state.navigation.target + 1, total: null })
+      context.commit('navigate', { target: context.state.navigation.target + 1, total: undefined })
     },
     previous: async function (context) {
-      context.commit('navigate', { target: context.state.navigation.target - 1, total: null })
+      context.commit('navigate', { target: context.state.navigation.target - 1, total: undefined })
     }
   }
 }

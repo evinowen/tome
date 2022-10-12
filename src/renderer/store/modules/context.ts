@@ -2,7 +2,7 @@ import { MutationTree, ActionTree } from 'vuex'
 
 export class State {
   visible: boolean = false
-  target: string|null = null
+  target?: string
   position: { x: number, y: number } = { x: 0, y: 0 }
   title: string = ''
   items: ContextItem[] = []
@@ -24,7 +24,7 @@ export default {
       state.items = items
     },
     clear: function (state) {
-      state.target = null
+      state.target = undefined
       state.title = ''
       state.items = []
     },
@@ -41,7 +41,7 @@ export default {
   },
   actions: <ActionTree<State, any>>{
     open: async function (context, state) {
-      const { target = null, title = 'Content', items = [], position } = state || {}
+      const { target, title = 'Content', items = [], position } = state || {}
 
       context.commit('fill', items)
       context.commit('show', { target, title, position })

@@ -2,7 +2,7 @@ import { MutationTree, ActionTree } from 'vuex'
 import vuetify from '../../vuetify'
 
 export class State {
-  [name: string]: string|boolean|undefined
+  [name: string]: string|boolean
 
   name: string = ''
   email: string = ''
@@ -54,7 +54,17 @@ export default {
   actions: <ActionTree<State, any>>{
     load: async function (context, target) {
       const raw = await window.api.file.contents(target)
-      const data = JSON.parse(raw) || {}
+
+      let data
+      try {
+        data = JSON.parse(raw)
+
+        if (!(data instanceof Object)) {
+          data = {}
+        }
+      } catch {
+        data = {}
+      }
 
       await context.dispatch('update', data)
     },
@@ -136,7 +146,7 @@ export default {
           return context.state.dark_success_enabled
       }
 
-      return null
+      return
     },
     generate: async function (context, passphrase) {
       const { path: private_key } = await window.api.ssl.generate_private_key(passphrase)

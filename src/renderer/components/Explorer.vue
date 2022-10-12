@@ -44,7 +44,7 @@ export default Vue.extend({
     enabled: { type: Boolean, default: false }
   },
   data: () => ({
-    hold: null
+    hold: undefined
   }),
   computed: {
     repository: function () {
@@ -54,13 +54,13 @@ export default Vue.extend({
       return store.state.configuration
     },
     active: function () {
-      return store.state.files.selected ? String(store.state.files.selected.uuid) : null
+      return store.state.files.selected ? String(store.state.files.selected.uuid) : undefined
     },
     editing: function () {
       return store.state.files.editing
     },
     root: function () {
-      return store.state.files.tree ? store.state.files.tree.base : null
+      return store.state.files.tree ? store.state.files.tree.base : undefined
     }
   },
   methods: {

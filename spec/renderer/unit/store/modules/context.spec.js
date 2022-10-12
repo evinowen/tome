@@ -31,7 +31,7 @@ describe('store/modules/context', () => {
     const store = factory.wrap()
 
     expect(store.state.context.visible).toEqual(false)
-    expect(store.state.context.target).toEqual(null)
+    expect(store.state.context.target).toEqual(undefined)
     expect(store.state.context.title).toEqual('')
     expect(store.state.context.position.x).toEqual(0)
     expect(store.state.context.position.y).toEqual(0)
@@ -46,7 +46,7 @@ describe('store/modules/context', () => {
     const store = factory.wrap()
 
     expect(store.state.context.visible).toEqual(false)
-    expect(store.state.context.target).toEqual(null)
+    expect(store.state.context.target).toEqual(undefined)
     expect(store.state.context.title).toEqual('')
     expect(store.state.context.position.x).toEqual(0)
     expect(store.state.context.position.y).toEqual(0)
@@ -71,7 +71,7 @@ describe('store/modules/context', () => {
     const store = factory.wrap()
 
     expect(store.state.context.visible).toEqual(false)
-    expect(store.state.context.target).toEqual(null)
+    expect(store.state.context.target).toEqual(undefined)
     expect(store.state.context.title).toEqual('')
     expect(store.state.context.position.x).toEqual(0)
     expect(store.state.context.position.y).toEqual(0)
@@ -94,7 +94,7 @@ describe('store/modules/context', () => {
     await store.dispatch('context/close')
 
     expect(store.state.context.visible).toEqual(false)
-    expect(store.state.context.target).toEqual(null)
+    expect(store.state.context.target).toEqual(undefined)
     expect(store.state.context.title).toEqual('')
     expect(store.state.context.items).toEqual([])
   })

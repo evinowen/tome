@@ -13,7 +13,7 @@ global.ResizeObserver = class {
 
 const item_none = {
   title: 'None',
-  action: null
+  action: undefined
 }
 
 const item_load = {
@@ -29,9 +29,9 @@ const item_action = {
 describe('components/ContextMenuNode', () => {
   let vuetify
 
-  let value = null
+  let value
   let title = ''
-  let target = null
+  let target
   const items = []
   let position_x = 0
   let position_y = 0
@@ -48,7 +48,7 @@ describe('components/ContextMenuNode', () => {
   beforeEach(() => {
     vuetify = new Vuetify()
 
-    value = null
+    value = undefined
     title = 'Context Title'
     target = 'Context Target'
 

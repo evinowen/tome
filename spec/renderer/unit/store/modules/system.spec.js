@@ -111,7 +111,7 @@ describe('store/modules/system', () => {
   ]
 
   for (const flag of flags) {
-    it(`should set ${flag} flag on ${flag} dispatch with non-null value`, async () => {
+    it(`should set ${flag} flag on ${flag} dispatch with non-undefined value`, async () => {
       const store = factory.wrap()
 
       expect(store.state.system[flag]).toBe(false)
@@ -137,10 +137,10 @@ describe('store/modules/system', () => {
   ]
 
   for (const item of signature) {
-    it(`should set ${item} flag on ${item} signature dispatch with non-null value`, async () => {
+    it(`should set ${item} flag on ${item} signature dispatch with non-undefined value`, async () => {
       const store = factory.wrap()
 
-      expect(store.state.system.signature[item]).toBe(null)
+      expect(store.state.system.signature[item]).toBe(undefined)
       await store.dispatch(`system/signature/${item}`, item)
       expect(store.state.system.signature[item]).toBe(item)
     })
@@ -152,10 +152,10 @@ describe('store/modules/system', () => {
   ]
 
   for (const item of credentials) {
-    it(`should set ${item} flag on ${item} credentials dispatch with non-null value`, async () => {
+    it(`should set ${item} flag on ${item} credentials dispatch with non-undefined value`, async () => {
       const store = factory.wrap()
 
-      expect(store.state.system.credentials[item]).toBe(null)
+      expect(store.state.system.credentials[item]).toBe(undefined)
       await store.dispatch(`system/credentials/${item}`, item)
       expect(store.state.system.credentials[item]).toBe(item)
     })

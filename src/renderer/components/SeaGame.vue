@@ -49,7 +49,7 @@ import { VLayout, VFlex, VIcon } from 'vuetify/lib'
 export default Vue.extend({
   components: { VLayout, VFlex, VIcon },
   data: () => ({
-    ticker: null,
+    ticker: undefined,
     cannon: {
       distance: {
         value: 0,
@@ -66,7 +66,7 @@ export default Vue.extend({
       },
       splash: {
         splashing: false,
-        timeout: null,
+        timeout: undefined,
         x: 0,
         y: 0
       }
@@ -131,7 +131,7 @@ export default Vue.extend({
 
           if (this.cannon.splash.timeout) {
             clearTimeout(this.cannon.splash.timeout)
-            this.cannon.splash.timeout = null
+            this.cannon.splash.timeout = undefined
           }
 
           this.cannon.splash.timeout = setTimeout(() => {
@@ -145,7 +145,7 @@ export default Vue.extend({
 
           if (this.cannon.distance.timeout) {
             clearTimeout(this.cannon.distance.timeout)
-            this.cannon.distance.timeout = null
+            this.cannon.distance.timeout = undefined
           }
 
           this.cannon.distance.timeout = setTimeout(() => {

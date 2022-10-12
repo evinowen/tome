@@ -27,6 +27,6 @@ describe('components/EmptyPane', () => {
   it('is able to be mocked and prepared for testing', () => {
     const wrapper = factory.wrap()
 
-    expect(wrapper).not.toBeNull()
+    expect(wrapper).not.toBeUndefined()
   })
 })

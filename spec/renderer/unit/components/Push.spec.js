@@ -57,7 +57,7 @@ describe('components/Push', () => {
 
     await wrapper.vm.diff({ oid: 1 })
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/diff')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'repository/diff')
 
     expect(action).toBeDefined()
     expect(data).toEqual({ commit: 1 })
@@ -72,7 +72,7 @@ describe('components/Push', () => {
 
     await wrapper.vm.push(event)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/perform')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/perform')
 
     expect(action).toBeDefined()
     expect(data).toEqual('push')
@@ -87,7 +87,7 @@ describe('components/Push', () => {
 
     await wrapper.vm.select_remote(remote)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/remote')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'repository/remote')
 
     expect(action).toBeDefined()
     expect(data).toEqual(remote)

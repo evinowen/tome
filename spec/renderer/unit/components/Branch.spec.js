@@ -37,7 +37,7 @@ describe('components/Branch', () => {
 
     await wrapper.vm.close()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/branch')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/branch')
 
     expect(action).toBeDefined()
     expect(data).toEqual(false)
@@ -54,7 +54,7 @@ describe('components/Branch', () => {
 
     await wrapper.vm.diff({ oid: 1 })
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/diff')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'repository/diff')
 
     expect(action).toBeDefined()
     expect(data).toEqual({ commit: 1 })
@@ -71,7 +71,7 @@ describe('components/Branch', () => {
 
     await wrapper.vm.diff({ oid: 1 })
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/patch')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/patch')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)

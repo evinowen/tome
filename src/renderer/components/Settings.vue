@@ -374,8 +374,8 @@ export default Vue.extend({
   },
   data: () => ({
     obscure_passphrase: true,
-    version: null,
-    process: null
+    version: undefined,
+    process: undefined
   }),
   computed: {
     configuration: function () {

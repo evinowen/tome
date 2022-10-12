@@ -34,7 +34,7 @@ describe('components/LibraryButton', () => {
     const wrapper = factory.wrap()
     await wrapper.vm.select()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'library/select')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'library/select')
 
     expect(action).toBeDefined()
   })
@@ -45,7 +45,7 @@ describe('components/LibraryButton', () => {
     const wrapper = factory.wrap()
     await wrapper.vm.open(path)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'library/open')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'library/open')
 
     expect(action).toBeDefined()
     expect(data).toBe(path)
@@ -55,7 +55,7 @@ describe('components/LibraryButton', () => {
     const wrapper = factory.wrap()
     await wrapper.vm.close()
 
-    const [action = null] = store.dispatch.mock.calls.find(([action]) => action === 'library/close')
+    const [action] = store.dispatch.mock.calls.find(([action]) => action === 'library/close')
 
     expect(action).toBeDefined()
   })

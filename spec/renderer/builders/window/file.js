@@ -9,7 +9,7 @@ const _file_list_directory = async (path) => {
   const result = []
 
   for (const child in item) {
-    if (item[child] == null) {
+    if (item[child] == undefined) {
       result.push({ name: child, mime: 'text/plain', directory: false })
     } else {
       result.push({ name: child, mime: 'text/plain', directory: true })
@@ -21,7 +21,7 @@ const _file_list_directory = async (path) => {
 
 const _file_is_directory = async (path) => {
   const item = get_disk(path)
-  return item != null
+  return item != undefined
 }
 
 const _file_exists = async (path) => {
@@ -35,12 +35,12 @@ const _file_contents = async (path) => {
 
   const item = get_disk(path)
 
-  if (item !== null) {
+  if (item !== undefined) {
     return item
   }
 
   const content = disk.get_content()
-  if (content == null) {
+  if (content == undefined) {
     return `File "${path}" contents`
   }
 
@@ -52,7 +52,7 @@ const _file_create = async (path) => {
     return false
   }
 
-  set_disk(path, null)
+  set_disk(path)
   return has_disk(path)
 }
 
@@ -138,6 +138,6 @@ export default {
     directory_list: jest.fn(_directory_list),
     select_directory: jest.fn(_select_directory),
     search_path: jest.fn(),
-    search_next: jest.fn().mockReturnValue({ path: null }).mockReturnValueOnce(_search_next_result)
+    search_next: jest.fn().mockReturnValue({ path: undefined }).mockReturnValueOnce(_search_next_result)
   }
 }

@@ -27,7 +27,7 @@ describe('components/KeyfileOutput', () => {
 
     await wrapper.vm.copy()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
 
     expect(action).toBeDefined()
     expect(data).toEqual(value)

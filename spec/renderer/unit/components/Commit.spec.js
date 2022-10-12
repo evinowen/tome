@@ -62,7 +62,7 @@ describe('components/Commit', () => {
     const name = 'John Doe'
     await wrapper.vm.sign_name(name)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/signature/name')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/signature/name')
 
     expect(action).toBeDefined()
     expect(data).toEqual(name)
@@ -74,7 +74,7 @@ describe('components/Commit', () => {
     const email = 'test@example.com'
     await wrapper.vm.sign_email(email)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/signature/email')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/signature/email')
 
     expect(action).toBeDefined()
     expect(data).toEqual(email)
@@ -86,7 +86,7 @@ describe('components/Commit', () => {
     const message = 'Test Message'
     await wrapper.vm.sign_message(message)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/signature/message')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/signature/message')
 
     expect(action).toBeDefined()
     expect(data).toEqual(message)
@@ -97,7 +97,7 @@ describe('components/Commit', () => {
 
     await wrapper.vm.close()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/commit')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/commit')
 
     expect(action).toBeDefined()
     expect(data).toEqual(false)
@@ -108,7 +108,7 @@ describe('components/Commit', () => {
 
     await wrapper.vm.confirm(true)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/commit_confirm')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/commit_confirm')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)
@@ -119,7 +119,7 @@ describe('components/Commit', () => {
 
     await wrapper.vm.push(true)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/commit_push')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/commit_push')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)
@@ -131,7 +131,7 @@ describe('components/Commit', () => {
     const message = 'Test Message'
     await wrapper.vm.message(message)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/message')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'repository/message')
 
     expect(action).toBeDefined()
     expect(data).toEqual(message)
@@ -146,7 +146,7 @@ describe('components/Commit', () => {
 
     await wrapper.vm.diff(file)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/diff')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'repository/diff')
 
     expect(action).toBeDefined()
     expect(data).toEqual({ path: file.path })
@@ -161,7 +161,7 @@ describe('components/Commit', () => {
 
     await wrapper.vm.diff(file)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/patch')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/patch')
 
     expect(action).toBeDefined()
     expect(data).toEqual(true)
@@ -173,7 +173,7 @@ describe('components/Commit', () => {
     const path = './file.md'
     await wrapper.vm.stage(path)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/stage')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'repository/stage')
 
     expect(action).toBeDefined()
     expect(data).toEqual(path)
@@ -185,7 +185,7 @@ describe('components/Commit', () => {
     const path = './file.md'
     await wrapper.vm.reset(path)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'repository/reset')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'repository/reset')
 
     expect(action).toBeDefined()
     expect(data).toEqual(path)
@@ -196,7 +196,7 @@ describe('components/Commit', () => {
 
     await wrapper.vm.commit()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'system/perform')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'system/perform')
 
     expect(action).toBeDefined()
     expect(data).toEqual('commit')

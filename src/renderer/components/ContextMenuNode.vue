@@ -89,14 +89,14 @@ export default Vue.extend({
   components: { VLayout, VFlex, VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VIcon, VDivider },
   directives: { ClickOutside },
   props: {
-    title: { type: String, default: null },
+    title: { type: String, default: undefined },
     root: { type: Boolean, default: false },
-    target: { type: String, default: null },
+    target: { type: String, default: undefined },
     items: { type: Array, default: () => [] },
     position_x: { type: Number, default: 0 },
     position_y: { type: Number, default: 0 },
-    flip_x: { type: Boolean, default: null },
-    flip_y: { type: Boolean, default: null },
+    flip_x: { type: Boolean, default: undefined },
+    flip_y: { type: Boolean, default: undefined },
     window_x: { type: Number, default: 0 },
     window_y: { type: Number, default: 0 },
     layer: { type: Number, default: 0 }
@@ -110,7 +110,7 @@ export default Vue.extend({
     local_position_y: 0,
     local_flip_x: false,
     local_flip_y: false,
-    resize_observer: null
+    resize_observer: undefined
   }),
   watch: {
     position_x: function () {
@@ -160,8 +160,8 @@ export default Vue.extend({
       const overflow_x = this.position_x - (this.window_x / 2)
       const overflow_y = this.position_y - (this.window_y / 2)
 
-      this.local_flip_x = this.flip_x === null ? overflow_x > 0 : this.flip_x
-      this.local_flip_y = this.flip_y === null ? overflow_y > 0 : this.flip_y
+      this.local_flip_x = this.flip_x === undefined ? overflow_x > 0 : this.flip_x
+      this.local_flip_y = this.flip_y === undefined ? overflow_y > 0 : this.flip_y
 
       this.local_position_x = this.position_x - (this.local_flip_x ? this.width : 0)
       this.local_position_y = this.position_y - (this.local_flip_y ? this.height : 0)
@@ -207,8 +207,8 @@ export default Vue.extend({
 
       this.promoted = index
     },
-    execute: async function (action = null) {
-      if (action === null) {
+    execute: async function (action) {
+      if (action === undefined) {
         return
       }
 

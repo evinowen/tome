@@ -84,7 +84,7 @@ export = component('file')(
       return files
     })
 
-    handle('contents', async (target) => promise_with_reject(fs.readFile)(target, 'utf8'))
+    handle('contents', async (target) => promise_with_reject<string>(fs.readFile)(target, 'utf8'))
 
     handle('create', async (target, directory) => {
       if (await promise_access(target)) {

@@ -64,11 +64,11 @@ export default Vue.extend({
       return 'mdi-newspaper-variant'
     },
     badge: function () {
-      const base = this.alert ? 'mdi-alert-circle' : null
+      const base = this.alert ? 'mdi-alert-circle' : ''
 
       switch (this.relationship) {
         case 'root':
-          return null
+          return
 
         case 'git':
           return 'mdi-lock'
@@ -124,7 +124,7 @@ export default Vue.extend({
           return 'modify-json'
       }
 
-      return null
+      return ''
     }
   }
 })

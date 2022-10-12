@@ -92,27 +92,27 @@ class FileRelationship {
   }
 }
 
-type FileRelationshipMember = FileRelationship|FileRelationshipType|null
+type FileRelationshipMember = FileRelationship|FileRelationshipType
 
 export default class File {
-  uuid: string|null = uuidv4()
-  name: string|null = null
-  extension: string|null = null
+  uuid?: string = uuidv4()
+  name?: string
+  extension?: string
   mime: string = ''
   path: string = ''
-  relative: string|null = null
-  relationship: FileRelationshipType|undefined|null = null
-  parent: File|null = null
-  base: File|null = null
+  relative?: string
+  relationship?: FileRelationshipType
+  parent?: File
+  base?: File
   loaded: boolean = false
   directory: boolean = false
   disabled: boolean = false
   children: File[] = []
-  ghost: File|null = null
+  ghost?: File
   expanded: boolean = false
   ephemeral: boolean = false
-  document: FileDocument|null = null
-  updated: number|null = null
+  document?: FileDocument
+  updated?: number
   clean: boolean = true
   readonly: boolean = false
 
@@ -212,7 +212,7 @@ export default class File {
     this.updated = Date.now()
   }
 
-  haunt (directory = false, sibling = null) {
+  haunt (directory = false, sibling) {
     this.ghost = new File({ parent: this, ephemeral: true, directory })
 
     let index = this.children.length
@@ -230,7 +230,7 @@ export default class File {
   }
 
   exercise () {
-    if (this.ghost === null) {
+    if (this.ghost === undefined) {
       return
     }
 
@@ -240,7 +240,7 @@ export default class File {
       this.children.splice(index, 1)
     }
 
-    this.ghost = null
+    this.ghost = undefined
   }
 
   async populate () {
@@ -291,8 +291,7 @@ export default class File {
 
   async move (target: string) {
     const basename = await window.api.path.basename(this.path)
-    const dirname = await window.api.path.dirname(target)
-    const path = await window.api.path.join(dirname, basename)
+    const path = await window.api.path.join(target, basename)
 
     await window.api.file.rename(this.path, path)
 
@@ -342,9 +341,9 @@ export default class File {
     const items = (instance.relative || '').split(await window.api.path.sep())
 
     const assign: { base: FileRelationshipMember, child: FileRelationshipMember, descendant: FileRelationshipMember } = {
-      base: null,
-      child: null,
-      descendant: null
+      base: undefined,
+      child: undefined,
+      descendant: undefined
     }
 
     while (items.length > 0) {
@@ -356,11 +355,11 @@ export default class File {
 
 
       if (typeof node === 'string' || node instanceof String) {
-        node = null
+        node = undefined
         break
       }
 
-      assign.child = null
+      assign.child = undefined
 
       if (node.map) {
         const { descendant, child } = node.map
@@ -375,12 +374,12 @@ export default class File {
       }
 
       if (!(node.children && node.children[item])) {
-        node = null
+        node = undefined
         break
       }
 
       node = node.children[item]
-      if (node === null) {
+      if (node === undefined) {
         break
       }
     }
@@ -390,7 +389,7 @@ export default class File {
     }
 
     if (items.length > 0) {
-      assign.child = null
+      assign.child = undefined
     }
 
     instance.relationship = File.evaluate(assign.base, assign.child, assign.descendant)

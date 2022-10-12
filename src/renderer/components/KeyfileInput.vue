@@ -84,7 +84,7 @@ export default Vue.extend({
   methods: {
     input: async function (event) {
       const files = event.target.files || event.dataTransfer.files
-      const file = files.length > 0 ? files[0] : null
+      const file = files.length > 0 ? files[0] : undefined
 
       if (!file.path) {
         return

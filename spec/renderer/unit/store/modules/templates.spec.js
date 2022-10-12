@@ -23,19 +23,19 @@ describe('store/modules/templates', () => {
   beforeEach(() => {
     window._.reset_disk()
 
-    post = null
+    post = undefined
     files = {
       namespaced: true,
       state: {
-        active: null,
-        content: null,
-        error: null,
-        tree: null,
-        ghost: null,
-        selected: null,
+        active: undefined,
+        content: undefined,
+        error: undefined,
+        tree: undefined,
+        ghost: undefined,
+        selected: undefined,
         editing: false,
-        post: null,
-        watcher: null
+        post: undefined,
+        watcher: undefined
       },
       actions: {
         create: jest.fn(),
@@ -75,7 +75,7 @@ describe('store/modules/templates', () => {
 
     await store.dispatch('templates/load', { path: project })
 
-    expect(store.state.templates.target).not.toBeNull()
+    expect(store.state.templates.target).not.toBeUndefined()
     expect(store.state.templates.target.base).toEqual(project)
     expect(store.state.templates.target.absolute).toEqual('/project/.tome/templates')
     expect(store.state.templates.options.length).toBeGreaterThan(0)
@@ -88,7 +88,7 @@ describe('store/modules/templates', () => {
 
     await store.dispatch('templates/load', { path: project })
 
-    expect(store.state.templates.target).not.toBeNull()
+    expect(store.state.templates.target).not.toBeUndefined()
     expect(store.state.templates.target.base).toEqual(project)
     expect(store.state.templates.options).toEqual([])
   })
@@ -100,7 +100,7 @@ describe('store/modules/templates', () => {
 
     await store.dispatch('templates/load', { path: project })
 
-    expect(store.state.templates.target).not.toBeNull()
+    expect(store.state.templates.target).not.toBeUndefined()
     expect(store.state.templates.target.base).toEqual(project)
     expect(store.state.templates.options).toEqual([])
   })
@@ -161,12 +161,12 @@ describe('store/modules/templates', () => {
 
     await store.dispatch('templates/load', { path: project })
 
-    expect(post).toBeNull()
+    expect(post).toBeUndefined()
     expect(files.actions.ghost).toHaveBeenCalledTimes(0)
 
     await store.dispatch('templates/ghost')
 
-    expect(post).not.toBeNull()
+    expect(post).not.toBeUndefined()
     expect(files.actions.ghost).toHaveBeenCalledTimes(1)
     await post(project)
 

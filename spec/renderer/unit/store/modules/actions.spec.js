@@ -32,19 +32,19 @@ describe('store/modules/actions', () => {
   beforeEach(() => {
     window._.reset_disk()
 
-    post = null
+    post = undefined
     files = {
       namespaced: true,
       state: {
-        active: null,
-        content: null,
-        error: null,
-        tree: null,
-        ghost: null,
-        selected: null,
+        active: undefined,
+        content: undefined,
+        error: undefined,
+        tree: undefined,
+        ghost: undefined,
+        selected: undefined,
         editing: false,
-        post: null,
-        watcher: null
+        post: undefined,
+        watcher: undefined
       },
       actions: {
         create: jest.fn(),
@@ -83,7 +83,7 @@ describe('store/modules/actions', () => {
 
     await store.dispatch('actions/load', { path: project })
 
-    expect(store.state.actions.target).not.toBeNull()
+    expect(store.state.actions.target).not.toBeUndefined()
     expect(store.state.actions.target.base).toEqual(project)
     expect(store.state.actions.target.absolute).toEqual('/project/.tome/actions')
     expect(store.state.actions.options.length).toBeGreaterThan(0)
@@ -96,7 +96,7 @@ describe('store/modules/actions', () => {
 
     await store.dispatch('actions/load', { path: project })
 
-    expect(store.state.actions.target).not.toBeNull()
+    expect(store.state.actions.target).not.toBeUndefined()
     expect(store.state.actions.target.base).toEqual(project)
     expect(store.state.actions.options).toEqual([])
   })
@@ -108,7 +108,7 @@ describe('store/modules/actions', () => {
 
     await store.dispatch('actions/load', { path: project })
 
-    expect(store.state.actions.target).not.toBeNull()
+    expect(store.state.actions.target).not.toBeUndefined()
     expect(store.state.actions.target.base).toEqual(project)
     expect(store.state.actions.options).toEqual([])
   })
@@ -181,12 +181,12 @@ describe('store/modules/actions', () => {
 
     await store.dispatch('actions/load', { path: project })
 
-    expect(post).toBeNull()
+    expect(post).toBeUndefined()
     expect(files.actions.ghost).toHaveBeenCalledTimes(0)
 
     await store.dispatch('actions/ghost')
 
-    expect(post).not.toBeNull()
+    expect(post).not.toBeUndefined()
     expect(files.actions.ghost).toHaveBeenCalledTimes(1)
 
     await post(project)

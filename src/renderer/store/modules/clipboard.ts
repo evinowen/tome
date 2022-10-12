@@ -1,9 +1,9 @@
 import { MutationTree, ActionTree } from 'vuex'
 
 export class State {
-  error: string|null = null
-  action: string|null = null
-  content: { type: string, target: string }|null = null
+  error?: string
+  action?: string
+  content?: { type: string, target: string }
 }
 
 export default {
@@ -17,8 +17,8 @@ export default {
       state.content = content
     },
     clear: function (state) {
-      state.action = null
-      state.content = null
+      state.action = undefined
+      state.content = undefined
     },
     error: function (state, data) {
       const { message } = data

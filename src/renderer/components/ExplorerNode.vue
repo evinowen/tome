@@ -52,8 +52,8 @@
               :rules="rules"
               @blur="$emit('blur')"
               @focus="focus"
-              @input="error = null"
-              @keyup.enter="valid ? submit() : null"
+              @input="error = undefined"
+              @keyup.enter="valid ? submit() : undefined"
             />
             <v-text-field
               v-show="!(selected && edit)"
@@ -133,7 +133,7 @@ export default Vue.extend({
     relationship: { type: String, default: '' },
     active: { type: String, default: '' },
     edit: { type: Boolean, default: false },
-    format: { type: Function, default: null },
+    format: { type: Function, default: undefined },
     directory: { type: Boolean, default: true },
     children: { type: Array, default: () => [] },
     root: { type: Boolean, default: false },
@@ -142,7 +142,7 @@ export default Vue.extend({
   data: () => ({
     valid: false,
     input: '',
-    error: null
+    error: undefined
   }),
   computed: {
     selected: function () {
@@ -158,7 +158,7 @@ export default Vue.extend({
     actions: function () {
       return store.state.actions.options.map(name => ({
         title: name,
-        action: (path) => this.$emit('action', { name, target: path, selection: null })
+        action: (path) => this.$emit('action', { name, target: path, selection: undefined })
       }))
     },
     templates: function () {
@@ -232,7 +232,7 @@ export default Vue.extend({
       const expand = [
         {
           title: 'Expand',
-          action: null
+          action: undefined
         }
       ]
 

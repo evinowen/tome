@@ -23,8 +23,8 @@ import { VCard, VCardText } from 'vuetify/lib'
 export default Vue.extend({
   components: { VCard, VCardText },
   props: {
-    name: { type: String, default: null },
-    url: { type: String, default: null },
+    name: { type: String, default: undefined },
+    url: { type: String, default: undefined },
     loading: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false }
   }

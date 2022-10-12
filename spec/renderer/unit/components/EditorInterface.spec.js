@@ -67,7 +67,7 @@ describe('components/EditorInterface', () => {
     save: jest.fn(),
     doc: {
       getValue: jest.fn(() => 'Value'),
-      eachLine: jest.fn(() => null),
+      eachLine: jest.fn(),
       setValue: jest.fn()
     }
   }
@@ -76,9 +76,9 @@ describe('components/EditorInterface', () => {
     store.state = Vue.observable({
       files: {
         active: '/README.md',
-        error: null,
-        tree: null,
-        ghost: null,
+        error: undefined,
+        tree: undefined,
+        ghost: undefined,
         selected: {
           path: '/project/path.md',
           name: 'path.md',
@@ -93,11 +93,11 @@ describe('components/EditorInterface', () => {
           }
         },
         editing: false,
-        watcher: null
+        watcher: undefined
       },
       search: {
-        query: null,
-        results: null,
+        query: undefined,
+        results: undefined,
         navigation: {
           target: 1,
           total: 0
@@ -154,7 +154,7 @@ describe('components/EditorInterface', () => {
     const path = './file_path'
     await wrapper.vm.save(path)
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'files/save')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'files/save')
 
     expect(action).toBeDefined()
     expect(data).toBeDefined()
@@ -190,12 +190,12 @@ describe('components/EditorInterface', () => {
 
     store.state.files.selected.document.content = ''
 
-    expect(wrapper.vm.overlay).toBeNull()
+    expect(wrapper.vm.overlay).toBeUndefined()
 
     store.state.search.query = 'mock'
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(wrapper.vm.overlay).toBeNull()
+    expect(wrapper.vm.overlay).toBeUndefined()
   })
 
   it('should update search highlight when the search query changes in render mode', async () => {
@@ -224,7 +224,7 @@ describe('components/EditorInterface', () => {
 
     await expect(wrapper.vm.$nextTick()).resolves.toBeDefined()
 
-    expect(wrapper.vm.mode.read.results.length).not.toBeNull()
+    expect(wrapper.vm.mode.read.results.length).not.toBeUndefined()
     expect(wrapper.vm.mode.read.results.length).not.toBe(0)
   })
 
@@ -353,7 +353,7 @@ describe('components/EditorInterface', () => {
     const wrapper = factory.wrap()
     await wrapper.vm.context.find(item => item.title === 'Cut').action()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
 
     expect(action).toBeDefined()
     expect(data).toBeDefined()
@@ -366,7 +366,7 @@ describe('components/EditorInterface', () => {
     const wrapper = factory.wrap()
     await wrapper.vm.context.find(item => item.title === 'Copy').action()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
 
     expect(action).toBeDefined()
     expect(data).toBeDefined()
@@ -379,7 +379,7 @@ describe('components/EditorInterface', () => {
     const wrapper = factory.wrap()
     await wrapper.vm.context.find(item => item.title === 'Copy').action()
 
-    const [action = null, data = null] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
+    const [action, data] = store.dispatch.mock.calls.find(([action]) => action === 'clipboard/text')
 
     expect(action).toBeDefined()
     expect(data).toBeDefined()

@@ -24,7 +24,7 @@ describe('store/plugins/reporter', () => {
     object = {
       state: {
         files: {
-          tree: null
+          tree: undefined
         }
       },
       actions: {

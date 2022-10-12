@@ -13,14 +13,14 @@ export default {
     inspect: jest.fn(),
     refresh: jest.fn(() => ({ available: {}, staged: {} })),
     refresh_patches: jest.fn(() => ({ patches: {} })),
-    credential: jest.fn((private_key, public_key, passphrase) => null),
-    load_remote_url: jest.fn((url) => null),
+    credential: jest.fn(),
+    load_remote_url: jest.fn(),
     remote: jest.fn(() => ({ remote: {}, pending: {} })),
     stage: jest.fn(),
     reset: jest.fn(),
     diff_path: jest.fn(),
     diff_commit: jest.fn(),
-    commit: jest.fn((name, email, message) => null),
-    push: jest.fn(() => null)
+    commit: jest.fn(),
+    push: jest.fn()
   }
 }

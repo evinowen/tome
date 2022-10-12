@@ -1,12 +1,12 @@
 import File, { FileRelationshipType } from './file'
 
 export class FileIdentity {
-  item: File|null
-  parent: File|null = null
-  index: number|null = -1
-  name: string|null = null
+  item?: File
+  parent?: File
+  index?: number = -1
+  name?: string
 
-  constructor (item: File|null = null, parent: File|null = null, index: number = -1, name: string|null = null) {
+  constructor (item?: File, parent?: File, index: number = -1, name?: string) {
     this.item = item
     this.parent = parent
     this.index = index
@@ -28,7 +28,7 @@ export default class FileTree {
   base: File
   separator: string
 
-  index = null
+  index
   crawling = 0
   timestamp = 0
 
@@ -36,7 +36,7 @@ export default class FileTree {
     this.base = file
     this.separator = separator
 
-    this.index = null
+    this.index = undefined
     this.crawling = 0
     this.timestamp = 0
   }
@@ -74,7 +74,7 @@ export default class FileTree {
     const index = children.findIndex(child => child.name === name)
 
     if (index === -1) {
-      return new FileIdentity(null, element, index, name)
+      return new FileIdentity(undefined, element, index, name)
     }
 
     if (queue.length > 0 && queue[0] !== '') {
