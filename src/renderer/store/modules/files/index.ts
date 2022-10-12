@@ -81,7 +81,7 @@ export default {
       state.selected = undefined
     }
   },
-  actions: <ActionTree<State, any>>{
+  actions: <ActionTree<State, unknown>>{
     initialize: async function (context, { path }) {
       const tree = await FileTree.make(path)
 
@@ -243,7 +243,7 @@ export default {
 
       let name = input.toLowerCase().replace(/[ .-]+/g, '.').replace(/[^\d.a-z-]/g, '')
 
-      const { ephemeral, parent, directory, path } = context.state.selected
+      const { ephemeral, parent, directory } = context.state.selected
 
       if (title && !directory) {
         name = `${name}.md`

@@ -59,7 +59,7 @@ export default {
       }
     }
   },
-  actions: <ActionTree<State, any>>{
+  actions: <ActionTree<State, unknown>>{
     multifile: async function (context, value) {
       context.commit('multifile', value)
     },

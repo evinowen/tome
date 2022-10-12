@@ -51,7 +51,7 @@ export default {
       Object.assign(state, data)
     }
   },
-  actions: <ActionTree<State, any>>{
+  actions: <ActionTree<State, unknown>>{
     load: async function (context, target) {
       const raw = await window.api.file.contents(target)
 

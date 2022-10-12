@@ -19,7 +19,6 @@ module.exports = {
     plugins: ['@typescript-eslint', 'unicorn']
   },
   rules: {
-    '@typescript-eslint/no-unused-vars': 'off',
     'camelcase': 'off',
     'no-console': 'error',
     'no-debugger': 'error',

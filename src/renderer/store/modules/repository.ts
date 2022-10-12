@@ -142,7 +142,7 @@ export default {
       Object.assign(state.metadata, data)
     }
   },
-  actions: <ActionTree<State, any>>{
+  actions: <ActionTree<State, unknown>>{
     clear: async function (context) {
       context.commit('clear')
     },
@@ -313,7 +313,7 @@ export default {
           Object.assign(state, data)
         }
       },
-      actions: <ActionTree<CredentialState, any>>{
+      actions: <ActionTree<CredentialState, unknown>>{
         key: async function (context, value) {
           context.commit('set', { key: value })
         },
@@ -334,7 +334,7 @@ export default {
           Object.assign(state, data)
         }
       },
-      actions: <ActionTree<SignatureState, any>>{
+      actions: <ActionTree<SignatureState, unknown>>{
         name: async function (context, value) {
           const name = value || await context.dispatch('configuration/read', 'name', { root: true })
           context.commit('set', { name })

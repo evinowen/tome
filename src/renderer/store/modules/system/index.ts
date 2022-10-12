@@ -40,7 +40,7 @@ export default {
       Object.assign(state, data)
     }
   },
-  actions: <ActionTree<State, any>>{
+  actions: <ActionTree<State, unknown>>{
     load: async function (context) {
       const version = await window.api.app.getVersion()
       const process = await window.api.app.getProcess()
@@ -99,8 +99,8 @@ export default {
       await window.api.window.close()
     },
     perform: async function (context, performance) {
-      const dispatch: (action: string, data?: any) => Promise<boolean>
-       = async (action: string, data?: any) => await context.dispatch(action, data, { root: true }) === true
+      const dispatch: (action: string, data?: unknown) => Promise<boolean>
+       = async (action: string, data?: unknown) => await context.dispatch(action, data, { root: true }) === true
 
       switch (performance) {
         case SystemPerformances.Commit:
@@ -182,7 +182,7 @@ export default {
           Object.assign(state, data)
         }
       },
-      actions: <ActionTree<State, any>>{
+      actions: <ActionTree<State, unknown>>{
         key: async function (context, value) {
           typeof value === undefined || context.commit('set', { key: value })
         },
@@ -203,7 +203,7 @@ export default {
           Object.assign(state, data)
         }
       },
-      actions: <ActionTree<State, any>>{
+      actions: <ActionTree<State, unknown>>{
         name: async function (context, value) {
           typeof value === undefined || context.commit('set', { name: value })
         },

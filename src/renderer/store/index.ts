@@ -64,7 +64,7 @@ export default new Vuex.Store<State>({
       })
     }
   },
-  actions: <ActionTree<State, any>>({
+  actions: <ActionTree<State, unknown>>({
     hydrate: async function (context) {
       const application_path = await window.api.app.getPath('userData')
       const configuration_path = await window.api.path.join(application_path, 'config.json')

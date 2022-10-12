@@ -194,9 +194,9 @@ export default Vue.extend({
         title: name,
         action: async () => {
           const selection = this.codemirror.getSelection()
-          const result = await store.dispatch('actions/execute', { name, target: this.active, selection })
+          const output = await store.dispatch('actions/execute', { name, target: this.active, selection })
 
-          this.codemirror.replaceSelection(result.selection || selection)
+          this.codemirror.replaceSelection(output.selection || selection)
 
           await this.input()
         }

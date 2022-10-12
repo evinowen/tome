@@ -29,7 +29,7 @@ export default {
       }
     }
   },
-  actions: <ActionTree<State, any>>{
+  actions: <ActionTree<State, unknown>>{
     load: async function (context, path) {
       const history = []
 

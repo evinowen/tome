@@ -48,7 +48,7 @@ describe('store/modules/actions', () => {
       },
       actions: {
         create: jest.fn(),
-        identify: jest.fn((context, criteria) => ({})),
+        identify: jest.fn(() => ({})),
         ghost: jest.fn((context, criteria) => {
           post = criteria.post
         }),

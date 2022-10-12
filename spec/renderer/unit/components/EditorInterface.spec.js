@@ -31,7 +31,7 @@ jest.mock('mark.js', () => {
 Vue.component('SplitPane', SplitPane)
 
 function GenerateElementList (array) {
-  return array.map(item => ({
+  return array.map(() => ({
     classList: {
       add: jest.fn(),
       remove: jest.fn()

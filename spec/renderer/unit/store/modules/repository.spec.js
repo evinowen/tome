@@ -69,7 +69,7 @@ describe('store/modules/repository', () => {
   })
 
   it('should dispatch error when file fails to stage on dispatch of stage action', async () => {
-    window.api.repository.stage.mockImplementationOnce((query, callback) => { throw new Error('Error!') })
+    window.api.repository.stage.mockImplementationOnce(() => { throw new Error('Error!') })
 
     await store.dispatch('repository/load', '/path/to/repository')
 
@@ -91,7 +91,7 @@ describe('store/modules/repository', () => {
   })
 
   it('should dispatch error when file fails to reset on dispatch of reset action', async () => {
-    window.api.repository.reset.mockImplementationOnce((query, callback) => { throw new Error('Error!') })
+    window.api.repository.reset.mockImplementationOnce(() => { throw new Error('Error!') })
 
     await store.dispatch('repository/load', '/path/to/repository')
 

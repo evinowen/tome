@@ -6,15 +6,16 @@ interface FeatureTarget {
   relative: string
 }
 
-export type FeatureCreateFunction = (context: ActionContext<State, any>) => (path: string) => Promise<void>
-export type FeatureExecuteFunction = (context: ActionContext<State, any>) => (data: {name: string, source: string, target: string, selection: string}) => Promise<void>
+export type FeatureCreateFunction = (context: ActionContext<State, unknown>) => (path: string) => Promise<void>
+export type FeatureExecuteFunction<T> = (context: ActionContext<State, unknown>) => (data: FeatureExecuteInput) => Promise<T>
+export type FeatureExecuteInput = { name: string, source: string, target: string, selection?: string }
 
 export class State {
   target: FeatureTarget = { base: '', absolute: '', relative: '' }
   options: string[] = []
 }
 
-export default (feature: string, create: FeatureCreateFunction, execute: (data: any) => any) => ({
+export default <T>(feature: string, create: FeatureCreateFunction, execute: FeatureExecuteFunction<T>) => ({
   namespaced: true,
   state: new State,
   mutations: <MutationTree<State>>{
@@ -26,7 +27,7 @@ export default (feature: string, create: FeatureCreateFunction, execute: (data: 
       state.options.push(...options)
     }
   },
-  actions: <ActionTree<State, any>>{
+  actions: <ActionTree<State, unknown>>{
     load: async function (context, { path }) {
       const absolute = await window.api.path.join(path, '.tome', feature)
       const relative = await window.api.path.relative(path, absolute)

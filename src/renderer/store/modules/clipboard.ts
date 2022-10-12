@@ -25,7 +25,7 @@ export default {
       state.error = message
     }
   },
-  actions: <ActionTree<State, any>>{
+  actions: <ActionTree<State, unknown>>{
     clear: function (context) {
       context.commit('clear')
     },

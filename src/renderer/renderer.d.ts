@@ -57,7 +57,7 @@ export interface API {
   app: {
     getPath: (name: string) => Promise<string>,
     getVersion: () => Promise<string>,
-    getProcess: () => Promise<{ process: any, sandboxed: boolean}>
+    getProcess: () => Promise<{ process: unknown, sandboxed: boolean}>
   },
   path: {
     basename: (query: string) => Promise<string>,

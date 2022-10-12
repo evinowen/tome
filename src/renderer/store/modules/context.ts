@@ -39,7 +39,7 @@ export default {
       state.visible = false
     }
   },
-  actions: <ActionTree<State, any>>{
+  actions: <ActionTree<State, unknown>>{
     open: async function (context, state) {
       const { target, title = 'Content', items = [], position } = state || {}
 

@@ -10,7 +10,7 @@ import ssl from './ssl'
 import templates from './templates'
 import window from './window'
 
-export default function (callable) {
+export default function () {
   return {
     _: {
       ...disk,
