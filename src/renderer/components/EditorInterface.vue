@@ -30,7 +30,7 @@
             id="editor-interface-rendered"
             ref="rendered"
             class="pa-2"
-            @contextmenu="context"
+            @contextmenu="contextmenu"
             v-html="rendered"
           />
         </div>
