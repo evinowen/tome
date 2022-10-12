@@ -16,7 +16,6 @@
     "baseUrl": ".",
     "types": [
       "webpack-env",
-      "jest",
       "vuetify"
     ],
     "typeRoots": [
@@ -24,8 +23,7 @@
       "./node_modules/vuetify/types"
     ],
     "paths": {
-      "@/*": [ "src/renderer/*" ],
-      "?/*": [ "spec/renderer/*" ]
+      "@/*": [ "src/renderer/*" ]
     },
     "lib": [
       "esnext",
@@ -37,8 +35,6 @@
   "include": [
     "src/renderer/**/*.js",
     "src/renderer/**/*.ts",
-    "src/renderer/**/*.vue",
-    "spec/renderer/**/*.js",
-    "spec/renderer/**/*.ts"
+    "src/renderer/**/*.vue"
   ]
 }
