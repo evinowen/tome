@@ -1,13 +1,15 @@
 <template>
-  <div ref="preview"
-       :class="[ 'image-preview', zoom ? 'image-preview-zoom' : '' ]"
+  <div
+    ref="preview"
+    :class="[ 'image-preview', zoom ? 'image-preview-zoom' : '' ]"
   >
-    <file-icon v-if=hide size="large" image alert disabled />
-    <img v-else
-         :src=src
-         :class="[ 'preview', zoom ? 'preview-zoom' : '' ]"
-         @click=click
-         @error=error
+    <file-icon v-if="hide" size="large" image alert disabled />
+    <img
+      v-else
+      :src="src"
+      :class="[ 'preview', zoom ? 'preview-zoom' : '' ]"
+      @click="click"
+      @error="error"
     >
   </div>
 </template>

@@ -1,18 +1,18 @@
 <template>
   <context-menu-node
-    v-if=context.visible
+    v-if="context.visible"
     ref="root"
-    v-resize=resize
-    :window_x=window_x
-    :window_y=window_y
-    :position_x=context.position.x
-    :position_y=context.position.y
-    :title=context.title
-    :target=context.target
-    :items=context.items
-    :layer=10000
+    v-resize="resize"
+    :window_x="window_x"
+    :window_y="window_y"
+    :position_x="context.position.x"
+    :position_y="context.position.y"
+    :title="context.title"
+    :target="context.target"
+    :items="context.items"
+    :layer="10000"
     root
-    @close=close
+    @close="close"
   />
 </template>
 

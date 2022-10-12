@@ -5,7 +5,7 @@
       <v-divider />
       <v-list-item-group>
         <div v-for="(item, index) in items" :key="index">
-          <v-divider v-if=item.divider />
+          <v-divider v-if="item.divider" />
           <v-list-item
             v-else
             :disabled="item.active ? !item.active() : false"
@@ -13,7 +13,7 @@
             @click.stop="execute(item.action)"
             @mouseover="promote(index)"
           >
-            <v-list-item-title class='item' style="line-height: 16px !important;">
+            <v-list-item-title class="item" style="line-height: 16px !important;">
               <v-layout>
                 <v-flex shrink class="menu-arrow">
                   <v-icon v-show="local_flip_x && (item.items || item.load)" small>
@@ -40,9 +40,9 @@
             :position_y="local_position_y + offset(index) + (20 * (local_flip_y ? 1 : -1))"
             :flip_x="local_flip_x"
             :flip_y="local_flip_y"
-            :title=item.title
-            :target=target
-            :items=item.items
+            :title="item.title"
+            :target="target"
+            :items="item.items"
             :layer="layer + 1"
             @mouseover="activate(index)"
             @mouseleave="deactivate(index)"

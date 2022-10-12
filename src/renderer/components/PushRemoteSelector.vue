@@ -6,7 +6,7 @@
     <v-card-actions>
       <v-select
         ref="select"
-        :value=value
+        :value="value"
         :items="items"
         item-value="name"
         label="Remote"

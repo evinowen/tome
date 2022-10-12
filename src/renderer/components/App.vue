@@ -1,23 +1,23 @@
 <template>
   <v-app id="inspire">
     <system-bar title="tome" />
-    <settings :value=system.settings />
-    <template v-if=repository.loaded>
-      <branch :value=system.branch />
+    <settings :value="system.settings" />
+    <template v-if="repository.loaded">
+      <branch :value="system.branch" />
       <commit ref="commit" />
       <push ref="push" />
-      <patch :value=system.patch />
+      <patch :value="system.patch" />
     </template>
 
-    <editor-interface v-show=repository.path ref="interface" />
-    <empty-pane v-show=!repository.path />
+    <editor-interface v-show="repository.path" ref="interface" />
+    <empty-pane v-show="!repository.path" />
 
     <context-menu-service />
 
-    <search-service v-show=system.search />
+    <search-service v-show="system.search" />
     <shortcut-service />
 
-    <console :value=system.console />
+    <console :value="system.console" />
     <action-bar />
   </v-app>
 </template>

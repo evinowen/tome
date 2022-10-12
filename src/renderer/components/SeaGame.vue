@@ -1,5 +1,5 @@
 <template>
-  <v-layout style="height: 100%;" @click.stop=click>
+  <v-layout style="height: 100%;" @click.stop="click">
     <v-flex ref="sea" grow class="sea">
       <div ref="boat" class="boat">
         <v-icon>mdi-sail-boat</v-icon>

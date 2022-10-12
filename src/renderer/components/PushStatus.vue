@@ -1,7 +1,7 @@
 <template>
   <v-card style="height: 100%">
-    <template v-if=active>
-      <template v-if=loading>
+    <template v-if="active">
+      <template v-if="loading">
         <v-list-item>
           <v-list-item-avatar color="darken-1" />
           <v-list-item-content>
@@ -17,7 +17,7 @@
         </v-card-text>
       </template>
 
-      <template v-else-if=error>
+      <template v-else-if="error">
         <v-list-item>
           <v-list-item-avatar color="warning">
             <v-icon>mdi-alert</v-icon>
@@ -40,7 +40,7 @@
         </v-card-text>
       </template>
 
-      <template v-else-if=match>
+      <template v-else-if="match">
         <v-list-item>
           <v-list-item-avatar color="info">
             <v-icon>mdi-thumb-up</v-icon>
@@ -73,8 +73,8 @@
         <v-container fluid class="pa-0 ma-0" style="min-height: 120px">
           <v-data-table
             dense disable-sort class="my-0 commit-history"
-            :headers=headers
-            :items=history
+            :headers="headers"
+            :items="history"
             :hide-default-footer="true"
             :items-per-page="history.length"
             @click:row="$emit('click', $event)"

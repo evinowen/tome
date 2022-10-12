@@ -1,11 +1,11 @@
 <template>
   <v-system-bar
     window
-    height=25
+    height="25"
     class="pa-0"
     style="user-select: none;"
   >
-    <v-btn tile icon small @click.stop=settings>
+    <v-btn tile icon small @click.stop="settings">
       <v-icon>{{ icon }}</v-icon>
     </v-btn>
     <v-spacer />

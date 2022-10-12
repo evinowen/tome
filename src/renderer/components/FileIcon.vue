@@ -5,10 +5,11 @@
     >
       {{ icon }}
     </v-icon>
-    <v-icon v-if="badge"
-            :key=path
-            :class="[ `file-icon-badge`, expanded ? 'file-icon-expanded' : '', modifier ]"
-            :color="alert ? 'red' : ''"
+    <v-icon
+      v-if="badge"
+      :key="path"
+      :class="[ `file-icon-badge`, expanded ? 'file-icon-expanded' : '', modifier ]"
+      :color="alert ? 'red' : ''"
     >
       {{ badge }}
     </v-icon>

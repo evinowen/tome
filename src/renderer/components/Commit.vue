@@ -1,43 +1,44 @@
 <template>
-  <v-navigation-drawer :value=system.commit fixed right stateless width="100%" style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px;" @input="$event || close">
+  <v-navigation-drawer :value="system.commit" fixed right stateless width="100%" style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px;" @input="$event || close">
     <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%; ">
         <div class="flex-grow-0">
           <div>
-            <v-btn tile icon class="float-right" color="black" @click.stop=close>
+            <v-btn tile icon class="float-right" color="black" @click.stop="close">
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
             <h1>Commit</h1>
           </div>
           <div style="clear: both" />
           <v-text-field
-            :value=system.signature.name
-            :placeholder=configuration.name
+            :value="system.signature.name"
+            :placeholder="configuration.name"
             label="Name"
             required
-            small persistent-placeholder @input=sign_name
+            small persistent-placeholder @input="sign_name"
           />
           <v-text-field
-            :value=system.signature.email
-            :placeholder=configuration.email
+            :value="system.signature.email"
+            :placeholder="configuration.email"
             label="E-mail"
             required
-            small persistent-placeholder @input=sign_email
+            small persistent-placeholder @input="sign_email"
           />
-          <v-textarea persistent-placeholder
-                      :value=system.signature.message
-                      :counter="50"
-                      label="Message"
-                      required
-                      clearable
-                      auto-grow
-                      rows=3
-                      class="message"
-                      @input=sign_message
+          <v-textarea
+            persistent-placeholder
+            :value="system.signature.message"
+            :counter="50"
+            label="Message"
+            required
+            clearable
+            auto-grow
+            rows="3"
+            class="message"
+            @input="sign_message"
           />
         </div>
 
-        <div ref="list" v-resize=resize class="flex-grow-1" style="min-height: 320px">
+        <div ref="list" v-resize="resize" class="flex-grow-1" style="min-height: 320px">
           <v-container fluid style="height: 0;">
             <v-row>
               <v-col style="width: 50vw">
@@ -45,9 +46,9 @@
                   title="Available"
                   :items="available"
                   icon="mdi-plus-thick"
-                  :height=offset
-                  @input=stage
-                  @click=diff
+                  :height="offset"
+                  @input="stage"
+                  @click="diff"
                 />
               </v-col>
 
@@ -56,9 +57,9 @@
                   title="Staged"
                   :items="staged"
                   icon="mdi-cancel"
-                  :height=offset
-                  @input=reset
-                  @click=diff
+                  :height="offset"
+                  @input="reset"
+                  @click="diff"
                 />
               </v-col>
             </v-row>
@@ -84,19 +85,19 @@
         <div ref="base" class="flex-grow-0 pb-3 actions">
           <v-divider class="mb-2" />
           <commit-confirm
-            :value=system.commit_confirm :name=repository.signature.name
-            :email=repository.signature.email
-            :message=repository.signature.message
+            :value="system.commit_confirm" :name="repository.signature.name"
+            :email="repository.signature.email"
+            :message="repository.signature.message"
             :disabled="staged.length === 0"
             :staging="staging"
             :waiting="working"
-            :push=system.commit_push
-            @input=confirm
-            @commit=commit
-            @push=push
-            @message=sign_message
+            :push="system.commit_push"
+            @input="confirm"
+            @commit="commit"
+            @push="push"
+            @message="sign_message"
           />
-          <v-btn color="warning" @click.stop=close>
+          <v-btn color="warning" @click.stop="close">
             <v-icon class="mr-2">
               mdi-cancel
             </v-icon>

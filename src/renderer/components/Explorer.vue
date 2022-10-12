@@ -1,33 +1,33 @@
 <template>
   <div class="explorer-root">
     <explorer-node
-      v-if=root
+      v-if="root"
       ref="explorer_root"
       root
-      :name=repository.name
-      :path=repository.path
-      :active=active
-      :edit=editing
-      :enabled=enabled
-      :title=configuration.format_titles
-      :format=format
-      :hold=hold
+      :name="repository.name"
+      :path="repository.path"
+      :active="active"
+      :edit="editing"
+      :enabled="enabled"
+      :title="configuration.format_titles"
+      :format="format"
+      :hold="hold"
       :relationship="''.concat(root.relationship)"
-      :children=root.children
-      :expanded=root.expanded
+      :children="root.children"
+      :expanded="root.expanded"
       @context="$emit('context', $event)"
-      @select=select
+      @select="select"
       @paste="$emit('paste', $event)"
-      @toggle=toggle
-      @open=open
-      @edit=edit
-      @submit=submit
-      @blur=blur
-      @drag=drag
-      @drop=drop
-      @create=create
-      @template=template
-      @action=action
+      @toggle="toggle"
+      @open="open"
+      @edit="edit"
+      @submit="submit"
+      @blur="blur"
+      @drag="drag"
+      @drop="drop"
+      @create="create"
+      @template="template"
+      @action="action"
     />
   </div>
 </template>

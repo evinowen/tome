@@ -1,74 +1,75 @@
 <template>
   <v-container v-show="visible" class="pa-0" style="user-select: none; clear: both;">
-    <div ref=draggable
-         class="explorer-node-drop"
-         droppable :draggable="!(root || system)"
-         @dragstart.stop=drag_start
-         @dragend.stop=drag_end
-         @dragenter.stop=drag_enter
-         @dragover.prevent.stop
-         @dragleave.stop=drag_leave
-         @drop.stop=drop
+    <div
+      ref="draggable"
+      class="explorer-node-drop"
+      droppable :draggable="!(root || system)"
+      @dragstart.stop="drag_start"
+      @dragend.stop="drag_end"
+      @dragenter.stop="drag_enter"
+      @dragover.prevent.stop
+      @dragleave.stop="drag_leave"
+      @drop.stop="drop"
     >
       <v-layout
         :class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
         @click.left.stop="$emit('select', { path })"
-        @click.right.stop=contextmenu
+        @click.right.stop="contextmenu"
       >
         <v-flex shrink class="explorer-node-indent" :style="{ width: `${depth * 6}px`}" />
         <file-icon
           class="mr-1"
-          :path=path
-          :directory=directory
-          :extension=extension
-          :image=image
-          :relationship=relationship
-          :expanded=expanded
-          :alert=alert
+          :path="path"
+          :directory="directory"
+          :extension="extension"
+          :image="image"
+          :relationship="relationship"
+          :expanded="expanded"
+          :alert="alert"
           @click="locked || $emit(directory ? 'toggle' : 'select', { path })"
         />
         <v-flex>
-          <v-form ref="form" v-model=valid>
+          <v-form ref="form" v-model="valid">
             <v-text-field
               v-show="(selected && edit)"
               ref="input"
-              v-model=input
+              v-model="input"
               dense small autofocus
-              :rules=rules
+              :rules="rules"
               @blur="$emit('blur')"
-              @focus=focus
+              @focus="focus"
               @input="error = null"
               @keyup.enter="valid ? submit() : null"
             />
             <v-text-field
               v-show="!(selected && edit)"
-              ref="input" :value=display readonly dense small class="pa-0" @click.left.stop="$emit('select', { path })"
+              ref="input" :value="display" readonly dense small class="pa-0" @click.left.stop="$emit('select', { path })"
             />
           </v-form>
         </v-flex>
       </v-layout>
     </div>
     <div style="height: 2px;" />
-    <v-container v-if=directory v-show=expanded class="explorer-node-container">
+    <v-container v-if="directory" v-show="expanded" class="explorer-node-container">
       <explorer-node
         v-for="child in children"
-        :key=child.uuid
-        :uuid=child.uuid
-        :ephemeral=child.ephemeral
-        :name=child.name
-        :path=child.path
-        :extension=child.extension
-        :image=child.image
+        :key="child.uuid"
+        :uuid="child.uuid"
+        :ephemeral="child.ephemeral"
+        :name="child.name"
+        :path="child.path"
+        :extension="child.extension"
+        :image="child.image"
         :relationship="''.concat(child.relationship)"
-        :children=child.children
-        :directory=child.directory
-        :expanded=child.expanded
+        :children="child.children"
+        :directory="child.directory"
+        :expanded="child.expanded"
 
-        :format=format
-        :active=active
-        :edit=edit
-        :enabled=enabled
-        :title=title
+        :format="format"
+        :active="active"
+        :edit="edit"
+        :enabled="enabled"
+        :title="title"
 
         :depth="depth + 1"
         v-on="$listeners"

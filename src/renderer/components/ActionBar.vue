@@ -3,20 +3,20 @@
     app
     class="pa-0"
     style="z-index: 1000;"
-    height=18
+    height="18"
   >
-    <library-button v-model=library :disabled="disabled_unless()" @open=open @close=close />
+    <library-button v-model="library" :disabled="disabled_unless()" @open="open" @close="close" />
 
     <v-divider inset vertical />
 
     <template v-if="repository.path">
       <repository-button
-        :name=repository.name
-        :path=repository.path
-        :readme=repository.metadata.readme
-        :authors=repository.metadata.authors
-        :contributors=repository.metadata.contributors
-        :license=repository.metadata.license
+        :name="repository.name"
+        :path="repository.path"
+        :readme="repository.metadata.readme"
+        :authors="repository.metadata.authors"
+        :contributors="repository.metadata.contributors"
+        :license="repository.metadata.license"
         :disabled="disabled_unless()"
       />
 
@@ -35,10 +35,11 @@
       <v-divider inset vertical />
     </template>
 
-    <v-btn tile icon small class="console button"
-           :disabled="disabled_unless(system.console || system.commit || system.push)"
-           :color="status === 'error' ? 'error' : ''"
-           @click.stop=console
+    <v-btn
+      tile icon small class="console button"
+      :disabled="disabled_unless(system.console || system.commit || system.push)"
+      :color="status === 'error' ? 'error' : ''"
+      @click.stop="console"
     >
       <v-icon small>
         {{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}
@@ -48,7 +49,7 @@
     <template v-if="repository.path">
       <v-divider inset vertical />
 
-      <v-switch action-bar-edit :value="edit" dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()" @click.stop=edit />
+      <v-switch action-bar-edit :value="edit" dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()" @click.stop="edit" />
 
       <v-divider inset vertical />
 
@@ -56,14 +57,14 @@
         <div v-show="system.edit" style="overflow: hidden; white-space: nowrap;">
           <div style="height: 18px">
             <!-- SAVE BUTTON -->
-            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" :disabled="disabled_unless(system.commit)" @click.stop=commit>
+            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" :disabled="disabled_unless(system.commit)" @click.stop="commit">
               <v-icon small>
                 mdi-content-save
               </v-icon>
             </v-btn>
 
             <!-- PUSH BUTTON -->
-            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" :disabled="disabled_unless(system.push)" @click.stop=push>
+            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" :disabled="disabled_unless(system.push)" @click.stop="push">
               <v-icon small>
                 mdi-upload-multiple
               </v-icon>
@@ -75,7 +76,7 @@
       <v-divider inset vertical />
 
       <!-- SEARCH BUTTON -->
-      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" :disabled="disabled_unless()" @click.stop=search>
+      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" :disabled="disabled_unless()" @click.stop="search">
         <v-icon small>
           mdi-magnify
         </v-icon>

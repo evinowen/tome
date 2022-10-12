@@ -26,10 +26,11 @@
         {{ obscured ? 'mdi-eye-off' : 'mdi-eye' }}
       </v-icon>
     </v-btn>
-    <v-btn v-if=storable
-           tile icon small style="height: auto;"
-           :disabled="stored === ''"
-           @click.stop="$emit('input', stored)"
+    <v-btn
+      v-if="storable"
+      tile icon small style="height: auto;"
+      :disabled="stored === ''"
+      @click.stop="$emit('input', stored)"
     >
       <v-icon small>
         mdi-cog

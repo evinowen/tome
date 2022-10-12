@@ -1,7 +1,7 @@
 <template>
-  <v-dialog :value=value persistent max-width="600px" @input="$emit('input', $event)">
+  <v-dialog :value="value" persistent max-width="600px" @input="$emit('input', $event)">
     <template #activator="{ on }">
-      <v-btn class="mr-4" :disabled=disabled v-on="on">
+      <v-btn class="mr-4" :disabled="disabled" v-on="on">
         <v-icon class="mr-2">
           mdi-upload-multiple
         </v-icon>
@@ -22,9 +22,9 @@
       </v-list-item>
       <v-container fluid class="pa-0 ma-0" style="min-height: 120px">
         <v-data-table
-          :headers=headers
-          :items=history
-          :items-per-page=history.length
+          :headers="headers"
+          :items="history"
+          :items-per-page="history.length"
           hide-default-footer
           dense disable-sort class="my-0 commit-history"
         >
@@ -39,11 +39,11 @@
         <v-btn
           ref="push_confirm"
           color="warning"
-          text :disabled=waiting
+          text :disabled="waiting"
           @click="$emit('push')"
         >
           <v-progress-circular
-            :indeterminate=waiting
+            :indeterminate="waiting"
             :size="12"
             :width="2"
             color="warning"
@@ -52,7 +52,7 @@
           Proceed
         </v-btn>
         <v-spacer />
-        <v-btn color="darken-1" text :disabled=waiting @click="$emit('input', false)">
+        <v-btn color="darken-1" text :disabled="waiting" @click="$emit('input', false)">
           <v-icon class="mr-2">
             mdi-exit-to-app
           </v-icon>

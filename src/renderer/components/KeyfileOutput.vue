@@ -2,15 +2,15 @@
   <v-layout class="key-border pt-1">
     <v-flex class="pa-1">
       <v-text-field
-        :value="value || ' '" :label=label
+        :value="value || ' '" :label="label"
         class="key-output"
         readonly outlined hide-details
       />
     </v-flex>
     <v-btn
-      tile icon :small=small style="height: auto;"
+      tile icon :small="small" style="height: auto;"
       :disabled="value === ''"
-      @click.stop=copy
+      @click.stop="copy"
     >
       <v-icon small>
         mdi-content-copy

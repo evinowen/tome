@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-shortkey.once="['esc']" @shortkey=escape />
+    <div v-shortkey.once="['esc']" @shortkey="escape" />
     <div v-shortkey.once="['ctrl', '`']" @shortkey="layer('console')" />
     <div v-shortkey.once="['ctrl', 'e']" @shortkey="layer('edit')" />
     <div v-shortkey.once="['ctrl', 's']" @shortkey="layer('commit')" />

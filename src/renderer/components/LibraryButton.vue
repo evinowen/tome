@@ -1,12 +1,12 @@
 <template>
-  <v-menu :value=value @input="$emit('input', $event)">
+  <v-menu :value="value" @input="$emit('input', $event)">
     <template #activator="{ on, attrs }">
-      <v-btn v-if="repository.path" action-bar-bookshelf tile icon small color="accent" class="pa-0" v-bind="attrs" :disabled=disabled @click.stop=close>
+      <v-btn v-if="repository.path" action-bar-bookshelf tile icon small color="accent" class="pa-0" v-bind="attrs" :disabled="disabled" @click.stop="close">
         <v-icon small style="transform: rotate(180deg);">
           mdi-exit-to-app
         </v-icon>
       </v-btn>
-      <v-btn v-else action-bar-bookshelf tile icon small color="accent" class="pa-0" v-bind="attrs" :disabled=disabled v-on="on">
+      <v-btn v-else action-bar-bookshelf tile icon small color="accent" class="pa-0" v-bind="attrs" :disabled="disabled" v-on="on">
         <v-icon small>
           mdi-bookshelf
         </v-icon>
@@ -14,10 +14,11 @@
     </template>
 
     <v-list dense>
-      <v-list-item v-for="(item, index) in library.history"
-                   :key="index"
-                   dense
-                   @click="open(item)"
+      <v-list-item
+        v-for="(item, index) in library.history"
+        :key="index"
+        dense
+        @click="open(item)"
       >
         <v-icon small class="mr-1">
           mdi-book
@@ -25,7 +26,7 @@
         <v-list-item-title>{{ item }}</v-list-item-title>
       </v-list-item>
       <v-divider />
-      <v-list-item @click=select>
+      <v-list-item @click="select">
         <v-icon small class="mr-1">
           mdi-folder-open
         </v-icon>

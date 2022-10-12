@@ -1,10 +1,10 @@
 <template>
-  <v-navigation-drawer :value=value fixed right stateless width="100%" style="z-index: 110; max-width: 900px; height: auto; top: 25px; bottom: 18px;" @input="$event || close">
+  <v-navigation-drawer :value="value" fixed right stateless width="100%" style="z-index: 110; max-width: 900px; height: auto; top: 25px; bottom: 18px;" @input="$event || close">
     <v-container fluid class="pb-0" style="height: 100%;">
       <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%;">
         <div class="flex-grow-0">
           <div>
-            <v-btn tile icon class="float-right" color="black" @click.stop=close>
+            <v-btn tile icon class="float-right" color="black" @click.stop="close">
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
             <h1>Branch</h1>
@@ -15,11 +15,11 @@
         <div class="flex-grow-1 mb-3">
           <v-data-table
             dense disable-sort class="my-0 commit-history"
-            :headers=headers
-            :items=repository.history
+            :headers="headers"
+            :items="repository.history"
             :hide-default-footer="true"
             :items-per-page="repository.history.length"
-            @click:row=diff
+            @click:row="diff"
           >
             <template #item.oid="{ item }">
               <v-btn tile icon x-small color="success">
@@ -34,7 +34,7 @@
 
         <div ref="base" class="flex-grow-0 pb-3 actions">
           <v-divider class="mt-0 mb-2" />
-          <v-btn small color="primary" @click.stop=close>
+          <v-btn small color="primary" @click.stop="close">
             Done
           </v-btn>
         </div>

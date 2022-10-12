@@ -12,7 +12,7 @@
           <v-list-item-subtitle>Et tortor consequat id porta nibh venenatis cras.</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
-      <v-text-field class="mb-2" counter=24 clearable hint="Take a hint." :error=error>
+      <v-text-field class="mb-2" counter="24" clearable hint="Take a hint." :error="error">
         User Input
       </v-text-field>
       <div class="text-preview px-2">
@@ -35,14 +35,14 @@
           pharetra et ultrices neque ornare aenean euismod. Sem nulla pharetra diam sit amet. Eu feugiat pretium nibh ipsum consequat.
         </p>
       </div>
-      <v-switch v-model=error dense class="mt-2" label="Error" color="error" hide-details />
+      <v-switch v-model="error" dense class="mt-2" label="Error" color="error" hide-details />
     </v-card-text>
     <v-card-actions>
-      <v-btn color="accent" :disabled=error>
+      <v-btn color="accent" :disabled="error">
         Learn More
       </v-btn>
       <v-spacer />
-      <v-btn color="success" :disabled=error>
+      <v-btn color="success" :disabled="error">
         Confirm
       </v-btn>
       <v-btn color="warning">

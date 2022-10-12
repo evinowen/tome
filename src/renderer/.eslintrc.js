@@ -36,11 +36,8 @@ module.exports = {
     'vue/prop-name-casing': 'off',
     'vue/order-in-components': 'off',
     'vue/component-tags-order': 'off',
-    'vue/html-quotes': 'off',
     'vue/max-attributes-per-line': 'off',
-    'vue/no-v-html': 'off',
-    'vue/valid-v-slot': 'off',
-    'vue/first-attribute-linebreak': 'off',
+    'vue/valid-v-slot': ['error', { allowModifiers: true }],
     'vue/multi-word-component-names': 'off'
   }
 }

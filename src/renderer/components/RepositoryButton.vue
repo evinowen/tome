@@ -1,13 +1,14 @@
 <template>
-  <v-menu tile top offset-y
-          :value=value transition="slide-y-reverse-transition"
-          content-class="menu"
-          :close-on-content-click="false"
-          width="50%"
-          @input="value = !value"
+  <v-menu
+    tile top offset-y
+    :value="value" transition="slide-y-reverse-transition"
+    content-class="menu"
+    :close-on-content-click="false"
+    width="50%"
+    @input="value = !value"
   >
     <template #activator="{ on, attrs }">
-      <v-btn tile small class="button pa-0 px-2" v-bind="attrs" :disabled=disabled v-on="on">
+      <v-btn tile small class="button pa-0 px-2" v-bind="attrs" :disabled="disabled" v-on="on">
         {{ name }}
       </v-btn>
     </template>

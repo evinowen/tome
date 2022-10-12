@@ -1,5 +1,5 @@
 <template>
-  <v-card class="text-center" :loading=loading :disabled=disabled>
+  <v-card class="text-center" :loading="loading" :disabled="disabled">
     <v-card-text>
       <div class="title text--primary">
         {{ url || '&mdash;' }}

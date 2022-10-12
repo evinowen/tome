@@ -1,5 +1,5 @@
 <template>
-  <v-card v-resize=resize style="position: relative">
+  <v-card v-resize="resize" style="position: relative">
     <v-card-title class="pa-2">
       {{ title }}
     </v-card-title>
@@ -14,7 +14,7 @@
         :headers="headers"
         :items="items"
         :sort-by="['file']"
-        :items-per-page=items.length
+        :items-per-page="items.length"
         class="my-2"
         @click:row="$emit('click', $event)"
       >
