@@ -1,14 +1,24 @@
 <template>
   <v-menu
-    tile top offset-y
-    :value="value" transition="slide-y-reverse-transition"
+    tile
+    top
+    offset-y
+    :value="value"
+    transition="slide-y-reverse-transition"
     content-class="menu"
     :close-on-content-click="false"
     width="50%"
     @input="value = !value"
   >
     <template #activator="{ on, attrs }">
-      <v-btn tile small class="button pa-0 px-2" v-bind="attrs" :disabled="disabled" v-on="on">
+      <v-btn
+        tile
+        small
+        class="button pa-0 px-2"
+        v-bind="attrs"
+        :disabled="disabled"
+        v-on="on"
+      >
         {{ name }}
       </v-btn>
     </template>
@@ -17,20 +27,36 @@
       <v-card-title>{{ name }}</v-card-title>
       <v-card-subtitle>{{ path }}</v-card-subtitle>
       <v-card-actions>
-        <v-btn text :disabled="!license" @click="open(license)">
+        <v-btn
+          text
+          :disabled="!license"
+          @click="open(license)"
+        >
           License
         </v-btn>
       </v-card-actions>
       <v-divider />
       <v-card-actions>
-        <v-btn text :disabled="!readme" @click="open(readme)">
+        <v-btn
+          text
+          :disabled="!readme"
+          @click="open(readme)"
+        >
           Read Me
         </v-btn>
         <v-spacer />
-        <v-btn text :disabled="!authors" @click="open(authors)">
+        <v-btn
+          text
+          :disabled="!authors"
+          @click="open(authors)"
+        >
           Authors
         </v-btn>
-        <v-btn text :disabled="!contributors" @click="open(contributors)">
+        <v-btn
+          text
+          :disabled="!contributors"
+          @click="open(contributors)"
+        >
           Contributors
         </v-btn>
       </v-card-actions>

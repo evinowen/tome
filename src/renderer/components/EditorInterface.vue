@@ -1,15 +1,31 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <split-pane :min-percent="5" :default-percent="25" split="vertical">
+  <split-pane
+    :min-percent="5"
+    :default-percent="25"
+    split="vertical"
+  >
     <template slot="paneL">
-      <div class="fit" style="overflow-y: overlay;">
-        <explorer ref="explorer" :enabled="explore" />
+      <div
+        class="fit"
+        style="overflow-y: overlay;"
+      >
+        <explorer
+          ref="explorer"
+          :enabled="explore"
+        />
       </div>
     </template>
 
     <template slot="paneR">
-      <div v-show="active" class="fit">
-        <div v-show="view === 'rendered'" class="fill-height">
+      <div
+        v-show="active"
+        class="fit"
+      >
+        <div
+          v-show="view === 'rendered'"
+          class="fill-height"
+        >
           <div
             id="editor-interface-rendered"
             ref="rendered"
@@ -18,7 +34,10 @@
             v-html="rendered"
           />
         </div>
-        <div v-show="view === 'edit'" class="fill-height">
+        <div
+          v-show="view === 'edit'"
+          class="fill-height"
+        >
           <codemirror
             ref="editor"
             :options="codemirror_options"
@@ -26,10 +45,19 @@
             @contextmenu="(cm, event) => contextmenu(event)"
           />
         </div>
-        <div v-show="view === 'empty'" class="fill-height">
+        <div
+          v-show="view === 'empty'"
+          class="fill-height"
+        >
           <template v-if="selected">
-            <image-preview v-if="selected.image" :src="selected.path" />
-            <empty-pane v-else class="fill-height">
+            <image-preview
+              v-if="selected.image"
+              :src="selected.path"
+            />
+            <empty-pane
+              v-else
+              class="fill-height"
+            >
               <file-icon
                 :path="selected.path"
                 :directory="selected.directory"
@@ -40,7 +68,10 @@
                 size="large"
                 disabled
               />
-              <v-divider v-if="selected.name" class="mt-4" />
+              <v-divider
+                v-if="selected.name"
+                class="mt-4"
+              />
               <div style="font-size: 2em;">
                 {{ selected.name }}
               </div>

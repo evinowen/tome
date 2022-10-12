@@ -1,22 +1,41 @@
 <template>
-  <v-layout style="height: 100%;" @click.stop="click">
-    <v-flex ref="sea" grow class="sea">
-      <div ref="boat" class="boat">
+  <v-layout
+    style="height: 100%;"
+    @click.stop="click"
+  >
+    <v-flex
+      ref="sea"
+      grow
+      class="sea"
+    >
+      <div
+        ref="boat"
+        class="boat"
+      >
         <v-icon>mdi-sail-boat</v-icon>
       </div>
-      <div ref="cannon_ball" class="cannon_ball">
+      <div
+        ref="cannon_ball"
+        class="cannon_ball"
+      >
         <v-icon>
           {{ cannon.ball.sunk ? '' : 'mdi-circle-small' }}
         </v-icon>
       </div>
-      <div ref="cannon_splash" :class="['splash', cannon.splash.splashing ? 'splashing' : '' ]">
+      <div
+        ref="cannon_splash"
+        :class="['splash', cannon.splash.splashing ? 'splashing' : '' ]"
+      >
         <div style="position: relative">
           <v-icon class="splash-outline">
             {{ 'mdi-circle-outline' }}
           </v-icon>
         </div>
       </div>
-      <div ref="distance" :class="['distance', cannon.distance.show ? 'visible' : '' ]">
+      <div
+        ref="distance"
+        :class="['distance', cannon.distance.show ? 'visible' : '' ]"
+      >
         {{ cannon.distance.value.toFixed(2) }}m
       </div>
     </v-flex>

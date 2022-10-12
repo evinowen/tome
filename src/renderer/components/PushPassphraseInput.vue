@@ -5,12 +5,17 @@
         :value="value"
         :type="obscured ? 'password' : 'text'"
         outlined
-        hide-details dense label="passphrase"
+        hide-details
+        dense
+        label="passphrase"
         @input="$emit('input', $event)"
       />
     </v-flex>
     <v-btn
-      tile icon small style="height: auto;"
+      tile
+      icon
+      small
+      style="height: auto;"
       :disabled="value === ''"
       @click.stop="$emit('input', '')"
     >
@@ -19,7 +24,10 @@
       </v-icon>
     </v-btn>
     <v-btn
-      tile icon small style="height: auto;"
+      tile
+      icon
+      small
+      style="height: auto;"
       @click.stop="obscured = !obscured"
     >
       <v-icon small>
@@ -28,7 +36,10 @@
     </v-btn>
     <v-btn
       v-if="storable"
-      tile icon small style="height: auto;"
+      tile
+      icon
+      small
+      style="height: auto;"
       :disabled="stored === ''"
       @click.stop="$emit('input', stored)"
     >

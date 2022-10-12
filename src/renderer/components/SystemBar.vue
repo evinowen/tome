@@ -5,19 +5,45 @@
     class="pa-0"
     style="user-select: none;"
   >
-    <v-btn tile icon small @click.stop="settings">
+    <v-btn
+      tile
+      icon
+      small
+      @click.stop="settings"
+    >
       <v-icon>{{ icon }}</v-icon>
     </v-btn>
     <v-spacer />
-    <span system-bar-title :style="{ opacity: (title ? 1 : 0.4)}">{{ title || 'tome' }}</span>
+    <span
+      system-bar-title
+      :style="{ opacity: (title ? 1 : 0.4)}"
+    >{{ title || 'tome' }}</span>
     <v-spacer />
-    <v-btn tile icon small system-bar-minimize @click.stop="minimize">
+    <v-btn
+      tile
+      icon
+      small
+      system-bar-minimize
+      @click.stop="minimize"
+    >
       <v-icon>mdi-window-minimize</v-icon>
     </v-btn>
-    <v-btn tile icon small system-bar-maximize @click.stop="maximize">
+    <v-btn
+      tile
+      icon
+      small
+      system-bar-maximize
+      @click.stop="maximize"
+    >
       <v-icon>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
     </v-btn>
-    <v-btn tile icon small system-bar-close @click.stop="exit">
+    <v-btn
+      tile
+      icon
+      small
+      system-bar-close
+      @click.stop="exit"
+    >
       <v-icon>mdi-window-close</v-icon>
     </v-btn>
   </v-system-bar>

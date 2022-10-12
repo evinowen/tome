@@ -1,10 +1,31 @@
 <template>
-  <v-navigation-drawer :value="system.commit" fixed right stateless width="100%" style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px;" @input="$event || close">
-    <v-container fluid class="pb-0" style="height: 100%;">
-      <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%; ">
+  <v-navigation-drawer
+    :value="system.commit"
+    fixed
+    right
+    stateless
+    width="100%"
+    style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px;"
+    @input="$event || close"
+  >
+    <v-container
+      fluid
+      class="pb-0"
+      style="height: 100%;"
+    >
+      <div
+        class="d-flex flex-column align-stretch flex-grow-0"
+        style="height: 100%; "
+      >
         <div class="flex-grow-0">
           <div>
-            <v-btn tile icon class="float-right" color="black" @click.stop="close">
+            <v-btn
+              tile
+              icon
+              class="float-right"
+              color="black"
+              @click.stop="close"
+            >
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
             <h1>Commit</h1>
@@ -15,14 +36,18 @@
             :placeholder="configuration.name"
             label="Name"
             required
-            small persistent-placeholder @input="sign_name"
+            small
+            persistent-placeholder
+            @input="sign_name"
           />
           <v-text-field
             :value="system.signature.email"
             :placeholder="configuration.email"
             label="E-mail"
             required
-            small persistent-placeholder @input="sign_email"
+            small
+            persistent-placeholder
+            @input="sign_email"
           />
           <v-textarea
             persistent-placeholder
@@ -38,8 +63,16 @@
           />
         </div>
 
-        <div ref="list" v-resize="resize" class="flex-grow-1" style="min-height: 320px">
-          <v-container fluid style="height: 0;">
+        <div
+          ref="list"
+          v-resize="resize"
+          class="flex-grow-1"
+          style="min-height: 320px"
+        >
+          <v-container
+            fluid
+            style="height: 0;"
+          >
             <v-row>
               <v-col style="width: 50vw">
                 <commit-list
@@ -66,26 +99,43 @@
           </v-container>
         </div>
 
-        <div ref="base" class="flex-grow-0 pb-3">
+        <div
+          ref="base"
+          class="flex-grow-0 pb-3"
+        >
           <v-container fluid>
             <v-row>
               <v-col>
-                <v-btn ref="stage" tile :disabled="available.length === 0" @click.stop="stage('*')">
+                <v-btn
+                  ref="stage"
+                  tile
+                  :disabled="available.length === 0"
+                  @click.stop="stage('*')"
+                >
                   Stage All
                 </v-btn>
               </v-col>
               <v-col>
-                <v-btn ref="reset" tile :disabled="staged.length === 0" @click.stop="reset('*')">
+                <v-btn
+                  ref="reset"
+                  tile
+                  :disabled="staged.length === 0"
+                  @click.stop="reset('*')"
+                >
                   Reset All
                 </v-btn>
               </v-col>
             </v-row>
           </v-container>
         </div>
-        <div ref="base" class="flex-grow-0 pb-3 actions">
+        <div
+          ref="base"
+          class="flex-grow-0 pb-3 actions"
+        >
           <v-divider class="mb-2" />
           <commit-confirm
-            :value="system.commit_confirm" :name="repository.signature.name"
+            :value="system.commit_confirm"
+            :name="repository.signature.name"
             :email="repository.signature.email"
             :message="repository.signature.message"
             :disabled="staged.length === 0"
@@ -97,7 +147,10 @@
             @push="push"
             @message="sign_message"
           />
-          <v-btn color="warning" @click.stop="close">
+          <v-btn
+            color="warning"
+            @click.stop="close"
+          >
             <v-icon class="mr-2">
               mdi-cancel
             </v-icon>

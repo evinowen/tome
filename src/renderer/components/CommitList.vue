@@ -1,5 +1,8 @@
 <template>
-  <v-card v-resize="resize" style="position: relative">
+  <v-card
+    v-resize="resize"
+    style="position: relative"
+  >
     <v-card-title class="pa-2">
       {{ title }}
     </v-card-title>
@@ -19,8 +22,16 @@
         @click:row="$emit('click', $event)"
       >
         <template #item.type="{ item }">
-          <v-btn tile icon x-small :color="file_color(item.type)">
-            <v-icon small class="mr-1">
+          <v-btn
+            tile
+            icon
+            x-small
+            :color="file_color(item.type)"
+          >
+            <v-icon
+              small
+              class="mr-1"
+            >
               {{ file_icon(item.type) }}
             </v-icon>
             {{ file_type(item.type) }}
@@ -28,7 +39,12 @@
         </template>
 
         <template #item.action="{ item }">
-          <v-btn tile icon x-small @click.stop="$emit('input', item.path)">
+          <v-btn
+            tile
+            icon
+            x-small
+            @click.stop="$emit('input', item.path)"
+          >
             <v-icon>{{ icon }}</v-icon>
           </v-btn>
         </template>

@@ -1,7 +1,16 @@
 <template>
-  <v-dialog :value="value" persistent max-width="600px" @input="$emit('input', $event)">
+  <v-dialog
+    :value="value"
+    persistent
+    max-width="600px"
+    @input="$emit('input', $event)"
+  >
     <template #activator="{ on }">
-      <v-btn class="mr-4" :disabled="disabled" v-on="on">
+      <v-btn
+        class="mr-4"
+        :disabled="disabled"
+        v-on="on"
+      >
         <v-icon class="mr-2">
           mdi-content-save
         </v-icon>
@@ -19,7 +28,10 @@
           color="warning"
           class="mr-4"
         />
-        <v-list-item-avatar v-else color="warning">
+        <v-list-item-avatar
+          v-else
+          color="warning"
+        >
           <v-icon>mdi-hammer-wrench</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
@@ -33,7 +45,13 @@
       <v-divider />
 
       <v-card-text class="commit">
-        <v-textarea class="pa-0 ma-0" counter="50" :value="message" no-resize @input="$emit('message', $event)" />
+        <v-textarea
+          class="pa-0 ma-0"
+          counter="50"
+          :value="message"
+          no-resize
+          @input="$emit('message', $event)"
+        />
       </v-card-text>
 
       <v-container class="py-0 px-4">
@@ -48,7 +66,8 @@
         <v-btn
           ref="commit"
           color="warning"
-          text :disabled="staging || waiting"
+          text
+          :disabled="staging || waiting"
           @click="$emit('commit')"
         >
           <v-progress-circular
@@ -61,13 +80,23 @@
           Proceed
         </v-btn>
         <v-spacer />
-        <v-btn :depressed="push" :color="push ? 'warning' : ''" text @click="$emit('push', !push)">
+        <v-btn
+          :depressed="push"
+          :color="push ? 'warning' : ''"
+          text
+          @click="$emit('push', !push)"
+        >
           <v-icon class="mr-2">
             {{ push ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
           </v-icon>
           Push
         </v-btn>
-        <v-btn color="darken-1" text :disabled="waiting" @click="$emit('input', false)">
+        <v-btn
+          color="darken-1"
+          text
+          :disabled="waiting"
+          @click="$emit('input', false)"
+        >
           <v-icon class="mr-2">
             mdi-exit-to-app
           </v-icon>

@@ -1,18 +1,30 @@
 <template>
   <v-layout class="key-border pt-1">
     <v-flex class="pa-1">
-      <input ref="input" type="file" style="display: none" @change="input">
+      <input
+        ref="input"
+        type="file"
+        style="display: none"
+        @change="input"
+      >
       <v-text-field
-        :value="value || ' '" :label="label"
+        :value="value || ' '"
+        :label="label"
         :class="[ value ? 'v-text-field-green' : 'v-text-field-red' ]"
         :color="value ? 'green' : 'red'"
         :prepend-inner-icon="value ? 'mdi-lock-open' : 'mdi-lock'"
         readonly
-        outlined hide-details dense @click.stop="$refs.input.click()"
+        outlined
+        hide-details
+        dense
+        @click.stop="$refs.input.click()"
       />
     </v-flex>
     <v-btn
-      tile icon :small="small" style="height: auto;"
+      tile
+      icon
+      :small="small"
+      style="height: auto;"
       :disabled="value === ''"
       @click.stop="$emit('input', '')"
     >
@@ -22,7 +34,10 @@
     </v-btn>
     <v-btn
       v-if="forge"
-      tile icon :small="small" style="height: auto;"
+      tile
+      icon
+      :small="small"
+      style="height: auto;"
       :disabled="value !== ''"
       @click.stop="$emit('forge')"
     >
@@ -32,7 +47,10 @@
     </v-btn>
     <v-btn
       v-if="storable"
-      tile icon :small="small" style="height: auto;"
+      tile
+      icon
+      :small="small"
+      style="height: auto;"
       :disabled="stored === ''"
       @click.stop="$emit('input', stored)"
     >

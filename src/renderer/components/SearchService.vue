@@ -1,14 +1,36 @@
 <template>
   <div class="search-container">
     <v-toolbar class="search-box">
-      <v-item-group dense multiple class="search-buttons">
-        <v-btn small tile :depressed="multifile" :color="multifile ? 'primary' : ''" @click="flag('multifile', !multifile)">
+      <v-item-group
+        dense
+        multiple
+        class="search-buttons"
+      >
+        <v-btn
+          small
+          tile
+          :depressed="multifile"
+          :color="multifile ? 'primary' : ''"
+          @click="flag('multifile', !multifile)"
+        >
           <v-icon>mdi-file-multiple</v-icon>
         </v-btn>
-        <v-btn small tile :depressed="case_sensitive" :color="case_sensitive ? 'primary' : ''" @click="flag('case_sensitive', !case_sensitive)">
+        <v-btn
+          small
+          tile
+          :depressed="case_sensitive"
+          :color="case_sensitive ? 'primary' : ''"
+          @click="flag('case_sensitive', !case_sensitive)"
+        >
           <v-icon>mdi-format-letter-case</v-icon>
         </v-btn>
-        <v-btn small tile :depressed="regex_query" :color="regex_query ? 'primary' : ''" @click="flag('regex_query', !regex_query)">
+        <v-btn
+          small
+          tile
+          :depressed="regex_query"
+          :color="regex_query ? 'primary' : ''"
+          @click="flag('regex_query', !regex_query)"
+        >
           <v-icon>mdi-regex</v-icon>
         </v-btn>
       </v-item-group>
@@ -23,18 +45,37 @@
             single-line
             hide-details
             :prepend-icon="regex_query ? 'mdi-slash-forward' : ' '"
-            :append-outer-icon="regex_query ? 'mdi-slash-forward' : ' '" @input="debounce_update" @click:clear="debounce_clear"
+            :append-outer-icon="regex_query ? 'mdi-slash-forward' : ' '"
+            @input="debounce_update"
+            @click:clear="debounce_clear"
             @keydown.enter="next"
             @keydown.esc="$emit('close')"
           />
         </v-flex>
       </v-layout>
-      <div v-if="navigation" class="search-navigation">
-        <v-item-group dense multiple class="search-buttons">
-          <v-btn small tile :disabled="!query" @click="previous">
+      <div
+        v-if="navigation"
+        class="search-navigation"
+      >
+        <v-item-group
+          dense
+          multiple
+          class="search-buttons"
+        >
+          <v-btn
+            small
+            tile
+            :disabled="!query"
+            @click="previous"
+          >
             <v-icon>mdi-chevron-left</v-icon>
           </v-btn>
-          <v-btn small tile :disabled="!query" @click="next">
+          <v-btn
+            small
+            tile
+            :disabled="!query"
+            @click="next"
+          >
             <v-icon>mdi-chevron-right</v-icon>
           </v-btn>
         </v-item-group>
@@ -44,12 +85,18 @@
     <v-expand-transition>
       <div v-show="multifile">
         <div class="search-results">
-          <div v-for="result in results" :key="result.path.relative">
+          <div
+            v-for="result in results"
+            :key="result.path.relative"
+          >
             <v-layout
               class="search-file"
               @click="select(result.path.absolute, 1, result.matches.length)"
             >
-              <v-icon small class="pr-1">
+              <v-icon
+                small
+                class="pr-1"
+              >
                 {{ result.directory ? 'mdi-folder' : 'mdi-file' }}
               </v-icon>
               <v-flex grow>
@@ -58,7 +105,8 @@
               <small>{{ result.path.absolute }}</small>
             </v-layout>
             <v-layout
-              v-for="(match, index) in result.matches" :key="match.index"
+              v-for="(match, index) in result.matches"
+              :key="match.index"
               class="search-result"
               @click="select(result.path.absolute, index + 1, result.matches.length)"
             >

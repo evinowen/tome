@@ -5,9 +5,17 @@
     style="z-index: 1000;"
     height="18"
   >
-    <library-button v-model="library" :disabled="disabled_unless()" @open="open" @close="close" />
+    <library-button
+      v-model="library"
+      :disabled="disabled_unless()"
+      @open="open"
+      @close="close"
+    />
 
-    <v-divider inset vertical />
+    <v-divider
+      inset
+      vertical
+    />
 
     <template v-if="repository.path">
       <repository-button
@@ -20,23 +28,50 @@
         :disabled="disabled_unless()"
       />
 
-      <v-divider inset vertical />
+      <v-divider
+        inset
+        vertical
+      />
 
-      <v-btn v-if="repository.branch" tile small class="button px-2" color="primary" :disabled="disabled_unless(system.branch)" @click.stop="branch">
+      <v-btn
+        v-if="repository.branch"
+        tile
+        small
+        class="button px-2"
+        color="primary"
+        :disabled="disabled_unless(system.branch)"
+        @click.stop="branch"
+      >
         {{ repository.branch }}
       </v-btn>
-      <v-btn v-else-if="repository.branch.error" tile small icon class="button pl-1 pr-2" color="error">
-        <v-icon small class="pr-1">
+      <v-btn
+        v-else-if="repository.branch.error"
+        tile
+        small
+        icon
+        class="button pl-1 pr-2"
+        color="error"
+      >
+        <v-icon
+          small
+          class="pr-1"
+        >
           mdi-alert-box
         </v-icon>
         {{ repository.branch.error }}
       </v-btn>
 
-      <v-divider inset vertical />
+      <v-divider
+        inset
+        vertical
+      />
     </template>
 
     <v-btn
-      tile icon small class="console button"
+      tile
+      icon
+      small
+      class="console button"
       :disabled="disabled_unless(system.console || system.commit || system.push)"
       :color="status === 'error' ? 'error' : ''"
       @click.stop="console"
@@ -47,24 +82,61 @@
     </v-btn>
 
     <template v-if="repository.path">
-      <v-divider inset vertical />
+      <v-divider
+        inset
+        vertical
+      />
 
-      <v-switch action-bar-edit :value="edit" dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()" @click.stop="edit" />
+      <v-switch
+        action-bar-edit
+        :value="edit"
+        dense
+        x-small
+        inset
+        hide-details
+        class="edit_switch"
+        :disabled="disabled_unless()"
+        @click.stop="edit"
+      />
 
-      <v-divider inset vertical />
+      <v-divider
+        inset
+        vertical
+      />
 
       <v-expand-x-transition>
-        <div v-show="system.edit" style="overflow: hidden; white-space: nowrap;">
+        <div
+          v-show="system.edit"
+          style="overflow: hidden; white-space: nowrap;"
+        >
           <div style="height: 18px">
             <!-- SAVE BUTTON -->
-            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" :disabled="disabled_unless(system.commit)" @click.stop="commit">
+            <v-btn
+              action-bar-commit
+              tile
+              small
+              icon
+              color="primary"
+              class="button pa-0"
+              :disabled="disabled_unless(system.commit)"
+              @click.stop="commit"
+            >
               <v-icon small>
                 mdi-content-save
               </v-icon>
             </v-btn>
 
             <!-- PUSH BUTTON -->
-            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" :disabled="disabled_unless(system.push)" @click.stop="push">
+            <v-btn
+              action-bar-push
+              tile
+              small
+              icon
+              color="primary"
+              class="button pa-0"
+              :disabled="disabled_unless(system.push)"
+              @click.stop="push"
+            >
               <v-icon small>
                 mdi-upload-multiple
               </v-icon>
@@ -73,10 +145,22 @@
         </div>
       </v-expand-x-transition>
 
-      <v-divider inset vertical />
+      <v-divider
+        inset
+        vertical
+      />
 
       <!-- SEARCH BUTTON -->
-      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" :disabled="disabled_unless()" @click.stop="search">
+      <v-btn
+        action-bar-search
+        tile
+        small
+        icon
+        color="primary"
+        class="button pa-0"
+        :disabled="disabled_unless()"
+        @click.stop="search"
+      >
         <v-icon small>
           mdi-magnify
         </v-icon>

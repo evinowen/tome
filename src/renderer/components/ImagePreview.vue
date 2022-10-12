@@ -3,7 +3,13 @@
     ref="preview"
     :class="[ 'image-preview', zoom ? 'image-preview-zoom' : '' ]"
   >
-    <file-icon v-if="hide" size="large" image alert disabled />
+    <file-icon
+      v-if="hide"
+      size="large"
+      image
+      alert
+      disabled
+    />
     <img
       v-else
       :src="src"

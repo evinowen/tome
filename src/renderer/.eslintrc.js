@@ -34,7 +34,6 @@ module.exports = {
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     'vue/prop-name-casing': ['error', 'snake_case'],
-    'vue/max-attributes-per-line': 'off',
     'vue/valid-v-slot': ['error', { allowModifiers: true }],
     'vue/multi-word-component-names': 'off'
   }

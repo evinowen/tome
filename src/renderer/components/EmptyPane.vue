@@ -1,6 +1,13 @@
 <template>
-  <v-container fill-height fluid class="view">
-    <v-row align="center" justify="center">
+  <v-container
+    fill-height
+    fluid
+    class="view"
+  >
+    <v-row
+      align="center"
+      justify="center"
+    >
       <v-col class="text-center">
         <slot />
       </v-col>

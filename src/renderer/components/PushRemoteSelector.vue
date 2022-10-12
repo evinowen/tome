@@ -1,5 +1,8 @@
 <template>
-  <v-card dense class="my-2">
+  <v-card
+    dense
+    class="my-2"
+  >
     <v-card-title class="pa-2">
       Remote
     </v-card-title>
@@ -11,7 +14,9 @@
         item-value="name"
         label="Remote"
         dense
-        clearable class="mt-4" @change="$emit('input', $event)"
+        clearable
+        class="mt-4"
+        @change="$emit('input', $event)"
       >
         <template #selection="data">
           {{ data.item.name }}
@@ -24,7 +29,11 @@
           {{ data.item.url }}
         </template>
         <template #append-outer>
-          <v-btn icon :color="edit ? 'warning' : 'darken-1'" @click.stop="edit = !edit">
+          <v-btn
+            icon
+            :color="edit ? 'warning' : 'darken-1'"
+            @click.stop="edit = !edit"
+          >
             <v-icon>mdi-square-edit-outline</v-icon>
           </v-btn>
         </template>
@@ -32,25 +41,44 @@
     </v-card-actions>
 
     <v-expand-transition>
-      <div v-show="edit" class="px-6">
+      <div
+        v-show="edit"
+        class="px-6"
+      >
         <form>
-          <v-row dense background="red">
-            <v-col cols="12" sm="3">
+          <v-row
+            dense
+            background="red"
+          >
+            <v-col
+              cols="12"
+              sm="3"
+            >
               <v-text-field
                 v-model="form.name"
                 label="Name"
-                required dense
+                required
+                dense
               />
             </v-col>
-            <v-col cols="12" sm="9">
+            <v-col
+              cols="12"
+              sm="9"
+            >
               <v-text-field
                 v-model="form.url"
                 label="URL"
-                required dense
+                required
+                dense
                 append-outer-icon="mdi-plus-thick"
               >
                 <template #append-outer>
-                  <v-btn ref="create" icon color="success" @click.stop="create">
+                  <v-btn
+                    ref="create"
+                    icon
+                    color="success"
+                    @click.stop="create"
+                  >
                     <v-icon>mdi-plus-thick</v-icon>
                   </v-btn>
                 </template>

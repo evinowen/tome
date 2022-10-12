@@ -1,28 +1,54 @@
 <template>
-  <v-navigation-drawer :value="system.push" fixed right stateless width="100%" style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px" @input="$event || close">
-    <v-container fluid class="pb-0" style="height: 100%;">
-      <div class="d-flex flex-column align-stretch flex-grow-0" style="height: 100%;">
+  <v-navigation-drawer
+    :value="system.push"
+    fixed
+    right
+    stateless
+    width="100%"
+    style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px"
+    @input="$event || close"
+  >
+    <v-container
+      fluid
+      class="pb-0"
+      style="height: 100%;"
+    >
+      <div
+        class="d-flex flex-column align-stretch flex-grow-0"
+        style="height: 100%;"
+      >
         <div class="flex-grow-0">
           <div>
-            <v-btn tile icon class="float-right" color="black" @click.stop="close">
+            <v-btn
+              tile
+              icon
+              class="float-right"
+              color="black"
+              @click.stop="close"
+            >
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
             <h1>Push</h1>
           </div>
           <div style="clear: both" />
 
-          <v-card dense class="my-2">
+          <v-card
+            dense
+            class="my-2"
+          >
             <v-card-title class="pa-2">
               Credentials
             </v-card-title>
             <keyfile-input
-              small storable
+              small
+              storable
               :value="repository.credentials.key"
               :stored="configuration.private_key"
               @input="credential_key"
             />
             <push-passphrase-input
-              small storable
+              small
+              storable
               :value="repository.credentials.passphrase"
               :stored="configuration.passphrase"
               @input="credential_passphrase"
@@ -37,13 +63,23 @@
           />
 
           <v-container fluid>
-            <v-row align="center" justify="center">
+            <v-row
+              align="center"
+              justify="center"
+            >
               <v-col>
                 <push-branch :name="repository.branch" />
               </v-col>
 
-              <v-col cols="1" class="text-center pa-0" align-center>
-                <v-icon align-center x-large>
+              <v-col
+                cols="1"
+                class="text-center pa-0"
+                align-center
+              >
+                <v-icon
+                  align-center
+                  x-large
+                >
                   mdi-chevron-right
                 </v-icon>
               </v-col>
@@ -73,16 +109,23 @@
           />
         </div>
 
-        <div ref="base" class="flex-grow-0 pb-3 actions">
+        <div
+          ref="base"
+          class="flex-grow-0 pb-3 actions"
+        >
           <v-divider class="mt-0 mb-2" />
           <push-confirm
-            :value="system.push_confirm" :disabled="!(configuration.key && repository.pending && repository.pending.length > 0)"
+            :value="system.push_confirm"
+            :disabled="!(configuration.key && repository.pending && repository.pending.length > 0)"
             :waiting="repository.push_working"
             :history="repository.pending"
             @input="confirm"
             @push="push"
           />
-          <v-btn color="warning" @click.stop="close">
+          <v-btn
+            color="warning"
+            @click.stop="close"
+          >
             <v-icon class="mr-2">
               mdi-cancel
             </v-icon>

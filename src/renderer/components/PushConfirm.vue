@@ -1,7 +1,16 @@
 <template>
-  <v-dialog :value="value" persistent max-width="600px" @input="$emit('input', $event)">
+  <v-dialog
+    :value="value"
+    persistent
+    max-width="600px"
+    @input="$emit('input', $event)"
+  >
     <template #activator="{ on }">
-      <v-btn class="mr-4" :disabled="disabled" v-on="on">
+      <v-btn
+        class="mr-4"
+        :disabled="disabled"
+        v-on="on"
+      >
         <v-icon class="mr-2">
           mdi-upload-multiple
         </v-icon>
@@ -20,16 +29,27 @@
           <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
-      <v-container fluid class="pa-0 ma-0" style="min-height: 120px">
+      <v-container
+        fluid
+        class="pa-0 ma-0"
+        style="min-height: 120px"
+      >
         <v-data-table
           :headers="headers"
           :items="history"
           :items-per-page="history.length"
           hide-default-footer
-          dense disable-sort class="my-0 commit-history"
+          dense
+          disable-sort
+          class="my-0 commit-history"
         >
           <template #item.oid="{ item }">
-            <v-btn tile icon x-small color="warning">
+            <v-btn
+              tile
+              icon
+              x-small
+              color="warning"
+            >
               {{ item.oid.substring(0, 7) }}
             </v-btn>
           </template>
@@ -39,7 +59,8 @@
         <v-btn
           ref="push_confirm"
           color="warning"
-          text :disabled="waiting"
+          text
+          :disabled="waiting"
           @click="$emit('push')"
         >
           <v-progress-circular
@@ -52,7 +73,12 @@
           Proceed
         </v-btn>
         <v-spacer />
-        <v-btn color="darken-1" text :disabled="waiting" @click="$emit('input', false)">
+        <v-btn
+          color="darken-1"
+          text
+          :disabled="waiting"
+          @click="$emit('input', false)"
+        >
           <v-icon class="mr-2">
             mdi-exit-to-app
           </v-icon>

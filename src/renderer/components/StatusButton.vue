@@ -1,6 +1,7 @@
 <template>
   <v-btn
-    tile small
+    tile
+    small
     class="px-2 grey--text text--lighten-1"
     style="height: 18px;"
   >
@@ -11,16 +12,28 @@
       color="warning"
       class="mr-2"
     />
-    <strong v-if="available_added" class="green--text">{{ available_added }}</strong>
+    <strong
+      v-if="available_added"
+      class="green--text"
+    >{{ available_added }}</strong>
     <strong v-else>0</strong>
     <strong>/</strong>
-    <strong v-if="available_removed" class="red--text">{{ available_removed }}</strong>
+    <strong
+      v-if="available_removed"
+      class="red--text"
+    >{{ available_removed }}</strong>
     <strong v-else>0</strong>
     <strong>&bull;</strong>
-    <strong v-if="staged_added" class="lime--text">{{ staged_added }}</strong>
+    <strong
+      v-if="staged_added"
+      class="lime--text"
+    >{{ staged_added }}</strong>
     <strong v-else>0</strong>
     <strong>/</strong>
-    <strong v-if="staged_removed" class="orange--text">{{ staged_removed }}</strong>
+    <strong
+      v-if="staged_removed"
+      class="orange--text"
+    >{{ staged_removed }}</strong>
     <strong v-else>0</strong>
   </v-btn>
 </template>

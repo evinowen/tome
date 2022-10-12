@@ -1,13 +1,37 @@
 <template>
   <div>
-    <div v-shortkey.once="['esc']" @shortkey="escape" />
-    <div v-shortkey.once="['ctrl', '`']" @shortkey="layer('console')" />
-    <div v-shortkey.once="['ctrl', 'e']" @shortkey="layer('edit')" />
-    <div v-shortkey.once="['ctrl', 's']" @shortkey="layer('commit')" />
-    <div v-shortkey.once="['ctrl', 'shift', 's']" @shortkey="perform('quick-commit')" />
-    <div v-shortkey.once="['ctrl', 'p']" @shortkey="layer('push')" />
-    <div v-shortkey.once="['ctrl', 'f']" @shortkey="layer('search')" />
-    <div v-shortkey.once="['ctrl', 'o']" @shortkey="select()" />
+    <div
+      v-shortkey.once="['esc']"
+      @shortkey="escape"
+    />
+    <div
+      v-shortkey.once="['ctrl', '`']"
+      @shortkey="layer('console')"
+    />
+    <div
+      v-shortkey.once="['ctrl', 'e']"
+      @shortkey="layer('edit')"
+    />
+    <div
+      v-shortkey.once="['ctrl', 's']"
+      @shortkey="layer('commit')"
+    />
+    <div
+      v-shortkey.once="['ctrl', 'shift', 's']"
+      @shortkey="perform('quick-commit')"
+    />
+    <div
+      v-shortkey.once="['ctrl', 'p']"
+      @shortkey="layer('push')"
+    />
+    <div
+      v-shortkey.once="['ctrl', 'f']"
+      @shortkey="layer('search')"
+    />
+    <div
+      v-shortkey.once="['ctrl', 'o']"
+      @shortkey="select()"
+    />
   </div>
 </template>
 

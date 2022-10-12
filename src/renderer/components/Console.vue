@@ -1,13 +1,24 @@
 <template>
   <div>
     <v-bottom-sheet
-      fullscreen scrollable persistent hide-overlay no-click-animation internal-activator
+      fullscreen
+      scrollable
+      persistent
+      hide-overlay
+      no-click-animation
+      internal-activator
       :value="value"
       content-class="console"
       @input="$event || close()"
     >
       <v-card>
-        <v-btn tile class="pa-0" style="height: 16px; width: 100%" color="accent" @click.stop="close">
+        <v-btn
+          tile
+          class="pa-0"
+          style="height: 16px; width: 100%"
+          color="accent"
+          @click.stop="close"
+        >
           <v-icon small>
             mdi-chevron-down
           </v-icon>
@@ -25,12 +36,23 @@
           </div>
         </div>
       </v-card>
-      <v-snackbar v-model="detail" timeout="-1" multi-line centered vertical>
+      <v-snackbar
+        v-model="detail"
+        timeout="-1"
+        multi-line
+        centered
+        vertical
+      >
         <div style="font-family: monospace; white-space: pre-wrap;">
           {{ stack }}
         </div>
         <template #action="{}">
-          <v-btn tile small color="primary" @click.stop="detail = false">
+          <v-btn
+            tile
+            small
+            color="primary"
+            @click.stop="detail = false"
+          >
             Done
           </v-btn>
         </template>

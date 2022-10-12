@@ -9,7 +9,10 @@
       <patch :value="system.patch" />
     </template>
 
-    <editor-interface v-show="repository.path" ref="interface" />
+    <editor-interface
+      v-show="repository.path"
+      ref="interface"
+    />
     <empty-pane v-show="!repository.path" />
 
     <context-menu-service />

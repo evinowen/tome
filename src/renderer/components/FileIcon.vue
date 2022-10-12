@@ -1,5 +1,11 @@
 <template>
-  <v-btn tile text x-small :class="[ `file-icon-${size}`, `file-icon-button`, disabled ? 'file-icon-disabled' : '' ]" @click.stop="$emit('click')">
+  <v-btn
+    tile
+    text
+    x-small
+    :class="[ `file-icon-${size}`, `file-icon-button`, disabled ? 'file-icon-disabled' : '' ]"
+    @click.stop="$emit('click')"
+  >
     <v-icon
       :class="[ `file-icon-icon`, expanded ? 'file-icon-expanded' : '', badge ? `file-icon-icon-badged` : '' ]"
     >
