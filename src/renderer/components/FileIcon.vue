@@ -210,13 +210,13 @@ export default Vue.extend({
   --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * -2.5px);
 }
 
-@-webkit-keyframes rotating {
-  from{ -webkit-transform: rotate(0deg); }
-  to{ -webkit-transform: rotate(360deg); }
+@keyframes rotating {
+  from{ transform: rotate(0deg); }
+  to{ transform: rotate(360deg); }
 }
 
 .file-icon-large .modify-cog {
-  -webkit-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
 }
 
 .modify-book {

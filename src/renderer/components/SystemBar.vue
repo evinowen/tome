@@ -103,12 +103,12 @@ export default Vue.extend({
   width: 25px;
 }
 
-@-webkit-keyframes rotating {
-  from{ -webkit-transform: rotate(0deg); }
-  to{ -webkit-transform: rotate(360deg); }
+@keyframes rotating {
+  from{ transform: rotate(0deg); }
+  to{ transform: rotate(360deg); }
 }
 
 .rotate .v-icon {
-  -webkit-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
 }
 </style>

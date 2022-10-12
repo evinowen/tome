@@ -247,12 +247,12 @@ export default Vue.extend({
 
 .splash.splashing .splash-outline {
   position: absolute;
-  -webkit-animation: splash 0.5s linear;
+  animation: splash 0.5s linear;
 }
 
-@-webkit-keyframes splash {
-  0% { -webkit-transform: scale(0, 0); }
-  30% { -webkit-transform: scale(1, 1); }
-  100% { -webkit-transform: scale(0, 0); }
+@keyframes splash {
+  0% { transform: scale(0, 0); }
+  30% { transform: scale(1, 1); }
+  100% { transform: scale(0, 0); }
 }
 </style>
