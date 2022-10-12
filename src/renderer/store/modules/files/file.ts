@@ -98,23 +98,23 @@ export default class File {
   uuid?: string = uuidv4()
   name?: string
   extension?: string
-  mime: string = ''
-  path: string = ''
+  mime = ''
+  path = ''
   relative?: string
   relationship?: FileRelationshipType
   parent?: File
   base?: File
-  loaded: boolean = false
-  directory: boolean = false
-  disabled: boolean = false
+  loaded = false
+  directory = false
+  disabled = false
   children: File[] = []
   ghost?: File
-  expanded: boolean = false
-  ephemeral: boolean = false
+  expanded = false
+  ephemeral = false
   document?: FileDocument
   updated?: number
-  clean: boolean = true
-  readonly: boolean = false
+  clean = true
+  readonly = false
 
   static blacklist = [
     '.git',

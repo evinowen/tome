@@ -6,7 +6,7 @@ export class FileIdentity {
   index?: number = -1
   name?: string
 
-  constructor (item?: File, parent?: File, index: number = -1, name?: string) {
+  constructor (item?: File, parent?: File, index = -1, name?: string) {
     this.item = item
     this.parent = parent
     this.index = index

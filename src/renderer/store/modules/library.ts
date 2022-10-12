@@ -1,7 +1,7 @@
 import { MutationTree, ActionTree } from 'vuex'
 
 export class State {
-  path: string = ''
+  path = ''
   history: string[] = []
 }
 

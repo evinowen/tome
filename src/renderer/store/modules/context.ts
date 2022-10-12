@@ -1,10 +1,10 @@
 import { MutationTree, ActionTree } from 'vuex'
 
 export class State {
-  visible: boolean = false
+  visible = false
   target?: string
   position: { x: number, y: number } = { x: 0, y: 0 }
-  title: string = ''
+  title = ''
   items: ContextItem[] = []
 }
 

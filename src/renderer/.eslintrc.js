@@ -19,7 +19,6 @@ module.exports = {
   },
   rules: {
     '@typescript-eslint/ban-types': 'off',
-    '@typescript-eslint/no-inferrable-types': 'off',
     'camelcase': 'off',
     'no-console': 'error',
     'no-debugger': 'error',

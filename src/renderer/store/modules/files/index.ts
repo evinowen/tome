@@ -19,7 +19,7 @@ export class State {
   tree?: FileTree
   ghost?: File
   selected?: File
-  editing: boolean = false
+  editing = false
   post?: (path: string) => void
 }
 
