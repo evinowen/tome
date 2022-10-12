@@ -13,12 +13,12 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint', 'unicorn'],
   rules: {
-    'quote-props': ['error', 'consistent'],
+    '@typescript-eslint/no-var-requires': 'off',
     'camelcase': 'off',
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'quote-props': ['error', 'consistent'],
     'unicorn/filename-case': 'off',
-    'unicorn/prefer-module': 'off',
-    '@typescript-eslint/no-var-requires': 'off'
+    'unicorn/prefer-module': 'off'
   }
 }

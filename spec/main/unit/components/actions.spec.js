@@ -22,7 +22,7 @@ jest.mock('electron', () => ({
 electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
 electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
-jest.mock('fs', () => ({
+jest.mock('node:fs', () => ({
   lstat: jest.fn(),
   readFile: jest.fn(),
   writeFile: jest.fn()
@@ -38,7 +38,7 @@ fs.lstat.mockImplementation((path, callback) => callback(undefined, fs_lstat_ret
 fs.readFile.mockImplementation((target, encoding, callback) => callback(undefined, random_string(128)))
 fs.writeFile.mockImplementation((target, content, encoding, callback) => optional(encoding, callback)())
 
-jest.mock('path', () => ({
+jest.mock('node:path', () => ({
   join: jest.fn()
 }))
 
@@ -64,7 +64,7 @@ const vm_script = {
   })
 }
 
-jest.mock('vm', () => ({
+jest.mock('node:vm', () => ({
   Script: jest.fn()
 }))
 

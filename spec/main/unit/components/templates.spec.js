@@ -16,8 +16,8 @@ jest.mock('electron', () => ({
 electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
 electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
-jest.mock('fs', () => require('?/mocks/fs'))
-jest.mock('path', () => require('?/mocks/path'))
+jest.mock('node:fs', () => require('?/mocks/fs'))
+jest.mock('node:path', () => require('?/mocks/path'))
 jest.mock('mustache', () => ({ render: jest.fn() }))
 
 Mustache.render.mockImplementation(() => 'Mock Rendered')

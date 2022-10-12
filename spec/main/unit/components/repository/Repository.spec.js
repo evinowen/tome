@@ -12,12 +12,12 @@ jest.mock('electron', () => ({
   }
 }))
 
-jest.mock('fs', () => ({
+jest.mock('node:fs', () => ({
   readFileSync: jest.fn(() => 'ref: refs/heads/master\r\ndata\r\ndata\r\n'),
   existsSync: jest.fn(() => true)
 }))
 
-jest.mock('path', () => ({
+jest.mock('node:path', () => ({
   basename: jest.fn((target) => String(target).slice(String(target).lastIndexOf('/') + 1)),
   join: jest.fn((first, second) => `${String(first).replace(/\/$/g, '')}${String(second).replace(/^\/|\/$/g, '')}`)
 }))
@@ -413,7 +413,6 @@ describe('components/repository/Repository', () => {
     await repository.loadRemoteBranch(url)
 
     expect(repository.remote).not.toBeUndefined()
-    expect(repository.remote.branch).not.toBeUndefined()
   })
 
   it('should call and wait inspectStaged and inspectAvailable on inspect', async () => {

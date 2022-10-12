@@ -16,7 +16,7 @@ jest.mock('electron', () => ({
 electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
 electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
-jest.mock('path', () => ({
+jest.mock('node:path', () => ({
   basename: jest.fn(),
   dirname: jest.fn(),
   extname: jest.fn(),

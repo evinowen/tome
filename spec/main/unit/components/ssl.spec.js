@@ -40,7 +40,7 @@ forge.pki.decryptRsaPrivateKey.mockImplementation(() => ({ n: random_string(), e
 forge.pki.privateKeyFromPem.mockImplementation(() => ({ n: random_string(), e: random_string() }))
 forge.pki.rsa.generateKeyPair.mockImplementation((options, callback) => callback(undefined, random_string()))
 
-jest.mock('fs', () => ({
+jest.mock('node:fs', () => ({
   readFile: jest.fn(),
   writeFile: jest.fn()
 }))
@@ -48,7 +48,7 @@ jest.mock('fs', () => ({
 fs.readFile.mockImplementation((path, encoding, callback) => callback(undefined, random_string()))
 fs.writeFile.mockImplementation((file, data, callback) => callback())
 
-jest.mock('path', () => ({
+jest.mock('node:path', () => ({
   join: jest.fn()
 }))
 

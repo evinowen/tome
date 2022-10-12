@@ -19,17 +19,15 @@ module.exports = {
     plugins: ['@typescript-eslint', 'unicorn']
   },
   rules: {
-    'unicorn/filename-case': 'off',
-    'unicorn/prefer-module': 'off',
-    'unicorn/no-null': 'off',
-    'unicorn/switch-case-braces': 'off',
-    'unicorn/no-static-only-class': 'off',
-    'quote-props': ['error', 'consistent'],
+    '@typescript-eslint/no-unused-vars': 'off',
     'camelcase': 'off',
     'no-console': 'error',
     'no-debugger': 'error',
-    // '@typescript-eslint/no-explicit-any': 'off',
-    // '@typescript-eslint/no-inferrable-types': 'off',
-    '@typescript-eslint/no-unused-vars': 'off'
+    'quote-props': ['error', 'consistent'],
+    'unicorn/filename-case': 'off',
+    'unicorn/no-null': 'off',
+    'unicorn/no-static-only-class': 'off',
+    'unicorn/prefer-module': 'off',
+    'unicorn/switch-case-braces': 'off'
   }
 }

@@ -21,7 +21,7 @@ jest.mock('electron', () => ({
 electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
 electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
-jest.mock('fs', () => ({
+jest.mock('node:fs', () => ({
   access: jest.fn(),
   lstat: jest.fn(),
   rename: jest.fn(),
@@ -37,7 +37,7 @@ fs.lstat.mockImplementation((path, callback) => callback(undefined, fs_lstat_ret
 fs.rename.mockImplementation((target, destination, callback) => callback())
 fs.copyFile.mockImplementation((target, destination, mode, callback) => callback())
 
-jest.mock('path', () => ({
+jest.mock('node:path', () => ({
   basename: jest.fn(),
   dirname: jest.fn(),
   parse: jest.fn(),

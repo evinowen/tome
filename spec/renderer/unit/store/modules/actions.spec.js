@@ -9,7 +9,7 @@ import builders from '?/builders'
 
 Object.assign(window, builders.window())
 
-jest.mock('vm', () => ({
+jest.mock('node:vm', () => ({
   createScript: jest.fn()
 }))
 

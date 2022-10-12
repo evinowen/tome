@@ -254,7 +254,7 @@ export default {
 
       ephemeral
         ? item = await context.dispatch('create', { item: parent, name, directory })
-        : item = await context.dispatch('rename', { item, name })
+        : item = await context.dispatch('rename', { item: context.state.selected, name })
 
       if (item === null) {
         throw new FileSubmitFailureError()

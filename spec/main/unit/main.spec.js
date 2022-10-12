@@ -22,7 +22,7 @@ jest.mock('electron', () => ({
   },
 }))
 
-jest.mock('path', () => ({
+jest.mock('node:path', () => ({
   join: jest.fn()
 }))
 

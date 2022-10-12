@@ -53,8 +53,8 @@ const chokidar_watcher = {
 
 chokidar.watch.mockImplementation(() => chokidar_watcher)
 
-jest.mock('fs', () => require('?/mocks/fs'))
-jest.mock('path', () => require('?/mocks/path'))
+jest.mock('node:fs', () => require('?/mocks/fs'))
+jest.mock('node:path', () => require('?/mocks/path'))
 
 describe('components/file', () => {
   let component

@@ -2,7 +2,7 @@ module.exports = {
   rootDir: '../..',
   testMatch: ['<rootDir>/spec/renderer/unit/**/*.spec.js'],
   preset: '@vue/cli-plugin-unit-jest/presets/typescript',
-  collectCoverage: true,
+  collectCoverage: false,
   collectCoverageFrom: ['<rootDir>/src/renderer/**/*.{ts,js,vue}'],
   coverageDirectory: '<rootDir>/reports/renderer/coverage',
   coverageThreshold: {

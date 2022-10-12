@@ -4,6 +4,7 @@ let content = null
 const split = (path) => String(path).replace(/^\./, '').replace(/^\/|\/$/, '').split('/')
 
 export default {
+  return_disk: () => disk,
   reset_disk: () => {
     disk = {
       'config.json': null,

@@ -18,23 +18,23 @@ module.exports = {
     plugins: ['@typescript-eslint', 'unicorn']
   },
   rules: {
-    'unicorn/prefer-top-level-await': 'off',
-    'unicorn/filename-case': 'off',
-    'unicorn/prefer-module': 'off',
-    'unicorn/no-null': 'off',
-    'unicorn/switch-case-braces': 'off',
-    'unicorn/no-static-only-class': 'off',
-    'quote-props': ['error', 'consistent'],
-    'camelcase': 'off',
-    'no-console': 'error',
-    'no-debugger': 'error',
+    '@typescript-eslint/ban-types': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-inferrable-types': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
-    '@typescript-eslint/ban-types': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    'camelcase': 'off',
+    'no-console': 'error',
+    'no-debugger': 'error',
+    'quote-props': ['error', 'consistent'],
+    'unicorn/filename-case': 'off',
+    'unicorn/no-null': 'off',
+    'unicorn/no-static-only-class': 'off',
+    'unicorn/prefer-module': 'off',
+    'unicorn/prefer-top-level-await': 'off',
+    'unicorn/switch-case-braces': 'off',
+    'vue/multi-word-component-names': 'off',
     'vue/prop-name-casing': ['error', 'snake_case'],
-    'vue/valid-v-slot': ['error', { allowModifiers: true }],
-    'vue/multi-word-component-names': 'off'
+    'vue/valid-v-slot': ['error', { allowModifiers: true }]
   }
 }
