@@ -109,22 +109,6 @@
   </v-navigation-drawer>
 </template>
 
-<style>
-.message.v-textarea textarea {
-  line-height: 1.0em !important;
-  height: 15vh;
-  font-size: 2.0em;
-}
-</style>
-
-<style scoped>
-.actions {
-  backdrop-filter: blur(2px);
-  position: sticky;
-  bottom: 0px
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import {
@@ -144,6 +128,22 @@ import CommitList from '@/components/CommitList.vue'
 import CommitConfirm from '@/components/CommitConfirm.vue'
 
 export default Vue.extend({
+  components: {
+    VContainer,
+    VIcon,
+    VBtn,
+    VRow,
+    VCol,
+    VDivider,
+    VNavigationDrawer,
+    VTextField,
+    VTextarea,
+    CommitList,
+    CommitConfirm
+  },
+  directives: {
+    Resize
+  },
   data: () => ({
     offset: 0
   }),
@@ -208,22 +208,22 @@ export default Vue.extend({
     commit: async function () {
       await store.dispatch('system/perform', 'commit')
     }
-  },
-  components: {
-    VContainer,
-    VIcon,
-    VBtn,
-    VRow,
-    VCol,
-    VDivider,
-    VNavigationDrawer,
-    VTextField,
-    VTextarea,
-    CommitList,
-    CommitConfirm
-  },
-  directives: {
-    Resize
   }
 })
 </script>
+
+<style>
+.message.v-textarea textarea {
+  line-height: 1.0em !important;
+  height: 15vh;
+  font-size: 2.0em;
+}
+</style>
+
+<style scoped>
+.actions {
+  backdrop-filter: blur(2px);
+  position: sticky;
+  bottom: 0px
+}
+</style>

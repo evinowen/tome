@@ -55,60 +55,6 @@
   </split-pane>
 </template>
 
-<style>
-.fit {
-  width: 100%;
-  height: 100%;
-}
-
-.splitter-paneL,
-.splitter-paneR {
-  height: auto !important;
-  top: 0;
-  bottom: 0;
-  padding: 0 !important;
-  margin-bottom: 18px;
-}
-
-.splitter-pane-resizer {
-  border-color: transparent !important;
-}
-
-.full_size {
-  height: 100%;
-  padding: 0px;
-}
-
-.vue-codemirror {
-  height: 100% !important;
-  width: 100% !important;
-}
-
-.CodeMirror {
-  height: 100% !important;
-  width: 100% !important;
-  min-height: 100% !important;
-  min-width: 100% !important;
-  overflow: hidden;
-}
-
-.CodeMirror-scrollbar-filler {
-  background: transparent !important;
-}
-
-.cm-searching,
-.highlight-rendered {
-  background-color: rgba(255, 255, 0, 0.2) !important;
-  outline: 2px solid rgba(255, 255, 0, 0.2);
-}
-
-.highlight-rendered-focus {
-  background-color: rgba(255, 255, 0, 0.4) !important;
-  outline: 2px solid rgba(255, 255, 0, 0.4);
-}
-
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VDivider } from 'vuetify/lib'
@@ -122,6 +68,13 @@ import EmptyPane from '@/components/EmptyPane.vue'
 import store from '@/store'
 
 export default Vue.extend({
+  components: {
+    VDivider,
+    Explorer,
+    EmptyPane,
+    FileIcon,
+    ImagePreview
+  },
   data: () => ({
     error: '',
     overlay: null,
@@ -138,9 +91,6 @@ export default Vue.extend({
       }
     }
   }),
-  mounted: function () {
-    this.mark = new Mark('#editor-interface-rendered')
-  },
   computed: {
     system: function () {
       return store.state.system
@@ -295,6 +245,9 @@ export default Vue.extend({
     target: function () {
       this.navigate()
     }
+  },
+  mounted: function () {
+    this.mark = new Mark('#editor-interface-rendered')
   },
   methods: {
     contextmenu: async function (event) {
@@ -476,13 +429,60 @@ export default Vue.extend({
         }
       }
     }
-  },
-  components: {
-    VDivider,
-    Explorer,
-    EmptyPane,
-    FileIcon,
-    ImagePreview
   }
 })
 </script>
+
+<style>
+.fit {
+  width: 100%;
+  height: 100%;
+}
+
+.splitter-paneL,
+.splitter-paneR {
+  height: auto !important;
+  top: 0;
+  bottom: 0;
+  padding: 0 !important;
+  margin-bottom: 18px;
+}
+
+.splitter-pane-resizer {
+  border-color: transparent !important;
+}
+
+.full_size {
+  height: 100%;
+  padding: 0px;
+}
+
+.vue-codemirror {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.CodeMirror {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 100% !important;
+  min-width: 100% !important;
+  overflow: hidden;
+}
+
+.CodeMirror-scrollbar-filler {
+  background: transparent !important;
+}
+
+.cm-searching,
+.highlight-rendered {
+  background-color: rgba(255, 255, 0, 0.2) !important;
+  outline: 2px solid rgba(255, 255, 0, 0.2);
+}
+
+.highlight-rendered-focus {
+  background-color: rgba(255, 255, 0, 0.4) !important;
+  outline: 2px solid rgba(255, 255, 0, 0.4);
+}
+
+</style>

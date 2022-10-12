@@ -33,6 +33,21 @@
   </v-card>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import { VCard, VCardTitle, VSwitch, VSkeletonLoader, VColorPicker } from 'vuetify/lib'
+
+export default Vue.extend({
+  components: { VCard, VCardTitle, VSwitch, VSkeletonLoader, VColorPicker },
+  props: {
+    enabled: { type: Boolean, required: true },
+    value: { type: String, required: true },
+    color: { type: String, required: true },
+    base: { type: String, default: '#000000' }
+  }
+})
+</script>
+
 <style>
 .v-color-picker__edit {
   margin-top: 12px;
@@ -58,18 +73,3 @@
   overflow-y: auto;
 }
 </style>
-
-<script lang="ts">
-import Vue from 'vue'
-import { VCard, VCardTitle, VSwitch, VSkeletonLoader, VColorPicker } from 'vuetify/lib'
-
-export default Vue.extend({
-  components: { VCard, VCardTitle, VSwitch, VSkeletonLoader, VColorPicker },
-  props: {
-    enabled: { type: Boolean, required: true },
-    value: { type: String, required: true },
-    color: { type: String, required: true },
-    base: { type: String, default: '#000000' }
-  }
-})
-</script>

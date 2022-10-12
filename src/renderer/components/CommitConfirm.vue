@@ -78,25 +78,6 @@
   </v-dialog>
 </template>
 
-<style>
-.commit {
-  font-family: monospace;
-  min-height: 120px;
-  padding: 0 !important;
-  font-size: 18px;
-  line-height: 1.0em !important;
-}
-
-.commit .v-textarea textarea {
-  padding: 4px;
-}
-
-.author {
-  font-family: monospace;
-  font-size: 1.2em;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import {
@@ -165,3 +146,22 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style>
+.commit {
+  font-family: monospace;
+  min-height: 120px;
+  padding: 0 !important;
+  font-size: 18px;
+  line-height: 1.0em !important;
+}
+
+.commit .v-textarea textarea {
+  padding: 4px;
+}
+
+.author {
+  font-family: monospace;
+  font-size: 1.2em;
+}
+</style>

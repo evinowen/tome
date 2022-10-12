@@ -23,68 +23,6 @@
   </v-layout>
 </template>
 
-<style scoped>
-.sea {
-  position: relative;
-  overflow: visible;
-  height: 100%;
-}
-.boat {
-  position: absolute;
-  bottom: 12px;
-  left: 24px;
-}
-
-.distance {
-  position: absolute;
-  text-align: center;
-  width: 64px;
-  font-size: 9px;
-  font-weight: 100;
-  opacity: 0.0;
-  transition: opacity 1.6s ease-in-out;
-}
-
-.visible {
-  opacity: 1.0;
-}
-
-.cannon_ball {
-  position: absolute;
-  bottom: -128px;
-  left: -128px;
-  width: 10px;
-  height: 10px;
-  transition: unset;
-}
-
-.splash {
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  width: 18px;
-  height: 18px;
-  transform: rotateX(60deg);
-}
-
-.splash .splash-outline {
-  margin: auto;
-  transform: scale(0, 0);
-}
-
-.splash.splashing .splash-outline {
-  position: absolute;
-  -webkit-animation: splash 0.5s linear;
-}
-
-@-webkit-keyframes splash {
-  0% { -webkit-transform: scale(0, 0); }
-  30% { -webkit-transform: scale(1, 1); }
-  100% { -webkit-transform: scale(0, 0); }
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VLayout, VFlex, VIcon } from 'vuetify/lib'
@@ -237,3 +175,65 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style scoped>
+.sea {
+  position: relative;
+  overflow: visible;
+  height: 100%;
+}
+.boat {
+  position: absolute;
+  bottom: 12px;
+  left: 24px;
+}
+
+.distance {
+  position: absolute;
+  text-align: center;
+  width: 64px;
+  font-size: 9px;
+  font-weight: 100;
+  opacity: 0.0;
+  transition: opacity 1.6s ease-in-out;
+}
+
+.visible {
+  opacity: 1.0;
+}
+
+.cannon_ball {
+  position: absolute;
+  bottom: -128px;
+  left: -128px;
+  width: 10px;
+  height: 10px;
+  transition: unset;
+}
+
+.splash {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  width: 18px;
+  height: 18px;
+  transform: rotateX(60deg);
+}
+
+.splash .splash-outline {
+  margin: auto;
+  transform: scale(0, 0);
+}
+
+.splash.splashing .splash-outline {
+  position: absolute;
+  -webkit-animation: splash 0.5s linear;
+}
+
+@-webkit-keyframes splash {
+  0% { -webkit-transform: scale(0, 0); }
+  30% { -webkit-transform: scale(1, 1); }
+  100% { -webkit-transform: scale(0, 0); }
+}
+</style>

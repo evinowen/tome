@@ -94,14 +94,6 @@
   </v-navigation-drawer>
 </template>
 
-<style scoped>
-.actions {
-  backdrop-filter: blur(2px);
-  position: sticky;
-  bottom: 0px
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VNavigationDrawer, VContainer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCol, VRow } from 'vuetify/lib'
@@ -114,6 +106,23 @@ import PushStatus from './PushStatus.vue'
 import PushConfirm from './PushConfirm.vue'
 
 export default Vue.extend({
+  components: {
+    VNavigationDrawer,
+    VContainer,
+    VDivider,
+    VBtn,
+    VIcon,
+    VCard,
+    VCardTitle,
+    VCol,
+    VRow,
+    KeyfileInput,
+    PushPassphraseInput,
+    PushRemoteSelector,
+    PushBranch,
+    PushStatus,
+    PushConfirm
+  },
   computed: {
     system: function () {
       return store.state.system
@@ -151,23 +160,14 @@ export default Vue.extend({
     push: async function () {
       await store.dispatch('system/perform', 'push')
     }
-  },
-  components: {
-    VNavigationDrawer,
-    VContainer,
-    VDivider,
-    VBtn,
-    VIcon,
-    VCard,
-    VCardTitle,
-    VCol,
-    VRow,
-    KeyfileInput,
-    PushPassphraseInput,
-    PushRemoteSelector,
-    PushBranch,
-    PushStatus,
-    PushConfirm
   }
 })
 </script>
+
+<style scoped>
+.actions {
+  backdrop-filter: blur(2px);
+  position: sticky;
+  bottom: 0px
+}
+</style>

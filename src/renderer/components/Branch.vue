@@ -43,6 +43,44 @@
   </v-navigation-drawer>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider } from 'vuetify/lib'
+import { DateTime } from 'luxon'
+import store from '@/store'
+
+export default Vue.extend({
+  components: { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider },
+  props: {
+    value: { type: Boolean, default: false }
+  },
+  data: () => ({
+    headers: [
+      { text: '', value: 'oid', width: '60px' },
+      { text: 'date', value: 'date', width: '' },
+      { text: 'message', value: 'message', width: '' }
+    ]
+  }),
+  computed: {
+    repository: function () {
+      return store.state.repository
+    }
+  },
+  methods: {
+    close: async function () {
+      await store.dispatch('system/branch', false)
+    },
+    diff: async function (commit) {
+      await store.dispatch('repository/diff', { commit: commit.oid })
+      await store.dispatch('system/patch', true)
+    },
+    format_date: function (date) {
+      return DateTime.fromJSDate(date).toISODate()
+    }
+  }
+})
+</script>
+
 <style>
 .v-data-table.commit-history {
   border-radius: 0
@@ -96,41 +134,3 @@ pre {
   bottom: 0px
 }
 </style>
-
-<script lang="ts">
-import Vue from 'vue'
-import { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider } from 'vuetify/lib'
-import { DateTime } from 'luxon'
-import store from '@/store'
-
-export default Vue.extend({
-  components: { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider },
-  props: {
-    value: { type: Boolean, default: false }
-  },
-  data: () => ({
-    headers: [
-      { text: '', value: 'oid', width: '60px' },
-      { text: 'date', value: 'date', width: '' },
-      { text: 'message', value: 'message', width: '' }
-    ]
-  }),
-  computed: {
-    repository: function () {
-      return store.state.repository
-    }
-  },
-  methods: {
-    close: async function () {
-      await store.dispatch('system/branch', false)
-    },
-    diff: async function (commit) {
-      await store.dispatch('repository/diff', { commit: commit.oid })
-      await store.dispatch('system/patch', true)
-    },
-    format_date: function (date) {
-      return DateTime.fromJSDate(date).toISODate()
-    }
-  }
-})
-</script>

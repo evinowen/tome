@@ -42,23 +42,6 @@
   </v-navigation-drawer>
 </template>
 
-<style scoped>
-.line {
-  width: 100%;
-  overflow: wrap;
-}
-
-pre {
-  display: inline-block;
-}
-
-.actions {
-  backdrop-filter: blur(2px);
-  position: sticky;
-  bottom: 0px
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText } from 'vuetify/lib'
@@ -120,3 +103,20 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style scoped>
+.line {
+  width: 100%;
+  overflow: wrap;
+}
+
+pre {
+  display: inline-block;
+}
+
+.actions {
+  backdrop-filter: blur(2px);
+  position: sticky;
+  bottom: 0px
+}
+</style>

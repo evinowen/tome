@@ -43,27 +43,6 @@
   </v-layout>
 </template>
 
-<style scoped>
-.key-label {
-  font-size: 0.8em;
-}
-
-.key-input {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.v-text-field-red :deep() fieldset {
-  color: red;
-  border-color: red;
-}
-
-.v-text-field-green :deep() fieldset {
-  color: green;
-  border-color: green;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
@@ -99,3 +78,24 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style scoped>
+.key-label {
+  font-size: 0.8em;
+}
+
+.key-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.v-text-field-red :deep() fieldset {
+  color: red;
+  border-color: red;
+}
+
+.v-text-field-green :deep() fieldset {
+  color: green;
+  border-color: green;
+}
+</style>

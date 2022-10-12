@@ -85,6 +85,82 @@
   </v-footer>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
+import store from '@/store'
+import LibraryButton from './LibraryButton.vue'
+import RepositoryButton from './RepositoryButton.vue'
+
+export default Vue.extend({
+  components: {
+    VIcon,
+    VBtn,
+    VDivider,
+    VFooter,
+    VExpandXTransition,
+    VSwitch,
+    LibraryButton,
+    RepositoryButton
+  },
+  data: () => ({
+    library: false
+  }),
+  computed: {
+    system: function () {
+      return store.state.system
+    },
+    repository: function () {
+      return store.state.repository
+    },
+    status: function () {
+      return store.state.status
+    },
+    message: function () {
+      return store.state.message
+    },
+    disabled: function () {
+      const system = store.state.system
+      return system.settings || system.branch || system.commit || system.push || system.console
+    }
+  },
+  methods: {
+    open: async function (path) {
+      this.library = false
+      await store.dispatch('system/open', path)
+    },
+    close: async function () {
+      await store.dispatch('system/close')
+    },
+    edit: async function () {
+      await store.dispatch('system/edit', !this.system.edit)
+    },
+    branch: async function () {
+      await store.dispatch('system/branch', !this.system.branch)
+    },
+    commit: async function () {
+      await store.dispatch('system/commit', !this.system.commit)
+    },
+    push: async function () {
+      await store.dispatch('system/push', !this.system.push)
+    },
+    console: async function () {
+      await store.dispatch('system/console', !this.system.console)
+    },
+    search: async function () {
+      await store.dispatch('system/search', !this.system.search)
+    },
+    disabled_unless: function (unless) {
+      if (unless) {
+        return this.system.settings
+      }
+
+      return this.disabled
+    }
+  }
+})
+</script>
+
 <style>
 .edit_switch {
   padding-top: 2px !important;
@@ -152,79 +228,3 @@
 }
 
 </style>
-
-<script lang="ts">
-import Vue from 'vue'
-import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
-import store from '@/store'
-import LibraryButton from './LibraryButton.vue'
-import RepositoryButton from './RepositoryButton.vue'
-
-export default Vue.extend({
-  data: () => ({
-    library: false
-  }),
-  computed: {
-    system: function () {
-      return store.state.system
-    },
-    repository: function () {
-      return store.state.repository
-    },
-    status: function () {
-      return store.state.status
-    },
-    message: function () {
-      return store.state.message
-    },
-    disabled: function () {
-      const system = store.state.system
-      return system.settings || system.branch || system.commit || system.push || system.console
-    }
-  },
-  methods: {
-    open: async function (path) {
-      this.library = false
-      await store.dispatch('system/open', path)
-    },
-    close: async function () {
-      await store.dispatch('system/close')
-    },
-    edit: async function () {
-      await store.dispatch('system/edit', !this.system.edit)
-    },
-    branch: async function () {
-      await store.dispatch('system/branch', !this.system.branch)
-    },
-    commit: async function () {
-      await store.dispatch('system/commit', !this.system.commit)
-    },
-    push: async function () {
-      await store.dispatch('system/push', !this.system.push)
-    },
-    console: async function () {
-      await store.dispatch('system/console', !this.system.console)
-    },
-    search: async function () {
-      await store.dispatch('system/search', !this.system.search)
-    },
-    disabled_unless: function (unless) {
-      if (unless) {
-        return this.system.settings
-      }
-
-      return this.disabled
-    }
-  },
-  components: {
-    VIcon,
-    VBtn,
-    VDivider,
-    VFooter,
-    VExpandXTransition,
-    VSwitch,
-    LibraryButton,
-    RepositoryButton
-  }
-})
-</script>

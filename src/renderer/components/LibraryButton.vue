@@ -36,33 +36,6 @@
   </v-menu>
 </template>
 
-<style scoped>
-.v-btn--icon.v-size--small,
-.v-btn--icon.v-size--small .v-icon {
-  height: 18px;
-}
-
-.button {
-  height: 18px !important;
-}
-
-.v-list-item {
-  padding: 0 4px;
-  min-height: 20px !important;
-  min-width: 120px;
-}
-
-.v-list-item--link:before {
-  background: inherit;
-}
-
-.v-list-item:hover,
-.v-list-item:hover .item {
-  color: var(--v-accent-lighten4) !important;
-  background: var(--v-accent-darken2) !important;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VBtn, VDivider, VIcon, VMenu, VList, VListItem, VListItemTitle } from 'vuetify/lib'
@@ -103,3 +76,30 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style scoped>
+.v-btn--icon.v-size--small,
+.v-btn--icon.v-size--small .v-icon {
+  height: 18px;
+}
+
+.button {
+  height: 18px !important;
+}
+
+.v-list-item {
+  padding: 0 4px;
+  min-height: 20px !important;
+  min-width: 120px;
+}
+
+.v-list-item--link:before {
+  background: inherit;
+}
+
+.v-list-item:hover,
+.v-list-item:hover .item {
+  color: var(--v-accent-lighten4) !important;
+  background: var(--v-accent-darken2) !important;
+}
+</style>

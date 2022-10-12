@@ -8,6 +8,18 @@
   </v-container>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import { VContainer, VCol, VRow } from 'vuetify/lib'
+
+export default Vue.extend({
+  components: { VContainer, VCol, VRow },
+  props: {
+    error: { type: String, default: '' }
+  }
+})
+</script>
+
 <style scoped>
 .view {
   background-image:
@@ -20,15 +32,3 @@
     );
 }
 </style>
-
-<script lang="ts">
-import Vue from 'vue'
-import { VContainer, VCol, VRow } from 'vuetify/lib'
-
-export default Vue.extend({
-  components: { VContainer, VCol, VRow },
-  props: {
-    error: { type: String, default: '' }
-  }
-})
-</script>

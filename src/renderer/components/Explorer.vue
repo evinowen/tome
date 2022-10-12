@@ -32,24 +32,13 @@
   </div>
 </template>
 
-<style>
-/* .explorer-root {
-  margin-left: 3px;
-  border-left: 1px dotted rgba(128, 128, 128, 0.2)
-} */
-.explorer-root {
-  /* padding-left: 3px; */
-  border-left:4px solid rgba(128, 128, 128, 0.1);
-  height: 100%;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import store from '@/store'
 import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
 export default Vue.extend({
+  components: { ExplorerNode },
   props: {
     value: { type: Object, default: () => ({}) },
     enabled: { type: Boolean, default: false }
@@ -142,7 +131,18 @@ export default Vue.extend({
     },
     template: async (state) => await store.dispatch('templates/execute', state),
     action: async (state) => await store.dispatch('actions/execute', state)
-  },
-  components: { ExplorerNode }
+  }
 })
 </script>
+
+<style>
+/* .explorer-root {
+  margin-left: 3px;
+  border-left: 1px dotted rgba(128, 128, 128, 0.2)
+} */
+.explorer-root {
+  /* padding-left: 3px; */
+  border-left:4px solid rgba(128, 128, 128, 0.1);
+  height: 100%;
+}
+</style>

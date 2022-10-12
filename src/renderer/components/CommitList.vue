@@ -37,45 +37,6 @@
   </v-card>
 </template>
 
-<style>
-.v-data-table table {
-  table-layout: fixed;
-}
-
-.v-data-table td {
-  padding: 0 !important;
-  font-size: 10px !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.v-data-table td:first-child {
-  padding: 0 6px !important;
-}
-
-.v-data-table th:last-child {
-  padding: 0 !important;
-}
-
-.v-data-table .v-btn {
-  width: 100% !important;
-  height: 100% !important;
-  text-align: left;
-  justify-content: left;
-  color: white;
-}
-
-.v-data-table td:last-child .v-btn{
-  text-align: center;
-  justify-content: center;
-}
-
-.v-data-table .v-btn .v-icon {
-  font-size: 14px !important;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VDataTable, VCard, VCardTitle, VBtn, VIcon, Resize } from 'vuetify/lib'
@@ -92,6 +53,9 @@ class RepositoryFile {
 
 export default Vue.extend({
   components: { VDataTable, VCard, VCardTitle, VBtn, VIcon },
+  directives: {
+    Resize
+  },
   props: {
     title: { type: String, default: 'List' },
     items: { type: Array, default: () => [] },
@@ -156,9 +120,45 @@ export default Vue.extend({
 
       return ''
     }
-  },
-  directives: {
-    Resize
   }
 })
 </script>
+
+<style>
+.v-data-table table {
+  table-layout: fixed;
+}
+
+.v-data-table td {
+  padding: 0 !important;
+  font-size: 10px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v-data-table td:first-child {
+  padding: 0 6px !important;
+}
+
+.v-data-table th:last-child {
+  padding: 0 !important;
+}
+
+.v-data-table .v-btn {
+  width: 100% !important;
+  height: 100% !important;
+  text-align: left;
+  justify-content: left;
+  color: white;
+}
+
+.v-data-table td:last-child .v-btn{
+  text-align: center;
+  justify-content: center;
+}
+
+.v-data-table .v-btn .v-icon {
+  font-size: 14px !important;
+}
+</style>

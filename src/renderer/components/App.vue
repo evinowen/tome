@@ -22,6 +22,54 @@
   </v-app>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import store from '@/store'
+
+import ContextMenuService from '@/components/ContextMenuService.vue'
+import SearchService from '@/components/SearchService.vue'
+
+import { VApp } from 'vuetify/lib'
+import SystemBar from '@/components/SystemBar.vue'
+import Settings from '@/components/Settings.vue'
+import Branch from '@/components/Branch.vue'
+import Patch from '@/components/Patch.vue'
+import Commit from '@/components/Commit.vue'
+import Push from '@/components/Push.vue'
+import Console from '@/components/Console.vue'
+import EditorInterface from '@/components/EditorInterface.vue'
+import EmptyPane from '@/components/EmptyPane.vue'
+import ActionBar from '@/components/ActionBar.vue'
+import ShortcutService from '@/components/ShortcutService.vue'
+
+export default Vue.extend({
+  components: {
+    VApp,
+    SystemBar,
+    Settings,
+    Branch,
+    Patch,
+    Commit,
+    Push,
+    Console,
+    EditorInterface,
+    EmptyPane,
+    ActionBar,
+    ContextMenuService,
+    SearchService,
+    ShortcutService
+  },
+  computed: {
+    repository: function () {
+      return store.state.repository
+    },
+    system: function () {
+      return store.state.system
+    }
+  }
+})
+</script>
+
 <style>
 ::-webkit-scrollbar {
   width: 12px;
@@ -67,51 +115,3 @@ html, body {
 
 }
 </style>
-
-<script lang="ts">
-import Vue from 'vue'
-import store from '@/store'
-
-import ContextMenuService from '@/components/ContextMenuService.vue'
-import SearchService from '@/components/SearchService.vue'
-
-import { VApp } from 'vuetify/lib'
-import SystemBar from '@/components/SystemBar.vue'
-import Settings from '@/components/Settings.vue'
-import Branch from '@/components/Branch.vue'
-import Patch from '@/components/Patch.vue'
-import Commit from '@/components/Commit.vue'
-import Push from '@/components/Push.vue'
-import Console from '@/components/Console.vue'
-import EditorInterface from '@/components/EditorInterface.vue'
-import EmptyPane from '@/components/EmptyPane.vue'
-import ActionBar from '@/components/ActionBar.vue'
-import ShortcutService from '@/components/ShortcutService.vue'
-
-export default Vue.extend({
-  computed: {
-    repository: function () {
-      return store.state.repository
-    },
-    system: function () {
-      return store.state.system
-    }
-  },
-  components: {
-    VApp,
-    SystemBar,
-    Settings,
-    Branch,
-    Patch,
-    Commit,
-    Push,
-    Console,
-    EditorInterface,
-    EmptyPane,
-    ActionBar,
-    ContextMenuService,
-    SearchService,
-    ShortcutService
-  }
-})
-</script>

@@ -19,12 +19,6 @@
   </v-layout>
 </template>
 
-<style scoped>
-.key-output {
-  font-family: monospace !important;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
@@ -44,3 +38,9 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style scoped>
+.key-output {
+  font-family: monospace !important;
+}
+</style>

@@ -52,14 +52,6 @@
   </v-card>
 </template>
 
-<style scoped>
-.text-preview {
-  max-height: 240px;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VCard, VIcon, VBtn, VSpacer, VTextField, VSwitch, VCardActions, VCardText, VListItem, VListItemAvatar, VListItemTitle, VListItemSubtitle, VListItemContent } from 'vuetify/lib'
@@ -71,3 +63,11 @@ export default Vue.extend({
   })
 })
 </script>
+
+<style scoped>
+.text-preview {
+  max-height: 240px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+</style>

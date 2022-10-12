@@ -54,43 +54,6 @@
   </div>
 </template>
 
-<style scoped>
-.v-list-item--link:before {
-  background: inherit;
-}
-
-.v-list-item:hover,
-.v-list-item:hover .item {
-  color: var(--v-primary-lighten4) !important;
-  background: var(--v-primary-darken2) !important;
-}
-
-.context-menu {
-  position: fixed;
-}
-
-.context-menu-list {
-  border-radius: 0px !important;
-  padding: 0px !important;
-  min-height: 20px;
-}
-
-.context-menu-list .v-subheader {
-  height: 18px !important;
-  padding: 4px;
-}
-
-.context-menu-list .v-list-item {
-  min-height: 0px !important;
-  padding: 1px;
-  font-weight: normal !important;
-}
-
-.menu-arrow {
-  width: 14px;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VLayout, VFlex, VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VIcon, VDivider, ClickOutside } from 'vuetify/lib'
@@ -124,10 +87,6 @@ export default Vue.extend({
     local_flip_y: false,
     resize_observer: null
   }),
-  mounted: function () {
-    this.resize_observer = new ResizeObserver(this.resize)
-    this.resize_observer.observe(this.$refs.node)
-  },
   watch: {
     position_x: function () {
       this.reposition()
@@ -141,6 +100,10 @@ export default Vue.extend({
     flip_y: function () {
       this.reposition()
     }
+  },
+  mounted: function () {
+    this.resize_observer = new ResizeObserver(this.resize)
+    this.resize_observer.observe(this.$refs.node)
   },
   methods: {
     include: function () {
@@ -230,3 +193,40 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style scoped>
+.v-list-item--link:before {
+  background: inherit;
+}
+
+.v-list-item:hover,
+.v-list-item:hover .item {
+  color: var(--v-primary-lighten4) !important;
+  background: var(--v-primary-darken2) !important;
+}
+
+.context-menu {
+  position: fixed;
+}
+
+.context-menu-list {
+  border-radius: 0px !important;
+  padding: 0px !important;
+  min-height: 20px;
+}
+
+.context-menu-list .v-subheader {
+  height: 18px !important;
+  padding: 4px;
+}
+
+.context-menu-list .v-list-item {
+  min-height: 0px !important;
+  padding: 1px;
+  font-weight: normal !important;
+}
+
+.menu-arrow {
+  width: 14px;
+}
+</style>

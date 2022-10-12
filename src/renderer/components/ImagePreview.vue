@@ -14,6 +14,40 @@
   </div>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import FileIcon from '@/components/FileIcon.vue'
+
+export default Vue.extend({
+  components: { FileIcon },
+  props: {
+    src: { type: String, default: '' },
+  },
+  data: () => ({
+    hide: false,
+    zoom: false
+  }),
+  methods: {
+    error: function () {
+      this.hide = true
+    },
+    click: async function (event) {
+      const scroll_x = event.offsetX / event.target.offsetWidth
+      const scroll_y = event.offsetY / event.target.offsetHeight
+
+      this.zoom = !this.zoom
+      await this.$nextTick()
+
+      const top = (scroll_y * event.target.offsetHeight) - (this.$refs.preview.offsetHeight * 0.5)
+      const left = (scroll_x * event.target.offsetWidth) - (this.$refs.preview.offsetWidth * 0.5)
+      const behavior = 'instant'
+
+      this.$refs.preview.scrollTo({ top, left, behavior })
+    }
+  }
+})
+</script>
+
 <style scoped>
 .image-preview {
   overflow: overlay;
@@ -55,37 +89,3 @@
   font-size: 90px;
 }
 </style>
-
-<script lang="ts">
-import Vue from 'vue'
-import FileIcon from '@/components/FileIcon.vue'
-
-export default Vue.extend({
-  components: { FileIcon },
-  props: {
-    src: { type: String, default: '' },
-  },
-  data: () => ({
-    hide: false,
-    zoom: false
-  }),
-  methods: {
-    error: function () {
-      this.hide = true
-    },
-    click: async function (event) {
-      const scroll_x = event.offsetX / event.target.offsetWidth
-      const scroll_y = event.offsetY / event.target.offsetHeight
-
-      this.zoom = !this.zoom
-      await this.$nextTick()
-
-      const top = (scroll_y * event.target.offsetHeight) - (this.$refs.preview.offsetHeight * 0.5)
-      const left = (scroll_x * event.target.offsetWidth) - (this.$refs.preview.offsetWidth * 0.5)
-      const behavior = 'instant'
-
-      this.$refs.preview.scrollTo({ top, left, behavior })
-    }
-  }
-})
-</script>

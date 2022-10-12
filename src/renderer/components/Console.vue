@@ -39,6 +39,49 @@
   </div>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import { DateTime } from 'luxon'
+import { VIcon, VBtn, VCard, VBottomSheet, VSnackbar } from 'vuetify/lib'
+import store from '@/store'
+
+export default Vue.extend({
+  components: { VIcon, VBtn, VCard, VBottomSheet, VSnackbar },
+  props: {
+    value: { type: Boolean, default: false }
+  },
+  data: () => ({
+    detail: false,
+    stack: ''
+  }),
+  computed: {
+    events: function () {
+      return store.state.events
+    }
+  },
+  methods: {
+    close: async function () {
+      await store.dispatch('system/console', false)
+    },
+    show_stack: function (stack) {
+      this.stack = stack.trim()
+
+      if (this.stack) {
+        this.detail = true
+      }
+    },
+    format_date: function (datetime) {
+      return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
+    },
+    format_message: function (message) {
+      return String(message)
+        .replace(/\r/g, '\u240D')
+        .replace(/\n/g, '\u2424')
+    }
+  }
+})
+</script>
+
 <style>
 .v-dialog--fullscreen {
   height: auto;
@@ -104,46 +147,3 @@
   flex-direction: column-reverse;
 }
 </style>
-
-<script lang="ts">
-import Vue from 'vue'
-import { DateTime } from 'luxon'
-import { VIcon, VBtn, VCard, VBottomSheet, VSnackbar } from 'vuetify/lib'
-import store from '@/store'
-
-export default Vue.extend({
-  components: { VIcon, VBtn, VCard, VBottomSheet, VSnackbar },
-  props: {
-    value: { type: Boolean, default: false }
-  },
-  data: () => ({
-    detail: false,
-    stack: ''
-  }),
-  computed: {
-    events: function () {
-      return store.state.events
-    }
-  },
-  methods: {
-    close: async function () {
-      await store.dispatch('system/console', false)
-    },
-    show_stack: function (stack) {
-      this.stack = stack.trim()
-
-      if (this.stack) {
-        this.detail = true
-      }
-    },
-    format_date: function (datetime) {
-      return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
-    },
-    format_message: function (message) {
-      return String(message)
-        .replace(/\r/g, '\u240D')
-        .replace(/\n/g, '\u2424')
-    }
-  }
-})
-</script>

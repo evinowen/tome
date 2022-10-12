@@ -63,43 +63,6 @@
   </v-dialog>
 </template>
 
-<style scoped>
-.v-data-table.commit-history {
-  border-radius: 0
-}
-
-.v-data-table.commit-history .v-btn {
-  width: 100% !important;
-  height: 100% !important;
-  text-align: left;
-  justify-content: left;
-}
-
-.v-data-table.commit-history th {
-  height: 1px;
-}
-
-.v-data-table.commit-history td {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  padding: 0 8px !important;
-}
-
-.v-data-table.commit-history td:first-child {
-  padding: 0px !important;
-}
-
-.v-data-table.commit-history td:first-child .v-btn {
-  text-align: center;
-  justify-content: center;
-}
-
-.v-data-table.commit-history .v-btn .v-icon {
-  font-size: 14px !important;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import {
@@ -150,3 +113,40 @@ export default Vue.extend({
   })
 })
 </script>
+
+<style scoped>
+.v-data-table.commit-history {
+  border-radius: 0
+}
+
+.v-data-table.commit-history .v-btn {
+  width: 100% !important;
+  height: 100% !important;
+  text-align: left;
+  justify-content: left;
+}
+
+.v-data-table.commit-history th {
+  height: 1px;
+}
+
+.v-data-table.commit-history td {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0 8px !important;
+}
+
+.v-data-table.commit-history td:first-child {
+  padding: 0px !important;
+}
+
+.v-data-table.commit-history td:first-child .v-btn {
+  text-align: center;
+  justify-content: center;
+}
+
+.v-data-table.commit-history .v-btn .v-icon {
+  font-size: 14px !important;
+}
+</style>

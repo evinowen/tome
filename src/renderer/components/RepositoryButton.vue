@@ -38,18 +38,6 @@
   </v-menu>
 </template>
 
-<style scoped>
-.button {
-  height: 18px !important;
-}
-
-.menu {
-  left: 2px !important;
-  top: auto !important;
-  bottom: 21px !important;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu } from 'vuetify/lib'
@@ -77,3 +65,15 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style scoped>
+.button {
+  height: 18px !important;
+}
+
+.menu {
+  left: 2px !important;
+  top: auto !important;
+  bottom: 21px !important;
+}
+</style>

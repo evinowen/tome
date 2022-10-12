@@ -80,148 +80,6 @@
   </v-container>
 </template>
 
-<style>
-
-.explorer-node {
-  min-height: 0 !important;
-  padding: 0 !important;
-  line-height: 12px !important;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: visible;
-  user-select: none;
-  vertical-align: text-bottom;
-}
-
-.explorer-node * {
-  text-overflow: ellipsis;
-  cursor: pointer !important;
-}
-
-.explorer-node .v-icon {
-  font-size: 14px !important;
-}
-
-.explorer-node .v-btn,
-.explorer-node input {
-  position: relative;
-  cursor: pointer !important;
-}
-
-.explorer-icon-badged {
-  mask-image:
-    radial-gradient(circle at calc(100% - 3px) calc(100% - 3px),
-    rgba(0, 0, 0, 0) 4px, rgba(0, 0, 0, 1) 40%);
-}
-
-.explorer-node .v-btn .explorer-badge {
-  position: absolute;
-  bottom: -1.5px;
-  right: -0.40px;
-  font-size: 10px !important;
-  background-blend-mode: overlay;
-}
-
-.explorer-node-break {
-  height: 0px;
-  width: 100%;
-}
-
-.explorer-node-drop {
-  height: 18px;
-  margin: 0;
-  text-overflow: ellipsis;
-}
-
-.explorer-node-drop.drop {
-  color: var(--v-accent-lighten4) !important;
-  background: var(--v-accent-darken1) !important;
-}
-
-.explorer-node-drop.drop .v-btn,
-.explorer-node-drop.drop input {
-  color: var(--v-accent-lighten4) !important;
-}
-
-.explorer-node .v-input,
-.explorer-node .v-input input {
-  margin: 0 !important;
-  padding: 0 !important;
-  font-size: 10px;
-}
-
-.explorer-node .v-input__slot {
-  min-height: 0 !important;
-  margin: 0 !important;
-}
-
-.explorer-node .v-input__slot::before {
-  border-style: none !important;
-}
-
-.explorer-node .v-input__slot:after {
-  border: none !important;
-}
-
-.explorer-node .v-text-field__details {
-  margin-top: 20px;
-  position: absolute !important;
-  right: 0px;
-  z-index: 1000;
-}
-
-.explorer-node .v-input__slot {
-  padding: 0 !important;
-}
-
-.explorer-node .v-input__icon {
-  height: 18px;
-}
-
-.explorer-node .v-input__prepend-inner {
-  margin-top: 0 !important;
-}
-
-.explorer-node .v-input--is-disabled .v-text-field__details {
-  display: none !important;
-}
-
-.explorer-node-container {
-  border: none;
-  width: auto !important;
-  min-height: 8px;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.explorer-node:hover {
-  background: var(--v-primary-darken2) !important;
-}
-.explorer-node:hover .v-btn,
-.explorer-node:hover input {
-  color: var(--v-primary-lighten4) !important;
-}
-
-.explorer-node-selected {
-  background: var(--v-primary-darken3) !important;
-}
-
-.explorer-node-selected .v-btn,
-.explorer-node-selected input {
-  color: var(--v-primary-lighten3) !important;
-}
-
-.explorer-node-selected:hover {
-  background: var(--v-primary-darken2) !important;
-}
-
-.explorer-node-selected:hover .v-btn,
-.explorer-node-selected:hover input {
-  color: var(--v-primary-lighten4) !important;
-}
-
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VContainer, VLayout, VFlex, VForm, VTextField } from 'vuetify/lib'
@@ -492,3 +350,145 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style>
+
+.explorer-node {
+  min-height: 0 !important;
+  padding: 0 !important;
+  line-height: 12px !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: visible;
+  user-select: none;
+  vertical-align: text-bottom;
+}
+
+.explorer-node * {
+  text-overflow: ellipsis;
+  cursor: pointer !important;
+}
+
+.explorer-node .v-icon {
+  font-size: 14px !important;
+}
+
+.explorer-node .v-btn,
+.explorer-node input {
+  position: relative;
+  cursor: pointer !important;
+}
+
+.explorer-icon-badged {
+  mask-image:
+    radial-gradient(circle at calc(100% - 3px) calc(100% - 3px),
+    rgba(0, 0, 0, 0) 4px, rgba(0, 0, 0, 1) 40%);
+}
+
+.explorer-node .v-btn .explorer-badge {
+  position: absolute;
+  bottom: -1.5px;
+  right: -0.40px;
+  font-size: 10px !important;
+  background-blend-mode: overlay;
+}
+
+.explorer-node-break {
+  height: 0px;
+  width: 100%;
+}
+
+.explorer-node-drop {
+  height: 18px;
+  margin: 0;
+  text-overflow: ellipsis;
+}
+
+.explorer-node-drop.drop {
+  color: var(--v-accent-lighten4) !important;
+  background: var(--v-accent-darken1) !important;
+}
+
+.explorer-node-drop.drop .v-btn,
+.explorer-node-drop.drop input {
+  color: var(--v-accent-lighten4) !important;
+}
+
+.explorer-node .v-input,
+.explorer-node .v-input input {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 10px;
+}
+
+.explorer-node .v-input__slot {
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+
+.explorer-node .v-input__slot::before {
+  border-style: none !important;
+}
+
+.explorer-node .v-input__slot:after {
+  border: none !important;
+}
+
+.explorer-node .v-text-field__details {
+  margin-top: 20px;
+  position: absolute !important;
+  right: 0px;
+  z-index: 1000;
+}
+
+.explorer-node .v-input__slot {
+  padding: 0 !important;
+}
+
+.explorer-node .v-input__icon {
+  height: 18px;
+}
+
+.explorer-node .v-input__prepend-inner {
+  margin-top: 0 !important;
+}
+
+.explorer-node .v-input--is-disabled .v-text-field__details {
+  display: none !important;
+}
+
+.explorer-node-container {
+  border: none;
+  width: auto !important;
+  min-height: 8px;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.explorer-node:hover {
+  background: var(--v-primary-darken2) !important;
+}
+.explorer-node:hover .v-btn,
+.explorer-node:hover input {
+  color: var(--v-primary-lighten4) !important;
+}
+
+.explorer-node-selected {
+  background: var(--v-primary-darken3) !important;
+}
+
+.explorer-node-selected .v-btn,
+.explorer-node-selected input {
+  color: var(--v-primary-lighten3) !important;
+}
+
+.explorer-node-selected:hover {
+  background: var(--v-primary-darken2) !important;
+}
+
+.explorer-node-selected:hover .v-btn,
+.explorer-node-selected:hover input {
+  color: var(--v-primary-lighten4) !important;
+}
+
+</style>

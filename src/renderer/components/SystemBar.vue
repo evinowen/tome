@@ -23,33 +23,6 @@
   </v-system-bar>
 </template>
 
-<style scoped>
-.v-system-bar {
-  -webkit-app-region: drag;
-}
-
-.v-system-bar button {
-  -webkit-app-region: no-drag;
-}
-
-.v-system-bar .v-btn,
-.v-system-bar .v-btn .v-icon {
-  margin: 0 !important;
-  font-size: 12px;
-  height: 25px;
-  width: 25px;
-}
-
-@-webkit-keyframes rotating {
-  from{ -webkit-transform: rotate(0deg); }
-  to{ -webkit-transform: rotate(360deg); }
-}
-
-.rotate .v-icon {
-  -webkit-animation: rotating 2s linear infinite;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VBtn, VIcon, VSystemBar, VSpacer } from 'vuetify/lib'
@@ -86,3 +59,30 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style scoped>
+.v-system-bar {
+  -webkit-app-region: drag;
+}
+
+.v-system-bar button {
+  -webkit-app-region: no-drag;
+}
+
+.v-system-bar .v-btn,
+.v-system-bar .v-btn .v-icon {
+  margin: 0 !important;
+  font-size: 12px;
+  height: 25px;
+  width: 25px;
+}
+
+@-webkit-keyframes rotating {
+  from{ -webkit-transform: rotate(0deg); }
+  to{ -webkit-transform: rotate(360deg); }
+}
+
+.rotate .v-icon {
+  -webkit-animation: rotating 2s linear infinite;
+}
+</style>

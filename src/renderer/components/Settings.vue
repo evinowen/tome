@@ -258,23 +258,6 @@
   </v-navigation-drawer>
 </template>
 
-<style scoped>
-.tome {
-  background: rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-  margin: auto;
-  width: 200px;
-  padding: 6px;
-  text-align: center;
-}
-
-.actions {
-  backdrop-filter: blur(2px);
-  bottom: 0px;
-  position: sticky;
-}
-</style>
-
 <script lang="ts">
 import Vue from 'vue'
 import { VLayout, VFlex, VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/lib'
@@ -287,6 +270,23 @@ import ThemeColorPicker from './ThemeColorPicker.vue'
 import SeaGame from './SeaGame.vue'
 
 export default Vue.extend({
+  components: {
+    VCol,
+    VRow,
+    VBtn,
+    VDivider,
+    VContainer,
+    VSwitch,
+    VTextField,
+    VNavigationDrawer,
+    KeyfileInput,
+    KeyfileOutput,
+    ThemePreview,
+    ThemeColorPicker,
+    VLayout,
+    VFlex,
+    SeaGame
+  },
   props: {
     value: { type: Boolean, default: false }
   },
@@ -320,23 +320,23 @@ export default Vue.extend({
     save: async function () {
       await store.dispatch('configuration/write', store.state.configuration_path)
     }
-  },
-  components: {
-    VCol,
-    VRow,
-    VBtn,
-    VDivider,
-    VContainer,
-    VSwitch,
-    VTextField,
-    VNavigationDrawer,
-    KeyfileInput,
-    KeyfileOutput,
-    ThemePreview,
-    ThemeColorPicker,
-    VLayout,
-    VFlex,
-    SeaGame
   }
 })
 </script>
+
+<style scoped>
+.tome {
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+  margin: auto;
+  width: 200px;
+  padding: 6px;
+  text-align: center;
+}
+
+.actions {
+  backdrop-filter: blur(2px);
+  bottom: 0px;
+  position: sticky;
+}
+</style>

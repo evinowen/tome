@@ -73,6 +73,74 @@
   </div>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition } from 'vuetify/lib'
+import { debounce } from 'lodash'
+import store from '@/store'
+
+export default Vue.extend({
+  name: 'SearchService',
+  components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition },
+  computed: {
+    status: function () {
+      return store.state.search.status
+    },
+    results: function () {
+      return store.state.search.results
+    },
+    navigation: function () {
+      return store.state.search.navigation
+    },
+    query: function () {
+      return store.state.search.query
+    },
+    multifile: function () {
+      return store.state.search.multifile
+    },
+    regex_query: function () {
+      return store.state.search.regex_query
+    },
+    case_sensitive: function () {
+      return store.state.search.case_sensitive
+    },
+    state: function () {
+      const { multifile, regex_query, case_sensitive } = this
+      return [multifile, regex_query, case_sensitive]
+    },
+    debounce_update: function () {
+      return debounce(this.update, 500)
+    }
+  },
+  watch: {
+    state: function () {
+      this.debounce_update(this.query)
+    }
+  },
+  methods: {
+    update: async function (query) {
+      const path = store.state.repository.path
+      await store.dispatch('search/query', { path, query })
+    },
+    next: async () => await store.dispatch('search/next'),
+    previous: async () => await store.dispatch('search/previous'),
+    flag: async function (key, value) {
+      await store.dispatch(`search/${key}`, value)
+    },
+    select: async function (path, target = 0, total = 0) {
+      await store.dispatch('files/select', { path })
+
+      if (target > 0) {
+        await store.dispatch('search/navigate', { target, total })
+      }
+    },
+    debounce_clear: async function () {
+      return await this.debounce_update('')
+    }
+  }
+})
+</script>
+
 <style>
 .search-buttons .v-btn {
   min-width: 0px !important;
@@ -183,71 +251,3 @@
 }
 
 </style>
-
-<script lang="ts">
-import Vue from 'vue'
-import { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition } from 'vuetify/lib'
-import { debounce } from 'lodash'
-import store from '@/store'
-
-export default Vue.extend({
-  name: 'SearchService',
-  components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition },
-  computed: {
-    status: function () {
-      return store.state.search.status
-    },
-    results: function () {
-      return store.state.search.results
-    },
-    navigation: function () {
-      return store.state.search.navigation
-    },
-    query: function () {
-      return store.state.search.query
-    },
-    multifile: function () {
-      return store.state.search.multifile
-    },
-    regex_query: function () {
-      return store.state.search.regex_query
-    },
-    case_sensitive: function () {
-      return store.state.search.case_sensitive
-    },
-    state: function () {
-      const { multifile, regex_query, case_sensitive } = this
-      return [multifile, regex_query, case_sensitive]
-    },
-    debounce_update: function () {
-      return debounce(this.update, 500)
-    }
-  },
-  watch: {
-    state: function () {
-      this.debounce_update(this.query)
-    }
-  },
-  methods: {
-    update: async function (query) {
-      const path = store.state.repository.path
-      await store.dispatch('search/query', { path, query })
-    },
-    next: async () => await store.dispatch('search/next'),
-    previous: async () => await store.dispatch('search/previous'),
-    flag: async function (key, value) {
-      await store.dispatch(`search/${key}`, value)
-    },
-    select: async function (path, target = 0, total = 0) {
-      await store.dispatch('files/select', { path })
-
-      if (target > 0) {
-        await store.dispatch('search/navigate', { target, total })
-      }
-    },
-    debounce_clear: async function () {
-      return await this.debounce_update('')
-    }
-  }
-})
-</script>
