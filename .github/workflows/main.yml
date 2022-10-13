@@ -100,6 +100,7 @@ jobs:
       env:
         DEBUG: electron-builder
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        CSC_FOR_PULL_REQUEST: true
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
@@ -205,6 +206,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         CSC_LINK: "certificate.p12"
         CSC_KEY_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_WIN_APPLICATION }}
+        CSC_FOR_PULL_REQUEST: true
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
@@ -288,6 +290,7 @@ jobs:
         DEBUG: electron-builder,electron-osx-sign*
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         CSC_KEYCHAIN: build.keychain
+        CSC_FOR_PULL_REQUEST: true
         APPLE_ID: ${{ secrets.APPLE_ID }}
         APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
