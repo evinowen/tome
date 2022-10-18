@@ -1,7 +1,7 @@
 import component from '../factory'
 import * as path from 'node:path'
 
-export = component('path')(
+export default component('path')(
   ({ handle }) => {
     handle('basename', (query) => path.basename(query))
 

@@ -14,6 +14,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'unicorn'],
   rules: {
     '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
     'camelcase': 'off',
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',

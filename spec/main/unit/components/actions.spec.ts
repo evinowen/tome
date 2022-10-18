@@ -1,17 +1,19 @@
-const { cloneDeep } = require('lodash')
-const electron = require('electron')
-const fs = require('node:fs')
-const path = require('node:path')
-const vm = require('node:vm')
-const { random_string } = require('?/helpers')(expect)
-const _component = require('@/components/actions')
-const preload = require('@/components/actions/preload')
+import { cloneDeep } from 'lodash'
+import * as electron from 'electron'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import * as vm from 'node:vm'
+import helpers from '../../helpers'
+import _component from '@/components/actions'
+import preload from '@/components/actions/preload'
 
 let ipcMainMap
 
+const { random_string } = helpers(expect)
 const { environment } = _component.data()
-environment.require = jest.fn()
-environment.require.resolve = jest.fn(() => 'example')
+
+jest.spyOn(environment, 'require').mockImplementation(() => ({ resolve: jest.fn() }))
+jest.spyOn(environment, 'resolve').mockImplementation(() => ({ resolve: jest.fn() }))
 
 jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
@@ -19,8 +21,9 @@ jest.mock('electron', () => ({
   ipcRenderer: { invoke: jest.fn() }
 }))
 
-electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
+const mocked_electron = jest.mocked(electron)
+mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
+mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
 jest.mock('node:fs', () => ({
   lstat: jest.fn(),
@@ -34,15 +37,17 @@ const fs_lstat_return = {
 
 const optional = (first, second) => second || first
 
-fs.lstat.mockImplementation((path, callback) => callback(undefined, fs_lstat_return))
-fs.readFile.mockImplementation((target, encoding, callback) => callback(undefined, random_string(128)))
-fs.writeFile.mockImplementation((target, content, encoding, callback) => optional(encoding, callback)())
+const mocked_fs = jest.mocked(fs)
+mocked_fs.lstat.mockImplementation((path, options?, callback?) => optional(options, callback)(undefined, fs_lstat_return))
+mocked_fs.readFile.mockImplementation((target, options?, callback?) => optional(options, callback)(undefined, random_string(128)))
+mocked_fs.writeFile.mockImplementation((target, content, encoding?, callback?) => optional(encoding, callback)())
 
 jest.mock('node:path', () => ({
   join: jest.fn()
 }))
 
-path.join.mockImplementation((...input) => input.join('/'))
+const mocked_path = jest.mocked(path)
+mocked_path.join.mockImplementation((...input) => input.join('/'))
 
 let vm_script_success = true
 
@@ -62,14 +67,14 @@ const vm_script = {
 
     resolve(true)
   })
-}
+} as unknown as vm.Script
 
 jest.mock('node:vm', () => ({
   Script: jest.fn()
 }))
 
-vm.Script.mockImplementation(() => vm_script)
-
+const mocked_vm = jest.mocked(vm)
+mocked_vm.Script.mockImplementation(() => vm_script)
 
 describe('components/actions', () => {
   let component

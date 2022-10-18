@@ -2,7 +2,7 @@ import invoker from '../invoke'
 
 const invoke = invoker('path')
 
-export = {
+export default {
   basename: invoke('basename'),
   dirname: invoke('dirname'),
   extension: invoke('extension'),

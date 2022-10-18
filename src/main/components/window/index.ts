@@ -1,6 +1,6 @@
 import component from '../factory'
 
-export = component('window')(
+export default component('window')(
   ({ handle }, win) => {
     handle('is-maximized', () => win.isMaximized())
 

@@ -6,7 +6,7 @@ import * as path from 'node:path'
 import * as tmp from 'tmp-promise'
 import { promise_with_reject } from '../../promise'
 
-export = component('ssl')(
+export default component('ssl')(
   ({ handle }) => {
     handle('generate-public-key', async (target, passphrase: string|undefined) => {
       if (!target) {

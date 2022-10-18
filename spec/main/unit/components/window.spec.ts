@@ -1,7 +1,7 @@
-const { cloneDeep } = require('lodash')
-const electron = require('electron')
-const _component = require('@/components/window')
-const preload = require('@/components/window/preload')
+import { cloneDeep } from 'lodash'
+import * as electron from 'electron'
+import _component from '@/components/window'
+import preload from '@/components/window/preload'
 
 let ipcMainMap
 
@@ -11,8 +11,9 @@ jest.mock('electron', () => ({
   ipcRenderer: { invoke: jest.fn() }
 }))
 
-electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
+const mocked_electron = jest.mocked(electron)
+mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
+mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
 describe('components/window', () => {
   let component

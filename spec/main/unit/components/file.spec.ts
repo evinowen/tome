@@ -1,13 +1,19 @@
-const { cloneDeep } = require('lodash')
-const electron = require('electron')
-const { reset_disk } = require('?/mocks/support/disk')
-const fs = require('node:fs')
-const chokidar = require('chokidar')
-const { random_string } = require('?/helpers')(expect)
-const _component = require('@/components/file')
-const preload = require('@/components/file/preload')
+import { cloneDeep } from 'lodash'
+import * as electron from 'electron'
+import Disk from '../../mocks/support/disk'
+import * as fs from 'node:fs'
+import * as chokidar from 'chokidar'
+import helpers from '../../helpers'
+import _component from '@/components/file'
+import preload from '@/components/file/preload'
+
+import mocked_fs_data from '../../meta/node/fs'
+import fs_meta from '../../meta/node/fs'
+import * as fs_mock from '../../mocks/node/fs'
+
 
 let ipcMainMap
+const { random_string } = helpers(expect)
 
 jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
@@ -33,11 +39,15 @@ const chokider_event = {
   path: random_string()
 }
 
-electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-electron.ipcMain.on.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
-electron.ipcRenderer.send.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
-electron.ipcRenderer.on.mockImplementation((channel, listener) => listener({}, chokider_event))
+const mocked_electron = jest.mocked(electron)
+mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
+mocked_electron.ipcMain.on.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
+mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
+mocked_electron.ipcRenderer.send.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
+mocked_electron.ipcRenderer.on.mockImplementation((channel, listener) => {
+  listener({} as electron.IpcRendererEvent, chokider_event)
+  return mocked_electron.ipcRenderer
+})
 
 jest.mock('chokidar', () => ({
   watch: jest.fn()
@@ -49,19 +59,23 @@ const chokidar_watcher = {
     listener('event', 'path')
     return this
   }
-}
+} as unknown as chokidar.FSWatcher
 
-chokidar.watch.mockImplementation(() => chokidar_watcher)
+const mocked_chokidar = jest.mocked(chokidar)
+mocked_chokidar.watch.mockImplementation(() => chokidar_watcher)
 
-jest.mock('node:fs', () => require('?/mocks/fs'))
-jest.mock('node:path', () => require('?/mocks/path'))
+jest.setMock('node:fs', () => fs_mock)
+jest.mock('node:path')
 
 describe('components/file', () => {
   let component
   let win
 
+  const disk = new Disk
+
   beforeEach(() => {
-    reset_disk()
+    fs_meta.set_disk(disk)
+    disk.reset_disk()
 
     ipcMainMap = new Map()
 
@@ -113,7 +127,7 @@ describe('components/file', () => {
     const result = await preload.is_directory(target)
 
     expect(fs.lstat).toHaveBeenCalled()
-    expect(result).toBe(fs._.lstat_return(target).isDirectory())
+    expect(result).toBe(mocked_fs_data.lstat_return(target).isDirectory())
   })
 
   it('should create directory upon call to create_directory', async () => {

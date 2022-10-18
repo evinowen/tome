@@ -1,8 +1,7 @@
-const { cloneDeep } = require('lodash')
-const electron = require('electron')
-const nodegit = require('nodegit')
-const _component = require('@/components/repository')
-const preload = require('@/components/repository/preload')
+import { cloneDeep } from 'lodash'
+import * as electron from 'electron'
+import _component from '@/components/repository'
+import preload from '@/components/repository/preload'
 
 let ipcMainMap
 
@@ -12,23 +11,11 @@ jest.mock('electron', () => ({
   ipcRenderer: { invoke: jest.fn() }
 }))
 
-electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
+const mocked_electron = jest.mocked(electron)
+mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
+mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
-jest.mock('nodegit', () => ({
-  Reset: {},
-  Reference: {},
-  Repository: {},
-  Signature: {},
-  Diff: { LINE: 1 }
-}))
-
-nodegit.Repository = {
-  open: jest.fn(),
-  init: jest.fn()
-}
-
-jest.mock('@/components/repository/Repository', () => require('?/mocks/components/repository/Repository'))
+jest.mock('@/components/repository/Repository', () => require('../../../mocks/components/repository/Repository'))
 
 describe('components/repository', () => {
   let component

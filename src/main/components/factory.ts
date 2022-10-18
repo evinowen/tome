@@ -20,11 +20,12 @@ export default (namespace) => {
     })
   }
 
-  return (register, data = {}) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (register, data?: () => Record<string, any>) => ({
     register: (win) => {
       log.info(`Register component ${namespace}`)
       return register({ handle, on: event }, win)
     },
-    data
+    data: data || (() => ({}))
   })
 }

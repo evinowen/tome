@@ -1,5 +1,5 @@
 import component from '../factory'
-import log from 'electron-log'
+import * as log from 'electron-log'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Script } from 'node:vm'
@@ -7,6 +7,8 @@ import { promise_with_reject } from '../../promise'
 
 const environment = {
   require,
+  resolve: require.resolve,
+  cache: require.cache,
   console: {
     log: (...parameters) => log.info(...parameters),
     error: (...parameters) => log.error(...parameters)
@@ -15,7 +17,7 @@ const environment = {
 
 const timeout = 30_000
 
-export = component('action')(
+export default component('action')(
   ({ handle }) => {
     handle('invoke', async (source, target, selection) => {
       const stats = await promise_with_reject<fs.Dirent>(fs.lstat)(source)
@@ -39,8 +41,8 @@ export = component('action')(
 
         if (absolute !== source) {
           try {
-            const resolved = environment.require.resolve(absolute)
-            delete environment.require.cache[resolved]
+            const resolved = environment.resolve(absolute)
+            delete environment.cache[resolved]
             return environment.require(absolute)
           } catch (error) {
             log.error(error)
@@ -62,6 +64,7 @@ export = component('action')(
 
         return { success: true, message, selection: context.selection }
       } catch (error) {
+        log.error(error)
         return { success: false, message: error ? String(error) : undefined }
       }
     })

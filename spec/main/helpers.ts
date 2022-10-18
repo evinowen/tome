@@ -1,8 +1,9 @@
 const base36_upper = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const base36_lower = '0123456789abcdefghijklmnopqrstuvwxyz'
 
-module.exports = () => ({
-  expect_call_parameters_to_return: (expect) => (callable, parameters, result) => {
+export default (expect) => ({
+  optional: (first?, second?, third?) => third || second || first,
+  expect_call_parameters_to_return: (callable, parameters, result?) => {
     expect(callable).toHaveBeenCalled()
 
     const mock_call = callable.mock.calls.shift()

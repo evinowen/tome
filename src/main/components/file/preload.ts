@@ -4,7 +4,7 @@ import subscriber from '../subscribe'
 const invoke = invoker('file')
 const subscribe = subscriber('file')
 
-export = {
+export default {
   subscribe: (path, listener) => subscribe('events')(path)(listener),
   clear_subscriptions: invoke('clear-subscriptions'),
   exists: invoke('exists'),

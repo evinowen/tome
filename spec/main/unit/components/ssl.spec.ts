@@ -1,13 +1,14 @@
-const { cloneDeep } = require('lodash')
-const electron = require('electron')
-const forge = require('node-forge')
-const fs = require('node:fs')
-const tmp = require('tmp-promise')
-const { random_string, expect_call_parameters_to_return } = require('?/helpers')(expect)
-const _component = require('@/components/ssl')
-const preload = require('@/components/ssl/preload')
+import { cloneDeep } from 'lodash'
+import * as electron from 'electron'
+import * as forge from 'node-forge'
+import * as fs from 'node:fs'
+import * as tmp from 'tmp-promise'
+import helpers from '../../helpers'
+import _component from '@/components/ssl'
+import preload from '@/components/ssl/preload'
 
 let ipcMainMap
+const { optional, random_string, expect_call_parameters_to_return } = helpers(expect)
 
 jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
@@ -18,8 +19,9 @@ jest.mock('electron', () => ({
   }
 }))
 
-electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
+const mocked_electron = jest.mocked(electron)
+mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
+mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
 jest.mock('node-forge', () => ({
   pki: {
@@ -36,17 +38,28 @@ jest.mock('node-forge', () => ({
   }
 }))
 
-forge.pki.decryptRsaPrivateKey.mockImplementation(() => ({ n: random_string(), e: random_string() }))
-forge.pki.privateKeyFromPem.mockImplementation(() => ({ n: random_string(), e: random_string() }))
-forge.pki.rsa.generateKeyPair.mockImplementation((options, callback) => callback(undefined, random_string()))
+const mocked_forge = jest.mocked(forge)
+mocked_forge.pki.decryptRsaPrivateKey.mockImplementation(() => ({ n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PrivateKey))
+mocked_forge.pki.privateKeyFromPem.mockImplementation(() => ({ n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PrivateKey))
+mocked_forge.pki.rsa.generateKeyPair.mockImplementation((options?, callback?) => {
+  const keypair = {
+    publicKey: { n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PublicKey,
+    privateKey: { n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PrivateKey
+  }
+
+  callback(undefined, keypair)
+  return keypair
+})
 
 jest.mock('node:fs', () => ({
   readFile: jest.fn(),
   writeFile: jest.fn()
 }))
 
-fs.readFile.mockImplementation((path, encoding, callback) => callback(undefined, random_string()))
-fs.writeFile.mockImplementation((file, data, callback) => callback())
+let error: Error
+const mocked_fs = jest.mocked(fs)
+mocked_fs.readFile.mockImplementation((path, options?, callback?) => optional(options, callback)(undefined, random_string()))
+mocked_fs.writeFile.mockImplementation((file, data, callback) => callback(error))
 
 jest.mock('node:path', () => ({
   join: jest.fn()
@@ -56,7 +69,8 @@ jest.mock('tmp-promise', () => ({
   file: jest.fn()
 }))
 
-tmp.file.mockImplementation(() => random_string(16, true))
+const mocked_temporary = jest.mocked(tmp)
+mocked_temporary.file.mockImplementation(() => Promise.resolve({ path: random_string(16, true), fd: 0, cleanup: () => Promise.resolve() }))
 
 describe('components/ssl', () => {
   let component
@@ -81,23 +95,23 @@ describe('components/ssl', () => {
 
   it('should generate public key without decryption if not passphrase is provided upon call to generate_public_key', async () => {
     const target = '/id_rsa'
-    const result = await preload.generate_public_key(target)
+    await preload.generate_public_key(target)
 
     expect(forge.pki.decryptRsaPrivateKey).not.toHaveBeenCalled()
     expect(forge.pki.privateKeyFromPem).toHaveBeenCalled()
 
-    expect_call_parameters_to_return(tmp.file, [], result.path)
+    expect_call_parameters_to_return(tmp.file, [], Promise.resolve({}))
   })
 
   it('should generate public key after decryption if passphrase is provided upon call to generate_public_key', async () => {
     const target = '/id_rsa'
     const passphrase = 'password'
-    const result = await preload.generate_public_key(target, passphrase)
+    await preload.generate_public_key(target, passphrase)
 
     expect(forge.pki.decryptRsaPrivateKey).toHaveBeenCalled()
     expect(forge.pki.privateKeyFromPem).not.toHaveBeenCalled()
 
-    expect_call_parameters_to_return(tmp.file, [], result.path)
+    expect_call_parameters_to_return(tmp.file, [], Promise.resolve({}))
   })
 
   it('should generate key upon call to generate_private_key', async () => {

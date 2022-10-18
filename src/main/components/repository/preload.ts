@@ -2,7 +2,7 @@ import invoker from '../invoke'
 
 const invoke = invoker('repository')
 
-export = {
+export default {
   load: invoke('load'),
   refresh: invoke('refresh'),
   refresh_patches: invoke('refresh-patches'),

@@ -1,8 +1,8 @@
-import NodeGit from 'nodegit'
-import RepositoryFile from './RepositoryFile'
-import RepositoryPatch from './RepositoryPatch'
+import * as NodeGit from 'nodegit'
 import * as _path from 'node:path'
 import * as _fs from 'node:fs'
+import RepositoryFile from './RepositoryFile'
+import RepositoryPatch from './RepositoryPatch'
 
 interface NodeGitRemoteHead {
   oid(): NodeGit.Oid
@@ -417,7 +417,7 @@ export default class Repository {
     }
   }
 
-  async stage (query, notify) {
+  async stage (query, notify?) {
     if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
@@ -453,7 +453,7 @@ export default class Repository {
     }
   }
 
-  async reset (query, notify) {
+  async reset (query, notify?) {
     if (this.repository === undefined) {
       throw new RepositoryNotLoadedError()
     }
@@ -522,5 +522,3 @@ export default class Repository {
     await this.remote_object.push([refspec], options)
   }
 }
-
-module.exports = Repository

@@ -1,7 +1,8 @@
-const Repository = require('@/components/repository/Repository')
-const fs = require('node:fs')
-const path = require('node:path')
-const NodeGit = require('nodegit')
+import Repository from '@/components/repository/Repository'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import * as NodeGit from 'nodegit'
+import { mocked_commit, mocked_commit_id, mocked_diff, mocked_repository } from '../../../mocks/nodegit'
 
 jest.mock('@/components/repository/RepositoryPatch')
 
@@ -22,177 +23,10 @@ jest.mock('node:path', () => ({
   join: jest.fn((first, second) => `${String(first).replace(/\/$/g, '')}${String(second).replace(/^\/|\/$/g, '')}`)
 }))
 
-jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {}, Diff: { LINE: 1 } }))
+jest.mock('nodegit')
 
-const nodegit_references = [
-  {
-    name: jest.fn(() => 'refs/heads/master'),
-    oid: jest.fn()
-  }
-]
-
-const nodegit_remote = {
-  name: jest.fn(() => ''),
-  url: jest.fn(() => 'git@git.example.com:remote.git'),
-  connect: jest.fn(),
-  referenceList: jest.fn(() => nodegit_references),
-  push: jest.fn()
-}
-
-const nodegit_remotes = [
-  nodegit_remote
-]
-
-const nodegit_branch = {
-  shorthand: jest.fn(() => 'master')
-}
-
-const nodegit_tree = {
-  diff: jest.fn(() => nodegit_diff)
-}
-
-const nodegit_commit_id = {
-  cmp: jest.fn(() => 0),
-  tostrS: jest.fn(() => '1234')
-}
-
-const nodegit_commit = {
-  id: jest.fn(() => nodegit_commit_id),
-  date: jest.fn(),
-  message: jest.fn(() => 'Commit Message'),
-  parentcount: jest.fn(() => 0),
-  parent: jest.fn(),
-  getParents: jest.fn(() => [nodegit_commit]),
-  getTree: jest.fn(() => nodegit_tree)
-}
-
-const nodegit_repository_index = {
-  addByPath: jest.fn(),
-  removeByPath: jest.fn(),
-  write: jest.fn(),
-  writeTree: jest.fn()
-}
-
-const nodegit_repository_status = [
-  {
-    path: jest.fn(() => './first_file'),
-    isNew: jest.fn(() => true),
-    isModified: jest.fn(() => false),
-    isRenamed: jest.fn(() => false),
-    isDeleted: jest.fn(() => false)
-  },
-  {
-    path: jest.fn(() => './second_file'),
-    isNew: jest.fn(() => false),
-    isModified: jest.fn(() => true),
-    isRenamed: jest.fn(() => false),
-    isDeleted: jest.fn(() => false)
-  },
-  {
-    path: jest.fn(() => './third_file'),
-    isNew: jest.fn(() => false),
-    isModified: jest.fn(() => false),
-    isRenamed: jest.fn(() => true),
-    isDeleted: jest.fn(() => false)
-  },
-  {
-    path: jest.fn(() => './fourth_file'),
-    isNew: jest.fn(() => false),
-    isModified: jest.fn(() => false),
-    isRenamed: jest.fn(() => false),
-    isDeleted: jest.fn(() => true)
-  }
-]
-
-const nodegit_repository = {
-  headDetached: jest.fn(),
-  headUnborn: jest.fn(),
-  isMerging: jest.fn(),
-  isRebasing: jest.fn(),
-  head: jest.fn(() => nodegit_branch),
-  createCommit: jest.fn(),
-  getCommit: jest.fn(() => nodegit_commit),
-  getBranchCommit: jest.fn(() => nodegit_commit),
-  getReferenceCommit: jest.fn(() => nodegit_commit),
-  getRemotes: jest.fn(() => nodegit_remotes),
-  getStatus: jest.fn(() => Promise.resolve(nodegit_repository_status)),
-  refreshIndex: jest.fn(() => nodegit_repository_index)
-}
-
-const nodegit_patches = [{}, {}, {}]
-
-const nodegit_diff = {
-  patches: jest.fn(() => nodegit_patches)
-}
-
-NodeGit.Cred = {
-  sshKeyNew: jest.fn((username, public_key, private_key, passphrase) => ({
-    username, public_key, private_key, passphrase
-  }))
-}
-
-NodeGit.DiffOptions = jest.fn()
-
-NodeGit.Diff = {
-  treeToWorkdir: jest.fn(() => nodegit_diff),
-  OPTION: {
-    DISABLE_PATHSPEC_MATCH: 0,
-    INCLUDE_UNREADABLE: 0,
-    INCLUDE_UNTRACKED: 0,
-    RECURSE_UNTRACKED_DIRS: 0
-  }
-}
-
-NodeGit.Enums = {
-  DIRECTION: {
-    FETCH: 0
-  }
-}
-
-NodeGit.Reference = {
-  nameToId: jest.fn(() => nodegit_branch)
-}
-
-NodeGit.Repository = {
-  open: jest.fn(() => nodegit_repository),
-  init: jest.fn(() => nodegit_repository)
-}
-
-NodeGit.Reset = {
-  default: jest.fn()
-}
-
-NodeGit.Signature = {
-  now: jest.fn(() => ({}))
-}
-
-NodeGit.StatusOptions = jest.fn()
-
-NodeGit.Status = {
-  SHOW: {
-    INDEX_AND_WORKDIR: 0,
-    INDEX_ONLY: 1,
-    WORKDIR_ONLY: 2
-  },
-  OPT: {
-    INCLUDE_UNTRACKED: 1,
-    INCLUDE_IGNORED: 2,
-    INCLUDE_UNMODIFIED: 4,
-    EXCLUDE_SUBMODULES: 8,
-    RECURSE_UNTRACKED_DIRS: 16,
-    DISABLE_PATHSPEC_MATCH: 32,
-    RECURSE_IGNORED_DIRS: 64,
-    RENAMES_HEAD_TO_INDEX: 128,
-    RENAMES_INDEX_TO_WORKDIR: 256,
-    SORT_CASE_SENSITIVELY: 512,
-    SORT_CASE_INSENSITIVELY: 1024,
-    RENAMES_FROM_REWRITES: 2048,
-    NO_REFRESH: 4096,
-    UPDATE_INDEX: 8192,
-    INCLUDE_UNREADABLE: 16_384,
-    INCLUDE_UNREADABLE_AS_UNTRACKED: 32_768
-  }
-}
+const mocked_fs = jest.mocked(fs)
+const mocked_NodeGit = jest.mocked(NodeGit)
 
 describe('components/repository/Repository', () => {
 
@@ -265,8 +99,8 @@ describe('components/repository/Repository', () => {
   })
 
   it('should cycle through load process on call to load', async () => {
-    nodegit_commit.parentcount.mockReturnValueOnce(1)
-    nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
+    mocked_commit.parentcount.mockReturnValueOnce(1)
+    mocked_commit.parent.mockReturnValueOnce(mocked_commit)
 
     const target = './test_path'
     const private_key = './test_rsa'
@@ -292,8 +126,8 @@ describe('components/repository/Repository', () => {
   })
 
   it('should complete load process on call to load', async () => {
-    nodegit_commit.parentcount.mockReturnValueOnce(1)
-    nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
+    mocked_commit.parentcount.mockReturnValueOnce(1)
+    mocked_commit.parent.mockReturnValueOnce(mocked_commit)
 
     const target = './test_path'
     const private_key = './test_rsa'
@@ -309,14 +143,14 @@ describe('components/repository/Repository', () => {
   })
 
   it('should throw Error if repository is not set on attempt to load', async () => {
-    nodegit_commit.parentcount.mockReturnValueOnce(1)
-    nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
+    mocked_commit.parentcount.mockReturnValueOnce(1)
+    mocked_commit.parent.mockReturnValueOnce(mocked_commit)
 
-    NodeGit.Repository.open.mockReturnValueOnce()
+    let repository
+    const mocked_NodeGit_Repository = jest.mocked(NodeGit.Repository)
+    mocked_NodeGit_Repository.open.mockReturnValueOnce(repository)
 
     const target = './test_path'
-
-    expect.assertions(1)
 
     try {
       const repository = new Repository(target)
@@ -327,14 +161,12 @@ describe('components/repository/Repository', () => {
   })
 
   it('should throw Error if loaded repository has detached head during load', async () => {
-    nodegit_commit.parentcount.mockReturnValueOnce(1)
-    nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
+    mocked_commit.parentcount.mockReturnValueOnce(1)
+    mocked_commit.parent.mockReturnValueOnce(mocked_commit)
 
-    nodegit_repository.headDetached.mockRejectedValueOnce(true)
+    mocked_repository.headDetached.mockRejectedValueOnce(true)
 
     const target = './test_path'
-
-    expect.assertions(1)
 
     try {
       const repository = new Repository(target)
@@ -345,14 +177,12 @@ describe('components/repository/Repository', () => {
   })
 
   it('should throw Error if loaded repository is merging during load', async () => {
-    nodegit_commit.parentcount.mockReturnValueOnce(1)
-    nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
+    mocked_commit.parentcount.mockReturnValueOnce(1)
+    mocked_commit.parent.mockReturnValueOnce(mocked_commit)
 
-    nodegit_repository.isMerging.mockRejectedValueOnce(true)
+    mocked_repository.isMerging.mockRejectedValueOnce(true)
 
     const target = './test_path'
-
-    expect.assertions(1)
 
     try {
       const repository = new Repository(target)
@@ -363,14 +193,12 @@ describe('components/repository/Repository', () => {
   })
 
   it('should throw Error if loaded repository is rebasing during load', async () => {
-    nodegit_commit.parentcount.mockReturnValueOnce(1)
-    nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
+    mocked_commit.parentcount.mockReturnValueOnce(1)
+    mocked_commit.parent.mockReturnValueOnce(mocked_commit)
 
-    nodegit_repository.isRebasing.mockRejectedValueOnce(true)
+    mocked_repository.isRebasing.mockRejectedValueOnce(true)
 
     const target = './test_path'
-
-    expect.assertions(1)
 
     try {
       const repository = new Repository(target)
@@ -381,10 +209,10 @@ describe('components/repository/Repository', () => {
   })
 
   it('should cycle through load process even when head unborn on call to load', async () => {
-    nodegit_commit.parentcount.mockReturnValueOnce(1)
-    nodegit_commit.parent.mockReturnValueOnce(nodegit_commit)
+    mocked_commit.parentcount.mockReturnValueOnce(1)
+    mocked_commit.parent.mockReturnValueOnce(mocked_commit)
 
-    nodegit_repository.headUnborn.mockReturnValueOnce(true)
+    mocked_repository.headUnborn.mockReturnValueOnce(true)
 
     const target = './test_path'
 
@@ -396,9 +224,9 @@ describe('components/repository/Repository', () => {
   })
 
   it('should load and compare remote branch identified by url on call to loadRemoteBranch', async () => {
-    nodegit_commit_id.cmp.mockReturnValueOnce(1)
-    nodegit_commit.parentcount.mockReturnValue(1)
-    nodegit_commit.parent.mockReturnValue(nodegit_commit)
+    mocked_commit_id.cmp.mockReturnValueOnce(1)
+    mocked_commit.parentcount.mockReturnValue(1)
+    mocked_commit.parent.mockReturnValue(mocked_commit)
 
     const target = './test_path'
     const private_key = './test_rsa'
@@ -462,7 +290,8 @@ describe('components/repository/Repository', () => {
     await repository.load()
     await repository.inspectWithOptions(options)
 
-    expect(nodegit_repository.getStatus).toHaveBeenCalledTimes(1)
+    const mocked_repository = await mocked_NodeGit.Repository.open.mock.results[0].value
+    expect(mocked_repository.getStatus).toHaveBeenCalledTimes(1)
   })
 
   it('should retrieve NodeGit diff for commit OID and pass to compilePatchesFromDiff on call to diffCommit', async () => {
@@ -498,7 +327,7 @@ describe('components/repository/Repository', () => {
 
     await repository.load()
 
-    await repository.compilePatchesFromDiff(nodegit_diff)
+    await repository.compilePatchesFromDiff(mocked_diff)
 
     expect(repository.patches).not.toBeUndefined()
     expect(repository.patches.length).toBeGreaterThanOrEqual(0)
@@ -513,9 +342,9 @@ describe('components/repository/Repository', () => {
     await repository.load()
 
     repository.available = [
-      { path: './test_path/first_file.md' },
-      { path: './test_path/second_file.md' },
-      { path: './test_path/third_file.md' }
+      { path: './test_path/first_file.md', type: 0 },
+      { path: './test_path/second_file.md', type: 0 },
+      { path: './test_path/third_file.md', type: 0 }
     ]
 
     await repository.stage('*')
@@ -534,15 +363,19 @@ describe('components/repository/Repository', () => {
     await repository.load()
     await repository.stage(file_target, notify)
 
+    const mocked_repository = await mocked_NodeGit.Repository.open.mock.results[0].value
+    const mocked_repository_index = mocked_repository.refreshIndex.mock.results[0].value
+
     expect(notify).toHaveBeenCalledTimes(1)
-    expect(nodegit_repository_index.addByPath).toHaveBeenCalledTimes(1)
+    expect(mocked_repository_index.addByPath).toHaveBeenCalledTimes(1)
   })
 
   it('should stage provided path remove with stagePath when query is a path on call to stage', async () => {
     const target = './test_path'
     const file_target = './test_path/file.md'
 
-    fs.existsSync.mockReturnValue(false)
+    mocked_fs.existsSync.mockReturnValueOnce(true)
+    mocked_fs.existsSync.mockReturnValueOnce(false)
 
     const repository = new Repository(target)
 
@@ -551,8 +384,11 @@ describe('components/repository/Repository', () => {
     await repository.load()
     await repository.stage(file_target, notify)
 
+    const mocked_repository = await mocked_NodeGit.Repository.open.mock.results[0].value
+    const mocked_repository_index = mocked_repository.refreshIndex.mock.results[0].value
+
     expect(notify).toHaveBeenCalledTimes(1)
-    expect(nodegit_repository_index.removeByPath).toHaveBeenCalledTimes(1)
+    expect(mocked_repository_index.removeByPath).toHaveBeenCalledTimes(1)
   })
 
   it('should reset all staged files with resetPath when query is "*" on call to reset', async () => {
@@ -564,9 +400,9 @@ describe('components/repository/Repository', () => {
     await repository.load()
 
     repository.staged = [
-      { path: './test_path/first_file.md' },
-      { path: './test_path/second_file.md' },
-      { path: './test_path/third_file.md' }
+      { path: './test_path/first_file.md', type: 0 },
+      { path: './test_path/second_file.md', type: 0 },
+      { path: './test_path/third_file.md', type: 0 }
     ]
 
     await repository.reset('*')
@@ -600,7 +436,8 @@ describe('components/repository/Repository', () => {
     await repository.load()
     await repository.commit(name, email, message)
 
-    expect(nodegit_repository.createCommit).toHaveBeenCalledTimes(1)
+    const mocked_repository = await mocked_NodeGit.Repository.open.mock.results[0].value
+    expect(mocked_repository.createCommit).toHaveBeenCalledTimes(1)
   })
 
   it('should fail to push if no remote is loaded on call to push', async () => {
@@ -630,6 +467,9 @@ describe('components/repository/Repository', () => {
     await repository.loadRemoteBranch(url)
     await repository.push()
 
-    expect(nodegit_remote.push).toHaveBeenCalledTimes(1)
+    const mocked_repository = await mocked_NodeGit.Repository.open.mock.results[0].value
+    const mocked_remotes = mocked_repository.getRemotes.mock.results[0].value
+
+    expect(mocked_remotes[0].push).toHaveBeenCalledTimes(1)
   })
 })

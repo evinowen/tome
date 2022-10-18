@@ -5,7 +5,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { promise_with_reject, promise_with_boolean } from '../../promise'
 
-export = component('clipboard')(
+export default component('clipboard')(
   ({ handle }) => {
     handle('writetext', async (text) => {
       clipboard.writeText(text)

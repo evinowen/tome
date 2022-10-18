@@ -1,12 +1,13 @@
-const { cloneDeep } = require('lodash')
-const electron = require('electron')
-const fs = require('node:fs')
-const path = require('node:path')
-const { random_string, expect_call_parameters_to_return } = require('?/helpers')(expect)
-const _component = require('@/components/clipboard')
-const preload = require('@/components/clipboard/preload')
+import { cloneDeep } from 'lodash'
+import * as electron from 'electron'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import helpers from '../../helpers'
+import _component from '@/components/clipboard'
+import preload from '@/components/clipboard/preload'
 
 let ipcMainMap
+const { optional, random_string, expect_call_parameters_to_return } = helpers(expect)
 
 jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
@@ -18,8 +19,9 @@ jest.mock('electron', () => ({
   }
 }))
 
-electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
+const mocked_electron = jest.mocked(electron)
+mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
+mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
 jest.mock('node:fs', () => ({
   access: jest.fn(),
@@ -32,10 +34,12 @@ const fs_lstat_return = {
   isDirectory: jest.fn(() => false)
 }
 
-fs.access.mockImplementation((path, callback) => callback(new Error('Mock Error')))
-fs.lstat.mockImplementation((path, callback) => callback(undefined, fs_lstat_return))
-fs.rename.mockImplementation((target, destination, callback) => callback())
-fs.copyFile.mockImplementation((target, destination, mode, callback) => callback())
+let error: Error
+const mocked_fs = jest.mocked(fs)
+mocked_fs.access.mockImplementation((path, callback) => callback(new Error('Mock Error')))
+mocked_fs.lstat.mockImplementation((path, options?, callback?) => optional(options, callback)(error, fs_lstat_return))
+mocked_fs.rename.mockImplementation((target, destination, callback?) => callback(error))
+mocked_fs.copyFile.mockImplementation((target, destination, mode?, callback?) => optional(mode, callback)(error))
 
 jest.mock('node:path', () => ({
   basename: jest.fn(),
@@ -44,10 +48,11 @@ jest.mock('node:path', () => ({
   join: jest.fn()
 }))
 
-path.basename.mockImplementation(() => random_string(16, true))
-path.dirname.mockImplementation(() => random_string(16, true))
-path.parse.mockImplementation(() => ({ name: random_string(), ext: random_string() }))
-path.join.mockImplementation((...input) => input.join('/'))
+const mocked_path = jest.mocked(path)
+mocked_path.basename.mockImplementation(() => random_string(16, true))
+mocked_path.dirname.mockImplementation(() => random_string(16, true))
+mocked_path.parse.mockImplementation(() => ({ name: random_string(), base: random_string(), ext: random_string(), root: random_string(), dir: random_string() }))
+mocked_path.join.mockImplementation((...input) => input.join('/'))
 
 describe('components/clipboard', () => {
   let component
@@ -76,7 +81,7 @@ describe('components/clipboard', () => {
   })
 
   it('should rename source upon call to paste as cut', async () => {
-    fs.access.mockImplementationOnce((path, callback) => callback())
+    mocked_fs.access.mockImplementationOnce((path, mode?, callback?) => optional(mode, callback)())
 
     const action = 'cut'
     const source = '/file.start.md'
@@ -89,7 +94,7 @@ describe('components/clipboard', () => {
   })
 
   it('should copy source upon call to paste as copy', async () => {
-    fs.access.mockImplementationOnce((path, callback) => callback())
+    mocked_fs.access.mockImplementationOnce((path, mode?, callback?) => optional(mode, callback)())
 
     const action = 'copy'
     const source = '/file.start.md'
@@ -102,7 +107,8 @@ describe('components/clipboard', () => {
   })
 
   it('should throw error destination does not exist upon call to paste', async () => {
-    fs.lstat.mockImplementationOnce((path, callback) => callback(new Error('Mock Error')))
+    let stats: fs.Stats
+    mocked_fs.lstat.mockImplementationOnce((path, options?, callback?) => optional(options, callback)(new Error('Mock Error'), stats))
 
     const action = 'copy'
     const source = '/project'
@@ -115,7 +121,7 @@ describe('components/clipboard', () => {
   })
 
   it('should throw error when source and destination match upon call to paste', async () => {
-    path.dirname.mockImplementationOnce((path) => path)
+    mocked_path.dirname.mockImplementationOnce((path) => path)
     fs_lstat_return.isDirectory.mockImplementationOnce(() => true)
 
     const action = 'copy'

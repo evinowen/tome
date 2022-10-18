@@ -4,7 +4,7 @@ import * as log from 'electron-log'
 
 let repository
 
-export = component('repository')(
+export default component('repository')(
   ({ handle }) => {
     handle('load', async (path) => {
       repository = new Repository(path)

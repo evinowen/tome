@@ -1,4 +1,4 @@
-import NodeGit from 'nodegit'
+import * as NodeGit from 'nodegit'
 import * as _path from 'node:path'
 
 export default class RepositoryPatch {

@@ -1,10 +1,11 @@
-const { cloneDeep } = require('lodash')
-const electron = require('electron')
-const { expect_call_parameters_to_return } = require('?/helpers')(expect)
-const _component = require('@/components/metadata')
-const preload = require('@/components/metadata/preload')
+import { cloneDeep } from 'lodash'
+import * as electron from 'electron'
+import helpers from '../../helpers'
+import _component from '@/components/metadata'
+import preload from '@/components/metadata/preload'
 
 let ipcMainMap
+const { expect_call_parameters_to_return } = helpers(expect)
 
 jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
@@ -15,8 +16,9 @@ jest.mock('electron', () => ({
   }
 }))
 
-electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
+const mocked_electron = jest.mocked(electron)
+mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
+mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
 describe('components/metadata', () => {
   let component

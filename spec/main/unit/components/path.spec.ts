@@ -1,11 +1,12 @@
-const { cloneDeep } = require('lodash')
-const electron = require('electron')
-const path = require('node:path')
-const { random_string, expect_call_parameters_to_return } = require('?/helpers')(expect)
-const _component = require('@/components/path')
-const preload = require('@/components/path/preload')
+import { cloneDeep } from 'lodash'
+import * as electron from 'electron'
+import * as path from 'node:path'
+import helpers from '../../helpers'
+import _component from '@/components/path'
+import preload from '@/components/path/preload'
 
 let ipcMainMap
+const { random_string, expect_call_parameters_to_return } = helpers(expect)
 
 jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
@@ -13,8 +14,9 @@ jest.mock('electron', () => ({
   ipcRenderer: { invoke: jest.fn() }
 }))
 
-electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
+const mocked_electron = jest.mocked(electron)
+mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
+mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
 
 jest.mock('node:path', () => ({
   basename: jest.fn(),
@@ -26,12 +28,13 @@ jest.mock('node:path', () => ({
   sep: 'separator'
 }))
 
-path.basename.mockImplementation(() => random_string(16, true))
-path.dirname.mockImplementation(() => random_string(16, true))
-path.extname.mockImplementation(() => random_string(16, true))
-path.parse.mockImplementation(() => ({ name: random_string(), ext: random_string() }))
-path.join.mockImplementation((...input) => input.join('/'))
-path.relative.mockImplementation(() => random_string(16, true))
+const mocked_path = jest.mocked(path)
+mocked_path.basename.mockImplementation(() => random_string(16, true))
+mocked_path.dirname.mockImplementation(() => random_string(16, true))
+mocked_path.extname.mockImplementation(() => random_string(16, true).toLocaleLowerCase())
+mocked_path.parse.mockImplementation(() => ({ name: random_string(), ext: random_string() } as path.ParsedPath))
+mocked_path.join.mockImplementation((...input) => input.join('/'))
+mocked_path.relative.mockImplementation(() => random_string(16, true))
 
 describe('components/path', () => {
   let component
@@ -69,12 +72,12 @@ describe('components/path', () => {
   })
 
   it('should return undefined if extension cannot be identified upon call to extension', async () => {
-    path.extname.mockImplementationOnce(() => '')
+    mocked_path.extname.mockImplementationOnce(() => '')
 
     const target = '/project/FILE.MD'
     await preload.extension(target)
 
-    expect_call_parameters_to_return(path.extname, [target])
+    expect_call_parameters_to_return(path.extname, [target], '')
   })
 
   it('should call for and return joined path upon call to join', async () => {

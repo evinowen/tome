@@ -2,6 +2,6 @@ import invoker from '../invoke'
 
 const invoke = invoker('action')
 
-export = {
+export default {
   invoke: invoke('invoke')
 }

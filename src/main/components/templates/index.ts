@@ -1,9 +1,10 @@
 import component from '../factory'
+import * as log from 'electron-log'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { cloneDeep } from 'lodash'
 import * as Mustache from 'mustache'
-import mime from 'mime-types'
+import * as mime from 'mime-types'
 import { promise_with_reject } from '../../promise'
 
 const TemplateFileType = {
@@ -273,7 +274,7 @@ class Template {
 
 class TemplateLeaf extends Template {}
 
-export = component('template')(
+export default component('template')(
   ({ handle }) => {
     handle('invoke', async (source, target) => {
       const name = path.basename(source)
@@ -290,6 +291,7 @@ export = component('template')(
 
         return { success: true, result: index }
       } catch (error) {
+        log.error(error)
         return { success: false, result: String(error) }
       }
     })

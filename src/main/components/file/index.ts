@@ -5,7 +5,7 @@ import * as path from 'node:path'
 import * as os from 'node:os'
 import * as chokidar from 'chokidar'
 import { promise_with_reject, promise_access } from '../../promise'
-import mime from 'mime-types'
+import * as mime from 'mime-types'
 
 const search:{
   target: string|undefined,
@@ -32,7 +32,7 @@ const excluded_filenames = new Set([
 
 let watcher:chokidar.FSWatcher|undefined
 
-export = component('file')(
+export default component('file')(
   ({ handle, on }, win) => {
     on('events', (channel, target) => {
       const options = {
@@ -202,7 +202,6 @@ export = component('file')(
 
       if (directory) {
         const results = await promise_with_reject<string[]>(fs.readdir)(target)
-
         for (const result of results) {
           if (excluded_filenames.has(result)) {
             continue

@@ -1,19 +1,7 @@
 import RepositoryPatch from '@/components/repository/RepositoryPatch'
-import NodeGit from 'nodegit'
+import * as NodeGit from 'nodegit'
 
-jest.mock('nodegit', () => ({
-  Reset: {},
-  Reference: {},
-  Signature: {},
-  Diff: {
-    LINE: {
-      HUNK_HDR: 72,
-      VALUE_A: 1,
-      VALUE_B: 2,
-      VALUE_C: 3
-    }
-  }
-}))
+jest.mock('nodegit')
 
 jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
@@ -36,15 +24,15 @@ describe('components/repository/RepositoryPatch', () => {
 
     lines = [
       {
-        origin: jest.fn(() => NodeGit.Diff.LINE.VALUE_A),
+        origin: jest.fn(() => NodeGit.Diff.LINE.ADDITION),
         content: jest.fn(() => 'first line')
       },
       {
-        origin: jest.fn(() => NodeGit.Diff.LINE.VALUE_B),
+        origin: jest.fn(() => NodeGit.Diff.LINE.DELETION),
         content: jest.fn(() => 'second line')
       },
       {
-        origin: jest.fn(() => NodeGit.Diff.LINE.VALUE_C),
+        origin: jest.fn(() => NodeGit.Diff.LINE.CONTEXT),
         content: jest.fn(() => 'third line')
       }
     ]
@@ -77,13 +65,13 @@ describe('components/repository/RepositoryPatch', () => {
     expect(repository_patch.lines[0].type).toEqual(NodeGit.Diff.LINE.HUNK_HDR)
     expect(repository_patch.lines[0].line).toEqual('header')
 
-    expect(repository_patch.lines[1].type).toEqual(NodeGit.Diff.LINE.VALUE_A)
+    expect(repository_patch.lines[1].type).toEqual(NodeGit.Diff.LINE.ADDITION)
     expect(repository_patch.lines[1].line).toEqual('first line')
 
-    expect(repository_patch.lines[2].type).toEqual(NodeGit.Diff.LINE.VALUE_B)
+    expect(repository_patch.lines[2].type).toEqual(NodeGit.Diff.LINE.DELETION)
     expect(repository_patch.lines[2].line).toEqual('second line')
 
-    expect(repository_patch.lines[3].type).toEqual(NodeGit.Diff.LINE.VALUE_C)
+    expect(repository_patch.lines[3].type).toEqual(NodeGit.Diff.LINE.CONTEXT)
     expect(repository_patch.lines[3].line).toEqual('third line')
   })
 

@@ -1,4 +1,5 @@
-const { random_string } = require('?/helpers')(expect)
+import helpers from '../../../helpers'
+const { random_string } = helpers(expect)
 
 const mock = jest.fn().mockImplementation((path) => ({
   name: path,
@@ -35,4 +36,4 @@ const mock = jest.fn().mockImplementation((path) => ({
   loadRemoteBranch: jest.fn(),
 }))
 
-module.exports = mock
+export default mock
