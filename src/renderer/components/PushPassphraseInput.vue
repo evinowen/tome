@@ -52,17 +52,21 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VLayout, VFlex, VBtn, VIcon, VTextField } from 'vuetify/lib'
 
-export default Vue.extend({
-  components: { VLayout, VFlex, VBtn, VIcon, VTextField },
+export const PushPassphraseInputProperties = Vue.extend({
   props: {
     value: { type: String, default: '' },
     storable: { type: Boolean, default: false },
     stored: { type: String, default: '' }
-  },
-  data: () => ({
-    obscured: true
-  })
+  }
 })
+
+@Component({
+  components: { VLayout, VFlex, VBtn, VIcon, VTextField }
+})
+export default class PushPassphraseInput extends PushPassphraseInputProperties {
+  obscured = true
+}
 </script>

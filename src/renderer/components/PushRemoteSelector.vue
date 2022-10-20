@@ -93,27 +93,31 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer } from 'vuetify/lib'
-export default Vue.extend({
-  components: { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer },
+export const PushProperties = Vue.extend({
   props: {
     value: { type: String, default: '' },
     items: { type: Array, default: () => [] }
-  },
-  data: () => ({
-    edit: false,
-    form: {
-      name: '',
-      url: ''
-    }
-  }),
-  methods: {
-    create: async function () {
-      this.$emit('create', this.form.name, this.form.url)
-    },
-    input: async function (remote) {
-      this.$emit('input', remote)
-    }
   }
 })
+
+@Component({
+  components: { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer }
+})
+export default class Push extends PushProperties {
+  edit = false
+  form = {
+    name: '',
+    url: ''
+  }
+
+  async create () {
+    this.$emit('create', this.form.name, this.form.url)
+  }
+
+  async input (remote) {
+    this.$emit('input', remote)
+  }
+}
 </script>

@@ -27,6 +27,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import store from '@/store'
 
 import ContextMenuService from '@/components/ContextMenuService.vue'
@@ -45,7 +46,9 @@ import EmptyPane from '@/components/EmptyPane.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
 
-export default Vue.extend({
+export const AppProperties = Vue.extend({})
+
+@Component({
   components: {
     VApp,
     SystemBar,
@@ -61,16 +64,16 @@ export default Vue.extend({
     ContextMenuService,
     SearchService,
     ShortcutService
-  },
-  computed: {
-    repository: function () {
-      return store.state.repository
-    },
-    system: function () {
-      return store.state.system
-    }
   }
 })
+export default class App extends AppProperties {
+  get repository () {
+    return store.state.repository
+  }
+  get system () {
+    return store.state.system
+  }
+}
 </script>
 
 <style>

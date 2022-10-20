@@ -122,71 +122,88 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition } from 'vuetify/lib'
 import { debounce } from 'lodash'
 import store from '@/store'
 
-export default Vue.extend({
-  name: 'SearchService',
-  components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition },
-  computed: {
-    status: function () {
-      return store.state.search.status
-    },
-    results: function () {
-      return store.state.search.results
-    },
-    navigation: function () {
-      return store.state.search.navigation
-    },
-    query: function () {
-      return store.state.search.query
-    },
-    multifile: function () {
-      return store.state.search.multifile
-    },
-    regex_query: function () {
-      return store.state.search.regex_query
-    },
-    case_sensitive: function () {
-      return store.state.search.case_sensitive
-    },
-    state: function () {
-      const { multifile, regex_query, case_sensitive } = this
-      return [multifile, regex_query, case_sensitive]
-    },
-    debounce_update: function () {
-      return debounce(this.update, 500)
-    }
-  },
-  watch: {
-    state: function () {
-      this.debounce_update(this.query)
-    }
-  },
-  methods: {
-    update: async function (query) {
-      const path = store.state.repository.path
-      await store.dispatch('search/query', { path, query })
-    },
-    next: async () => await store.dispatch('search/next'),
-    previous: async () => await store.dispatch('search/previous'),
-    flag: async function (key, value) {
-      await store.dispatch(`search/${key}`, value)
-    },
-    select: async function (path, target = 0, total = 0) {
-      await store.dispatch('files/select', { path })
+export const SearchServiceProperties = Vue.extend({})
 
-      if (target > 0) {
-        await store.dispatch('search/navigate', { target, total })
-      }
-    },
-    debounce_clear: async function () {
-      return await this.debounce_update('')
+@Component({
+  components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition }
+})
+export default class SearchService extends SearchServiceProperties {
+  get status () {
+    return store.state.search.status
+  }
+
+  get results () {
+    return store.state.search.results
+  }
+
+  get navigation () {
+    return store.state.search.navigation
+  }
+
+  get query () {
+    return store.state.search.query
+  }
+
+  get multifile () {
+    return store.state.search.multifile
+  }
+
+  get regex_query () {
+    return store.state.search.regex_query
+  }
+
+  get case_sensitive () {
+    return store.state.search.case_sensitive
+  }
+
+  get state () {
+    const { multifile, regex_query, case_sensitive } = this
+    return [multifile, regex_query, case_sensitive]
+  }
+
+  get debounce_update () {
+    return debounce(this.update, 500)
+  }
+
+  @Watch('state')
+  state_update () {
+    this.debounce_update(this.query)
+  }
+
+  async update (query) {
+    const path = store.state.repository.path
+    await store.dispatch('search/query', { path, query })
+  }
+
+  async next () {
+    await store.dispatch('search/next')
+  }
+
+  async previous () {
+    await store.dispatch('search/previous')
+  }
+
+  async flag (key, value) {
+    await store.dispatch(`search/${key}`, value)
+  }
+
+  async select (path, target = 0, total = 0) {
+    await store.dispatch('files/select', { path })
+
+    if (target > 0) {
+      await store.dispatch('search/navigate', { target, total })
     }
   }
-})
+
+  async debounce_clear () {
+    return await this.debounce_update('')
+  }
+}
 </script>
 
 <style>

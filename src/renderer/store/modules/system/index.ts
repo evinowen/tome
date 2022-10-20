@@ -13,7 +13,10 @@ export const SystemPerformances = {
 
 export class State {
   version?: string
-  process?: string
+  process?: {
+    versions?: Record<string, string>
+    sandboxed: boolean
+  }
   maximized = false
   branch = false
   commit = false

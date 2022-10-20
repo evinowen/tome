@@ -171,12 +171,15 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
 import store from '@/store'
 import LibraryButton from './LibraryButton.vue'
 import RepositoryButton from './RepositoryButton.vue'
 
-export default Vue.extend({
+export const ActionBarProperties = Vue.extend({})
+
+@Component({
   components: {
     VIcon,
     VBtn,
@@ -186,63 +189,69 @@ export default Vue.extend({
     VSwitch,
     LibraryButton,
     RepositoryButton
-  },
-  data: () => ({
-    library: false
-  }),
-  computed: {
-    system: function () {
-      return store.state.system
-    },
-    repository: function () {
-      return store.state.repository
-    },
-    status: function () {
-      return store.state.status
-    },
-    message: function () {
-      return store.state.message
-    },
-    disabled: function () {
-      const system = store.state.system
-      return system.settings || system.branch || system.commit || system.push || system.console
-    }
-  },
-  methods: {
-    open: async function (path) {
-      this.library = false
-      await store.dispatch('system/open', path)
-    },
-    close: async function () {
-      await store.dispatch('system/close')
-    },
-    edit: async function () {
-      await store.dispatch('system/edit', !this.system.edit)
-    },
-    branch: async function () {
-      await store.dispatch('system/branch', !this.system.branch)
-    },
-    commit: async function () {
-      await store.dispatch('system/commit', !this.system.commit)
-    },
-    push: async function () {
-      await store.dispatch('system/push', !this.system.push)
-    },
-    console: async function () {
-      await store.dispatch('system/console', !this.system.console)
-    },
-    search: async function () {
-      await store.dispatch('system/search', !this.system.search)
-    },
-    disabled_unless: function (unless) {
-      if (unless) {
-        return this.system.settings
-      }
-
-      return this.disabled
-    }
   }
 })
+export default class ActionBar extends ActionBarProperties {
+  library: false
+
+  get system () {
+    return store.state.system
+  }
+  get repository () {
+    return store.state.repository
+  }
+  get status () {
+    return store.state.status
+  }
+  get message () {
+    return store.state.message
+  }
+  get disabled () {
+    const system = store.state.system
+    return system.settings || system.branch || system.commit || system.push || system.console
+  }
+
+  async open (path) {
+    this.library = false
+    await store.dispatch('system/open', path)
+  }
+
+  async close () {
+    await store.dispatch('system/close')
+  }
+
+  async edit () {
+    await store.dispatch('system/edit', !this.system.edit)
+  }
+
+  async branch () {
+    await store.dispatch('system/branch', !this.system.branch)
+  }
+
+  async commit () {
+    await store.dispatch('system/commit', !this.system.commit)
+  }
+
+  async push () {
+    await store.dispatch('system/push', !this.system.push)
+  }
+
+  async console () {
+    await store.dispatch('system/console', !this.system.console)
+  }
+
+  async search () {
+    await store.dispatch('system/search', !this.system.search)
+  }
+
+  disabled_unless (unless?) {
+    if (unless) {
+      return this.system.settings
+    }
+
+    return this.disabled
+  }
+}
 </script>
 
 <style>

@@ -18,10 +18,10 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VCard, VCardText } from 'vuetify/lib'
 
-export default Vue.extend({
-  components: { VCard, VCardText },
+export const PushBranchProperties = Vue.extend({
   props: {
     name: { type: String, default: undefined },
     url: { type: String, default: undefined },
@@ -29,4 +29,9 @@ export default Vue.extend({
     disabled: { type: Boolean, default: false }
   }
 })
+
+@Component({
+  components: { VCard, VCardText }
+})
+export default class PushBranch extends PushBranchProperties {}
 </script>

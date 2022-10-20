@@ -22,36 +22,43 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import FileIcon from '@/components/FileIcon.vue'
 
-export default Vue.extend({
-  components: { FileIcon },
+export const ImagePreviewProperties = Vue.extend({
   props: {
     src: { type: String, default: '' },
-  },
-  data: () => ({
-    hide: false,
-    zoom: false
-  }),
-  methods: {
-    error: function () {
-      this.hide = true
-    },
-    click: async function (event) {
-      const scroll_x = event.offsetX / event.target.offsetWidth
-      const scroll_y = event.offsetY / event.target.offsetHeight
-
-      this.zoom = !this.zoom
-      await this.$nextTick()
-
-      const top = (scroll_y * event.target.offsetHeight) - (this.$refs.preview.offsetHeight * 0.5)
-      const left = (scroll_x * event.target.offsetWidth) - (this.$refs.preview.offsetWidth * 0.5)
-      const behavior = 'instant'
-
-      this.$refs.preview.scrollTo({ top, left, behavior })
-    }
   }
 })
+
+@Component({
+  components: { FileIcon }
+})
+export default class ImagePreview extends ImagePreviewProperties {
+  $refs!: {
+    preview: HTMLElement
+  }
+
+  hide = false
+  zoom = false
+
+  error () {
+    this.hide = true
+  }
+  async click (event) {
+    const scroll_x = event.offsetX / event.target.offsetWidth
+    const scroll_y = event.offsetY / event.target.offsetHeight
+
+    this.zoom = !this.zoom
+    await this.$nextTick()
+
+    const top = (scroll_y * event.target.offsetHeight) - (this.$refs.preview.offsetHeight * 0.5)
+    const left = (scroll_x * event.target.offsetWidth) - (this.$refs.preview.offsetWidth * 0.5)
+    const behavior = 'auto'
+
+    this.$refs.preview.scrollTo({ top, left, behavior })
+  }
+}
 </script>
 
 <style scoped>
@@ -67,7 +74,7 @@ export default Vue.extend({
   overflow: overlay;
   display: flex;
   align-items: flex-start;
-  justify-content: start;
+  justify-content: flex-start;
   height: 100%;
 }
 

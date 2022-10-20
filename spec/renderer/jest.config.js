@@ -1,6 +1,18 @@
 module.exports = {
   rootDir: '../..',
-  testMatch: ['<rootDir>/spec/renderer/unit/**/*.spec.js'],
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/spec/renderer/tsconfig.json'
+    },
+    '@vue/vue2-jest': {
+      tsconfig: '<rootDir>/spec/renderer/tsconfig.json'
+    }
+  },
+  testMatch: ['<rootDir>/spec/renderer/unit/**/*.spec.ts'],
+  transform: {
+    ".*\\.(vue)$": "@vue/vue2-jest",
+    "^.+\\.tsx?$": "ts-jest",
+  },
   preset: '@vue/cli-plugin-unit-jest/presets/typescript',
   collectCoverage: true,
   collectCoverageFrom: ['<rootDir>/src/renderer/**/*.{ts,js,vue}'],
@@ -13,11 +25,14 @@ module.exports = {
       statements: 80
     }
   },
+  moduleDirectories: [
+    'node_modules'
+  ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/renderer/$1',
     '^[?]/(.*)$': '<rootDir>/spec/renderer/$1',
-    '\\.css$': '<rootDir>/spec/renderer/stubs/CssStub.js',
-    '@fontsource/montserrat': '<rootDir>/spec/renderer/stubs/CssStub.js'
+    '\\.css$': '<rootDir>/spec/renderer/stubs/CssStub.ts',
+    '@fontsource/montserrat': '<rootDir>/spec/renderer/stubs/CssStub.ts'
   },
   reporters: [
     'default',
@@ -29,5 +44,5 @@ module.exports = {
     ]
   ],
   transformIgnorePatterns: ['<rootDir>/node_modules/(?!vuetify)'],
-  setupFiles: ['<rootDir>/spec/renderer/setup.js']
+  setupFiles: ['<rootDir>/spec/renderer/setup.ts']
 }

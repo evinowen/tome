@@ -44,10 +44,10 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VCard, VCardTitle, VSwitch, VSkeletonLoader, VColorPicker } from 'vuetify/lib'
 
-export default Vue.extend({
-  components: { VCard, VCardTitle, VSwitch, VSkeletonLoader, VColorPicker },
+export const ThemeColorPickerProperties = Vue.extend({
   props: {
     enabled: { type: Boolean, required: true },
     value: { type: String, required: true },
@@ -55,6 +55,11 @@ export default Vue.extend({
     base: { type: String, default: '#000000' }
   }
 })
+
+@Component({
+  components: { VCard, VCardTitle, VSwitch, VSkeletonLoader, VColorPicker }
+})
+export default class ThemeColorPicker extends ThemeColorPickerProperties {}
 </script>
 
 <style>

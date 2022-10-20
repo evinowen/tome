@@ -72,10 +72,18 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VBtn, VDivider, VIcon, VMenu, VList, VListItem, VListItemTitle } from 'vuetify/lib'
 import store from '@/store'
 
-export default Vue.extend({
+export const LibraryButtonProperties = Vue.extend({
+  props: {
+    value: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false }
+  }
+})
+
+@Component({
   components: {
     VBtn,
     VDivider,
@@ -84,31 +92,29 @@ export default Vue.extend({
     VList,
     VListItem,
     VListItemTitle
-  },
-  props: {
-    value: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false }
-  },
-  computed: {
-    repository: function () {
-      return store.state.repository
-    },
-    library: function () {
-      return store.state.library
-    }
-  },
-  methods: {
-    select: async function () {
-      await store.dispatch('library/select')
-    },
-    open: async function (item) {
-      await store.dispatch('library/open', item)
-    },
-    close: async function () {
-      await store.dispatch('library/close')
-    }
   }
 })
+export default class LibraryButton extends LibraryButtonProperties {
+  get repository () {
+    return store.state.repository
+  }
+
+  get library () {
+    return store.state.library
+  }
+
+  async select () {
+    await store.dispatch('library/select')
+  }
+
+  async open (item) {
+    await store.dispatch('library/open', item)
+  }
+
+  async close () {
+    await store.dispatch('library/close')
+  }
+}
 </script>
 
 <style scoped>

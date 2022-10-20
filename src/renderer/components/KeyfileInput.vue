@@ -63,10 +63,10 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
 
-export default Vue.extend({
-  components: { VIcon, VBtn, VTextField, VLayout, VFlex },
+export const KeyfileInputProperties = Vue.extend({
   props: {
     value: { type: String, default: '' },
     forge: { type: Boolean, default: false },
@@ -75,26 +75,33 @@ export default Vue.extend({
     small: { type: Boolean, default: false },
     label: { type: String, default: '' },
     id: { type: String, default: '' }
-  },
-  computed: {
-    color: function () {
-      return this.value ? 'green' : 'red'
-    }
-  },
-  methods: {
-    input: async function (event) {
-      const files = event.target.files || event.dataTransfer.files
-      const file = files.length > 0 ? files[0] : undefined
-
-      if (!file.path) {
-        return
-      }
-
-      this.$emit('input', file.path)
-      this.$refs.input.value = ''
-    }
   }
 })
+
+@Component({
+  components: { VIcon, VBtn, VTextField, VLayout, VFlex }
+})
+export default class KeyfileInput extends KeyfileInputProperties {
+  $refs!: {
+    input: HTMLInputElement
+  }
+
+  get color () {
+    return this.value ? 'green' : 'red'
+  }
+
+  async input (event) {
+    const files = event.target.files || event.dataTransfer.files
+    const file = files.length > 0 ? files[0] : undefined
+
+    if (!file.path) {
+      return
+    }
+
+    this.$emit('input', file.path)
+    this.$refs.input.value = ''
+  }
+}
 </script>
 
 <style scoped>

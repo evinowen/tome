@@ -27,22 +27,26 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
 import store from '@/store'
 
-export default Vue.extend({
-  components: { VIcon, VBtn, VTextField, VLayout, VFlex },
+export const KeyfileOutputProperties = Vue.extend({
   props: {
     value: { type: String, default: '' },
     small: { type: Boolean, default: false },
     label: { type: String, default: '' }
-  },
-  methods: {
-    copy: async function () {
-      await store.dispatch('clipboard/text', this.value)
-    }
   }
 })
+
+@Component({
+  components: { VIcon, VBtn, VTextField, VLayout, VFlex }
+})
+export default class KeyfileOutput extends KeyfileOutputProperties {
+  async copy () {
+    await store.dispatch('clipboard/text', this.value)
+  }
+}
 </script>
 
 <style scoped>

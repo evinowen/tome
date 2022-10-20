@@ -11,7 +11,6 @@
       :enabled="enabled"
       :title="configuration.format_titles"
       :format="format"
-      :hold="hold"
       :relationship="''.concat(root.relationship)"
       :children="root.children"
       :expanded="root.expanded"
@@ -34,105 +33,122 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import store from '@/store'
 import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
-export default Vue.extend({
-  components: { ExplorerNode },
+export const ExplorerProperties = Vue.extend({
   props: {
     value: { type: Object, default: () => ({}) },
     enabled: { type: Boolean, default: false }
-  },
-  data: () => ({
-    hold: undefined
-  }),
-  computed: {
-    repository: function () {
-      return store.state.repository
-    },
-    configuration: function () {
-      return store.state.configuration
-    },
-    active: function () {
-      return store.state.files.selected ? String(store.state.files.selected.uuid) : undefined
-    },
-    editing: function () {
-      return store.state.files.editing
-    },
-    root: function () {
-      return store.state.files.tree ? store.state.files.tree.base : undefined
-    }
-  },
-  methods: {
-    format: function (name, directory) {
-      if (!name) {
-        throw new Error('Name provided is falsey')
-      }
-
-      if (/[^\d.a-z-]/.test(name)) {
-        throw new Error('Name contains invalid characters')
-      }
-
-      const words = String(name).split('.')
-
-      if (words.length > 0 && !directory) {
-        words.pop()
-      }
-
-      return words.map(item => `${String(item).slice(0, 1).toUpperCase()}${item.slice(1)}`).join(' ').trim()
-    },
-    toggle: async function (state) {
-      const { path } = state
-
-      await store.dispatch('files/toggle', { path })
-    },
-    select: async function (state) {
-      const { path } = state
-
-      await store.dispatch('files/select', { path })
-    },
-    open: async function (state) {
-      const { target, container = false } = state
-
-      await store.dispatch('files/open', { path: target, container })
-    },
-    edit: async (state) => await store.dispatch('files/edit', { path: state.target }),
-    create: async function (state) {
-      const { type, target } = state
-
-      switch (type) {
-        case ExplorerNodeGhostType.FILE:
-          await store.dispatch('files/ghost', { path: target, directory: false })
-          break
-
-        case ExplorerNodeGhostType.DIRECTORY:
-          await store.dispatch('files/ghost', { path: target, directory: true })
-          break
-
-        case ExplorerNodeGhostType.TEMPLATE:
-          await store.dispatch('templates/ghost')
-          break
-
-        case ExplorerNodeGhostType.ACTION:
-          await store.dispatch('actions/ghost')
-          break
-      }
-    },
-    delete: async function (path) {
-      await store.dispatch('files/delete', { path })
-    },
-    submit: async (state) => await store.dispatch('files/submit', state),
-    blur: async (state) => await store.dispatch('files/blur', state),
-    drag: async function (state) {
-      this.hold = state
-    },
-    drop: async function (state) {
-      await store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
-    },
-    template: async (state) => await store.dispatch('templates/execute', state),
-    action: async (state) => await store.dispatch('actions/execute', state)
   }
 })
+
+@Component({
+  components: { ExplorerNode }
+})
+export default class Explorer extends ExplorerProperties {
+  hold?: { path: string }
+
+  get repository () {
+    return store.state.repository
+  }
+
+  get configuration () {
+    return store.state.configuration
+  }
+
+  get active () {
+    return store.state.files.selected ? String(store.state.files.selected.uuid) : undefined
+  }
+
+  get editing () {
+    return store.state.files.editing
+  }
+
+  get root () {
+    return store.state.files.tree ? store.state.files.tree.base : undefined
+  }
+
+  format (name, directory = false) {
+    if (!name) {
+      throw new Error('Name provided is falsey')
+    }
+
+    if (/[^\d.a-z-]/.test(name)) {
+      throw new Error('Name contains invalid characters')
+    }
+
+    const words = String(name).split('.')
+
+    if (words.length > 0 && !directory) {
+      words.pop()
+    }
+
+    return words.map(item => `${String(item).slice(0, 1).toUpperCase()}${item.slice(1)}`).join(' ').trim()
+  }
+
+  async toggle (state) {
+    const { path } = state
+
+    await store.dispatch('files/toggle', { path })
+  }
+
+  async select (state) {
+    const { path } = state
+
+    await store.dispatch('files/select', { path })
+  }
+
+  async open (state) {
+    const { target, container = false } = state
+
+    await store.dispatch('files/open', { path: target, container })
+  }
+
+  async edit (state) {
+    await store.dispatch('files/edit', { path: state.target })
+  }
+
+  async create (state) {
+    const { type, target } = state
+
+    switch (type) {
+      case ExplorerNodeGhostType.FILE:
+        await store.dispatch('files/ghost', { path: target, directory: false })
+        break
+
+      case ExplorerNodeGhostType.DIRECTORY:
+        await store.dispatch('files/ghost', { path: target, directory: true })
+        break
+
+      case ExplorerNodeGhostType.TEMPLATE:
+        await store.dispatch('templates/ghost')
+        break
+
+      case ExplorerNodeGhostType.ACTION:
+        await store.dispatch('actions/ghost')
+        break
+    }
+  }
+
+  async delete (path) {
+    await store.dispatch('files/delete', { path })
+  }
+
+  async submit (state) { await store.dispatch('files/submit', state) }
+  async blur () { await store.dispatch('files/blur') }
+  async drag (state) {
+    this.hold = state
+  }
+
+  async drop (state) {
+    await store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
+  }
+
+  async template (state) { await store.dispatch('templates/execute', state) }
+  async action (state) { await store.dispatch('actions/execute', state) }
+}
 </script>
 
 <style>

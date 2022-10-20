@@ -122,6 +122,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import {
   VIcon,
   VListItem,
@@ -137,7 +138,17 @@ import {
   VBtn
 } from 'vuetify/lib'
 
-export default Vue.extend({
+export const PushStatusProperties = Vue.extend({
+  props: {
+    active: { type: Boolean, default: false },
+    loading: { type: Boolean, default: false },
+    match: { type: Boolean, default: false },
+    error: { type: String, default: '' },
+    history: { type: Array, default: () => [] }
+  }
+})
+
+@Component({
   components: {
     VIcon,
     VListItem,
@@ -151,21 +162,14 @@ export default Vue.extend({
     VContainer,
     VDataTable,
     VBtn
-  },
-  props: {
-    active: { type: Boolean, default: false },
-    loading: { type: Boolean, default: false },
-    match: { type: Boolean, default: false },
-    error: { type: String, default: '' },
-    history: { type: Array, default: () => [] }
-  },
-  data: () => ({
-    headers: [
-      { text: '', value: 'oid', width: '60px' },
-      { text: '', value: 'message', width: '' }
-    ]
-  })
+  }
 })
+export default class PushStatus extends PushStatusProperties {
+  headers = [
+    { text: '', value: 'oid', width: '60px' },
+    { text: '', value: 'message', width: '' }
+  ]
+}
 </script>
 
 <style scoped>

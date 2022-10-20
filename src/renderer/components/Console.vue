@@ -63,45 +63,50 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { DateTime } from 'luxon'
 import { VIcon, VBtn, VCard, VBottomSheet, VSnackbar } from 'vuetify/lib'
 import store from '@/store'
 
-export default Vue.extend({
-  components: { VIcon, VBtn, VCard, VBottomSheet, VSnackbar },
+export const ConsoleProperties = Vue.extend({
   props: {
     value: { type: Boolean, default: false }
-  },
-  data: () => ({
-    detail: false,
-    stack: ''
-  }),
-  computed: {
-    events: function () {
-      return store.state.events
-    }
-  },
-  methods: {
-    close: async function () {
-      await store.dispatch('system/console', false)
-    },
-    show_stack: function (stack) {
-      this.stack = stack.trim()
-
-      if (this.stack) {
-        this.detail = true
-      }
-    },
-    format_date: function (datetime) {
-      return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
-    },
-    format_message: function (message) {
-      return String(message)
-        .replace(/\r/g, '\u240D')
-        .replace(/\n/g, '\u2424')
-    }
   }
 })
+
+@Component({
+  components: { VIcon, VBtn, VCard, VBottomSheet, VSnackbar }
+})
+export default class Console extends ConsoleProperties {
+  detail = false
+  stack = ''
+
+  get events () {
+    return store.state.events
+  }
+
+  async close () {
+    await store.dispatch('system/console', false)
+  }
+
+  show_stack (stack) {
+    this.stack = stack.trim()
+
+    if (this.stack) {
+      this.detail = true
+    }
+  }
+
+  format_date (datetime) {
+    return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
+  }
+
+  format_message (message) {
+    return String(message)
+      .replace(/\r/g, '\u240D')
+      .replace(/\n/g, '\u2424')
+  }
+}
 </script>
 
 <style>

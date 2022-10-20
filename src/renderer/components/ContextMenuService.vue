@@ -18,31 +18,33 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { Resize } from 'vuetify/lib'
 import ContextMenuNode from './ContextMenuNode.vue'
 import store from '@/store'
 
-export default Vue.extend({
+export const ContextMenuServiceProperties = Vue.extend({})
+
+@Component({
   components: { ContextMenuNode },
-  directives: { Resize },
-  data: () => ({
-    window_x: 0,
-    window_y: 0,
-    visible: true
-  }),
-  computed: {
-    context: function () {
-      return store.state.context
-    }
-  },
-  methods: {
-    resize: function () {
-      this.window_x = window.innerWidth
-      this.window_y = window.innerHeight
-    },
-    close: async function () {
-      await store.dispatch('context/close')
-    }
-  }
+  directives: { Resize }
 })
+export default class ContextMenuService extends ContextMenuServiceProperties {
+  window_x = 0
+  window_y = 0
+  visible = true
+
+  get context () {
+    return store.state.context
+  }
+
+  resize () {
+    this.window_x = window.innerWidth
+    this.window_y = window.innerHeight
+  }
+
+  async close () {
+    await store.dispatch('context/close')
+  }
+}
 </script>

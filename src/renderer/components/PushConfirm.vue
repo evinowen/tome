@@ -91,6 +91,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import {
   VContainer,
   VDialog,
@@ -108,7 +109,16 @@ import {
   VListItemContent
 } from 'vuetify/lib'
 
-export default Vue.extend({
+export const PushConfirmProperties = Vue.extend({
+  props: {
+    value: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false },
+    waiting: { type: Boolean, default: false },
+    history: { type: Array, default: () => [] }
+  }
+})
+
+@Component({
   components: {
     VContainer,
     VDialog,
@@ -124,20 +134,14 @@ export default Vue.extend({
     VListItemSubtitle,
     VListItemAvatar,
     VListItemContent
-  },
-  props: {
-    value: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false },
-    waiting: { type: Boolean, default: false },
-    history: { type: Array, default: () => [] }
-  },
-  data: () => ({
-    headers: [
-      { text: '', value: 'oid', width: '60px' },
-      { text: '', value: 'message', width: '' }
-    ]
-  })
+  }
 })
+export default class PushConfirm extends PushConfirmProperties {
+  headers = [
+    { text: '', value: 'oid', width: '60px' },
+    { text: '', value: 'message', width: '' }
+  ]
+}
 </script>
 
 <style scoped>

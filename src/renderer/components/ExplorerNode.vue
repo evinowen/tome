@@ -106,6 +106,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VContainer, VLayout, VFlex, VForm, VTextField } from 'vuetify/lib'
 import store from '@/store'
 import FileIcon from '@/components/FileIcon.vue'
@@ -117,9 +118,7 @@ export const ExplorerNodeGhostType = {
   ACTION: 'action'
 }
 
-export default Vue.extend({
-  name: 'ExplorerNode',
-  components: { VContainer, VLayout, VFlex, VForm, VTextField, FileIcon },
+export const ExplorerNodeProperties = Vue.extend({
   props: {
     uuid: { type: String, default: '' },
     enabled: { type: Boolean, default: false },
@@ -138,241 +137,260 @@ export default Vue.extend({
     children: { type: Array, default: () => [] },
     root: { type: Boolean, default: false },
     depth: { type: Number, default: 0 }
-  },
-  data: () => ({
-    valid: false,
-    input: '',
-    error: undefined
-  }),
-  computed: {
-    selected: function () {
-      return this.uuid === this.active
-    },
-    locked: function () {
-      return this.relationship === 'git'
-    },
-    system: function () {
-      const relationships = new Set(['root', 'git', 'tome', 'tome-templates', 'tome-actions'])
-      return relationships.has(this.relationship)
-    },
-    actions: function () {
-      return store.state.actions.options.map(name => ({
-        title: name,
-        action: (path) => this.$emit('action', { name, target: path, selection: undefined })
-      }))
-    },
-    templates: function () {
-      return store.state.templates.options.map(name => ({
-        title: name,
-        action: (path) => this.$emit('template', { name, target: path })
-      }))
-    },
-    instance: function () {
-      return this
-    },
-    display: function () {
-      if (this.title && !this.system) {
-        try {
-          return this.format(this.name, this.directory)
-        } catch {
-          return (this.ephemeral || this.name) ? this.name : ' - '
-        }
-      }
-
-      return this.name
-    },
-    visible: function () {
-      return this.root || this.ephemeral || !(this.title && (this.display === '' || this.system))
-    },
-    rules: function (): ((value: string) => boolean|string)[] {
-      const rules:((value: string) => boolean|string)[] = [
-        () => !this.error || this.error,
-        (value) => String(value).search(/[^\s\w.-]/g) === -1 || 'special characters are not allowed.',
-        (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'
-      ]
-
-      if (this.title) {
-        rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
-      } else if (!this.directory) {
-        rules.push(
-          (value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.',
-          (value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.'
-        )
-      }
-
-      return rules
-    },
-    alert: function () {
-      if (this.system || this.ephemeral) {
-        return false
-      }
-
-      if (this.relationship === 'tome-file') {
-        return false
-      }
-
-      try {
-        this.format(this.name, this.directory)
-      } catch {
-        return true
-      }
-
-      return false
-    },
-    context: function () {
-      const items = []
-      const push = (array) => {
-        if (items.length > 0) {
-          items.push({ divider: true })
-        }
-
-        items.push(...array)
-      }
-
-      const expand = [
-        {
-          title: 'Expand',
-          action: undefined
-        }
-      ]
-
-      const script = [
-        {
-          title: 'Template',
-          load: () => this.templates
-        },
-        {
-          title: 'Action',
-          load: () => this.actions
-        }
-      ]
-
-      const special = []
-
-      if (['root', 'tome', 'tome-feature-templates'].includes(this.relationship)) {
-        special.push({
-          title: 'New Template',
-          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path })
-        })
-      }
-
-      if (['root', 'tome', 'tome-feature-actions'].includes(this.relationship)) {
-        special.push({
-          title: 'New Action',
-          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.ACTION, target: path })
-        })
-      }
-
-      const file = [
-        {
-          title: 'Open',
-          action: (path) => this.$emit('open', { target: path })
-        },
-        {
-          title: 'Open Folder',
-          action: (path) => this.$emit('open', { target: path, container: true })
-        },
-        {
-          title: 'New File',
-          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.FILE, target: path })
-        },
-        {
-          title: 'New Folder',
-          action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path })
-        }
-      ]
-
-      const clipboard = [
-        {
-          title: 'Cut',
-          action: async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
-          active: () => !this.system
-        },
-        {
-          title: 'Copy',
-          action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path })
-        },
-        {
-          title: 'Paste',
-          active: () => store.state.clipboard.content,
-          action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path })
-        }
-      ]
-
-      const move = [
-        {
-          title: 'Rename',
-          action: async (path) => this.$emit('edit', { target: path }),
-          active: () => !this.system
-        },
-        {
-          title: 'Delete',
-          action: async (path) => this.$emit('delete', { target: path }),
-          active: () => !this.system
-        }
-      ]
-
-      push(this.directory ? expand : [])
-      push(special.length > 0 && this.system ? special : [])
-      push(this.system && !this.root ? [] : script)
-      push(file)
-      push(clipboard)
-      push(move)
-
-      return items
-    }
-  },
-  methods: {
-    contextmenu: async function (event) {
-      if (this.locked) {
-        return
-      }
-
-      const position = {
-        x: event.clientX,
-        y: event.clientY
-      }
-
-      await store.dispatch('context/open', { target: this.path, title: this.path, items: this.context, position })
-    },
-    drag_start: function (event) {
-      if (this.system) {
-        event.preventDefault()
-        return
-      }
-
-      event.dataTransfer.dropEffect = 'move'
-      event.target.style.opacity = 0.2
-
-      this.$emit('drag', { path: this.path })
-    },
-    drag_end: function (event) {
-      event.target.style.opacity = 1
-    },
-    drag_enter: function (event) {
-      const container = event.target.closest('[droppable]')
-      container.classList.add('drop')
-    },
-    drag_leave: function (event) {
-      const container = event.target.closest('[droppable]')
-      container.classList.remove('drop')
-    },
-    drop: function (event) {
-      this.drag_leave(event)
-      this.$emit('drop', { path: this.path })
-    },
-    focus: function () {
-      this.input = this.display
-    },
-    submit: function () {
-      if (!this.valid) {
-        return
-      }
-
-      this.$emit('submit', { input: this.input, title: this.title })
-    }
   }
 })
+
+@Component({
+  components: { VContainer, VLayout, VFlex, VForm, VTextField, FileIcon }
+})
+export default class ExplorerNode extends ExplorerNodeProperties {
+  valid = false
+  input = ''
+  error = undefined
+
+  get selected () {
+    return this.uuid === this.active
+  }
+
+  get locked () {
+    return this.relationship === 'git'
+  }
+
+  get system () {
+    const relationships = new Set(['root', 'git', 'tome', 'tome-templates', 'tome-actions'])
+    return relationships.has(this.relationship)
+  }
+
+  get actions () {
+    return store.state.actions.options.map(name => ({
+      title: name,
+      action: (path) => this.$emit('action', { name, target: path, selection: undefined })
+    }))
+  }
+
+  get templates () {
+    return store.state.templates.options.map(name => ({
+      title: name,
+      action: (path) => this.$emit('template', { name, target: path })
+    }))
+  }
+
+  get instance () {
+    return this
+  }
+
+  get display () {
+    if (this.title && !this.system) {
+      try {
+        return this.format(this.name, this.directory)
+      } catch {
+        return (this.ephemeral || this.name) ? this.name : ' - '
+      }
+    }
+
+    return this.name
+  }
+
+  get visible () {
+    return this.root || this.ephemeral || !(this.title && (this.display === '' || this.system))
+  }
+
+  get rules (): ((value: string) => boolean|string)[] {
+    const rules:((value: string) => boolean|string)[] = [
+      () => !this.error || this.error,
+      (value) => String(value).search(/[^\s\w.-]/g) === -1 || 'special characters are not allowed.',
+      (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'
+    ]
+
+    if (this.title) {
+      rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
+    } else if (!this.directory) {
+      rules.push(
+        (value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.',
+        (value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.'
+      )
+    }
+
+    return rules
+  }
+
+  get alert () {
+    if (this.system || this.ephemeral) {
+      return false
+    }
+
+    if (this.relationship === 'tome-file') {
+      return false
+    }
+
+    try {
+      this.format(this.name, this.directory)
+    } catch {
+      return true
+    }
+
+    return false
+  }
+
+  get context () {
+    const items = []
+    const push = (array) => {
+      if (items.length > 0) {
+        items.push({ divider: true })
+      }
+
+      items.push(...array)
+    }
+
+    const expand = [
+      {
+        title: 'Expand',
+        action: undefined
+      }
+    ]
+
+    const script = [
+      {
+        title: 'Template',
+        load: () => this.templates
+      },
+      {
+        title: 'Action',
+        load: () => this.actions
+      }
+    ]
+
+    const special = []
+
+    if (['root', 'tome', 'tome-feature-templates'].includes(this.relationship)) {
+      special.push({
+        title: 'New Template',
+        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path })
+      })
+    }
+
+    if (['root', 'tome', 'tome-feature-actions'].includes(this.relationship)) {
+      special.push({
+        title: 'New Action',
+        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.ACTION, target: path })
+      })
+    }
+
+    const file = [
+      {
+        title: 'Open',
+        action: (path) => this.$emit('open', { target: path })
+      },
+      {
+        title: 'Open Folder',
+        action: (path) => this.$emit('open', { target: path, container: true })
+      },
+      {
+        title: 'New File',
+        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.FILE, target: path })
+      },
+      {
+        title: 'New Folder',
+        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path })
+      }
+    ]
+
+    const clipboard = [
+      {
+        title: 'Cut',
+        action: async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
+        active: () => !this.system
+      },
+      {
+        title: 'Copy',
+        action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path })
+      },
+      {
+        title: 'Paste',
+        active: () => store.state.clipboard.content,
+        action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path })
+      }
+    ]
+
+    const move = [
+      {
+        title: 'Rename',
+        action: async (path) => this.$emit('edit', { target: path }),
+        active: () => !this.system
+      },
+      {
+        title: 'Delete',
+        action: async (path) => this.$emit('delete', { target: path }),
+        active: () => !this.system
+      }
+    ]
+
+    push(this.directory ? expand : [])
+    push(special.length > 0 && this.system ? special : [])
+    push(this.system && !this.root ? [] : script)
+    push(file)
+    push(clipboard)
+    push(move)
+
+    return items
+  }
+
+  async contextmenu (event) {
+    if (this.locked) {
+      return
+    }
+
+    const position = {
+      x: event.clientX,
+      y: event.clientY
+    }
+
+    await store.dispatch('context/open', { target: this.path, title: this.path, items: this.context, position })
+  }
+
+  drag_start (event) {
+    if (this.system) {
+      event.preventDefault()
+      return
+    }
+
+    event.dataTransfer.dropEffect = 'move'
+    event.target.style.opacity = 0.2
+
+    this.$emit('drag', { path: this.path })
+  }
+
+  drag_end (event) {
+    event.target.style.opacity = 1
+  }
+
+  drag_enter (event) {
+    const container = event.target.closest('[droppable]')
+    container.classList.add('drop')
+  }
+
+  drag_leave (event) {
+    const container = event.target.closest('[droppable]')
+    container.classList.remove('drop')
+  }
+
+  drop (event) {
+    this.drag_leave(event)
+    this.$emit('drop', { path: this.path })
+  }
+
+  focus () {
+    this.input = this.display
+  }
+
+  submit () {
+    if (!this.valid) {
+      return
+    }
+
+    this.$emit('submit', { input: this.input, title: this.title })
+  }
+}
 </script>
 
 <style>

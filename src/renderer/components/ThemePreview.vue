@@ -76,14 +76,17 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VCard, VIcon, VBtn, VSpacer, VTextField, VSwitch, VCardActions, VCardText, VListItem, VListItemAvatar, VListItemTitle, VListItemSubtitle, VListItemContent } from 'vuetify/lib'
 
-export default Vue.extend({
-  components: { VCard, VIcon, VBtn, VSpacer, VTextField, VSwitch, VCardActions, VCardText, VListItem, VListItemAvatar, VListItemTitle, VListItemSubtitle, VListItemContent },
-  data: () => ({
-    error: false
-  })
+export const ThemePreviewProperties = Vue.extend({})
+
+@Component({
+  components: { VCard, VIcon, VBtn, VSpacer, VTextField, VSwitch, VCardActions, VCardText, VListItem, VListItemAvatar, VListItemTitle, VListItemSubtitle, VListItemContent }
 })
+export default class ThemePreview extends ThemePreviewProperties {
+  error = false
+}
 </script>
 
 <style scoped>

@@ -1,19 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "strict": false,
-    "jsx": "preserve",
-    "importHelpers": true,
+    "target": "es5",
+    "module": "es2015",
     "moduleResolution": "node",
-    "allowJs": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "useDefineForClassFields": true,
-    "resolveJsonModule": true,
-    "sourceMap": true,
+    "noImplicitThis": true,
     "baseUrl": ".",
+    "resolveJsonModule": true,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true, // mark.js
     "types": [
       "webpack-env",
       "vuetify"
@@ -31,6 +26,9 @@
       "dom.iterable",
       "scripthost"
     ]
+  },
+  "vueCompilerOptions": {
+    "target": 2.7
   },
   "include": [
     "src/renderer/**/*.js",

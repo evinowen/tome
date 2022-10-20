@@ -40,8 +40,9 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
+export const StatusButtonProperties = Vue.extend({
   props: {
     waiting: { type: Number, default: 0 },
     waiting_max: { type: Number, default: 3 },
@@ -53,14 +54,19 @@ export default Vue.extend({
     staged_renamed: { type: Number, default: 0 },
     staged_modified: { type: Number, default: 0 },
     staged_removed: { type: Number, default: 0 }
-  },
-  computed: {
-    available_added: function () {
-      return this.available_new + this.available_renamed + this.available_modified
-    },
-    staged_added: function () {
-      return this.staged_new + this.staged_renamed + this.staged_modified
-    }
   }
 })
+
+@Component({
+  components: {}
+})
+export default class StatusButton extends StatusButtonProperties {
+  get available_added () {
+    return this.available_new + this.available_renamed + this.available_modified
+  }
+
+  get staged_added () {
+    return this.staged_new + this.staged_renamed + this.staged_modified
+  }
+}
 </script>

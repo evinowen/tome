@@ -9,7 +9,7 @@ interface RepositoryPayload {
   name: string,
   path: string,
   history: { oid: string, date: Date, message: string }[],
-  branch?: string,
+  branch?: { name: string, short: string },
   remotes: { name: string, url: string }[],
   available: { path: string, type: number }[],
   staged: { path: string, type: number }[]
@@ -36,7 +36,7 @@ interface RepositoryPatches {
 export interface State {
   name: string
   path: string
-  branch?: string
+  branch?: { name: string, short: string }
   history: { oid: string, date: Date, message: string }[]
   pending: { oid: string, date: Date, message: string }[]
   patches: RepositoryPatches[]
@@ -44,7 +44,7 @@ export interface State {
   loaded: boolean
   staging: number
   status: RepositoryStatus
-  remote?: { name: string, url: string }
+  remote?: { name: string, url: string, branch?: { name: string, short: string }}
   repository?: RepositoryPayload
   metadata: RepositoryMetadata
   commit_working: boolean

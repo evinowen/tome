@@ -139,6 +139,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VNavigationDrawer, VContainer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCol, VRow } from 'vuetify/lib'
 import store from '@/store'
 import KeyfileInput from './KeyfileInput.vue'
@@ -148,7 +149,9 @@ import PushBranch from './PushBranch.vue'
 import PushStatus from './PushStatus.vue'
 import PushConfirm from './PushConfirm.vue'
 
-export default Vue.extend({
+export const PushProperties = Vue.extend({})
+
+@Component({
   components: {
     VNavigationDrawer,
     VContainer,
@@ -165,46 +168,54 @@ export default Vue.extend({
     PushBranch,
     PushStatus,
     PushConfirm
-  },
-  computed: {
-    system: function () {
-      return store.state.system
-    },
-    repository: function () {
-      return store.state.repository
-    },
-    configuration: function () {
-      return store.state.configuration
-    }
-  },
-  methods: {
-    close: async function () {
-      await store.dispatch('system/push', false)
-    },
-    credential_key: async function (value) {
-      await store.dispatch('repository/credentials/key', value)
-    },
-    credential_passphrase: async function (value) {
-      await store.dispatch('repository/credentials/passphrase', value)
-    },
-    confirm: async function (value) {
-      await store.dispatch('system/push_confirm', value)
-    },
-    add_remote: async function (name, url) {
-      await store.dispatch('repository/create-remote', { name, url })
-    },
-    select_remote: async function (name) {
-      await store.dispatch('repository/remote', name)
-    },
-    diff: async function (commit) {
-      await store.dispatch('repository/diff', { commit: commit.oid })
-      await store.dispatch('system/patch', true)
-    },
-    push: async function () {
-      await store.dispatch('system/perform', 'push')
-    }
   }
 })
+export default class Push extends PushProperties {
+  get system () {
+    return store.state.system
+  }
+
+  get repository () {
+    return store.state.repository
+  }
+
+  get configuration () {
+    return store.state.configuration
+  }
+
+  async close () {
+    await store.dispatch('system/push', false)
+  }
+
+  async credential_key (value) {
+    await store.dispatch('repository/credentials/key', value)
+  }
+
+  async credential_passphrase (value) {
+    await store.dispatch('repository/credentials/passphrase', value)
+  }
+
+  async confirm (value) {
+    await store.dispatch('system/push_confirm', value)
+  }
+
+  async add_remote (name, url) {
+    await store.dispatch('repository/create-remote', { name, url })
+  }
+
+  async select_remote (name) {
+    await store.dispatch('repository/remote', name)
+  }
+
+  async diff (commit) {
+    await store.dispatch('repository/diff', { commit: commit.oid })
+    await store.dispatch('system/patch', true)
+  }
+
+  async push () {
+    await store.dispatch('system/perform', 'push')
+  }
+}
 </script>
 
 <style scoped>

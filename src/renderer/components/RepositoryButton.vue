@@ -66,11 +66,11 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu } from 'vuetify/lib'
 import store from '@/store'
 
-export default Vue.extend({
-  components: { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu },
+export const RepositoryButtonProperties = Vue.extend({
   props: {
     name: { type: String, default: '' },
     path: { type: String, default: '' },
@@ -79,17 +79,20 @@ export default Vue.extend({
     contributors: { type: String, default: '' },
     license: { type: String, default: '' },
     disabled: { type: Boolean, default: false }
-  },
-  data: () => ({
-    value: false
-  }),
-  methods: {
-    open: async function (path) {
-      this.value = false
-      await store.dispatch('files/select', { path })
-    }
   }
 })
+
+@Component({
+  components: { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu }
+})
+export default class RepositoryButton extends RepositoryButtonProperties {
+  value = false
+
+  async open (path) {
+    this.value = false
+    await store.dispatch('files/select', { path })
+  }
+}
 </script>
 
 <style scoped>

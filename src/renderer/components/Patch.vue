@@ -34,31 +34,29 @@
         </div>
 
         <div class="flex-grow-1 mb-3">
-          <template v-for="(file, file_index) in patches">
-            <div
-              :key="file_index"
-              :class="[ file_index ? 'mt-4' : '']"
+          <div
+            v-for="(file, file_index) in patches"
+            :key="file_index"
+            :class="[ file_index ? 'mt-4' : '']"
+          >
+            <v-card
+              dense
+              style="font-family: monospace; overflow: auto;"
             >
-              <v-card
-                dense
-                style="font-family: monospace; overflow: auto;"
-              >
-                <v-card-title class="pa-2">
-                  {{ file.name }}
-                </v-card-title>
-                <v-card-text class="pa-2">
-                  <template v-for="(line, line_index) in file.lines">
-                    <div
-                      :key="line_index"
-                      :class="['line', line_color(line.type)]"
-                    >
-                      <pre style="overflow: wrap">{{ line_prefix(line.type) }}{{ line.line }}</pre>
-                    </div>
-                  </template>
-                </v-card-text>
-              </v-card>
-            </div>
-          </template>
+              <v-card-title class="pa-2">
+                {{ file.name }}
+              </v-card-title>
+              <v-card-text class="pa-2">
+                <div
+                  v-for="(line, line_index) in file.lines"
+                  :key="line_index"
+                  :class="['line', line_color(line.type)]"
+                >
+                  <pre style="overflow: wrap">{{ line_prefix(line.type) }}{{ line.line }}</pre>
+                </div>
+              </v-card-text>
+            </v-card>
+          </div>
         </div>
 
         <div
@@ -81,6 +79,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText } from 'vuetify/lib'
 
 import store from '@/store'
@@ -99,46 +98,50 @@ class RepositoryPatch {
   }
 }
 
-export default Vue.extend({
-  components: { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText },
+export const PatchProperties = Vue.extend({
   props: {
     value: { type: Boolean, default: false }
-  },
-  computed: {
-    patches: function () {
-      return store.state.repository.patches
-    }
-  },
-  methods: {
-    close: async function () {
-      await store.dispatch('system/patch', false)
-    },
-    line_color: function (type) {
-      switch (type) {
-        case RepositoryPatch.LineType.HUNK_HDR:
-          return 'blue--text'
-        case RepositoryPatch.LineType.ADDITION:
-          return 'green--text'
-        case RepositoryPatch.LineType.DELETION:
-          return 'red--text'
-        default:
-          return ''
-      }
-    },
-    line_prefix: function (type) {
-      switch (type) {
-        case RepositoryPatch.LineType.HUNK_HDR:
-          return ''
-        case RepositoryPatch.LineType.ADDITION:
-          return '+ '
-        case RepositoryPatch.LineType.DELETION:
-          return '- '
-        default:
-          return '  '
-      }
-    }
   }
 })
+
+@Component({
+  components: { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText }
+})
+export default class Patch extends PatchProperties {
+  get patches () {
+    return store.state.repository.patches
+  }
+
+  async close () {
+    await store.dispatch('system/patch', false)
+  }
+
+  line_color (type) {
+    switch (type) {
+      case RepositoryPatch.LineType.HUNK_HDR:
+        return 'blue--text'
+      case RepositoryPatch.LineType.ADDITION:
+        return 'green--text'
+      case RepositoryPatch.LineType.DELETION:
+        return 'red--text'
+      default:
+        return ''
+    }
+  }
+
+  line_prefix (type) {
+    switch (type) {
+      case RepositoryPatch.LineType.HUNK_HDR:
+        return ''
+      case RepositoryPatch.LineType.ADDITION:
+        return '+ '
+      case RepositoryPatch.LineType.DELETION:
+        return '- '
+      default:
+        return '  '
+    }
+  }
+}
 </script>
 
 <style scoped>

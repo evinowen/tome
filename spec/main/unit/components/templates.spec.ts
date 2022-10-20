@@ -44,7 +44,6 @@ describe('components/templates', () => {
   })
 
   it('should find and invoke template upon call to invoke', async () => {
-    disk.reset_disk()
     const source = '/project/.tome/templates/example.template.a'
     const target = '/project/.tome/first'
 

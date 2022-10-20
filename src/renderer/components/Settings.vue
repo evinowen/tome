@@ -342,6 +342,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VLayout, VFlex, VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/lib'
 import { debounce } from 'lodash'
 import store from '@/store'
@@ -351,7 +352,13 @@ import KeyfileOutput from './KeyfileOutput.vue'
 import ThemeColorPicker from './ThemeColorPicker.vue'
 import SeaGame from './SeaGame.vue'
 
-export default Vue.extend({
+export const SettingsProperties = Vue.extend({
+  props: {
+    value: { type: Boolean, default: false }
+  }
+})
+
+@Component({
   components: {
     VCol,
     VRow,
@@ -368,42 +375,42 @@ export default Vue.extend({
     VLayout,
     VFlex,
     SeaGame
-  },
-  props: {
-    value: { type: Boolean, default: false }
-  },
-  data: () => ({
-    obscure_passphrase: true,
-    version: undefined,
-    process: undefined
-  }),
-  computed: {
-    configuration: function () {
-      return store.state.configuration
-    },
-    system: function () {
-      return store.state.system
-    },
-    debounce_save: function () {
-      return debounce(this.save, 1000)
-    }
-  },
-  methods: {
-    close: async function () {
-      await store.dispatch('system/settings', false)
-    },
-    assign_value: async function (name, value) {
-      await store.dispatch('configuration/update', { [name]: value })
-      this.debounce_save()
-    },
-    generate_key: async function (passphrase) {
-      await store.dispatch('configuration/generate', passphrase)
-    },
-    save: async function () {
-      await store.dispatch('configuration/write', store.state.configuration_path)
-    }
   }
 })
+export default class Settings extends SettingsProperties {
+  obscure_passphrase = true
+  version = undefined
+  process = undefined
+
+  get configuration () {
+    return store.state.configuration
+  }
+
+  get system () {
+    return store.state.system
+  }
+
+  get debounce_save () {
+    return debounce(this.save, 1000)
+  }
+
+  async close () {
+    await store.dispatch('system/settings', false)
+  }
+
+  async assign_value (name, value) {
+    await store.dispatch('configuration/update', { [name]: value })
+    this.debounce_save()
+  }
+
+  async generate_key (passphrase) {
+    await store.dispatch('configuration/generate', passphrase)
+  }
+
+  async save () {
+    await store.dispatch('configuration/write', store.state.configuration_path)
+  }
+}
 </script>
 
 <style scoped>

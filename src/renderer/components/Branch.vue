@@ -80,40 +80,44 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider } from 'vuetify/lib'
 import { DateTime } from 'luxon'
 import store from '@/store'
 
-export default Vue.extend({
-  components: { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider },
+export const BranchProperties = Vue.extend({
   props: {
     value: { type: Boolean, default: false }
-  },
-  data: () => ({
-    headers: [
-      { text: '', value: 'oid', width: '60px' },
-      { text: 'date', value: 'date', width: '' },
-      { text: 'message', value: 'message', width: '' }
-    ]
-  }),
-  computed: {
-    repository: function () {
-      return store.state.repository
-    }
-  },
-  methods: {
-    close: async function () {
-      await store.dispatch('system/branch', false)
-    },
-    diff: async function (commit) {
-      await store.dispatch('repository/diff', { commit: commit.oid })
-      await store.dispatch('system/patch', true)
-    },
-    format_date: function (date) {
-      return DateTime.fromJSDate(date).toISODate()
-    }
   }
 })
+
+@Component({
+  components: { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider }
+})
+export default class Branch extends BranchProperties {
+  headers = [
+    { text: '', value: 'oid', width: '60px' },
+    { text: 'date', value: 'date', width: '' },
+    { text: 'message', value: 'message', width: '' }
+  ]
+
+  get repository () {
+    return store.state.repository
+  }
+
+  async close () {
+    await store.dispatch('system/branch', false)
+  }
+
+  async diff (commit) {
+    await store.dispatch('repository/diff', { commit: commit.oid })
+    await store.dispatch('system/patch', true)
+  }
+
+  format_date (date) {
+    return DateTime.fromJSDate(date).toISODate()
+  }
+}
 </script>
 
 <style>

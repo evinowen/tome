@@ -51,39 +51,46 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VBtn, VIcon, VSystemBar, VSpacer } from 'vuetify/lib'
 import store from '@/store'
 
-export default Vue.extend({
-  components: { VBtn, VIcon, VSystemBar, VSpacer },
-  computed: {
-    maximized: function () {
-      return store.state.system.maximized
-    },
-    icon: function () {
-      return store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
-    },
-    title: function () {
-      return store.state.repository?.name || undefined
-    }
-  },
-  methods: {
-    settings: async function () {
-      await store.dispatch('system/settings', !store.state.system.settings)
-    },
-    minimize: async function () {
-      await store.dispatch('system/minimize')
-    },
-    maximize: async function () {
-      this.maximized
-        ? await store.dispatch('system/restore')
-        : await store.dispatch('system/maximize')
-    },
-    exit: async function () {
-      await store.dispatch('system/exit')
-    }
-  }
+export const SystemBarProperties = Vue.extend({})
+
+@Component({
+  components: { VBtn, VIcon, VSystemBar, VSpacer }
 })
+export default class SystemBar extends SystemBarProperties {
+  get maximized () {
+    return store.state.system.maximized
+  }
+
+  get icon () {
+    return store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
+  }
+
+  get title () {
+    return store.state.repository?.name || undefined
+  }
+
+  async settings () {
+    await store.dispatch('system/settings', !store.state.system.settings)
+  }
+
+  async minimize () {
+    await store.dispatch('system/minimize')
+  }
+
+  async maximize () {
+    this.maximized
+      ? await store.dispatch('system/restore')
+      : await store.dispatch('system/maximize')
+  }
+
+  async exit () {
+    await store.dispatch('system/exit')
+  }
+}
 </script>
 
 <style scoped>

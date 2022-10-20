@@ -8,7 +8,7 @@ import SplitPane from 'vue-splitpane'
 import '@fontsource/montserrat'
 import '@mdi/font/css/materialdesignicons.min.css'
 
-import VueCodemirror from 'vue-codemirror'
+import * as VueCodemirror from 'vue-codemirror'
 import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/mode/javascript/javascript.js'
 import 'codemirror/lib/codemirror.css'
@@ -17,7 +17,7 @@ import 'codemirror/theme/base16-dark.css'
 import 'codemirror/addon/display/autorefresh.js'
 import 'codemirror/addon/search/searchcursor.js'
 
-import VueShortKey from 'vue-shortkey'
+import * as VueShortKey from 'vue-shortkey'
 
 async function main () {
   Vue.component('SplitPane', SplitPane)

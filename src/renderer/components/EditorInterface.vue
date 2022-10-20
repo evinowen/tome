@@ -87,7 +87,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import { VDivider } from 'vuetify/lib'
 import { debounce, delay } from 'lodash'
 import { marked } from 'marked'
@@ -97,371 +97,406 @@ import FileIcon from '@/components/FileIcon.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
 import EmptyPane from '@/components/EmptyPane.vue'
 import store from '@/store'
+import VueCodeMirror from 'vue-codemirror'
 
-export default Vue.extend({
+export const EditorInterfaceProperties = Vue.extend({})
+
+@Component({
   components: {
     VDivider,
     Explorer,
     EmptyPane,
     FileIcon,
     ImagePreview
-  },
-  data: () => ({
-    error: '',
-    overlay: undefined,
-    mark: undefined,
-    regex: undefined,
-    focus: undefined,
-    mode: {
-      read: {
-        results: []
-      },
-      write: {
-        cursor: undefined,
-        position: 0
+  }
+})
+export default class EditorInterface extends EditorInterfaceProperties {
+  $refs!: {
+    editor: VueCodeMirror,
+    rendered: HTMLElement
+  }
+
+  error = ''
+  overlay?: any
+  mark?: Mark
+  regex?: RegExp
+  focus?: any
+  mode = {
+    read: {
+      results: []
+    },
+    write: {
+      cursor: undefined,
+      position: 0
+    }
+  }
+
+  get system () {
+    return store.state.system
+  }
+
+  get codemirror () {
+    return this.$refs.editor.codemirror
+  }
+
+  get explore () {
+    return !(this.system.commit || this.system.push)
+  }
+
+  get edit () {
+    return store.state.system.edit
+  }
+
+  get active () {
+    return store.state.files.active
+  }
+
+  get selected () {
+    return store.state.files.selected
+  }
+
+  get markdown () {
+    return this.selected && (this.selected.extension === '.md')
+  }
+
+  get html () {
+    return this.selected && (['.htm', '.html'].includes(this.selected.extension))
+  }
+
+  get rendered () {
+    if (this.markdown) {
+      return marked.parse(this.selected?.document?.content || '')
+    }
+
+    if (this.html) {
+      return (this.selected?.document?.content || '')
+    }
+
+    return ''
+  }
+
+  get directory () {
+    return this.selected?.directory || false
+  }
+
+  get readonly () {
+    return this.selected?.readonly || false
+  }
+
+  get view () {
+    if (this.selected) {
+      if (this.system.edit && !(this.selected.image || this.selected.directory)) {
+        return 'edit'
+      }
+
+      if (this.rendered !== undefined) {
+        return 'rendered'
       }
     }
-  }),
-  computed: {
-    system: function () {
-      return store.state.system
-    },
-    codemirror: function () {
-      return this.$refs.editor.codemirror
-    },
-    explore: function () {
-      return !(this.commit || this.push)
-    },
-    edit: function () {
-      return store.state.system.edit
-    },
-    active: function () {
-      return store.state.files.active
-    },
-    selected: function () {
-      return store.state.files.selected
-    },
-    markdown: function () {
-      return this.selected && (this.selected.extension === '.md')
-    },
-    html: function () {
-      return this.selected && (['.htm', '.html'].includes(this.selected.extension))
-    },
-    rendered: function () {
-      if (this.markdown) {
-        return marked.parse(this.selected?.document?.content || '')
+
+    return 'empty'
+  }
+
+  get query () {
+    return store.state.search.query
+  }
+
+  get regex_query () {
+    return store.state.search.regex_query
+  }
+
+  get case_sensitive () {
+    return store.state.search.case_sensitive
+  }
+
+  get target () {
+    return store.state.search.navigation.target
+  }
+
+  get actions () {
+    return store.state.actions.options.map(name => ({
+      title: name,
+      action: async () => {
+        const selection = this.codemirror.getSelection()
+        const output = await store.dispatch('actions/execute', { name, target: this.active, selection })
+
+        this.codemirror.replaceSelection(output.selection || selection)
+
+        await this.input()
       }
+    }))
+  }
 
-      if (this.html) {
-        return (this.selected?.document?.content || '')
-      }
+  get codemirror_options () {
+    return {
+      theme: store.state.configuration.dark_mode ? 'base16-dark' : 'base16-light'
+    }
+  }
 
-      return ''
-    },
-    directory: function () {
-      return this.selected?.directory || false
-    },
-    readonly: function () {
-      return this.selected?.readonly || false
-    },
-    view: function () {
-      if (this.selected) {
-        if (this.system.edit && !(this.selected.image || this.selected.directory)) {
-          return 'edit'
-        }
+  get state () {
+    return [
+      this.query,
+      // this.content,
+      this.rendered,
+      this.regex_query,
+      this.case_sensitive
+    ]
+  }
 
-        if (this.rendered !== undefined) {
-          return 'rendered'
-        }
-      }
+  get debounce_save () {
+    return debounce((path) => this.save(path), 500)
+  }
 
-      return 'empty'
-    },
-    query: function () {
-      return store.state.search.query
-    },
-    regex_query: function () {
-      return store.state.search.regex_query
-    },
-    case_sensitive: function () {
-      return store.state.search.case_sensitive
-    },
-    target: function () {
-      return store.state.search.navigation.target
-    },
-    actions: function () {
-      return store.state.actions.options.map(name => ({
-        title: name,
+  get context () {
+    return [
+      {
+        title: 'Action',
+        load: () => this.actions
+      },
+      { divider: true },
+      {
+        title: 'Cut',
+        active: () => this.system.edit && !this.readonly,
         action: async () => {
           const selection = this.codemirror.getSelection()
-          const output = await store.dispatch('actions/execute', { name, target: this.active, selection })
 
-          this.codemirror.replaceSelection(output.selection || selection)
-
-          await this.input()
+          await store.dispatch('clipboard/text', selection)
+          this.codemirror.replaceSelection('')
         }
-      }))
-    },
-    codemirror_options: function () {
-      return {
-        theme: store.state.configuration.dark_mode ? 'base16-dark' : 'base16-light'
-      }
-    },
-    state: function () {
-      return [
-        this.query,
-        this.content,
-        this.rendered,
-        this.regex_query,
-        this.case_sensitive
-      ]
-    },
-    debounce_save: function () {
-      return debounce((path) => this.save(path), 500)
-    },
-    context: function () {
-      return [
-        {
-          title: 'Action',
-          load: () => this.actions
-        },
-        { divider: true },
-        {
-          title: 'Cut',
-          active: () => this.system.edit && !this.readonly,
-          action: async () => {
-            const selection = this.codemirror.getSelection()
+      },
+      {
+        title: 'Copy',
+        action: async () => {
+          let selection
+          this.system.edit
+            ? selection = this.codemirror.getSelection()
+            : selection = document.getSelection().toString()
 
-            await store.dispatch('clipboard/text', selection)
-            this.codemirror.replaceSelection('')
-          }
-        },
-        {
-          title: 'Copy',
-          action: async () => {
-            let selection
-
-            this.system.edit
-              ? selection = this.codemirror.getSelection()
-              : selection = document.getSelection().toString()
-
-            await store.dispatch('clipboard/text', selection)
-          }
-        },
-        {
-          title: 'Paste',
-          active: () => this.system.edit && !this.readonly,
-          action: async () => {
-            const clipboard = await store.dispatch('clipboard/text')
-            this.codemirror.replaceSelection(clipboard)
-          }
+          await store.dispatch('clipboard/text', selection)
         }
-      ]
-    }
-  },
-  watch: {
-    active: function () {
-      this.refresh(true)
-    },
-    edit: function (value) {
-      if (value) {
-        this.refresh()
+      },
+      {
+        title: 'Paste',
+        active: () => this.system.edit && !this.readonly,
+        action: async () => {
+          const clipboard = await store.dispatch('clipboard/text')
+          this.codemirror.replaceSelection(clipboard)
+        }
       }
+    ]
+  }
 
-      this.search()
-    },
-    state: function () {
-      this.search()
-    },
-    target: function () {
-      this.navigate()
+  @Watch('active')
+  active_update () {
+    this.refresh(true)
+  }
+
+  @Watch('edit')
+  edit_update (value) {
+    if (value) {
+      this.refresh()
     }
-  },
-  mounted: function () {
+
+    this.search()
+  }
+
+  @Watch('state')
+  state_update () {
+    this.search()
+  }
+
+  @Watch('target')
+  target_update () {
+    this.navigate()
+  }
+
+  mounted () {
     this.mark = new Mark('#editor-interface-rendered')
-  },
-  methods: {
-    contextmenu: async function (event) {
-      const position = {
-        x: event.clientX,
-        y: event.clientY
+  }
+
+  async contextmenu (event) {
+    const position = {
+      x: event.clientX,
+      y: event.clientY
+    }
+
+    await store.dispatch('context/open', { items: this.context, position })
+  }
+
+  async refresh (reset = false) {
+    await this.debounce_save.flush()
+
+    if (reset) {
+      this.codemirror.doc.setValue(store.state.files.content || '')
+    }
+
+    this.codemirror.setOption('readOnly', this.readonly)
+
+    if (this.selected) {
+      switch (this.selected.extension) {
+        case '.md':
+          this.codemirror.setOption('mode', 'markdown')
+          break
+
+        case '.js':
+        case '.json':
+          this.codemirror.setOption('mode', 'javascript')
+          break
+
+        default:
+          this.codemirror.setOption('mode')
+          break
       }
+    } else {
+      this.codemirror.setOption('mode')
+    }
 
-      await store.dispatch('context/open', { items: this.context, position })
-    },
-    refresh: async function (reset = false) {
-      await this.debounce_save.flush()
+    delay(() => this.codemirror.refresh(), 100)
+  }
 
-      if (reset) {
-        this.codemirror.doc.setValue(store.state.files.content || '')
-      }
+  async input () {
+    await this.debounce_save(this.active)
+  }
 
-      this.codemirror.setOption('readOnly', this.readonly)
+  async save (path) {
+    const content_array = []
 
-      if (this.selected) {
-        switch (this.selected.extension) {
-          case '.md':
-            this.codemirror.setOption('mode', 'markdown')
-            break
+    this.codemirror.doc.eachLine((line) => { content_array.push(line.text) })
 
-          case '.js':
-          case '.json':
-            this.codemirror.setOption('mode', 'javascript')
-            break
+    const content = content_array.join('\n')
 
-          default:
-            this.codemirror.setOption('mode')
-            break
+    await store.dispatch('files/save', { path, content })
+  }
+
+  async search () {
+    if (this.overlay) {
+      this.codemirror.removeOverlay(this.overlay, true)
+    }
+
+    await new Promise((resolve) => {
+      this.mark.unmark({ done: resolve })
+    })
+
+    if (!this.query) {
+      this.regex = undefined
+      return
+    }
+
+    try {
+      this.regex = new RegExp(
+        this.regex_query ? this.query : String(this.query).replace(/[$()*+./?[\\\]^{|}-]/g, '\\$&'),
+        String('g').concat(this.case_sensitive ? '' : 'i')
+      )
+    } catch (error) {
+      await store.dispatch('error', error)
+      return
+    }
+
+    if (this.system.edit) {
+      this.overlay = {
+        token: (stream) => {
+          this.regex.lastIndex = stream.pos
+          const match = this.regex.exec(stream.string)
+          if (match && match.index === stream.pos) {
+            stream.pos += match[0].length > 0 ? match[0].length : 1
+            return 'searching'
+          } else if (match) {
+            stream.pos = match.index
+          } else {
+            stream.skipToEnd()
+          }
         }
-      } else {
-        this.codemirror.setOption('mode')
       }
 
-      delay(() => this.codemirror.refresh(), 100)
-    },
-    input: async function () {
-      await this.debounce_save(this.active)
-    },
-    save: async function (path) {
-      const codemirror = this.codemirror
-      const content_array = []
+      this.codemirror.addOverlay(this.overlay, { opaque: true })
 
-      codemirror.doc.eachLine((line) => { content_array.push(line.text) })
+      this.mode.write.cursor = undefined
+      this.mode.write.position = 0
 
-      const content = content_array.join('\n')
+      const cursor = this.codemirror.getSearchCursor(this.query, 0, { caseFold: true })
+      let total = 0
 
-      await store.dispatch('files/save', { path, content })
-    },
-    search: async function () {
-      if (this.overlay) {
-        this.codemirror.removeOverlay(this.overlay, true)
+      while (cursor.findNext()) {
+        total++
       }
 
-      await new Promise((resolve) => {
-        this.mark.unmark({ done: resolve })
+      await store.dispatch('search/navigate', { total, target: undefined })
+    } else {
+      const total = await new Promise((resolve) => {
+        this.mark.markRegExp(
+          this.regex,
+          {
+            className: 'highlight-rendered',
+            acrossElements: false,
+            done: total => {
+              store.dispatch('search/navigate', { total, target: undefined })
+              resolve(total)
+            }
+          }
+        )
       })
 
-      if (!this.query) {
-        this.regex = undefined
+      this.mode.read.results = [...this.$refs.rendered.querySelectorAll('mark > mark')]
+
+      if (this.mode.read.results.length !== total) {
+        this.mode.read.results = [...this.$refs.rendered.querySelectorAll('mark')]
+      }
+    }
+
+    await this.navigate()
+  }
+
+  async navigate () {
+    if (this.system.edit) {
+      if (!this.overlay) {
         return
       }
 
-      try {
-        this.regex = new RegExp(
-          this.regex_query ? this.query : String(this.query).replace(/[$()*+./?[\\\]^{|}-]/g, '\\$&'),
-          String('g').concat(this.case_sensitive ? '' : 'i')
-        )
-      } catch (error) {
-        await store.dispatch('error', error)
-        return
+      if (!this.mode.write.cursor) {
+        this.mode.write.cursor = this.codemirror.getSearchCursor(this.query, 0, { caseFold: true })
       }
 
-      if (this.system.edit) {
-        this.overlay = {
-          token: (stream) => {
-            this.regex.lastIndex = stream.pos
-            const match = this.regex.exec(stream.string)
-            if (match && match.index === stream.pos) {
-              stream.pos += match[0].length > 0 ? match[0].length : 1
-              return 'searching'
-            } else if (match) {
-              stream.pos = match.index
-            } else {
-              stream.skipToEnd()
-            }
-          }
-        }
-
-        this.codemirror.addOverlay(this.overlay, { opaque: true })
-
-        this.mode.write.cursor = undefined
+      if (!this.mode.write.position) {
         this.mode.write.position = 0
-
-        const cursor = this.codemirror.getSearchCursor(this.query, 0, { caseFold: true })
-        let total = 0
-
-        while (cursor.findNext()) {
-          total++
-        }
-
-        await store.dispatch('search/navigate', { total, target: undefined })
-      } else {
-        const total = await new Promise((resolve) => {
-          this.mark.markRegExp(
-            this.regex,
-            {
-              className: 'highlight-rendered',
-              separateWordSearch: false,
-              acrossElements: false,
-              done: total => {
-                store.dispatch('search/navigate', { total, target: undefined })
-                resolve(total)
-              }
-            }
-          )
-        })
-
-        this.mode.read.results = this.$refs.rendered.querySelectorAll('mark > mark')
-
-        if (this.mode.read.results.length !== total) {
-          this.mode.read.results = this.$refs.rendered.querySelectorAll('mark')
-        }
       }
 
-      await this.navigate()
-    },
-    navigate: async function () {
-      if (this.system.edit) {
-        if (!this.overlay) {
-          return
-        }
+      if (this.target > 0) {
+        while (this.mode.write.position !== this.target) {
+          if (this.target < this.mode.write.position) {
+            this.mode.write.position--
 
-        if (!this.mode.write.cursor) {
-          this.mode.write.cursor = this.codemirror.getSearchCursor(this.query, 0, { caseFold: true })
-        }
+            this.mode.write.cursor.findPrevious()
+          } else if (this.target > this.mode.write.position) {
+            this.mode.write.position++
 
-        if (!this.mode.write.position) {
-          this.mode.write.position = 0
-        }
-
-        if (this.target > 0) {
-          while (this.mode.write.position !== this.target) {
-            if (this.target < this.mode.write.position) {
-              this.mode.write.position--
-
-              this.mode.write.cursor.findPrevious()
-            } else if (this.target > this.mode.write.position) {
-              this.mode.write.position++
-
-              this.mode.write.cursor.findNext()
-            }
-          }
-
-          const from = this.mode.write.cursor.from()
-          const to = this.mode.write.cursor.to()
-
-          try {
-            this.codemirror.setSelection(from, to)
-            this.codemirror.scrollIntoView({ from, to })
-          } catch {
-            // Do nothing
+            this.mode.write.cursor.findNext()
           }
         }
-      } else {
-        if (this.focus) {
-          this.focus.classList.remove('highlight-rendered-focus')
-        }
 
-        this.focus = this.mode.read.results[this.target - 1]
+        const from = this.mode.write.cursor.from()
+        const to = this.mode.write.cursor.to()
 
-        if (this.focus) {
-          this.focus.classList.add('highlight-rendered-focus')
-          this.focus.scrollIntoView()
+        try {
+          this.codemirror.setSelection(from, to)
+          this.codemirror.scrollIntoView({ from, to })
+        } catch {
+          // Do nothing
         }
+      }
+    } else {
+      if (this.focus) {
+        this.focus.classList.remove('highlight-rendered-focus')
+      }
+
+      this.focus = this.mode.read.results[this.target - 1]
+
+      if (this.focus) {
+        this.focus.classList.add('highlight-rendered-focus')
+        this.focus.scrollIntoView()
       }
     }
   }
-})
+}
 </script>
 
 <style>

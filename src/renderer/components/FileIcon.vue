@@ -24,10 +24,10 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VBtn, VIcon } from 'vuetify/lib'
 
-export default Vue.extend({
-  components: { VBtn, VIcon },
+export const FileIconProperties = Vue.extend({
   props: {
     path: { type: String, default: '' },
     extension: { type: String, default: '' },
@@ -39,95 +39,102 @@ export default Vue.extend({
     alert: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
     size: { type: String, default: 'small' }
-  },
-  computed: {
-    system: function () {
-      return ['git', 'tome', 'tome-templates', 'tome-actions'].includes(this.relationship)
-    },
-    icon: function () {
-      if (this.directory) {
-        if (this.relationship === 'root') {
-          return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
-        }
-
-        return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
-      }
-
-      if (this.image) {
-        return 'mdi-image'
-      }
-
-      if (this.relationship === 'tome-file') {
-        return 'mdi-file'
-      }
-
-      return 'mdi-newspaper-variant'
-    },
-    badge: function () {
-      const base = this.alert ? 'mdi-alert-circle' : ''
-
-      switch (this.relationship) {
-        case 'root':
-          return
-
-        case 'git':
-          return 'mdi-lock'
-
-        case 'tome':
-          return this.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
-
-        case 'tome-feature-actions':
-        case 'tome-feature-templates':
-          return 'mdi-cog'
-
-        case 'tome-action':
-          return 'mdi-play-circle'
-
-        case 'tome-template':
-          return 'mdi-lightning-bolt-circle'
-      }
-
-      if (this.image) {
-        return base
-      }
-
-      if (this.relationship === 'tome-file') {
-        switch (this.extension) {
-          case '.md':
-            return 'mdi-arrow-down-bold-circle'
-
-          case '.js':
-            return 'mdi-language-javascript'
-
-          case '.json':
-            return 'mdi-code-json'
-        }
-      }
-
-      return base
-    },
-    modifier: function () {
-      switch (this.badge) {
-        case 'mdi-cog':
-          return 'modify-cog'
-
-        case 'mdi-eye-circle':
-          return 'modify-eye'
-
-        case 'mdi-language-javascript':
-          return 'modify-js'
-
-        case 'mdi-lock':
-          return 'modify-lock'
-
-        case 'mdi-code-json':
-          return 'modify-json'
-      }
-
-      return ''
-    }
   }
 })
+
+@Component({
+  components: { VBtn, VIcon }
+})
+export default class FileIcon extends FileIconProperties {
+  get system () {
+    return ['git', 'tome', 'tome-templates', 'tome-actions'].includes(this.relationship)
+  }
+
+  get icon () {
+    if (this.directory) {
+      if (this.relationship === 'root') {
+        return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+      }
+
+      return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
+    }
+
+    if (this.image) {
+      return 'mdi-image'
+    }
+
+    if (this.relationship === 'tome-file') {
+      return 'mdi-file'
+    }
+
+    return 'mdi-newspaper-variant'
+  }
+
+  get badge () {
+    const base = this.alert ? 'mdi-alert-circle' : ''
+
+    switch (this.relationship) {
+      case 'root':
+        return ''
+
+      case 'git':
+        return 'mdi-lock'
+
+      case 'tome':
+        return this.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
+
+      case 'tome-feature-actions':
+      case 'tome-feature-templates':
+        return 'mdi-cog'
+
+      case 'tome-action':
+        return 'mdi-play-circle'
+
+      case 'tome-template':
+        return 'mdi-lightning-bolt-circle'
+    }
+
+    if (this.image) {
+      return base
+    }
+
+    if (this.relationship === 'tome-file') {
+      switch (this.extension) {
+        case '.md':
+          return 'mdi-arrow-down-bold-circle'
+
+        case '.js':
+          return 'mdi-language-javascript'
+
+        case '.json':
+          return 'mdi-code-json'
+      }
+    }
+
+    return base
+  }
+
+  get modifier () {
+    switch (this.badge) {
+      case 'mdi-cog':
+        return 'modify-cog'
+
+      case 'mdi-eye-circle':
+        return 'modify-eye'
+
+      case 'mdi-language-javascript':
+        return 'modify-js'
+
+      case 'mdi-lock':
+        return 'modify-lock'
+
+      case 'mdi-code-json':
+        return 'modify-json'
+    }
+
+    return ''
+  }
+}
 </script>
 
 <style>

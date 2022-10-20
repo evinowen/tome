@@ -30,6 +30,7 @@ module.exports = {
     'unicorn/switch-case-braces': 'off',
     'vue/multi-word-component-names': 'off',
     'vue/prop-name-casing': ['error', 'snake_case'],
-    'vue/valid-v-slot': ['error', { allowModifiers: true }]
+    // 'vue/valid-v-slot': ['error', { allowModifiers: true }]
+    'vue/valid-v-slot': 'off'
   }
 }

@@ -17,14 +17,19 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VContainer, VCol, VRow } from 'vuetify/lib'
 
-export default Vue.extend({
-  components: { VContainer, VCol, VRow },
+export const EmptyPaneProperties = Vue.extend({
   props: {
     error: { type: String, default: '' }
   }
 })
+
+@Component({
+  components: { VContainer, VCol, VRow }
+})
+export default class EmptyPane extends EmptyPaneProperties {}
 </script>
 
 <style scoped>

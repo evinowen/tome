@@ -109,6 +109,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
 import {
   VIcon,
   VBtn,
@@ -135,7 +136,20 @@ export const CommitConfirmMessages = {
   Ready: 'Commit is prepared and ready to publish'
 }
 
-export default Vue.extend({
+export const CommitConfirmProperties = Vue.extend({
+  props: {
+    value: { type: Boolean, default: false },
+    name: { type: String, default: '' },
+    email: { type: String, default: '' },
+    message: { type: String, default: '' },
+    disabled: { type: Boolean, default: false },
+    staging: { type: Boolean, default: false },
+    waiting: { type: Boolean, default: false },
+    push: { type: Boolean, default: false }
+  }
+})
+
+@Component({
   components: {
     VIcon,
     VBtn,
@@ -155,25 +169,15 @@ export default Vue.extend({
     VListItemAvatar,
     VListItemContent,
     VTextarea
-  },
-  props: {
-    value: { type: Boolean, default: false },
-    name: { type: String, default: '' },
-    email: { type: String, default: '' },
-    message: { type: String, default: '' },
-    disabled: { type: Boolean, default: false },
-    staging: { type: Boolean, default: false },
-    waiting: { type: Boolean, default: false },
-    push: { type: Boolean, default: false }
-  },
-  computed: {
-    status: function () {
-      return this.staging
-        ? CommitConfirmMessages.Staging
-        : CommitConfirmMessages.Ready
-    }
   }
 })
+export default class CommitConfirm extends CommitConfirmProperties {
+  get status () {
+    return this.staging
+      ? CommitConfirmMessages.Staging
+      : CommitConfirmMessages.Ready
+  }
+}
 </script>
 
 <style>
