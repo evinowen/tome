@@ -6,7 +6,6 @@
     height="18"
   >
     <library-button
-      v-model="library"
       :disabled="disabled_unless()"
       @open="open"
       @close="close"

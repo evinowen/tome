@@ -1,7 +1,7 @@
 <template>
   <div class="explorer-root">
     <explorer-node
-      v-if="root"
+      v-if="root.path !== ''"
       ref="explorer_root"
       root
       :name="repository.name"
@@ -36,6 +36,7 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import store from '@/store'
 import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode.vue'
+import File from '@/store/modules/files/file'
 
 export const ExplorerProperties = Vue.extend({
   props: {
@@ -59,15 +60,21 @@ export default class Explorer extends ExplorerProperties {
   }
 
   get active () {
-    return store.state.files.selected ? String(store.state.files.selected.uuid) : undefined
+    if (store.state.files.active === '') {
+      return ''
+    }
+
+    const selected = store.state.files.directory[store.state.files.active]
+
+    return String(selected.uuid)
   }
 
   get editing () {
     return store.state.files.editing
   }
 
-  get root () {
-    return store.state.files.tree ? store.state.files.tree.base : undefined
+  get root (): File {
+    return store.state.files.directory[store.state.files.path] || File.Empty
   }
 
   format (name, directory = false) {
@@ -96,7 +103,6 @@ export default class Explorer extends ExplorerProperties {
 
   async select (state) {
     const { path } = state
-
     await store.dispatch('files/select', { path })
   }
 

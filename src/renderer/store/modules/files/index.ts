@@ -1,5 +1,6 @@
-import { MutationTree, ActionTree } from 'vuex'
-import File from './file'
+import Vue from 'vue'
+import { MutationTree, ActionTree, GetterTree } from 'vuex'
+import File, { FileLoadContract, FileLoadPayload } from './file'
 import FileTree, { FileIdentity, FileIdentityContract } from './file_tree'
 
 class FileTreeNotEstablishedError extends Error {}
@@ -14,10 +15,13 @@ export const ChokidarEvent = {
 }
 
 export class State {
-  active?: string
+  path = ''
+  directory: { [key: string]: File } = {}
+  active = ''
   content?: string
   tree?: FileTree
   ghost?: File
+  base?: File
   selected?: File
   editing = false
   post?: (path: string) => void
@@ -29,15 +33,22 @@ export default {
   mutations: <MutationTree<State>>{
     initialize: function (state, tree) {
       state.tree = tree
+      state.base = tree.base
+      state.path = tree.base.path
+      Vue.set(state.directory, state.path, tree.base)
     },
     clear: function (state) {
       state.tree = undefined
     },
-    load: function (state, contract) {
+    load: function (state, contract: FileLoadContract) {
       const { item, payload } = contract
 
       if (item.directory) {
         item.fill(payload)
+
+        for (const file of payload.children) {
+          Vue.set(state.directory, file.path, file)
+        }
       } else {
         item.render(payload)
       }
@@ -81,6 +92,11 @@ export default {
       state.selected = undefined
     }
   },
+  getters: <GetterTree<State, unknown>>{
+    tree_base: function (state): File|undefined {
+      return state.base
+    }
+  },
   actions: <ActionTree<State, unknown>>{
     initialize: async function (context, { path }) {
       const tree = await FileTree.make(path)
@@ -112,7 +128,7 @@ export default {
         }
       })
 
-      await context.dispatch('toggle', tree.base)
+      await context.dispatch('toggle', context.state.base)
     },
     clear: async function (context) {
       context.commit('clear')

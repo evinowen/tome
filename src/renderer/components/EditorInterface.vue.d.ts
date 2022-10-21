@@ -2,6 +2,7 @@
 import Vue from 'vue'
 import { DebouncedFunc } from 'lodash'
 import VueCodeMirror from 'vue-codemirror'
+import File from '@/store/modules/files/file'
 
 export class EditorInterfaceProperties extends Vue {}
 
@@ -26,12 +27,13 @@ export default class EditorInterface extends EditorInterfaceProperties {
     }
   }
 
+  selected: File
+
   get system(): any
   get codemirror(): any
   get explore(): boolean
   get edit (): boolean
   get active (): any
-  get selected (): any
   get markdown (): boolean
   get html (): boolean
   get rendered (): string

@@ -7,43 +7,7 @@ import SplitPane from 'vue-splitpane'
 import EditorInterface from '@/components/EditorInterface.vue'
 
 jest.mock('@/store', () => ({
-  state: Vue.observable({
-    files: {
-      active: '/README.md',
-      error: undefined,
-      tree: undefined,
-      ghost: undefined,
-      selected: {
-        path: '/project/path.md',
-        name: 'path.md',
-        relative: 'path.md',
-        extension: '.md',
-        image: false,
-        directory: false,
-        expanded: false,
-        readonly: false,
-        document: {
-          content: '# README\n'
-        }
-      },
-      editing: false,
-      watcher: undefined
-    },
-    search: {
-      query: undefined,
-      results: undefined,
-      navigation: {
-        target: 1,
-        total: 0
-      }
-    },
-    configuration: {
-      dark_mode: false
-    },
-    system: {
-      edit: false
-    }
-  }),
+  state: Vue.observable({}),
   dispatch: jest.fn()
 }))
 
@@ -102,25 +66,40 @@ describe('components/EditorInterface', () => {
         error: undefined,
         tree: undefined,
         ghost: undefined,
-        selected: {
-          path: '/project/path.md',
-          name: 'path.md',
-          relative: 'path.md',
-          extension: '.md',
-          image: false,
-          directory: false,
-          expanded: false,
-          readonly: false,
-          document: {
-            content: '# README\n'
-          }
-        },
         editing: false,
-        watcher: undefined
+        watcher: undefined,
+        directory: {
+          '/README.md': {
+            path: '/README.md',
+            name: 'README.md',
+            relative: 'README.md',
+            extension: '.md',
+            image: false,
+            directory: false,
+            expanded: false,
+            readonly: false,
+            document: {
+              content: '# README\n'
+            }
+          },
+          '/document.md': {
+            path: '/document.md',
+            name: 'document.md',
+            relative: 'document.md',
+            extension: '.md',
+            image: false,
+            directory: false,
+            expanded: false,
+            readonly: false,
+            document: {
+              content: '# Document Data\n'
+            }
+          }
+        }
       },
       search: {
-        query: undefined,
-        results: undefined,
+        query: '',
+        results: [],
         navigation: {
           target: 1,
           total: 0
@@ -228,8 +207,9 @@ describe('components/EditorInterface', () => {
     const local = wrapper.vm as EditorInterface
     await expect(local.$nextTick()).resolves.toBeDefined()
 
-    store.state.files.selected.document.content = '# Mock'
-    store.state.files.active = '/blah'
+    store.state.files.directory['/document.md'].document.content = '# Mock'
+    store.state.files.active = '/document.md'
+
     await new Promise(resolve => setTimeout(resolve))
 
     await expect(local.$nextTick()).resolves.toBeDefined()
@@ -242,7 +222,7 @@ describe('components/EditorInterface', () => {
     const local = wrapper.vm as EditorInterface
     await expect(local.$nextTick()).resolves.toBeDefined()
 
-    store.state.files.selected.document.content = ''
+    store.state.files.directory['/document.md'].document.content = ''
 
     expect(local.overlay).toBeUndefined()
 
@@ -257,7 +237,8 @@ describe('components/EditorInterface', () => {
     const local = wrapper.vm as EditorInterface
     await expect(local.$nextTick()).resolves.toBeDefined()
 
-    store.state.files.selected.document.content = '# Mock'
+    store.state.files.directory['/document.md'].document.content = '# Mock'
+    store.state.files.active = '/document.md'
 
     store.state.search.query = 'first'
 
@@ -321,8 +302,8 @@ describe('components/EditorInterface', () => {
     const local = wrapper.vm as EditorInterface
     await expect(local.$nextTick()).resolves.toBeDefined()
 
-    store.state.files.active = '/project/path'
-    store.state.files.selected.document.content = '# Mock'
+    store.state.files.active = '/document.md'
+    store.state.files.directory['/document.md'].document.content = '# Mock'
     store.state.search.query = 'first'
 
     await expect(local.$nextTick()).resolves.toBeDefined()
@@ -354,8 +335,8 @@ describe('components/EditorInterface', () => {
     const local = wrapper.vm as EditorInterface
     await expect(local.$nextTick()).resolves.toBeDefined()
 
-    store.state.files.selected.document.content = '# Mock'
-    store.state.files.active = '/project/path'
+    store.state.files.directory['/document.md'].document.content = '# Mock'
+    store.state.files.active = '/document.md'
 
     await expect(local.$nextTick()).resolves.toBeDefined()
 
@@ -381,8 +362,8 @@ describe('components/EditorInterface', () => {
     const local = wrapper.vm as EditorInterface
     await expect(local.$nextTick()).resolves.toBeDefined()
 
-    store.state.files.active = '/project/path'
-    store.state.files.selected.document.content = '# Mock'
+    store.state.files.active = '/document.md'
+    store.state.files.directory['/document.md'].document.content = '# Mock'
     store.state.search.query = 'mock'
 
     await expect(local.$nextTick()).resolves.toBeDefined()
@@ -409,7 +390,7 @@ describe('components/EditorInterface', () => {
 
   it('should dispatch clipboard/text with codemirror data when cut is called in edit mode', async () => {
     store.state.system.edit = true
-    store.state.files.active = '/project/path'
+    store.state.files.active = '/document.md'
 
     const wrapper = factory.wrap()
     const local = wrapper.vm as EditorInterface
@@ -424,7 +405,7 @@ describe('components/EditorInterface', () => {
 
   it('should dispatch clipboard/text with codemirror data when copy is called in edit mode', async () => {
     store.state.system.edit = true
-    store.state.files.active = '/project/path'
+    store.state.files.active = '/document.md'
 
     const wrapper = factory.wrap()
     const local = wrapper.vm as EditorInterface
@@ -439,7 +420,7 @@ describe('components/EditorInterface', () => {
 
   it('should dispatch clipboard/text with codemirror data when copy is called in read mode', async () => {
     store.state.system.edit = false
-    store.state.files.active = '/project/path'
+    store.state.files.active = '/document.md'
 
     const wrapper = factory.wrap()
     const local = wrapper.vm as EditorInterface
@@ -457,7 +438,7 @@ describe('components/EditorInterface', () => {
     const wrapper = factory.wrap()
     const local = wrapper.vm as EditorInterface
 
-    store.state.files.active = '/project/path'
+    store.state.files.active = '/document.md'
 
     await expect(local.$nextTick()).resolves.toBeDefined()
 
@@ -498,7 +479,7 @@ describe('components/EditorInterface', () => {
 
   it('should enable cut when in edit mode', async () => {
     store.state.system.edit = true
-    store.state.files.active = '/project/path'
+    store.state.files.active = '/document.md'
 
     const wrapper = factory.wrap()
     const local = wrapper.vm as EditorInterface
@@ -517,7 +498,7 @@ describe('components/EditorInterface', () => {
 
   it('should enable paste when in edit mode', async () => {
     store.state.system.edit = true
-    store.state.files.active = '/project/path'
+    store.state.files.active = '/document.md'
 
     const wrapper = factory.wrap({ edit: true })
     const local = wrapper.vm as EditorInterface

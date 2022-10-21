@@ -22,11 +22,12 @@ describe('components/ExplorerNode', () => {
         format_titles: false
       },
       files: {
-        active: undefined,
-        content: undefined,
-        error: undefined,
-        tree: {
-          base: {
+        path: '/project',
+        active: '',
+        content: '',
+        error: '',
+        directory: {
+          '/project': {
             expanded: false,
             children: []
           }

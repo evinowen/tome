@@ -36,7 +36,7 @@ interface RepositoryPatches {
 export interface State {
   name: string
   path: string
-  branch?: { name: string, short: string }
+  branch?: { name: string, short: string, error?: string }
   history: { oid: string, date: Date, message: string }[]
   pending: { oid: string, date: Date, message: string }[]
   patches: RepositoryPatches[]
@@ -44,7 +44,7 @@ export interface State {
   loaded: boolean
   staging: number
   status: RepositoryStatus
-  remote?: { name: string, url: string, branch?: { name: string, short: string }}
+  remote?: { name: string, url: string, branch?: { name: string, short: string, error?: string }}
   repository?: RepositoryPayload
   metadata: RepositoryMetadata
   commit_working: boolean

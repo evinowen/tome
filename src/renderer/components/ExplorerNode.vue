@@ -146,7 +146,7 @@ export const ExplorerNodeProperties = Vue.extend({
 export default class ExplorerNode extends ExplorerNodeProperties {
   valid = false
   input = ''
-  error = undefined
+  error?: string
 
   get selected () {
     return this.uuid === this.active

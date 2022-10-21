@@ -28,17 +28,13 @@ export default class FileTree {
   base: File
   separator: string
 
-  index
+  index = -1
   crawling = 0
   timestamp = 0
 
   constructor (file: File, separator: string) {
     this.base = file
     this.separator = separator
-
-    this.index = undefined
-    this.crawling = 0
-    this.timestamp = 0
   }
 
   async listen (listener: (data: {event: string, path: string}) => void) {

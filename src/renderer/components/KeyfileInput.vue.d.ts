@@ -1,6 +1,4 @@
 import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
 
 export class KeyfileInputProperties extends Vue {
   value: string

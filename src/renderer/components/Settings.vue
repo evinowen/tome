@@ -379,8 +379,11 @@ export const SettingsProperties = Vue.extend({
 })
 export default class Settings extends SettingsProperties {
   obscure_passphrase = true
-  version = undefined
-  process = undefined
+  version?: string
+  process?: {
+    versions?: Record<string, string>
+    sandboxed: boolean
+  }
 
   get configuration () {
     return store.state.configuration

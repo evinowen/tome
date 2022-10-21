@@ -49,7 +49,7 @@
           v-show="view === 'empty'"
           class="fill-height"
         >
-          <template v-if="selected">
+          <template v-if="active !== ''">
             <image-preview
               v-if="selected.image"
               :src="selected.path"
@@ -98,6 +98,7 @@ import ImagePreview from '@/components/ImagePreview.vue'
 import EmptyPane from '@/components/EmptyPane.vue'
 import store from '@/store'
 import VueCodeMirror from 'vue-codemirror'
+import File from '@/store/modules/files/file'
 
 export const EditorInterfaceProperties = Vue.extend({})
 
@@ -123,12 +124,23 @@ export default class EditorInterface extends EditorInterfaceProperties {
   focus?: any
   mode = {
     read: {
-      results: []
+      results: [] as Element[]
     },
     write: {
-      cursor: undefined,
+      cursor: undefined as any,
       position: 0
     }
+  }
+
+  selected = File.Empty
+
+  @Watch('active')
+  select () {
+    if (store.state.files.active === '') {
+      this.selected = undefined
+    }
+
+    this.selected = store.state.files.directory[store.state.files.active]
   }
 
   get system () {
@@ -151,46 +163,78 @@ export default class EditorInterface extends EditorInterfaceProperties {
     return store.state.files.active
   }
 
-  get selected () {
-    return store.state.files.selected
-  }
-
   get markdown () {
-    return this.selected && (this.selected.extension === '.md')
+    if (store.state.files.active === '') {
+      return false
+    }
+
+    const selected = store.state.files.directory[store.state.files.active]
+    return selected.extension === '.md'
   }
 
   get html () {
-    return this.selected && (['.htm', '.html'].includes(this.selected.extension))
+    if (store.state.files.active === '') {
+      return false
+    }
+
+    const selected = store.state.files.directory[store.state.files.active]
+    return ['.htm', '.html'].includes(selected.extension)
   }
 
   get rendered () {
+    if(this.active === '') {
+      return ''
+    }
+
+    const selected = store.state.files.directory[store.state.files.active]
+
+    if (selected.directory) {
+      return ''
+    }
+
+    const content = selected.document.content || ''
+
     if (this.markdown) {
-      return marked.parse(this.selected?.document?.content || '')
+      return marked.parse(content)
     }
 
     if (this.html) {
-      return (this.selected?.document?.content || '')
+      return (content)
     }
 
     return ''
   }
 
   get directory () {
-    return this.selected?.directory || false
+    if (store.state.files.active === '') {
+      return false
+    }
+
+    const selected = store.state.files.directory[store.state.files.active]
+    return selected.directory
   }
 
   get readonly () {
-    return this.selected?.readonly || false
+    if (store.state.files.active === '') {
+      return false
+    }
+
+    const selected = store.state.files.directory[store.state.files.active]
+    return selected.readonly
   }
 
   get view () {
-    if (this.selected) {
-      if (this.system.edit && !(this.selected.image || this.selected.directory)) {
-        return 'edit'
-      }
+    if (store.state.files.active !== '') {
+      const selected = store.state.files.directory[store.state.files.active]
 
-      if (this.rendered !== undefined) {
-        return 'rendered'
+      if (this.active !== '' && !(selected.image || selected.directory)) {
+        if (this.system.edit) {
+          return 'edit'
+        }
+
+        if (this.rendered !== '') {
+          return 'rendered'
+        }
       }
     }
 
@@ -332,8 +376,11 @@ export default class EditorInterface extends EditorInterfaceProperties {
 
     this.codemirror.setOption('readOnly', this.readonly)
 
-    if (this.selected) {
-      switch (this.selected.extension) {
+    if (store.state.files.active === '') {
+      this.codemirror.setOption('mode')
+    } else {
+      const selected = store.state.files.directory[store.state.files.active]
+      switch (selected.extension) {
         case '.md':
           this.codemirror.setOption('mode', 'markdown')
           break
@@ -347,8 +394,6 @@ export default class EditorInterface extends EditorInterfaceProperties {
           this.codemirror.setOption('mode')
           break
       }
-    } else {
-      this.codemirror.setOption('mode')
     }
 
     delay(() => this.codemirror.refresh(), 100)

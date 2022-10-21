@@ -151,11 +151,11 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path })
     await store.dispatch('files/load', { path: directory })
 
-    expect(store.state.files.active).toBeUndefined()
+    expect(store.state.files.active).toBe('')
 
     await store.dispatch('files/select', { path: directory })
 
-    expect(store.state.files.active).not.toBeUndefined()
+    expect(store.state.files.active).not.toBe('')
   })
 
   it('should load the content from targed item on select when the item is a file', async () => {

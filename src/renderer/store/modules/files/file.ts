@@ -23,13 +23,13 @@ export class FileDirent {
   }
 }
 
-interface FileDocument {
+export interface FileDocument {
   path: string
   title: string
   content: string
 }
 
-class FileLoadPayload {
+export class FileLoadPayload {
   children?: File[] = []
   document?: FileDocument
 }
@@ -68,6 +68,7 @@ interface FileConstructor {
 }
 
 export enum FileRelationshipType {
+  None = '',
   Root = 'root',
   Git = 'git',
   Tome = 'tome',
@@ -95,13 +96,13 @@ class FileRelationship {
 type FileRelationshipMember = FileRelationship|FileRelationshipType
 
 export default class File {
-  uuid?: string = uuidv4()
-  name?: string
-  extension?: string
+  uuid: string = uuidv4()
+  name: string
+  extension = ''
   mime = ''
   path = ''
-  relative?: string
-  relationship?: FileRelationshipType
+  relative: string
+  relationship = FileRelationshipType.None
   parent?: File
   base?: File
   loaded = false
@@ -115,6 +116,9 @@ export default class File {
   updated?: number
   clean = true
   readonly = false
+  image = false
+
+  static Empty:File = new File({})
 
   static blacklist = [
     '.git',
@@ -162,6 +166,7 @@ export default class File {
 
   constructor (data: FileConstructor) {
     Object.assign(this, data)
+    this.image = this.mime.startsWith('image')
   }
 
   async load () {
@@ -190,14 +195,6 @@ export default class File {
       title: await window.api.path.basename(path),
       content
     }
-  }
-
-  get image () {
-    if (this.mime.startsWith('image')) {
-      return true
-    }
-
-    return false
   }
 
   render (payload: FileLoadPayload) {

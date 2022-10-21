@@ -61,7 +61,7 @@ export default class SeaGame extends SeaGameProperties {
     sea: HTMLElement
   }
 
-  ticker = undefined
+  ticker?: number
   cannon = {
     distance: {
       timeout: 0,
@@ -79,7 +79,7 @@ export default class SeaGame extends SeaGameProperties {
     },
     splash: {
       splashing: false,
-      timeout: undefined,
+      timeout: undefined as number|undefined,
       x: 0,
       y: 0
     }

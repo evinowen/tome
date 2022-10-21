@@ -25,7 +25,7 @@ export class ExplorerNodeProperties extends Vue {
 export default class ExplorerNode extends ExplorerNodeProperties {
   valid: boolean
   input: string
-  error: any
+  error?: string
 
   get selected(): boolean
   get locked(): boolean

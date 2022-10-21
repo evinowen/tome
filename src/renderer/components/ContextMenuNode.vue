@@ -117,7 +117,7 @@ export default class ContextMenuNode extends ContextMenuNodeProperties {
   local_position_y = 0
   local_flip_x = false
   local_flip_y = false
-  resize_observer = undefined
+  resize_observer?: ResizeObserver
 
   @Watch('position_x')
   position_x_update () {
