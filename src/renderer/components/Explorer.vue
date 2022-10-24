@@ -66,7 +66,11 @@ export default class Explorer extends ExplorerProperties {
 
     const selected = store.state.files.directory[store.state.files.active]
 
-    return String(selected.uuid)
+    if (selected) {
+      return selected.uuid
+    }
+
+    return ''
   }
 
   get editing () {
@@ -74,7 +78,7 @@ export default class Explorer extends ExplorerProperties {
   }
 
   get root (): File {
-    return store.state.files.directory[store.state.files.path] || File.Empty
+    return store.state.files.directory[store.state.files.base] || File.Empty
   }
 
   format (name, directory = false) {

@@ -44,7 +44,7 @@ export interface State {
   loaded: boolean
   staging: number
   status: RepositoryStatus
-  remote?: { name: string, url: string, branch?: { name: string, short: string, error?: string }}
+  remote: { name: string, url: string, branch: { name: string, short: string, error: string }}
   repository?: RepositoryPayload
   metadata: RepositoryMetadata
   commit_working: boolean
@@ -76,7 +76,7 @@ function InitialState (): State {
     loaded: false,
     staging: 0,
     status: { available: [], staged: [] },
-    remote: undefined,
+    remote: { name: '', url: '', branch: { name: '', short: '', error: '' }},
     repository: undefined,
     metadata: {
       readme: undefined,
@@ -130,8 +130,12 @@ export default {
     push: function (state, flag) {
       state.push_working = flag
     },
-    remote: function (state, remote) {
-      state.remote = remote
+    remote: function (state, data) {
+      state.remote = data.remote
+      state.remote.branch = data.branch
+    },
+    pending: function (state, pending) {
+      state.pending = pending
     },
     patches: function (state, data) {
       const { patches } = data
@@ -246,7 +250,7 @@ export default {
     },
     remote: async function (context, name) {
       await window.api.repository.clear_remote()
-      context.commit('remote')
+      context.commit('remote', { remote: { name: '', url: ''}, branch: { name: '', short: '' }})
 
       if (!name) {
         return
@@ -271,7 +275,8 @@ export default {
       await window.api.repository.load_remote_url(remote.url)
 
       const result = await window.api.repository.remote()
-      context.commit('remote', result)
+      context.commit('remote', { remote: result.remote, branch: result.branch })
+      context.commit('pending', result.pending)
     },
     push: async function (context) {
       if (context.state.remote === undefined) {

@@ -56,7 +56,7 @@
           </v-card>
 
           <push-remote-selector
-            :value="repository.remote ? repository.remote.name : undefined"
+            :value="repository.remote.name !== '' ? repository.remote.name : undefined"
             :items="repository.remotes"
             @input="select_remote"
             @change="add_remote"
@@ -87,9 +87,9 @@
               <v-col>
                 <push-branch
                   :loading="false"
-                  :disabled="!(repository.remote && repository.remote.branch)"
-                  :url="repository.remote && repository.remote.branch ? repository.remote.branch.name : undefined"
-                  :name="repository.remote && repository.remote.branch ? repository.remote.branch.short : undefined"
+                  :disabled="repository.remote.branch.name === ''"
+                  :url="repository.remote.branch.name === '' ? undefined : repository.remote.branch.name"
+                  :name="repository.remote.branch.name === '' ? undefined : repository.remote.branch.short"
                 />
               </v-col>
             </v-row>
@@ -116,7 +116,7 @@
           <v-divider class="mt-0 mb-2" />
           <push-confirm
             :value="system.push_confirm"
-            :disabled="!(configuration.key && repository.pending && repository.pending.length > 0)"
+            :disabled="repository.pending.length === 0"
             :waiting="repository.push_working"
             :history="repository.pending"
             @input="confirm"

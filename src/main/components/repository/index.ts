@@ -2,7 +2,7 @@ import component from '../factory'
 import Repository from './Repository'
 import * as log from 'electron-log'
 
-let repository
+let repository: Repository
 
 export default component('repository')(
   ({ handle }) => {
@@ -61,8 +61,14 @@ export default component('repository')(
     handle('load-remote-url', async (url) => await repository.loadRemoteBranch(url))
 
     handle('remote', async () => {
+      const branch = {
+        name: repository.remote_branch.name,
+        short: repository.remote_branch.short
+      }
+
       const result = {
         remote: repository.remote,
+        branch,
         pending: repository.pending
       }
 

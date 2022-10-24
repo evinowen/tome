@@ -14,7 +14,15 @@ jest.mock('@/store', () => ({
       branch: 'master',
       pending: [],
       remotes: [],
-      remote: {},
+      remote: {
+        name: '',
+        url: '',
+        branch: {
+          name: '',
+          short: '',
+          error: ''
+        }
+      },
       repository: {},
       credentials: {
         key: '',

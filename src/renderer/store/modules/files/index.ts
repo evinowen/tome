@@ -1,6 +1,6 @@
 import Vue from 'vue'
-import { MutationTree, ActionTree, GetterTree } from 'vuex'
-import File, { FileLoadContract, FileLoadPayload } from './file'
+import { MutationTree, ActionTree } from 'vuex'
+import File, { FileLoadContract } from './file'
 import FileTree, { FileIdentity, FileIdentityContract } from './file_tree'
 
 class FileTreeNotEstablishedError extends Error {}
@@ -18,12 +18,12 @@ export class State {
   path = ''
   directory: { [key: string]: File } = {}
   active = ''
-  content?: string
-  tree?: FileTree
-  ghost?: File
-  base?: File
-  selected?: File
+  content = ''
+  ghost = ''
+  base = ''
+  selected = ''
   editing = false
+  tree?: FileTree
   post?: (path: string) => void
 }
 
@@ -33,9 +33,9 @@ export default {
   mutations: <MutationTree<State>>{
     initialize: function (state, tree) {
       state.tree = tree
-      state.base = tree.base
+      state.base = tree.base.uuid
       state.path = tree.base.path
-      Vue.set(state.directory, state.path, tree.base)
+      Vue.set(state.directory, tree.base.uuid, tree.base)
     },
     clear: function (state) {
       state.tree = undefined
@@ -47,7 +47,7 @@ export default {
         item.fill(payload)
 
         for (const file of payload.children) {
-          Vue.set(state.directory, file.path, file)
+          Vue.set(state.directory, file.uuid, file)
         }
       } else {
         item.render(payload)
@@ -62,10 +62,11 @@ export default {
     select: function (state, data) {
       const { item } = data
 
-      state.active = item.path
-      state.selected = item
+      state.active = item.uuid
+      state.selected = item.uuid
+      state.content = ''
 
-      if (!item.directory && item.document) {
+      if (!(item.ephemeral || item.directory) && item.document) {
         state.content = item.document.content
       }
     },
@@ -73,28 +74,38 @@ export default {
       const { edit } = data
       state.editing = edit
 
-      if (!state.editing && state.selected?.ephemeral && state.ghost !== undefined) {
-        state.ghost.exercise()
-        state.ghost = undefined
+      if (state.editing) {
+        return
+      }
+
+      if (state.selected != '' && state.ghost !== '') {
+        const selected = state.directory[state.selected]
+        if (selected.ephemeral) {
+          state.directory[state.ghost].exercise()
+
+          Vue.delete(state.directory, state.ghost)
+
+          state.ghost = ''
+          state.selected = ''
+        }
       }
     },
     haunt: function (state, data) {
       const { item, directory, post } = data
+      const ghost = item.directory
+        ? item.haunt(directory)
+        : item.parent.haunt(directory, item)
 
-      item.directory
-        ? state.ghost = item.haunt(directory)
-        : state.ghost = item.parent.haunt(directory, item)
-
+      state.ghost = ghost.uuid
+      state.selected = ghost.uuid
       state.post = post
       state.editing = true
+
+      Vue.set(state.directory, ghost.uuid, ghost)
     },
     blur: function (state) {
-      state.selected = undefined
-    }
-  },
-  getters: <GetterTree<State, unknown>>{
-    tree_base: function (state): File|undefined {
-      return state.base
+      state.active = ''
+      state.selected = ''
     }
   },
   actions: <ActionTree<State, unknown>>{
@@ -128,7 +139,7 @@ export default {
         }
       })
 
-      await context.dispatch('toggle', context.state.base)
+      await context.dispatch('toggle', { item: context.state.tree.base } )
     },
     clear: async function (context) {
       context.commit('clear')
@@ -219,9 +230,10 @@ export default {
 
       context.commit('haunt', { item, directory, post })
 
-      await context.dispatch('select', { item: context.state.ghost })
+      const ghost = context.state.directory[context.state.ghost]
+      await context.dispatch('select', { item: ghost })
 
-      return context.state.ghost
+      return ghost
     },
     select: async function (context, criteria) {
       const item = await context.dispatch('load', criteria)
@@ -251,15 +263,16 @@ export default {
     submit: async function (context, criteria) {
       const { input, title } = criteria
 
-      if (context.state.selected === undefined) {
-        throw new FileNotSelectedError()
+      if (context.state.selected === '') {
+        throw new FileNotSelectedError('No File Selected')
       }
+
+      const selected = context.state.directory[context.state.selected]
+      const { ephemeral, parent, directory } = selected
 
       context.commit('edit', { edit: false })
 
       let name = input.toLowerCase().replace(/[ .-]+/g, '.').replace(/[^\d.a-z-]/g, '')
-
-      const { ephemeral, parent, directory } = context.state.selected
 
       if (title && !directory) {
         name = `${name}.md`
@@ -269,7 +282,7 @@ export default {
 
       ephemeral
         ? item = await context.dispatch('create', { item: parent, name, directory })
-        : item = await context.dispatch('rename', { item: context.state.selected, name })
+        : item = await context.dispatch('rename', { item: selected, name })
 
       if (item === undefined) {
         throw new FileSubmitFailureError()
@@ -290,10 +303,12 @@ export default {
       return item
     },
     blur: async function (context) {
+      const selected = context.state.directory[context.state.selected]
+
       context.commit('edit', { edit: false })
       context.commit('blur')
 
-      return context.state.selected
+      return selected
     },
     move: async function (context, criteria) {
       const { proposed } = criteria

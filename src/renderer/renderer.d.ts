@@ -71,7 +71,7 @@ export interface API {
     load: (path: string) => Promise<{ name: string, path: string, history: string, branch: string, remotes: string, available: string, staged: string }>,
     refresh: () => Promise<void>,
     refresh_patches: () => Promise<void>,
-    remote: () => Promise<void>,
+    remote: () => Promise<{ remote: { name: string, url: string }, branch: { name: string, short: string }, pending: { oid: string, date: Date, message: string}[] }>,
     inspect: () => Promise<void>,
     diff_path: (path: string) => Promise<void>,
     diff_commit: (commit: string) => Promise<void>,

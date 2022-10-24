@@ -49,7 +49,7 @@
           v-show="view === 'empty'"
           class="fill-height"
         >
-          <template v-if="active !== ''">
+          <template v-if="selected !== undefined">
             <image-preview
               v-if="selected.image"
               :src="selected.path"
@@ -188,7 +188,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
 
     const selected = store.state.files.directory[store.state.files.active]
 
-    if (selected.directory) {
+    if (selected === undefined || selected.directory || !selected.document) {
       return ''
     }
 
@@ -227,7 +227,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
     if (store.state.files.active !== '') {
       const selected = store.state.files.directory[store.state.files.active]
 
-      if (this.active !== '' && !(selected.image || selected.directory)) {
+      if (selected && !(selected.image || selected.directory)) {
         if (this.system.edit) {
           return 'edit'
         }
@@ -261,10 +261,12 @@ export default class EditorInterface extends EditorInterfaceProperties {
     return store.state.actions.options.map(name => ({
       title: name,
       action: async () => {
-        const selection = this.codemirror.getSelection()
-        const output = await store.dispatch('actions/execute', { name, target: this.active, selection })
+        const selected = store.state.files.directory[store.state.files.active]
 
-        this.codemirror.replaceSelection(output.selection || selection)
+        const selection = this.codemirror.getSelection()
+        const output = await store.dispatch('actions/execute', { name, target: selected.path, selection })
+
+        this.codemirror.replaceSelection(output || selection)
 
         await this.input()
       }
@@ -400,7 +402,8 @@ export default class EditorInterface extends EditorInterfaceProperties {
   }
 
   async input () {
-    await this.debounce_save(this.active)
+    const selected = store.state.files.directory[store.state.files.active]
+    await this.debounce_save(selected.path)
   }
 
   async save (path) {

@@ -262,7 +262,6 @@ export default class File {
 
   async create (name: string, directory = false) {
     const path = await window.api.path.join(this.path, name)
-
     let result = false
 
     directory
