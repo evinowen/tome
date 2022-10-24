@@ -162,12 +162,7 @@ export default class Explorer extends ExplorerProperties {
 </script>
 
 <style>
-/* .explorer-root {
-  margin-left: 3px;
-  border-left: 1px dotted rgba(128, 128, 128, 0.2)
-} */
 .explorer-root {
-  /* padding-left: 3px; */
   border-left:4px solid rgba(128, 128, 128, 0.1);
   height: 100%;
 }

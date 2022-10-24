@@ -394,7 +394,6 @@ export default class ExplorerNode extends ExplorerNodeProperties {
 </script>
 
 <style>
-
 .explorer-node {
   min-height: 0 !important;
   padding: 0 !important;

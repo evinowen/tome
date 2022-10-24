@@ -3,6 +3,10 @@ import Vuetify from 'vuetify/lib'
 
 Vue.use(Vuetify)
 
-const options = {}
+const options = {
+  theme: {
+    options: { customProperties: true },
+  }
+}
 
 export default new Vuetify(options)
