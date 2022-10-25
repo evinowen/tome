@@ -241,8 +241,8 @@ export default class SeaGame extends SeaGameProperties {
 
 .cannon_ball {
   position: absolute;
-  bottom: -128px;
-  left: -128px;
+  bottom: 0;
+  left: 0;
   width: 10px;
   height: 10px;
   transition: unset;

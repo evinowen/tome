@@ -1,7 +1,8 @@
 <template>
   <div>
+    <div id="console"></div>
     <v-bottom-sheet
-      fullscreen
+      attach="#console"
       scrollable
       persistent
       hide-overlay
@@ -110,11 +111,8 @@ export default class Console extends ConsoleProperties {
 </script>
 
 <style>
-.v-dialog--fullscreen {
-  height: auto;
-  top: 25px;
-  bottom: 18px;
-  z-index: 999 !important;
+.v-dialog {
+  max-height: calc(100% - 25px) !important;
 }
 </style>
 
@@ -167,10 +165,12 @@ export default class Console extends ConsoleProperties {
 }
 
 .output {
-  height: 100%;
-  display: flex;
-  overflow: auto;
+  max-height: 100%;
   align-items: stretch;
+  overflow: auto;
+  display: flex;
   flex-direction: column-reverse;
+  border-radius: 0 !important;
+  margin-bottom: 18px;
 }
 </style>

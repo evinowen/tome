@@ -97,7 +97,7 @@ export const BranchProperties = Vue.extend({
 export default class Branch extends BranchProperties {
   headers = [
     { text: '', value: 'oid', width: '60px' },
-    { text: 'date', value: 'date', width: '' },
+    { text: 'date', value: 'date', width: '180px' },
     { text: 'message', value: 'message', width: '' }
   ]
 
@@ -115,7 +115,8 @@ export default class Branch extends BranchProperties {
   }
 
   format_date (date) {
-    return DateTime.fromJSDate(date).toISODate()
+    const datetime = DateTime.fromJSDate(date)
+    return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
   }
 }
 </script>
