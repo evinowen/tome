@@ -29,7 +29,7 @@ export default class Repository {
 
   ahead = false
   remote: { name: string, url: string }|undefined = undefined
-  remote_branch: { name: string, short: string, object: NodeGitRemoteHead }|undefined = undefined
+  remote_branch: { name: string, short: string, object?: NodeGitRemoteHead } = { name: '', short: '' }
   remotes: { name: string, url: string }[] = []
   remote_map: Map<string, NodeGit.Remote>|undefined = undefined
   remote_object: NodeGit.Remote|undefined = undefined
@@ -260,10 +260,6 @@ export default class Repository {
     const references = await this.remote_object.referenceList()
 
     this.remote_branch = this.matchRemoteBranchReference(references)
-    // this.remote.branch = {
-    //   name: this.remote_branch.name,
-    //   short: this.remote_branch.short
-    // }
 
     let local_commit = await this.repository.getReferenceCommit(this.branch)
     const remote_commit = await this.repository.getCommit(this.remote_branch.object.oid())
@@ -290,7 +286,7 @@ export default class Repository {
   clearRemoteBranch () {
     this.remote = undefined
     this.remote_object = undefined
-    this.remote_branch = undefined
+    this.remote_branch = { name: '', short: '' }
 
     this.pending = []
   }

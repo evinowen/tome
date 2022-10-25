@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="console"></div>
+    <div id="console" />
     <v-bottom-sheet
       attach="#console"
       scrollable

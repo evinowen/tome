@@ -40,6 +40,9 @@ export interface State {
   history: { oid: string, date: Date, message: string }[]
   pending: { oid: string, date: Date, message: string }[]
   patches: RepositoryPatches[]
+  patches_type: string,
+  patches_reference: string,
+  patches_message: string,
   remotes: { name: string, url: string }[]
   loaded: boolean
   staging: number
@@ -72,6 +75,9 @@ function InitialState (): State {
     history: [],
     pending: [],
     patches: [],
+    patches_type: '',
+    patches_reference: '',
+    patches_message: '',
     remotes: [],
     loaded: false,
     staging: 0,
@@ -138,9 +144,12 @@ export default {
       state.pending = pending
     },
     patches: function (state, data) {
-      const { patches } = data
+      const { type, reference, patches, message } = data
 
       state.patches = patches
+      state.patches_type = type
+      state.patches_reference = reference
+      state.patches_message = message
     },
     metadata: function (state, data) {
       Object.assign(state.metadata, data)
@@ -220,14 +229,30 @@ export default {
     diff: async function (context, data) {
       const { path, commit } = data
 
+      let type = ''
+      let reference = ''
+      let message = ''
+
       if (path) {
+        type = 'patch'
+        reference = path
         await window.api.repository.diff_path(path)
       } else if (commit) {
+        type = 'commit'
+        reference = commit
+
+        for (const item of context.state.history) {
+          if (item.oid === commit) {
+            message = item.message
+            break
+          }
+        }
+
         await window.api.repository.diff_commit(commit)
       }
 
-      const result = await window.api.repository.refresh_patches()
-      context.commit('patches', result)
+      const { patches } = await window.api.repository.refresh_patches()
+      context.commit('patches', { type, reference, patches, message })
     },
     commit: async function (context) {
       context.commit('commit', true)

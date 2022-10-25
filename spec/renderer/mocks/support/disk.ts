@@ -50,8 +50,11 @@ export default class Disk {
   reset_disk () {
     this.content.clear()
     this.content.set('/project/a.md', 'Test    Content\n\rTest    Content\n\rTest    Content')
+    this.content.set('/project/first/a.md', 'Test    Content\n\rTest    Content\n\rTest    Content')
     this.content.set('/project/b.md', 'Content Content\n\rTest    Content\n\rContent Content')
+    this.content.set('/project/first/b.md', 'Content Content\n\rTest    Content\n\rContent Content')
     this.content.set('/project/c.md', 'Content Content\n\rContent Content\n\rTest    Content')
+    this.content.set('/project/first/c.md', 'Content Content\n\rContent Content\n\rTest    Content')
     this.content.set('/project/.tome/templates/example.template.a/config.json', JSON.stringify({
       directory: false,
       map: {

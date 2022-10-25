@@ -1,5 +1,6 @@
 const repository = (path) => ({
   path,
+  history: [],
   remotes: [{
     name: 'origin',
     url: 'git@git.example.com:remote.git'

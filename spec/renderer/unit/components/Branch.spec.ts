@@ -1,3 +1,4 @@
+import { Settings as LuxonSettings } from 'luxon'
 import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
@@ -84,7 +85,7 @@ describe('components/Branch', () => {
     expect(data).toEqual(true)
   })
 
-  it('should format date into ISO format on call to format_date', async () => {
+  it('should format date string on call to format_date', async () => {
     const wrapper = factory.wrap()
     const local = wrapper.vm as Branch
 
@@ -94,10 +95,30 @@ describe('components/Branch', () => {
 
     expect(event).toHaveBeenCalledTimes(0)
 
-    const date = new Date('2000-01-01T12:00:00')
+    LuxonSettings.defaultZone = 'UTC'
+
+    const date = new Date('2000-01-01T12:00:00Z')
 
     const result = local.format_date(date)
 
-    expect(result).toEqual('2000-01-01')
+    expect(result).toEqual('1/1/2000 12:00:00 UTC')
+  })
+
+  it('should format date string on call to format_date_relative', async () => {
+    const wrapper = factory.wrap()
+    const local = wrapper.vm as Branch
+
+    const event = jest.fn()
+
+    local.$on('patch', event)
+
+    expect(event).toHaveBeenCalledTimes(0)
+
+    const date_now = new Date(Date.now())
+    const date = new Date(date_now.getFullYear(), date_now.getMonth(), date_now.getDate() - 1, date_now.getHours(), date_now.getMinutes(), date_now.getSeconds())
+
+    const result = local.format_date_relative(date)
+
+    expect(result).toEqual('1 day ago')
   })
 })

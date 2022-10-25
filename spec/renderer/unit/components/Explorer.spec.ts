@@ -22,6 +22,7 @@ describe('components/ExplorerNode', () => {
         format_titles: false
       },
       files: {
+        base: '/project',
         path: '/project',
         active: '',
         content: '',

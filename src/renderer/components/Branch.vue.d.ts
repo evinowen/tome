@@ -12,4 +12,5 @@ export default class Branch extends BranchProperties {
   close(): Promise<void>
   diff(commit): Promise<void>
   format_date(date): string
+  format_date_relative(date): string
 }

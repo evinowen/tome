@@ -196,15 +196,19 @@ export default class ActionBar extends ActionBarProperties {
   get system () {
     return store.state.system
   }
+
   get repository () {
     return store.state.repository
   }
+
   get status () {
     return store.state.status
   }
+
   get message () {
     return store.state.message
   }
+
   get disabled () {
     const system = store.state.system
     return system.settings || system.branch || system.commit || system.push || system.console

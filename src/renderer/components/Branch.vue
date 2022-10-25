@@ -28,7 +28,7 @@
             >
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
-            <h1>Branch</h1>
+            <h1><span class="header-pre float-left">branch</span>{{ repository.branch }}</h1>
           </div>
           <div style="clear: both" />
         </div>
@@ -44,18 +44,31 @@
             :items-per-page="repository.history.length"
             @click:row="diff"
           >
+            <template #item.icon="{ index }">
+              <v-icon class="branch-icon">
+                {{ index > 0 ? 'mdi-source-commit' : 'mdi-source-commit-start' }}
+              </v-icon>
+            </template>
             <template #item.oid="{ item }">
               <v-btn
                 tile
                 icon
                 x-small
                 color="success"
+                style="width: 100%; text-align: center;"
               >
-                {{ item.oid.substring(0, 7) }}
+                <div style="width: 100%; text-align: center; font-weight: bold;">
+                  {{ item.oid.substring(0, 7) }}
+                </div>
               </v-btn>
             </template>
             <template #item.date="{ item }">
-              {{ format_date(item.date) }}
+              <div class="px-2">
+                <div style="margin: 2px 0 -4px">
+                  {{ format_date_relative(item.date) }}
+                </div>
+                <small style="opacity: 0.5;">{{ format_date(item.date) }}</small>
+              </div>
             </template>
           </v-data-table>
         </div>
@@ -94,10 +107,11 @@ export const BranchProperties = Vue.extend({
 @Component({
   components: { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider }
 })
-export default class Branch extends BranchProperties {
+export default class Branch extends BranchProperties {1
   headers = [
+    { text: '', value: 'icon', width: '30px' },
     { text: '', value: 'oid', width: '60px' },
-    { text: 'date', value: 'date', width: '180px' },
+    { text: 'date', value: 'date', width: '120px' },
     { text: 'message', value: 'message', width: '' }
   ]
 
@@ -118,6 +132,11 @@ export default class Branch extends BranchProperties {
     const datetime = DateTime.fromJSDate(date)
     return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
   }
+
+  format_date_relative (date) {
+    const datetime = DateTime.fromJSDate(date)
+    return `${datetime.toRelative()}`
+  }
 }
 </script>
 
@@ -135,17 +154,18 @@ export default class Branch extends BranchProperties {
 
 .v-data-table.commit-history th {
   height: 1px;
+  padding: 0 !important;
 }
 
 .v-data-table.commit-history td {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  padding: 0 8px !important;
+  padding: 0 !important;
 }
 
 .v-data-table.commit-history td:first-child {
-  padding: 0px !important;
+  padding: 0 !important;
 }
 
 .v-data-table.commit-history td:first-child .v-btn {
@@ -155,6 +175,13 @@ export default class Branch extends BranchProperties {
 
 .v-data-table.commit-history .v-btn .v-icon {
   font-size: 14px !important;
+}
+
+.v-icon.branch-icon {
+  font-size: 41px !important;
+  width: 30px;
+  height: 0px;
+  opacity: 0.2;
 }
 </style>
 
@@ -166,6 +193,15 @@ export default class Branch extends BranchProperties {
 
 pre {
   display: inline-block;
+}
+
+.header-pre {
+  display: inline-block;
+  vertical-align: bottom;
+  color: black;
+  line-height: 30px;
+  font-size: 0.7em;
+  padding-right: 8px;
 }
 
 .actions {

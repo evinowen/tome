@@ -168,11 +168,11 @@ describe('store/modules/files', () => {
     await store.dispatch('files/load', { path: directory })
     await store.dispatch('files/load', { path: target })
 
-    expect(store.state.files.content).toBeUndefined()
+    expect(store.state.files.content).toBe('')
 
     await store.dispatch('files/select', { path: target })
 
-    expect(store.state.files.content).not.toBeUndefined()
+    expect(store.state.files.content).not.toBe('')
   })
 
   it('should store the content of the selected item on save', async () => {
@@ -207,7 +207,8 @@ describe('store/modules/files', () => {
     await store.dispatch('files/ghost', { path: target, directory: true })
 
     expect(store.state.files.ghost).toBeDefined()
-    expect(store.state.files.ghost.parent.path).toBe(directory)
+    const ghost = store.state.files.directory[store.state.files.ghost]
+    expect(ghost.parent.path).toBe(directory)
   })
 
   it('should use the the ghost adjacent to the target provided', async () => {
@@ -220,7 +221,8 @@ describe('store/modules/files', () => {
     await store.dispatch('files/ghost', { path: directory, target: 'a.md', directory: true })
 
     expect(store.state.files.ghost).toBeDefined()
-    expect(store.state.files.ghost.parent.path).toBe(directory)
+    const ghost = store.state.files.directory[store.state.files.ghost]
+    expect(ghost.parent.path).toBe(directory)
   })
 
   it('should replace ghost when a ghost already exists', async () => {
@@ -235,12 +237,14 @@ describe('store/modules/files', () => {
     await store.dispatch('files/ghost', { path: first, directory: true })
 
     expect(store.state.files.ghost).toBeDefined()
-    expect(store.state.files.ghost.parent.path).toBe(first)
+    const ghost_first = store.state.files.directory[store.state.files.ghost]
+    expect(ghost_first.parent.path).toBe(first)
 
     await store.dispatch('files/ghost', { path: second, directory: true })
 
     expect(store.state.files.ghost).toBeDefined()
-    expect(store.state.files.ghost.parent.path).toBe(second)
+    const ghost_second = store.state.files.directory[store.state.files.ghost]
+    expect(ghost_second.parent.path).toBe(second)
   })
 
   it('should create a new directory item on submit when directory item is ephemeral', async () => {

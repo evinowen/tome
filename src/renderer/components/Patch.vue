@@ -28,7 +28,10 @@
             >
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
-            <h1>Patch</h1>
+            <h1><span class="header-pre float-left">{{ repository.patches_type }}</span>{{ repository.patches_reference }}</h1>
+            <div style="clear: both; font-size: 1.15em; font-family: 'Courier New', Courier, monospace; margin-bottom: 6px">
+              {{ repository.patches_message }}
+            </div>
           </div>
           <div style="clear: both" />
         </div>
@@ -108,6 +111,10 @@ export const PatchProperties = Vue.extend({
   components: { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText }
 })
 export default class Patch extends PatchProperties {
+  get repository () {
+    return store.state.repository
+  }
+
   get patches () {
     return store.state.repository.patches
   }
@@ -152,6 +159,15 @@ export default class Patch extends PatchProperties {
 
 pre {
   display: inline-block;
+}
+
+.header-pre {
+  display: inline-block;
+  vertical-align: bottom;
+  color: black;
+  line-height: 30px;
+  font-size: 0.7em;
+  padding-right: 8px;
 }
 
 .actions {
