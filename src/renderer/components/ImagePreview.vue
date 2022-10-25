@@ -21,8 +21,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import FileIcon from '@/components/FileIcon.vue'
 
 export const ImagePreviewProperties = Vue.extend({
@@ -41,6 +40,12 @@ export default class ImagePreview extends ImagePreviewProperties {
 
   hide = false
   zoom = false
+
+  @Watch('src')
+  reset () {
+    this.hide = false
+    this.zoom = false
+  }
 
   error () {
     this.hide = true
