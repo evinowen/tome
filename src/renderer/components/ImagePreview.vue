@@ -1,16 +1,70 @@
 <template>
-  <div ref="preview"
+  <div
+    ref="preview"
     :class="[ 'image-preview', zoom ? 'image-preview-zoom' : '' ]"
   >
-    <file-icon v-if=hide size="large" image alert disabled />
-    <img v-else
-      :src=src
-      :class="[ 'preview', zoom ? 'preview-zoom' : '' ]"
-      @click=click
-      @error=error
+    <file-icon
+      v-if="hide"
+      size="large"
+      image
+      alert
+      disabled
     />
+    <img
+      v-else
+      :src="src"
+      :class="[ 'preview', zoom ? 'preview-zoom' : '' ]"
+      @click="click"
+      @error="error"
+    >
   </div>
 </template>
+
+<script lang="ts">
+import { Vue, Component, Watch } from 'vue-property-decorator'
+import FileIcon from '@/components/FileIcon.vue'
+
+export const ImagePreviewProperties = Vue.extend({
+  props: {
+    src: { type: String, default: '' },
+  }
+})
+
+@Component({
+  components: { FileIcon }
+})
+export default class ImagePreview extends ImagePreviewProperties {
+  $refs!: {
+    preview: HTMLElement
+  }
+
+  hide = false
+  zoom = false
+
+  @Watch('src')
+  reset () {
+    this.hide = false
+    this.zoom = false
+  }
+
+  error () {
+    this.hide = true
+  }
+  async click (event) {
+    const scroll_x = event.offsetX / event.target.offsetWidth
+    const scroll_y = event.offsetY / event.target.offsetHeight
+
+    this.zoom = !this.zoom
+    await this.$nextTick()
+
+    const top = (scroll_y * event.target.offsetHeight) - (this.$refs.preview.offsetHeight * 0.5)
+    const left = (scroll_x * event.target.offsetWidth) - (this.$refs.preview.offsetWidth * 0.5)
+    const behavior = 'auto'
+
+    this.$refs.preview.scrollTo({ top, left, behavior })
+  }
+}
+</script>
 
 <style scoped>
 .image-preview {
@@ -25,7 +79,7 @@
   overflow: overlay;
   display: flex;
   align-items: flex-start;
-  justify-content: start;
+  justify-content: flex-start;
   height: 100%;
 }
 
@@ -53,36 +107,3 @@
   font-size: 90px;
 }
 </style>
-
-<script>
-import FileIcon from '@/components/FileIcon'
-
-export default {
-  components: { FileIcon },
-  props: {
-    src: { type: String }
-  },
-  data: () => ({
-    hide: false,
-    zoom: false
-  }),
-  methods: {
-    error: function () {
-      this.hide = true
-    },
-    click: async function (event) {
-      const scroll_x = event.offsetX / event.target.offsetWidth
-      const scroll_y = event.offsetY / event.target.offsetHeight
-
-      this.zoom = !this.zoom
-      await this.$nextTick()
-
-      const top = (scroll_y * event.target.offsetHeight) - (this.$refs.preview.offsetHeight * 0.5)
-      const left = (scroll_x * event.target.offsetWidth) - (this.$refs.preview.offsetWidth * 0.5)
-      const behavior = 'instant'
-
-      this.$refs.preview.scrollTo({ top, left, behavior })
-    }
-  }
-}
-</script>

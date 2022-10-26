@@ -1,50 +1,61 @@
 <template>
   <v-card style="height: 100%">
-    <template v-if=active>
-      <template v-if=loading>
+    <template v-if="active">
+      <template v-if="loading">
         <v-list-item>
-          <v-list-item-avatar color="darken-1">
-          </v-list-item-avatar>
+          <v-list-item-avatar color="darken-1" />
           <v-list-item-content>
-            <v-list-item-title class="headline">&mdash;</v-list-item-title>
+            <v-list-item-title class="headline">
+              &mdash;
+            </v-list-item-title>
             <v-list-item-subtitle>Loading ... </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-divider></v-divider>
-        <v-card-text class="text-center">&mdash;</v-card-text>
+        <v-divider />
+        <v-card-text class="text-center">
+          &mdash;
+        </v-card-text>
       </template>
 
-      <template v-else-if=error>
+      <template v-else-if="error">
         <v-list-item>
           <v-list-item-avatar color="warning">
             <v-icon>mdi-alert</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <v-list-item-title class="headline">Error</v-list-item-title>
+            <v-list-item-title class="headline">
+              Error
+            </v-list-item-title>
             <v-list-item-subtitle>{{ error }}</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-text class="text-center">
           <v-btn @click.stop="$emit('reload')">
-            <v-icon class="mr-2">mdi-reload</v-icon>
+            <v-icon class="mr-2">
+              mdi-reload
+            </v-icon>
             Retry
           </v-btn>
         </v-card-text>
       </template>
 
-      <template v-else-if=match>
+      <template v-else-if="match">
         <v-list-item>
           <v-list-item-avatar color="info">
             <v-icon>mdi-thumb-up</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <v-list-item-title class="headline">Match</v-list-item-title>
+            <v-list-item-title class="headline">
+              Match
+            </v-list-item-title>
             <v-list-item-subtitle>The local repository history matches the remote repository</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-divider></v-divider>
-        <v-card-text class="text-center">&mdash;</v-card-text>
+        <v-divider />
+        <v-card-text class="text-center">
+          &mdash;
+        </v-card-text>
       </template>
 
       <template v-else>
@@ -53,28 +64,40 @@
             <v-icon>mdi-check</v-icon>
           </v-list-item-avatar>
           <v-list-item-content>
-            <v-list-item-title class="headline">Compare</v-list-item-title>
+            <v-list-item-title class="headline">
+              Compare
+            </v-list-item-title>
             <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-container fluid class="pa-0 ma-0" style="min-height: 120px">
+        <v-container
+          fluid
+          class="pa-0 ma-0"
+          style="min-height: 120px"
+        >
           <v-data-table
-            dense disable-sort class="my-0 commit-history"
-            :headers=headers
-            :items=history
+            dense
+            disable-sort
+            class="my-0 commit-history"
+            :headers="headers"
+            :items="history"
             :hide-default-footer="true"
             :items-per-page="history.length"
             @click:row="$emit('click', $event)"
           >
-            <template v-slot:item.oid="{ item }">
-              <v-btn tile icon x-small color="success">
+            <template #item.oid="{ item }">
+              <v-btn
+                tile
+                icon
+                x-small
+                color="success"
+              >
                 {{ item.oid.substring(0, 7) }}
               </v-btn>
             </template>
           </v-data-table>
         </v-container>
       </template>
-
     </template>
 
     <template v-else>
@@ -83,15 +106,71 @@
           <v-icon>mdi-cursor-pointer</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title class="headline">Select Remote</v-list-item-title>
+          <v-list-item-title class="headline">
+            Select Remote
+          </v-list-item-title>
           <v-list-item-subtitle>Choose a remote to compare to the local repository</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
-      <v-divider></v-divider>
-      <v-card-text class="text-center">&mdash;</v-card-text>
+      <v-divider />
+      <v-card-text class="text-center">
+        &mdash;
+      </v-card-text>
     </template>
   </v-card>
 </template>
+
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import {
+  VIcon,
+  VListItem,
+  VListItemContent,
+  VListItemTitle,
+  VListItemSubtitle,
+  VListItemAvatar,
+  VCard,
+  VCardText,
+  VDivider,
+  VContainer,
+  VDataTable,
+  VBtn
+} from 'vuetify/lib'
+
+export const PushStatusProperties = Vue.extend({
+  props: {
+    active: { type: Boolean, default: false },
+    loading: { type: Boolean, default: false },
+    match: { type: Boolean, default: false },
+    error: { type: String, default: '' },
+    history: { type: Array, default: () => [] }
+  }
+})
+
+@Component({
+  components: {
+    VIcon,
+    VListItem,
+    VListItemContent,
+    VListItemTitle,
+    VListItemSubtitle,
+    VListItemAvatar,
+    VCard,
+    VCardText,
+    VDivider,
+    VContainer,
+    VDataTable,
+    VBtn
+  }
+})
+export default class PushStatus extends PushStatusProperties {
+  headers = [
+    { text: '', value: 'oid', width: '60px' },
+    { text: '', value: 'message', width: '' }
+  ]
+}
+</script>
 
 <style scoped>
 .passphrase.v-input .v-input__slot {
@@ -134,50 +213,3 @@
   font-size: 14px !important;
 }
 </style>
-
-<script>
-import {
-  VIcon,
-  VListItem,
-  VListItemContent,
-  VListItemTitle,
-  VListItemSubtitle,
-  VListItemAvatar,
-  VCard,
-  VCardText,
-  VDivider,
-  VContainer,
-  VDataTable,
-  VBtn
-} from 'vuetify/lib'
-
-export default {
-  components: {
-    VIcon,
-    VListItem,
-    VListItemContent,
-    VListItemTitle,
-    VListItemSubtitle,
-    VListItemAvatar,
-    VCard,
-    VCardText,
-    VDivider,
-    VContainer,
-    VDataTable,
-    VBtn
-  },
-  props: {
-    active: { type: Boolean, default: false },
-    loading: { type: Boolean, default: false },
-    match: { type: Boolean, default: false },
-    error: { type: String, default: '' },
-    history: { type: Array, default: () => [] }
-  },
-  data: () => ({
-    headers: [
-      { text: '', value: 'oid', width: '60px' },
-      { text: '', value: 'message', width: '' }
-    ]
-  })
-}
-</script>

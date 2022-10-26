@@ -1,13 +1,24 @@
 <template>
-  <v-menu tile top offset-y
-    :value=value @input="value = !value"
+  <v-menu
+    tile
+    top
+    offset-y
+    :value="value"
     transition="slide-y-reverse-transition"
     content-class="menu"
     :close-on-content-click="false"
-     width="50%"
+    width="50%"
+    @input="value = !value"
   >
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn tile small class="button pa-0 px-2" v-on="on" v-bind="attrs" :disabled=disabled>
+    <template #activator="{ on, attrs }">
+      <v-btn
+        tile
+        small
+        class="button pa-0 px-2"
+        v-bind="attrs"
+        :disabled="disabled"
+        v-on="on"
+      >
         {{ name }}
       </v-btn>
     </template>
@@ -16,26 +27,73 @@
       <v-card-title>{{ name }}</v-card-title>
       <v-card-subtitle>{{ path }}</v-card-subtitle>
       <v-card-actions>
-        <v-btn text :disabled="!license" @click="open(license)">
+        <v-btn
+          text
+          :disabled="!license"
+          @click="open(license)"
+        >
           License
         </v-btn>
       </v-card-actions>
-      <v-divider></v-divider>
+      <v-divider />
       <v-card-actions>
-        <v-btn text :disabled="!readme" @click="open(readme)">
+        <v-btn
+          text
+          :disabled="!readme"
+          @click="open(readme)"
+        >
           Read Me
         </v-btn>
-        <v-spacer></v-spacer>
-        <v-btn text :disabled="!authors" @click="open(authors)">
+        <v-spacer />
+        <v-btn
+          text
+          :disabled="!authors"
+          @click="open(authors)"
+        >
           Authors
         </v-btn>
-        <v-btn text :disabled="!contributors" @click="open(contributors)">
+        <v-btn
+          text
+          :disabled="!contributors"
+          @click="open(contributors)"
+        >
           Contributors
         </v-btn>
       </v-card-actions>
     </v-card>
   </v-menu>
 </template>
+
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu } from 'vuetify/lib'
+import store from '@/store'
+
+export const RepositoryButtonProperties = Vue.extend({
+  props: {
+    name: { type: String, default: '' },
+    path: { type: String, default: '' },
+    readme: { type: String, default: '' },
+    authors: { type: String, default: '' },
+    contributors: { type: String, default: '' },
+    license: { type: String, default: '' },
+    disabled: { type: Boolean, default: false }
+  }
+})
+
+@Component({
+  components: { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu }
+})
+export default class RepositoryButton extends RepositoryButtonProperties {
+  value = false
+
+  async open (path) {
+    this.value = false
+    await store.dispatch('files/select', { path })
+  }
+}
+</script>
 
 <style scoped>
 .button {
@@ -48,30 +106,3 @@
   bottom: 21px !important;
 }
 </style>
-
-<script>
-import { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu } from 'vuetify/lib'
-import store from '@/store'
-
-export default {
-  components: { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu },
-  props: {
-    name: { type: String, default: '' },
-    path: { type: String, default: '' },
-    readme: { type: String },
-    authors: { type: String },
-    contributors: { type: String },
-    license: { type: String },
-    disabled: { type: Boolean, default: false }
-  },
-  data: () => ({
-    value: false
-  }),
-  methods: {
-    open: async function (path) {
-      this.value = false
-      await store.dispatch('files/select', { path })
-    }
-  }
-}
-</script>

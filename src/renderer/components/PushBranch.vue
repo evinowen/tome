@@ -1,23 +1,37 @@
 <template>
-  <v-card class="text-center" :loading=loading :disabled=disabled>
+  <v-card
+    class="text-center"
+    :loading="loading"
+    :disabled="disabled"
+  >
     <v-card-text>
-      <div class="title text--primary">{{ url || '&mdash;' }}</div>
-      <hr/>
-      <div class="display-1 text--primary">{{ name || '&mdash;' }}</div>
+      <div class="title text--primary">
+        {{ url || '&mdash;' }}
+      </div>
+      <hr>
+      <div class="display-1 text--primary">
+        {{ name || '&mdash;' }}
+      </div>
     </v-card-text>
   </v-card>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
 import { VCard, VCardText } from 'vuetify/lib'
 
-export default {
-  components: { VCard, VCardText },
+export const PushBranchProperties = Vue.extend({
   props: {
-    name: { type: String, default: null },
-    url: { type: String, default: null },
+    name: { type: String, default: undefined },
+    url: { type: String, default: undefined },
     loading: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false }
   }
-}
+})
+
+@Component({
+  components: { VCard, VCardText }
+})
+export default class PushBranch extends PushBranchProperties {}
 </script>

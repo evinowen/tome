@@ -1,0 +1,24 @@
+{
+  "include": [ "./**/*", "../../src/main/**/*" ],
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "baseUrl": ".",
+    "types": [
+      "jest",
+      "nodegit"
+    ],
+    "paths": {
+      "@/*": [ "../../src/main/*" ],
+      "?/*": [ "../../spec/main/*" ],
+      "node:*": [ "../../spec/main/mocks/node/*" ],
+      "support:*": [ "../../spec/main/mocks/support/*" ]
+    },
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "include": [ "./**/*" ],
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "../../dist/main",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [ "../../src/main/*" ]
+    },
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
+  }
+}

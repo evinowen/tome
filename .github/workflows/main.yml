@@ -89,6 +89,9 @@ jobs:
     - name: Lint Main
       run: npm run lint-main
 
+    - name: Build Main
+      run: npm run build-main
+
     - name: Test Main
       run: npm run test-main
 
@@ -97,12 +100,13 @@ jobs:
       env:
         DEBUG: electron-builder
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        CSC_FOR_PULL_REQUEST: true
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.deb
-        path: dist/main/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
 
   build_on_win:
     needs: [ version_validation ]
@@ -189,6 +193,9 @@ jobs:
     - name: Lint Main
       run: npm run lint-main
 
+    - name: Build Main
+      run: npm run build-main
+
     - name: Test Main
       run: npm run test-main
 
@@ -199,12 +206,13 @@ jobs:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         CSC_LINK: "certificate.p12"
         CSC_KEY_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_WIN_APPLICATION }}
+        CSC_FOR_PULL_REQUEST: true
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
-        path: dist/main/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   build_on_macos:
     needs: [ version_validation ]
@@ -270,6 +278,9 @@ jobs:
     - name: Lint Main
       run: npm run lint-main
 
+    - name: Build Main
+      run: npm run build-main
+
     - name: Test Main
       run: npm run test-main
 
@@ -279,6 +290,7 @@ jobs:
         DEBUG: electron-builder,electron-osx-sign*
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         CSC_KEYCHAIN: build.keychain
+        CSC_FOR_PULL_REQUEST: true
         APPLE_ID: ${{ secrets.APPLE_ID }}
         APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
@@ -286,7 +298,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.dmg
-        path: dist/main/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   publish_release:
     needs: [ version_validation, build_on_ubuntu, build_on_win, build_on_macos ]

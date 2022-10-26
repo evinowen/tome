@@ -1,18 +1,33 @@
 <template>
   <div>
-    <v-bottom-sheet fullscreen scrollable persistent hide-overlay no-click-animation internal-activator
-      :value=value
-      @input="$event || close()"
+    <div id="console" />
+    <v-bottom-sheet
+      attach="#console"
+      scrollable
+      persistent
+      hide-overlay
+      no-click-animation
+      internal-activator
+      :value="value"
       content-class="console"
+      @input="$event || close()"
     >
       <v-card>
-        <v-btn tile class="pa-0" style="height: 16px; width: 100%" color="accent" @click.stop=close>
-          <v-icon small>mdi-chevron-down</v-icon>
+        <v-btn
+          tile
+          class="pa-0"
+          style="height: 16px; width: 100%"
+          color="accent"
+          @click.stop="close"
+        >
+          <v-icon small>
+            mdi-chevron-down
+          </v-icon>
         </v-btn>
         <div class="output">
           <div
             v-for="(event, index) in events.slice().reverse()"
-            :key=index
+            :key="index"
             :class="['log', `event-${event.type}`]"
             @click.stop="() => { show_stack(event.stack || event.message) }"
           >
@@ -22,22 +37,82 @@
           </div>
         </div>
       </v-card>
-      <v-snackbar v-model=detail timeout=-1 multi-line centered vertical>
-        <div style="font-family: monospace; white-space: pre-wrap;">{{ stack }}</div>
-        <template v-slot:action="{}">
-          <v-btn tile small color="primary" @click.stop="detail = false">Done</v-btn>
+      <v-snackbar
+        v-model="detail"
+        timeout="-1"
+        multi-line
+        centered
+        vertical
+      >
+        <div style="font-family: monospace; white-space: pre-wrap;">
+          {{ stack }}
+        </div>
+        <template #action="{}">
+          <v-btn
+            tile
+            small
+            color="primary"
+            @click.stop="detail = false"
+          >
+            Done
+          </v-btn>
         </template>
       </v-snackbar>
     </v-bottom-sheet>
   </div>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import { DateTime } from 'luxon'
+import { VIcon, VBtn, VCard, VBottomSheet, VSnackbar } from 'vuetify/lib'
+import store from '@/store'
+
+export const ConsoleProperties = Vue.extend({
+  props: {
+    value: { type: Boolean, default: false }
+  }
+})
+
+@Component({
+  components: { VIcon, VBtn, VCard, VBottomSheet, VSnackbar }
+})
+export default class Console extends ConsoleProperties {
+  detail = false
+  stack = ''
+
+  get events () {
+    return store.state.events
+  }
+
+  async close () {
+    await store.dispatch('system/console', false)
+  }
+
+  show_stack (stack) {
+    this.stack = stack.trim()
+
+    if (this.stack) {
+      this.detail = true
+    }
+  }
+
+  format_date (datetime) {
+    return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
+  }
+
+  format_message (message) {
+    return String(message)
+      .replace(/\r/g, '\u240D')
+      .replace(/\n/g, '\u2424')
+  }
+}
+</script>
+
 <style>
-.v-dialog--fullscreen {
-  height: auto;
-  top: 25px;
-  bottom: 18px;
-  z-index: 999 !important;
+.v-dialog {
+  max-height: calc(100% - 25px) !important;
 }
 </style>
 
@@ -90,52 +165,12 @@
 }
 
 .output {
-  height: 100%;
-  display: flex;
-  overflow: auto;
+  max-height: 100%;
   align-items: stretch;
+  overflow: auto;
+  display: flex;
   flex-direction: column-reverse;
+  border-radius: 0 !important;
+  margin-bottom: 18px;
 }
 </style>
-
-<script>
-import { DateTime } from 'luxon'
-import { VIcon, VBtn, VCard, VBottomSheet, VSnackbar } from 'vuetify/lib'
-import store from '@/store'
-
-export default {
-  components: { VIcon, VBtn, VCard, VBottomSheet, VSnackbar },
-  props: {
-    value: { type: Boolean, default: false }
-  },
-  data: () => ({
-    detail: false,
-    stack: ''
-  }),
-  computed: {
-    events: function () {
-      return store.state.events
-    }
-  },
-  methods: {
-    close: async function () {
-      await store.dispatch('system/console', false)
-    },
-    show_stack: function (stack) {
-      this.stack = stack.trim()
-
-      if (this.stack) {
-        this.detail = true
-      }
-    },
-    format_date: function (datetime) {
-      return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
-    },
-    format_message: function (message) {
-      return String(message)
-        .replace(/\r/g, '\u240D')
-        .replace(/\n/g, '\u2424')
-    }
-  }
-}
-</script>

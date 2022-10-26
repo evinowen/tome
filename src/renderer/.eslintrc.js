@@ -1,19 +1,36 @@
 module.exports = {
   root: true,
   env: {
-    node: true
+    node: true,
+    browser: true,
+    es6: true,
   },
   extends: [
-    'plugin:vue/essential',
-    '@vue/standard'
+    'eslint:recommended',
+    'plugin:unicorn/recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:vue/recommended',
+    '@vue/typescript',
+    '@vue/typescript/recommended'
   ],
   parserOptions: {
-    parser: 'babel-eslint'
+    parser: '@typescript-eslint/parser',
+    plugins: ['@typescript-eslint', 'unicorn']
   },
   rules: {
-    'quote-props': ['error', 'consistent'],
+    '@typescript-eslint/ban-types': 'off',
     'camelcase': 'off',
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
+    'no-console': 'error',
+    'no-debugger': 'error',
+    'quote-props': ['error', 'consistent'],
+    'unicorn/filename-case': 'off',
+    'unicorn/no-static-only-class': 'off',
+    'unicorn/prefer-module': 'off',
+    'unicorn/prefer-top-level-await': 'off',
+    'unicorn/switch-case-braces': 'off',
+    'vue/multi-word-component-names': 'off',
+    'vue/prop-name-casing': ['error', 'snake_case'],
+    // 'vue/valid-v-slot': ['error', { allowModifiers: true }]
+    'vue/valid-v-slot': 'off'
   }
 }

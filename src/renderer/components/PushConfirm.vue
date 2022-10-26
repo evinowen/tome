@@ -1,8 +1,19 @@
 <template>
-  <v-dialog :value=value @input="$emit('input', $event)" persistent max-width="600px">
-    <template v-slot:activator="{ on }">
-      <v-btn class="mr-4" v-on="on" :disabled=disabled>
-        <v-icon class="mr-2">mdi-upload-multiple</v-icon>
+  <v-dialog
+    :value="value"
+    persistent
+    max-width="600px"
+    @input="$emit('input', $event)"
+  >
+    <template #activator="{ on }">
+      <v-btn
+        class="mr-4"
+        :disabled="disabled"
+        v-on="on"
+      >
+        <v-icon class="mr-2">
+          mdi-upload-multiple
+        </v-icon>
         Push
       </v-btn>
     </template>
@@ -12,20 +23,33 @@
           <v-icon>mdi-upload-multiple</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title class="headline">Push</v-list-item-title>
+          <v-list-item-title class="headline">
+            Push
+          </v-list-item-title>
           <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
-      <v-container fluid class="pa-0 ma-0" style="min-height: 120px">
+      <v-container
+        fluid
+        class="pa-0 ma-0"
+        style="min-height: 120px"
+      >
         <v-data-table
-          :headers=headers
-          :items=history
-          :items-per-page=history.length
+          :headers="headers"
+          :items="history"
+          :items-per-page="history.length"
           hide-default-footer
-          dense disable-sort class="my-0 commit-history"
+          dense
+          disable-sort
+          class="my-0 commit-history"
         >
-          <template v-slot:item.oid="{ item }">
-            <v-btn tile icon x-small color="warning">
+          <template #item.oid="{ item }">
+            <v-btn
+              tile
+              icon
+              x-small
+              color="warning"
+            >
               {{ item.oid.substring(0, 7) }}
             </v-btn>
           </template>
@@ -35,27 +59,90 @@
         <v-btn
           ref="push_confirm"
           color="warning"
-          text @click="$emit('push')"
-          :disabled=waiting
+          text
+          :disabled="waiting"
+          @click="$emit('push')"
         >
           <v-progress-circular
-            :indeterminate=waiting
+            :indeterminate="waiting"
             :size="12"
             :width="2"
             color="warning"
             class="mr-2"
-          ></v-progress-circular>
+          />
           Proceed
         </v-btn>
-        <v-spacer></v-spacer>
-        <v-btn color="darken-1" text @click="$emit('input', false)" :disabled=waiting>
-          <v-icon class="mr-2">mdi-exit-to-app</v-icon>
+        <v-spacer />
+        <v-btn
+          color="darken-1"
+          text
+          :disabled="waiting"
+          @click="$emit('input', false)"
+        >
+          <v-icon class="mr-2">
+            mdi-exit-to-app
+          </v-icon>
           Back
         </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
+
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import {
+  VContainer,
+  VDialog,
+  VBtn,
+  VSpacer,
+  VProgressCircular,
+  VIcon,
+  VCard,
+  VCardActions,
+  VDataTable,
+  VListItem,
+  VListItemTitle,
+  VListItemSubtitle,
+  VListItemAvatar,
+  VListItemContent
+} from 'vuetify/lib'
+
+export const PushConfirmProperties = Vue.extend({
+  props: {
+    value: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false },
+    waiting: { type: Boolean, default: false },
+    history: { type: Array, default: () => [] }
+  }
+})
+
+@Component({
+  components: {
+    VContainer,
+    VDialog,
+    VBtn,
+    VSpacer,
+    VProgressCircular,
+    VIcon,
+    VCard,
+    VCardActions,
+    VDataTable,
+    VListItem,
+    VListItemTitle,
+    VListItemSubtitle,
+    VListItemAvatar,
+    VListItemContent
+  }
+})
+export default class PushConfirm extends PushConfirmProperties {
+  headers = [
+    { text: '', value: 'oid', width: '60px' },
+    { text: '', value: 'message', width: '' }
+  ]
+}
+</script>
 
 <style scoped>
 .v-data-table.commit-history {
@@ -93,53 +180,3 @@
   font-size: 14px !important;
 }
 </style>
-
-<script>
-import {
-  VContainer,
-  VDialog,
-  VBtn,
-  VSpacer,
-  VProgressCircular,
-  VIcon,
-  VCard,
-  VCardActions,
-  VDataTable,
-  VListItem,
-  VListItemTitle,
-  VListItemSubtitle,
-  VListItemAvatar,
-  VListItemContent
-} from 'vuetify/lib'
-
-export default {
-  components: {
-    VContainer,
-    VDialog,
-    VBtn,
-    VSpacer,
-    VProgressCircular,
-    VIcon,
-    VCard,
-    VCardActions,
-    VDataTable,
-    VListItem,
-    VListItemTitle,
-    VListItemSubtitle,
-    VListItemAvatar,
-    VListItemContent
-  },
-  props: {
-    value: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false },
-    waiting: { type: Boolean, default: false },
-    history: { type: Array, default: () => [] }
-  },
-  data: () => ({
-    headers: [
-      { text: '', value: 'oid', width: '60px' },
-      { text: '', value: 'message', width: '' }
-    ]
-  })
-}
-</script>

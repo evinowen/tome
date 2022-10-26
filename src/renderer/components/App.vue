@@ -1,26 +1,80 @@
 <template>
   <v-app id="inspire">
     <system-bar title="tome" />
-    <settings :value=system.settings />
-    <template v-if=repository.loaded>
-      <branch :value=system.branch />
+    <settings :value="system.settings" />
+    <template v-if="repository.loaded">
+      <branch :value="system.branch" />
       <commit ref="commit" />
       <push ref="push" />
-      <patch :value=system.patch />
+      <patch :value="system.patch" />
     </template>
 
-    <editor-interface v-show=repository.path ref="interface" />
-    <empty-pane v-show=!repository.path />
+    <editor-interface
+      v-show="repository.path"
+      ref="interface"
+    />
+    <empty-pane v-show="!repository.path" />
 
     <context-menu-service />
 
-    <search-service v-show=system.search />
+    <search-service v-show="system.search" />
     <shortcut-service />
 
-    <console :value=system.console />
+    <console :value="system.console" />
     <action-bar />
   </v-app>
 </template>
+
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import store from '@/store'
+
+import ContextMenuService from '@/components/ContextMenuService.vue'
+import SearchService from '@/components/SearchService.vue'
+
+import { VApp } from 'vuetify/lib'
+import SystemBar from '@/components/SystemBar.vue'
+import Settings from '@/components/Settings.vue'
+import Branch from '@/components/Branch.vue'
+import Patch from '@/components/Patch.vue'
+import Commit from '@/components/Commit.vue'
+import Push from '@/components/Push.vue'
+import Console from '@/components/Console.vue'
+import EditorInterface from '@/components/EditorInterface.vue'
+import EmptyPane from '@/components/EmptyPane.vue'
+import ActionBar from '@/components/ActionBar.vue'
+import ShortcutService from '@/components/ShortcutService.vue'
+
+export const AppProperties = Vue.extend({})
+
+@Component({
+  components: {
+    VApp,
+    SystemBar,
+    Settings,
+    Branch,
+    Patch,
+    Commit,
+    Push,
+    Console,
+    EditorInterface,
+    EmptyPane,
+    ActionBar,
+    ContextMenuService,
+    SearchService,
+    ShortcutService
+  }
+})
+export default class App extends AppProperties {
+  get repository () {
+    return store.state.repository
+  }
+  get system () {
+    return store.state.system
+  }
+}
+</script>
 
 <style>
 ::-webkit-scrollbar {
@@ -67,50 +121,3 @@ html, body {
 
 }
 </style>
-
-<script>
-import store from '@/store'
-
-import ContextMenuService from '@/components/ContextMenuService'
-import SearchService from '@/components/SearchService'
-
-import { VApp } from 'vuetify/lib'
-import SystemBar from '@/components/SystemBar'
-import Settings from '@/components/Settings'
-import Branch from '@/components/Branch'
-import Patch from '@/components/Patch'
-import Commit from '@/components/Commit'
-import Push from '@/components/Push'
-import Console from '@/components/Console'
-import EditorInterface from '@/components/EditorInterface'
-import EmptyPane from '@/components/EmptyPane'
-import ActionBar from '@/components/ActionBar'
-import ShortcutService from '@/components/ShortcutService'
-
-export default {
-  computed: {
-    repository: function () {
-      return store.state.repository
-    },
-    system: function () {
-      return store.state.system
-    }
-  },
-  components: {
-    VApp,
-    SystemBar,
-    Settings,
-    Branch,
-    Patch,
-    Commit,
-    Push,
-    Console,
-    EditorInterface,
-    EmptyPane,
-    ActionBar,
-    ContextMenuService,
-    SearchService,
-    ShortcutService
-  }
-}
-</script>

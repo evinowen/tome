@@ -1,5 +1,8 @@
 <template>
-  <v-card v-resize=resize style="position: relative">
+  <v-card
+    v-resize="resize"
+    style="position: relative"
+  >
     <v-card-title class="pa-2">
       {{ title }}
     </v-card-title>
@@ -14,27 +17,135 @@
         :headers="headers"
         :items="items"
         :sort-by="['file']"
-        :items-per-page=items.length
+        :items-per-page="items.length"
         class="my-2"
         @click:row="$emit('click', $event)"
       >
-        <template v-slot:item.type="{ item }">
-          <v-btn tile icon x-small :color="file_color(item.type)">
-            <v-icon small class="mr-1">{{ file_icon(item.type) }}</v-icon>
+        <template #item.type="{ item }">
+          <v-btn
+            tile
+            icon
+            x-small
+            :color="file_color(item.type)"
+          >
+            <v-icon
+              small
+              class="mr-1"
+            >
+              {{ file_icon(item.type) }}
+            </v-icon>
             {{ file_type(item.type) }}
           </v-btn>
         </template>
 
-        <template v-slot:item.action="{ item }">
-          <v-btn tile icon x-small @click.stop="$emit('input', item.path)">
+        <template #item.action="{ item }">
+          <v-btn
+            tile
+            icon
+            x-small
+            @click.stop="$emit('input', item.path)"
+          >
             <v-icon>{{ icon }}</v-icon>
           </v-btn>
-
         </template>
       </v-data-table>
     </div>
   </v-card>
 </template>
+
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import { VDataTable, VCard, VCardTitle, VBtn, VIcon, Resize } from 'vuetify/lib'
+
+class RepositoryFile {
+  static Type = {
+    NEW: 1,
+    MODIFIED: 2,
+    RENAMED: 3,
+    DELETED: 4,
+    UNKNOWN: 0
+  }
+}
+
+export const CommitListProperties = Vue.extend({
+  props: {
+    title: { type: String, default: 'List' },
+    items: { type: Array, default: () => [] },
+    icon: { type: String, default: '' },
+    height: { type: Number, default: 0 }
+  }
+})
+
+@Component({
+  components: { VDataTable, VCard, VCardTitle, VBtn, VIcon },
+  directives: {
+    Resize
+  }
+})
+export default class CommitList extends CommitListProperties {
+  datatable = {
+    offset: 64,
+    height: 0,
+    min_height: 100
+  }
+
+  headers = [
+    { text: 'File', value: 'path', width: 'auto' },
+    { text: 'Type', value: 'type', width: '70px' },
+    { text: '', value: 'action', width: '23px', sortable: false }
+  ]
+
+  resize () {
+    const height = this.height - this.datatable.offset
+
+    this.datatable.height = height > this.datatable.min_height ? height : this.datatable.min_height
+  }
+
+  file_type (type) {
+    switch (type) {
+      case RepositoryFile.Type.NEW:
+        return 'New'
+      case RepositoryFile.Type.MODIFIED:
+        return 'Modified'
+      case RepositoryFile.Type.RENAMED:
+        return 'Renamed'
+      case RepositoryFile.Type.DELETED:
+        return 'Deleted'
+    }
+
+    return ''
+  }
+
+  file_color (type) {
+    switch (type) {
+      case RepositoryFile.Type.NEW:
+      case RepositoryFile.Type.MODIFIED:
+      case RepositoryFile.Type.RENAMED:
+        return 'green'
+      case RepositoryFile.Type.DELETED:
+        return 'red'
+    }
+
+    return ''
+  }
+
+  file_icon (type) {
+    switch (type) {
+      case RepositoryFile.Type.NEW:
+        return 'mdi-file-star'
+      case RepositoryFile.Type.MODIFIED:
+        return 'mdi-file-edit'
+      case RepositoryFile.Type.RENAMED:
+        return 'mdi-file-swap'
+      case RepositoryFile.Type.DELETED:
+        return 'mdi-file-remove'
+    }
+
+    return ''
+  }
+}
+</script>
 
 <style>
 .v-data-table table {
@@ -74,89 +185,3 @@
   font-size: 14px !important;
 }
 </style>
-
-<script>
-import { VDataTable, VCard, VCardTitle, VBtn, VIcon, Resize } from 'vuetify/lib'
-
-class RepositoryFile {
-  static Type = {
-    NEW: 1,
-    MODIFIED: 2,
-    RENAMED: 3,
-    DELETED: 4,
-    UNKNOWN: 0
-  }
-}
-
-export default {
-  components: { VDataTable, VCard, VCardTitle, VBtn, VIcon },
-  props: {
-    title: { type: String, default: 'List' },
-    items: { type: Array, default: () => [] },
-    icon: { type: String, default: '' },
-    height: { type: Number, default: 0 }
-  },
-  data: () => ({
-    datatable: {
-      offset: 64,
-      height: 0,
-      min_height: 100
-    },
-    headers: [
-      { text: 'File', value: 'path', width: 'auto' },
-      { text: 'Type', value: 'type', width: '70px' },
-      { text: '', value: 'action', width: '23px', sortable: false }
-    ]
-  }),
-  methods: {
-    resize: function () {
-      const height = this.height - this.datatable.offset
-
-      this.datatable.height = height > this.datatable.min_height ? height : this.datatable.min_height
-    },
-    file_type: function (type) {
-      switch (type) {
-        case RepositoryFile.Type.NEW:
-          return 'New'
-        case RepositoryFile.Type.MODIFIED:
-          return 'Modified'
-        case RepositoryFile.Type.RENAMED:
-          return 'Renamed'
-        case RepositoryFile.Type.DELETED:
-          return 'Deleted'
-      }
-
-      return ''
-    },
-    file_color: function (type) {
-      switch (type) {
-        case RepositoryFile.Type.NEW:
-        case RepositoryFile.Type.MODIFIED:
-        case RepositoryFile.Type.RENAMED:
-          return 'green'
-        case RepositoryFile.Type.DELETED:
-          return 'red'
-      }
-
-      return ''
-    },
-    file_icon: function (type) {
-      switch (type) {
-        case RepositoryFile.Type.NEW:
-          return 'mdi-file-star'
-        case RepositoryFile.Type.MODIFIED:
-          return 'mdi-file-edit'
-        case RepositoryFile.Type.RENAMED:
-          return 'mdi-file-swap'
-        case RepositoryFile.Type.DELETED:
-          return 'mdi-file-remove'
-      }
-
-      return ''
-    }
-  },
-  directives: {
-    Resize
-  }
-}
-</script>

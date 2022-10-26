@@ -1,13 +1,36 @@
 <template>
-  <v-container fill-height fluid class="view">
-    <v-row align="center" justify="center">
-        <v-col class="text-center">
-          <slot></slot>
-        </v-col>
+  <v-container
+    fill-height
+    fluid
+    class="view"
+  >
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col class="text-center">
+        <slot />
+      </v-col>
     </v-row>
   </v-container>
-
 </template>
+
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import { VContainer, VCol, VRow } from 'vuetify/lib'
+
+export const EmptyPaneProperties = Vue.extend({
+  props: {
+    error: { type: String, default: '' }
+  }
+})
+
+@Component({
+  components: { VContainer, VCol, VRow }
+})
+export default class EmptyPane extends EmptyPaneProperties {}
+</script>
 
 <style scoped>
 .view {
@@ -21,14 +44,3 @@
     );
 }
 </style>
-
-<script>
-import { VContainer, VCol, VRow } from 'vuetify/lib'
-
-export default {
-  components: { VContainer, VCol, VRow },
-  props: {
-    error: String
-  }
-}
-</script>

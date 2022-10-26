@@ -3,80 +3,259 @@
     app
     class="pa-0"
     style="z-index: 1000;"
-    height=18
+    height="18"
   >
-    <library-button v-model=library @open=open @close=close :disabled="disabled_unless()" />
+    <library-button
+      :disabled="disabled_unless()"
+      @open="open"
+      @close="close"
+    />
 
-    <v-divider inset vertical />
+    <v-divider
+      inset
+      vertical
+    />
 
     <template v-if="repository.path">
       <repository-button
-        :name=repository.name
-        :path=repository.path
-        :readme=repository.metadata.readme
-        :authors=repository.metadata.authors
-        :contributors=repository.metadata.contributors
-        :license=repository.metadata.license
+        :name="repository.name"
+        :path="repository.path"
+        :readme="repository.metadata.readme"
+        :authors="repository.metadata.authors"
+        :contributors="repository.metadata.contributors"
+        :license="repository.metadata.license"
         :disabled="disabled_unless()"
       />
 
-      <v-divider inset vertical />
+      <v-divider
+        inset
+        vertical
+      />
 
-      <v-btn v-if="repository.branch" tile small class="button px-2" color="primary" @click.stop="branch" :disabled="disabled_unless(system.branch)">
+      <v-btn
+        v-if="repository.branch"
+        tile
+        small
+        class="button px-2"
+        color="primary"
+        :disabled="disabled_unless(system.branch)"
+        @click.stop="branch"
+      >
         {{ repository.branch }}
       </v-btn>
-      <v-btn v-else-if="repository.branch.error" tile small icon class="button pl-1 pr-2" color="error">
-        <v-icon small class="pr-1">mdi-alert-box</v-icon>
+      <v-btn
+        v-else-if="repository.branch.error"
+        tile
+        small
+        icon
+        class="button pl-1 pr-2"
+        color="error"
+      >
+        <v-icon
+          small
+          class="pr-1"
+        >
+          mdi-alert-box
+        </v-icon>
         {{ repository.branch.error }}
       </v-btn>
 
-      <v-divider inset vertical />
-
+      <v-divider
+        inset
+        vertical
+      />
     </template>
 
-    <v-btn tile icon small class="console button"
-      @click.stop=console
+    <v-btn
+      tile
+      icon
+      small
+      class="console button"
       :disabled="disabled_unless(system.console || system.commit || system.push)"
       :color="status === 'error' ? 'error' : ''"
+      @click.stop="console"
     >
-      <v-icon small>{{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}</v-icon>&nbsp;{{ message }}
+      <v-icon small>
+        {{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}
+      </v-icon>&nbsp;{{ message }}
     </v-btn>
 
     <template v-if="repository.path">
-      <v-divider inset vertical />
+      <v-divider
+        inset
+        vertical
+      />
 
-      <v-switch action-bar-edit :value="edit" @click.stop=edit dense x-small inset hide-details class="edit_switch" :disabled="disabled_unless()"></v-switch>
+      <v-switch
+        action-bar-edit
+        :value="edit"
+        dense
+        x-small
+        inset
+        hide-details
+        class="edit_switch"
+        :disabled="disabled_unless()"
+        @click.stop="edit"
+      />
 
-      <v-divider inset vertical />
+      <v-divider
+        inset
+        vertical
+      />
 
       <v-expand-x-transition>
-        <div v-show="system.edit" style="overflow: hidden; white-space: nowrap;">
+        <div
+          v-show="system.edit"
+          style="overflow: hidden; white-space: nowrap;"
+        >
           <div style="height: 18px">
             <!-- SAVE BUTTON -->
-            <v-btn action-bar-commit tile small icon color="primary" class="button pa-0" @click.stop=commit :disabled="disabled_unless(system.commit)">
-              <v-icon small>mdi-content-save</v-icon>
+            <v-btn
+              action-bar-commit
+              tile
+              small
+              icon
+              color="primary"
+              class="button pa-0"
+              :disabled="disabled_unless(system.commit)"
+              @click.stop="commit"
+            >
+              <v-icon small>
+                mdi-content-save
+              </v-icon>
             </v-btn>
 
             <!-- PUSH BUTTON -->
-            <v-btn action-bar-push tile small icon color="primary" class="button pa-0" @click.stop=push :disabled="disabled_unless(system.push)">
-              <v-icon small>mdi-upload-multiple</v-icon>
+            <v-btn
+              action-bar-push
+              tile
+              small
+              icon
+              color="primary"
+              class="button pa-0"
+              :disabled="disabled_unless(system.push)"
+              @click.stop="push"
+            >
+              <v-icon small>
+                mdi-upload-multiple
+              </v-icon>
             </v-btn>
-
           </div>
         </div>
       </v-expand-x-transition>
 
-      <v-divider inset vertical />
+      <v-divider
+        inset
+        vertical
+      />
 
       <!-- SEARCH BUTTON -->
-      <v-btn action-bar-search tile small icon color="primary" class="button pa-0" @click.stop=search :disabled="disabled_unless()">
-        <v-icon small>mdi-magnify</v-icon>
+      <v-btn
+        action-bar-search
+        tile
+        small
+        icon
+        color="primary"
+        class="button pa-0"
+        :disabled="disabled_unless()"
+        @click.stop="search"
+      >
+        <v-icon small>
+          mdi-magnify
+        </v-icon>
       </v-btn>
-
     </template>
-
   </v-footer>
 </template>
+
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
+import store from '@/store'
+import LibraryButton from './LibraryButton.vue'
+import RepositoryButton from './RepositoryButton.vue'
+
+export const ActionBarProperties = Vue.extend({})
+
+@Component({
+  components: {
+    VIcon,
+    VBtn,
+    VDivider,
+    VFooter,
+    VExpandXTransition,
+    VSwitch,
+    LibraryButton,
+    RepositoryButton
+  }
+})
+export default class ActionBar extends ActionBarProperties {
+  library: false
+
+  get system () {
+    return store.state.system
+  }
+
+  get repository () {
+    return store.state.repository
+  }
+
+  get status () {
+    return store.state.status
+  }
+
+  get message () {
+    return store.state.message
+  }
+
+  get disabled () {
+    const system = store.state.system
+    return system.settings || system.branch || system.commit || system.push || system.console
+  }
+
+  async open (path) {
+    this.library = false
+    await store.dispatch('system/open', path)
+  }
+
+  async close () {
+    await store.dispatch('system/close')
+  }
+
+  async edit () {
+    await store.dispatch('system/edit', !this.system.edit)
+  }
+
+  async branch () {
+    await store.dispatch('system/branch', !this.system.branch)
+  }
+
+  async commit () {
+    await store.dispatch('system/commit', !this.system.commit)
+  }
+
+  async push () {
+    await store.dispatch('system/push', !this.system.push)
+  }
+
+  async console () {
+    await store.dispatch('system/console', !this.system.console)
+  }
+
+  async search () {
+    await store.dispatch('system/search', !this.system.search)
+  }
+
+  disabled_unless (unless?) {
+    if (unless) {
+      return this.system.settings
+    }
+
+    return this.disabled
+  }
+}
+</script>
 
 <style>
 .edit_switch {
@@ -145,78 +324,3 @@
 }
 
 </style>
-
-<script>
-import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
-import store from '@/store'
-import LibraryButton from './LibraryButton'
-import RepositoryButton from './RepositoryButton'
-
-export default {
-  data: () => ({
-    library: false
-  }),
-  computed: {
-    system: function () {
-      return store.state.system
-    },
-    repository: function () {
-      return store.state.repository
-    },
-    status: function () {
-      return store.state.status
-    },
-    message: function () {
-      return store.state.message
-    },
-    disabled: function () {
-      const system = store.state.system
-      return system.settings || system.branch || system.commit || system.push || system.console
-    }
-  },
-  methods: {
-    open: async function (path) {
-      this.library = false
-      await store.dispatch('system/open', path)
-    },
-    close: async function () {
-      await store.dispatch('system/close')
-    },
-    edit: async function () {
-      await store.dispatch('system/edit', !this.system.edit)
-    },
-    branch: async function () {
-      await store.dispatch('system/branch', !this.system.branch)
-    },
-    commit: async function () {
-      await store.dispatch('system/commit', !this.system.commit)
-    },
-    push: async function () {
-      await store.dispatch('system/push', !this.system.push)
-    },
-    console: async function () {
-      await store.dispatch('system/console', !this.system.console)
-    },
-    search: async function () {
-      await store.dispatch('system/search', !this.system.search)
-    },
-    disabled_unless: function (unless) {
-      if (unless) {
-        return this.system.settings
-      }
-
-      return this.disabled
-    }
-  },
-  components: {
-    VIcon,
-    VBtn,
-    VDivider,
-    VFooter,
-    VExpandXTransition,
-    VSwitch,
-    LibraryButton,
-    RepositoryButton
-  }
-}
-</script>
