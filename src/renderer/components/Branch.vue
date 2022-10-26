@@ -45,8 +45,11 @@
             @click:row="diff"
           >
             <template #item.icon="{ index }">
+              <v-icon class="branch-icon-dot">
+                mdi-circle
+              </v-icon>
               <v-icon class="branch-icon">
-                {{ index > 0 ? 'mdi-source-commit' : 'mdi-source-commit-start' }}
+                mdi-source-commit{{ index > 0 ? ( index === repository.history.length - 1 ? '-end' : '') : '-start' }}
               </v-icon>
             </template>
             <template #item.oid="{ item }">
@@ -55,7 +58,7 @@
                 icon
                 x-small
                 color="success"
-                style="width: 100%; text-align: center;"
+                style="width: 100%; text-align: center; text-transform: lowercase;"
               >
                 <div style="width: 100%; text-align: center; font-weight: bold;">
                   {{ item.oid.substring(0, 7) }}
@@ -111,7 +114,7 @@ export default class Branch extends BranchProperties {1
   headers = [
     { text: '', value: 'icon', width: '30px' },
     { text: '', value: 'oid', width: '60px' },
-    { text: 'date', value: 'date', width: '120px' },
+    { text: '', value: 'date', width: '120px' },
     { text: 'message', value: 'message', width: '' }
   ]
 
@@ -157,15 +160,35 @@ export default class Branch extends BranchProperties {1
   padding: 0 !important;
 }
 
+.v-data-table tr td .v-icon.branch-icon-dot {
+  position: absolute;
+  float: left;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: black;
+  opacity: 0;
+  font-size: 14px;
+}
+
+.v-data-table tr:hover td .v-icon.branch-icon-dot {
+  opacity: 0.5;
+}
+
 .v-data-table.commit-history td {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   padding: 0 !important;
+  border-radius: 0 !important;
 }
 
 .v-data-table.commit-history td:first-child {
   padding: 0 !important;
+  border-color: transparent !important;
+  overflow: visible;
+  position: relative;
 }
 
 .v-data-table.commit-history td:first-child .v-btn {
@@ -178,10 +201,11 @@ export default class Branch extends BranchProperties {1
 }
 
 .v-icon.branch-icon {
-  font-size: 41px !important;
+  font-size: 43px !important;
   width: 30px;
   height: 0px;
-  opacity: 0.2;
+  color: black;
+  opacity: 0.5;
 }
 </style>
 

@@ -239,7 +239,7 @@ export default {
         await window.api.repository.diff_path(path)
       } else if (commit) {
         type = 'commit'
-        reference = commit
+        reference = String(commit).toLowerCase()
 
         for (const item of context.state.history) {
           if (item.oid === commit) {

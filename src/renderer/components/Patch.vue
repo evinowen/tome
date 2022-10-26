@@ -28,7 +28,10 @@
             >
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
-            <h1><span class="header-pre float-left">{{ repository.patches_type }}</span>{{ repository.patches_reference }}</h1>
+            <h1>
+              <span class="header-pre float-left">{{ repository.patches_type }}</span>
+              <span style="font-family: 'Courier New', Courier, monospace">{{ repository.patches_reference }}</span>
+            </h1>
             <div style="clear: both; font-size: 1.15em; font-family: 'Courier New', Courier, monospace; margin-bottom: 6px">
               {{ repository.patches_message }}
             </div>
@@ -37,6 +40,12 @@
         </div>
 
         <div class="flex-grow-1 mb-3">
+          <div
+            v-if="patches.length === 0"
+            class="patches-empty"
+          >
+            No Content
+          </div>
           <div
             v-for="(file, file_index) in patches"
             :key="file_index"
@@ -174,5 +183,12 @@ pre {
   backdrop-filter: blur(2px);
   position: sticky;
   bottom: 0px
+}
+
+.patches-empty {
+  padding: 20px;
+  font-size: 1.3em;
+  text-align: center;
+  opacity: 0.4;
 }
 </style>
