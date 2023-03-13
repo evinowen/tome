@@ -43,7 +43,7 @@ export default class FileTree {
   }
 
   static async make (path: string) {
-    const file = await File.make({
+    const file = new File({
       path,
       relationship: FileRelationshipType.Root,
       expanded: false,

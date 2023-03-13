@@ -182,7 +182,7 @@ export default {
       const remote = await context.dispatch('configuration/read', 'default_remote', { root: true })
       await context.dispatch('remote', remote)
 
-      await context.dispatch('message', `${repository.name} ready`, { root: true })
+      await context.dispatch('message', `Repository ${repository.name} ready`, { root: true })
     },
     stage: async function (context, query) {
       context.commit('staging', true)

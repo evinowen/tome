@@ -12,6 +12,7 @@ import SslComponent from './components/ssl'
 import TemplatesComponent from './components/templates'
 import WindowComponent from './components/window'
 
+log.catchErrors()
 log.info('Main Process Start')
 
 class Main {

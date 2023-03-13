@@ -5,19 +5,10 @@ export const ExplorerNodeGhostType: Record<string, string>
 export class ExplorerNodeProperties extends Vue {
   uuid: string
   enabled: boolean
-  expanded: boolean
-  ephemeral: boolean
   title: boolean
-  name: string
-  path: string
-  extension: string
-  image: boolean
-  relationship: string
   active: string
   edit: boolean
   format?: any
-  directory: boolean
-  children: any[]
   root: boolean
   depth: number
 }
@@ -26,6 +17,17 @@ export default class ExplorerNode extends ExplorerNodeProperties {
   valid: boolean
   input: string
   error?: string
+
+  get file(): File
+  get ephemeral(): boolean
+  get name(): string
+  get path(): string
+  get extension(): string
+  get image(): string
+  get relationship(): string
+  get children(): File[]
+  get directory(): string
+  get expanded(): boolean
 
   get selected(): boolean
   get locked(): boolean

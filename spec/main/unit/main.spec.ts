@@ -13,7 +13,7 @@ jest.mock('@/components/ssl', () => ({ default: { register: jest.fn(), data: jes
 jest.mock('@/components/templates', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
 jest.mock('@/components/window', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
 
-jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
+jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn(), catchErrors: jest.fn() }))
 jest.mock('electron', () => ({
   app: {
     on: jest.fn(),

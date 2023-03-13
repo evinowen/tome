@@ -1,6 +1,6 @@
 {
   "name": "tome",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "git integrated cross-platform markdown editor",
   "author": "Evin Owen <git@evinowen.net>",
   "repository": {
@@ -40,6 +40,7 @@
     "mustache": "^4.2.0",
     "node-forge": "^1.3.1",
     "nodegit": "^0.28.0-alpha.18",
+    "resize-observer-polyfill": "^1.5.1",
     "tmp": "^0.2.1",
     "tmp-promise": "^3.0.3",
     "uuid": "^9.0.0",
@@ -96,7 +97,6 @@
     "jest": "^27.5.1",
     "jest-junit": "^14.0.1",
     "prettier": "^2.7.1",
-    "resize-observer-polyfill": "^1.5.1",
     "sass": "^1.32.13",
     "sass-loader": "^10.3.1",
     "ts-jest": "^27.1.5",
