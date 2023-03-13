@@ -79,15 +79,6 @@
         v-for="child in children"
         :key="child.uuid"
         :uuid="child.uuid"
-        :ephemeral="child.ephemeral"
-        :name="child.name"
-        :path="child.path"
-        :extension="child.extension"
-        :image="child.image"
-        :relationship="''.concat(child.relationship)"
-        :children="child.children"
-        :directory="child.directory"
-        :expanded="child.expanded"
 
         :format="format"
         :active="active"
@@ -110,6 +101,7 @@ import Component from 'vue-class-component'
 import { VContainer, VLayout, VFlex, VForm, VTextField } from 'vuetify/lib'
 import store from '@/store'
 import FileIcon from '@/components/FileIcon.vue'
+import File from '@/store/modules/files/file'
 
 export const ExplorerNodeGhostType = {
   FILE: 'file',
@@ -122,31 +114,63 @@ export const ExplorerNodeProperties = Vue.extend({
   props: {
     uuid: { type: String, default: '' },
     enabled: { type: Boolean, default: false },
-    expanded: { type: Boolean, default: false },
-    ephemeral: { type: Boolean, default: false },
     title: { type: Boolean, default: false },
-    name: { type: String, default: '' },
-    path: { type: String, default: '' },
-    extension: { type: String, default: '' },
-    image: { type: Boolean, default: false },
-    relationship: { type: String, default: '' },
     active: { type: String, default: '' },
     edit: { type: Boolean, default: false },
     format: { type: Function, default: undefined },
-    directory: { type: Boolean, default: true },
-    children: { type: Array, default: () => [] },
     root: { type: Boolean, default: false },
     depth: { type: Number, default: 0 }
   }
 })
 
 @Component({
+  name: 'ExplorerNode',
   components: { VContainer, VLayout, VFlex, VForm, VTextField, FileIcon }
 })
 export default class ExplorerNode extends ExplorerNodeProperties {
   valid = false
   input = ''
   error?: string
+
+  get file (): File {
+    return store.state.files.directory[this.uuid] || File.Empty
+  }
+
+  get ephemeral () {
+    return this.file.ephemeral
+  }
+
+  get name () {
+    return this.file.name
+  }
+
+  get path () {
+    return this.file.path
+  }
+
+  get extension () {
+    return this.file.extension
+  }
+
+  get image () {
+    return this.file.image
+  }
+
+  get relationship () {
+    return this.file.relationship || ''
+  }
+
+  get children () {
+    return this.file.children
+  }
+
+  get directory () {
+    return this.file.directory
+  }
+
+  get expanded () {
+    return this.file.expanded
+  }
 
   get selected () {
     return this.uuid === this.active

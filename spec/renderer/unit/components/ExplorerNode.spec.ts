@@ -2,9 +2,24 @@ import { assemble } from '?/helpers'
 import Vuetify from 'vuetify'
 import store from '@/store'
 import ExplorerNode from '@/components/ExplorerNode.vue'
+import { FileRelationshipType } from '@/store/modules/files/file'
 
 jest.mock('@/store', () => ({
   state: {
+    files: {
+      directory: {
+        '1234-test-1234-test': {
+          name: 'Name',
+          path: '/pa/th/to/fi/le.txt',
+          extension: 'txt',
+          image: false,
+          children: [],
+          active: 'Active',
+          populate: undefined,
+          directory: false
+        }
+      }
+    },
     clipboard: {
       content: { type: 'file', target: '/path' }
     },
@@ -23,11 +38,15 @@ jest.mock('@/store', () => ({
 
 const mocked_store = jest.mocked(store)
 
+const uuid = '1234-test-1234-test'
+const file = store.state.files.directory[uuid]
+
 describe('components/ExplorerNode', () => {
   let vuetify
 
   beforeEach(() => {
     vuetify = new Vuetify()
+    file.relationship = FileRelationshipType.None
   })
 
   afterEach(() => {
@@ -35,16 +54,10 @@ describe('components/ExplorerNode', () => {
   })
 
   const format = jest.fn((name) => name)
+
   const factory = assemble(ExplorerNode, {
-    name: 'Name',
-    path: '/pa/th/to/fi/le',
+    uuid,
     active: 'Active',
-    populate: undefined,
-    new_file: undefined,
-    new_folder: undefined,
-    open_folder: undefined,
-    highlight: 'Highlight',
-    directory: false,
     format
   })
     .context(() => ({ vuetify }))
@@ -59,7 +72,9 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should be flagged as system if the relationship equals root', async () => {
-    const wrapper = factory.wrap({ relationship: 'root' })
+    file.relationship = FileRelationshipType.Root
+
+    const wrapper = factory.wrap()
     const local = wrapper.vm as ExplorerNode
 
     await expect(local.$nextTick()).resolves.toBeDefined()
@@ -68,7 +83,9 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should be flagged as system if the relationship equals git', async () => {
-    const wrapper = factory.wrap({ relationship: 'git' })
+    file.relationship = FileRelationshipType.Git
+
+    const wrapper = factory.wrap()
     const local = wrapper.vm as ExplorerNode
 
     await expect(local.$nextTick()).resolves.toBeDefined()
@@ -77,7 +94,9 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should be flagged as system if the relationship equals tome', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome' })
+    file.relationship = FileRelationshipType.Tome
+
+    const wrapper = factory.wrap()
     const local = wrapper.vm as ExplorerNode
 
     await expect(local.$nextTick()).resolves.toBeDefined()
