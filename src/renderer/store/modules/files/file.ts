@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'
 
 export class FileDirent {
-  static async convert (dirent: { name: string, mime: string, directory: boolean }, parent: File) {
+  static async convert (dirent: { name: string, mime: string, directory: boolean }, parent: File, base: File) {
     const path = await window.api.path.join(parent.path, dirent.name)
-    const relative = await window.api.path.relative(parent.base?.path, path)
+    const relative = await window.api.path.relative(base.path, path)
     const extension = await window.api.path.extension(path)
 
     const file = new File({
@@ -13,8 +13,7 @@ export class FileDirent {
       relative,
       extension,
       directory: dirent.directory,
-      parent,
-      base: parent.base || undefined
+      parent
     })
 
     await File.relate(file)
@@ -53,7 +52,6 @@ interface FileConstructor {
   relative?: string
   relationship?: FileRelationshipType,
   parent?: File
-  base?: File
   loaded?: boolean
   directory?: boolean
   disabled?: boolean
@@ -104,7 +102,6 @@ export default class File {
   relative: string
   relationship = FileRelationshipType.None
   parent?: File
-  base?: File
   loaded = false
   directory = false
   disabled = false
@@ -169,14 +166,14 @@ export default class File {
     this.image = this.mime.startsWith('image')
   }
 
-  async load () {
+  async load (base: File, listener?: CallableFunction) {
     const { directory } = this
 
     const payload = new FileLoadPayload
     if (directory) {
-      payload.children = await this.populate()
+      payload.children = await this.populate(base, listener)
     } else {
-      payload.document = await this.read()
+      payload.document = await this.read(listener)
     }
 
     return new FileLoadContract(this, payload)
@@ -186,9 +183,10 @@ export default class File {
     await window.api.file.open(this.path, container)
   }
 
-  async read () {
+  async read (listener?: CallableFunction) {
     const { path } = this
     const content = await window.api.file.contents(path)
+    listener({ type: 'read', path, bytes: new Blob([content]).size })
 
     return {
       path,
@@ -240,19 +238,20 @@ export default class File {
     this.ghost = undefined
   }
 
-  async populate () {
+  async populate (base: File, listener?: CallableFunction) {
     const dirents = await window.api.file.list_directory(this.path)
 
     const children = []
 
     for (const dirent of dirents) {
-      const child = this.children.find(file => file.name === dirent.name)
+      let child = this.children.find(file => file.name === dirent.name)
 
-      if (child) {
-        children.push(child)
-      } else {
-        children.push(await FileDirent.convert(dirent, this))
+      if (!child) {
+        child = await FileDirent.convert(dirent, this, base)
       }
+
+      listener({ type: 'populated', path: child.path })
+      children.push(child)
     }
 
     File.sort(children)
@@ -322,14 +321,6 @@ export default class File {
     }
 
     return ((first.path)  < (second.path) ? -1 : 1)
-  }
-
-  static async make (data: FileConstructor) {
-    const instance = new File(data)
-
-    instance.base = instance
-
-    return instance
   }
 
   static async relate (instance: File) {

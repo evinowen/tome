@@ -39,6 +39,7 @@ export default {
     },
     clear: function (state) {
       state.tree = undefined
+      state.directory = {}
     },
     load: function (state, contract: FileLoadContract) {
       const { item, payload } = contract
@@ -110,6 +111,7 @@ export default {
   },
   actions: <ActionTree<State, unknown>>{
     initialize: async function (context, { path }) {
+      await context.dispatch('message', `Initialize file tree at ${path} ... `, { root: true })
       const tree = await FileTree.make(path)
 
       context.commit('initialize', tree)
@@ -127,14 +129,16 @@ export default {
         }
 
         const { item, parent } = identity
+        const target = parent || item
 
         switch (event) {
           case ChokidarEvent.ADD:
           case ChokidarEvent.ADD_DIR:
           case ChokidarEvent.DELETE:
           case ChokidarEvent.DELETE_DIR:
-            context.commit('unload', parent || item)
-            await context.dispatch('load', { item: parent || item })
+            await context.dispatch('message', `Refresh ${target.path}`, { root: true })
+            context.commit('unload', target)
+            await context.dispatch('load', { item: target })
             break
         }
       })
@@ -172,8 +176,23 @@ export default {
         }
 
         if (identity instanceof FileIdentityContract) {
-          const contract = await identity.item.load()
+          const contract = await identity.item.load(
+            context.state.tree.base,
+            async (object) => {
+              switch (object.type) {
+              case 'read':
+                await context.dispatch('message', `Read (identity) ${object.bytes} bytes @ ${object.path}`, { root: true })
+                break
+
+              case 'populated':
+                await context.dispatch('message', `Populate (identity) ${object.path}`, { root: true })
+                break
+              }
+            }
+          )
+
           context.commit('load', contract)
+          await context.dispatch('message', `Item directory @ ${Object.keys(context.state.directory).length})`, { root: true })
 
           identity = await FileTree.search(identity.item, identity.queue)
         } else {
@@ -203,11 +222,29 @@ export default {
       return item.parent
     },
     load: async function (context, criteria) {
-      const item = await context.dispatch('identify', criteria)
+      const item: File = await context.dispatch('identify', criteria)
+      await context.dispatch('message', `Load ${item.path}`, { root: true })
 
       if (!item.ephemeral) {
-        const contract = await item.load()
+        const contract = await item.load(
+          context.state.tree.base,
+          async (object) => {
+            switch (object.type) {
+            case 'read':
+              await context.dispatch('message', `Read (load) ${object.bytes} bytes @ ${object.path}`, { root: true })
+              break
+
+            case 'populated':
+              await context.dispatch('message', `Populate (load) ${object.path}`, { root: true })
+              break
+            }
+          }
+        )
+
         context.commit('load', contract)
+        await context.dispatch('message', `Item directory @ ${Object.keys(context.state.directory).length})`, { root: true })
+
+        await context.dispatch('message', `Load ${item.path} complete`, { root: true })
       }
 
       return item
