@@ -1,6 +1,6 @@
 {
   "name": "tome",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "git integrated cross-platform markdown editor",
   "author": "Evin Owen <git@evinowen.net>",
   "repository": {
