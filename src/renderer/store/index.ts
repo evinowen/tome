@@ -84,9 +84,13 @@ export default new Vuex.Store<State>({
       await context.dispatch('message', 'Welcome to Tome')
     },
     message: function (context, message) {
+      window.api.log.info(message)
+
       context.commit('log', { type: 'info', message })
     },
     error: function (context, error) {
+      window.api.log.error(error)
+
       if (error instanceof Error) {
         context.commit('log', { type: 'error', message: error.message, stack: error.stack })
       } else {

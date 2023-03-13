@@ -26,6 +26,15 @@ interface RepositoryMetadata {
 }
 
 export interface API {
+  log: {
+    error: (...parameters: any[]) => void
+    warn: (...parameters: any[]) => void
+    info: (...parameters: any[]) => void
+    verbose: (...parameters: any[]) => void
+    debug: (...parameters: any[]) => void
+    silly: (...parameters: any[]) => void
+    log: (...parameters: any[]) => void
+  },
   action: {
     invoke: (source: string, target: string, selection: string)
       => Promise<{ success: boolean, message: string, selection: string }>

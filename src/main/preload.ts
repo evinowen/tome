@@ -1,4 +1,5 @@
 import { contextBridge } from 'electron'
+import * as log from 'electron-log'
 import action from './components/actions/preload'
 import clipboard from './components/clipboard/preload'
 import repository from './components/repository/preload'
@@ -10,6 +11,7 @@ import template from './components/templates/preload'
 import window from './components/window/preload'
 
 contextBridge.exposeInMainWorld('api', {
+  log: log.functions,
   action,
   clipboard,
   repository,
