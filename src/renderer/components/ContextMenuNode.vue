@@ -101,6 +101,7 @@ export const ContextMenuNodeProperties = Vue.extend({
 })
 
 @Component({
+  name: 'ContextMenuNode',
   components: { VLayout, VFlex, VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VIcon, VDivider },
   directives: { ClickOutside }
 })
