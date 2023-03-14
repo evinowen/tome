@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { MutationTree, ActionTree } from 'vuex'
 import File, { FileLoadContract } from './file'
 import FileTree, { FileIdentity, FileIdentityContract } from './file_tree'
+import { debounce } from 'lodash'
 
 class FileTreeNotEstablishedError extends Error {}
 class FileNotSelectedError extends Error {}
@@ -26,6 +27,10 @@ export class State {
   tree?: FileTree
   post?: (path: string) => void
 }
+
+export const debounce_save = debounce((context, criteria) => {
+  return context.dispatch('save', criteria)
+}, 500)
 
 export default {
   namespaced: true,
@@ -272,8 +277,20 @@ export default {
 
       return ghost
     },
+    reselect: async function (context) {
+      if (!context.state.active) {
+        return
+      }
+
+      const item = context.state.directory[context.state.active]
+      await context.dispatch('select', { item })
+    },
     select: async function (context, criteria) {
-      const item = await context.dispatch('load', criteria)
+      let item = await context.dispatch('load', criteria)
+
+      if (!item && context.state.active) {
+        item = context.state.directory[context.state.active]
+      }
 
       let parent = item
       while (parent.parent) {
@@ -296,6 +313,10 @@ export default {
       context.commit('unload', item)
 
       return item
+    },
+    debounce_save,
+    debounce_flush: async function () {
+      await debounce_save.flush()
     },
     submit: async function (context, criteria) {
       const { input, title } = criteria

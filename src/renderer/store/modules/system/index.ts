@@ -149,6 +149,11 @@ export default {
       return context.state.console
     },
     edit: async function (context, value) {
+      if (!value) {
+        await context.dispatch('files/debounce_flush', undefined, { root: true })
+        await context.dispatch('files/reselect', undefined, { root: true })
+      }
+
       typeof value !== 'boolean' || context.commit('set', { edit: value })
       return context.state.edit
     },
