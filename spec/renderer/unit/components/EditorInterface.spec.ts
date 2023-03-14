@@ -176,7 +176,7 @@ describe('components/EditorInterface', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should dispatch files/save with path and content when save is called with path', async () => {
+  it('should dispatch files/debounce_save with path and content when save is called with path', async () => {
     const wrapper = factory.wrap()
     const local = wrapper.vm as EditorInterface
 
@@ -184,7 +184,7 @@ describe('components/EditorInterface', () => {
     await local.save(path)
 
     const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'files/save')
+    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'files/debounce_save')
 
     expect(action).toBeDefined()
     expect(data).toBeDefined()

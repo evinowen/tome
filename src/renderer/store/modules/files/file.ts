@@ -109,7 +109,11 @@ export default class File {
   ghost?: File
   expanded = false
   ephemeral = false
-  document?: FileDocument
+  document: FileDocument = {
+    path: '',
+    title: '',
+    content: ''
+  }
   updated?: number
   clean = true
   readonly = false

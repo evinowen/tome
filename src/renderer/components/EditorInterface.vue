@@ -89,7 +89,7 @@
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator'
 import { VDivider } from 'vuetify/lib'
-import { debounce, delay } from 'lodash'
+import { delay } from 'lodash'
 import { marked } from 'marked'
 import Mark from 'mark.js'
 import Explorer from '@/components/Explorer.vue'
@@ -199,7 +199,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
     }
 
     if (this.html) {
-      return (content)
+      return content
     }
 
     return ''
@@ -289,10 +289,6 @@ export default class EditorInterface extends EditorInterfaceProperties {
     ]
   }
 
-  get debounce_save () {
-    return debounce((path) => this.save(path), 500)
-  }
-
   get context () {
     return [
       {
@@ -370,7 +366,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
   }
 
   async refresh (reset = false) {
-    await this.debounce_save.flush()
+    await store.dispatch('files/debounce_flush')
 
     if (reset) {
       this.codemirror.doc.setValue(store.state.files.content || '')
@@ -403,7 +399,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
 
   async input () {
     const selected = store.state.files.directory[store.state.files.active]
-    await this.debounce_save(selected.path)
+    await this.save(selected.path)
   }
 
   async save (path) {
@@ -413,7 +409,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
 
     const content = content_array.join('\n')
 
-    await store.dispatch('files/save', { path, content })
+    await store.dispatch('files/debounce_save', { path, content })
   }
 
   async search () {
