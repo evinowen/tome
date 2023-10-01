@@ -98,9 +98,6 @@ class Main {
   }
 
   static register () {
-    log.info('Reset listeners for IPC communication')
-    ipcMain.removeAllListeners()
-
     log.info('Register main process components')
 
     ActionsComponent.register(Main.window)
