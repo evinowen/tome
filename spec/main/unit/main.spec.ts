@@ -28,7 +28,7 @@ jest.mock('electron', () => ({
   ipcMain: {
     handle: jest.fn(),
     on: jest.fn(),
-    removeAllListeners: jest.fn()
+    removeHandler: jest.fn()
   },
 }))
 
