@@ -73,9 +73,9 @@ jobs:
     - name: Build Application Packages
       run: npm run rebuild-electron
       env:
-        # Must disable test_ssl_new as it fails with privileged account access that cannot
+        # Must disable select OpenSSL tests as they fail with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
-        TESTS: "-test_ui -test_pem -test_ssl_new"
+        TESTS: "-test_cms -test_pem -test_ssl_new -test_ui"
 
     - name: Lint Renderer
       run: npm run lint-renderer
@@ -179,7 +179,7 @@ jobs:
       env:
         # Must disable select OpenSSL tests as they fail with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
-        TESTS: "-test_cms -test_ssl_new"
+        TESTS: "-test_cms -test_pem -test_ssl_new -test_ui"
 
     - name: Lint Renderer
       run: npm run lint-renderer
@@ -259,9 +259,9 @@ jobs:
     - name: Build Application Packages
       run: npm run rebuild-electron
       env:
-        # Must disable test_ssl_new as it fails with privileged account access that cannot
+        # Must disable select OpenSSL tests as they fail with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
-        TESTS: "-test_ui -test_pem -test_ssl_new"
+        TESTS: "-test_cms -test_pem -test_ssl_new -test_ui"
 
     - name: Lint Renderer
       run: npm run lint-renderer
