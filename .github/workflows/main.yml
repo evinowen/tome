@@ -205,23 +205,10 @@ jobs:
         DEBUG: electron-builder
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-    - name: Sign Setup Artifact
-      uses: sslcom/esigner-codesign@develop
-      with:
-        command: sign
-        username: ${{ secrets.SSL_COM_USERNAME }}
-        password: ${{ secrets.SSL_COM_PASSWORD }}
-        credential_id: ${{ secrets.SSL_COM_CREDENTIAL_ID }}
-        totp_secret: ${{ secrets.SSL_COM_TOTP_SECRET }}
-        file_path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
-        output_path: dist/app.signed
-        malware_block: false
-        environment_name: PROD
-
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.exe
         path: dist/app.signed/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   build_on_macos:
@@ -310,8 +297,37 @@ jobs:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.dmg
         path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
+  sign_on_win:
+    needs: [ build_on_win ]
+    runs-on: windows-2019
+    steps:
+    - name: Download Windows Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.exe
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.exe
+
+    - name: Sign Setup Artifact
+      uses: sslcom/esigner-codesign@develop
+      with:
+        command: sign
+        username: ${{ secrets.SSL_COM_USERNAME }}
+        password: ${{ secrets.SSL_COM_PASSWORD }}
+        credential_id: ${{ secrets.SSL_COM_CREDENTIAL_ID }}
+        totp_secret: ${{ secrets.SSL_COM_TOTP_SECRET }}
+        file_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.exe/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        output_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        malware_block: false
+        environment_name: PROD
+
+    - name: Upload Setup Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+
   publish_release:
-    needs: [ version_validation, build_on_ubuntu, build_on_win, build_on_macos ]
+    needs: [ version_validation, build_on_ubuntu, sign_on_win, build_on_macos ]
     runs-on: ubuntu-latest
     if: github.REF == 'refs/heads/master'
     steps:
