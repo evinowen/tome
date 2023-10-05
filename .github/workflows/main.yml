@@ -303,9 +303,9 @@ jobs:
     steps:
     - name: Load Target Package Version
       run: |
-        PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
-        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
-        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+        $Env:PACKAGE_VERSION = "${{ needs.version_validation.outputs.package_version }}"
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Download Windows Setup Artifacts
       uses: actions/download-artifact@v3
