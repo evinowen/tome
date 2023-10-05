@@ -261,6 +261,7 @@ jobs:
       run: npm run build-electron
       env:
         DEBUG: electron-builder
+        CSC_IDENTITY_AUTO_DISCOVERY: false
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
