@@ -232,6 +232,30 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
+    - name: Load Certificate
+      run: echo $CERTIFICATE_BASE64 | base64 --decode > $CERTIFICATE_P12
+      env:
+        CERTIFICATE_P12: "certificate.p12"
+        CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_OSX_APPLICATION }}
+
+    - name: Create Keychain
+      run: |
+        security create-keychain -p actions $KEYCHAIN
+        security default-keychain -s $KEYCHAIN
+        security unlock-keychain -p actions $KEYCHAIN
+        security set-keychain-settings -lut 7200 $KEYCHAIN
+      env:
+        KEYCHAIN: "build.keychain"
+
+    - name: Import Certification
+      run: |
+        security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
+        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k actions $KEYCHAIN
+      env:
+        CERTIFICATE_P12: "certificate.p12"
+        CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_OSX_APPLICATION }}
+        KEYCHAIN: "build.keychain"
+
     - name: Build Application Packages
       run: npm run rebuild-electron
       env:
@@ -260,13 +284,17 @@ jobs:
     - name: Build Application
       run: npm run build-electron
       env:
-        DEBUG: electron-builder
-        CSC_IDENTITY_AUTO_DISCOVERY: false
+        DEBUG: electron-builder,electron-osx-sign*
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        CSC_KEYCHAIN: build.keychain
+        CSC_FOR_PULL_REQUEST: true
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.dmg
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.dmg
         path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   sign_on_win:
@@ -304,70 +332,8 @@ jobs:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
         path: output_artifacts/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
-  sign_on_macos:
-    needs: [ version_validation, build_on_macos ]
-    runs-on: macOS-latest
-    steps:
-    - name: Load Target Package Version
-      run: |
-        PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
-        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
-        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
-
-    - name: Download MacOS Setup Artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.dmg
-        path: artifacts
-
-    - name: Load Certificate
-      run: echo $CERTIFICATE_BASE64 | base64 --decode > $CERTIFICATE_P12
-      env:
-        CERTIFICATE_P12: certificate.p12
-        CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_OSX_APPLICATION }}
-
-    - name: Create Keychain
-      run: |
-        security create-keychain -p actions $KEYCHAIN
-        security default-keychain -s $KEYCHAIN
-        security unlock-keychain -p actions $KEYCHAIN
-        security set-keychain-settings -lut 7200 $KEYCHAIN
-      env:
-        KEYCHAIN: build.keychain
-
-    - name: Import Certificate
-      run: |
-        security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
-        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k actions $KEYCHAIN
-      env:
-        CERTIFICATE_P12: certificate.p12
-        CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_OSX_APPLICATION }}
-        KEYCHAIN: build.keychain
-
-    - name: Sign Artifact
-      run: |
-        /usr/bin/codesign --keychain /Users/username/Library/Keychains/$KEYCHAIN $INPUT_PATH
-      env:
-        INPUT_PATH: artifacts/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
-        KEYCHAIN: build.keychain
-
-    - name: Notarize Artifact
-      run: |
-        xcrun notarytool submit ${INPUT_PATH} --wait --apple-id ${APPLE_ID} --password ${APPLE_ID_PASSWORD}
-        xcrun stapler staple -v ${INPUT_PATH}
-      env:
-        INPUT_PATH: artifacts/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
-        APPLE_ID: ${{ secrets.APPLE_ID }}
-        APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-
-    - name: Upload Setup Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.dmg
-        path: artifacts/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
-
   publish_release:
-    needs: [ version_validation, build_on_ubuntu, sign_on_win, sign_on_macos ]
+    needs: [ version_validation, build_on_ubuntu, sign_on_win, build_on_macos ]
     runs-on: ubuntu-latest
     # if: github.REF == 'refs/heads/master'
     steps:
