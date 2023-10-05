@@ -46,170 +46,170 @@ jobs:
         echo "Require ${{ env.PACKAGE_VERSION }} > ${{ env.PUBLISHED_PACKAGE_VERSION }}"
         semver --range ">${{ env.PUBLISHED_PACKAGE_VERSION }}" ${{ env.PACKAGE_VERSION }}
 
-  build_on_ubuntu:
-    needs: [ version_validation ]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Load Target Package Version
-      run: |
-        PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
-        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
-        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+  # build_on_ubuntu:
+  #   needs: [ version_validation ]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Load Target Package Version
+  #     run: |
+  #       PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
+  #       echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+  #       echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
 
-    - name: Prepare Environment
-      run: sudo apt-get install libkrb5-dev
+  #   - name: Prepare Environment
+  #     run: sudo apt-get install libkrb5-dev
 
-    - name: Checkout Repository
-      uses: actions/checkout@master
+  #   - name: Checkout Repository
+  #     uses: actions/checkout@master
 
-    - name: Configure Node.js
-      uses: actions/setup-node@master
-      with:
-        node-version: 14.19.1
+  #   - name: Configure Node.js
+  #     uses: actions/setup-node@master
+  #     with:
+  #       node-version: 14.19.1
 
-    - name: Install Dependencies
-      run: npm install
+  #   - name: Install Dependencies
+  #     run: npm install
 
-    - name: Build Application Packages
-      run: npm run rebuild-electron
-      env:
-        # Must disable select OpenSSL tests as they fail with privileged account access that cannot
-        # be revoked in the current GitHub Actions environment.
-        TESTS: "-test_cms -test_pem -test_ssl_new -test_ui"
+  #   - name: Build Application Packages
+  #     run: npm run rebuild-electron
+  #     env:
+  #       # Must disable select OpenSSL tests as they fail with privileged account access that cannot
+  #       # be revoked in the current GitHub Actions environment.
+  #       TESTS: "-test_cms -test_pem -test_ssl_new -test_ui"
 
-    - name: Lint Renderer
-      run: npm run lint-renderer
+  #   - name: Lint Renderer
+  #     run: npm run lint-renderer
 
-    - name: Test Renderer
-      run: npm run test-renderer
+  #   - name: Test Renderer
+  #     run: npm run test-renderer
 
-    - name: Build Renderer
-      run: npm run build-renderer
+  #   - name: Build Renderer
+  #     run: npm run build-renderer
 
-    - name: Lint Main
-      run: npm run lint-main
+  #   - name: Lint Main
+  #     run: npm run lint-main
 
-    - name: Build Main
-      run: npm run build-main
+  #   - name: Build Main
+  #     run: npm run build-main
 
-    - name: Test Main
-      run: npm run test-main
+  #   - name: Test Main
+  #     run: npm run test-main
 
-    - name: Build Application
-      run: npm run build-electron
-      env:
-        DEBUG: electron-builder
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        CSC_FOR_PULL_REQUEST: true
+  #   - name: Build Application
+  #     run: npm run build-electron
+  #     env:
+  #       DEBUG: electron-builder
+  #       GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  #       CSC_FOR_PULL_REQUEST: true
 
-    - name: Upload Setup Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.deb
-        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+  #   - name: Upload Setup Artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.deb
+  #       path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
 
-  build_on_win:
-    needs: [ version_validation ]
-    runs-on: windows-2019
-    steps:
-    - name: Load Target Package Version
-      run: |
-        $Env:PACKAGE_VERSION = "${{ needs.version_validation.outputs.package_version }}"
-        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
-        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+  # build_on_win:
+  #   needs: [ version_validation ]
+  #   runs-on: windows-2019
+  #   steps:
+  #   - name: Load Target Package Version
+  #     run: |
+  #       $Env:PACKAGE_VERSION = "${{ needs.version_validation.outputs.package_version }}"
+  #       echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
+  #       echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-    - name: Checkout Repository
-      uses: actions/checkout@master
+  #   - name: Checkout Repository
+  #     uses: actions/checkout@master
 
-    - name: Configure Node.js
-      uses: actions/setup-node@master
-      with:
-        node-version: 14.19.1
+  #   - name: Configure Node.js
+  #     uses: actions/setup-node@master
+  #     with:
+  #       node-version: 14.19.1
 
-    - name: Install node-gyp
-      run: npm install --global node-gyp@latest
+  #   - name: Install node-gyp
+  #     run: npm install --global node-gyp@latest
 
-    - name: Install Python
-      run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
+  #   - name: Install Python
+  #     run: choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
 
-    - name: Set NPM to use Python 2.7
-      run: npm config set python "$Env:SystemDrive\Python27\python.exe"
+  #   - name: Set NPM to use Python 2.7
+  #     run: npm config set python "$Env:SystemDrive\Python27\python.exe"
 
-    - name: Install Perl
-      run: |
-        choco install strawberryperl
-        echo ";$Env:SystemDrive\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+  #   - name: Install Perl
+  #     run: |
+  #       choco install strawberryperl
+  #       echo ";$Env:SystemDrive\Strawberry\perl\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-    - name: Install NASM
-      run: |
-        choco install nasm
-        echo ";$Env:ProgramFiles\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+  #   - name: Install NASM
+  #     run: |
+  #       choco install nasm
+  #       echo ";$Env:ProgramFiles\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-    - name: Download Windows Build Tools
-      run: Invoke-WebRequest -OutFile vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
+  #   - name: Download Windows Build Tools
+  #     run: Invoke-WebRequest -OutFile vs_buildtools.exe https://aka.ms/vs/15/release/vs_buildtools.exe
 
-    - name: Install Windows Build Tools
-      run: Start-Process
-            -Wait -NoNewWindow
-            -FilePath .\vs_buildtools.exe
-            -ArgumentList
-              "--quiet",
-              "--force",
-              "--wait",
-              "--norestart",
-              "--nocache",
-              "--installPath ""${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools""",
-              "--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools",
-              "--add Microsoft.VisualStudio.Workload.MSBuildTools",
-              "--add Microsoft.VisualStudio.Workload.VCTools"
+  #   - name: Install Windows Build Tools
+  #     run: Start-Process
+  #           -Wait -NoNewWindow
+  #           -FilePath .\vs_buildtools.exe
+  #           -ArgumentList
+  #             "--quiet",
+  #             "--force",
+  #             "--wait",
+  #             "--norestart",
+  #             "--nocache",
+  #             "--installPath ""${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\BuildTools""",
+  #             "--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools",
+  #             "--add Microsoft.VisualStudio.Workload.MSBuildTools",
+  #             "--add Microsoft.VisualStudio.Workload.VCTools"
 
-    - name: Install Dependencies
-      run: npm install
+  #   - name: Install Dependencies
+  #     run: npm install
 
-    - name: Load Certificate
-      run: |
-        $bytes = [Convert]::FromBase64String($env:CERTIFICATE_BASE64)
-        [IO.File]::WriteAllBytes($Env:CERTIFICATE_P12, $bytes)
-      env:
-        CERTIFICATE_P12: "certificate.p12"
-        CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_WIN_APPLICATION }}
+  #   - name: Load Certificate
+  #     run: |
+  #       $bytes = [Convert]::FromBase64String($env:CERTIFICATE_BASE64)
+  #       [IO.File]::WriteAllBytes($Env:CERTIFICATE_P12, $bytes)
+  #     env:
+  #       CERTIFICATE_P12: "certificate.p12"
+  #       CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_WIN_APPLICATION }}
 
-    - name: Build Application Packages
-      run: npm run rebuild-electron
-      env:
-        # Must disable select OpenSSL tests as they fail with privileged account access that cannot
-        # be revoked in the current GitHub Actions environment.
-        TESTS: "-test_cms -test_pem -test_ssl_new -test_ui"
+  #   - name: Build Application Packages
+  #     run: npm run rebuild-electron
+  #     env:
+  #       # Must disable select OpenSSL tests as they fail with privileged account access that cannot
+  #       # be revoked in the current GitHub Actions environment.
+  #       TESTS: "-test_cms -test_pem -test_ssl_new -test_ui"
 
-    - name: Lint Renderer
-      run: npm run lint-renderer
+  #   - name: Lint Renderer
+  #     run: npm run lint-renderer
 
-    - name: Test Renderer
-      run: npm run test-renderer
+  #   - name: Test Renderer
+  #     run: npm run test-renderer
 
-    - name: Build Renderer
-      run: npm run build-renderer
+  #   - name: Build Renderer
+  #     run: npm run build-renderer
 
-    - name: Lint Main
-      run: npm run lint-main
+  #   - name: Lint Main
+  #     run: npm run lint-main
 
-    - name: Build Main
-      run: npm run build-main
+  #   - name: Build Main
+  #     run: npm run build-main
 
-    - name: Test Main
-      run: npm run test-main
+  #   - name: Test Main
+  #     run: npm run test-main
 
-    - name: Build Application
-      run: npm run build-electron
-      env:
-        DEBUG: electron-builder
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  #   - name: Build Application
+  #     run: npm run build-electron
+  #     env:
+  #       DEBUG: electron-builder
+  #       GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-    - name: Upload Setup Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.exe
-        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+  #   - name: Upload Setup Artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.exe
+  #       path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   build_on_macos:
     needs: [ version_validation ]
@@ -232,30 +232,6 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
-    - name: Load Certificate
-      run: echo $CERTIFICATE_BASE64 | base64 --decode > $CERTIFICATE_P12
-      env:
-        CERTIFICATE_P12: "certificate.p12"
-        CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_OSX_APPLICATION }}
-
-    - name: Create Keychain
-      run: |
-        security create-keychain -p actions $KEYCHAIN
-        security default-keychain -s $KEYCHAIN
-        security unlock-keychain -p actions $KEYCHAIN
-        security set-keychain-settings -lut 7200 $KEYCHAIN
-      env:
-        KEYCHAIN: "build.keychain"
-
-    - name: Import Certification
-      run: |
-        security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
-        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k actions $KEYCHAIN
-      env:
-        CERTIFICATE_P12: "certificate.p12"
-        CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_OSX_APPLICATION }}
-        KEYCHAIN: "build.keychain"
-
     - name: Build Application Packages
       run: npm run rebuild-electron
       env:
@@ -284,10 +260,101 @@ jobs:
     - name: Build Application
       run: npm run build-electron
       env:
-        DEBUG: electron-builder,electron-osx-sign*
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        CSC_KEYCHAIN: build.keychain
-        CSC_FOR_PULL_REQUEST: true
+        DEBUG: electron-builder
+
+    - name: Upload Setup Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.dmg
+        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+
+  # sign_on_win:
+  #   needs: [ version_validation, build_on_win ]
+  #   runs-on: windows-2019
+  #   steps:
+  #   - name: Load Target Package Version
+  #     run: |
+  #       $Env:PACKAGE_VERSION = "${{ needs.version_validation.outputs.package_version }}"
+  #       echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
+  #       echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+  #   - name: Download Windows Setup Artifacts
+  #     uses: actions/download-artifact@v3
+  #     with:
+  #       name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.exe
+  #       path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+
+  #   - name: Sign Setup Artifact
+  #     uses: sslcom/esigner-codesign@develop
+  #     with:
+  #       command: sign
+  #       username: ${{ secrets.SSL_COM_USERNAME }}
+  #       password: ${{ secrets.SSL_COM_PASSWORD }}
+  #       credential_id: ${{ secrets.SSL_COM_CREDENTIAL_ID }}
+  #       totp_secret: ${{ secrets.SSL_COM_TOTP_SECRET }}
+  #       file_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+  #       malware_block: false
+  #       environment_name: PROD
+
+  #   - name: Upload Setup Artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
+  #       path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+
+  sign_on_macos:
+    needs: [ version_validation, build_on_macos ]
+    runs-on: macOS-latest
+    steps:
+    - name: Load Target Package Version
+      run: |
+        PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+
+    - name: Download MacOS Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.dmg
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+
+    - name: Load Certificate
+      run: echo $CERTIFICATE_BASE64 | base64 --decode > $CERTIFICATE_P12
+      env:
+        CERTIFICATE_P12: certificate.p12
+        CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_OSX_APPLICATION }}
+
+    - name: Create Keychain
+      run: |
+        security create-keychain -p actions $KEYCHAIN
+        security default-keychain -s $KEYCHAIN
+        security unlock-keychain -p actions $KEYCHAIN
+        security set-keychain-settings -lut 7200 $KEYCHAIN
+      env:
+        KEYCHAIN: build.keychain
+
+    - name: Import Certificate
+      run: |
+        security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
+        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k actions $KEYCHAIN
+      env:
+        CERTIFICATE_P12: certificate.p12
+        CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_OSX_APPLICATION }}
+        KEYCHAIN: build.keychain
+
+    - name: Sign Artifact
+      run: |
+        /usr/bin/codesign --keychain /Users/username/Library/Keychains/$KEYCHAIN $INPUT_PATH
+      env:
+        INPUT_PATH: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        KEYCHAIN: build.keychain
+
+    - name: Notarize Artifact
+      run: |
+        xcrun notarytool submit ${INPUT_PATH} --wait --apple-id ${APPLE_ID} --password ${APPLE_ID_PASSWORD}
+        xcrun stapler staple -v ${INPUT_PATH}
+      env:
+        INPUT_PATH: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
         APPLE_ID: ${{ secrets.APPLE_ID }}
         APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
@@ -295,44 +362,11 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.dmg
-        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
-
-  sign_on_win:
-    needs: [ version_validation, build_on_win ]
-    runs-on: windows-2019
-    steps:
-    - name: Load Target Package Version
-      run: |
-        $Env:PACKAGE_VERSION = "${{ needs.version_validation.outputs.package_version }}"
-        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
-        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-    - name: Download Windows Setup Artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.exe
-        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
-
-    - name: Sign Setup Artifact
-      uses: sslcom/esigner-codesign@develop
-      with:
-        command: sign
-        username: ${{ secrets.SSL_COM_USERNAME }}
-        password: ${{ secrets.SSL_COM_PASSWORD }}
-        credential_id: ${{ secrets.SSL_COM_CREDENTIAL_ID }}
-        totp_secret: ${{ secrets.SSL_COM_TOTP_SECRET }}
-        file_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
-        malware_block: false
-        environment_name: PROD
-
-    - name: Upload Setup Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
-        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   publish_release:
-    needs: [ version_validation, build_on_ubuntu, sign_on_win, build_on_macos ]
+    # needs: [ version_validation, build_on_ubuntu, sign_on_win, build_on_macos ]
+    needs: [ version_validation, sign_on_macos ]
     runs-on: ubuntu-latest
     if: github.REF == 'refs/heads/master'
     steps:
