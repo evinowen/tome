@@ -335,7 +335,7 @@ jobs:
   publish_release:
     needs: [ version_validation, build_on_ubuntu, sign_on_win, build_on_macos ]
     runs-on: ubuntu-latest
-    # if: github.REF == 'refs/heads/master'
+    if: github.REF == 'refs/heads/master'
     steps:
     - name: Load Target Package Version
       run: |
