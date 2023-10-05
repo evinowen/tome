@@ -298,9 +298,15 @@ jobs:
         path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
   sign_on_win:
-    needs: [ build_on_win ]
+    needs: [ version_validation, build_on_win ]
     runs-on: windows-2019
     steps:
+    - name: Load Target Package Version
+      run: |
+        PACKAGE_VERSION=${{ needs.version_validation.outputs.package_version }}
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION"
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+
     - name: Download Windows Setup Artifacts
       uses: actions/download-artifact@v3
       with:
