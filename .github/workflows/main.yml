@@ -205,7 +205,7 @@ jobs:
         DEBUG: electron-builder
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-    - name: Sign Artifact with CodeSignTool
+    - name: Sign Setup Artifact
       uses: sslcom/esigner-codesign@develop
       with:
         command: sign
@@ -222,7 +222,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
-        path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        path: dist/app.signed/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   build_on_macos:
     needs: [ version_validation ]
