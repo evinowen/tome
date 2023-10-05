@@ -204,9 +204,19 @@ jobs:
       env:
         DEBUG: electron-builder
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        CSC_LINK: "certificate.p12"
-        CSC_KEY_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_WIN_APPLICATION }}
-        CSC_FOR_PULL_REQUEST: true
+
+    - name: Sign Artifact with CodeSignTool
+      uses: sslcom/esigner-codesign@develop
+      with:
+        command: sign
+        username: ${{ secrets.SSL_COM_USERNAME }}
+        password: ${{ secrets.SSL_COM_PASSWORD }}
+        credential_id: ${{ secrets.SSL_COM_CREDENTIAL_ID }}
+        totp_secret: ${{ secrets.SSL_COM_TOTP_SECRET }}
+        file_path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        output_path: dist/app.signed
+        malware_block: false
+        environment_name: PROD
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
