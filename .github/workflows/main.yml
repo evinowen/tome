@@ -73,7 +73,7 @@ jobs:
     - name: Build Application Packages
       run: npm run rebuild-electron
       env:
-        # Must disable test_ssl_new as it fails with privileged account access that cannot
+        # Must disable select OpenSSL tests as they fail with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_cms -test_pem -test_ssl_new -test_ui"
 
@@ -177,7 +177,7 @@ jobs:
     - name: Build Application Packages
       run: npm run rebuild-electron
       env:
-        # Must disable test_ssl_new as it fails with privileged account access that cannot
+        # Must disable select OpenSSL tests as they fail with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_cms -test_pem -test_ssl_new -test_ui"
 
@@ -204,14 +204,11 @@ jobs:
       env:
         DEBUG: electron-builder
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        CSC_LINK: "certificate.p12"
-        CSC_KEY_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD_WIN_APPLICATION }}
-        CSC_FOR_PULL_REQUEST: true
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.exe
         path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
 
   build_on_macos:
@@ -262,7 +259,7 @@ jobs:
     - name: Build Application Packages
       run: npm run rebuild-electron
       env:
-        # Must disable test_ssl_new as it fails with privileged account access that cannot
+        # Must disable select OpenSSL tests as they fail with privileged account access that cannot
         # be revoked in the current GitHub Actions environment.
         TESTS: "-test_cms -test_pem -test_ssl_new -test_ui"
 
@@ -300,8 +297,43 @@ jobs:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.dmg
         path: dist/app/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
 
+  sign_on_win:
+    needs: [ version_validation, build_on_win ]
+    runs-on: windows-2019
+    steps:
+    - name: Load Target Package Version
+      run: |
+        $Env:PACKAGE_VERSION = "${{ needs.version_validation.outputs.package_version }}"
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}"
+        echo "PACKAGE_VERSION=${Env:PACKAGE_VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+    - name: Download Windows Setup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.unsigned.rc-${{ github.sha }}.exe
+        path: input_artifacts
+
+    - name: Sign Setup Artifact
+      uses: sslcom/esigner-codesign@develop
+      with:
+        command: sign
+        username: ${{ secrets.SSL_COM_USERNAME }}
+        password: ${{ secrets.SSL_COM_PASSWORD }}
+        credential_id: ${{ secrets.SSL_COM_CREDENTIAL_ID }}
+        totp_secret: ${{ secrets.SSL_COM_TOTP_SECRET }}
+        file_path: input_artifacts/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        output_path: output_artifacts
+        malware_block: false
+        environment_name: PROD
+
+    - name: Upload Setup Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
+        path: output_artifacts/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+
   publish_release:
-    needs: [ version_validation, build_on_ubuntu, build_on_win, build_on_macos ]
+    needs: [ version_validation, build_on_ubuntu, sign_on_win, build_on_macos ]
     runs-on: ubuntu-latest
     if: github.REF == 'refs/heads/master'
     steps:
@@ -324,7 +356,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.deb
-        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        path: artifacts
 
     - name: Upload Debian Setup Artifacts
       uses: actions/upload-release-asset@v1
@@ -332,7 +364,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
+        asset_path: artifacts/Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
         asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.deb
         asset_content_type: application/deb
 
@@ -340,7 +372,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.exe
-        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        path: artifacts
 
     - name: Upload Windows Setup Artifacts
       uses: actions/upload-release-asset@v1
@@ -348,7 +380,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
+        asset_path: artifacts/Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
         asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.exe
         asset_content_type: application/exe
 
@@ -356,7 +388,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: Tome.Setup.${{ env.PACKAGE_VERSION }}.rc-${{ github.sha }}.dmg
-        path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        path: artifacts
 
     - name: Upload macOS Setup Artifacts
       uses: actions/upload-release-asset@v1
@@ -364,6 +396,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
+        asset_path: artifacts/Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
         asset_name: Tome.Setup.${{ env.PACKAGE_VERSION }}.dmg
         asset_content_type: application/dmg
