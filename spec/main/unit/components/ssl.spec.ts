@@ -12,7 +12,10 @@ const { optional, random_string, expect_call_parameters_to_return } = helpers(ex
 
 jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
 jest.mock('electron', () => ({
-  ipcMain: { handle: jest.fn() },
+  ipcMain: {
+    handle: jest.fn(),
+    removeHandler: jest.fn()
+  },
   ipcRenderer: { invoke: jest.fn() },
   app: {
     getPath: jest.fn()

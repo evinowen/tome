@@ -3,7 +3,9 @@ import * as log from 'electron-log'
 
 export default (namespace) => {
   const handle = (channel, listener) => {
-    ipcMain.handle([namespace, channel].join('-'), async (...parameters) => {
+    const channel_absolute = [namespace, channel].join('-')
+    ipcMain.removeHandler(channel_absolute)
+    ipcMain.handle(channel_absolute, async (...parameters) => {
       const { processId, frameId } = parameters.shift()
       log.info(`Handle ${namespace} ${channel}`, { processId, frameId })
 
