@@ -53,17 +53,27 @@ export default {
   },
   actions: <ActionTree<State, unknown>>{
     load: async function (context, target) {
-      const raw = await window.api.file.contents(target)
+      let data = {}
 
-      let data
-      try {
-        data = JSON.parse(raw)
+      const exists = await window.api.file.exists(target)
 
-        if (!(data instanceof Object)) {
-          data = {}
+      if (exists) {
+        const raw = await window.api.file.contents(target)
+
+        try {
+          data = JSON.parse(raw)
+
+          if (!(data instanceof Object)) {
+            data = {}
+          }
+        } catch {
+          await context.dispatch('error', 'Error parsing config.json configuration file', { root: true })
         }
-      } catch {
-        data = {}
+
+        await context.dispatch('message', `Loaded existing config.json configuration file at ${target}`, { root: true })
+      } else {
+        await context.dispatch('write', target)
+        await context.dispatch('message', `Created new config.json configuration file at ${target}`, { root: true })
       }
 
       await context.dispatch('update', data)
