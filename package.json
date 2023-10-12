@@ -11,7 +11,7 @@
     "build-electron": "./node_modules/.bin/electron-builder",
     "build-main": "./node_modules/.bin/cross-env-shell \"./node_modules/.bin/tsc -p src/main/tsconfig.json\"",
     "build-renderer": "./node_modules/.bin/vite build",
-    "lint-main": "./node_modules/.bin/eslint -ext .ts spec/main src/main",
+    "lint-main": "./node_modules/.bin/eslint --ext .ts spec/main src/main",
     "lint-main-print-config": "./node_modules/.bin/eslint --print-config src/main/main.ts",
     "lint-renderer": "./node_modules/.bin/eslint --ext .vue,.ts spec/renderer src/renderer",
     "lint-renderer-print-config": "./node_modules/.bin/eslint --print-config src/renderer/main.ts",
