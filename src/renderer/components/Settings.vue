@@ -292,7 +292,7 @@
                   shrink
                   style="text-align: center;"
                 >
-                  <img src="logo.png">
+                  <img :src="logo">
                 </v-flex>
                 <v-flex
                   grow
@@ -352,6 +352,8 @@ import KeyfileOutput from './KeyfileOutput.vue'
 import ThemeColorPicker from './ThemeColorPicker.vue'
 import SeaGame from './SeaGame.vue'
 
+import logo_url from './logo.png'
+
 export const SettingsProperties = Vue.extend({
   props: {
     value: { type: Boolean, default: false }
@@ -383,6 +385,10 @@ export default class Settings extends SettingsProperties {
   process?: {
     versions?: Record<string, string>
     sandboxed: boolean
+  }
+
+  get logo () {
+    return logo_url
   }
 
   get configuration () {
