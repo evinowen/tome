@@ -1,5 +1,6 @@
 module.exports = {
   rootDir: '../..',
+  preset: 'ts-jest',
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/spec/renderer/tsconfig.json'
@@ -10,12 +11,14 @@ module.exports = {
   },
   testMatch: ['<rootDir>/spec/renderer/unit/**/*.spec.ts'],
   transform: {
-    ".*\\.(vue)$": "@vue/vue2-jest",
-    "^.+\\.tsx?$": "ts-jest",
+    "^.+\\.[tj]s$": "ts-jest",
+    "^.+\\.vue$": "@vue/vue2-jest"
   },
-  preset: '@vue/cli-plugin-unit-jest/presets/typescript',
   collectCoverage: true,
-  collectCoverageFrom: ['<rootDir>/src/renderer/**/*.{ts,js,vue}'],
+  collectCoverageFrom: [
+    '<rootDir>/src/renderer/**/*.{ts,js,vue}',
+    '!<rootDir>/src/renderer/**/*.d.ts'
+  ],
   coverageDirectory: '<rootDir>/reports/renderer/coverage',
   coverageThreshold: {
     global: {
@@ -31,7 +34,10 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/renderer/$1',
     '^[?]/(.*)$': '<rootDir>/spec/renderer/$1',
-    '\\.css$': '<rootDir>/spec/renderer/stubs/CssStub.ts',
+    '^vuetify/lib$': 'vuetify/es5/entry-lib',
+    '^vuetify/lib/(.*)': 'vuetify/es5/$1',
+    '\\.png$': '<rootDir>/spec/renderer/stubs/FileStub.ts',
+    '\\.(css|less|scss|sass)$': '<rootDir>/spec/renderer/stubs/CssStub.ts',
     '@fontsource/montserrat': '<rootDir>/spec/renderer/stubs/CssStub.ts'
   },
   reporters: [
@@ -43,6 +49,6 @@ module.exports = {
       }
     ]
   ],
-  transformIgnorePatterns: ['<rootDir>/node_modules/(?!vuetify)'],
-  setupFiles: ['<rootDir>/spec/renderer/setup.ts']
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/spec/renderer/setup.ts']
 }
