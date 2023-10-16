@@ -14,13 +14,13 @@
     >
       <v-card>
         <v-btn
-          tile
+          rounded="0"
           class="pa-0"
           style="height: 16px; width: 100%"
           color="accent"
           @click.stop="close"
         >
-          <v-icon small>
+          <v-icon size="small">
             mdi-chevron-down
           </v-icon>
         </v-btn>
@@ -49,8 +49,8 @@
         </div>
         <template #action="{}">
           <v-btn
-            tile
-            small
+            rounded="0"
+            size="small"
             color="primary"
             @click.stop="detail = false"
           >
@@ -63,31 +63,32 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
 import { DateTime } from 'luxon'
-import { VIcon, VBtn, VCard, VBottomSheet, VSnackbar } from 'vuetify/lib'
-import store from '@/store'
-
-export const ConsoleProperties = Vue.extend({
-  props: {
-    value: { type: Boolean, default: false }
-  }
-})
+import { VIcon, VBtn, VCard, VSnackbar } from 'vuetify/components'
+import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 
 @Component({
   components: { VIcon, VBtn, VCard, VBottomSheet, VSnackbar }
 })
-export default class Console extends ConsoleProperties {
+class Console extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
+  @Prop({ default: false })
+  value!: Boolean
+
   detail = false
   stack = ''
 
   get events () {
-    return store.state.events
+    return this.store.state.events
   }
 
   async close () {
-    await store.dispatch('system/console', false)
+    await this.store.dispatch('system/console', false)
   }
 
   show_stack (stack) {
@@ -108,6 +109,8 @@ export default class Console extends ConsoleProperties {
       .replace(/\n/g, '\u2424')
   }
 }
+
+export default toNative(Console)
 </script>
 
 <style>

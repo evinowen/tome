@@ -1,11 +1,9 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class KeyfileOutputProperties extends Vue {
+export class KeyfileOutput extends Vue {
   value: string
   small: boolean
   label: string
-}
 
-export default class KeyfileOutput extends KeyfileOutputProperties {
   copy(): Promise<void>
 }

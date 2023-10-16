@@ -3,13 +3,15 @@
     <template v-if="active">
       <template v-if="loading">
         <v-list-item>
-          <v-list-item-avatar color="darken-1" />
-          <v-list-item-content>
-            <v-list-item-title class="headline">
-              &mdash;
-            </v-list-item-title>
-            <v-list-item-subtitle>Loading ... </v-list-item-subtitle>
-          </v-list-item-content>
+          <template #prepend>
+            <v-avatar color="darken-1">
+              <v-icon>mdi-upload-multiple</v-icon>
+            </v-avatar>
+          </template>
+          <v-list-item-title class="text-h5">
+            &mdash;
+          </v-list-item-title>
+          <v-list-item-subtitle>Loading ... </v-list-item-subtitle>
         </v-list-item>
         <v-divider />
         <v-card-text class="text-center">
@@ -19,15 +21,15 @@
 
       <template v-else-if="error">
         <v-list-item>
-          <v-list-item-avatar color="warning">
-            <v-icon>mdi-alert</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title class="headline">
-              Error
-            </v-list-item-title>
-            <v-list-item-subtitle>{{ error }}</v-list-item-subtitle>
-          </v-list-item-content>
+          <template #prepend>
+            <v-avatar color="warning">
+              <v-icon>mdi-alert</v-icon>
+            </v-avatar>
+          </template>
+          <v-list-item-title class="text-h5">
+            Error
+          </v-list-item-title>
+          <v-list-item-subtitle>{{ error }}</v-list-item-subtitle>
         </v-list-item>
         <v-divider />
         <v-card-text class="text-center">
@@ -42,15 +44,15 @@
 
       <template v-else-if="match">
         <v-list-item>
-          <v-list-item-avatar color="info">
-            <v-icon>mdi-thumb-up</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title class="headline">
-              Match
-            </v-list-item-title>
-            <v-list-item-subtitle>The local repository history matches the remote repository</v-list-item-subtitle>
-          </v-list-item-content>
+          <template #prepend>
+            <v-avatar color="info">
+              <v-icon>mdi-thumb-up</v-icon>
+            </v-avatar>
+          </template>
+          <v-list-item-title class="text-h5">
+            Match
+          </v-list-item-title>
+          <v-list-item-subtitle>The local repository history matches the remote repository</v-list-item-subtitle>
         </v-list-item>
         <v-divider />
         <v-card-text class="text-center">
@@ -60,22 +62,22 @@
 
       <template v-else>
         <v-list-item>
-          <v-list-item-avatar color="success">
-            <v-icon>mdi-check</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title class="headline">
-              Compare
-            </v-list-item-title>
-            <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
-          </v-list-item-content>
+          <template #prepend>
+            <v-avatar color="success">
+              <v-icon>mdi-check</v-icon>
+            </v-avatar>
+          </template>
+          <v-list-item-title class="text-h5">
+            Compare
+          </v-list-item-title>
+          <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
         </v-list-item>
         <v-container
           fluid
           class="pa-0 ma-0"
           style="min-height: 120px"
         >
-          <v-data-table
+          <!-- <v-data-table
             dense
             disable-sort
             class="my-0 commit-history"
@@ -87,7 +89,7 @@
           >
             <template #item.oid="{ item }">
               <v-btn
-                tile
+                rounded="0"
                 icon
                 x-small
                 color="success"
@@ -95,22 +97,22 @@
                 {{ item.oid.substring(0, 7) }}
               </v-btn>
             </template>
-          </v-data-table>
+          </v-data-table> -->
         </v-container>
       </template>
     </template>
 
     <template v-else>
       <v-list-item>
-        <v-list-item-avatar color="darken-1">
-          <v-icon>mdi-cursor-pointer</v-icon>
-        </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title class="headline">
-            Select Remote
-          </v-list-item-title>
-          <v-list-item-subtitle>Choose a remote to compare to the local repository</v-list-item-subtitle>
-        </v-list-item-content>
+        <template #prepend>
+          <v-avatar color="darken-1">
+            <v-icon>mdi-cursor-pointer</v-icon>
+          </v-avatar>
+        </template>
+        <v-list-item-title class="text-h5">
+          Select Remote
+        </v-list-item-title>
+        <v-list-item-subtitle>Choose a remote to compare to the local repository</v-list-item-subtitle>
       </v-list-item>
       <v-divider />
       <v-card-text class="text-center">
@@ -121,55 +123,59 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
+  VAvatar,
   VIcon,
   VListItem,
-  VListItemContent,
   VListItemTitle,
   VListItemSubtitle,
-  VListItemAvatar,
   VCard,
   VCardText,
   VDivider,
   VContainer,
-  VDataTable,
+  // VDataTable,
   VBtn
-} from 'vuetify/lib'
-
-export const PushStatusProperties = Vue.extend({
-  props: {
-    active: { type: Boolean, default: false },
-    loading: { type: Boolean, default: false },
-    match: { type: Boolean, default: false },
-    error: { type: String, default: '' },
-    history: { type: Array, default: () => [] }
-  }
-})
+} from 'vuetify/components'
 
 @Component({
   components: {
+    VAvatar,
     VIcon,
     VListItem,
-    VListItemContent,
     VListItemTitle,
     VListItemSubtitle,
-    VListItemAvatar,
     VCard,
     VCardText,
     VDivider,
     VContainer,
-    VDataTable,
+    // VDataTable,
     VBtn
   }
 })
-export default class PushStatus extends PushStatusProperties {
+class PushStatus extends Vue {
+  @Prop({ default: false })
+  active: boolean
+
+  @Prop({ default: false })
+  loading: boolean
+
+  @Prop({ default: false })
+  match: boolean
+
+  @Prop({ default: '' })
+  error: string
+
+  @Prop({ default: () => [] })
+  history: any[]
+
   headers = [
     { text: '', value: 'oid', width: '60px' },
     { text: '', value: 'message', width: '' }
   ]
 }
+
+export default toNative(PushStatus)
 </script>
 
 <style scoped>

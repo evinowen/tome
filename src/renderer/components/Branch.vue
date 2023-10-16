@@ -1,12 +1,12 @@
 <template>
   <v-navigation-drawer
-    :value="value"
+    :model-value="value"
     fixed
-    right
+    location="right"
     stateless
     width="100%"
     style="z-index: 110; max-width: 900px; height: auto; top: 25px; bottom: 18px;"
-    @input="$event || close"
+    @update:model-value="$event || close"
   >
     <v-container
       fluid
@@ -20,7 +20,7 @@
         <div class="flex-grow-0">
           <div>
             <v-btn
-              tile
+              rounded="0"
               icon
               class="float-right"
               color="black"
@@ -34,7 +34,7 @@
         </div>
 
         <div class="flex-grow-1 mb-3">
-          <v-data-table
+          <!-- <v-data-table
             dense
             disable-sort
             class="my-0 commit-history"
@@ -54,7 +54,7 @@
             </template>
             <template #item.oid="{ item }">
               <v-btn
-                tile
+                rounded="0"
                 icon
                 x-small
                 color="success"
@@ -73,7 +73,7 @@
                 <small style="opacity: 0.5;">{{ format_date(item.date) }}</small>
               </div>
             </template>
-          </v-data-table>
+          </v-data-table> -->
         </div>
 
         <div
@@ -82,7 +82,7 @@
         >
           <v-divider class="mt-0 mb-2" />
           <v-btn
-            small
+            size="small"
             color="primary"
             @click.stop="close"
           >
@@ -95,22 +95,22 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider } from 'vuetify/lib'
+import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { VNavigationDrawer, VContainer, VBtn, VIcon, VDivider } from 'vuetify/components'
 import { DateTime } from 'luxon'
-import store from '@/store'
-
-export const BranchProperties = Vue.extend({
-  props: {
-    value: { type: Boolean, default: false }
-  }
-})
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 
 @Component({
-  components: { VNavigationDrawer, VContainer, VBtn, VIcon, VDataTable, VDivider }
+  components: { VNavigationDrawer, VContainer, VBtn, VIcon, VDivider }
 })
-export default class Branch extends BranchProperties {1
+class Branch extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
+  @Prop({ default: false })
+  value!: boolean
+
   headers = [
     { text: '', value: 'icon', width: '30px' },
     { text: '', value: 'oid', width: '60px' },
@@ -119,16 +119,16 @@ export default class Branch extends BranchProperties {1
   ]
 
   get repository () {
-    return store.state.repository
+    return this.store.state.repository
   }
 
   async close () {
-    await store.dispatch('system/branch', false)
+    await this.store.dispatch('system/branch', false)
   }
 
   async diff (commit) {
-    await store.dispatch('repository/diff', { commit: commit.oid })
-    await store.dispatch('system/patch', true)
+    await this.store.dispatch('repository/diff', { commit: commit.oid })
+    await this.store.dispatch('system/patch', true)
   }
 
   format_date (date) {
@@ -141,6 +141,8 @@ export default class Branch extends BranchProperties {1
     return `${datetime.toRelative()}`
   }
 }
+
+export default toNative(Branch)
 </script>
 
 <style>

@@ -6,9 +6,9 @@
     style="user-select: none;"
   >
     <v-btn
-      tile
-      icon
-      small
+      rounded="0"
+      variant="flat"
+      size="small"
       @click.stop="settings"
     >
       <v-icon>{{ icon }}</v-icon>
@@ -20,27 +20,27 @@
     >{{ title || 'tome' }}</span>
     <v-spacer />
     <v-btn
-      tile
-      icon
-      small
+      rounded="0"
+      variant="flat"
+      size="small"
       system-bar-minimize
       @click.stop="minimize"
     >
       <v-icon>mdi-window-minimize</v-icon>
     </v-btn>
     <v-btn
-      tile
-      icon
-      small
+      rounded="0"
+      variant="flat"
+      size="small"
       system-bar-maximize
       @click.stop="maximize"
     >
       <v-icon>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
     </v-btn>
     <v-btn
-      tile
-      icon
-      small
+      rounded="0"
+      variant="flat"
+      size="small"
       system-bar-close
       @click.stop="exit"
     >
@@ -50,47 +50,50 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VBtn, VIcon, VSystemBar, VSpacer } from 'vuetify/lib'
-import store from '@/store'
-
-export const SystemBarProperties = Vue.extend({})
+import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { VBtn, VIcon, VSystemBar, VSpacer } from 'vuetify/components'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 
 @Component({
   components: { VBtn, VIcon, VSystemBar, VSpacer }
 })
-export default class SystemBar extends SystemBarProperties {
+class SystemBar extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
   get maximized () {
-    return store.state.system.maximized
+    return this.store.state.system.maximized
   }
 
   get icon () {
-    return store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
+    return this.store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
   }
 
   get title () {
-    return store.state.repository?.name || undefined
+    return this.store.state.repository?.name || undefined
   }
 
   async settings () {
-    await store.dispatch('system/settings', !store.state.system.settings)
+    await this.store.dispatch('system/settings', !this.store.state.system.settings)
   }
 
   async minimize () {
-    await store.dispatch('system/minimize')
+    await this.store.dispatch('system/minimize')
   }
 
   async maximize () {
     this.maximized
-      ? await store.dispatch('system/restore')
-      : await store.dispatch('system/maximize')
+      ? await this.store.dispatch('system/restore')
+      : await this.store.dispatch('system/maximize')
   }
 
   async exit () {
-    await store.dispatch('system/exit')
+    await this.store.dispatch('system/exit')
   }
 }
+
+export default toNative(SystemBar)
 </script>
 
 <style scoped>

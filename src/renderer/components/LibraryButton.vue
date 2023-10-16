@@ -1,23 +1,23 @@
 <template>
   <v-menu
-    :value="value"
-    @input="$emit('input', $event)"
+    :model-value="value"
+    @update:model-value="$emit('input', $event)"
   >
     <template #activator="{ on, attrs }">
       <v-btn
         v-if="repository.path"
         action-bar-bookshelf
-        tile
-        icon
-        small
+        rounded="0"
+        size="small"
         color="accent"
+        variant="flat"
         class="pa-0"
         v-bind="attrs"
         :disabled="disabled"
         @click.stop="close"
       >
         <v-icon
-          small
+          size="small"
           style="transform: rotate(180deg);"
         >
           mdi-exit-to-app
@@ -26,30 +26,30 @@
       <v-btn
         v-else
         action-bar-bookshelf
-        tile
-        icon
-        small
+        rounded="0"
+        size="small"
         color="accent"
+        variant="flat"
         class="pa-0"
         v-bind="attrs"
         :disabled="disabled"
         v-on="on"
       >
-        <v-icon small>
+        <v-icon size="small">
           mdi-bookshelf
         </v-icon>
       </v-btn>
     </template>
 
-    <v-list dense>
+    <v-list density="compact">
       <v-list-item
         v-for="(item, index) in library.history"
         :key="index"
-        dense
+        density="compact"
         @click="open(item)"
       >
         <v-icon
-          small
+          size="small"
           class="mr-1"
         >
           mdi-book
@@ -59,7 +59,7 @@
       <v-divider />
       <v-list-item @click="select">
         <v-icon
-          small
+          size="small"
           class="mr-1"
         >
           mdi-folder-open
@@ -71,17 +71,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VBtn, VDivider, VIcon, VMenu, VList, VListItem, VListItemTitle } from 'vuetify/lib'
-import store from '@/store'
-
-export const LibraryButtonProperties = Vue.extend({
-  props: {
-    value: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false }
-  }
-})
+import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { VBtn, VDivider, VIcon, VMenu, VList, VListItem, VListItemTitle } from 'vuetify/components'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 
 @Component({
   components: {
@@ -94,27 +87,38 @@ export const LibraryButtonProperties = Vue.extend({
     VListItemTitle
   }
 })
-export default class LibraryButton extends LibraryButtonProperties {
+class LibraryButton extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
+  @Prop({ default: false })
+  value: boolean
+
+  @Prop({ default: false })
+  disabled: boolean
+
   get repository () {
-    return store.state.repository
+    return this.store.state.repository
   }
 
   get library () {
-    return store.state.library
+    return this.store.state.library
   }
 
   async select () {
-    await store.dispatch('library/select')
+    await this.store.dispatch('library/select')
   }
 
   async open (item) {
-    await store.dispatch('library/open', item)
+    await this.store.dispatch('library/open', item)
   }
 
   async close () {
-    await store.dispatch('library/close')
+    await this.store.dispatch('library/close')
   }
 }
+
+export default toNative(LibraryButton)
 </script>
 
 <style scoped>

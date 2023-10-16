@@ -1,12 +1,10 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class PushConfirmProperties extends Vue {
+export class PushConfirm extends Vue {
   value: boolean
   disabled: boolean
   waiting: boolean
   history: any[]
-}
 
-export default class PushConfirm extends PushConfirmProperties {
   headers: { text: string, value: string, width: string }[]
 }

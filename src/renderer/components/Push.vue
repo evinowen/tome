@@ -1,12 +1,12 @@
 <template>
   <v-navigation-drawer
-    :value="system.push"
+    :model-value="system.push"
     fixed
-    right
+    location="right"
     stateless
     width="100%"
     style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px"
-    @input="$event || close"
+    @update:model-value="$event || close"
   >
     <v-container
       fluid
@@ -20,7 +20,7 @@
         <div class="flex-grow-0">
           <div>
             <v-btn
-              tile
+              rounded="0"
               icon
               class="float-right"
               color="black"
@@ -40,14 +40,14 @@
               Credentials
             </v-card-title>
             <keyfile-input
-              small
+              size="small"
               storable
               :value="repository.credentials.key"
               :stored="configuration.private_key"
               @input="credential_key"
             />
             <push-passphrase-input
-              small
+              size="small"
               storable
               :value="repository.credentials.passphrase"
               :stored="configuration.passphrase"
@@ -73,12 +73,11 @@
 
               <v-col
                 cols="1"
-                class="text-center pa-0"
-                align-center
+                class="text-center pa-0 align-center"
               >
                 <v-icon
                   align-center
-                  x-large
+                  size="x-large"
                 >
                   mdi-chevron-right
                 </v-icon>
@@ -138,18 +137,16 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VNavigationDrawer, VContainer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCol, VRow } from 'vuetify/lib'
-import store from '@/store'
+import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { VNavigationDrawer, VContainer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCol, VRow } from 'vuetify/components'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 import KeyfileInput from './KeyfileInput.vue'
 import PushPassphraseInput from './PushPassphraseInput.vue'
 import PushRemoteSelector from './PushRemoteSelector.vue'
 import PushBranch from './PushBranch.vue'
 import PushStatus from './PushStatus.vue'
 import PushConfirm from './PushConfirm.vue'
-
-export const PushProperties = Vue.extend({})
 
 @Component({
   components: {
@@ -170,52 +167,57 @@ export const PushProperties = Vue.extend({})
     PushConfirm
   }
 })
-export default class Push extends PushProperties {
+class Push extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
   get system () {
-    return store.state.system
+    return this.store.state.system
   }
 
   get repository () {
-    return store.state.repository
+    return this.store.state.repository
   }
 
   get configuration () {
-    return store.state.configuration
+    return this.store.state.configuration
   }
 
   async close () {
-    await store.dispatch('system/push', false)
+    await this.store.dispatch('system/push', false)
   }
 
   async credential_key (value) {
-    await store.dispatch('repository/credentials/key', value)
+    await this.store.dispatch('repository/credentials/key', value)
   }
 
   async credential_passphrase (value) {
-    await store.dispatch('repository/credentials/passphrase', value)
+    await this.store.dispatch('repository/credentials/passphrase', value)
   }
 
   async confirm (value) {
-    await store.dispatch('system/push_confirm', value)
+    await this.store.dispatch('system/push_confirm', value)
   }
 
   async add_remote (name, url) {
-    await store.dispatch('repository/create-remote', { name, url })
+    await this.store.dispatch('repository/create-remote', { name, url })
   }
 
   async select_remote (name) {
-    await store.dispatch('repository/remote', name)
+    await this.store.dispatch('repository/remote', name)
   }
 
   async diff (commit) {
-    await store.dispatch('repository/diff', { commit: commit.oid })
-    await store.dispatch('system/patch', true)
+    await this.store.dispatch('repository/diff', { commit: commit.oid })
+    await this.store.dispatch('system/patch', true)
   }
 
   async push () {
-    await store.dispatch('system/perform', 'push')
+    await this.store.dispatch('system/perform', 'push')
   }
 }
+
+export default toNative(Push)
 </script>
 
 <style scoped>

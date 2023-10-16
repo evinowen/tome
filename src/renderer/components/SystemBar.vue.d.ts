@@ -1,8 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class SystemBarProperties extends Vue {}
-
-export default class SystemBar extends SystemBarProperties {
+export class SystemBar extends Vue {
   get maximized(): boolean
   get icon(): string
   get title(): string

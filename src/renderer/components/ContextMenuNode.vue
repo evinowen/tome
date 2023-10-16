@@ -5,108 +5,123 @@
     class="context-menu"
   >
     <v-list
-      dense
+      density="compact"
       class="context-menu-list"
     >
-      <v-subheader>{{ title || '&nbsp;' }}</v-subheader>
+      <v-list-subheader>{{ title || '&nbsp;' }}</v-list-subheader>
       <v-divider />
-      <v-list-item-group>
-        <div
-          v-for="(item, index) in items"
-          :key="index"
+      <div
+        v-for="(item, index) in items"
+        :key="index"
+      >
+        <v-divider v-if="item.divider" />
+        <v-list-item
+          v-else
+          :disabled="item.active ? !item.active() : false"
+          :inactive="item.action ? false : true"
+          @click.stop="execute(item.action)"
+          @mouseover="promote(index)"
         >
-          <v-divider v-if="item.divider" />
-          <v-list-item
-            v-else
-            :disabled="item.active ? !item.active() : false"
-            :inactive="item.action ? false : true"
-            @click.stop="execute(item.action)"
-            @mouseover="promote(index)"
+          <v-list-item-title
+            class="item"
+            style="line-height: 16px !important;"
           >
-            <v-list-item-title
-              class="item"
-              style="line-height: 16px !important;"
-            >
-              <v-layout>
-                <v-flex
-                  shrink
-                  class="menu-arrow"
+            <v-layout>
+              <v-col
+                class="menu-arrow shrink"
+              >
+                <v-icon
+                  v-show="local_flip_x && (item.items || item.load)"
+                  size="small"
                 >
-                  <v-icon
-                    v-show="local_flip_x && (item.items || item.load)"
-                    small
-                  >
-                    {{ local_flip_x && (item.items || item.load) ? "mdi-menu-left" : "" }}
-                  </v-icon>
-                </v-flex>
-                <v-flex grow>
-                  {{ item.title }}
-                </v-flex>
-                <v-flex
-                  shrink
-                  class="menu-arrow"
+                  {{ local_flip_x && (item.items || item.load) ? "mdi-menu-left" : "" }}
+                </v-icon>
+              </v-col>
+              <v-col class="grow">
+                {{ item.title }}
+              </v-col>
+              <v-col
+                class="menu-arrow shrink"
+              >
+                <v-icon
+                  v-show="!local_flip_x && (item.items || item.load)"
+                  size="small"
                 >
-                  <v-icon
-                    v-show="!local_flip_x && (item.items || item.load)"
-                    small
-                  >
-                    {{ !local_flip_x && (item.items || item.load) ? "mdi-menu-right" : "" }}
-                  </v-icon>
-                </v-flex>
-              </v-layout>
-            </v-list-item-title>
-          </v-list-item>
-          <context-menu-node
-            v-if="item.items || item.load"
-            v-show="(index > -1) && (((promoted === index) || (active === index)))"
-            :window_x="window_x"
-            :window_y="window_y"
-            :position_x="local_position_x + (width * (local_flip_x ? 0 : 1))"
-            :position_y="local_position_y + offset(index) + (20 * (local_flip_y ? 1 : -1))"
-            :flip_x="local_flip_x"
-            :flip_y="local_flip_y"
-            :title="item.title"
-            :target="target"
-            :items="item.items"
-            :layer="layer + 1"
-            @mouseover="activate(index)"
-            @mouseleave="deactivate(index)"
-            @close="$emit('close')"
-          />
-        </div>
-      </v-list-item-group>
+                  {{ !local_flip_x && (item.items || item.load) ? "mdi-menu-right" : "" }}
+                </v-icon>
+              </v-col>
+            </v-layout>
+          </v-list-item-title>
+        </v-list-item>
+        <context-menu-node
+          v-if="item.items || item.load"
+          v-show="(index > -1) && (((promoted === index) || (active === index)))"
+          :window_x="window_x"
+          :window_y="window_y"
+          :position_x="local_position_x + (width * (local_flip_x ? 0 : 1))"
+          :position_y="local_position_y + offset(index) + (20 * (local_flip_y ? 1 : -1))"
+          :flip_x="local_flip_x"
+          :flip_y="local_flip_y"
+          :title="item.title"
+          :target="target"
+          :items="item.items"
+          :layer="layer + 1"
+          @mouseover="activate(index)"
+          @mouseleave="deactivate(index)"
+          @close="$emit('close')"
+        />
+      </div>
     </v-list>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { VLayout, VFlex, VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VIcon, VDivider, ClickOutside } from 'vuetify/lib'
+import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator'
+import { VLayout, VCol, VList, VListItem, VListItemTitle, VListSubheader, VIcon, VDivider } from 'vuetify/components'
+import { ClickOutside } from 'vuetify/directives'
 import ResizeObserver from 'resize-observer-polyfill'
-
-export const ContextMenuNodeProperties = Vue.extend({
-  props: {
-    title: { type: String, default: undefined },
-    root: { type: Boolean, default: false },
-    target: { type: String, default: undefined },
-    items: { type: Array, default: () => [] },
-    position_x: { type: Number, default: 0 },
-    position_y: { type: Number, default: 0 },
-    flip_x: { type: Boolean, default: undefined },
-    flip_y: { type: Boolean, default: undefined },
-    window_x: { type: Number, default: 0 },
-    window_y: { type: Number, default: 0 },
-    layer: { type: Number, default: 0 }
-  }
-})
 
 @Component({
   name: 'ContextMenuNode',
-  components: { VLayout, VFlex, VList, VListItem, VListItemGroup, VListItemTitle, VSubheader, VIcon, VDivider },
+  components: { VLayout, VCol, VList, VListItem, VListItemTitle, VListSubheader, VIcon, VDivider },
   directives: { ClickOutside }
 })
-export default class ContextMenuNode extends ContextMenuNodeProperties {
-  $refs!: {
+class ContextMenuNode extends Vue {
+  @Prop({ default: undefined })
+  title?: string
+
+  @Prop({ default: false })
+  root: boolean
+
+  @Prop({ default: undefined })
+  target?: string
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  @Prop({ default: () => [] })
+  items: any[]
+
+  @Prop({ default: 0 })
+  position_x: number
+
+  @Prop({ default: 0 })
+  position_y: number
+
+  @Prop({ default: undefined })
+  flip_x?: boolean
+
+  @Prop({ default: undefined })
+  flip_y?: boolean
+
+  @Prop({ default: 0 })
+  window_x: number
+
+  @Prop({ default: 0 })
+  window_y: number
+
+  @Prop({ default: 0 })
+  layer: number
+
+  $refs: {
     node: HTMLElement
   }
 
@@ -237,6 +252,8 @@ export default class ContextMenuNode extends ContextMenuNodeProperties {
     await action(this.target)
   }
 }
+
+export default toNative(ContextMenuNode)
 </script>
 
 <style scoped>
@@ -260,7 +277,7 @@ export default class ContextMenuNode extends ContextMenuNodeProperties {
   min-height: 20px;
 }
 
-.context-menu-list .v-subheader {
+.context-menu-list .v-list-subheader {
   height: 18px !important;
   padding: 4px;
 }

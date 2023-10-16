@@ -1,13 +1,11 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class PushStatusProperties extends Vue {
+export class PushStatus extends Vue {
   active: boolean
   loading: boolean
   match: boolean
   error: string
   history: any[]
-}
 
-export default class PushStatus extends PushStatusProperties {
   headers: { text: string, value: string, width: string }[]
 }

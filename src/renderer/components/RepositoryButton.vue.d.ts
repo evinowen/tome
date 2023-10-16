@@ -1,6 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class RepositoryButtonProperties extends Vue {
+export class RepositoryButton extends Vue {
   name: string
   path: string
   readme: string
@@ -8,9 +8,7 @@ export class RepositoryButtonProperties extends Vue {
   contributors: string
   license: string
   disabled: boolean
-}
 
-export default class RepositoryButton extends RepositoryButtonProperties {
   value: boolean
 
   open(path): Promise<void>

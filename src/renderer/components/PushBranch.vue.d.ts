@@ -1,10 +1,8 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class PushBranchProperties extends Vue {
+export class PushBranch extends Vue {
   name: string
   url: string
   loading: boolean
   disabled: boolean
 }
-
-export default class PushBranch extends PushBranchProperties {}

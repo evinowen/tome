@@ -1,7 +1,7 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 import ResizeObserver from 'resize-observer-polyfill'
 
-export class ContextMenuNodeProperties extends Vue {
+export class ContextMenuNode extends Vue {
   title?: string
   root: boolean
   target?: string
@@ -14,9 +14,7 @@ export class ContextMenuNodeProperties extends Vue {
   window_x: number
   window_y: number
   layer: number
-}
 
-export default class ContextMenuNode extends ContextMenuNodeProperties {
   $refs: {
     node: HTMLElement
   }

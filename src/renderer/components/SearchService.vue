@@ -7,27 +7,27 @@
         class="search-buttons"
       >
         <v-btn
-          small
-          tile
-          :depressed="multifile"
+          size="small"
+          rounded="0"
+          :variant="multifile && 'flat'"
           :color="multifile ? 'primary' : ''"
           @click="flag('multifile', !multifile)"
         >
           <v-icon>mdi-file-multiple</v-icon>
         </v-btn>
         <v-btn
-          small
-          tile
-          :depressed="case_sensitive"
+          size="small"
+          rounded="0"
+          :variant="case_sensitive && 'flat'"
           :color="case_sensitive ? 'primary' : ''"
           @click="flag('case_sensitive', !case_sensitive)"
         >
           <v-icon>mdi-format-letter-case</v-icon>
         </v-btn>
         <v-btn
-          small
-          tile
-          :depressed="regex_query"
+          size="small"
+          rounded="0"
+          :variant="regex_query && 'flat'"
           :color="regex_query ? 'primary' : ''"
           @click="flag('regex_query', !regex_query)"
         >
@@ -35,23 +35,23 @@
         </v-btn>
       </v-item-group>
       <v-layout column>
-        <v-flex class="search-input px-2">
+        <v-col class="search-input px-2">
           <v-text-field
             ref="input"
-            :value="query"
+            :model-value="query"
             rows="1"
             :messages="status"
             clearable
             single-line
             hide-details
-            :prepend-icon="regex_query ? 'mdi-slash-forward' : ' '"
-            :append-outer-icon="regex_query ? 'mdi-slash-forward' : ' '"
-            @input="debounce_update"
+            :prepend-icon="regex_query ? 'mdi-slash-forward' : undefined"
+            :append-icon="regex_query ? 'mdi-slash-forward' : undefined"
+            @update:model-value="debounce_update"
             @click:clear="debounce_clear"
             @keydown.enter="next"
             @keydown.esc="$emit('close')"
           />
-        </v-flex>
+        </v-col>
       </v-layout>
       <div
         v-if="navigation"
@@ -63,16 +63,16 @@
           class="search-buttons"
         >
           <v-btn
-            small
-            tile
+            size="small"
+            rounded="0"
             :disabled="!query"
             @click="previous"
           >
             <v-icon>mdi-chevron-left</v-icon>
           </v-btn>
           <v-btn
-            small
-            tile
+            size="small"
+            rounded="0"
             :disabled="!query"
             @click="next"
           >
@@ -94,14 +94,14 @@
               @click="select(result.path.absolute, 1, result.matches.length)"
             >
               <v-icon
-                small
+                size="small"
                 class="pr-1"
               >
                 {{ result.directory ? 'mdi-folder' : 'mdi-file' }}
               </v-icon>
-              <v-flex grow>
+              <v-col class="grow">
                 {{ result.path.relative }}
-              </v-flex>
+              </v-col>
               <small>{{ result.path.absolute }}</small>
             </v-layout>
             <v-layout
@@ -110,9 +110,9 @@
               class="search-result"
               @click="select(result.path.absolute, index + 1, result.matches.length)"
             >
-              <v-flex grow>
+              <v-col class="grow">
                 {{ match.line }}
-              </v-flex>
+              </v-col>
             </v-layout>
           </div>
         </div>
@@ -122,43 +122,45 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition } from 'vuetify/lib'
+import { Vue, Component, Watch, Setup, toNative } from 'vue-facing-decorator'
+import { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VCol, VExpandTransition } from 'vuetify/components'
 import { debounce } from 'lodash'
-import store from '@/store'
-
-export const SearchServiceProperties = Vue.extend({})
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 
 @Component({
-  components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition }
+  components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VCol, VExpandTransition }
 })
-export default class SearchService extends SearchServiceProperties {
+class SearchService extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
   get status () {
-    return store.state.search.status
+    return this.store.state.search.status
   }
 
   get results () {
-    return store.state.search.results
+    return this.store.state.search.results
   }
 
   get navigation () {
-    return store.state.search.navigation
+    return this.store.state.search.navigation
   }
 
   get query () {
-    return store.state.search.query
+    return this.store.state.search.query
   }
 
   get multifile () {
-    return store.state.search.multifile
+    return this.store.state.search.multifile
   }
 
   get regex_query () {
-    return store.state.search.regex_query
+    return this.store.state.search.regex_query
   }
 
   get case_sensitive () {
-    return store.state.search.case_sensitive
+    return this.store.state.search.case_sensitive
   }
 
   get state () {
@@ -176,27 +178,27 @@ export default class SearchService extends SearchServiceProperties {
   }
 
   async update (query) {
-    const path = store.state.repository.path
-    await store.dispatch('search/query', { path, query })
+    const path = this.store.state.repository.path
+    await this.store.dispatch('search/query', { path, query })
   }
 
   async next () {
-    await store.dispatch('search/next')
+    await this.store.dispatch('search/next')
   }
 
   async previous () {
-    await store.dispatch('search/previous')
+    await this.store.dispatch('search/previous')
   }
 
   async flag (key, value) {
-    await store.dispatch(`search/${key}`, value)
+    await this.store.dispatch(`search/${key}`, value)
   }
 
   async select (path, target = 0, total = 0) {
-    await store.dispatch('files/select', { path })
+    await this.store.dispatch('files/select', { path })
 
     if (target > 0) {
-      await store.dispatch('search/navigate', { target, total })
+      await this.store.dispatch('search/navigate', { target, total })
     }
   }
 
@@ -204,6 +206,8 @@ export default class SearchService extends SearchServiceProperties {
     return await this.debounce_update('')
   }
 }
+
+export default toNative(SearchService)
 </script>
 
 <style>
@@ -252,13 +256,13 @@ export default class SearchService extends SearchServiceProperties {
 }
 
 .search-file small,
-.search-result small{
+.search-result small {
   font-size: 0.7em;
   padding-top: 3px;
 }
 
 .search-file:hover small,
-.search-result:hover small{
+.search-result:hover small {
   font-size: 0.7em;
   color: var(--v-primary-lighten2) !important;
 }

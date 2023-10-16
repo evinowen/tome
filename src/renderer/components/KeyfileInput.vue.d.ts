@@ -1,6 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class KeyfileInputProperties extends Vue {
+export class KeyfileInput extends Vue {
   value: string
   forge: boolean
   storable: boolean
@@ -8,9 +8,7 @@ export class KeyfileInputProperties extends Vue {
   small: boolean
   label: string
   id: string
-}
 
-export default class KeyfileInput extends KeyfileInputProperties {
   $refs: {
     input: HTMLInputElement
   }

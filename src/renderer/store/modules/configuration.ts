@@ -179,29 +179,29 @@ export default {
       await window.api.file.write(path, JSON.stringify(context.state))
     },
     present: async function (context) {
-      vuetify.framework.theme.dark = context.state.dark_mode
+      // vuetify.framework.theme.dark = context.state.dark_mode
 
-      const presets = vuetify.preset.theme.themes
+      // const presets = vuetify.preset.theme.themes
 
-      const colors = [
-        'primary',
-        'secondary',
-        'accent',
-        'error',
-        'info',
-        'warning',
-        'success'
-      ]
+      // const colors = [
+      //   'primary',
+      //   'secondary',
+      //   'accent',
+      //   'error',
+      //   'info',
+      //   'warning',
+      //   'success'
+      // ]
 
-      const theme = vuetify.framework.theme.dark ? 'dark' : 'light'
+      // const theme = vuetify.framework.theme.dark ? 'dark' : 'light'
 
-      for (const color of colors) {
-        if (context.state[`${theme}_${color}_enabled`]) {
-          vuetify.framework.theme.themes[theme][color] = <string>context.state[`${theme}_${color}`]
-        } else {
-          vuetify.framework.theme.themes[theme][color] = presets[theme][color]
-        }
-      }
+      // for (const color of colors) {
+      //   if (context.state[`${theme}_${color}_enabled`]) {
+      //     vuetify.framework.theme.themes[theme][color] = <string>context.state[`${theme}_${color}`]
+      //   } else {
+      //     vuetify.framework.theme.themes[theme][color] = presets[theme][color]
+      //   }
+      // }
     }
   }
 }

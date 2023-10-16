@@ -26,14 +26,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import store from '@/store'
+import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 
 import ContextMenuService from '@/components/ContextMenuService.vue'
 import SearchService from '@/components/SearchService.vue'
 
-import { VApp } from 'vuetify/lib'
+import { VApp } from 'vuetify/components'
 import SystemBar from '@/components/SystemBar.vue'
 import Settings from '@/components/Settings.vue'
 import Branch from '@/components/Branch.vue'
@@ -45,8 +45,6 @@ import EditorInterface from '@/components/EditorInterface.vue'
 import EmptyPane from '@/components/EmptyPane.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
-
-export const AppProperties = Vue.extend({})
 
 @Component({
   components: {
@@ -66,14 +64,20 @@ export const AppProperties = Vue.extend({})
     ShortcutService
   }
 })
-export default class App extends AppProperties {
+class App extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
   get repository () {
-    return store.state.repository
+    return this.store.state.repository
   }
+
   get system () {
-    return store.state.system
+    return this.store.state.system
   }
 }
+
+export default toNative(App)
 </script>
 
 <style>

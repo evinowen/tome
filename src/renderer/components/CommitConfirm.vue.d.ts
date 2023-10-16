@@ -1,11 +1,11 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
 export const CommitConfirmMessages: {
   Staging: string
   Ready: string
 }
 
-export class CommitConfirmProperties extends Vue {
+export class CommitConfirm extends Vue {
   value: boolean
   name: string
   email: string
@@ -14,8 +14,6 @@ export class CommitConfirmProperties extends Vue {
   staging: boolean
   waiting: boolean
   push: boolean
-}
 
-export default class CommitConfirm extends CommitConfirmProperties {
   get status(): string
 }

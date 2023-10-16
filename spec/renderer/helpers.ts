@@ -17,6 +17,7 @@ type FactoryComponentContextMethod = () => Record<string, unknown>
 type FactoryComponentHookMethod = (factory: Factory) => void
 
 interface FactoryBase {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   object: any
   properties: Record<string, unknown>
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -38,7 +39,7 @@ class Factory {
   component: FactoryComponent
   generated: FactoryGenerated
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
   constructor (object: any, properties: Record<string, unknown> = {}, listeners: Record<string, Function|Function[]> = {}) {
     this.base = { object, properties, listeners }
     this.component = {}

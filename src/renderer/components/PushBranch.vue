@@ -5,11 +5,11 @@
     :disabled="disabled"
   >
     <v-card-text>
-      <div class="title text--primary">
+      <div class="text-h6 text--primary">
         {{ url || '&mdash;' }}
       </div>
       <hr>
-      <div class="display-1 text--primary">
+      <div class="text-h4 text--primary">
         {{ name || '&mdash;' }}
       </div>
     </v-card-text>
@@ -17,21 +17,25 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VCard, VCardText } from 'vuetify/lib'
-
-export const PushBranchProperties = Vue.extend({
-  props: {
-    name: { type: String, default: undefined },
-    url: { type: String, default: undefined },
-    loading: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false }
-  }
-})
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
+import { VCard, VCardText } from 'vuetify/components'
 
 @Component({
   components: { VCard, VCardText }
 })
-export default class PushBranch extends PushBranchProperties {}
+class PushBranch extends Vue {
+  @Prop({ default: undefined })
+  name: string
+
+  @Prop({ default: undefined })
+  url: string
+
+  @Prop({ default: false })
+  loading: boolean
+
+  @Prop({ default: false })
+  disabled: boolean
+}
+
+export default toNative(PushBranch)
 </script>

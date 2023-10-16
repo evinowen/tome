@@ -9,14 +9,14 @@
     <v-card-actions>
       <v-select
         ref="select"
-        :value="value"
+        :model-value="value"
         :items="items"
         item-value="name"
         label="Remote"
         dense
         clearable
         class="mt-4"
-        @change="$emit('input', $event)"
+        @update:model-value="$emit('input', $event)"
       >
         <template #selection="data">
           {{ data.item.name }}
@@ -47,8 +47,8 @@
       >
         <form>
           <v-row
+            class="background"
             dense
-            background="red"
           >
             <v-col
               cols="12"
@@ -58,7 +58,7 @@
                 v-model="form.name"
                 label="Name"
                 required
-                dense
+                density="compact"
               />
             </v-col>
             <v-col
@@ -69,8 +69,8 @@
                 v-model="form.url"
                 label="URL"
                 required
-                dense
-                append-outer-icon="mdi-plus-thick"
+                density="compact"
+                append-icon="mdi-plus-thick"
               >
                 <template #append-outer>
                   <v-btn
@@ -92,20 +92,19 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer } from 'vuetify/lib'
-export const PushProperties = Vue.extend({
-  props: {
-    value: { type: String, default: '' },
-    items: { type: Array, default: () => [] }
-  }
-})
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
+import { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer } from 'vuetify/components'
 
 @Component({
   components: { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer }
 })
-export default class Push extends PushProperties {
+class Push extends Vue {
+  @Prop({ default: '' })
+  value: string
+
+  @Prop({ default: () => [] })
+  items: any[]
+
   edit = false
   form = {
     name: '',
@@ -120,4 +119,6 @@ export default class Push extends PushProperties {
     this.$emit('input', remote)
   }
 }
+
+export default toNative(Push)
 </script>

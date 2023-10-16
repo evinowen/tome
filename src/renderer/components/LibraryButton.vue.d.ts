@@ -1,11 +1,9 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class LibraryButtonProperties extends Vue {
+export class LibraryButton extends Vue {
   value: boolean
   disabled: boolean
-}
 
-export default class LibraryButton extends LibraryButtonProperties {
   get repository(): any
   get library(): any
 

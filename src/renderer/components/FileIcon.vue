@@ -1,8 +1,8 @@
 <template>
   <v-btn
-    tile
-    text
-    x-small
+    rounded="0"
+    variant="text"
+    size="x-small"
     :class="[ `file-icon-${size}`, `file-icon-button`, disabled ? 'file-icon-disabled' : '' ]"
     @click.stop="$emit('click')"
   >
@@ -23,29 +23,43 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VBtn, VIcon } from 'vuetify/lib'
-
-export const FileIconProperties = Vue.extend({
-  props: {
-    path: { type: String, default: '' },
-    extension: { type: String, default: '' },
-    relationship: { type: String, default: '' },
-    directory: { type: Boolean, default: false },
-    expanded: { type: Boolean, default: false },
-    selected: { type: Boolean, default: false },
-    image: { type: Boolean, default: false },
-    alert: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false },
-    size: { type: String, default: 'small' }
-  }
-})
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
+import { VBtn, VIcon } from 'vuetify/components'
 
 @Component({
   components: { VBtn, VIcon }
 })
-export default class FileIcon extends FileIconProperties {
+class FileIcon extends Vue {
+  @Prop({ default: '' })
+  path: string
+
+  @Prop({ default: '' })
+  extension: string
+
+  @Prop({ default: '' })
+  relationship: string
+
+  @Prop({ default: false })
+  directory: boolean
+
+  @Prop({ default: false })
+  expanded: boolean
+
+  @Prop({ default: false })
+  selected: boolean
+
+  @Prop({ default: false })
+  image: boolean
+
+  @Prop({ default: false })
+  alert: boolean
+
+  @Prop({ default: false })
+  disabled: boolean
+
+  @Prop({ default: 'small' })
+  size: string
+
   get system () {
     return ['git', 'tome', 'tome-templates', 'tome-actions'].includes(this.relationship)
   }
@@ -135,6 +149,8 @@ export default class FileIcon extends FileIconProperties {
     return ''
   }
 }
+
+export default toNative(FileIcon)
 </script>
 
 <style>

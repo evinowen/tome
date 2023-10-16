@@ -1,7 +1,5 @@
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
-
-Vue.use(Vuetify)
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
 
 const options = {
   theme: {
@@ -9,4 +7,4 @@ const options = {
   }
 }
 
-export default new Vuetify(options)
+export default createVuetify(options)

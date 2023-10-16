@@ -1,11 +1,9 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class PushProperties extends Vue {
+export class Push extends Vue {
   value: string
   items: any[]
-}
 
-export default class Push extends PushProperties {
   edit: boolean
   form: { name: string, url: string }
 

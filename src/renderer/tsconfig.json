@@ -4,21 +4,14 @@
     "module": "es2015",
     "moduleResolution": "node",
     "noImplicitThis": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "resolveJsonModule": true,
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true, // mark.js
-    "types": [
-      "webpack-env",
-      "vuetify"
-    ],
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/vuetify/types"
-    ],
+    "types": ["vuetify"],
     "paths": {
-      "@/*": [ "src/renderer/*" ]
+      "@/*": [ "./*" ]
     },
     "lib": [
       "esnext",
@@ -31,8 +24,8 @@
     "target": 2.7
   },
   "include": [
-    "src/renderer/**/*.js",
-    "src/renderer/**/*.ts",
-    "src/renderer/**/*.vue"
+    "./**/*.js",
+    "./**/*.ts",
+    "./**/*.vue"
   ]
 }

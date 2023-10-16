@@ -1,6 +1,5 @@
 import { assemble } from '?/helpers'
 import Vue from 'vue'
-import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import store from '@/store'
 import SplitPane from 'vue-splitpane'
@@ -59,6 +58,7 @@ describe('components/EditorInterface', () => {
   beforeEach(() => {
     document.getSelection = jest.fn(() => ({ toString: () => '' }) as unknown as Selection)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const settable_store = store as { state: any }
     settable_store.state = Vue.observable({
       files: {

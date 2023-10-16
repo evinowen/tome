@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 import { DebouncedFunc } from 'lodash'
 import VueCodeMirror from 'vue-codemirror'
 import File from '@/store/modules/files/file'
 
-export class EditorInterfaceProperties extends Vue {}
-
-export default class EditorInterface extends EditorInterfaceProperties {
+export class EditorInterface extends Vue {
   $refs: {
     editor: VueCodeMirror,
     rendered: HTMLElement

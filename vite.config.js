@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import { createVuePlugin as vue } from 'vite-plugin-vue2'
+import vue from '@vitejs/plugin-vue'
 
 const path = require('path')
 
@@ -11,7 +11,9 @@ export default defineConfig({
     emptyOutDir: true,
     outDir: '../../dist/renderer'
   },
-  plugins: [vue()],
+  plugins: [
+    vue()
+  ],
   resolve: {
     alias: {
       '@': path.resolve('src/renderer'),
@@ -20,5 +22,11 @@ export default defineConfig({
   },
   server: {
     port: 8080,
-  }
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+      }
+    }
+  },
 })

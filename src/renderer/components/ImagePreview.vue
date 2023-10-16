@@ -21,20 +21,17 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator'
 import FileIcon from '@/components/FileIcon.vue'
-
-export const ImagePreviewProperties = Vue.extend({
-  props: {
-    src: { type: String, default: '' },
-  }
-})
 
 @Component({
   components: { FileIcon }
 })
-export default class ImagePreview extends ImagePreviewProperties {
-  $refs!: {
+class ImagePreview extends Vue {
+  @Prop({ default: '' })
+  src: string
+
+  $refs: {
     preview: HTMLElement
   }
 
@@ -64,6 +61,8 @@ export default class ImagePreview extends ImagePreviewProperties {
     this.$refs.preview.scrollTo({ top, left, behavior })
   }
 }
+
+export default toNative(ImagePreview)
 </script>
 
 <style scoped>

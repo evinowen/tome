@@ -3,10 +3,9 @@
     style="height: 100%;"
     @click.stop="click"
   >
-    <v-flex
+    <v-col
       ref="sea"
-      grow
-      class="sea"
+      class="sea grow"
     >
       <div
         ref="boat"
@@ -38,22 +37,19 @@
       >
         {{ cannon.distance.value.toFixed(2) }}m
       </div>
-    </v-flex>
+    </v-col>
   </v-layout>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VLayout, VFlex, VIcon } from 'vuetify/lib'
-
-export const SeaGameProperties = Vue.extend({})
+import { Component, Vue, toNative } from 'vue-facing-decorator'
+import { VLayout, VCol, VIcon } from 'vuetify/components'
 
 @Component({
-  components: { VLayout, VFlex, VIcon }
+  components: { VLayout, VCol, VIcon }
 })
-export default class SeaGame extends SeaGameProperties {
-  $refs!: {
+class SeaGame extends Vue {
+  $refs: {
     boat: HTMLElement,
     cannon_ball: HTMLElement,
     cannon_splash: HTMLElement,
@@ -211,6 +207,8 @@ export default class SeaGame extends SeaGameProperties {
     this.$refs.distance.style.top = `${this.cannon.distance.y - 3}px`
   }
 }
+
+export default toNative(SeaGame)
 </script>
 
 <style scoped>

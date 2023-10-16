@@ -1,10 +1,8 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class ImagePreviewProperties extends Vue {
+export class ImagePreview extends Vue {
   src: string
-}
 
-export default class ImagePreview extends ImagePreviewProperties {
   $refs: {
     preview: HTMLElement
   }

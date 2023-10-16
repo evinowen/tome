@@ -17,25 +17,26 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Resize } from 'vuetify/lib'
+import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { Resize } from 'vuetify/directives'
 import ContextMenuNode from './ContextMenuNode.vue'
-import store from '@/store'
-
-export const ContextMenuServiceProperties = Vue.extend({})
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 
 @Component({
   components: { ContextMenuNode },
   directives: { Resize }
 })
-export default class ContextMenuService extends ContextMenuServiceProperties {
+class ContextMenuService extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
   window_x = 0
   window_y = 0
   visible = true
 
   get context () {
-    return store.state.context
+    return this.store.state.context
   }
 
   resize () {
@@ -44,7 +45,9 @@ export default class ContextMenuService extends ContextMenuServiceProperties {
   }
 
   async close () {
-    await store.dispatch('context/close')
+    await this.store.dispatch('context/close')
   }
 }
+
+export default toNative(ContextMenuService)
 </script>

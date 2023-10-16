@@ -1,10 +1,7 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class BranchProperties extends Vue {
+export class Branch extends Vue {
   value: boolean
-}
-
-export default class Branch extends BranchProperties {
   headers: { text: string, value: string, width: string }[]
 
   get repository(): any

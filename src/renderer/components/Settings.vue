@@ -1,11 +1,11 @@
 <template>
   <v-navigation-drawer
-    :value="value"
+    :model-value="value"
     fixed
     stateless
     width="100%"
     style="z-index: 1000; max-width: 900px; height: auto; top: 25px; bottom: 18px"
-    @input="$event || close"
+    @update:model-value="$event || close"
   >
     <v-container
       fluid
@@ -19,31 +19,31 @@
       </v-row>
       <v-row dense>
         <v-col
-          xs="12"
+          class="xs"
           sm="6"
         >
           <v-text-field
-            small
+            density="compact"
             label="name"
-            :value="configuration.name"
-            @input="assign_value('name', $event)"
+            :model-value="configuration.name"
+            @update:model-value="assign_value('name', $event)"
           />
         </v-col>
         <v-col
-          xs="12"
+          class="xs"
           sm="6"
         >
           <v-text-field
-            small
+            density="compact"
             label="e-mail"
-            :value="configuration.email"
-            @input="assign_value('email', $event)"
+            :model-value="configuration.email"
+            @update:model-value="assign_value('email', $event)"
           />
         </v-col>
       </v-row>
       <v-row dense>
         <v-col
-          xs="12"
+          class="xs"
           sm="12"
         >
           <keyfile-input
@@ -59,9 +59,9 @@
       <v-row dense>
         <v-col>
           <v-text-field
-            :value="configuration.passphrase"
+            :model-value="configuration.passphrase"
             label="passphrase"
-            small
+            density="compact"
             clearable
             :append-icon="obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
             :type="obscure_passphrase ? 'password' : 'text'"
@@ -85,28 +85,28 @@
       </v-row>
       <v-row dense>
         <v-col
-          xs="12"
+          class="xs"
           sm="5"
           md="3"
           lg="2"
         >
           <v-switch
-            :input-value="configuration.auto_push"
+            :model-value="configuration.auto_push"
             label="Automatic Push"
-            @change="assign_value('auto_push', $event || false)"
+            @update:model-value="assign_value('auto_push', $event || false)"
           />
         </v-col>
         <v-col
-          xs="12"
+          class="xs"
           sm="7"
           md="9"
           lg="12"
         >
           <v-text-field
-            small
+            density="compact"
             label="default remote"
-            :value="configuration.default_remote"
-            @input="assign_value('default_remote', $event)"
+            :model-value="configuration.default_remote"
+            @update:model-value="assign_value('default_remote', $event)"
           />
         </v-col>
       </v-row>
@@ -114,9 +114,9 @@
         <v-col>
           <h3>Display Options</h3>
           <v-switch
-            :input-value="configuration.format_titles"
+            :model-value="configuration.format_titles"
             label="Format Titles"
-            @change="assign_value('format_titles', $event || false)"
+            @update:model-value="assign_value('format_titles', $event || false)"
           />
         </v-col>
       </v-row>
@@ -124,15 +124,15 @@
         <v-col>
           <h3>Theme Colors</h3>
           <v-switch
-            :input-value="configuration.dark_mode"
+            :model-value="configuration.dark_mode"
             label="Dark Mode"
-            @change="assign_value('dark_mode', $event || false)"
+            @update:model-value="assign_value('dark_mode', $event || false)"
           />
         </v-col>
       </v-row>
       <v-row dense>
         <v-col
-          xs="12"
+          class="xs"
           sm="12"
           md="12"
           lg="4"
@@ -286,30 +286,29 @@
       <v-row>
         <v-col>
           <v-layout>
-            <v-flex shrink>
+            <v-col class="shrink">
               <v-layout class="tome">
-                <v-flex
-                  shrink
+                <v-col
+                  class="shrink"
                   style="text-align: center;"
                 >
                   <img :src="logo">
-                </v-flex>
-                <v-flex
-                  grow
-                  justify-center
+                </v-col>
+                <v-col
+                  class="grow justify-center"
                   align-self-center
                 >
                   <h3>Tome</h3>
                   version {{ system.version }}
-                </v-flex>
+                </v-col>
               </v-layout>
-            </v-flex>
-            <v-flex grow>
+            </v-col>
+            <v-col class="grow">
               <sea-game />
-            </v-flex>
-            <v-flex
+            </v-col>
+            <v-col
               v-if="system.process"
-              shrink
+              class="shrink"
               style="font-size: 0.8em; text-align: right; opacity: 0.6;"
             >
               <b>electron</b> {{ system.process.versions.electron }}<br>
@@ -318,7 +317,7 @@
               <b>v8</b> {{ system.process.versions.v8 }}<br>
               <v-divider />
               <b>sandboxed</b> {{ system.process.sandboxed ? 'true' : 'false' }}<br>
-            </v-flex>
+            </v-col>
           </v-layout>
         </v-col>
       </v-row>
@@ -329,7 +328,7 @@
       >
         <v-divider class="mt-0 mb-2" />
         <v-btn
-          small
+          size="small"
           color="primary"
           @click.stop="close"
         >
@@ -341,11 +340,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VLayout, VFlex, VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/lib'
+import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { VLayout, VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, VNavigationDrawer } from 'vuetify/components'
 import { debounce } from 'lodash'
-import store from '@/store'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 import ThemePreview from './ThemePreview.vue'
 import KeyfileInput from './KeyfileInput.vue'
 import KeyfileOutput from './KeyfileOutput.vue'
@@ -353,12 +352,6 @@ import ThemeColorPicker from './ThemeColorPicker.vue'
 import SeaGame from './SeaGame.vue'
 
 import logo_url from './logo.png'
-
-export const SettingsProperties = Vue.extend({
-  props: {
-    value: { type: Boolean, default: false }
-  }
-})
 
 @Component({
   components: {
@@ -375,11 +368,16 @@ export const SettingsProperties = Vue.extend({
     ThemePreview,
     ThemeColorPicker,
     VLayout,
-    VFlex,
     SeaGame
   }
 })
-export default class Settings extends SettingsProperties {
+class Settings extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
+  @Prop({ default: false })
+  value: boolean
+
   obscure_passphrase = true
   version?: string
   process?: {
@@ -392,11 +390,11 @@ export default class Settings extends SettingsProperties {
   }
 
   get configuration () {
-    return store.state.configuration
+    return this.store.state.configuration
   }
 
   get system () {
-    return store.state.system
+    return this.store.state.system
   }
 
   get debounce_save () {
@@ -404,22 +402,24 @@ export default class Settings extends SettingsProperties {
   }
 
   async close () {
-    await store.dispatch('system/settings', false)
+    await this.store.dispatch('system/settings', false)
   }
 
   async assign_value (name, value) {
-    await store.dispatch('configuration/update', { [name]: value })
+    await this.store.dispatch('configuration/update', { [name]: value })
     this.debounce_save()
   }
 
   async generate_key (passphrase) {
-    await store.dispatch('configuration/generate', passphrase)
+    await this.store.dispatch('configuration/generate', passphrase)
   }
 
   async save () {
-    await store.dispatch('configuration/write', store.state.configuration_path)
+    await this.store.dispatch('configuration/write', this.store.state.configuration_path)
   }
 }
+
+export default toNative(Settings)
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class StatusButtonProperties extends Vue {
+export class StatusButton extends Vue {
   waiting: number
   waiting_max: number
   available_new: number
@@ -11,9 +11,7 @@ export class StatusButtonProperties extends Vue {
   staged_renamed: number
   staged_modified: number
   staged_removed: number
-}
 
-export default class StatusButton extends StatusButtonProperties {
   get available_added(): number
   get staged_added(): number
 }

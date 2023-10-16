@@ -1,8 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class PushProperties extends Vue {}
-
-export default class Push extends PushProperties {
+export class Push extends Vue {
   get system(): any
   get repository(): any
   get configuration(): any

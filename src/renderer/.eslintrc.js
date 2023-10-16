@@ -10,6 +10,7 @@ module.exports = {
     'plugin:unicorn/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:vue/recommended',
+    'plugin:vuetify/recommended',
     '@vue/typescript',
     '@vue/typescript/recommended'
   ],

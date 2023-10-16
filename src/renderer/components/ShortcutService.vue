@@ -36,18 +36,19 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import store from '@/store'
-
-export const ShortcutServiceProperties = Vue.extend({})
+import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 
 @Component({
   components: {}
 })
-export default class ShortcutService extends ShortcutServiceProperties {
+class ShortcutService extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
   get system () {
-    return store.state.system
+    return this.store.state.system
   }
 
   async escape () {
@@ -64,23 +65,25 @@ export default class ShortcutService extends ShortcutServiceProperties {
 
     for (const layer of layers) {
       if (this.system[layer]) {
-        return await store.dispatch(`system/${layer}`, false)
+        return await this.store.dispatch(`system/${layer}`, false)
       }
     }
 
-    return await store.dispatch('system/settings', true)
+    return await this.store.dispatch('system/settings', true)
   }
 
   async layer (layer) {
-    return await store.dispatch(`system/${layer}`, !this.system[layer])
+    return await this.store.dispatch(`system/${layer}`, !this.system[layer])
   }
 
   async perform (performance) {
-    await store.dispatch('system/perform', performance)
+    await this.store.dispatch('system/perform', performance)
   }
 
   async select () {
-    await store.dispatch('library/select')
+    await this.store.dispatch('library/select')
   }
 }
+
+export default toNative(ShortcutService)
 </script>

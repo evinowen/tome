@@ -5,20 +5,20 @@
   >
     <v-card-title class="pa-2">
       <v-switch
-        dense
+        density="compact"
         hide-details
         :label="color"
         :color="color"
         :value="enabled"
         class="mx-auto my-0"
-        @change="$emit('enabled', $event || false)"
+        @update:model-value="$emit('enabled', $event || false)"
       />
     </v-card-title>
     <v-color-picker
       v-if="enabled"
       dense
-      tile
-      :value="enabled ? value : base"
+      rounded="0"
+      :model-value="enabled ? value : base"
       :disabled="!enabled"
       hex
       dot-size="16"
@@ -27,39 +27,43 @@
       width="180"
       canvas-height="78"
       style="border-radius: 0"
-      @update:color="$emit('input', $event.hex)"
+      @update:model-value="$emit('input', $event.hex)"
     />
     <template v-else>
-      <v-skeleton-loader
+      <!-- <v-skeleton-loader
         boilerplate
-        tile
+        rounded="0"
         height="180"
         width="180"
         type="image, image"
         class="mx-auto"
-      />
+      /> -->
     </template>
   </v-card>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VCard, VCardTitle, VSwitch, VSkeletonLoader, VColorPicker } from 'vuetify/lib'
-
-export const ThemeColorPickerProperties = Vue.extend({
-  props: {
-    enabled: { type: Boolean, required: true },
-    value: { type: String, required: true },
-    color: { type: String, required: true },
-    base: { type: String, default: '#000000' }
-  }
-})
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
+import { VCard, VCardTitle, VSwitch, VColorPicker } from 'vuetify/components'
 
 @Component({
-  components: { VCard, VCardTitle, VSwitch, VSkeletonLoader, VColorPicker }
+  components: { VCard, VCardTitle, VSwitch, VColorPicker }
 })
-export default class ThemeColorPicker extends ThemeColorPickerProperties {}
+class ThemeColorPicker extends Vue {
+  @Prop({ default: true })
+  enabled: boolean
+
+  @Prop({ default: true })
+  value: string
+
+  @Prop({ default: true })
+  color: string
+
+  @Prop({ default: '#000000' })
+  base: string
+}
+
+export default toNative(ThemeColorPicker)
 </script>
 
 <style>

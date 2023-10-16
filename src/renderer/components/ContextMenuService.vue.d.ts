@@ -1,8 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class ContextMenuServiceProperties extends Vue {}
-
-export default class ContextMenuService extends ContextMenuServiceProperties {
+export class ContextMenuService extends Vue {
   window_x: number
   window_y: number
   visible: boolean

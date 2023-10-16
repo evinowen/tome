@@ -1,8 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class SeaGameProperties extends Vue {}
-
-export default class SeaGame extends SeaGameProperties {
+export class SeaGame extends Vue {
   $refs: {
     boat: HTMLElement,
     cannon_ball: HTMLElement,

@@ -1,7 +1,5 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class EmptyPaneProperties extends Vue {
+export class EmptyPane extends Vue {
   error: string
 }
-
-export default class EmptyPane extends EmptyPaneProperties {}

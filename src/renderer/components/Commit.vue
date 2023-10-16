@@ -1,12 +1,12 @@
 <template>
   <v-navigation-drawer
-    :value="system.commit"
+    :model-value="system.commit"
     fixed
-    right
+    location="right"
     stateless
     width="100%"
     style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px;"
-    @input="$event || close"
+    @update:model-value="$event || close"
   >
     <v-container
       fluid
@@ -20,7 +20,7 @@
         <div class="flex-grow-0">
           <div>
             <v-btn
-              tile
+              rounded="0"
               icon
               class="float-right"
               color="black"
@@ -32,26 +32,26 @@
           </div>
           <div style="clear: both" />
           <v-text-field
-            :value="repository.signature.name"
+            :model-value="repository.signature.name"
             :placeholder="configuration.name"
             label="Name"
             required
-            small
+            density="compact"
             persistent-placeholder
-            @input="sign_name"
+            @update:model-value="sign_name"
           />
           <v-text-field
-            :value="repository.signature.email"
+            :model-value="repository.signature.email"
             :placeholder="configuration.email"
             label="E-mail"
             required
-            small
+            density="compact"
             persistent-placeholder
-            @input="sign_email"
+            @update:model-value="sign_email"
           />
           <v-textarea
             persistent-placeholder
-            :value="repository.signature.message"
+            :model-value="repository.signature.message"
             :counter="50"
             label="Message"
             required
@@ -59,7 +59,7 @@
             auto-grow
             rows="3"
             class="message"
-            @input="sign_message"
+            @update:model-value="sign_message"
           />
         </div>
 
@@ -108,7 +108,7 @@
               <v-col>
                 <v-btn
                   ref="stage"
-                  tile
+                  rounded="0"
                   :disabled="available.length === 0"
                   @click.stop="stage('*')"
                 >
@@ -118,7 +118,7 @@
               <v-col>
                 <v-btn
                   ref="reset"
-                  tile
+                  rounded="0"
                   :disabled="staged.length === 0"
                   @click.stop="reset('*')"
                 >
@@ -163,8 +163,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
 import {
   VContainer,
   VIcon,
@@ -174,14 +173,13 @@ import {
   VDivider,
   VNavigationDrawer,
   VTextField,
-  VTextarea,
-  Resize
-} from 'vuetify/lib'
-import store from '@/store'
+  VTextarea
+} from 'vuetify/components'
+import { Resize } from 'vuetify/directives'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 import CommitList from '@/components/CommitList.vue'
 import CommitConfirm from '@/components/CommitConfirm.vue'
-
-export const CommitProperties = Vue.extend({})
 
 @Component({
   components: {
@@ -201,63 +199,66 @@ export const CommitProperties = Vue.extend({})
     Resize
   }
 })
-export default class Commit extends CommitProperties {
-  $refs!: {
+class Commit extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
+  $refs: {
     list: HTMLElement
   }
 
   offset = 0
 
   get system () {
-    return store.state.system
+    return this.store.state.system
   }
 
   get repository () {
-    return store.state.repository
+    return this.store.state.repository
   }
 
   get staging () {
-    return store.state.repository.staging > 0
+    return this.store.state.repository.staging > 0
   }
 
   get staged () {
-    return store.state.repository.status.staged
+    return this.store.state.repository.status.staged
   }
 
   get available () {
-    return store.state.repository.status.available
+    return this.store.state.repository.status.available
   }
 
   get configuration () {
-    return store.state.configuration
+    return this.store.state.configuration
   }
 
   get working () {
-    return store.state.repository.commit_working
+    return this.store.state.repository.commit_working
   }
 
   async sign_name (value) {
-    await store.dispatch('system/signature/name', value)
+    await this.store.dispatch('system/signature/name', value)
   }
 
   async sign_email (value) {
-    await store.dispatch('system/signature/email', value)
+    await this.store.dispatch('system/signature/email', value)
   }
 
   async sign_message (value) {
-    await store.dispatch('system/signature/message', value)
+    await this.store.dispatch('system/signature/message', value)
   }
 
   async close () {
-    await store.dispatch('system/commit', false)
+    await this.store.dispatch('system/commit', false)
   }
 
   async confirm (value) {
-    await store.dispatch('system/commit_confirm', value)
+    await this.store.dispatch('system/commit_confirm', value)
   }
 
   async push (value) {
-    await store.dispatch('system/commit_push', value)
+    await this.store.dispatch('system/commit_push', value)
   }
 
   resize () {
@@ -265,26 +266,28 @@ export default class Commit extends CommitProperties {
   }
 
   async message (message) {
-    await store.dispatch('repository/message', message)
+    await this.store.dispatch('repository/message', message)
   }
 
   async diff (file) {
-    await store.dispatch('repository/diff', { path: file.path })
-    await store.dispatch('system/patch', true)
+    await this.store.dispatch('repository/diff', { path: file.path })
+    await this.store.dispatch('system/patch', true)
   }
 
   async stage (path) {
-    await store.dispatch('repository/stage', path)
+    await this.store.dispatch('repository/stage', path)
   }
 
   async reset (path) {
-    await store.dispatch('repository/reset', path)
+    await this.store.dispatch('repository/reset', path)
   }
 
   async commit () {
-    await store.dispatch('system/perform', 'commit')
+    await this.store.dispatch('system/perform', 'commit')
   }
 }
+
+export default toNative(Commit)
 </script>
 
 <style>

@@ -1,8 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class AppProperties extends Vue {}
-
-export default class App extends AppProperties {
+export class App extends Vue {
   get repository(): any
   get system(): any
 }

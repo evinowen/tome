@@ -1,14 +1,12 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
 export class RepositoryPatch {
   static LineType: Record<string, number>
 }
 
-export class PatchProperties extends Vue {
+export class Patch extends Vue {
   value: boolean
-}
 
-export default class Patch extends PatchProperties {
   get patches(): any
 
   close(): Promise<void>

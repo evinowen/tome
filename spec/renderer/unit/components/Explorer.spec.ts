@@ -12,6 +12,7 @@ describe('components/ExplorerNode', () => {
   let vuetify
 
   beforeEach(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const settable_store = store as { state: any }
     settable_store.state = {
       repository: {

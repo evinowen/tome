@@ -1,17 +1,15 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
 export class RepositoryFile {
   static Type: Record<string, number>
 }
 
-export class CommitListProperties extends Vue {
+export class CommitList extends Vue {
   title: string
   items: any[]
   icon: string
   height: number
-}
 
-export default class CommitList extends CommitListProperties {
   datatable: {
     offset: number,
     height: number,

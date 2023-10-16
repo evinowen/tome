@@ -1,11 +1,9 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 import { DebouncedFunc } from 'lodash'
 
-export class SettingsProperties extends Vue {
+export class Settings extends Vue {
   value: boolean
-}
 
-export default class Settings extends SettingsProperties {
   obscure_passphrase: boolean
   version?: string
   process?: {

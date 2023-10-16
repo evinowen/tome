@@ -4,16 +4,16 @@
     class="mx-auto"
   >
     <v-card-text>
-      <v-list-item>
-        <v-list-item-avatar color="primary">
-          <v-icon>mdi-cog</v-icon>
-        </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title class="headline">
-            Theme Preview
-          </v-list-item-title>
-          <v-list-item-subtitle>Et tortor consequat id porta nibh venenatis cras.</v-list-item-subtitle>
-        </v-list-item-content>
+      <v-list-item prepend-avatar="mdi-cog">
+        <template #prepend>
+          <v-avatar>
+            <v-icon>mdi-cog</v-icon>
+          </v-avatar>
+        </template>
+        <v-list-item-title class="text-h5">
+          Theme Preview
+        </v-list-item-title>
+        <v-list-item-subtitle>Et tortor consequat id porta nibh venenatis cras.</v-list-item-subtitle>
       </v-list-item>
       <v-text-field
         class="mb-2"
@@ -46,7 +46,7 @@
       </div>
       <v-switch
         v-model="error"
-        dense
+        density="compact"
         class="mt-2"
         label="Error"
         color="error"
@@ -75,18 +75,43 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VCard, VIcon, VBtn, VSpacer, VTextField, VSwitch, VCardActions, VCardText, VListItem, VListItemAvatar, VListItemTitle, VListItemSubtitle, VListItemContent } from 'vuetify/lib'
-
-export const ThemePreviewProperties = Vue.extend({})
+import { Component, Vue, toNative } from 'vue-facing-decorator'
+import {
+  VAvatar,
+  VCard,
+  VIcon,
+  VBtn,
+  VSpacer,
+  VTextField,
+  VSwitch,
+  VCardActions,
+  VCardText,
+  VListItem,
+  VListItemTitle,
+  VListItemSubtitle
+} from 'vuetify/components'
 
 @Component({
-  components: { VCard, VIcon, VBtn, VSpacer, VTextField, VSwitch, VCardActions, VCardText, VListItem, VListItemAvatar, VListItemTitle, VListItemSubtitle, VListItemContent }
+  components: {
+    VAvatar,
+    VCard,
+    VIcon,
+    VBtn,
+    VSpacer,
+    VTextField,
+    VSwitch,
+    VCardActions,
+    VCardText,
+    VListItem,
+    VListItemTitle,
+    VListItemSubtitle
+  }
 })
-export default class ThemePreview extends ThemePreviewProperties {
+class ThemePreview extends Vue {
   error = false
 }
+
+export default toNative(ThemePreview)
 </script>
 
 <style scoped>

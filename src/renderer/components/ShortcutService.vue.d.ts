@@ -1,8 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class ShortcutServiceProperties extends Vue {}
-
-export default class ShortcutService extends ShortcutServiceProperties {
+export class ShortcutService extends Vue {
   get system(): any
 
   escape(): Promise<void>

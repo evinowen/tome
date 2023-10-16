@@ -1,7 +1,5 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class ThemePreviewProperties extends Vue {}
-
-export default class ThemePreview extends ThemePreviewProperties {
+export class ThemePreview extends Vue {
   error: boolean
 }

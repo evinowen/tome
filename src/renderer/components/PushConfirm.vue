@@ -1,9 +1,9 @@
 <template>
   <v-dialog
-    :value="value"
+    :model-value="value"
     persistent
     max-width="600px"
-    @input="$emit('input', $event)"
+    @update:model-value="$emit('input', $event)"
   >
     <template #activator="{ on }">
       <v-btn
@@ -19,22 +19,22 @@
     </template>
     <v-card>
       <v-list-item>
-        <v-list-item-avatar color="warning">
-          <v-icon>mdi-upload-multiple</v-icon>
-        </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title class="headline">
-            Push
-          </v-list-item-title>
-          <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
-        </v-list-item-content>
+        <template #prepend>
+          <v-avatar color="warning">
+            <v-icon>mdi-upload-multiple</v-icon>
+          </v-avatar>
+        </template>
+        <v-list-item-title class="text-h5">
+          Push
+        </v-list-item-title>
+        <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
       </v-list-item>
       <v-container
         fluid
         class="pa-0 ma-0"
         style="min-height: 120px"
       >
-        <v-data-table
+        <!-- <v-data-table
           :headers="headers"
           :items="history"
           :items-per-page="history.length"
@@ -45,7 +45,7 @@
         >
           <template #item.oid="{ item }">
             <v-btn
-              tile
+              rounded="0"
               icon
               x-small
               color="warning"
@@ -53,13 +53,13 @@
               {{ item.oid.substring(0, 7) }}
             </v-btn>
           </template>
-        </v-data-table>
+        </v-data-table> -->
       </v-container>
       <v-card-actions>
         <v-btn
           ref="push_confirm"
           color="warning"
-          text
+          variant="text"
           :disabled="waiting"
           @click="$emit('push')"
         >
@@ -75,7 +75,7 @@
         <v-spacer />
         <v-btn
           color="darken-1"
-          text
+          variant="text"
           :disabled="waiting"
           @click="$emit('input', false)"
         >
@@ -90,9 +90,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
+  VAvatar,
   VContainer,
   VDialog,
   VBtn,
@@ -101,25 +101,15 @@ import {
   VIcon,
   VCard,
   VCardActions,
-  VDataTable,
+  // VDataTable,
   VListItem,
   VListItemTitle,
-  VListItemSubtitle,
-  VListItemAvatar,
-  VListItemContent
-} from 'vuetify/lib'
-
-export const PushConfirmProperties = Vue.extend({
-  props: {
-    value: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false },
-    waiting: { type: Boolean, default: false },
-    history: { type: Array, default: () => [] }
-  }
-})
+  VListItemSubtitle
+} from 'vuetify/components'
 
 @Component({
   components: {
+    VAvatar,
     VContainer,
     VDialog,
     VBtn,
@@ -128,20 +118,32 @@ export const PushConfirmProperties = Vue.extend({
     VIcon,
     VCard,
     VCardActions,
-    VDataTable,
+    // VDataTable,
     VListItem,
     VListItemTitle,
-    VListItemSubtitle,
-    VListItemAvatar,
-    VListItemContent
+    VListItemSubtitle
   }
 })
-export default class PushConfirm extends PushConfirmProperties {
+class PushConfirm extends Vue {
+  @Prop({ default: false })
+  value: boolean
+
+  @Prop({ default: false })
+  disabled: boolean
+
+  @Prop({ default: false })
+  waiting: boolean
+
+  @Prop({ default: () => [] })
+  history: any[]
+
   headers = [
     { text: '', value: 'oid', width: '60px' },
     { text: '', value: 'message', width: '' }
   ]
 }
+
+export default toNative(PushConfirm)
 </script>
 
 <style scoped>

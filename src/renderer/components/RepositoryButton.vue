@@ -1,19 +1,19 @@
 <template>
   <v-menu
-    tile
-    top
+    rounded="0"
+    location="top"
     offset-y
-    :value="value"
+    :model-value="value"
     transition="slide-y-reverse-transition"
     content-class="menu"
     :close-on-content-click="false"
     width="50%"
-    @input="value = !value"
+    @update:model-value="value = !value"
   >
     <template #activator="{ on, attrs }">
       <v-btn
-        tile
-        small
+        rounded="0"
+        size="small"
         class="button pa-0 px-2"
         v-bind="attrs"
         :disabled="disabled"
@@ -23,12 +23,12 @@
       </v-btn>
     </template>
 
-    <v-card tile>
+    <v-card rounded="0">
       <v-card-title>{{ name }}</v-card-title>
       <v-card-subtitle>{{ path }}</v-card-subtitle>
       <v-card-actions>
         <v-btn
-          text
+          variant="text"
           :disabled="!license"
           @click="open(license)"
         >
@@ -38,7 +38,7 @@
       <v-divider />
       <v-card-actions>
         <v-btn
-          text
+          variant="text"
           :disabled="!readme"
           @click="open(readme)"
         >
@@ -46,14 +46,14 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          text
+          variant="text"
           :disabled="!authors"
           @click="open(authors)"
         >
           Authors
         </v-btn>
         <v-btn
-          text
+          variant="text"
           :disabled="!contributors"
           @click="open(contributors)"
         >
@@ -65,34 +65,48 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu } from 'vuetify/lib'
-import store from '@/store'
-
-export const RepositoryButtonProperties = Vue.extend({
-  props: {
-    name: { type: String, default: '' },
-    path: { type: String, default: '' },
-    readme: { type: String, default: '' },
-    authors: { type: String, default: '' },
-    contributors: { type: String, default: '' },
-    license: { type: String, default: '' },
-    disabled: { type: Boolean, default: false }
-  }
-})
+import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu } from 'vuetify/components'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 
 @Component({
   components: { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu }
 })
-export default class RepositoryButton extends RepositoryButtonProperties {
+class RepositoryButton extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
+  @Prop({ default: '' })
+  name: string
+
+  @Prop({ default: '' })
+  path: string
+
+  @Prop({ default: '' })
+  readme: string
+
+  @Prop({ default: '' })
+  authors: string
+
+  @Prop({ default: '' })
+  contributors: string
+
+  @Prop({ default: '' })
+  license: string
+
+  @Prop({ default: false })
+  disabled: boolean
+
   value = false
 
   async open (path) {
     this.value = false
-    await store.dispatch('files/select', { path })
+    await this.store.dispatch('files/select', { path })
   }
 }
+
+export default toNative(RepositoryButton)
 </script>
 
 <style scoped>

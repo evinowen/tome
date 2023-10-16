@@ -1,11 +1,9 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class ExplorerProperties extends Vue {
+export class Explorer extends Vue {
   value: any
   enabled: boolean
-}
 
-export default class Explorer extends ExplorerProperties {
   hold?: { path: string }
 
   get repository(): any

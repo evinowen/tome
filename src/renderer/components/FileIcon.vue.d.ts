@@ -1,6 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class FileIconProperties extends Vue {
+export class FileIcon extends Vue {
   path: string
   extension: string
   relationship: string
@@ -11,9 +11,7 @@ export class FileIconProperties extends Vue {
   alert: boolean
   disabled: boolean
   size: string
-}
 
-export default class FileIcon extends FileIconProperties {
   get system(): boolean
   get icon(): string
   get badge(): string

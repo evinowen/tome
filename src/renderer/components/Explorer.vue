@@ -28,39 +28,41 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import store from '@/store'
+import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode.vue'
 import File from '@/store/modules/files/file'
-
-export const ExplorerProperties = Vue.extend({
-  props: {
-    value: { type: Object, default: () => ({}) },
-    enabled: { type: Boolean, default: false }
-  }
-})
 
 @Component({
   components: { ExplorerNode }
 })
-export default class Explorer extends ExplorerProperties {
+class Explorer extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
+  @Prop({ default: () => ({}) })
+  value: any
+
+  @Prop({ default: false })
+  enabled: boolean
+
   hold?: { path: string }
 
   get repository () {
-    return store.state.repository
+    return this.store.state.repository
   }
 
   get configuration () {
-    return store.state.configuration
+    return this.store.state.configuration
   }
 
   get active () {
-    if (store.state.files.active === '') {
+    if (this.store.state.files.active === '') {
       return ''
     }
 
-    const selected = store.state.files.directory[store.state.files.active]
+    const selected = this.store.state.files.directory[this.store.state.files.active]
 
     if (selected) {
       return selected.uuid
@@ -70,11 +72,11 @@ export default class Explorer extends ExplorerProperties {
   }
 
   get editing () {
-    return store.state.files.editing
+    return this.store.state.files.editing
   }
 
   get root (): File {
-    return store.state.files.directory[store.state.files.base] || File.Empty
+    return this.store.state.files.directory[this.store.state.files.base] || File.Empty
   }
 
   format (name, directory = false) {
@@ -98,22 +100,22 @@ export default class Explorer extends ExplorerProperties {
   async toggle (state) {
     const { path } = state
 
-    await store.dispatch('files/toggle', { path })
+    await this.store.dispatch('files/toggle', { path })
   }
 
   async select (state) {
     const { path } = state
-    await store.dispatch('files/select', { path })
+    await this.store.dispatch('files/select', { path })
   }
 
   async open (state) {
     const { target, container = false } = state
 
-    await store.dispatch('files/open', { path: target, container })
+    await this.store.dispatch('files/open', { path: target, container })
   }
 
   async edit (state) {
-    await store.dispatch('files/edit', { path: state.target })
+    await this.store.dispatch('files/edit', { path: state.target })
   }
 
   async create (state) {
@@ -121,40 +123,42 @@ export default class Explorer extends ExplorerProperties {
 
     switch (type) {
       case ExplorerNodeGhostType.FILE:
-        await store.dispatch('files/ghost', { path: target, directory: false })
+        await this.store.dispatch('files/ghost', { path: target, directory: false })
         break
 
       case ExplorerNodeGhostType.DIRECTORY:
-        await store.dispatch('files/ghost', { path: target, directory: true })
+        await this.store.dispatch('files/ghost', { path: target, directory: true })
         break
 
       case ExplorerNodeGhostType.TEMPLATE:
-        await store.dispatch('templates/ghost')
+        await this.store.dispatch('templates/ghost')
         break
 
       case ExplorerNodeGhostType.ACTION:
-        await store.dispatch('actions/ghost')
+        await this.store.dispatch('actions/ghost')
         break
     }
   }
 
   async delete (path) {
-    await store.dispatch('files/delete', { path })
+    await this.store.dispatch('files/delete', { path })
   }
 
-  async submit (state) { await store.dispatch('files/submit', state) }
-  async blur () { await store.dispatch('files/blur') }
+  async submit (state) { await this.store.dispatch('files/submit', state) }
+  async blur () { await this.store.dispatch('files/blur') }
   async drag (state) {
     this.hold = state
   }
 
   async drop (state) {
-    await store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
+    await this.store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
   }
 
-  async template (state) { await store.dispatch('templates/execute', state) }
-  async action (state) { await store.dispatch('actions/execute', state) }
+  async template (state) { await this.store.dispatch('templates/execute', state) }
+  async action (state) { await this.store.dispatch('actions/execute', state) }
 }
+
+export default toNative(Explorer)
 </script>
 
 <style>

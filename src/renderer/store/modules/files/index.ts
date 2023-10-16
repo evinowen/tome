@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import { MutationTree, ActionTree } from 'vuex'
 import File, { FileLoadContract } from './file'
 import FileTree, { FileIdentity, FileIdentityContract } from './file_tree'
@@ -40,7 +39,7 @@ export default {
       state.tree = tree
       state.base = tree.base.uuid
       state.path = tree.base.path
-      Vue.set(state.directory, tree.base.uuid, tree.base)
+      state.directory[tree.base.uuid] = tree.base
     },
     clear: function (state) {
       state.tree = undefined
@@ -53,7 +52,7 @@ export default {
         item.fill(payload)
 
         for (const file of payload.children) {
-          Vue.set(state.directory, file.uuid, file)
+          state.directory[file.uuid] = file
         }
       } else {
         item.render(payload)
@@ -89,7 +88,7 @@ export default {
         if (selected.ephemeral) {
           state.directory[state.ghost].exercise()
 
-          Vue.delete(state.directory, state.ghost)
+          delete state.directory[state.ghost]
 
           state.ghost = ''
           state.selected = ''
@@ -107,7 +106,7 @@ export default {
       state.post = post
       state.editing = true
 
-      Vue.set(state.directory, ghost.uuid, ghost)
+      state.directory[ghost.uuid] = ghost
     },
     blur: function (state) {
       state.active = ''

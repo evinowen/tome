@@ -1,8 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class ActionBarProperties extends Vue {}
-
-export default class ActionBar extends ActionBarProperties {
+export class ActionBar extends Vue {
   library: false
 
   get system(): any

@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import Vuex, { MutationTree, ActionTree } from 'vuex'
+import { InjectionKey } from 'vue'
+import { createStore, useStore, Store, MutationTree, ActionTree } from 'vuex'
 
 import { DateTime } from 'luxon'
 
@@ -17,9 +17,7 @@ import search, { State as SearchState } from './modules/search'
 import reporter from './plugins/reporter'
 import mediator from './plugins/mediator'
 
-Vue.use(Vuex)
-
-interface State {
+export interface State {
   events: { type: string, message: string, stack: string, datetime: DateTime }[]
   status: string
   message: string
@@ -39,7 +37,9 @@ interface State {
   search: SearchState
 }
 
-export default new Vuex.Store<State>({
+export const key: InjectionKey<Store<State>> = Symbol()
+
+export const store = createStore({
   state: {
     events: [],
     status: '',
@@ -115,3 +115,9 @@ export default new Vuex.Store<State>({
     mediator
   ]
 })
+
+export function fetchStore () {
+  return useStore(key)
+}
+
+export default store

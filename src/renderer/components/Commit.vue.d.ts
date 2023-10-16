@@ -1,8 +1,6 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class CommitProperties extends Vue {}
-
-export default class Commit extends CommitProperties {
+export class Commit extends Vue {
   $refs: {
     list: HTMLElement
   }

@@ -1,9 +1,9 @@
 <template>
   <v-dialog
-    :value="value"
+    :model-value="value"
     persistent
     max-width="600px"
-    @input="$emit('input', $event)"
+    @update:model-value="$emit('input', $event)"
   >
     <template #activator="{ on }">
       <v-btn
@@ -20,26 +20,23 @@
 
     <v-card>
       <v-list-item>
-        <v-progress-circular
-          v-if="staging"
-          indeterminate
-          :size="40"
-          :width="6"
-          color="warning"
-          class="mr-4"
-        />
-        <v-list-item-avatar
-          v-else
-          color="warning"
-        >
-          <v-icon>mdi-hammer-wrench</v-icon>
-        </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title class="headline">
-            Commit
-          </v-list-item-title>
-          <v-list-item-subtitle>{{ status }}</v-list-item-subtitle>
-        </v-list-item-content>
+        <template #prepend>
+          <v-progress-circular
+            v-if="staging"
+            indeterminate
+            :size="40"
+            :width="6"
+            color="warning"
+            class="mr-4"
+          />
+          <v-icon v-else>
+            mdi-hammer-wrench
+          </v-icon>
+        </template>
+        <v-list-item-title class="text-h5">
+          Commit
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ status }}</v-list-item-subtitle>
       </v-list-item>
 
       <v-divider />
@@ -48,9 +45,9 @@
         <v-textarea
           class="pa-0 ma-0"
           counter="50"
-          :value="message"
+          :model-value="message"
           no-resize
-          @input="$emit('message', $event)"
+          @update:model-value="$emit('message', $event)"
         />
       </v-card-text>
 
@@ -66,7 +63,7 @@
         <v-btn
           ref="commit"
           color="warning"
-          text
+          variant="text"
           :disabled="staging || waiting"
           @click="$emit('commit')"
         >
@@ -81,9 +78,9 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          :depressed="push"
+          :variant="push && 'flat'"
           :color="push ? 'warning' : ''"
-          text
+          variant="text"
           @click="$emit('push', !push)"
         >
           <v-icon class="mr-2">
@@ -93,7 +90,7 @@
         </v-btn>
         <v-btn
           color="darken-1"
-          text
+          variant="text"
           :disabled="waiting"
           @click="$emit('input', false)"
         >
@@ -108,8 +105,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
   VIcon,
   VBtn,
@@ -126,28 +122,13 @@ import {
   VListItem,
   VListItemTitle,
   VListItemSubtitle,
-  VListItemAvatar,
-  VListItemContent,
   VTextarea
-} from 'vuetify/lib'
+} from 'vuetify/components'
 
 export const CommitConfirmMessages = {
   Staging: 'Commit details are being staged ... ',
   Ready: 'Commit is prepared and ready to publish'
 }
-
-export const CommitConfirmProperties = Vue.extend({
-  props: {
-    value: { type: Boolean, default: false },
-    name: { type: String, default: '' },
-    email: { type: String, default: '' },
-    message: { type: String, default: '' },
-    disabled: { type: Boolean, default: false },
-    staging: { type: Boolean, default: false },
-    waiting: { type: Boolean, default: false },
-    push: { type: Boolean, default: false }
-  }
-})
 
 @Component({
   components: {
@@ -166,18 +147,42 @@ export const CommitConfirmProperties = Vue.extend({
     VListItem,
     VListItemTitle,
     VListItemSubtitle,
-    VListItemAvatar,
-    VListItemContent,
     VTextarea
   }
 })
-export default class CommitConfirm extends CommitConfirmProperties {
+class CommitConfirm extends Vue {
+  @Prop({ default: false })
+  value!: boolean
+
+  @Prop({ default: '' })
+  name!: string
+
+  @Prop({ default: '' })
+  email!: string
+
+  @Prop({ default: '' })
+  message!: string
+
+  @Prop({ default: false })
+  disabled!: boolean
+
+  @Prop({ default: false })
+  staging!: boolean
+
+  @Prop({ default: false })
+  waiting!: boolean
+
+  @Prop({ default: false })
+  push!: boolean
+
   get status () {
     return this.staging
       ? CommitConfirmMessages.Staging
       : CommitConfirmMessages.Ready
   }
 }
+
+export default toNative(CommitConfirm)
 </script>
 
 <style>

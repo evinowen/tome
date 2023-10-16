@@ -1,11 +1,8 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 import { DateTime } from 'luxon'
 
-export class ConsoleProperties extends Vue {
+export class Console extends Vue {
   value: boolean
-}
-
-export default class Console extends ConsoleProperties {
   detail: boolean
   stack: string
 

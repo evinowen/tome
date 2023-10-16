@@ -87,8 +87,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { VDivider } from 'vuetify/lib'
+import { Vue, Component, Watch, Setup, toNative } from 'vue-facing-decorator'
+import { VDivider } from 'vuetify/components'
 import { delay } from 'lodash'
 import { marked } from 'marked'
 import Mark from 'mark.js'
@@ -96,11 +96,10 @@ import Explorer from '@/components/Explorer.vue'
 import FileIcon from '@/components/FileIcon.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
 import EmptyPane from '@/components/EmptyPane.vue'
-import store from '@/store'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 import VueCodeMirror from 'vue-codemirror'
 import File from '@/store/modules/files/file'
-
-export const EditorInterfaceProperties = Vue.extend({})
 
 @Component({
   components: {
@@ -111,8 +110,11 @@ export const EditorInterfaceProperties = Vue.extend({})
     ImagePreview
   }
 })
-export default class EditorInterface extends EditorInterfaceProperties {
-  $refs!: {
+class EditorInterface extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
+  $refs: {
     editor: VueCodeMirror,
     rendered: HTMLElement
   }
@@ -136,15 +138,15 @@ export default class EditorInterface extends EditorInterfaceProperties {
 
   @Watch('active')
   select () {
-    if (store.state.files.active === '') {
+    if (this.store.state.files.active === '') {
       this.selected = undefined
     }
 
-    this.selected = store.state.files.directory[store.state.files.active]
+    this.selected = this.store.state.files.directory[this.store.state.files.active]
   }
 
   get system () {
-    return store.state.system
+    return this.store.state.system
   }
 
   get codemirror () {
@@ -156,28 +158,28 @@ export default class EditorInterface extends EditorInterfaceProperties {
   }
 
   get edit () {
-    return store.state.system.edit
+    return this.store.state.system.edit
   }
 
   get active () {
-    return store.state.files.active
+    return this.store.state.files.active
   }
 
   get markdown () {
-    if (store.state.files.active === '') {
+    if (this.store.state.files.active === '') {
       return false
     }
 
-    const selected = store.state.files.directory[store.state.files.active]
+    const selected = this.store.state.files.directory[this.store.state.files.active]
     return selected.extension === '.md'
   }
 
   get html () {
-    if (store.state.files.active === '') {
+    if (this.store.state.files.active === '') {
       return false
     }
 
-    const selected = store.state.files.directory[store.state.files.active]
+    const selected = this.store.state.files.directory[this.store.state.files.active]
     return ['.htm', '.html'].includes(selected.extension)
   }
 
@@ -186,7 +188,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
       return ''
     }
 
-    const selected = store.state.files.directory[store.state.files.active]
+    const selected = this.store.state.files.directory[this.store.state.files.active]
 
     if (selected === undefined || selected.directory || !selected.document) {
       return ''
@@ -206,26 +208,26 @@ export default class EditorInterface extends EditorInterfaceProperties {
   }
 
   get directory () {
-    if (store.state.files.active === '') {
+    if (this.store.state.files.active === '') {
       return false
     }
 
-    const selected = store.state.files.directory[store.state.files.active]
+    const selected = this.store.state.files.directory[this.store.state.files.active]
     return selected.directory
   }
 
   get readonly () {
-    if (store.state.files.active === '') {
+    if (this.store.state.files.active === '') {
       return false
     }
 
-    const selected = store.state.files.directory[store.state.files.active]
+    const selected = this.store.state.files.directory[this.store.state.files.active]
     return selected.readonly
   }
 
   get view () {
-    if (store.state.files.active !== '') {
-      const selected = store.state.files.directory[store.state.files.active]
+    if (this.store.state.files.active !== '') {
+      const selected = this.store.state.files.directory[this.store.state.files.active]
 
       if (selected && !(selected.image || selected.directory)) {
         if (this.system.edit) {
@@ -242,29 +244,29 @@ export default class EditorInterface extends EditorInterfaceProperties {
   }
 
   get query () {
-    return store.state.search.query
+    return this.store.state.search.query
   }
 
   get regex_query () {
-    return store.state.search.regex_query
+    return this.store.state.search.regex_query
   }
 
   get case_sensitive () {
-    return store.state.search.case_sensitive
+    return this.store.state.search.case_sensitive
   }
 
   get target () {
-    return store.state.search.navigation.target
+    return this.store.state.search.navigation.target
   }
 
   get actions () {
-    return store.state.actions.options.map(name => ({
+    return this.store.state.actions.options.map(name => ({
       title: name,
       action: async () => {
-        const selected = store.state.files.directory[store.state.files.active]
+        const selected = this.store.state.files.directory[this.store.state.files.active]
 
         const selection = this.codemirror.getSelection()
-        const output = await store.dispatch('actions/execute', { name, target: selected.path, selection })
+        const output = await this.store.dispatch('actions/execute', { name, target: selected.path, selection })
 
         this.codemirror.replaceSelection(output || selection)
 
@@ -275,7 +277,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
 
   get codemirror_options () {
     return {
-      theme: store.state.configuration.dark_mode ? 'base16-dark' : 'base16-light'
+      theme: this.store.state.configuration.dark_mode ? 'base16-dark' : 'base16-light'
     }
   }
 
@@ -302,7 +304,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
         action: async () => {
           const selection = this.codemirror.getSelection()
 
-          await store.dispatch('clipboard/text', selection)
+          await this.store.dispatch('clipboard/text', selection)
           this.codemirror.replaceSelection('')
         }
       },
@@ -314,14 +316,14 @@ export default class EditorInterface extends EditorInterfaceProperties {
             ? selection = this.codemirror.getSelection()
             : selection = document.getSelection().toString()
 
-          await store.dispatch('clipboard/text', selection)
+          await this.store.dispatch('clipboard/text', selection)
         }
       },
       {
         title: 'Paste',
         active: () => this.system.edit && !this.readonly,
         action: async () => {
-          const clipboard = await store.dispatch('clipboard/text')
+          const clipboard = await this.store.dispatch('clipboard/text')
           this.codemirror.replaceSelection(clipboard)
         }
       }
@@ -362,22 +364,22 @@ export default class EditorInterface extends EditorInterfaceProperties {
       y: event.clientY
     }
 
-    await store.dispatch('context/open', { items: this.context, position })
+    await this.store.dispatch('context/open', { items: this.context, position })
   }
 
   async refresh (reset = false) {
-    await store.dispatch('files/debounce_flush')
+    await this.store.dispatch('files/debounce_flush')
 
     if (reset) {
-      this.codemirror.doc.setValue(store.state.files.content || '')
+      this.codemirror.doc.setValue(this.store.state.files.content || '')
     }
 
     this.codemirror.setOption('readOnly', this.readonly)
 
-    if (store.state.files.active === '') {
+    if (this.store.state.files.active === '') {
       this.codemirror.setOption('mode')
     } else {
-      const selected = store.state.files.directory[store.state.files.active]
+      const selected = this.store.state.files.directory[this.store.state.files.active]
       switch (selected.extension) {
         case '.md':
           this.codemirror.setOption('mode', 'markdown')
@@ -398,7 +400,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
   }
 
   async input () {
-    const selected = store.state.files.directory[store.state.files.active]
+    const selected = this.store.state.files.directory[this.store.state.files.active]
     await this.save(selected.path)
   }
 
@@ -409,7 +411,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
 
     const content = content_array.join('\n')
 
-    await store.dispatch('files/debounce_save', { path, content })
+    await this.store.dispatch('files/debounce_save', { path, content })
   }
 
   async search () {
@@ -432,7 +434,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
         String('g').concat(this.case_sensitive ? '' : 'i')
       )
     } catch (error) {
-      await store.dispatch('error', error)
+      await this.store.dispatch('error', error)
       return
     }
 
@@ -464,7 +466,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
         total++
       }
 
-      await store.dispatch('search/navigate', { total, target: undefined })
+      await this.store.dispatch('search/navigate', { total, target: undefined })
     } else {
       const total = await new Promise((resolve) => {
         this.mark.markRegExp(
@@ -473,7 +475,7 @@ export default class EditorInterface extends EditorInterfaceProperties {
             className: 'highlight-rendered',
             acrossElements: false,
             done: total => {
-              store.dispatch('search/navigate', { total, target: undefined })
+              this.store.dispatch('search/navigate', { total, target: undefined })
               resolve(total)
             }
           }
@@ -541,6 +543,8 @@ export default class EditorInterface extends EditorInterfaceProperties {
     }
   }
 }
+
+export default toNative(EditorInterface)
 </script>
 
 <style>

@@ -21,9 +21,8 @@
         @click.left.stop="$emit('select', { path })"
         @click.right.stop="contextmenu"
       >
-        <v-flex
-          shrink
-          class="explorer-node-indent"
+        <v-col
+          class="explorer-node-indent shrink"
           :style="{ width: `${depth * 6}px`}"
         />
         <file-icon
@@ -37,7 +36,7 @@
           :alert="alert"
           @click="locked || $emit(directory ? 'toggle' : 'select', { path })"
         />
-        <v-flex>
+        <v-col>
           <v-form
             ref="form"
             v-model="valid"
@@ -46,27 +45,25 @@
               v-show="(selected && edit)"
               ref="input"
               v-model="input"
-              dense
-              small
+              density="compact"
               autofocus
               :rules="rules"
               @blur="$emit('blur')"
               @focus="focus"
-              @input="error = undefined"
+              @update:model-value="error = undefined"
               @keyup.enter="valid ? submit() : undefined"
             />
             <v-text-field
               v-show="!(selected && edit)"
               ref="input"
-              :value="display"
+              :model-value="display"
               readonly
-              dense
-              small
+              density="compact"
               class="pa-0"
               @click.left.stop="$emit('select', { path })"
             />
           </v-form>
-        </v-flex>
+        </v-col>
       </v-layout>
     </div>
     <div style="height: 2px;" />
@@ -96,10 +93,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VContainer, VLayout, VFlex, VForm, VTextField } from 'vuetify/lib'
-import store from '@/store'
+import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { VContainer, VLayout, VCol, VForm, VTextField } from 'vuetify/components'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 import FileIcon from '@/components/FileIcon.vue'
 import File from '@/store/modules/files/file'
 
@@ -110,30 +107,44 @@ export const ExplorerNodeGhostType = {
   ACTION: 'action'
 }
 
-export const ExplorerNodeProperties = Vue.extend({
-  props: {
-    uuid: { type: String, default: '' },
-    enabled: { type: Boolean, default: false },
-    title: { type: Boolean, default: false },
-    active: { type: String, default: '' },
-    edit: { type: Boolean, default: false },
-    format: { type: Function, default: undefined },
-    root: { type: Boolean, default: false },
-    depth: { type: Number, default: 0 }
-  }
-})
-
 @Component({
   name: 'ExplorerNode',
-  components: { VContainer, VLayout, VFlex, VForm, VTextField, FileIcon }
+  components: { VContainer, VLayout, VCol, VForm, VTextField, FileIcon }
 })
-export default class ExplorerNode extends ExplorerNodeProperties {
+class ExplorerNode extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
+  @Prop({ default: '' })
+  uuid: string
+
+  @Prop({ default: false })
+  enabled: boolean
+
+  @Prop({ default: false })
+  title: boolean
+
+  @Prop({ default: '' })
+  active: string
+
+  @Prop({ default: false })
+  edit: boolean
+
+  @Prop({ default: undefined })
+  format?: any
+
+  @Prop({ default: false })
+  root: boolean
+
+  @Prop({ default: 0 })
+  depth: number
+
   valid = false
   input = ''
   error?: string
 
   get file (): File {
-    return store.state.files.directory[this.uuid] || File.Empty
+    return this.store.state.files.directory[this.uuid] || File.Empty
   }
 
   get ephemeral () {
@@ -186,14 +197,14 @@ export default class ExplorerNode extends ExplorerNodeProperties {
   }
 
   get actions () {
-    return store.state.actions.options.map(name => ({
+    return this.store.state.actions.options.map(name => ({
       title: name,
       action: (path) => this.$emit('action', { name, target: path, selection: undefined })
     }))
   }
 
   get templates () {
-    return store.state.templates.options.map(name => ({
+    return this.store.state.templates.options.map(name => ({
       title: name,
       action: (path) => this.$emit('template', { name, target: path })
     }))
@@ -322,17 +333,17 @@ export default class ExplorerNode extends ExplorerNodeProperties {
     const clipboard = [
       {
         title: 'Cut',
-        action: async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
+        action: async (path) => await this.store.dispatch('clipboard/cut', { type: 'file', target: path }),
         active: () => !this.system
       },
       {
         title: 'Copy',
-        action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path })
+        action: async (path) => await this.store.dispatch('clipboard/copy', { type: 'file', target: path })
       },
       {
         title: 'Paste',
-        active: () => store.state.clipboard.content,
-        action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path })
+        active: () => this.store.state.clipboard.content,
+        action: async (path) => await this.store.dispatch('clipboard/paste', { type: 'file', target: path })
       }
     ]
 
@@ -369,7 +380,7 @@ export default class ExplorerNode extends ExplorerNodeProperties {
       y: event.clientY
     }
 
-    await store.dispatch('context/open', { target: this.path, title: this.path, items: this.context, position })
+    await this.store.dispatch('context/open', { target: this.path, title: this.path, items: this.context, position })
   }
 
   drag_start (event) {
@@ -415,6 +426,8 @@ export default class ExplorerNode extends ExplorerNodeProperties {
     this.$emit('submit', { input: this.input, title: this.title })
   }
 }
+
+export default toNative(ExplorerNode)
 </script>
 
 <style>

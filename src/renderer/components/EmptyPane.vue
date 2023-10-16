@@ -1,8 +1,7 @@
 <template>
   <v-container
-    fill-height
     fluid
-    class="view"
+    class="view fill-height"
   >
     <v-row
       align="center"
@@ -16,20 +15,18 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VContainer, VCol, VRow } from 'vuetify/lib'
-
-export const EmptyPaneProperties = Vue.extend({
-  props: {
-    error: { type: String, default: '' }
-  }
-})
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
+import { VContainer, VCol, VRow } from 'vuetify/components'
 
 @Component({
   components: { VContainer, VCol, VRow }
 })
-export default class EmptyPane extends EmptyPaneProperties {}
+class EmptyPane extends Vue {
+  @Prop({ default: '' })
+  error: string
+}
+
+export default toNative(EmptyPane)
 </script>
 
 <style scoped>

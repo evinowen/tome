@@ -7,7 +7,7 @@
       {{ title }}
     </v-card-title>
     <div ref="datatable">
-      <v-data-table
+      <!-- <v-data-table
         dense
         fixed-header
         hide-default-footer
@@ -23,13 +23,13 @@
       >
         <template #item.type="{ item }">
           <v-btn
-            tile
+            rounded="0"
             icon
             x-small
             :color="file_color(item.type)"
           >
             <v-icon
-              small
+              size="small"
               class="mr-1"
             >
               {{ file_icon(item.type) }}
@@ -40,7 +40,7 @@
 
         <template #item.action="{ item }">
           <v-btn
-            tile
+            rounded="0"
             icon
             x-small
             @click.stop="$emit('input', item.path)"
@@ -48,15 +48,15 @@
             <v-icon>{{ icon }}</v-icon>
           </v-btn>
         </template>
-      </v-data-table>
+      </v-data-table> -->
     </div>
   </v-card>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VDataTable, VCard, VCardTitle, VBtn, VIcon, Resize } from 'vuetify/lib'
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
+import { VCard, VCardTitle, VBtn, VIcon } from 'vuetify/components'
+import { Resize } from 'vuetify/directives'
 
 class RepositoryFile {
   static Type = {
@@ -68,22 +68,25 @@ class RepositoryFile {
   }
 }
 
-export const CommitListProperties = Vue.extend({
-  props: {
-    title: { type: String, default: 'List' },
-    items: { type: Array, default: () => [] },
-    icon: { type: String, default: '' },
-    height: { type: Number, default: 0 }
-  }
-})
-
 @Component({
-  components: { VDataTable, VCard, VCardTitle, VBtn, VIcon },
+  components: { VCard, VCardTitle, VBtn, VIcon },
   directives: {
     Resize
   }
 })
-export default class CommitList extends CommitListProperties {
+class CommitList extends Vue {
+  @Prop({ default: 'List' })
+  title!: string
+
+  @Prop({ default: () => [] })
+  items!: any[]
+
+  @Prop({ default: '' })
+  icon!: string
+
+  @Prop({ default: 0 })
+  height!: number
+
   datatable = {
     offset: 64,
     height: 0,
@@ -145,6 +148,8 @@ export default class CommitList extends CommitListProperties {
     return ''
   }
 }
+
+export default toNative(CommitList)
 </script>
 
 <style>

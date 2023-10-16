@@ -34,10 +34,11 @@
 
       <v-btn
         v-if="repository.branch"
-        tile
-        small
+        rounded="0"
+        size="small"
         class="button px-2"
         color="primary"
+        variant="flat"
         :disabled="disabled_unless(system.branch)"
         @click.stop="branch"
       >
@@ -45,14 +46,14 @@
       </v-btn>
       <v-btn
         v-else-if="repository.branch.error"
-        tile
-        small
-        icon
+        rounded="0"
+        size="small"
         class="button pl-1 pr-2"
         color="error"
+        variant="flat"
       >
         <v-icon
-          small
+          size="small"
           class="pr-1"
         >
           mdi-alert-box
@@ -67,15 +68,15 @@
     </template>
 
     <v-btn
-      tile
-      icon
-      small
+      rounded="0"
+      size="small"
+      variant="flat"
       class="console button"
       :disabled="disabled_unless(system.console || system.commit || system.push)"
       :color="status === 'error' ? 'error' : ''"
       @click.stop="console"
     >
-      <v-icon small>
+      <v-icon size="small">
         {{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}
       </v-icon>&nbsp;{{ message }}
     </v-btn>
@@ -89,8 +90,8 @@
       <v-switch
         action-bar-edit
         :value="edit"
-        dense
-        x-small
+        density="compact"
+        size="x-small"
         inset
         hide-details
         class="edit_switch"
@@ -112,15 +113,15 @@
             <!-- SAVE BUTTON -->
             <v-btn
               action-bar-commit
-              tile
-              small
-              icon
+              rounded="0"
+              size="small"
+              variant="flat"
               color="primary"
               class="button pa-0"
               :disabled="disabled_unless(system.commit)"
               @click.stop="commit"
             >
-              <v-icon small>
+              <v-icon size="small">
                 mdi-content-save
               </v-icon>
             </v-btn>
@@ -128,15 +129,15 @@
             <!-- PUSH BUTTON -->
             <v-btn
               action-bar-push
-              tile
-              small
-              icon
+              rounded="0"
+              size="small"
+              variant="flat"
               color="primary"
               class="button pa-0"
               :disabled="disabled_unless(system.push)"
               @click.stop="push"
             >
-              <v-icon small>
+              <v-icon size="small">
                 mdi-upload-multiple
               </v-icon>
             </v-btn>
@@ -152,15 +153,15 @@
       <!-- SEARCH BUTTON -->
       <v-btn
         action-bar-search
-        tile
-        small
-        icon
+        rounded="0"
+        size="small"
+        variant="flat"
         color="primary"
         class="button pa-0"
         :disabled="disabled_unless()"
         @click.stop="search"
       >
-        <v-icon small>
+        <v-icon size="small">
           mdi-magnify
         </v-icon>
       </v-btn>
@@ -169,14 +170,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/lib'
-import store from '@/store'
+import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/components'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 import LibraryButton from './LibraryButton.vue'
 import RepositoryButton from './RepositoryButton.vue'
-
-export const ActionBarProperties = Vue.extend({})
 
 @Component({
   components: {
@@ -190,61 +189,64 @@ export const ActionBarProperties = Vue.extend({})
     RepositoryButton
   }
 })
-export default class ActionBar extends ActionBarProperties {
+class ActionBar extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
   library: false
 
   get system () {
-    return store.state.system
+    return this.store.state.system
   }
 
   get repository () {
-    return store.state.repository
+    return this.store.state.repository
   }
 
   get status () {
-    return store.state.status
+    return this.store.state.status
   }
 
   get message () {
-    return store.state.message
+    return this.store.state.message
   }
 
   get disabled () {
-    const system = store.state.system
+    const system = this.store.state.system
     return system.settings || system.branch || system.commit || system.push || system.console
   }
 
   async open (path) {
     this.library = false
-    await store.dispatch('system/open', path)
+    await this.store.dispatch('system/open', path)
   }
 
   async close () {
-    await store.dispatch('system/close')
+    await this.store.dispatch('system/close')
   }
 
   async edit () {
-    await store.dispatch('system/edit', !this.system.edit)
+    await this.store.dispatch('system/edit', !this.system.edit)
   }
 
   async branch () {
-    await store.dispatch('system/branch', !this.system.branch)
+    await this.store.dispatch('system/branch', !this.system.branch)
   }
 
   async commit () {
-    await store.dispatch('system/commit', !this.system.commit)
+    await this.store.dispatch('system/commit', !this.system.commit)
   }
 
   async push () {
-    await store.dispatch('system/push', !this.system.push)
+    await this.store.dispatch('system/push', !this.system.push)
   }
 
   async console () {
-    await store.dispatch('system/console', !this.system.console)
+    await this.store.dispatch('system/console', !this.system.console)
   }
 
   async search () {
-    await store.dispatch('system/search', !this.system.search)
+    await this.store.dispatch('system/search', !this.system.search)
   }
 
   disabled_unless (unless?) {
@@ -255,6 +257,8 @@ export default class ActionBar extends ActionBarProperties {
     return this.disabled
   }
 }
+
+export default toNative(ActionBar)
 </script>
 
 <style>

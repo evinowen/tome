@@ -1,8 +1,8 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
 export const ExplorerNodeGhostType: Record<string, string>
 
-export class ExplorerNodeProperties extends Vue {
+export class ExplorerNode extends Vue {
   uuid: string
   enabled: boolean
   title: boolean
@@ -11,9 +11,7 @@ export class ExplorerNodeProperties extends Vue {
   format?: any
   root: boolean
   depth: number
-}
 
-export default class ExplorerNode extends ExplorerNodeProperties {
   valid: boolean
   input: string
   error?: string

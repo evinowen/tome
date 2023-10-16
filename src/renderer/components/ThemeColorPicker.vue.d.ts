@@ -1,10 +1,8 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class ThemeColorPickerProperties extends Vue {
+export class ThemeColorPicker extends Vue {
   enabled: boolean
   value: string
   color: string
   base: string
 }
-
-export default class ThemeColorPicker extends ThemeColorPickerProperties {}

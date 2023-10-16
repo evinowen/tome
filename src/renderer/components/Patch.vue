@@ -1,12 +1,12 @@
 <template>
   <v-navigation-drawer
-    :value="value"
+    :model-value="value"
     fixed
-    right
+    location="right"
     stateless
     width="100%"
     style="z-index: 110; max-width: 900px; height: auto; top: 25px; bottom: 18px;"
-    @input="$event || close"
+    @update:model-value="$event || close"
   >
     <v-container
       fluid
@@ -20,7 +20,7 @@
         <div class="flex-grow-0">
           <div>
             <v-btn
-              tile
+              rounded="0"
               icon
               class="float-right"
               color="black"
@@ -77,7 +77,7 @@
         >
           <v-divider class="mt-0 mb-2" />
           <v-btn
-            small
+            size="small"
             color="primary"
             @click.stop="close"
           >
@@ -90,11 +90,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText } from 'vuetify/lib'
+import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
+import { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText } from 'vuetify/components'
 
-import store from '@/store'
+import { Store } from 'vuex'
+import { State, fetchStore } from '@/store'
 
 class RepositoryPatch {
   static LineType = {
@@ -110,26 +110,26 @@ class RepositoryPatch {
   }
 }
 
-export const PatchProperties = Vue.extend({
-  props: {
-    value: { type: Boolean, default: false }
-  }
-})
-
 @Component({
   components: { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText }
 })
-export default class Patch extends PatchProperties {
+class Patch extends Vue {
+  @Setup(() => fetchStore())
+  store!: Store<State>
+
+  @Prop({ default: false })
+  value: boolean
+
   get repository () {
-    return store.state.repository
+    return this.store.state.repository
   }
 
   get patches () {
-    return store.state.repository.patches
+    return this.store.state.repository.patches
   }
 
   async close () {
-    await store.dispatch('system/patch', false)
+    await this.store.dispatch('system/patch', false)
   }
 
   line_color (type) {
@@ -158,6 +158,8 @@ export default class Patch extends PatchProperties {
     }
   }
 }
+
+export default toNative(Patch)
 </script>
 
 <style scoped>

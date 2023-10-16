@@ -1,11 +1,9 @@
-import Vue from 'vue'
+import { Vue } from 'vue-facing-decorator'
 
-export class PushPassphraseInputProperties extends Vue {
+export class PushPassphraseInput extends Vue {
   value: string
   storable: boolean
   stored: string
-}
 
-export default class PushPassphraseInput extends PushPassphraseInputProperties {
   obscured: boolean
 }

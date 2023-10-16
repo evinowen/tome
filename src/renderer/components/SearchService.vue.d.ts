@@ -1,9 +1,7 @@
-import { Vue } from 'vue-property-decorator'
+import { Vue } from 'vue-facing-decorator'
 import { DebouncedFunc } from 'lodash'
 
-export class SearchServiceProperties extends Vue {}
-
-export default class SearchService extends SearchServiceProperties {
+export class SearchService extends Vue {
   get status(): string
   get results(): any[]
   get navigation(): { target: number, total: number }

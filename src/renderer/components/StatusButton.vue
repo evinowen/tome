@@ -1,12 +1,12 @@
 <template>
   <v-btn
-    tile
-    small
-    class="px-2 grey--text text--lighten-1"
+    rounded="0"
+    size="small"
+    class="px-2 text-grey-lighten-1"
     style="height: 18px;"
   >
     <v-progress-circular
-      :value="(waiting * 100) / waiting_max"
+      :model-value="(waiting * 100) / waiting_max"
       :size="12"
       :width="2"
       color="warning"
@@ -14,53 +14,67 @@
     />
     <strong
       v-if="available_added"
-      class="green--text"
+      class="text-green"
     >{{ available_added }}</strong>
     <strong v-else>0</strong>
     <strong>/</strong>
     <strong
       v-if="available_removed"
-      class="red--text"
+      class="text-red"
     >{{ available_removed }}</strong>
     <strong v-else>0</strong>
     <strong>&bull;</strong>
     <strong
       v-if="staged_added"
-      class="lime--text"
+      class="text-lime"
     >{{ staged_added }}</strong>
     <strong v-else>0</strong>
     <strong>/</strong>
     <strong
       v-if="staged_removed"
-      class="orange--text"
+      class="text-orange"
     >{{ staged_removed }}</strong>
     <strong v-else>0</strong>
   </v-btn>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-
-export const StatusButtonProperties = Vue.extend({
-  props: {
-    waiting: { type: Number, default: 0 },
-    waiting_max: { type: Number, default: 3 },
-    available_new: { type: Number, default: 0 },
-    available_renamed: { type: Number, default: 0 },
-    available_modified: { type: Number, default: 0 },
-    available_removed: { type: Number, default: 0 },
-    staged_new: { type: Number, default: 0 },
-    staged_renamed: { type: Number, default: 0 },
-    staged_modified: { type: Number, default: 0 },
-    staged_removed: { type: Number, default: 0 }
-  }
-})
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 
 @Component({
   components: {}
 })
-export default class StatusButton extends StatusButtonProperties {
+class StatusButton extends Vue {
+  @Prop({ default: 0 })
+  waiting: number
+
+  @Prop({ default: 0 })
+  waiting_max: number
+
+  @Prop({ default: 0 })
+  available_new: number
+
+  @Prop({ default: 0 })
+  available_renamed: number
+
+  @Prop({ default: 0 })
+  available_modified: number
+
+  @Prop({ default: 0 })
+  available_removed: number
+
+  @Prop({ default: 0 })
+  staged_new: number
+
+  @Prop({ default: 0 })
+  staged_renamed: number
+
+  @Prop({ default: 0 })
+  staged_modified: number
+
+  @Prop({ default: 0 })
+  staged_removed: number
+
   get available_added () {
     return this.available_new + this.available_renamed + this.available_modified
   }
@@ -69,4 +83,6 @@ export default class StatusButton extends StatusButtonProperties {
     return this.staged_new + this.staged_renamed + this.staged_modified
   }
 }
+
+export default toNative(StatusButton)
 </script>
