@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vuetify from 'vite-plugin-vuetify'
 
 const path = require('path')
 
@@ -12,7 +13,8 @@ export default defineConfig({
     outDir: '../../dist/renderer'
   },
   plugins: [
-    vue()
+    vue(),
+    vuetify({ autoImport: false, styles: { configFile: 'styles/vuetify.scss' } })
   ],
   resolve: {
     alias: {
