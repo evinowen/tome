@@ -1,10 +1,8 @@
 <template>
   <v-navigation-drawer
     :model-value="value"
-    fixed
-    stateless
-    width="100%"
-    style="z-index: 1000; max-width: 900px; height: auto; top: 25px; bottom: 18px"
+    :width="900"
+    location="left"
     @update:model-value="$event || close"
   >
     <v-container

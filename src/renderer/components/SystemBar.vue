@@ -9,6 +9,7 @@
       rounded="0"
       variant="flat"
       size="small"
+      class="system-bar-button"
       @click.stop="settings"
     >
       <v-icon>{{ icon }}</v-icon>
@@ -16,13 +17,14 @@
     <v-spacer />
     <span
       system-bar-title
-      :style="{ opacity: (title ? 1 : 0.4)}"
+      :style="{ opacity: (title ? 1 : 0.6)}"
     >{{ title || 'tome' }}</span>
     <v-spacer />
     <v-btn
       rounded="0"
       variant="flat"
       size="small"
+      class="system-bar-button"
       system-bar-minimize
       @click.stop="minimize"
     >
@@ -32,6 +34,7 @@
       rounded="0"
       variant="flat"
       size="small"
+      class="system-bar-button"
       system-bar-maximize
       @click.stop="maximize"
     >
@@ -41,6 +44,7 @@
       rounded="0"
       variant="flat"
       size="small"
+      class="system-bar-button"
       system-bar-close
       @click.stop="exit"
     >
@@ -105,14 +109,6 @@ export default toNative(SystemBar)
   -webkit-app-region: no-drag;
 }
 
-.v-system-bar .v-btn,
-.v-system-bar .v-btn .v-icon {
-  margin: 0 !important;
-  font-size: 12px;
-  height: 25px;
-  width: 25px;
-}
-
 @keyframes rotating {
   from{ transform: rotate(0deg); }
   to{ transform: rotate(360deg); }
@@ -120,5 +116,15 @@ export default toNative(SystemBar)
 
 .rotate .v-icon {
   animation: rotating 2s linear infinite;
+}
+
+.system-bar-button {
+  background: transparent;
+  font-size: 1.2em;
+  padding: 0px;
+  height: 100%;
+  width: 30px;
+  min-height: 0;
+  min-width: 30px;
 }
 </style>

@@ -1,27 +1,29 @@
 <template>
   <v-app id="inspire">
     <system-bar title="tome" />
-    <settings :value="system.settings" />
-    <template v-if="repository.loaded">
-      <branch :value="system.branch" />
-      <commit ref="commit" />
-      <push ref="push" />
-      <patch :value="system.patch" />
-    </template>
-
-    <editor-interface
-      v-show="repository.path"
-      ref="interface"
-    />
-    <empty-pane v-show="!repository.path" />
-
-    <context-menu-service />
-
-    <search-service v-show="system.search" />
-    <shortcut-service />
-
-    <console :value="system.console" />
     <action-bar />
+    <settings :value="system.settings" />
+    <v-main>
+      <template v-if="repository.loaded">
+        <branch :value="system.branch" />
+        <commit ref="commit" />
+        <push ref="push" />
+        <patch :value="system.patch" />
+      </template>
+
+      <editor-interface
+        v-show="repository.path"
+        ref="interface"
+      />
+      <empty-pane v-show="!repository.path" />
+
+      <context-menu-service />
+
+      <search-service v-show="system.search" />
+      <shortcut-service />
+
+      <console :value="system.console" />
+    </v-main>
   </v-app>
 </template>
 
@@ -33,7 +35,10 @@ import { State, fetchStore } from '@/store'
 import ContextMenuService from '@/components/ContextMenuService.vue'
 import SearchService from '@/components/SearchService.vue'
 
-import { VApp } from 'vuetify/components'
+import {
+  VApp,
+  VMain
+} from 'vuetify/components'
 import SystemBar from '@/components/SystemBar.vue'
 import Settings from '@/components/Settings.vue'
 import Branch from '@/components/Branch.vue'
@@ -49,6 +54,7 @@ import ShortcutService from '@/components/ShortcutService.vue'
 @Component({
   components: {
     VApp,
+    VMain,
     SystemBar,
     Settings,
     Branch,
@@ -100,7 +106,6 @@ export default toNative(App)
 
 html, body {
   scrollbar-gutter: auto;
-  font-size: 12px !important;
   overflow: hidden !important;
   position: fixed;
   top: 0;
@@ -111,17 +116,11 @@ html, body {
 
 .v-application,
 .v-application--wrap {
-  font-family: "Montserrat" !important;
   overflow: hidden !important;
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-}
-
-.v-icon.v-icon {
-  font-size: 18px;
-
 }
 </style>

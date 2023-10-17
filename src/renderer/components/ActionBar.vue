@@ -2,7 +2,7 @@
   <v-footer
     app
     class="pa-0"
-    style="z-index: 1000;"
+    order="-1"
     height="18"
   >
     <library-button

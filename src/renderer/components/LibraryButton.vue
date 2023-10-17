@@ -11,7 +11,7 @@
         size="small"
         color="accent"
         variant="flat"
-        class="pa-0"
+        class="library-button"
         v-bind="attrs"
         :disabled="disabled"
         @click.stop="close"
@@ -30,7 +30,7 @@
         size="small"
         color="accent"
         variant="flat"
-        class="pa-0"
+        class="library-button"
         v-bind="attrs"
         :disabled="disabled"
         v-on="on"
@@ -145,5 +145,13 @@ export default toNative(LibraryButton)
 .v-list-item:hover .item {
   color: var(--v-accent-lighten4) !important;
   background: var(--v-accent-darken2) !important;
+}
+
+.library-button {
+  padding: 0px;
+  height: 100%;
+  width: 30px;
+  min-height: 0;
+  min-width: 30px;
 }
 </style>
