@@ -7,4 +7,4 @@ const options = {
   }
 }
 
-export default createVuetify(options)
+export default createVuetify()

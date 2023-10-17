@@ -10,18 +10,16 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true, // mark.js
     "types": ["vuetify"],
-    "paths": {
-      "@/*": [ "./*" ]
-    },
     "lib": [
       "esnext",
       "dom",
       "dom.iterable",
       "scripthost"
-    ]
-  },
-  "vueCompilerOptions": {
-    "target": 2.7
+    ],
+    "paths": {
+      "@/*": [ "./*" ],
+      "vuetify": [ "../../node_modules/vuetify/dist/*" ]
+    }
   },
   "include": [
     "./**/*.js",
