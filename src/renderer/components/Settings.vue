@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     :model-value="value"
-    :width="900"
+    width="900"
     location="left"
     @update:model-value="$event || close"
   >

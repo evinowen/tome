@@ -1,11 +1,8 @@
 <template>
   <v-navigation-drawer
     :model-value="system.commit"
-    fixed
+    width="900"
     location="right"
-    stateless
-    width="100%"
-    style="z-index: 100; max-width: 900px; height: auto; top: 25px; bottom: 18px;"
     @update:model-value="$event || close"
   >
     <v-container
