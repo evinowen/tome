@@ -1,9 +1,6 @@
 <template>
-  <v-menu
-    :model-value="value"
-    @update:model-value="$emit('input', $event)"
-  >
-    <template #activator="{ on, attrs }">
+  <v-menu :model-value="value">
+    <template #activator="{ props }">
       <v-btn
         v-if="repository.path"
         action-bar-bookshelf
@@ -12,7 +9,7 @@
         color="accent"
         variant="flat"
         class="library-button"
-        v-bind="attrs"
+        v-bind="props"
         :disabled="disabled"
         @click.stop="close"
       >
@@ -31,9 +28,8 @@
         color="accent"
         variant="flat"
         class="library-button"
-        v-bind="attrs"
+        v-bind="props"
         :disabled="disabled"
-        v-on="on"
       >
         <v-icon size="small">
           mdi-bookshelf
