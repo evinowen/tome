@@ -11,10 +11,7 @@
       @close="close"
     />
 
-    <v-divider
-      inset
-      vertical
-    />
+    <divider />
 
     <template v-if="repository.path">
       <repository-button
@@ -27,165 +24,99 @@
         :disabled="disabled_unless()"
       />
 
-      <v-divider
-        inset
-        vertical
-      />
+      <divider />
 
-      <v-btn
-        v-if="repository.branch"
-        rounded="0"
-        size="small"
-        class="button px-2"
-        color="primary"
-        variant="flat"
+      <branch-button
+        :branch="repository.branch"
+        :error="repository.branch.error"
         :disabled="disabled_unless(system.branch)"
         @click.stop="branch"
-      >
-        {{ repository.branch }}
-      </v-btn>
-      <v-btn
-        v-else-if="repository.branch.error"
-        rounded="0"
-        size="small"
-        class="button pl-1 pr-2"
-        color="error"
-        variant="flat"
-      >
-        <v-icon
-          size="small"
-          class="pr-1"
-        >
-          mdi-alert-box
-        </v-icon>
-        {{ repository.branch.error }}
-      </v-btn>
-
-      <v-divider
-        inset
-        vertical
       />
+
+      <divider />
     </template>
 
-    <v-btn
-      rounded="0"
-      size="small"
-      variant="flat"
-      class="console button"
+    <console-button
+      :status="status"
+      :message="message"
       :disabled="disabled_unless(system.console || system.commit || system.push)"
-      :color="status === 'error' ? 'error' : ''"
       @click.stop="console"
-    >
-      <v-icon size="small">
-        {{ status === 'error' ? 'mdi-exclamation-thick' : 'mdi-chevron-right' }}
-      </v-icon>&nbsp;{{ message }}
-    </v-btn>
+    />
 
     <template v-if="repository.path">
-      <v-divider
-        inset
-        vertical
-      />
+      <divider />
 
-      <v-switch
+      <edit-switch
         action-bar-edit
         :value="edit"
-        density="compact"
-        size="x-small"
-        inset
-        hide-details
-        class="edit_switch"
         :disabled="disabled_unless()"
         @click.stop="edit"
       />
 
-      <v-divider
-        inset
-        vertical
-      />
+      <divider />
 
       <v-expand-x-transition>
         <div
           v-show="system.edit"
-          style="overflow: hidden; white-space: nowrap;"
+          style="white-space: nowrap; height: 100%"
         >
-          <div style="height: 18px">
-            <!-- SAVE BUTTON -->
-            <v-btn
-              action-bar-commit
-              rounded="0"
-              size="small"
-              variant="flat"
-              color="primary"
-              class="button pa-0"
-              :disabled="disabled_unless(system.commit)"
-              @click.stop="commit"
-            >
-              <v-icon size="small">
-                mdi-content-save
-              </v-icon>
-            </v-btn>
+          <!-- SAVE BUTTON -->
+          <page-button
+            :disabled="disabled_unless(system.commit)"
+            @click.stop="commit"
+          >
+            mdi-content-save
+          </page-button>
 
-            <!-- PUSH BUTTON -->
-            <v-btn
-              action-bar-push
-              rounded="0"
-              size="small"
-              variant="flat"
-              color="primary"
-              class="button pa-0"
-              :disabled="disabled_unless(system.push)"
-              @click.stop="push"
-            >
-              <v-icon size="small">
-                mdi-upload-multiple
-              </v-icon>
-            </v-btn>
-          </div>
+          <!-- PUSH BUTTON -->
+          <page-button
+            :disabled="disabled_unless(system.push)"
+            @click.stop="push"
+          >
+            mdi-upload-multiple
+          </page-button>
         </div>
       </v-expand-x-transition>
 
-      <v-divider
-        inset
-        vertical
-      />
+      <divider />
 
       <!-- SEARCH BUTTON -->
-      <v-btn
-        action-bar-search
-        rounded="0"
-        size="small"
-        variant="flat"
-        color="primary"
-        class="button pa-0"
-        :disabled="disabled_unless()"
-        @click.stop="search"
-      >
-        <v-icon size="small">
+      <div style="height: 100%">
+        <page-button
+          :disabled="disabled_unless()"
+          @click.stop="search"
+        >
           mdi-magnify
-        </v-icon>
-      </v-btn>
+        </page-button>
+      </div>
     </template>
   </v-footer>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VIcon, VBtn, VDivider, VFooter, VExpandXTransition, VSwitch } from 'vuetify/components'
+import { VFooter, VExpandXTransition, VSwitch } from 'vuetify/components'
 import { Store } from 'vuex'
 import { State, fetchStore } from '@/store'
-import LibraryButton from './LibraryButton.vue'
-import RepositoryButton from './RepositoryButton.vue'
+import Divider from './ActionBar/Divider.vue'
+import LibraryButton from './ActionBar/LibraryButton.vue'
+import BranchButton from './ActionBar/BranchButton.vue'
+import ConsoleButton from './ActionBar/ConsoleButton.vue'
+import EditSwitch from './ActionBar/EditSwitch.vue'
+import PageButton from './ActionBar/PageButton.vue'
+import RepositoryButton from './ActionBar/RepositoryButton.vue'
 
 @Component({
   components: {
-    VIcon,
-    VBtn,
-    VDivider,
     VFooter,
     VExpandXTransition,
     VSwitch,
+    Divider,
     LibraryButton,
+    BranchButton,
+    ConsoleButton,
+    EditSwitch,
+    PageButton,
     RepositoryButton
   }
 })
@@ -260,71 +191,3 @@ class ActionBar extends Vue {
 
 export default toNative(ActionBar)
 </script>
-
-<style>
-.edit_switch {
-  padding-top: 2px !important;
-  margin: 0 !important;
-}
-
-.edit_switch .v-input--selection-controls__input {
-  height: 16px;
-  margin-left: 5px !important;
-  margin-right: 0 !important;
-}
-
-.edit_switch .v-input--selection-controls__ripple {
-  top: calc(50% - 7px) !important;
-  width: 12px !important;
-  height: 12px !important;
-  margin: 0px 11px !important;
-}
-
-.edit_switch .v-input--selection-controls__input {
-  width: 36px !important;
-}
-
-.edit_switch .v-input--switch__track {
-  top: calc(50% - 8px) !important;
-  height: 14px !important;
-  width: 36px !important;
-}
-
-.edit_switch .v-input--switch__thumb {
-  top: calc(50% - 6px) !important;
-  width: 10px !important;
-  height: 10px !important;
-}
-
-.v-divider--vertical.v-divider--inset {
-  margin-top: 3px;
-  max-height: calc(100% - 8px) !important;
-
-}
-
-.v-btn--icon.v-size--small,
-.v-btn--icon.v-size--small .v-icon {
-  height: 18px;
-
-}
-
-.button {
-  height: 18px !important;
-}
-
-.console.button {
-  justify-content: left;
-  flex-grow: 1;
-  font-size: 0.8em;
-  padding: 0 4px 0 0 !important;
-}
-
-.console.button span {
-  width: 100%;
-  overflow: hidden;
-  text-align: left;
-  text-overflow: ellipsis;
-  padding: 0 4px !important;
-}
-
-</style>

@@ -1,8 +1,6 @@
 <template>
   <v-menu
-    rounded="0"
     location="top"
-    offset-y
     :model-value="value"
     transition="slide-y-reverse-transition"
     content-class="menu"
@@ -10,14 +8,13 @@
     width="50%"
     @update:model-value="value = !value"
   >
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props }">
       <v-btn
         rounded="0"
         size="small"
         class="button pa-0 px-2"
-        v-bind="attrs"
+        v-bind="props"
         :disabled="disabled"
-        v-on="on"
       >
         {{ name }}
       </v-btn>

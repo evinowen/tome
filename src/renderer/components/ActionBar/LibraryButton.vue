@@ -9,7 +9,6 @@
         color="accent"
         variant="flat"
         class="library-button"
-        v-bind="props"
         :disabled="disabled"
         @click.stop="close"
       >
