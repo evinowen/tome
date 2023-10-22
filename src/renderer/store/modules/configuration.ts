@@ -1,5 +1,5 @@
 import { MutationTree, ActionTree } from 'vuex'
-import vuetify from '../../vuetify'
+import vuetify, { presets } from '@/vuetify'
 
 export class State {
   [name: string]: string|boolean
@@ -48,7 +48,9 @@ export default {
   state: new State,
   mutations: <MutationTree<State>>{
     set: function (state, data) {
-      Object.assign(state, data)
+      for (const key in data) {
+        Reflect.set(state, key, data[key])
+      }
     }
   },
   actions: <ActionTree<State, unknown>>{
@@ -179,29 +181,15 @@ export default {
       await window.api.file.write(path, JSON.stringify(context.state))
     },
     present: async function (context) {
-      // vuetify.framework.theme.dark = context.state.dark_mode
+      const theme = context.state.dark_mode ? 'dark' : 'light'
 
-      // const presets = vuetify.preset.theme.themes
-
-      // const colors = [
-      //   'primary',
-      //   'secondary',
-      //   'accent',
-      //   'error',
-      //   'info',
-      //   'warning',
-      //   'success'
-      // ]
-
-      // const theme = vuetify.framework.theme.dark ? 'dark' : 'light'
-
-      // for (const color of colors) {
-      //   if (context.state[`${theme}_${color}_enabled`]) {
-      //     vuetify.framework.theme.themes[theme][color] = <string>context.state[`${theme}_${color}`]
-      //   } else {
-      //     vuetify.framework.theme.themes[theme][color] = presets[theme][color]
-      //   }
-      // }
+      for (const color in presets[theme]) {
+        if (context.state[`${theme}_${color}_enabled`]) {
+          vuetify.theme.themes.value[theme].colors[color] = <string>context.state[`${theme}_${color}`]
+        } else {
+          vuetify.theme.themes.value[theme].colors[color] = presets[theme][color]
+        }
+      }
     }
   }
 }

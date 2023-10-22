@@ -1,5 +1,5 @@
 <template>
-  <v-app id="inspire">
+  <v-app :theme="theme">
     <system-bar title="tome" />
     <action-bar />
     <settings :value="system.settings" />
@@ -80,6 +80,10 @@ class App extends Vue {
 
   get system () {
     return this.store.state.system
+  }
+
+  get theme () {
+    return this.store.state.configuration.dark_mode ? "dark" : "light"
   }
 }
 

@@ -146,6 +146,7 @@
                     color="primary"
                     :value="configuration.dark_primary"
                     :enabled="configuration.dark_primary_enabled"
+                    :base="color_base('dark', 'primary')"
                     @enabled="assign_value('dark_primary_enabled', $event)"
                     @input="assign_value('dark_primary', $event || '#000000')"
                   />
@@ -155,6 +156,7 @@
                     color="secondary"
                     :value="configuration.dark_secondary"
                     :enabled="configuration.dark_secondary_enabled"
+                    :base="color_base('dark', 'secondary')"
                     @enabled="assign_value('dark_secondary_enabled', $event)"
                     @input="assign_value('dark_secondary', $event || '#000000')"
                   />
@@ -164,6 +166,7 @@
                     color="accent"
                     :value="configuration.dark_accent"
                     :enabled="configuration.dark_accent_enabled"
+                    :base="color_base('dark', 'accent')"
                     @enabled="assign_value('dark_accent_enabled', $event)"
                     @input="assign_value('dark_accent', $event || '#000000')"
                   />
@@ -175,6 +178,7 @@
                     color="error"
                     :value="configuration.dark_error"
                     :enabled="configuration.dark_error_enabled"
+                    :base="color_base('dark', 'error')"
                     @enabled="assign_value('dark_error_enabled', $event)"
                     @input="assign_value('dark_error', $event || '#000000')"
                   />
@@ -184,6 +188,7 @@
                     color="info"
                     :value="configuration.dark_info"
                     :enabled="configuration.dark_info_enabled"
+                    :base="color_base('dark', 'info')"
                     @enabled="assign_value('dark_info_enabled', $event)"
                     @input="assign_value('dark_info', $event || '#000000')"
                   />
@@ -193,6 +198,7 @@
                     color="success"
                     :value="configuration.dark_success"
                     :enabled="configuration.dark_success_enabled"
+                    :base="color_base('dark', 'success')"
                     @enabled="assign_value('dark_success_enabled', $event)"
                     @input="assign_value('dark_success', $event || '#000000')"
                   />
@@ -202,6 +208,7 @@
                     color="warning"
                     :value="configuration.dark_warning"
                     :enabled="configuration.dark_warning_enabled"
+                    :base="color_base('dark', 'warning')"
                     @enabled="assign_value('dark_warning_enabled', $event)"
                     @input="assign_value('dark_warning', $event || '#000000')"
                   />
@@ -215,6 +222,7 @@
                     color="primary"
                     :value="configuration.light_primary"
                     :enabled="configuration.light_primary_enabled"
+                    :base="color_base('light', 'primary')"
                     @enabled="assign_value('light_primary_enabled', $event)"
                     @input="assign_value('light_primary', $event || '#000000')"
                   />
@@ -224,6 +232,7 @@
                     color="secondary"
                     :value="configuration.light_secondary"
                     :enabled="configuration.light_secondary_enabled"
+                    :base="color_base('light', 'secondary')"
                     @enabled="assign_value('light_secondary_enabled', $event)"
                     @input="assign_value('light_secondary', $event || '#000000')"
                   />
@@ -233,6 +242,7 @@
                     color="accent"
                     :value="configuration.light_accent"
                     :enabled="configuration.light_accent_enabled"
+                    :base="color_base('light', 'accent')"
                     @enabled="assign_value('light_accent_enabled', $event)"
                     @input="assign_value('light_accent', $event || '#000000')"
                   />
@@ -244,6 +254,7 @@
                     color="error"
                     :value="configuration.light_error"
                     :enabled="configuration.light_error_enabled"
+                    :base="color_base('light', 'error')"
                     @enabled="assign_value('light_error_enabled', $event)"
                     @input="assign_value('light_error', $event || '#000000')"
                   />
@@ -253,6 +264,7 @@
                     color="info"
                     :value="configuration.light_info"
                     :enabled="configuration.light_info_enabled"
+                    :base="color_base('light', 'info')"
                     @enabled="assign_value('light_info_enabled', $event)"
                     @input="assign_value('light_info', $event || '#000000')"
                   />
@@ -262,6 +274,7 @@
                     color="success"
                     :value="configuration.light_success"
                     :enabled="configuration.light_success_enabled"
+                    :base="color_base('light', 'success')"
                     @enabled="assign_value('light_success_enabled', $event)"
                     @input="assign_value('light_success', $event || '#000000')"
                   />
@@ -271,6 +284,7 @@
                     color="warning"
                     :value="configuration.light_warning"
                     :enabled="configuration.light_warning_enabled"
+                    :base="color_base('light', 'warning')"
                     @enabled="assign_value('light_warning_enabled', $event)"
                     @input="assign_value('light_warning', $event || '#000000')"
                   />
@@ -343,6 +357,7 @@ import { VLayout, VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField, V
 import { debounce } from 'lodash'
 import { Store } from 'vuex'
 import { State, fetchStore } from '@/store'
+import { presets } from '@/vuetify'
 import ThemePreview from './ThemePreview.vue'
 import KeyfileInput from './KeyfileInput.vue'
 import KeyfileOutput from './KeyfileOutput.vue'
@@ -397,6 +412,14 @@ class Settings extends Vue {
 
   get debounce_save () {
     return debounce(this.save, 1000)
+  }
+
+  color_base (theme, color) {
+    if (color in presets[theme]) {
+      return presets[theme][color]
+    }
+
+    return '#000000'
   }
 
   async close () {

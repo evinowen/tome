@@ -9,36 +9,28 @@
         hide-details
         :label="color"
         :color="color"
-        :value="enabled"
+        :model-value="enabled"
         class="mx-auto my-0"
-        @update:model-value="$emit('enabled', $event || false)"
+        @update:model-value="$emit('enabled', !enabled)"
       />
     </v-card-title>
     <v-color-picker
-      v-if="enabled"
-      dense
       rounded="0"
       :model-value="enabled ? value : base"
+      :modes="['rgb']"
       :disabled="!enabled"
       hex
+      :hide-canvas="!enabled"
+      :hide-sliders="!enabled"
+      hide-inputs
       dot-size="16"
-      hide-mode-switch
-      mode="hexa"
+      mode="hex"
       width="180"
-      canvas-height="78"
-      style="border-radius: 0"
-      @update:model-value="$emit('input', $event.hex)"
+      canvas-height="64"
+      :swatches="[[base]]"
+      show-swatches
+      @update:model-value="$emit('input', $event)"
     />
-    <template v-else>
-      <!-- <v-skeleton-loader
-        boilerplate
-        rounded="0"
-        height="180"
-        width="180"
-        type="image, image"
-        class="mx-auto"
-      /> -->
-    </template>
   </v-card>
 </template>
 
@@ -47,7 +39,8 @@ import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import { VCard, VCardTitle, VSwitch, VColorPicker } from 'vuetify/components'
 
 @Component({
-  components: { VCard, VCardTitle, VSwitch, VColorPicker }
+  components: { VCard, VCardTitle, VSwitch, VColorPicker },
+  emits: [ "enabled", "input" ]
 })
 class ThemeColorPicker extends Vue {
   @Prop({ default: true })
