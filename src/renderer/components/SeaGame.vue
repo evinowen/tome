@@ -1,41 +1,43 @@
 <template>
   <v-layout
-    style="height: 100%;"
+    style="height: 100%; overflow: visible;"
     @click.stop="click"
   >
-    <v-col
-      ref="sea"
-      class="sea grow"
-    >
+    <v-col class="pa-0 sea grow">
       <div
-        ref="boat"
-        class="boat"
+        ref="sea"
+        class="sea"
       >
-        <v-icon>mdi-sail-boat</v-icon>
-      </div>
-      <div
-        ref="cannon_ball"
-        class="cannon_ball"
-      >
-        <v-icon>
-          {{ cannon.ball.sunk ? '' : 'mdi-circle-small' }}
-        </v-icon>
-      </div>
-      <div
-        ref="cannon_splash"
-        :class="['splash', cannon.splash.splashing ? 'splashing' : '' ]"
-      >
-        <div style="position: relative">
-          <v-icon class="splash-outline">
-            {{ 'mdi-circle-outline' }}
+        <div
+          ref="boat"
+          class="boat"
+        >
+          <v-icon>mdi-sail-boat</v-icon>
+        </div>
+        <div
+          ref="cannon_ball"
+          class="cannon_ball"
+        >
+          <v-icon>
+            {{ cannon.ball.sunk ? '' : 'mdi-circle-small' }}
           </v-icon>
         </div>
-      </div>
-      <div
-        ref="distance"
-        :class="['distance', cannon.distance.show ? 'visible' : '' ]"
-      >
-        {{ cannon.distance.value.toFixed(2) }}m
+        <div
+          ref="cannon_splash"
+          :class="['splash', cannon.splash.splashing ? 'splashing' : '' ]"
+        >
+          <div style="position: relative">
+            <v-icon class="splash-outline">
+              {{ 'mdi-circle-outline' }}
+            </v-icon>
+          </div>
+        </div>
+        <div
+          ref="distance"
+          :class="['distance', cannon.distance.show ? 'visible' : '' ]"
+        >
+          {{ cannon.distance.value.toFixed(2) }}m
+        </div>
       </div>
     </v-col>
   </v-layout>

@@ -297,30 +297,32 @@
       <v-divider class="mt-4 mb-5" />
       <v-row>
         <v-col>
-          <v-layout>
-            <v-col class="shrink">
+          <div class="d-flex">
+            <div class="flex-shrink-1">
               <v-layout class="tome">
                 <v-col
-                  class="shrink"
+                  class="pa-0"
                   style="text-align: center;"
                 >
                   <img :src="logo">
                 </v-col>
                 <v-col
-                  class="grow justify-center"
+                  class="px-0 justify-center"
                   align-self-center
                 >
                   <h3>Tome</h3>
-                  version {{ system.version }}
+                  <span style="white-space: nowrap;">
+                    version {{ system.version }}
+                  </span>
                 </v-col>
               </v-layout>
-            </v-col>
-            <v-col class="grow">
+            </div>
+            <div class="flex-grow-1">
               <sea-game />
-            </v-col>
-            <v-col
+            </div>
+            <div
               v-if="system.process"
-              class="shrink"
+              class="flex-shrink-1"
               style="font-size: 0.8em; text-align: right; opacity: 0.6;"
             >
               <b>electron</b> {{ system.process.versions.electron }}<br>
@@ -329,8 +331,8 @@
               <b>v8</b> {{ system.process.versions.v8 }}<br>
               <v-divider />
               <b>sandboxed</b> {{ system.process.sandboxed ? 'true' : 'false' }}<br>
-            </v-col>
-          </v-layout>
+            </div>
+          </div>
         </v-col>
       </v-row>
       <v-row class="mb-3" />
