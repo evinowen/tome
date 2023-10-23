@@ -64,7 +64,7 @@
             :append-icon="obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
             :type="obscure_passphrase ? 'password' : 'text'"
             @click:append="obscure_passphrase = !obscure_passphrase"
-            @change="assign_value('passphrase', $event)"
+            @update:model-value="assign_value('passphrase', $event)"
           />
         </v-col>
       </v-row>
