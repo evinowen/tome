@@ -1,15 +1,36 @@
 <template>
-  <div>
-    <div id="console" />
+  <div id="console">
+    <v-dialog
+      v-model="detail"
+      :scrim="false"
+    >
+      <v-card>
+        <v-card-text style="font-family: monospace; white-space: pre-wrap;">
+          {{ stack }}
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            block
+            size="small"
+            @click.stop="detail = false"
+          >
+            Done
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <slot />
     <v-bottom-sheet
+      :scrim="false"
+      contained
       attach="#console"
       scrollable
       persistent
       hide-overlay
       no-click-animation
       internal-activator
-      :value="value"
-      content-class="console"
+      :model-value="value"
+      offset="100px"
       @input="$event || close()"
     >
       <v-card>
@@ -37,27 +58,6 @@
           </div>
         </div>
       </v-card>
-      <v-snackbar
-        v-model="detail"
-        timeout="-1"
-        multi-line
-        centered
-        vertical
-      >
-        <div style="font-family: monospace; white-space: pre-wrap;">
-          {{ stack }}
-        </div>
-        <template #action="{}">
-          <v-btn
-            rounded="0"
-            size="small"
-            color="primary"
-            @click.stop="detail = false"
-          >
-            Done
-          </v-btn>
-        </template>
-      </v-snackbar>
     </v-bottom-sheet>
   </div>
 </template>
@@ -65,20 +65,20 @@
 <script lang="ts">
 import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
 import { DateTime } from 'luxon'
-import { VIcon, VBtn, VCard, VSnackbar } from 'vuetify/components'
+import { VDialog, VIcon, VBtn, VCard, VCardText, VCardActions } from 'vuetify/components'
 import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
 import { Store } from 'vuex'
 import { State, fetchStore } from '@/store'
 
 @Component({
-  components: { VIcon, VBtn, VCard, VBottomSheet, VSnackbar }
+  components: { VDialog, VIcon, VBtn, VCard, VCardText, VCardActions, VBottomSheet }
 })
 class Console extends Vue {
   @Setup(() => fetchStore())
   store!: Store<State>
 
   @Prop({ default: false })
-  value!: Boolean
+  value!: boolean
 
   detail = false
   stack = ''
@@ -112,12 +112,6 @@ class Console extends Vue {
 
 export default toNative(Console)
 </script>
-
-<style>
-.v-dialog {
-  max-height: calc(100% - 25px) !important;
-}
-</style>
 
 <style scoped>
 .log {
@@ -174,6 +168,12 @@ export default toNative(Console)
   display: flex;
   flex-direction: column-reverse;
   border-radius: 0 !important;
-  margin-bottom: 18px;
+}
+
+#console {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 </style>

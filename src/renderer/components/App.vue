@@ -3,26 +3,26 @@
     <system-bar title="tome" />
     <action-bar />
     <settings :value="system.settings" />
-    <v-main>
-      <template v-if="repository.loaded">
-        <branch :value="system.branch" />
-        <commit ref="commit" />
-        <push ref="push" />
-        <patch :value="system.patch" />
-      </template>
+    <v-main id="main">
+      <console :value="system.console">
+        <template v-if="repository.loaded">
+          <branch :value="system.branch" />
+          <commit ref="commit" />
+          <push ref="push" />
+          <patch :value="system.patch" />
+        </template>
 
-      <editor-interface
-        v-show="repository.path"
-        ref="interface"
-      />
-      <empty-pane v-show="!repository.path" />
+        <editor-interface
+          v-show="repository.path"
+          ref="interface"
+        />
+        <empty-pane v-show="!repository.path" />
 
-      <context-menu-service />
+        <context-menu-service />
 
-      <search-service v-show="system.search" />
-      <shortcut-service />
-
-      <console :value="system.console" />
+        <search-service v-show="system.search" />
+        <shortcut-service />
+      </console>
     </v-main>
   </v-app>
 </template>

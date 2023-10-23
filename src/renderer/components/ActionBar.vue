@@ -40,7 +40,6 @@
       :status="status"
       :message="message"
       :disabled="disabled_unless(system.console || system.commit || system.push)"
-      @click.stop="console"
     />
 
     <template v-if="repository.path">
@@ -170,10 +169,6 @@ class ActionBar extends Vue {
 
   async push () {
     await this.store.dispatch('system/push', !this.system.push)
-  }
-
-  async console () {
-    await this.store.dispatch('system/console', !this.system.console)
   }
 
   async search () {
