@@ -36,29 +36,21 @@
       </v-btn>
     </template>
 
-    <v-list density="compact">
+    <v-list
+      id="library-menu"
+      density="compact"
+    >
       <v-list-item
         v-for="(item, index) in library.history"
         :key="index"
         density="compact"
+        prepend-icon="mdi-book"
         @click="open(item)"
       >
-        <v-icon
-          size="small"
-          class="mr-1"
-        >
-          mdi-book
-        </v-icon>
         <v-list-item-title>{{ item }}</v-list-item-title>
       </v-list-item>
       <v-divider />
-      <v-list-item @click="select">
-        <v-icon
-          size="small"
-          class="mr-1"
-        >
-          mdi-folder-open
-        </v-icon>
+      <v-list-item @click="select" prepend-icon="mdi-folder-open">
         <v-list-item-title>Select ...</v-list-item-title>
       </v-list-item>
     </v-list>
@@ -117,36 +109,30 @@ export default toNative(LibraryButton)
 </script>
 
 <style scoped>
-.v-btn--icon.v-size--small,
-.v-btn--icon.v-size--small .v-icon {
-  height: 18px;
-}
-
-.button {
-  height: 18px !important;
-}
-
-.v-list-item {
-  padding: 0 4px;
-  min-height: 20px !important;
-  min-width: 120px;
-}
-
-.v-list-item--link:before {
-  background: inherit;
-}
-
-.v-list-item:hover,
-.v-list-item:hover .item {
-  color: var(--v-accent-lighten4) !important;
-  background: var(--v-accent-darken2) !important;
-}
-
 .library-button {
   padding: 0px;
   height: 100%;
   width: 30px;
   min-height: 0;
   min-width: 30px;
+}
+
+#library-menu :deep(.v-list-item) {
+  padding: 0 4px;
+  min-height: 20px;
+  min-width: 120px;
+}
+
+#library-menu :deep(.v-list-item--one-line) {
+  padding-inline-start: 6px;
+  padding-inline-end: 6px;
+}
+
+#library-menu :deep(.v-list-item__spacer) {
+  width: 12px;
+}
+
+#library-menu :deep(.v-list-item-title) {
+  font-size: 0.8em;
 }
 </style>
