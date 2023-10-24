@@ -1,5 +1,5 @@
 <template>
-  <div class="search-container">
+  <div class="search-container pa-4">
     <v-toolbar class="search-box">
       <v-item-group
         dense
@@ -9,8 +9,7 @@
         <v-btn
           size="small"
           rounded="0"
-          :variant="multifile && 'flat'"
-          :color="multifile ? 'primary' : ''"
+          :color="multifile ? 'primary' : undefined"
           @click="flag('multifile', !multifile)"
         >
           <v-icon>mdi-file-multiple</v-icon>
@@ -18,7 +17,6 @@
         <v-btn
           size="small"
           rounded="0"
-          :variant="case_sensitive && 'flat'"
           :color="case_sensitive ? 'primary' : ''"
           @click="flag('case_sensitive', !case_sensitive)"
         >
@@ -27,32 +25,33 @@
         <v-btn
           size="small"
           rounded="0"
-          :variant="regex_query && 'flat'"
           :color="regex_query ? 'primary' : ''"
           @click="flag('regex_query', !regex_query)"
         >
           <v-icon>mdi-regex</v-icon>
         </v-btn>
       </v-item-group>
-      <v-layout column>
-        <v-col class="search-input px-2">
-          <v-text-field
-            ref="input"
-            :model-value="query"
-            rows="1"
-            :messages="status"
-            clearable
-            single-line
-            hide-details
-            :prepend-icon="regex_query ? 'mdi-slash-forward' : undefined"
-            :append-icon="regex_query ? 'mdi-slash-forward' : undefined"
-            @update:model-value="debounce_update"
-            @click:clear="debounce_clear"
-            @keydown.enter="next"
-            @keydown.esc="$emit('close')"
-          />
-        </v-col>
-      </v-layout>
+      <div
+        id="search-input"
+        class="px-4"
+      >
+        <v-text-field
+          ref="input"
+          class="pa-0"
+          :model-value="query"
+          rows="1"
+          :messages="status"
+          clearable
+          single-line
+          hide-details
+          :prepend-icon="regex_query ? 'mdi-slash-forward' : undefined"
+          :append-icon="regex_query ? 'mdi-slash-forward' : undefined"
+          @update:model-value="debounce_update"
+          @click:clear="debounce_clear"
+          @keydown.enter="next"
+          @keydown.esc="$emit('close')"
+        />
+      </div>
       <div
         v-if="navigation"
         class="search-navigation"
@@ -210,7 +209,8 @@ class SearchService extends Vue {
 export default toNative(SearchService)
 </script>
 
-<style>
+<style scoped>
+
 .search-buttons .v-btn {
   min-width: 0px !important;
 }
@@ -218,7 +218,7 @@ export default toNative(SearchService)
 .search-container {
   position: absolute;
   width: 100%;
-  bottom: 18px;
+  bottom: 0;
   z-index: 99;
 }
 
@@ -228,8 +228,6 @@ export default toNative(SearchService)
 
 .search-results {
   height: 120px;
-  margin: 12px;
-  margin-top: 0px;
   overflow-x: hidden;
   overflow-y: overlay;
   border-top: 1px dotted rgba(0, 0, 0, 0.2);
@@ -278,32 +276,28 @@ export default toNative(SearchService)
 }
 
 .search-box {
-  margin: 12px;
+  overflow: visible;
+  padding: 0 12px;
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
 }
 
-.search-input {
-  padding: 0 12px;
+#search-input {
+  flex-grow: 1;
 }
 
-.search-input .v-input__control,
-.search-input .v-input__slot,
-.search-input .v-text-field__slot {
+#search-input :deep(*) {
+  overflow-y: visible;
+}
+
+#search-input :deep(.v-input__control),
+#search-input :deep(.v-input__slot),
+#search-input :deep(.v-text-field__slot) {
   height: 28px;
   position: relative;
+  overflow: visible;
 }
 
-.search-input .v-input__prepend-outer,
-.search-input .v-input__append-outer {
-  margin-right: 0px !important;
-  margin-left: 0px !important;
-}
-.search-input .v-input__prepend-outer div .v-icon,
-.search-input .v-input__append-outer div .v-icon {
-  font-size: 2.0em;
-}
-
-.search-input input {
+#search-input :deep(input.v-field__input) {
   font-size: 6em;
   font-weight: 700;
   padding: 0px 4px;
@@ -317,6 +311,7 @@ export default toNative(SearchService)
     2px -2px 0 var(--v-secondary-base),
     -2px 2px 0 var(--v-secondary-base),
     2px 2px 0 var(--v-secondary-base);
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
-
 </style>
