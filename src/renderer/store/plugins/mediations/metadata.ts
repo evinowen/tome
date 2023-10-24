@@ -1,6 +1,6 @@
 export default store => {
   store.watch(state => state.files.tree?.timestamp || 0, async () => {
-    const tree = this.store.state.files.tree
+    const tree = store.state.files.tree
     const files = tree.base.children
 
     const patterns = {
@@ -14,7 +14,7 @@ export default store => {
       for (const type in patterns) {
         const regex = patterns[type]
         if (regex.test(file.name)) {
-          await this.store.dispatch('repository/metadata', { [type]: file.path })
+          await store.dispatch('repository/metadata', { [type]: file.path })
         }
       }
     }

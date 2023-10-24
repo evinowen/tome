@@ -1,5 +1,5 @@
 export default store => {
   store.watch(state => state.repository.path || '', async () => {
-    await this.store.dispatch('templates/load', { path: this.store.state.repository.path })
+    await store.dispatch('templates/load', { path: store.state.repository.path })
   })
 }
