@@ -1,11 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <split-pane
-    :min-percent="5"
-    :default-percent="25"
-    split="vertical"
-  >
-    <template slot="paneL">
+  <split-pane>
+    <template #left>
       <div
         class="fit"
         style="overflow-y: overlay;"
@@ -17,7 +13,7 @@
       </div>
     </template>
 
-    <template slot="paneR">
+    <template #right>
       <div
         v-show="active"
         class="fit"
@@ -99,11 +95,13 @@ import EmptyPane from '@/components/EmptyPane.vue'
 import { Store } from 'vuex'
 import { State, fetchStore } from '@/store'
 import VueCodeMirror from 'vue-codemirror'
+import SplitPane from './EditorInterface/SplitPane.vue'
 import File from '@/store/modules/files/file'
 
 @Component({
   components: {
     VDivider,
+    SplitPane,
     Explorer,
     EmptyPane,
     FileIcon,
