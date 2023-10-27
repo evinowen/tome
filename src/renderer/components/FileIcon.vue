@@ -27,7 +27,8 @@ import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import { VBtn, VIcon } from 'vuetify/components'
 
 @Component({
-  components: { VBtn, VIcon }
+  components: { VBtn, VIcon },
+  emits: [ 'click' ]
 })
 class FileIcon extends Vue {
   @Prop({ default: '' })
@@ -194,7 +195,7 @@ export default toNative(FileIcon)
   --tome-file-icon-icon-badged-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 9px);
   --tome-file-icon-icon-badged-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 9px) + 1px);
 
-  mask-image:
+  -webkit-mask-image:
     radial-gradient(
       circle at var(--tome-file-icon-icon-badged-circle-x) var(--tome-file-icon-icon-badged-circle-y),
       rgba(0, 0, 0, 0) var(--tome-file-icon-icon-badged-gradient),
@@ -211,7 +212,7 @@ export default toNative(FileIcon)
   --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 9px);
   --tome-file-icon-badge-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 7px);
   --tome-file-icon-badge-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 7px) + 1px);
-  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * 0.5 * -3px);
+  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * 0.5 * 3px);
   --tome-file-icon-badge-right: calc(var(--tome-file-icon-factor) * 0.5 * 6px);
 
   position: absolute;
@@ -219,7 +220,8 @@ export default toNative(FileIcon)
   min-width: var(--tome-file-icon-badge) !important;
   height: var(--tome-file-icon-badge) !important;
   min-height: var(--tome-file-icon-badge) !important;
-  mask-image:
+
+  -webkit-mask-image:
     radial-gradient(
       rgba(0, 0, 0, 1) var(--tome-file-icon-badge-gradient),
       rgba(0, 0, 0, 0) var(--tome-file-icon-badge-gradient-edge)
@@ -230,7 +232,7 @@ export default toNative(FileIcon)
 }
 
 .v-icon.v-icon.file-icon-badge.file-icon-expanded {
-  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * -2.5px);
+  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * 0.5px);
 }
 
 @keyframes rotating {

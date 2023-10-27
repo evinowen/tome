@@ -16,13 +16,13 @@
       @dragleave.stop="drag_leave"
       @drop.stop="drop"
     >
-      <v-layout
+      <div
         :class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
         @click.left.stop="$emit('select', { path })"
         @click.right.stop="contextmenu"
       >
-        <v-col
-          class="explorer-node-indent shrink"
+        <div
+          class="explorer-node-indent flex-shrink-1"
           :style="{ width: `${depth * 6}px`}"
         />
         <file-icon
@@ -36,16 +36,19 @@
           :alert="alert"
           @click="locked || $emit(directory ? 'toggle' : 'select', { path })"
         />
-        <v-col>
+        <div class="flex-grow-1">
           <v-form
             ref="form"
             v-model="valid"
+            class="explorer-input"
           >
             <v-text-field
               v-show="(selected && edit)"
               ref="input"
               v-model="input"
               density="compact"
+              variant="plain"
+              rounded="0"
               autofocus
               :rules="rules"
               @blur="$emit('blur')"
@@ -59,15 +62,17 @@
               :model-value="display"
               readonly
               density="compact"
+              variant="plain"
+              rounded="0"
               class="pa-0"
               @click.left.stop="$emit('select', { path })"
             />
           </v-form>
-        </v-col>
-      </v-layout>
+        </div>
+      </div>
     </div>
     <div style="height: 2px;" />
-    <v-container
+    <div
       v-if="directory"
       v-show="expanded"
       class="explorer-node-container"
@@ -84,10 +89,10 @@
         :title="title"
 
         :depth="depth + 1"
-        v-on="$listeners"
+        @select="$emit('select', $event)"
+        @toggle="$emit('toggle', $event)"
       />
-    </v-container>
-
+    </div>
     <div class="explorer-node-break" />
   </v-container>
 </template>
@@ -109,7 +114,8 @@ export const ExplorerNodeGhostType = {
 
 @Component({
   name: 'ExplorerNode',
-  components: { VContainer, VLayout, VCol, VForm, VTextField, FileIcon }
+  components: { VContainer, VLayout, VCol, VForm, VTextField, FileIcon },
+  emits: [ 'toggle', 'select' ]
 })
 class ExplorerNode extends Vue {
   @Setup(() => fetchStore())
@@ -430,143 +436,43 @@ class ExplorerNode extends Vue {
 export default toNative(ExplorerNode)
 </script>
 
-<style>
+<style scoped>
 .explorer-node {
-  min-height: 0 !important;
-  padding: 0 !important;
-  line-height: 12px !important;
-  text-overflow: ellipsis;
+  display: flex;
   white-space: nowrap;
   overflow: visible;
   user-select: none;
+}
+
+.explorer-input,
+.explorer-input :deep(*) {
+  height: 100%;
+  display: flex;
+  flex-grow: 1;
+}
+
+.explorer-input :deep(.v-field__input) {
+  text-overflow: ellipsis;
+  font-size: 0.6em;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-inline-start: 2px;
+  padding-inline-end: 2px;
+  min-height: 0;
+  border: none;
+  background: none;
   vertical-align: text-bottom;
 }
 
-.explorer-node * {
-  text-overflow: ellipsis;
-  cursor: pointer !important;
+.explorer-input :deep(.v-field__outline:before) {
+  border-bottom: 0;
 }
 
-.explorer-node .v-icon {
-  font-size: 14px !important;
+.explorer-input :deep(.v-field__outline:after) {
+  border-bottom: 0;
 }
 
-.explorer-node .v-btn,
-.explorer-node input {
-  position: relative;
-  cursor: pointer !important;
+.explorer-input :deep(.v-input__details) {
+  display: none;
 }
-
-.explorer-icon-badged {
-  mask-image:
-    radial-gradient(circle at calc(100% - 3px) calc(100% - 3px),
-    rgba(0, 0, 0, 0) 4px, rgba(0, 0, 0, 1) 40%);
-}
-
-.explorer-node .v-btn .explorer-badge {
-  position: absolute;
-  bottom: -1.5px;
-  right: -0.40px;
-  font-size: 10px !important;
-  background-blend-mode: overlay;
-}
-
-.explorer-node-break {
-  height: 0px;
-  width: 100%;
-}
-
-.explorer-node-drop {
-  height: 18px;
-  margin: 0;
-  text-overflow: ellipsis;
-}
-
-.explorer-node-drop.drop {
-  color: var(--v-accent-lighten4) !important;
-  background: var(--v-accent-darken1) !important;
-}
-
-.explorer-node-drop.drop .v-btn,
-.explorer-node-drop.drop input {
-  color: var(--v-accent-lighten4) !important;
-}
-
-.explorer-node .v-input,
-.explorer-node .v-input input {
-  margin: 0 !important;
-  padding: 0 !important;
-  font-size: 10px;
-}
-
-.explorer-node .v-input__slot {
-  min-height: 0 !important;
-  margin: 0 !important;
-}
-
-.explorer-node .v-input__slot::before {
-  border-style: none !important;
-}
-
-.explorer-node .v-input__slot:after {
-  border: none !important;
-}
-
-.explorer-node .v-text-field__details {
-  margin-top: 20px;
-  position: absolute !important;
-  right: 0px;
-  z-index: 1000;
-}
-
-.explorer-node .v-input__slot {
-  padding: 0 !important;
-}
-
-.explorer-node .v-input__icon {
-  height: 18px;
-}
-
-.explorer-node .v-input__prepend-inner {
-  margin-top: 0 !important;
-}
-
-.explorer-node .v-input--is-disabled .v-text-field__details {
-  display: none !important;
-}
-
-.explorer-node-container {
-  border: none;
-  width: auto !important;
-  min-height: 8px;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.explorer-node:hover {
-  background: var(--v-primary-darken2) !important;
-}
-.explorer-node:hover .v-btn,
-.explorer-node:hover input {
-  color: var(--v-primary-lighten4) !important;
-}
-
-.explorer-node-selected {
-  background: var(--v-primary-darken3) !important;
-}
-
-.explorer-node-selected .v-btn,
-.explorer-node-selected input {
-  color: var(--v-primary-lighten3) !important;
-}
-
-.explorer-node-selected:hover {
-  background: var(--v-primary-darken2) !important;
-}
-
-.explorer-node-selected:hover .v-btn,
-.explorer-node-selected:hover input {
-  color: var(--v-primary-lighten4) !important;
-}
-
 </style>

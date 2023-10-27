@@ -83,8 +83,10 @@ export default toNative(SplitPane)
 
 #pane-control {
   flex-grow: 0;
-  width: 6px;
+  width: 3px;
   cursor: ew-resize;
-  background: white;
+  background: #333;
+  border: 1px solid #000;
+  border-width: 0px 1px;
 }
 </style>
