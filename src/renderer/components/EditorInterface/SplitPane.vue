@@ -73,11 +73,13 @@ export default toNative(SplitPane)
 #pane-left {
   height: 100%;
   position: relative;
+  flex-shrink: 0;
 }
 
 #pane-right {
   height: 100%;
   flex-grow: 1;
+  flex-shrink: 1;
   position: relative;
 }
 

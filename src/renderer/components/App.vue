@@ -127,4 +127,8 @@ html, body {
   left: 0;
   right: 0;
 }
+
+#main {
+  max-height: 100%;
+}
 </style>
