@@ -3,8 +3,6 @@ import App from '@/components/App.vue'
 import { store, key } from './store'
 import vuetify from './vuetify'
 
-// import SplitPane from 'vue-splitpane'
-
 import '@fontsource/montserrat'
 import '@mdi/font/css/materialdesignicons.min.css'
 
@@ -20,8 +18,6 @@ import '@mdi/font/css/materialdesignicons.min.css'
 // import * as VueShortKey from 'vue-shortkey'
 
 async function main () {
-  // Vue.component('SplitPane', SplitPane)
-
   // Vue.use(VueCodemirror, {
   //   events: ['contextmenu', 'inputRead'],
   //   options: {
