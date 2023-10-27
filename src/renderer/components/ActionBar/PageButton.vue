@@ -34,5 +34,6 @@ export default toNative(PageButton)
   min-height: 0;
   min-width: 30px;
   font-size: 1.2em;
+  flex-shrink: 0;
 }
 </style>

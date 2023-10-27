@@ -52,10 +52,13 @@ export default toNative(ConsoleButton)
   padding: 0px;
   height: 100%;
   min-height: 0;
-  min-width: 30px;
+  min-width: 0;
   justify-content: left;
   flex-grow: 1;
+  flex-shrink: 1;
   font-size: 0.8em;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .console-button span {

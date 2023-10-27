@@ -36,6 +36,7 @@ export default toNative(EditSwitch)
 @layer edit-switch {
   #edit-switch {
     flex-grow: 0;
+    flex-shrink: 0;
     padding: 0 2px !important;
   }
 
