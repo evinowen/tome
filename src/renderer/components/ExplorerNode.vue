@@ -1,8 +1,8 @@
 <template>
   <v-container
     v-show="visible"
+    id="root"
     class="pa-0"
-    style="user-select: none; clear: both;"
   >
     <div
       ref="draggable"
@@ -437,11 +437,14 @@ export default toNative(ExplorerNode)
 </script>
 
 <style scoped>
+#root :deep(*) {
+  user-select: none;
+}
+
 .explorer-node {
   display: flex;
   white-space: nowrap;
   overflow: visible;
-  user-select: none;
 }
 
 .explorer-input,

@@ -1,5 +1,5 @@
 <template>
-  <div class="explorer-root">
+  <div id="root">
     <explorer-node
       v-if="root.path !== ''"
       ref="explorer_root"
@@ -161,9 +161,10 @@ class Explorer extends Vue {
 export default toNative(Explorer)
 </script>
 
-<style>
-.explorer-root {
+<style scoped>
+#root {
   border-left:4px solid rgba(128, 128, 128, 0.1);
   height: 100%;
+  user-select: none;
 }
 </style>
