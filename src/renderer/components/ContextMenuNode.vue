@@ -85,14 +85,15 @@ import ResizeObserver from 'resize-observer-polyfill'
 @Component({
   name: 'ContextMenuNode',
   components: { VLayout, VCol, VList, VListItem, VListItemTitle, VListSubheader, VIcon, VDivider },
-  directives: { ClickOutside }
+  directives: { ClickOutside },
+  emits: [ 'close' ]
 })
 class ContextMenuNode extends Vue {
   @Prop({ default: undefined })
   title?: string
 
-  @Prop({ default: false })
-  root: boolean
+  @Prop({ type: Boolean, default: false })
+  root: Boolean
 
   @Prop({ default: undefined })
   target?: string
@@ -162,8 +163,7 @@ class ContextMenuNode extends Vue {
   }
 
   include () {
-    const result = [...this.$refs.node.querySelectorAll('*,* > *')]
-    return result
+    return [...this.$refs.node.querySelectorAll('*')]
   }
 
   resize () {
