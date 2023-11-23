@@ -97,15 +97,15 @@ export default toNative(App)
 }
 
 ::-webkit-scrollbar-corner {
-  background: rgba(0,0,0,0.1);
+  background: rgba(var(--v-theme-on-background), 0.1);
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.1);
+  background: rgba(var(--v-theme-on-background), 0.1);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--v-secondary-lighten3);
+  background: rgba(var(--v-theme-on-background), 0.1);
 }
 
 html, body {

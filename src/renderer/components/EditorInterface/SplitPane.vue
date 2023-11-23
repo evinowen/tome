@@ -74,21 +74,24 @@ export default toNative(SplitPane)
   height: 100%;
   position: relative;
   flex-shrink: 0;
+  min-width: 0;
+  min-height: 0;
 }
 
 #pane-right {
   height: 100%;
   flex-grow: 1;
   flex-shrink: 1;
+  min-width: 0;
+  min-height: 0;
   position: relative;
 }
 
 #pane-control {
   flex-grow: 0;
-  width: 3px;
+  flex-shrink: 0;
+  width: 2px;
   cursor: ew-resize;
-  background: #333;
-  border: 1px solid #000;
-  border-width: 0px 1px;
+  background: rgba(var(--v-theme-on-background), 0.3);
 }
 </style>
