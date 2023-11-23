@@ -91,6 +91,8 @@
         :depth="depth + 1"
         @select="$emit('select', $event)"
         @toggle="$emit('toggle', $event)"
+        @drag="$emit('drag', $event)"
+        @drop="$emit('drop', $event)"
       />
     </div>
     <div class="explorer-node-break" />
@@ -115,7 +117,7 @@ export const ExplorerNodeGhostType = {
 @Component({
   name: 'ExplorerNode',
   components: { VContainer, VLayout, VCol, VForm, VTextField, FileIcon },
-  emits: [ 'toggle', 'select' ]
+  emits: [ 'toggle', 'select', 'drag', 'drop' ]
 })
 class ExplorerNode extends Vue {
   @Setup(() => fetchStore())
