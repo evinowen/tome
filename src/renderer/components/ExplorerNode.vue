@@ -449,6 +449,28 @@ export default toNative(ExplorerNode)
   overflow: visible;
 }
 
+.explorer-node,
+.explorer-node :deep(*) {
+  cursor: pointer;
+}
+
+.explorer-node:hover {
+  background: rgba(var(--v-theme-primary), 0.5);
+  color: rgb(var(--v-theme-on-primary));
+  transition:
+    background-color 300ms linear,
+    color 300ms linear;
+}
+
+.explorer-node-selected,
+.explorer-node-selected:hover {
+  background: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
+  transition:
+    background-color 300ms linear,
+    color 300ms linear;
+}
+
 .explorer-input,
 .explorer-input :deep(*) {
   height: 100%;
