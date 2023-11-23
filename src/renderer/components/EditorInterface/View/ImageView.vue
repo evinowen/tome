@@ -12,7 +12,7 @@
     />
     <img
       v-else
-      :src="src"
+      :src="file.path"
       :class="[ 'preview', zoom ? 'preview-zoom' : '' ]"
       @click="click"
       @error="error"
@@ -22,14 +22,15 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator'
+import { File } from '@/store'
 import FileIcon from '@/components/FileIcon.vue'
 
 @Component({
   components: { FileIcon }
 })
-class ImagePreview extends Vue {
-  @Prop({ default: '' })
-  src: string
+class ImageView extends Vue {
+  @Prop({ type: File, default: undefined })
+  file?: File
 
   $refs: {
     preview: HTMLElement
@@ -38,7 +39,7 @@ class ImagePreview extends Vue {
   hide = false
   zoom = false
 
-  @Watch('src')
+  @Watch('file')
   reset () {
     this.hide = false
     this.zoom = false
@@ -62,7 +63,7 @@ class ImagePreview extends Vue {
   }
 }
 
-export default toNative(ImagePreview)
+export default toNative(ImageView)
 </script>
 
 <style scoped>

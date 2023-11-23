@@ -3,6 +3,8 @@ import File, { FileLoadContract } from './file'
 import FileTree, { FileIdentity, FileIdentityContract } from './file_tree'
 import { debounce } from 'lodash'
 
+export { default as File } from './file'
+
 class FileTreeNotEstablishedError extends Error {}
 class FileNotSelectedError extends Error {}
 class FileSubmitFailureError extends Error {}
@@ -229,7 +231,7 @@ export default {
       const item: File = await context.dispatch('identify', criteria)
       await context.dispatch('message', `Load ${item.path}`, { root: true })
 
-      if (!item.ephemeral) {
+      if (!(item.ephemeral || item.image)) {
         const contract = await item.load(
           context.state.tree.base,
           async (object) => {

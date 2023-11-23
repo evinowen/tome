@@ -104,6 +104,7 @@ export default class File {
   parent?: File
   loaded = false
   directory = false
+  text = false
   disabled = false
   children: File[] = []
   ghost?: File
@@ -168,6 +169,7 @@ export default class File {
   constructor (data: FileConstructor) {
     Object.assign(this, data)
     this.image = this.mime.startsWith('image')
+    this.text = !(this.image || this.directory)
   }
 
   async load (base: File, listener?: CallableFunction) {

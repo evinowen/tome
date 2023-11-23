@@ -7,7 +7,7 @@
     v-else-if="file.image"
     :file="file"
   />
-  <text-view
+  <text-edit
     v-else
     :file="file"
   />
@@ -16,21 +16,21 @@
 <script lang="ts">
 import { Component, Vue, toNative, Prop } from 'vue-facing-decorator'
 import { File } from '@/store'
+import TextEdit from './Edit/TextEdit.vue'
 import DirectoryView from './View/DirectoryView.vue'
-import TextView from './View/TextView.vue'
 import ImageView from './View/ImageView.vue'
 
 @Component({
   components: {
     DirectoryView,
-    TextView,
+    TextEdit,
     ImageView,
   }
 })
-class FileView extends Vue {
+class FileEdit extends Vue {
   @Prop({ type: File, default: undefined })
   file?: File
 }
 
-export default toNative(FileView)
+export default toNative(FileEdit)
 </script>

@@ -1,7 +1,8 @@
 import { Vue } from 'vue-facing-decorator'
+import { File } from '@/store'
 
-export class ImagePreview extends Vue {
-  src: string
+export class ImageView extends Vue {
+  file?: File
 
   $refs: {
     preview: HTMLElement

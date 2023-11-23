@@ -17,20 +17,14 @@
         v-show="active"
         class="fit"
       >
-        <file-view :enabled="view_render" />
-        <file-editor :enabled="view_edit" />
-        <div
-          v-show="view_empty"
-          class="fill-height"
-        >
-          <template v-if="selected !== undefined">
-            <image-preview
-              v-if="selected.image"
-              :src="selected.path"
-            />
-            <file-summary v-else />
-          </template>
-        </div>
+        <file-edit
+          v-if="system.edit"
+          :file="selected"
+        />
+        <file-view
+          v-else
+          :file="selected"
+        />
       </div>
     </template>
   </split-pane>
@@ -40,29 +34,21 @@
 import { Vue, Component, Watch, Setup, toNative } from 'vue-facing-decorator'
 import { Store } from 'vuex'
 import { State, fetchStore } from '@/store'
-import Explorer from '@/components/Explorer.vue'
-import ImagePreview from '@/components/ImagePreview.vue'
-import FileEditor from './EditorInterface/FileEditor.vue'
-import FileView from './EditorInterface/FileView.vue'
-import FileSummary from './EditorInterface/FileSummary.vue'
-import SplitPane from './EditorInterface/SplitPane.vue'
 import File from '@/store/modules/files/file'
+import Explorer from '@/components/Explorer.vue'
+import FileEdit from './EditorInterface/FileEdit.vue'
+import FileView from './EditorInterface/FileView.vue'
+import SplitPane from './EditorInterface/SplitPane.vue'
 
 @Component({
   components: {
     Explorer,
-    FileEditor,
+    FileEdit,
     FileView,
-    FileSummary,
     SplitPane,
-    ImagePreview
   }
 })
 class EditorInterface extends Vue {
-  static VIEW_EMPTY  = 'empty'
-  static VIEW_EDIT   = 'edit'
-  static VIEW_RENDER = 'render'
-
   @Setup(() => fetchStore())
   store!: Store<State>
 
@@ -87,44 +73,6 @@ class EditorInterface extends Vue {
     }
 
     this.selected = this.store.state.files.directory[this.active]
-  }
-
-  get rendered () {
-    if (this.selected === undefined) {
-      return false
-    }
-
-    return ['.md', '.htm', '.html'].includes(this.selected.extension)
-  }
-
-  get view () {
-    if (this.selected === undefined) {
-      return EditorInterface.VIEW_EMPTY
-    }
-
-    if (!(this.selected.image || this.selected.directory)) {
-      if (this.system.edit) {
-        return EditorInterface.VIEW_EDIT
-      }
-
-      if (this.rendered) {
-        return EditorInterface.VIEW_RENDER
-      }
-    }
-
-    return EditorInterface.VIEW_EMPTY
-  }
-
-  get view_empty() {
-    return this.view === EditorInterface.VIEW_EMPTY
-  }
-
-  get view_edit() {
-    return this.view === EditorInterface.VIEW_EDIT
-  }
-
-  get view_render() {
-    return this.view === EditorInterface.VIEW_RENDER
   }
 }
 

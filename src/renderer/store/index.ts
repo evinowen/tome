@@ -17,6 +17,8 @@ import search, { State as SearchState } from './modules/search'
 import reporter from './plugins/reporter'
 import mediator from './plugins/mediator'
 
+export { File } from './modules/files'
+
 export interface State {
   events: { type: string, message: string, stack: string, datetime: DateTime }[]
   status: string

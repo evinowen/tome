@@ -1,6 +1,5 @@
 <template>
   <div
-    v-show="enabled"
     id="root"
     ref="root"
     @contextmenu="contextmenu"
@@ -10,8 +9,7 @@
 <script lang="ts">
 import { Prop, Component, Vue, Setup, toNative, Watch } from 'vue-facing-decorator'
 import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
-import File from '@/store/modules/files/file'
+import { State, File, fetchStore } from '@/store'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { Compartment, EditorSelection, Extension, RangeSetBuilder, EditorState } from '@codemirror/state'
@@ -23,7 +21,7 @@ import { oneDark } from '@codemirror/theme-one-dark'
 import { debounce } from 'lodash'
 
 @Component({})
-class FileEditor extends Vue {
+class TextEdit extends Vue {
   $refs: {
     root: HTMLElement
   }
@@ -69,17 +67,11 @@ class FileEditor extends Vue {
   @Setup(() => oneDark)
   theme_dark_mode: Extension
 
-  @Prop({ default: false })
-  enabled: boolean
+  @Prop({ type: File, default: undefined })
+  file?: File
 
   updated = 0
-  file = File.Empty
-
   view?: EditorView
-
-  get key (): string {
-    return this.store.state.files.active
-  }
 
   get line_numbers (): boolean {
     return this.store.state.configuration.dark_mode
@@ -95,7 +87,6 @@ class FileEditor extends Vue {
 
   get search_state () {
     return [
-      this.enabled,
       this.search.query,
       this.search.regex_query,
       this.search.case_sensitive,
@@ -117,10 +108,8 @@ class FileEditor extends Vue {
     })
   }
 
-  @Watch('key')
+  @Watch('file')
   select (): void {
-    this.file = this.store.state.files.directory[this.key]
-
     if (!this.file) {
       return
     }
@@ -271,7 +260,7 @@ class FileEditor extends Vue {
 
   @Watch('search_state')
   async search_mark () {
-    if (!this.enabled) {
+    if (!this.file) {
       return
     }
 
@@ -395,8 +384,7 @@ class FileEditor extends Vue {
       return
     }
 
-    const selected = this.store.state.files.directory[this.store.state.files.active]
-    await this.debounce_save(selected.path)
+    await this.debounce_save(this.file.path)
   }
 
   get debounce_save () {
@@ -410,7 +398,7 @@ class FileEditor extends Vue {
   }
 }
 
-export default toNative(FileEditor)
+export default toNative(TextEdit)
 </script>
 
 <style scoped>

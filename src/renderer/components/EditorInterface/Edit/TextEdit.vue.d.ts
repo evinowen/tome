@@ -1,11 +1,11 @@
 import { Vue } from 'vue-facing-decorator'
 import { Store } from 'vuex'
-import { State } from '@/store'
+import { State, File } from '@/store'
 import { Compartment, Extension } from '@codemirror/state'
 import { SearchCursor, RegExpCursor } from '@codemirror/search'
 import { Decoration, EditorView } from '@codemirror/view'
 
-export declare class FileEditor extends Vue {
+export declare class TextEdit extends Vue {
     $refs: {
         root: HTMLElement
     }
@@ -26,10 +26,9 @@ export declare class FileEditor extends Vue {
     theme_light_mode: Extension
     theme_dark_mode: Extension
 
-    enabled: boolean
+    file?: File
 
     updated: number
-    file: any
 
     view?: EditorView
 
