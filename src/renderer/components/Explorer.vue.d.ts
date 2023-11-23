@@ -18,7 +18,7 @@ export class Explorer extends Vue {
   open(state): Promise<void>
   edit(state): Promise<void>
   create(state): Promise<void>
-  delete(path): Promise<void>
+  delete_path(path): Promise<void>
   submit(state): Promise<void>
   blur(): Promise<void>
   drag(state): Promise<void>

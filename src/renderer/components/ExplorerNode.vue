@@ -89,10 +89,19 @@
         :title="title"
 
         :depth="depth + 1"
-        @select="$emit('select', $event)"
-        @toggle="$emit('toggle', $event)"
+
+        @action="$emit('action', $event)"
+        @blur="$emit('blur', $event)"
+        @create="$emit('create', $event)"
+        @delete="$emit('delete', $event)"
         @drag="$emit('drag', $event)"
         @drop="$emit('drop', $event)"
+        @edit="$emit('edit', $event)"
+        @open="$emit('open', $event)"
+        @select="$emit('select', $event)"
+        @submit="$emit('submit', $event)"
+        @template="$emit('template', $event)"
+        @toggle="$emit('toggle', $event)"
       />
     </div>
     <div class="explorer-node-break" />
@@ -117,7 +126,20 @@ export const ExplorerNodeGhostType = {
 @Component({
   name: 'ExplorerNode',
   components: { VContainer, VLayout, VCol, VForm, VTextField, FileIcon },
-  emits: [ 'toggle', 'select', 'drag', 'drop' ]
+  emits: [
+    'action',
+    'blur',
+    'create',
+    'delete',
+    'drag',
+    'drop',
+    'edit',
+    'open',
+    'select',
+    'submit',
+    'template',
+    'toggle',
+  ]
 })
 class ExplorerNode extends Vue {
   @Setup(() => fetchStore())

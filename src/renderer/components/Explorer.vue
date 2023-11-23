@@ -10,19 +10,21 @@
       :enabled="enabled"
       :title="configuration.format_titles"
       :format="format"
-      @context="$emit('context', $event)"
-      @select="select"
-      @paste="$emit('paste', $event)"
-      @toggle="toggle"
-      @open="open"
-      @edit="edit"
-      @submit="submit"
+
+      @action="action"
       @blur="blur"
+      @context="$emit('context', $event)"
+      @create="create"
+      @delete="delete_event"
       @drag="drag"
       @drop="drop"
-      @create="create"
+      @edit="edit"
+      @open="open"
+      @paste="$emit('paste', $event)"
+      @select="select"
+      @submit="submit"
       @template="template"
-      @action="action"
+      @toggle="toggle"
     />
   </div>
 </template>
@@ -140,8 +142,9 @@ class Explorer extends Vue {
     }
   }
 
-  async delete (path) {
-    await this.store.dispatch('files/delete', { path })
+  async delete_event (state) {
+    const { target } = state
+    await this.store.dispatch('files/delete', { path: target })
   }
 
   async submit (state) { await this.store.dispatch('files/submit', state) }
