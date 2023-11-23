@@ -8,11 +8,12 @@
       density="compact"
       class="context-menu-list"
     >
-      <v-list-subheader>{{ title || '&nbsp;' }}</v-list-subheader>
+      <v-list-subheader class="menu-title">{{ title || '&nbsp;' }}</v-list-subheader>
       <v-divider />
       <div
         v-for="(item, index) in items"
         :key="index"
+        class="context-menu-item"
       >
         <v-divider v-if="item.divider" />
         <v-list-item
@@ -28,7 +29,7 @@
           >
             <v-layout>
               <v-col
-                class="menu-arrow shrink"
+                class="menu-arrow"
               >
                 <v-icon
                   v-show="local_flip_x && (item.items || item.load)"
@@ -37,11 +38,11 @@
                   {{ local_flip_x && (item.items || item.load) ? "mdi-menu-left" : "" }}
                 </v-icon>
               </v-col>
-              <v-col class="grow">
+              <v-col class="menu-text">
                 {{ item.title }}
               </v-col>
               <v-col
-                class="menu-arrow shrink"
+                class="menu-arrow"
               >
                 <v-icon
                   v-show="!local_flip_x && (item.items || item.load)"
@@ -263,8 +264,8 @@ export default toNative(ContextMenuNode)
 
 .v-list-item:hover,
 .v-list-item:hover .item {
-  color: var(--v-primary-lighten4) !important;
-  background: var(--v-primary-darken2) !important;
+  color: rgb(var(--v-theme-on-primary));
+  background: rgb(var(--v-theme-primary));
 }
 
 .context-menu {
@@ -272,23 +273,38 @@ export default toNative(ContextMenuNode)
 }
 
 .context-menu-list {
-  border-radius: 0px !important;
-  padding: 0px !important;
+  border-radius: 0;
+  padding: 0;
   min-height: 20px;
 }
 
-.context-menu-list .v-list-subheader {
-  height: 18px !important;
+.context-menu-list :deep(.v-list-subheader) {
+  min-height: 0;
   padding: 4px;
+  padding-bottom: 2px;
 }
 
-.context-menu-list .v-list-item {
-  min-height: 0px !important;
+.context-menu-list :deep(.v-list-item) {
+  min-height: 0;
   padding: 1px;
-  font-weight: normal !important;
+  font-weight: normal;
+}
+
+.menu-title {
+  padding: 2px;
+  padding-inline-start: 2px !important;
+  padding-inline-end: 2px;
 }
 
 .menu-arrow {
-  width: 14px;
+  flex-grow: 0;
+  flex-shrink: 1;
+  min-width: 14px;
+  padding: 1px;
+}
+
+.menu-text {
+  text-align: left;
+  padding: 1px;
 }
 </style>
