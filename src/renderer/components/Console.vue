@@ -1,5 +1,8 @@
 <template>
-  <div id="console">
+  <console-page
+    :open="value"
+    @close="close"
+  >
     <v-dialog
       v-model="detail"
       :scrim="false"
@@ -19,59 +22,39 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <slot />
-    <v-bottom-sheet
-      :scrim="false"
-      contained
-      attach="#console"
-      scrollable
-      persistent
-      hide-overlay
-      no-click-animation
-      internal-activator
-      :model-value="value"
-      offset="100px"
-      @input="$event || close()"
-    >
-      <v-card>
-        <v-btn
-          rounded="0"
-          class="pa-0"
-          style="height: 16px; width: 100%"
-          color="accent"
-          @click.stop="close"
-        >
-          <v-icon size="small">
-            mdi-chevron-down
-          </v-icon>
-        </v-btn>
-        <div class="output">
-          <div
-            v-for="(event, index) in events.slice().reverse()"
-            :key="index"
-            :class="['log', `event-${event.type}`]"
-            @click.stop="() => { show_stack(event.stack || event.message) }"
-          >
-            <pre class="pre datetime">{{ format_date(event.datetime) }}</pre>
-            <pre :class="['pre', `event-${event.type}`, 'px-2']">{{ event.type.padEnd(6) }}</pre>
-            <pre class="pre message">{{ format_message(event.message) }}</pre>
-          </div>
-        </div>
-      </v-card>
-    </v-bottom-sheet>
-  </div>
+    <div class="output">
+      <div
+        v-for="(event, index) in events.slice().reverse()"
+        :key="index"
+        :class="['log', `event-${event.type}`]"
+        @click.stop="() => { show_stack(event.stack || event.message) }"
+      >
+        <pre class="pre datetime">{{ format_date(event.datetime) }}</pre>
+        <pre :class="['pre', `event-${event.type}`, 'px-2']">{{ event.type.padEnd(6) }}</pre>
+        <pre class="pre message">{{ format_message(event.message) }}</pre>
+      </div>
+    </div>
+  </console-page>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
 import { DateTime } from 'luxon'
 import { VDialog, VIcon, VBtn, VCard, VCardText, VCardActions } from 'vuetify/components'
-import { VBottomSheet } from 'vuetify/labs/VBottomSheet'
 import { Store } from 'vuex'
 import { State, fetchStore } from '@/store'
+import ConsolePage from './ConsolePage.vue'
 
 @Component({
-  components: { VDialog, VIcon, VBtn, VCard, VCardText, VCardActions, VBottomSheet }
+  components: {
+    ConsolePage,
+    VBtn,
+    VCard,
+    VCardActions,
+    VCardText,
+    VDialog,
+    VIcon,
+  }
 })
 class Console extends Vue {
   @Setup(() => fetchStore())

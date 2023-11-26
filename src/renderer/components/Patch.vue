@@ -1,97 +1,71 @@
 <template>
-  <v-navigation-drawer
-    :model-value="value"
-    width="900"
-    location="right"
-    @update:model-value="$event || close"
+  <utility-page
+    right
+    :open="value"
+    @close="close"
   >
-    <v-container
-      fluid
-      class="pb-0"
-      style="height: 100%;"
-    >
-      <div
-        class="d-flex flex-column align-stretch flex-grow-0"
-        style="height: 100%;"
-      >
-        <div class="flex-grow-0">
-          <div>
-            <v-btn
-              rounded="0"
-              icon
-              class="float-right"
-              color="black"
-              @click.stop="close"
-            >
-              <v-icon>mdi-window-close</v-icon>
-            </v-btn>
-            <h1>
-              <span class="header-pre float-left">{{ repository.patches_type }}</span>
-              <span style="font-family: 'Courier New', Courier, monospace">{{ repository.patches_reference }}</span>
-            </h1>
-            <div style="clear: both; font-size: 1.15em; font-family: 'Courier New', Courier, monospace; margin-bottom: 6px">
-              {{ repository.patches_message }}
-            </div>
-          </div>
-          <div style="clear: both" />
-        </div>
-
-        <div class="flex-grow-1 mb-3">
-          <div
-            v-if="patches.length === 0"
-            class="patches-empty"
-          >
-            No Content
-          </div>
-          <div
-            v-for="(file, file_index) in patches"
-            :key="file_index"
-            :class="[ file_index ? 'mt-4' : '']"
-          >
-            <v-card
-              dense
-              style="font-family: monospace; overflow: auto;"
-            >
-              <v-card-title class="pa-2">
-                {{ file.name }}
-              </v-card-title>
-              <v-card-text class="pa-2">
-                <div
-                  v-for="(line, line_index) in file.lines"
-                  :key="line_index"
-                  :class="['line', line_color(line.type)]"
-                >
-                  <pre style="overflow: wrap">{{ line_prefix(line.type) }}{{ line.line }}</pre>
-                </div>
-              </v-card-text>
-            </v-card>
-          </div>
-        </div>
-
-        <div
-          ref="base"
-          class="flex-grow-0 pb-3 actions"
+    <div class="flex-grow-0">
+      <div>
+        <v-btn
+          rounded="0"
+          icon
+          class="float-right"
+          color="black"
+          @click.stop="close"
         >
-          <v-divider class="mt-0 mb-2" />
-          <v-btn
-            size="small"
-            color="primary"
-            @click.stop="close"
-          >
-            Done
-          </v-btn>
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+        <h1>
+          <span class="header-pre float-left">{{ repository.patches_type }}</span>
+          <span style="font-family: 'Courier New', Courier, monospace">{{ repository.patches_reference }}</span>
+        </h1>
+        <div style="clear: both; font-size: 1.15em; font-family: 'Courier New', Courier, monospace; margin-bottom: 6px">
+          {{ repository.patches_message }}
         </div>
       </div>
-    </v-container>
-  </v-navigation-drawer>
+      <div style="clear: both" />
+    </div>
+
+    <div class="flex-grow-1 mb-3">
+      <div
+        v-if="patches.length === 0"
+        class="patches-empty"
+      >
+        No Content
+      </div>
+      <div
+        v-for="(file, file_index) in patches"
+        :key="file_index"
+        :class="[ file_index ? 'mt-4' : '']"
+      >
+        <v-card
+          dense
+          style="font-family: monospace; overflow: auto;"
+        >
+          <v-card-title class="pa-2">
+            {{ file.name }}
+          </v-card-title>
+          <v-card-text class="pa-2">
+            <div
+              v-for="(line, line_index) in file.lines"
+              :key="line_index"
+              :class="['line', line_color(line.type)]"
+            >
+              <pre style="overflow: wrap">{{ line_prefix(line.type) }}{{ line.line }}</pre>
+            </div>
+          </v-card-text>
+        </v-card>
+      </div>
+    </div>
+  </utility-page>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText } from 'vuetify/components'
-
+import { VContainer, VBtn, VIcon, VCard, VCardTitle, VCardText } from 'vuetify/components'
 import { Store } from 'vuex'
 import { State, fetchStore } from '@/store'
+import UtilityPage from '@/components/UtilityPage.vue'
 
 class RepositoryPatch {
   static LineType = {
@@ -108,7 +82,15 @@ class RepositoryPatch {
 }
 
 @Component({
-  components: { VContainer, VNavigationDrawer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCardText }
+  components: {
+    UtilityPage,
+    VBtn,
+    VCard,
+    VCardText,
+    VCardTitle,
+    VContainer,
+    VIcon,
+  }
 })
 class Patch extends Vue {
   @Setup(() => fetchStore())
@@ -176,12 +158,6 @@ pre {
   line-height: 30px;
   font-size: 0.7em;
   padding-right: 8px;
-}
-
-.actions {
-  backdrop-filter: blur(2px);
-  position: sticky;
-  bottom: 0px
 }
 
 .patches-empty {

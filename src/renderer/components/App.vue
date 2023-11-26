@@ -2,13 +2,15 @@
   <v-app :theme="theme">
     <system-bar title="tome" />
     <action-bar />
-    <settings :value="system.settings" />
     <v-main id="main">
-      <console :value="system.console">
+      <div id="container">
+        <settings :value="system.settings" />
+        <console :value="system.console" />
+
         <template v-if="repository.loaded">
           <branch :value="system.branch" />
-          <commit ref="commit" />
           <push ref="push" />
+          <commit ref="commit" />
           <patch :value="system.patch" />
         </template>
 
@@ -22,7 +24,7 @@
 
         <search-service v-show="system.search" />
         <shortcut-service />
-      </console>
+      </div>
     </v-main>
   </v-app>
 </template>
@@ -130,5 +132,10 @@ html, body {
 
 #main {
   max-height: 100%;
+}
+
+#container {
+  height: 100%;
+  position: relative;
 }
 </style>
