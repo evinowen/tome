@@ -34,12 +34,12 @@
         class="pa-0 ma-0"
         style="min-height: 120px"
       >
-        <!-- <v-data-table
+        <v-data-table
           :headers="headers"
           :items="history"
           :items-per-page="history.length"
           hide-default-footer
-          dense
+          density="compact"
           disable-sort
           class="my-0 commit-history"
         >
@@ -47,13 +47,12 @@
             <v-btn
               rounded="0"
               icon
-              x-small
               color="warning"
             >
               {{ item.oid.substring(0, 7) }}
             </v-btn>
           </template>
-        </v-data-table> -->
+        </v-data-table>
       </v-container>
       <v-card-actions>
         <v-btn
@@ -93,35 +92,35 @@
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
   VAvatar,
-  VContainer,
-  VDialog,
   VBtn,
-  VSpacer,
-  VProgressCircular,
-  VIcon,
   VCard,
   VCardActions,
-  // VDataTable,
+  VContainer,
+  VDataTable,
+  VDialog,
+  VIcon,
   VListItem,
+  VListItemSubtitle,
   VListItemTitle,
-  VListItemSubtitle
+  VProgressCircular,
+  VSpacer,
 } from 'vuetify/components'
 
 @Component({
   components: {
     VAvatar,
-    VContainer,
-    VDialog,
     VBtn,
-    VSpacer,
-    VProgressCircular,
-    VIcon,
     VCard,
     VCardActions,
-    // VDataTable,
+    VContainer,
+    VDataTable,
+    VDialog,
+    VIcon,
     VListItem,
+    VListItemSubtitle,
     VListItemTitle,
-    VListItemSubtitle
+    VProgressCircular,
+    VSpacer,
   }
 })
 class PushConfirm extends Vue {
@@ -138,8 +137,8 @@ class PushConfirm extends Vue {
   history: any[]
 
   headers = [
-    { text: '', value: 'oid', width: '60px' },
-    { text: '', value: 'message', width: '' }
+    { title: '', value: 'oid', width: '60px' },
+    { title: '', value: 'message', width: '' }
   ]
 }
 

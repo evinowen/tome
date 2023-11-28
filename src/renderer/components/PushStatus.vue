@@ -77,8 +77,8 @@
           class="pa-0 ma-0"
           style="min-height: 120px"
         >
-          <!-- <v-data-table
-            dense
+          <v-data-table
+            density="compact"
             disable-sort
             class="my-0 commit-history"
             :headers="headers"
@@ -91,13 +91,12 @@
               <v-btn
                 rounded="0"
                 icon
-                x-small
                 color="success"
               >
                 {{ item.oid.substring(0, 7) }}
               </v-btn>
             </template>
-          </v-data-table> -->
+          </v-data-table>
         </v-container>
       </template>
     </template>
@@ -134,8 +133,8 @@ import {
   VCardText,
   VDivider,
   VContainer,
-  // VDataTable,
-  VBtn
+  VDataTable,
+  VBtn,
 } from 'vuetify/components'
 
 @Component({
@@ -149,7 +148,7 @@ import {
     VCardText,
     VDivider,
     VContainer,
-    // VDataTable,
+    VDataTable,
     VBtn
   }
 })
@@ -170,8 +169,8 @@ class PushStatus extends Vue {
   history: any[]
 
   headers = [
-    { text: '', value: 'oid', width: '60px' },
-    { text: '', value: 'message', width: '' }
+    { title: '', value: 'oid', width: '60px' },
+    { title: '', value: 'message', width: '' }
   ]
 }
 

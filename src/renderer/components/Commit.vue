@@ -4,116 +4,114 @@
     :open="system.commit"
     @close="close"
   >
-    <div class="flex-grow-0">
-      <div>
-        <v-btn
-          rounded="0"
-          icon
-          class="float-right"
-          color="black"
-          @click.stop="close"
-        >
-          <v-icon>mdi-window-close</v-icon>
-        </v-btn>
-        <h1>Commit</h1>
+    <div style="display: flex; flex-direction: column; height: 100%;">
+      <div class="flex-grow-0">
+        <div>
+          <v-btn
+            rounded="0"
+            icon
+            class="float-right"
+            color="black"
+            @click.stop="close"
+          >
+            <v-icon>mdi-window-close</v-icon>
+          </v-btn>
+          <h1>Commit</h1>
+        </div>
+        <div style="clear: both" />
+        <v-text-field
+          :model-value="repository.signature.name"
+          :placeholder="configuration.name"
+          label="Name"
+          required
+          density="compact"
+          persistent-placeholder
+          @update:model-value="sign_name"
+        />
+        <v-text-field
+          :model-value="repository.signature.email"
+          :placeholder="configuration.email"
+          label="E-mail"
+          required
+          density="compact"
+          persistent-placeholder
+          @update:model-value="sign_email"
+        />
+        <v-textarea
+          persistent-placeholder
+          :model-value="repository.signature.message"
+          :counter="50"
+          label="Message"
+          required
+          clearable
+          auto-grow
+          rows="3"
+          class="message"
+          @update:model-value="sign_message"
+        />
       </div>
-      <div style="clear: both" />
-      <v-text-field
-        :model-value="repository.signature.name"
-        :placeholder="configuration.name"
-        label="Name"
-        required
-        density="compact"
-        persistent-placeholder
-        @update:model-value="sign_name"
-      />
-      <v-text-field
-        :model-value="repository.signature.email"
-        :placeholder="configuration.email"
-        label="E-mail"
-        required
-        density="compact"
-        persistent-placeholder
-        @update:model-value="sign_email"
-      />
-      <v-textarea
-        persistent-placeholder
-        :model-value="repository.signature.message"
-        :counter="50"
-        label="Message"
-        required
-        clearable
-        auto-grow
-        rows="3"
-        class="message"
-        @update:model-value="sign_message"
-      />
-    </div>
 
-    <div
-      ref="list"
-      v-resize="resize"
-      class="flex-grow-1"
-      style="min-height: 320px"
-    >
-      <v-container
-        fluid
-        style="height: 0;"
+      <commit-list-container class="mb-2">
+        <template #left>
+          Available
+        </template>
+        <template #right>
+          Staged
+        </template>
+      </commit-list-container>
+
+      <commit-list-container
+        grow
+        :height="320"
       >
-        <v-row>
-          <v-col style="width: 50vw">
-            <commit-list
-              title="Available"
-              :items="available"
-              icon="mdi-plus-thick"
-              :height="offset"
-              @input="stage"
-              @click="diff"
-            />
-          </v-col>
+        <template #left>
+          <commit-list
+            style="flex-grow: 1;"
+            title="Available"
+            :items="available"
+            icon="mdi-plus-thick"
+            :height="offset"
+            @input="stage"
+            @click="diff"
+          />
+        </template>
+        <template #right>
+          <commit-list
+            style="flex-grow: 1;"
+            title="Staged"
+            :items="staged"
+            icon="mdi-cancel"
+            :height="offset"
+            @input="reset"
+            @click="diff"
+          />
+        </template>
+      </commit-list-container>
 
-          <v-col style="width: 50vw">
-            <commit-list
-              title="Staged"
-              :items="staged"
-              icon="mdi-cancel"
-              :height="offset"
-              @input="reset"
-              @click="diff"
-            />
-          </v-col>
-        </v-row>
-      </v-container>
-    </div>
-
-    <div
-      ref="base"
-      class="flex-grow-0 pb-3"
-    >
-      <v-container fluid>
-        <v-row>
-          <v-col>
-            <v-btn
-              ref="stage"
-              rounded="0"
-              :disabled="available.length === 0"
-              @click.stop="stage('*')"
-            >
-              Stage All
-            </v-btn>
-          </v-col>
-          <v-col>
-            <v-btn
-              ref="reset"
-              rounded="0"
-              :disabled="staged.length === 0"
-              @click.stop="reset('*')"
-            >
-              Reset All
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
+      <commit-list-container>
+        <template #left>
+          <v-btn
+            ref="stage"
+            class="ma-2"
+            rounded="0"
+            :disabled="available.length === 0"
+            @click.stop="stage('*')"
+          >
+            Stage All
+          </v-btn>
+        </template>
+        <template #right>
+          <v-btn
+            ref="reset"
+            class="ma-2"
+            rounded="0"
+            :disabled="staged.length === 0"
+            @click.stop="reset('*')"
+          >
+            Reset All
+          </v-btn>
+        </template>
+      </commit-list-container>
     </div>
     <template #actions>
       <commit-confirm
@@ -147,6 +145,7 @@
 import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
 import {
   VContainer,
+  VLayout,
   VIcon,
   VBtn,
   VRow,
@@ -159,16 +158,19 @@ import { Store } from 'vuex'
 import { State, fetchStore } from '@/store'
 import UtilityPage from '@/components/UtilityPage.vue'
 import CommitList from '@/components/CommitList.vue'
+import CommitListContainer from '@/components/CommitListContainer.vue'
 import CommitConfirm from '@/components/CommitConfirm.vue'
 
 @Component({
   components: {
     CommitConfirm,
     CommitList,
+    CommitListContainer,
     UtilityPage,
     VBtn,
     VCol,
     VContainer,
+    VLayout,
     VIcon,
     VRow,
     VTextarea,
@@ -248,8 +250,8 @@ class Commit extends Vue {
     await this.store.dispatch('repository/message', message)
   }
 
-  async diff (file) {
-    await this.store.dispatch('repository/diff', { path: file.path })
+  async diff (path) {
+    await this.store.dispatch('repository/diff', { path })
     await this.store.dispatch('system/patch', true)
   }
 
@@ -274,5 +276,19 @@ export default toNative(Commit)
   line-height: 1.0em !important;
   height: 15vh;
   font-size: 2.0em;
+}
+
+.change-list-container {
+  display: flex;
+  flex-grow: 1;
+  flex-shrink: 0;
+  min-height: 320px;
+  overflow-y: auto;
+}
+
+.change-list {
+  display: flex;
+  flex-direction: column;
+  width: 50vw;
 }
 </style>

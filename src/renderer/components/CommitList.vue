@@ -1,61 +1,67 @@
 <template>
-  <v-card
-    v-resize="resize"
-    style="position: relative"
+  <v-data-table
+    id="root"
+    density="compact"
+    fixed-header
+    mobile-breakpoint="0"
+    height="320"
+    :headers="headers"
+    :items="items"
+    :sort-by="[{ key: 'file'}]"
+    :items-per-page="items.length"
   >
-    <v-card-title class="pa-2">
-      {{ title }}
-    </v-card-title>
-    <div ref="datatable">
-      <!-- <v-data-table
-        dense
-        fixed-header
-        hide-default-footer
-        :height="datatable.height || 24"
-        style="table-layout: fixed"
-        mobile-breakpoint="0"
-        :headers="headers"
-        :items="items"
-        :sort-by="['file']"
-        :items-per-page="items.length"
-        class="my-2"
-        @click:row="$emit('click', $event)"
+    <template #item.path="{ item }">
+      <v-btn
+        rounded="0"
+        variant="text"
+        class="path-button"
+        @click.stop="$emit('click', item.path)"
       >
-        <template #item.type="{ item }">
-          <v-btn
-            rounded="0"
-            icon
-            x-small
-            :color="file_color(item.type)"
-          >
-            <v-icon
-              size="small"
-              class="mr-1"
-            >
-              {{ file_icon(item.type) }}
-            </v-icon>
-            {{ file_type(item.type) }}
-          </v-btn>
-        </template>
+        {{ item.path }}
+      </v-btn>
+    </template>
 
-        <template #item.action="{ item }">
-          <v-btn
-            rounded="0"
-            icon
-            x-small
-            @click.stop="$emit('input', item.path)"
-          >
-            <v-icon>{{ icon }}</v-icon>
-          </v-btn>
-        </template>
-      </v-data-table> -->
-    </div>
-  </v-card>
+    <template #item.type="{ item }">
+      <v-btn
+        rounded="0"
+        variant="text"
+        class="type-button"
+        :color="file_color(item.type)"
+      >
+        <v-icon
+          size="small"
+          class="mr-1"
+        >
+          {{ file_icon(item.type) }}
+        </v-icon>
+        {{ file_type(item.type) }}
+      </v-btn>
+    </template>
+
+    <template #item.action="{ item }">
+      <v-btn
+        class="action-button"
+        rounded="0"
+        icon
+        @click.stop="$emit('input', item.path)"
+      >
+        <v-icon>{{ icon }}</v-icon>
+      </v-btn>
+    </template>
+
+    <template #bottom></template>
+  </v-data-table>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VCard, VCardTitle, VBtn, VIcon } from 'vuetify/components'
+import {
+  VBtn,
+  VCard,
+  VCardTitle,
+  VDataTable,
+  VIcon,
+} from 'vuetify/components'
 import { Resize } from 'vuetify/directives'
 
 class RepositoryFile {
@@ -69,10 +75,20 @@ class RepositoryFile {
 }
 
 @Component({
-  components: { VCard, VCardTitle, VBtn, VIcon },
+  components: {
+    VBtn,
+    VCard,
+    VCardTitle,
+    VDataTable,
+    VIcon,
+  },
   directives: {
     Resize
-  }
+  },
+  emits: [
+    'click',
+    'input',
+  ]
 })
 class CommitList extends Vue {
   @Prop({ default: 'List' })
@@ -94,9 +110,9 @@ class CommitList extends Vue {
   }
 
   headers = [
-    { text: 'File', value: 'path', width: 'auto' },
-    { text: 'Type', value: 'type', width: '70px' },
-    { text: '', value: 'action', width: '23px', sortable: false }
+    { title: 'File', value: 'path', width: 'auto' },
+    { title: 'Type', value: 'type', width: '78px' },
+    { title: '', value: 'action', width: '23px', sortable: false }
   ]
 
   resize () {
@@ -152,41 +168,55 @@ class CommitList extends Vue {
 export default toNative(CommitList)
 </script>
 
-<style>
-.v-data-table table {
+<style scoped>
+#root {
+  background: rgb(var(--v-theme-background));
+}
+
+#root :deep(table) {
   table-layout: fixed;
 }
 
-.v-data-table td {
-  padding: 0 !important;
-  font-size: 10px !important;
+#root :deep(td),
+#root :deep(th) {
+  font-size: 10px;
+  padding: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.v-data-table td:first-child {
-  padding: 0 6px !important;
+.path-button,
+.type-button,
+.action-button {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  color: rgb(var(--v-theme-on-surface));
+  background: rgb(var(--v-theme-surface));
+}
+.path-button {
+  padding-left: 4px;
+  text-transform: none;
 }
 
-.v-data-table th:last-child {
-  padding: 0 !important;
-}
-
-.v-data-table .v-btn {
-  width: 100% !important;
-  height: 100% !important;
+.path-button,
+.type-button {
   text-align: left;
   justify-content: left;
-  color: white;
+  font-size: 8px;
 }
 
-.v-data-table td:last-child .v-btn{
+.type-button :deep(.v-icon) {
+  font-size: 12px;
+}
+
+.action-button {
   text-align: center;
   justify-content: center;
 }
 
-.v-data-table .v-btn .v-icon {
-  font-size: 14px !important;
+.action-button :deep(.v-icon) {
+  font-size: 14px;
 }
 </style>

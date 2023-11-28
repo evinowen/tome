@@ -8,7 +8,7 @@
       open ? 'open' : undefined
     ]"
   >
-    <div class="mb-2 content">
+    <div :class="['mb-2', 'content', fixed ? 'fixed' : undefined ]">
       <slot />
     </div>
     <div class="pb-2 actions">
@@ -120,6 +120,10 @@ export default toNative(UtilityPage)
 
 .content {
   flex-grow: 1;
+}
+
+.content.fixed {
+  height: 100%;
 }
 
 .actions {

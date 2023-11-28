@@ -1,6 +1,7 @@
 <template>
   <utility-page
     bottom
+    fixed
     :open="value"
     @close="close"
   >
@@ -21,8 +22,8 @@
     </div>
 
     <div class="flex-grow-1 mb-3">
-      <!-- <v-data-table
-        dense
+      <v-data-table
+        density="compact"
         disable-sort
         class="my-0 commit-history"
         :headers="headers"
@@ -41,9 +42,7 @@
         </template>
         <template #item.oid="{ item }">
           <v-btn
-            rounded="0"
-            icon
-            x-small
+            variant="text"
             color="success"
             style="width: 100%; text-align: center; text-transform: lowercase;"
           >
@@ -60,14 +59,19 @@
             <small style="opacity: 0.5;">{{ format_date(item.date) }}</small>
           </div>
         </template>
-      </v-data-table> -->
+      </v-data-table>
     </div>
   </utility-page>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VContainer, VBtn, VIcon } from 'vuetify/components'
+import {
+  VBtn,
+  VContainer,
+  VDataTable,
+  VIcon,
+} from 'vuetify/components'
 import { DateTime } from 'luxon'
 import { Store } from 'vuex'
 import { State, fetchStore } from '@/store'
@@ -78,6 +82,7 @@ import UtilityPage from '@/components/UtilityPage.vue'
     UtilityPage,
     VBtn,
     VContainer,
+    VDataTable,
     VIcon,
   }
 })
@@ -89,10 +94,10 @@ class Branch extends Vue {
   value!: boolean
 
   headers = [
-    { text: '', value: 'icon', width: '30px' },
-    { text: '', value: 'oid', width: '60px' },
-    { text: '', value: 'date', width: '120px' },
-    { text: 'message', value: 'message', width: '' }
+    { title: '', value: 'icon', width: '30px' },
+    { title: '', value: 'oid', width: '60px' },
+    { title: '', value: 'date', width: '120px' },
+    { title: 'message', value: 'message', width: '' }
   ]
 
   get repository () {
