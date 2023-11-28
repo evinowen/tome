@@ -177,6 +177,11 @@ export default toNative(CommitList)
   table-layout: fixed;
 }
 
+#root :deep(.v-table__wrapper) {
+  overflow-y: scroll;
+  overflow-x: none;
+}
+
 #root :deep(td),
 #root :deep(th) {
   font-size: 10px;

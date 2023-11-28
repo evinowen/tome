@@ -5,8 +5,6 @@ export class Commit extends Vue {
     list: HTMLElement
   }
 
-  offset: number
-
   get system(): any
   get repository(): any
   get staging(): boolean

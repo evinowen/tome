@@ -62,7 +62,7 @@
 
       <commit-list-container
         grow
-        :height="320"
+        height="320"
       >
         <template #left>
           <commit-list
@@ -70,7 +70,7 @@
             title="Available"
             :items="available"
             icon="mdi-plus-thick"
-            :height="offset"
+            height="320"
             @input="stage"
             @click="diff"
           />
@@ -81,7 +81,7 @@
             title="Staged"
             :items="staged"
             icon="mdi-cancel"
-            :height="offset"
+            height="320"
             @input="reset"
             @click="diff"
           />
@@ -153,7 +153,6 @@ import {
   VTextField,
   VTextarea
 } from 'vuetify/components'
-import { Resize } from 'vuetify/directives'
 import { Store } from 'vuex'
 import { State, fetchStore } from '@/store'
 import UtilityPage from '@/components/UtilityPage.vue'
@@ -175,9 +174,6 @@ import CommitConfirm from '@/components/CommitConfirm.vue'
     VRow,
     VTextarea,
     VTextField,
-  },
-  directives: {
-    Resize
   }
 })
 class Commit extends Vue {
@@ -187,8 +183,6 @@ class Commit extends Vue {
   $refs: {
     list: HTMLElement
   }
-
-  offset = 0
 
   get system () {
     return this.store.state.system
@@ -240,10 +234,6 @@ class Commit extends Vue {
 
   async push (value) {
     await this.store.dispatch('system/commit_push', value)
-  }
-
-  resize () {
-    this.offset = this.$refs.list.clientHeight
   }
 
   async message (message) {
