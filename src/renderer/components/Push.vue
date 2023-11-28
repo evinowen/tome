@@ -1,24 +1,11 @@
 <template>
   <utility-page
     right
+    title="Push"
     :open="system.push"
     @close="close"
   >
     <div class="flex-grow-0">
-      <div>
-        <v-btn
-          rounded="0"
-          icon
-          class="float-right"
-          color="black"
-          @click.stop="close"
-        >
-          <v-icon>mdi-window-close</v-icon>
-        </v-btn>
-        <h1>Push</h1>
-      </div>
-      <div style="clear: both" />
-
       <v-card
         dense
         class="my-2"

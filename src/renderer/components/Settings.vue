@@ -1,6 +1,7 @@
 <template>
   <utility-page
     left
+    title="Settings"
     :open="value"
     @close="close"
   >

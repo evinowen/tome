@@ -1,24 +1,12 @@
 <template>
   <utility-page
     right
+    title="Commit"
     :open="system.commit"
     @close="close"
   >
     <div style="display: flex; flex-direction: column; height: 100%;">
       <div class="flex-grow-0">
-        <div>
-          <v-btn
-            rounded="0"
-            icon
-            class="float-right"
-            color="black"
-            @click.stop="close"
-          >
-            <v-icon>mdi-window-close</v-icon>
-          </v-btn>
-          <h1>Commit</h1>
-        </div>
-        <div style="clear: both" />
         <v-text-field
           :model-value="repository.signature.name"
           :placeholder="configuration.name"

@@ -1,29 +1,15 @@
 <template>
   <utility-page
     right
+    :title="repository.patches_reference"
+    :subtitle="repository.patches_type"
     :open="value"
     @close="close"
   >
     <div class="flex-grow-0">
-      <div>
-        <v-btn
-          rounded="0"
-          icon
-          class="float-right"
-          color="black"
-          @click.stop="close"
-        >
-          <v-icon>mdi-window-close</v-icon>
-        </v-btn>
-        <h1>
-          <span class="header-pre float-left">{{ repository.patches_type }}</span>
-          <span style="font-family: 'Courier New', Courier, monospace">{{ repository.patches_reference }}</span>
-        </h1>
-        <div style="clear: both; font-size: 1.15em; font-family: 'Courier New', Courier, monospace; margin-bottom: 6px">
-          {{ repository.patches_message }}
-        </div>
+      <div style="clear: both; font-size: 1.15em; font-family: 'Courier New', Courier, monospace; margin-bottom: 6px">
+        {{ repository.patches_message }}
       </div>
-      <div style="clear: both" />
     </div>
 
     <div class="flex-grow-1 mb-3">

@@ -2,30 +2,20 @@
   <utility-page
     bottom
     fixed
+    :title="repository.branch"
+    subtitle="branch"
     :open="value"
+    :scroll="false"
     @close="close"
   >
-    <div class="flex-grow-0">
-      <div>
-        <v-btn
-          rounded="0"
-          icon
-          class="float-right"
-          color="black"
-          @click.stop="close"
-        >
-          <v-icon>mdi-window-close</v-icon>
-        </v-btn>
-        <h1><span class="header-pre float-left">branch</span>{{ repository.branch }}</h1>
-      </div>
-      <div style="clear: both" />
-    </div>
-
-    <div class="flex-grow-1 mb-3">
+    <div class="mb-3" style="height: 100%; display: flex">
       <v-data-table
+        style="flex-grow: 1;"
+        fixed-header
         density="compact"
         disable-sort
         class="my-0 commit-history"
+        :height="0"
         :headers="headers"
         :items="repository.history"
         :hide-default-footer="true"
@@ -59,6 +49,7 @@
             <small style="opacity: 0.5;">{{ format_date(item.date) }}</small>
           </div>
         </template>
+        <template #bottom />
       </v-data-table>
     </div>
   </utility-page>

@@ -5,9 +5,25 @@
       'pb-0',
       'page',
       location,
-      open ? 'open' : undefined
+      open ? 'open' : undefined,
+      scroll ? 'scroll' : undefined,
     ]"
   >
+    <div class="title-box mb-2">
+      <div class="title">
+        <h1>{{ title }}</h1>
+        <div class="text-subtitle-1">
+          {{ subtitle }}
+        </div>
+      </div>
+      <v-btn
+        variant="flat"
+        class="close-button"
+        @click.stop="$emit('close')"
+      >
+        <v-icon>mdi-window-close</v-icon>
+      </v-btn>
+    </div>
     <div :class="['mb-2', 'content', fixed ? 'fixed' : undefined ]">
       <slot />
     </div>
@@ -28,23 +44,35 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VCard, VLayout, VRow, VBtn, VDivider, VContainer, VNavigationDrawer } from 'vuetify/components'
+import {
+  VBtn,
+  VDivider,
+  VIcon,
+} from 'vuetify/components'
 
 @Component({
   components: {
-    VCard,
-    VRow,
     VBtn,
     VDivider,
-    VContainer,
-    VNavigationDrawer,
-    VLayout,
+    VIcon,
   },
   emits: [ "close" ]
 })
 class UtilityPage extends Vue {
   @Prop({ default: false })
   open: boolean
+
+  @Prop({ default: '' })
+  title: string
+
+  @Prop({ default: '' })
+  subtitle: string
+
+  @Prop({ type: Boolean, default: true })
+  scroll: boolean
+
+  @Prop({ type: Boolean, default: false })
+  fixed: boolean
 
   @Prop({ type: Boolean, default: false })
   left: boolean
@@ -90,11 +118,15 @@ export default toNative(UtilityPage)
   height: 100%;
   max-height: 100%;
   max-width: 100%;
-  overflow: hidden scroll;
+  overflow: hidden;
   position: absolute;
   transition: transform 400ms ease;
   width: 100%;
   z-index: 1000;
+}
+
+.page.scroll {
+  overflow-y: scroll;
 }
 
 .page.left {
@@ -119,11 +151,30 @@ export default toNative(UtilityPage)
 }
 
 .content {
+  flex-shrink: 1;
   flex-grow: 1;
 }
 
 .content.fixed {
   height: 100%;
+}
+
+.title-box {
+  display: flex;
+}
+
+.title {
+  flex-grow: 1;
+}
+
+.close-button {
+  float: right;
+  flex-grow: 0;
+  flex-shrink: 0;
+  padding: 0;
+  min-width: 0;
+  height: 36px;
+  width: 36px;
 }
 
 .actions {

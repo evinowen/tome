@@ -49,7 +49,7 @@
       </v-btn>
     </template>
 
-    <template #bottom></template>
+    <template #bottom />
   </v-data-table>
 </template>
 
