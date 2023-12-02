@@ -4,7 +4,7 @@
       <template v-if="loading">
         <v-list-item>
           <template #prepend>
-            <v-avatar color="darken-1">
+            <v-avatar color="grey">
               <v-icon>mdi-upload-multiple</v-icon>
             </v-avatar>
           </template>
@@ -79,23 +79,29 @@
         >
           <v-data-table
             density="compact"
+            hide-header
             disable-sort
-            class="my-0 commit-history"
+            class="mt-2 mb-0 commit-history"
+            :height="320"
             :headers="headers"
             :items="history"
             :hide-default-footer="true"
             :items-per-page="history.length"
-            @click:row="$emit('click', $event)"
           >
+            <template #headers />
+
             <template #item.oid="{ item }">
               <v-btn
                 rounded="0"
-                icon
+                variant="text"
                 color="success"
+                @click.stop="$emit('commit', item)"
               >
                 {{ item.oid.substring(0, 7) }}
               </v-btn>
             </template>
+
+            <template #bottom />
           </v-data-table>
         </v-container>
       </template>
@@ -104,7 +110,7 @@
     <template v-else>
       <v-list-item>
         <template #prepend>
-          <v-avatar color="darken-1">
+          <v-avatar color="grey">
             <v-icon>mdi-cursor-pointer</v-icon>
           </v-avatar>
         </template>
@@ -150,7 +156,11 @@ import {
     VContainer,
     VDataTable,
     VBtn
-  }
+  },
+  emits: [
+    'commit',
+    'reload',
+  ]
 })
 class PushStatus extends Vue {
   @Prop({ default: false })
@@ -178,43 +188,19 @@ export default toNative(PushStatus)
 </script>
 
 <style scoped>
-.passphrase.v-input .v-input__slot {
-  min-height: 0px !important;
-  border-radius: 0px;
-}
-
 .v-data-table.commit-history {
-  border-radius: 0
+  border-radius: 0;
+  flex-grow: 1;
 }
 
-.v-data-table.commit-history .v-btn {
-  width: 100% !important;
-  height: 100% !important;
-  text-align: left;
-  justify-content: left;
-}
-
-.v-data-table.commit-history th {
-  height: 1px;
-}
-
-.v-data-table.commit-history td {
+.v-data-table.commit-history :deep(td) {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   padding: 0 8px !important;
 }
 
-.v-data-table.commit-history td:first-child {
+.v-data-table.commit-history :deep(td:first-child) {
   padding: 0px !important;
-}
-
-.v-data-table.commit-history td:first-child .v-btn {
-  text-align: center;
-  justify-content: center;
-}
-
-.v-data-table.commit-history .v-btn .v-icon {
-  font-size: 14px !important;
 }
 </style>

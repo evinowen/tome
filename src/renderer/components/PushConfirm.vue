@@ -5,11 +5,11 @@
     max-width="600px"
     @update:model-value="$emit('input', $event)"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-btn
         class="mr-4"
         :disabled="disabled"
-        v-on="on"
+        v-bind="props"
       >
         <v-icon class="mr-2">
           mdi-upload-multiple
@@ -18,7 +18,7 @@
       </v-btn>
     </template>
     <v-card>
-      <v-list-item>
+      <v-list-item class="my-2">
         <template #prepend>
           <v-avatar color="warning">
             <v-icon>mdi-upload-multiple</v-icon>
@@ -43,15 +43,20 @@
           disable-sort
           class="my-0 commit-history"
         >
+          <template #headers />
+
           <template #item.oid="{ item }">
             <v-btn
               rounded="0"
-              icon
+              variant="text"
               color="warning"
+              @click.stop="$emit('commit', item)"
             >
               {{ item.oid.substring(0, 7) }}
             </v-btn>
           </template>
+
+          <template #bottom />
         </v-data-table>
       </v-container>
       <v-card-actions>
@@ -121,7 +126,12 @@ import {
     VListItemTitle,
     VProgressCircular,
     VSpacer,
-  }
+  },
+  emits: [
+    'commit',
+    'input',
+    'push',
+  ]
 })
 class PushConfirm extends Vue {
   @Prop({ default: false })
@@ -146,38 +156,14 @@ export default toNative(PushConfirm)
 </script>
 
 <style scoped>
-.v-data-table.commit-history {
-  border-radius: 0
-}
-
-.v-data-table.commit-history .v-btn {
-  width: 100% !important;
-  height: 100% !important;
-  text-align: left;
-  justify-content: left;
-}
-
-.v-data-table.commit-history th {
-  height: 1px;
-}
-
-.v-data-table.commit-history td {
+.v-data-table.commit-history :deep(td) {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   padding: 0 8px !important;
 }
 
-.v-data-table.commit-history td:first-child {
+.v-data-table.commit-history :deep(td:first-child) {
   padding: 0px !important;
-}
-
-.v-data-table.commit-history td:first-child .v-btn {
-  text-align: center;
-  justify-content: center;
-}
-
-.v-data-table.commit-history .v-btn .v-icon {
-  font-size: 14px !important;
 }
 </style>

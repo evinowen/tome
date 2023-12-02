@@ -33,6 +33,11 @@ interface RepositoryPatches {
   lines: { type: number, line: string }[]
 }
 
+export interface RepositoryRemote {
+  name: string
+  url: string
+}
+
 export interface State {
   name: string
   path: string
@@ -43,7 +48,7 @@ export interface State {
   patches_type: string,
   patches_reference: string,
   patches_message: string,
-  remotes: { name: string, url: string }[]
+  remotes: RepositoryRemote[]
   loaded: boolean
   staging: number
   status: RepositoryStatus

@@ -5,81 +5,83 @@
     :open="system.push"
     @close="close"
   >
-    <div class="flex-grow-0">
-      <v-card
-        dense
-        class="my-2"
-      >
-        <v-card-title class="pa-2">
-          Credentials
-        </v-card-title>
-        <keyfile-input
-          size="small"
-          storable
-          :value="repository.credentials.key"
-          :stored="configuration.private_key"
-          @input="credential_key"
-        />
-        <push-passphrase-input
-          size="small"
-          storable
-          :value="repository.credentials.passphrase"
-          :stored="configuration.passphrase"
-          @input="credential_passphrase"
-        />
-      </v-card>
-
-      <push-remote-selector
-        :value="repository.remote.name !== '' ? repository.remote.name : undefined"
-        :items="repository.remotes"
-        @input="select_remote"
-        @change="add_remote"
-      />
-
-      <v-container fluid>
-        <v-row
-          align="center"
-          justify="center"
+    <div style="display: flex; flex-direction: column; height: 100%;">
+      <div class="flex-grow-0">
+        <v-card
+          dense
+          class="my-2"
         >
-          <v-col>
-            <push-branch :name="repository.branch" />
-          </v-col>
+          <v-card-title class="pa-2">
+            Credentials
+          </v-card-title>
+          <keyfile-input
+            size="small"
+            storable
+            :value="repository.credentials.key"
+            :stored="configuration.private_key"
+            @input="credential_key"
+          />
+          <push-passphrase-input
+            size="small"
+            storable
+            :value="repository.credentials.passphrase"
+            :stored="configuration.passphrase"
+            @input="credential_passphrase"
+          />
+        </v-card>
 
-          <v-col
-            cols="1"
-            class="text-center pa-0 align-center"
+        <push-remote-selector
+          :value="repository.remote.name !== '' ? repository.remote.name : undefined"
+          :items="repository.remotes"
+          @input="select_remote"
+          @create="add_remote"
+        />
+
+        <v-container fluid>
+          <v-row
+            align="center"
+            justify="center"
           >
-            <v-icon
-              align-center
-              size="x-large"
+            <v-col>
+              <push-branch :name="repository.branch" />
+            </v-col>
+
+            <v-col
+              cols="1"
+              class="text-center pa-0 align-center"
             >
-              mdi-chevron-right
-            </v-icon>
-          </v-col>
+              <v-icon
+                align-center
+                size="x-large"
+              >
+                mdi-chevron-right
+              </v-icon>
+            </v-col>
 
-          <v-col>
-            <push-branch
-              :loading="false"
-              :disabled="repository.remote.branch.name === ''"
-              :url="repository.remote.branch.name === '' ? undefined : repository.remote.branch.name"
-              :name="repository.remote.branch.name === '' ? undefined : repository.remote.branch.short"
-            />
-          </v-col>
-        </v-row>
-      </v-container>
+            <v-col>
+              <push-branch
+                :loading="remote_loading"
+                :disabled="repository.remote.branch.name === ''"
+                :url="repository.remote.branch.name === '' ? undefined : repository.remote.branch.name"
+                :name="repository.remote.branch.name === '' ? undefined : repository.remote.branch.short"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
 
-      <v-divider class="mt-4 mb-2" />
-    </div>
+        <v-divider class="mt-4 mb-2" />
+      </div>
 
-    <div class="flex-grow-1 mb-3">
-      <push-status
-        :active="repository.remote != undefined"
-        :loading="false"
-        error=""
-        :match="repository.pending && repository.pending.length <= 0"
-        :history="repository.pending"
-        @click="diff"
-      />
+      <div class="flex-grow-1 mb-3">
+        <push-status
+          :active="remote_loading || repository.remote.name !== ''"
+          :loading="remote_loading"
+          error=""
+          :match="repository.pending && repository.pending.length <= 0"
+          :history="repository.pending"
+          @commit="diff"
+        />
+      </div>
     </div>
 
     <template #actions>
@@ -140,8 +142,14 @@ class Push extends Vue {
   @Setup(() => fetchStore())
   store!: Store<State>
 
+  remote_loading = false
+
   get system () {
     return this.store.state.system
+  }
+
+  get open () {
+    return this.system.push
   }
 
   get repository () {
@@ -173,7 +181,9 @@ class Push extends Vue {
   }
 
   async select_remote (name) {
+    this.remote_loading = true
     await this.store.dispatch('repository/remote', name)
+    this.remote_loading = false
   }
 
   async diff (commit) {

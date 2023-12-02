@@ -12,23 +12,26 @@
         :model-value="value"
         :items="items"
         item-value="name"
+        item-title="name"
+        item-props
         label="Remote"
-        dense
         clearable
         class="mt-4"
-        @update:model-value="$emit('input', $event)"
+        @update:model-value="input"
       >
-        <template #selection="data">
-          {{ data.item.name }}
-          <v-spacer />
-          <small>{{ data.item.url }}</small>
+        <template #selection="{ item }">
+          <v-list-item
+            :title="item.raw.name"
+            :subtitle="item.raw.url"
+          />
         </template>
-        <template #item="data">
-          {{ data.item.name }}
-          <v-spacer />
-          {{ data.item.url }}
+        <template #item="{ props, item }">
+          <v-list-item
+            v-bind="props"
+            :subtitle="item.raw.url"
+          />
         </template>
-        <template #append-outer>
+        <template #append>
           <v-btn
             icon
             :color="edit ? 'warning' : 'darken-1'"
@@ -93,17 +96,48 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer } from 'vuetify/components'
+import {
+  VBtn,
+  VCard,
+  VCardActions,
+  VCardTitle,
+  VCol,
+  VExpandTransition,
+  VIcon,
+  VListItem,
+  VRow,
+  VSelect,
+  VSpacer,
+  VTextField,
+} from 'vuetify/components'
+import { RepositoryRemote } from '@/store/modules/repository'
 
 @Component({
-  components: { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer }
+  components: {
+    VBtn,
+    VCard,
+    VCardActions,
+    VCardTitle,
+    VCol,
+    VExpandTransition,
+    VIcon,
+    VListItem,
+    VRow,
+    VSelect,
+    VSpacer,
+    VTextField,
+  },
+  emits: [
+    'create',
+    'input',
+  ]
 })
 class Push extends Vue {
   @Prop({ default: '' })
   value: string
 
   @Prop({ default: () => [] })
-  items: any[]
+  items: RepositoryRemote[]
 
   edit = false
   form = {

@@ -5,11 +5,11 @@
     max-width="600px"
     @update:model-value="$emit('input', $event)"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-btn
         class="mr-4"
         :disabled="disabled"
-        v-on="on"
+        v-bind="props"
       >
         <v-icon class="mr-2">
           mdi-content-save
@@ -26,7 +26,7 @@
             indeterminate
             :size="40"
             :width="6"
-            color="warning"
+            color="secondary"
             class="mr-4"
           />
           <v-icon v-else>
@@ -78,7 +78,6 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          :variant="push && 'flat'"
           :color="push ? 'warning' : ''"
           variant="text"
           @click="$emit('push', !push)"
@@ -148,7 +147,13 @@ export const CommitConfirmMessages = {
     VListItemTitle,
     VListItemSubtitle,
     VTextarea
-  }
+  },
+  emits: [
+    'commit',
+    'input',
+    'message',
+    'push',
+  ]
 })
 class CommitConfirm extends Vue {
   @Prop({ default: false })
@@ -185,13 +190,18 @@ class CommitConfirm extends Vue {
 export default toNative(CommitConfirm)
 </script>
 
-<style>
+<style scoped>
 .commit {
   font-family: monospace;
   min-height: 120px;
   padding: 0 !important;
   font-size: 18px;
   line-height: 1.0em !important;
+}
+
+.commit :deep(v-field__input) {
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 .commit .v-textarea textarea {
