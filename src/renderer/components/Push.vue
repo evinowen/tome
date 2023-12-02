@@ -2,6 +2,7 @@
   <utility-page
     right
     title="Push"
+    :layer="1"
     :open="system.push"
     @close="close"
   >

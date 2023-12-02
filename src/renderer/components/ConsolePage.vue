@@ -1,5 +1,6 @@
 <template>
   <div
+    :style="{ 'z-index': 100 + layer }"
     :class="[
       'page',
       open ? 'open' : undefined
@@ -42,6 +43,9 @@ import { VCard, VLayout, VRow, VBtn, VIcon, VDivider, VContainer, VNavigationDra
 class ConsolePage extends Vue {
   @Prop({ default: false })
   open: boolean
+
+  @Prop({ default: 0 })
+  layer: number
 }
 
 export default toNative(ConsolePage)
@@ -60,7 +64,6 @@ export default toNative(ConsolePage)
   position: absolute;
   transition: transform 400ms ease;
   width: 100%;
-  z-index: 1000;
   transform: translateY(100%);
 }
 

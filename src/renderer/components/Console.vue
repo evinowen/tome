@@ -1,5 +1,6 @@
 <template>
   <console-page
+    :layer="8"
     :open="value"
     @close="close"
   >

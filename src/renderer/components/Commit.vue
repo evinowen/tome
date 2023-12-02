@@ -2,6 +2,7 @@
   <utility-page
     right
     title="Commit"
+    :layer="1"
     :open="system.commit"
     @close="close"
   >

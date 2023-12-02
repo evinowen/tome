@@ -1,5 +1,6 @@
 <template>
   <div
+    :style="{ 'z-index': 100 + layer }"
     :class="[
       'pa-2',
       'pb-0',
@@ -68,6 +69,9 @@ class UtilityPage extends Vue {
   @Prop({ default: '' })
   subtitle: string
 
+  @Prop({ default: 0 })
+  layer: number
+
   @Prop({ type: Boolean, default: true })
   scroll: boolean
 
@@ -122,7 +126,6 @@ export default toNative(UtilityPage)
   position: absolute;
   transition: transform 400ms ease;
   width: 100%;
-  z-index: 1000;
 }
 
 .page.scroll {

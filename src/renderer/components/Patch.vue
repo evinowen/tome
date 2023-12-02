@@ -3,6 +3,7 @@
     right
     :title="repository.patches_reference"
     :subtitle="repository.patches_type"
+    :layer="2"
     :open="value"
     @close="close"
   >

@@ -4,6 +4,7 @@
     fixed
     :title="repository.branch"
     subtitle="branch"
+    :layer="1"
     :open="value"
     :scroll="false"
     @close="close"

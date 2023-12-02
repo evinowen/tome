@@ -2,6 +2,7 @@
   <utility-page
     left
     title="Settings"
+    :layer="10"
     :open="value"
     @close="close"
   >
