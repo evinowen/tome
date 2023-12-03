@@ -1,5 +1,8 @@
 <template>
-  <v-app :theme="theme">
+  <v-app
+    :theme="theme"
+    @scroll.self="scroll"
+  >
     <system-bar title="tome" />
     <action-bar />
     <v-main id="main">
@@ -86,6 +89,10 @@ class App extends Vue {
 
   get theme () {
     return this.store.state.configuration.dark_mode ? "dark" : "light"
+  }
+
+  scroll (event) {
+    event.target.scrollTop = 0
   }
 }
 

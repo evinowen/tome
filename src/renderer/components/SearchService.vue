@@ -1,5 +1,5 @@
 <template>
-  <div class="search-container pa-4">
+  <div class="search-container pa-2">
     <v-toolbar class="search-box">
       <v-item-group
         dense
@@ -88,30 +88,32 @@
             v-for="result in results"
             :key="result.path.relative"
           >
-            <v-layout
+            <div
               class="search-file"
               @click="select(result.path.absolute, 1, result.matches.length)"
             >
               <v-icon
                 size="small"
-                class="pr-1"
+                class="pr-1 flex-grow-0"
               >
                 {{ result.directory ? 'mdi-folder' : 'mdi-file' }}
               </v-icon>
-              <v-col class="grow">
+              <div class="flex-grow-1 pl-2">
                 {{ result.path.relative }}
-              </v-col>
-              <small>{{ result.path.absolute }}</small>
-            </v-layout>
+              </div>
+              <div class="flex-grow-1 text-end pr-3">
+                <small>{{ result.path.absolute }}</small>
+              </div>
+            </div>
             <v-layout
               v-for="(match, index) in result.matches"
               :key="match.index"
               class="search-result"
               @click="select(result.path.absolute, index + 1, result.matches.length)"
             >
-              <v-col class="grow">
+              <div class="grow">
                 {{ match.line }}
-              </v-col>
+              </div>
             </v-layout>
           </div>
         </div>
@@ -211,8 +213,8 @@ export default toNative(SearchService)
 
 <style scoped>
 
-.search-buttons .v-btn {
-  min-width: 0px !important;
+.search-buttons :deep(.v-btn) {
+  min-width: 0px;
 }
 
 .search-container {
@@ -232,13 +234,14 @@ export default toNative(SearchService)
   overflow-y: overlay;
   border-top: 1px dotted rgba(0, 0, 0, 0.2);
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
-  color: var(--v-secondary-lighten5) !important;
-  background: var(--v-secondary-base) !important;
+  color: rgb(var(--v-theme-on-surface));
+  background: rgba(var(--v-theme-surface), 0.9);
 }
 
 .search-file {
   padding: 2px 6px 1px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  display: flex;
 }
 
 .search-result {
@@ -249,20 +252,14 @@ export default toNative(SearchService)
 
 .search-file:hover,
 .search-result:hover {
-  color: var(--v-primary-lighten5) !important;
-  background: var(--v-primary-base) !important;
+  color: rgb(var(--v-theme-on-primary));
+  background: rgba(var(--v-theme-primary), 0.9);
 }
 
 .search-file small,
 .search-result small {
   font-size: 0.7em;
   padding-top: 3px;
-}
-
-.search-file:hover small,
-.search-result:hover small {
-  font-size: 0.7em;
-  color: var(--v-primary-lighten2) !important;
 }
 
 .search-score {
@@ -306,11 +303,6 @@ export default toNative(SearchService)
   position: absolute;
   bottom: -18px;
   text-indent: 4px;
-  text-shadow:
-    -2px -2px 0 var(--v-secondary-base),
-    2px -2px 0 var(--v-secondary-base),
-    -2px 2px 0 var(--v-secondary-base),
-    2px 2px 0 var(--v-secondary-base);
   padding-top: 0px;
   padding-bottom: 0px;
 }

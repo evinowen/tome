@@ -166,7 +166,6 @@ export default toNative(Explorer)
 
 <style scoped>
 #root {
-  border-left:4px solid rgba(128, 128, 128, 0.1);
   height: 100%;
   user-select: none;
 }
