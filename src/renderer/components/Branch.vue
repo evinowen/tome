@@ -12,7 +12,6 @@
     <div class="mb-3" style="height: 100%; display: flex">
       <v-data-table
         style="flex-grow: 1;"
-        fixed-header
         density="compact"
         disable-sort
         class="my-0 commit-history"
@@ -21,35 +20,45 @@
         :items="repository.history"
         :hide-default-footer="true"
         :items-per-page="repository.history.length"
-        @click:row="diff"
       >
-        <template #item.icon="{ index }">
-          <v-icon class="branch-icon-dot">
-            mdi-circle
-          </v-icon>
-          <v-icon class="branch-icon">
-            mdi-source-commit{{ index > 0 ? ( index === repository.history.length - 1 ? '-end' : '') : '-start' }}
-          </v-icon>
-        </template>
-        <template #item.oid="{ item }">
-          <v-btn
-            variant="text"
-            color="success"
-            style="width: 100%; text-align: center; text-transform: lowercase;"
+        <template #headers />
+
+        <template #item="{ item, index }">
+          <div
+            class="commit-row px-2"
+            @click.stop="diff(item)"
           >
-            <div style="width: 100%; text-align: center; font-weight: bold;">
-              {{ item.oid.substring(0, 7) }}
+            <div class="commit-icon">
+              <v-icon class="branch-icon-dot">
+                mdi-circle
+              </v-icon>
+              <v-icon class="branch-icon">
+                mdi-source-commit{{ index > 0 ? ( index === repository.history.length - 1 ? '-end' : '') : '-start' }}
+              </v-icon>
             </div>
-          </v-btn>
-        </template>
-        <template #item.date="{ item }">
-          <div class="px-2">
-            <div style="margin: 2px 0 -4px">
-              {{ format_date_relative(item.date) }}
+            <div class="commit-oid mx-2">
+              <v-btn
+                variant="text"
+                color="success"
+                style="width: 100%; text-align: center; text-transform: lowercase;"
+              >
+                <div style="width: 100%; text-align: center; font-weight: bold;">
+                  {{ item.oid.substring(0, 7) }}
+                </div>
+              </v-btn>
             </div>
-            <small style="opacity: 0.5;">{{ format_date(item.date) }}</small>
+            <div class="commit-date px-2">
+              <div style="margin: 2px 0 -4px">
+                {{ format_date_relative(item.date) }}
+              </div>
+              <small style="opacity: 0.5;">{{ format_date(item.date) }}</small>
+            </div>
+            <div class="commit-message px-2">
+              {{ item.message }}
+            </div>
           </div>
         </template>
+
         <template #bottom />
       </v-data-table>
     </div>
@@ -60,7 +69,6 @@
 import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
 import {
   VBtn,
-  VContainer,
   VDataTable,
   VIcon,
 } from 'vuetify/components'
@@ -73,7 +81,6 @@ import UtilityPage from '@/components/UtilityPage.vue'
   components: {
     UtilityPage,
     VBtn,
-    VContainer,
     VDataTable,
     VIcon,
   }
@@ -119,73 +126,69 @@ class Branch extends Vue {
 export default toNative(Branch)
 </script>
 
-<style>
-.v-data-table.commit-history {
-  border-radius: 0
+<style scoped>
+.commit-row {
+  display: flex;
+  height: 35px;
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.1);
+  margin-top: -1px;
+  cursor: pointer;
 }
 
-.v-data-table.commit-history .v-btn {
-  width: 100% !important;
-  height: 100% !important;
-  text-align: left;
-  justify-content: left;
+.commit-icon {
+  flex-grow: 0;
+  width: 30px;
+  position: relative;
 }
 
-.v-data-table.commit-history th {
-  height: 1px;
-  padding: 0 !important;
+.commit-oid {
+  flex-grow: 0;
+  width: 60px;
 }
 
-.v-data-table tr td .v-icon.branch-icon-dot {
+.commit-date {
+  flex-grow: 0;
+  width: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.commit-message {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.branch-icon,
+.branch-icon-dot {
   position: absolute;
-  float: left;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
-  color: black;
+  top: 0;
+  left: 0;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.branch-icon-dot {
   opacity: 0;
   font-size: 14px;
 }
 
-.v-data-table tr:hover td .v-icon.branch-icon-dot {
+.commit-row:hover {
+  background: rgba(var(--v-theme-primary), 0.2)
+}
+
+.commit-row:hover .branch-icon-dot {
   opacity: 0.5;
 }
 
-.v-data-table.commit-history td {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  padding: 0 !important;
-  border-radius: 0 !important;
+.branch-icon {
+  margin: 0 -8px;
+  font-size: 46px;
 }
 
-.v-data-table.commit-history td:first-child {
-  padding: 0 !important;
-  border-color: transparent !important;
-  overflow: visible;
-  position: relative;
-}
-
-.v-data-table.commit-history td:first-child .v-btn {
-  text-align: center;
-  justify-content: center;
-}
-
-.v-data-table.commit-history .v-btn .v-icon {
-  font-size: 14px !important;
-}
-
-.v-icon.branch-icon {
-  font-size: 43px !important;
-  width: 30px;
-  height: 0px;
-  color: black;
-  opacity: 0.5;
-}
-</style>
-
-<style scoped>
 .line {
   width: 100%;
   overflow: wrap;

@@ -154,13 +154,13 @@ class FileIcon extends Vue {
 export default toNative(FileIcon)
 </script>
 
-<style>
+<style scoped>
 .file-icon-disabled,
-.file-icon-disabled * {
+.file-icon-disabled :deep(*) {
   pointer-events: none !important;
 }
 
-:root {
+* {
   --tome-file-icon-small: 1;
   --tome-file-icon-large: 8;
 }
@@ -207,7 +207,7 @@ export default toNative(FileIcon)
   --tome-file-icon-icon-badged-circle-y: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 5px));
 }
 
-.v-icon.v-icon.file-icon-badge {
+.file-icon-badge {
   --tome-file-icon-badge: calc(var(--tome-file-icon-factor) * 10px);
   --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 9px);
   --tome-file-icon-badge-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 7px);
@@ -231,7 +231,7 @@ export default toNative(FileIcon)
   right: var(--tome-file-icon-badge-right);
 }
 
-.v-icon.v-icon.file-icon-badge.file-icon-expanded {
+.file-icon-badge.file-icon-expanded {
   --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * 0.5px);
 }
 
@@ -261,7 +261,7 @@ export default toNative(FileIcon)
   --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 7.5px) !important;
 }
 
-.v-btn.file-icon-button:active .modify-lock,
+.file-icon-button:active .modify-lock,
 .modify-lock:active {
   color: darkorange !important;
 }

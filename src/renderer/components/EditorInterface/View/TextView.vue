@@ -1,8 +1,9 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <div
-    id="root"
     ref="root"
+    class="root"
+    id="mark-js-root"
     @contextmenu="contextmenu"
     v-html="rendered"
   />
@@ -45,7 +46,7 @@ class TextView extends Vue {
   }
 
   mounted (): void {
-    this.mark = new Mark('#root')
+    this.mark = new Mark('#mark-js-root')
   }
 
   get actions () {
@@ -171,14 +172,14 @@ export default toNative(TextView)
 </script>
 
 <style scoped>
-#root {
+.root {
   width: 100%;
   height: 100%;
   padding: 12px;
   overflow: scroll;
 }
 
-#root :deep(*) {
+.root :deep(*) {
   padding: revert;
   margin: revert;
 }

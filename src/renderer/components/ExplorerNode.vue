@@ -1,8 +1,7 @@
 <template>
   <v-container
     v-show="visible"
-    id="root"
-    class="pa-0"
+    class="root"
   >
     <div
       ref="draggable"
@@ -461,7 +460,11 @@ export default toNative(ExplorerNode)
 </script>
 
 <style scoped>
-#root :deep(*) {
+.root {
+  padding: 0;
+}
+
+.root :deep(*) {
   user-select: none;
 }
 

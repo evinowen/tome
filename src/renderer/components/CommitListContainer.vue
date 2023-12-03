@@ -30,7 +30,7 @@ class CommitListContainer extends Vue {
 export default toNative(CommitListContainer)
 </script>
 
-<style>
+<style scoped>
 .container {
   display: flex;
   flex-grow: 0;

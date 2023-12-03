@@ -1,12 +1,13 @@
 <template>
   <v-app
+    class="app-root"
     :theme="theme"
     @scroll.self="scroll"
   >
     <system-bar title="tome" />
     <action-bar />
-    <v-main id="main">
-      <div id="container">
+    <v-main class="app-main">
+      <div class="app-container">
         <settings :value="system.settings" />
         <console :value="system.console" />
 
@@ -99,27 +100,9 @@ class App extends Vue {
 export default toNative(App)
 </script>
 
-<style>
-::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-
-::-webkit-scrollbar-corner {
-  background: rgba(var(--v-theme-on-background), 0.1);
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(var(--v-theme-on-background), 0.1);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(var(--v-theme-on-background), 0.1);
-}
-
-html, body {
-  scrollbar-gutter: auto;
-  overflow: hidden !important;
+<style scoped>
+.app-root {
+  overflow: hidden;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -127,21 +110,11 @@ html, body {
   right: 0;
 }
 
-.v-application,
-.v-application--wrap {
-  overflow: hidden !important;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-#main {
+.app-main {
   max-height: 100%;
 }
 
-#container {
+.app-container {
   height: 100%;
   position: relative;
 }

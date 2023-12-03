@@ -1,5 +1,5 @@
 <template>
-  <div id="root">
+  <div class="root">
     <explorer-node
       v-if="root.path !== ''"
       ref="explorer_root"
@@ -165,7 +165,7 @@ export default toNative(Explorer)
 </script>
 
 <style scoped>
-#root {
+.root {
   height: 100%;
   user-select: none;
 }

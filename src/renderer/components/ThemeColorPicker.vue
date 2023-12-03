@@ -58,29 +58,3 @@ class ThemeColorPicker extends Vue {
 
 export default toNative(ThemeColorPicker)
 </script>
-
-<style>
-.v-color-picker__edit {
-  margin-top: 12px;
-}
-
-.v-color-picker__input input {
-  margin: 0 !important;
-}
-
-.v-color-picker__input span {
-  display: none;
-}
-</style>
-
-<style scoped>
-.v-label {
-  background: black !important;
-}
-
-.text-preview {
-  max-height: 160px;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-</style>

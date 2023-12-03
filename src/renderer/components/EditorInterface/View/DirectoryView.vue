@@ -1,5 +1,5 @@
 <template>
-  <empty-pane id="root">
+  <empty-pane>
     <file-icon
       :path="file.path"
       :directory="file.directory"
@@ -44,10 +44,3 @@ class DirectoryView extends Vue {
 
 export default toNative(DirectoryView)
 </script>
-
-<style>
-#root {
-  height: 100%;
-  width: 100%;
-}
-</style>

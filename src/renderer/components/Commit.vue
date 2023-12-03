@@ -250,7 +250,7 @@ class Commit extends Vue {
 export default toNative(Commit)
 </script>
 
-<style>
+<style scoped>
 .message.v-textarea textarea {
   line-height: 1.0em !important;
   height: 15vh;

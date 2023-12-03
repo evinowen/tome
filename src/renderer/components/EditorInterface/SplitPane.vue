@@ -1,23 +1,25 @@
 <template>
   <div
-    id="root"
-    :classList="resizing ? ['resizing'] : []"
+    :class="[
+      'root',
+      resizing ? 'resizing' : undefined
+    ]"
     @mousemove="resize_move"
     @mouseup="resize_end"
     @mouseleave="resize_end"
   >
     <div
-      id="pane-left"
       ref="resized"
+      class="pane-left"
       :style="{ width: `${width}px` }"
     >
       <slot name="left" />
     </div>
     <div
-      id="pane-control"
+      class="pane-control"
       @mousedown="resize_start"
     />
-    <div id="pane-right">
+    <div class="pane-right">
       <slot name="right" />
     </div>
   </div>
@@ -60,17 +62,17 @@ export default toNative(SplitPane)
 </script>
 
 <style scoped>
-#root {
+.root {
   width: 100%;
   height: 100%;
   display: flex;
 }
 
-#root.resizing {
+.root.resizing {
   cursor: ew-resize;
 }
 
-#pane-left {
+.pane-left {
   height: 100%;
   position: relative;
   flex-shrink: 0;
@@ -78,7 +80,7 @@ export default toNative(SplitPane)
   min-height: 0;
 }
 
-#pane-right {
+.pane-right {
   height: 100%;
   flex-grow: 1;
   flex-shrink: 1;
@@ -87,7 +89,7 @@ export default toNative(SplitPane)
   position: relative;
 }
 
-#pane-control {
+.pane-control {
   flex-grow: 0;
   flex-shrink: 0;
   width: 2px;

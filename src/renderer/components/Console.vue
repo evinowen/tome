@@ -102,23 +102,19 @@ export default toNative(Console)
   display: flex;
   margin: 0;
   padding: 2px 4px 1px;
-  border-bottom: 1px dotted rgba(128,128,128,0.5)
+  border-bottom: 1px dotted rgba(128,128,128,0.5);
+  cursor: pointer;
+  transition: all 100ms ease-in-out;
 }
 
 .log.event-info:hover {
-  background: var(--v-info-base);
-}
-
-.log.event-info:hover .pre.event-info {
-  color: var(--v-info-lighten4);
+  color: rgb(var(--v-theme-on-info));
+  background: rgb(var(--v-theme-info));
 }
 
 .log.event-error:hover {
-  background: var(--v-error-base);
-}
-
-.log.event-error:hover .pre.event-error {
-  color: var(--v-error-lighten4);
+  color: rgb(var(--v-theme-on-error));
+  background: rgb(var(--v-theme-error));
 }
 
 .pre {
@@ -138,11 +134,19 @@ export default toNative(Console)
 }
 
 .pre.event-info {
-  color: var(--v-info-base);
+  color: rgb(var(--v-theme-info));
+}
+
+.log.event-info:hover .pre.event-info {
+  color: rgb(var(--v-theme-on-info));
 }
 
 .pre.event-error {
-  color: var(--v-error-base);
+  color: rgb(var(--v-theme-error));
+}
+
+.log.event-error:hover .pre.event-error {
+  color: rgb(var(--v-theme-on-error));
 }
 
 .output {
@@ -151,13 +155,6 @@ export default toNative(Console)
   overflow: auto;
   display: flex;
   flex-direction: column-reverse;
-  border-radius: 0 !important;
-}
-
-#console {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
+  border-radius: 0;
 }
 </style>

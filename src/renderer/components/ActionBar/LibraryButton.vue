@@ -37,7 +37,7 @@
     </template>
 
     <v-list
-      id="library-menu"
+      class="library-menu"
       density="compact"
     >
       <v-list-item
@@ -50,7 +50,10 @@
         <v-list-item-title>{{ item }}</v-list-item-title>
       </v-list-item>
       <v-divider />
-      <v-list-item @click="select" prepend-icon="mdi-folder-open">
+      <v-list-item
+        prepend-icon="mdi-folder-open"
+        @click="select"
+      >
         <v-list-item-title>Select ...</v-list-item-title>
       </v-list-item>
     </v-list>
@@ -117,22 +120,22 @@ export default toNative(LibraryButton)
   min-width: 30px;
 }
 
-#library-menu :deep(.v-list-item) {
+.library-menu :deep(.v-list-item) {
   padding: 0 4px;
   min-height: 20px;
   min-width: 120px;
 }
 
-#library-menu :deep(.v-list-item--one-line) {
+.library-menu :deep(.v-list-item--one-line) {
   padding-inline-start: 6px;
   padding-inline-end: 6px;
 }
 
-#library-menu :deep(.v-list-item__spacer) {
+.library-menu :deep(.v-list-item__spacer) {
   width: 12px;
 }
 
-#library-menu :deep(.v-list-item-title) {
+.library-menu :deep(.v-list-item-title) {
   font-size: 0.8em;
 }
 </style>

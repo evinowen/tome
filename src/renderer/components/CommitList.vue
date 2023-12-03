@@ -1,6 +1,6 @@
 <template>
   <v-data-table
-    id="root"
+    class="root"
     density="compact"
     fixed-header
     mobile-breakpoint="0"
@@ -169,21 +169,21 @@ export default toNative(CommitList)
 </script>
 
 <style scoped>
-#root {
+.root {
   background: rgb(var(--v-theme-background));
 }
 
-#root :deep(table) {
+.root :deep(table) {
   table-layout: fixed;
 }
 
-#root :deep(.v-table__wrapper) {
+.root :deep(.v-table__wrapper) {
   overflow-y: scroll;
   overflow-x: none;
 }
 
-#root :deep(td),
-#root :deep(th) {
+.root :deep(td),
+.root :deep(th) {
   font-size: 10px;
   padding: 0;
   white-space: nowrap;

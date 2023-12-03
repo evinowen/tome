@@ -1,26 +1,15 @@
 <template>
-  <v-container
-    fluid
-    class="view fill-height"
-  >
-    <v-row
-      align="center"
-      justify="center"
-    >
-      <v-col class="text-center">
-        <slot />
-      </v-col>
-    </v-row>
-  </v-container>
+  <div class="root">
+    <div class="content pa-2">
+      <slot />
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VContainer, VCol, VRow } from 'vuetify/components'
 
-@Component({
-  components: { VContainer, VCol, VRow }
-})
+@Component({})
 class EmptyPane extends Vue {
   @Prop({ default: '' })
   error: string
@@ -30,7 +19,13 @@ export default toNative(EmptyPane)
 </script>
 
 <style scoped>
-.view {
+.root {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   background-image:
     repeating-linear-gradient(
       45deg,
@@ -39,5 +34,9 @@ export default toNative(EmptyPane)
       rgba(64,64,64,.075) 3.5px,
       rgba(64,64,64,.1) 7px
     );
+}
+
+.content {
+  width: 100%;
 }
 </style>

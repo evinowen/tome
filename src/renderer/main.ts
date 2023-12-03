@@ -3,6 +3,8 @@ import App from '@/components/App.vue'
 import { store, key } from './store'
 import vuetify from './vuetify'
 
+import '@/styles/main.css'
+
 import '@fontsource/montserrat'
 import '@mdi/font/css/materialdesignicons.min.css'
 

@@ -31,10 +31,7 @@
           <v-icon>mdi-regex</v-icon>
         </v-btn>
       </v-item-group>
-      <div
-        id="search-input"
-        class="px-4"
-      >
+      <div class="search-input px-4">
         <v-text-field
           ref="input"
           class="pa-0"
@@ -278,23 +275,23 @@ export default toNative(SearchService)
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
 }
 
-#search-input {
+.search-input {
   flex-grow: 1;
 }
 
-#search-input :deep(*) {
+.search-input :deep(*) {
   overflow-y: visible;
 }
 
-#search-input :deep(.v-input__control),
-#search-input :deep(.v-input__slot),
-#search-input :deep(.v-text-field__slot) {
+.search-input :deep(.v-input__control),
+.search-input :deep(.v-input__slot),
+.search-input :deep(.v-text-field__slot) {
   height: 28px;
   position: relative;
   overflow: visible;
 }
 
-#search-input :deep(input.v-field__input) {
+.search-input :deep(input.v-field__input) {
   font-size: 6em;
   font-weight: 700;
   padding: 0px 4px;

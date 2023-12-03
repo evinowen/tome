@@ -1,7 +1,7 @@
 <template>
   <div
-    id="root"
     ref="root"
+    class="root"
     @contextmenu="contextmenu"
   />
 </template>
@@ -402,8 +402,8 @@ export default toNative(TextEdit)
 </script>
 
 <style scoped>
-#root,
-#root :deep(.cm-editor) {
+.root,
+.root :deep(.cm-editor) {
   height: 100%;
   width: 100%;
 }

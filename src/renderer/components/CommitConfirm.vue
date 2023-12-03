@@ -19,7 +19,7 @@
     </template>
 
     <v-card>
-      <v-list-item>
+      <v-list-item class="my-2">
         <template #prepend>
           <v-progress-circular
             v-if="staging"
@@ -29,9 +29,12 @@
             color="secondary"
             class="mr-4"
           />
-          <v-icon v-else>
-            mdi-hammer-wrench
-          </v-icon>
+          <v-avatar
+            v-else
+            color="warning"
+          >
+            <v-icon>mdi-hammer-wrench</v-icon>
+          </v-avatar>
         </template>
         <v-list-item-title class="text-h5">
           Commit
@@ -106,22 +109,23 @@
 <script lang="ts">
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
-  VIcon,
+  VAvatar,
   VBtn,
-  VSpacer,
-  VProgressCircular,
   VCard,
   VCardActions,
-  VRow,
+  VCardText,
   VCol,
   VContainer,
-  VCardText,
-  VDivider,
   VDialog,
+  VDivider,
+  VIcon,
   VListItem,
-  VListItemTitle,
   VListItemSubtitle,
-  VTextarea
+  VListItemTitle,
+  VProgressCircular,
+  VRow,
+  VSpacer,
+  VTextarea,
 } from 'vuetify/components'
 
 export const CommitConfirmMessages = {
@@ -131,22 +135,23 @@ export const CommitConfirmMessages = {
 
 @Component({
   components: {
-    VIcon,
+    VAvatar,
     VBtn,
-    VSpacer,
-    VProgressCircular,
     VCard,
     VCardActions,
-    VRow,
+    VCardText,
     VCol,
     VContainer,
-    VCardText,
-    VDivider,
     VDialog,
+    VDivider,
+    VIcon,
     VListItem,
-    VListItemTitle,
     VListItemSubtitle,
-    VTextarea
+    VListItemTitle,
+    VProgressCircular,
+    VRow,
+    VSpacer,
+    VTextarea,
   },
   emits: [
     'commit',

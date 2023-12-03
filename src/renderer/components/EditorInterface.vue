@@ -2,7 +2,7 @@
   <split-pane>
     <template #left>
       <div
-        class="fit"
+        class="pane"
         style="overflow-y: overlay;"
       >
         <explorer
@@ -15,7 +15,7 @@
     <template #right>
       <div
         v-show="active"
-        class="fit"
+        class="pane"
       >
         <file-edit
           v-if="system.edit"
@@ -79,14 +79,9 @@ class EditorInterface extends Vue {
 export default toNative(EditorInterface)
 </script>
 
-<style>
-.fit {
+<style scoped>
+.pane {
   width: 100%;
   height: 100%;
-}
-
-.full_size {
-  height: 100%;
-  padding: 0px;
 }
 </style>
