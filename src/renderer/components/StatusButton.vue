@@ -38,51 +38,40 @@
   </v-btn>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
+<script setup lang="ts">
+import { computed } from 'vue'
 
-@Component({
-  components: {}
-})
-class StatusButton extends Vue {
-  @Prop({ default: 0 })
-  waiting: number
-
-  @Prop({ default: 0 })
-  waiting_max: number
-
-  @Prop({ default: 0 })
-  available_new: number
-
-  @Prop({ default: 0 })
-  available_renamed: number
-
-  @Prop({ default: 0 })
-  available_modified: number
-
-  @Prop({ default: 0 })
-  available_removed: number
-
-  @Prop({ default: 0 })
-  staged_new: number
-
-  @Prop({ default: 0 })
-  staged_renamed: number
-
-  @Prop({ default: 0 })
-  staged_modified: number
-
-  @Prop({ default: 0 })
-  staged_removed: number
-
-  get available_added () {
-    return this.available_new + this.available_renamed + this.available_modified
-  }
-
-  get staged_added () {
-    return this.staged_new + this.staged_renamed + this.staged_modified
-  }
+export interface Props {
+  available_modified: number,
+  available_new: number,
+  available_removed: number,
+  available_renamed: number,
+  staged_modified: number,
+  staged_new: number,
+  staged_removed: number,
+  staged_renamed: number,
+  waiting_max: number,
+  waiting: number,
 }
 
-export default toNative(StatusButton)
+const props = withDefaults(defineProps<Props>(), {
+  available_modified: 0,
+  available_new: 0,
+  available_removed: 0,
+  available_renamed: 0,
+  staged_modified: 0,
+  staged_new: 0,
+  staged_removed: 0,
+  staged_renamed: 0,
+  waiting_max: 0,
+  waiting: 0,
+})
+
+const available_added = computed(() => {
+  return props.available_new + props.available_renamed + props.available_modified
+})
+
+const staged_added = computed(() => {
+  return props.staged_new + props.staged_renamed + props.staged_modified
+})
 </script>

@@ -44,7 +44,7 @@
             justify="center"
           >
             <v-col>
-              <push-branch :name="repository.branch" />
+              <push-branch :name="repository.branch"/>
             </v-col>
 
             <v-col
@@ -108,19 +108,25 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VContainer, VDivider, VBtn, VIcon, VCard, VCardTitle, VCol, VRow } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
-import UtilityPage from '@/components/UtilityPage.vue'
 import KeyfileInput from './KeyfileInput.vue'
+import PushBranch from './PushBranch.vue'
+import PushConfirm from './PushConfirm.vue'
 import PushPassphraseInput from './PushPassphraseInput.vue'
 import PushRemoteSelector from './PushRemoteSelector.vue'
-import PushBranch from './PushBranch.vue'
 import PushStatus from './PushStatus.vue'
-import PushConfirm from './PushConfirm.vue'
+import UtilityPage from '@/components/UtilityPage.vue'
+import {
+  VBtn,
+  VCard,
+  VCardTitle,
+  VCol,
+  VContainer,
+  VDivider,
+  VIcon,
+  VRow,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     KeyfileInput,
     PushBranch,
@@ -138,64 +144,53 @@ import PushConfirm from './PushConfirm.vue'
     VIcon,
     VRow,
   }
-})
-class Push extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
+}
+</script>
 
-  remote_loading = false
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { fetchStore } from '@/store'
 
-  get system () {
-    return this.store.state.system
-  }
+const store = fetchStore()
 
-  get open () {
-    return this.system.push
-  }
+const remote_loading = ref<boolean>(false)
 
-  get repository () {
-    return this.store.state.repository
-  }
+const system = computed(() => store.state.system)
+const repository = computed(() => store.state.repository)
+const configuration = computed(() => store.state.configuration)
 
-  get configuration () {
-    return this.store.state.configuration
-  }
-
-  async close () {
-    await this.store.dispatch('system/push', false)
-  }
-
-  async credential_key (value) {
-    await this.store.dispatch('repository/credentials/key', value)
-  }
-
-  async credential_passphrase (value) {
-    await this.store.dispatch('repository/credentials/passphrase', value)
-  }
-
-  async confirm (value) {
-    await this.store.dispatch('system/push_confirm', value)
-  }
-
-  async add_remote (name, url) {
-    await this.store.dispatch('repository/create-remote', { name, url })
-  }
-
-  async select_remote (name) {
-    this.remote_loading = true
-    await this.store.dispatch('repository/remote', name)
-    this.remote_loading = false
-  }
-
-  async diff (commit) {
-    await this.store.dispatch('repository/diff', { commit: commit.oid })
-    await this.store.dispatch('system/patch', true)
-  }
-
-  async push () {
-    await this.store.dispatch('system/perform', 'push')
-  }
+async function close () {
+  await store.dispatch('system/push', false)
 }
 
-export default toNative(Push)
+async function credential_key (value) {
+  await store.dispatch('repository/credentials/key', value)
+}
+
+async function credential_passphrase (value) {
+  await store.dispatch('repository/credentials/passphrase', value)
+}
+
+async function confirm (value) {
+  await store.dispatch('system/push_confirm', value)
+}
+
+async function add_remote (name, url) {
+  await store.dispatch('repository/create-remote', { name, url })
+}
+
+async function select_remote (name) {
+  remote_loading.value = true
+  await store.dispatch('repository/remote', name)
+  remote_loading.value = false
+}
+
+async function diff (commit) {
+  await store.dispatch('repository/diff', { commit: commit.oid })
+  await store.dispatch('system/patch', true)
+}
+
+async function push () {
+  await store.dispatch('system/perform', 'push')
+}
 </script>

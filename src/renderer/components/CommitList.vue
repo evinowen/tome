@@ -4,7 +4,7 @@
     density="compact"
     fixed-header
     mobile-breakpoint="0"
-    height="320"
+    :height="height"
     :headers="headers"
     :items="items"
     :sort-by="[{ key: 'file'}]"
@@ -54,7 +54,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
   VBtn,
   VCard,
@@ -64,17 +63,7 @@ import {
 } from 'vuetify/components'
 import { Resize } from 'vuetify/directives'
 
-class RepositoryFile {
-  static Type = {
-    NEW: 1,
-    MODIFIED: 2,
-    RENAMED: 3,
-    DELETED: 4,
-    UNKNOWN: 0
-  }
-}
-
-@Component({
+export default {
   components: {
     VBtn,
     VCard,
@@ -89,83 +78,86 @@ class RepositoryFile {
     'click',
     'input',
   ]
-})
-class CommitList extends Vue {
-  @Prop({ default: 'List' })
-  title!: string
-
-  @Prop({ default: () => [] })
-  items!: any[]
-
-  @Prop({ default: '' })
-  icon!: string
-
-  @Prop({ default: 0 })
-  height!: number
-
-  datatable = {
-    offset: 64,
-    height: 0,
-    min_height: 100
-  }
-
-  headers = [
-    { title: 'File', value: 'path', width: 'auto' },
-    { title: 'Type', value: 'type', width: '78px' },
-    { title: '', value: 'action', width: '23px', sortable: false }
-  ]
-
-  resize () {
-    const height = this.height - this.datatable.offset
-
-    this.datatable.height = height > this.datatable.min_height ? height : this.datatable.min_height
-  }
-
-  file_type (type) {
-    switch (type) {
-      case RepositoryFile.Type.NEW:
-        return 'New'
-      case RepositoryFile.Type.MODIFIED:
-        return 'Modified'
-      case RepositoryFile.Type.RENAMED:
-        return 'Renamed'
-      case RepositoryFile.Type.DELETED:
-        return 'Deleted'
-    }
-
-    return ''
-  }
-
-  file_color (type) {
-    switch (type) {
-      case RepositoryFile.Type.NEW:
-      case RepositoryFile.Type.MODIFIED:
-      case RepositoryFile.Type.RENAMED:
-        return 'green'
-      case RepositoryFile.Type.DELETED:
-        return 'red'
-    }
-
-    return ''
-  }
-
-  file_icon (type) {
-    switch (type) {
-      case RepositoryFile.Type.NEW:
-        return 'mdi-file-star'
-      case RepositoryFile.Type.MODIFIED:
-        return 'mdi-file-edit'
-      case RepositoryFile.Type.RENAMED:
-        return 'mdi-file-swap'
-      case RepositoryFile.Type.DELETED:
-        return 'mdi-file-remove'
-    }
-
-    return ''
-  }
 }
 
-export default toNative(CommitList)
+export class RepositoryFile {
+  static Type = {
+    NEW: 1,
+    MODIFIED: 2,
+    RENAMED: 3,
+    DELETED: 4,
+    UNKNOWN: 0
+  }
+}
+</script>
+
+<script setup lang="ts">
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+export interface Props {
+  title: string,
+  items: any[],
+  icon: string,
+  height: number,
+}
+
+withDefaults(defineProps<Props>(), {
+  title: 'List',
+  items: () => [],
+  icon: '',
+  height: 320,
+})
+
+const headers = [
+  { title: 'File', value: 'path', width: 'auto' },
+  { title: 'Type', value: 'type', width: '78px' },
+  { title: '', value: 'action', width: '23px', sortable: false }
+]
+
+function file_type (type) {
+  switch (type) {
+    case RepositoryFile.Type.NEW:
+      return 'New'
+    case RepositoryFile.Type.MODIFIED:
+      return 'Modified'
+    case RepositoryFile.Type.RENAMED:
+      return 'Renamed'
+    case RepositoryFile.Type.DELETED:
+      return 'Deleted'
+  }
+
+  return ''
+}
+
+function file_color (type) {
+  switch (type) {
+    case RepositoryFile.Type.NEW:
+    case RepositoryFile.Type.MODIFIED:
+    case RepositoryFile.Type.RENAMED:
+      return 'green'
+    case RepositoryFile.Type.DELETED:
+      return 'red'
+  }
+
+  return ''
+}
+
+function file_icon (type) {
+  switch (type) {
+    case RepositoryFile.Type.NEW:
+      return 'mdi-file-star'
+    case RepositoryFile.Type.MODIFIED:
+      return 'mdi-file-edit'
+    case RepositoryFile.Type.RENAMED:
+      return 'mdi-file-swap'
+    case RepositoryFile.Type.DELETED:
+      return 'mdi-file-remove'
+  }
+
+  return ''
+}
 </script>
 
 <style scoped>

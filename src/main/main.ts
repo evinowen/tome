@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
-import * as log from 'electron-log'
+import log from 'electron-log/main'
 import * as path from 'node:path'
 import { EventEmitter } from 'node:events'
 import ActionsComponent from './components/actions'
@@ -12,7 +12,7 @@ import SslComponent from './components/ssl'
 import TemplatesComponent from './components/templates'
 import WindowComponent from './components/window'
 
-log.catchErrors()
+log.initialize()
 log.info('Main Process Start')
 
 class Main {

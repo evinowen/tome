@@ -44,74 +44,72 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
   VBtn,
   VDivider,
   VIcon,
 } from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     VBtn,
     VDivider,
     VIcon,
   },
-  emits: [ "close" ]
-})
-class UtilityPage extends Vue {
-  @Prop({ default: false })
-  open: boolean
+  emits: [
+    'close'
+  ]
+}
+</script>
 
-  @Prop({ default: '' })
-  title: string
+<script setup lang="ts">
+import { computed } from 'vue'
 
-  @Prop({ default: '' })
-  subtitle: string
-
-  @Prop({ default: 0 })
-  layer: number
-
-  @Prop({ type: Boolean, default: true })
-  scroll: boolean
-
-  @Prop({ type: Boolean, default: false })
-  fixed: boolean
-
-  @Prop({ type: Boolean, default: false })
-  left: boolean
-
-  @Prop({ type: Boolean, default: false })
-  right: boolean
-
-  @Prop({ type: Boolean, default: false })
-  bottom: boolean
-
-  @Prop({ type: Boolean, default: false })
-  top: boolean
-
-  get location () {
-    if (this.left) {
-      return 'left'
-    }
-
-    if (this.right) {
-      return 'right'
-    }
-
-    if (this.bottom) {
-      return 'bottom'
-    }
-
-    if (this.top) {
-      return 'top'
-    }
-
-    return 'top'
-  }
+export interface Props {
+  open: boolean,
+  title?: string,
+  subtitle?: string,
+  layer?: number,
+  scroll?: boolean,
+  fixed?: boolean,
+  left?: boolean,
+  right?: boolean,
+  bottom?: boolean,
+  top?: boolean,
 }
 
-export default toNative(UtilityPage)
+const props = withDefaults(defineProps<Props>(), {
+  open: false,
+  title: '',
+  subtitle: '',
+  layer: 0,
+  scroll: true,
+  fixed: false,
+  left: false,
+  right: false,
+  bottom: false,
+  top: false,
+})
+
+const location = computed(() => {
+  if (props.left) {
+    return 'left'
+  }
+
+  if (props.right) {
+    return 'right'
+  }
+
+  if (props.bottom) {
+    return 'bottom'
+  }
+
+  if (props.top) {
+    return 'top'
+  }
+
+  return 'top'
+})
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 import component from '../factory'
 import { clipboard } from 'electron'
-import * as log from 'electron-log'
+import log from 'electron-log/main'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { promise_with_reject, promise_with_boolean } from '../../promise'

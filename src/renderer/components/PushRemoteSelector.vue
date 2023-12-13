@@ -95,7 +95,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
   VBtn,
   VCard,
@@ -112,7 +111,7 @@ import {
 } from 'vuetify/components'
 import { RepositoryRemote } from '@/store/modules/repository'
 
-@Component({
+export default {
   components: {
     VBtn,
     VCard,
@@ -126,33 +125,39 @@ import { RepositoryRemote } from '@/store/modules/repository'
     VSelect,
     VSpacer,
     VTextField,
-  },
-  emits: [
-    'create',
-    'input',
-  ]
-})
-class Push extends Vue {
-  @Prop({ default: '' })
-  value: string
-
-  @Prop({ default: () => [] })
-  items: RepositoryRemote[]
-
-  edit = false
-  form = {
-    name: '',
-    url: ''
-  }
-
-  async create () {
-    this.$emit('create', this.form.name, this.form.url)
-  }
-
-  async input (remote) {
-    this.$emit('input', remote)
   }
 }
+</script>
 
-export default toNative(Push)
+<script setup lang="ts">
+import { reactive, ref } from 'vue'
+
+export interface Props {
+  value: string,
+  items: RepositoryRemote[],
+}
+
+withDefaults(defineProps<Props>(), {
+  value: '',
+  items: () => []
+})
+
+const emit = defineEmits([
+  'create',
+  'input',
+])
+
+const edit = ref(false)
+const form = reactive({
+  name: ref(''),
+  url: ref(''),
+})
+
+async function create () {
+  emit('create', form.name, form.url)
+}
+
+async function input (remote) {
+  emit('input', remote)
+}
 </script>

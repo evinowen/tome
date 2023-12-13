@@ -15,19 +15,16 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-
-@Component({})
-class CommitListContainer extends Vue {
-  @Prop({ type: Boolean, default: false })
-  grow: boolean
-
-  @Prop({ default: 0 })
-  height: number
+<script setup lang="ts">
+export interface Props {
+  grow?: boolean,
+  height?: number,
 }
 
-export default toNative(CommitListContainer)
+withDefaults(defineProps<Props>(), {
+  grow: false,
+  height: 0,
+})
 </script>
 
 <style scoped>

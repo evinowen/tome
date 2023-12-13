@@ -75,43 +75,43 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, toNative } from 'vue-facing-decorator'
 import {
   VAvatar,
-  VCard,
-  VIcon,
   VBtn,
-  VSpacer,
-  VTextField,
-  VSwitch,
+  VCard,
   VCardActions,
   VCardText,
+  VIcon,
   VListItem,
+  VListItemSubtitle,
   VListItemTitle,
-  VListItemSubtitle
+  VSpacer,
+  VSwitch,
+  VTextField,
 } from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     VAvatar,
-    VCard,
-    VIcon,
     VBtn,
-    VSpacer,
-    VTextField,
-    VSwitch,
+    VCard,
     VCardActions,
     VCardText,
+    VIcon,
     VListItem,
+    VListItemSubtitle,
     VListItemTitle,
-    VListItemSubtitle
+    VSpacer,
+    VSwitch,
+    VTextField,
   }
-})
-class ThemePreview extends Vue {
-  error = false
 }
+</script>
 
-export default toNative(ThemePreview)
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const error = ref<boolean>(false)
 </script>
 
 <style scoped>

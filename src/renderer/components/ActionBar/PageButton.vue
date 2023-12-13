@@ -13,18 +13,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, toNative } from 'vue-facing-decorator'
-import { VBtn, VIcon } from 'vuetify/components'
+import {
+  VBtn,
+  VIcon,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     VBtn,
-    VIcon
+    VIcon,
   }
-})
-class PageButton extends Vue {}
-
-export default toNative(PageButton)
+}
 </script>
 
 <style scoped>

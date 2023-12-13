@@ -120,92 +120,104 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch, Setup, toNative } from 'vue-facing-decorator'
-import { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VCol, VExpandTransition } from 'vuetify/components'
+import {
+  VBtn,
+  VCol,
+  VExpandTransition,
+  VIcon,
+  VItemGroup,
+  VLayout,
+  VTextField,
+  VToolbar,
+} from 'vuetify/components'
+
+export default {
+  components: {
+    VBtn,
+    VCol,
+    VExpandTransition,
+    VIcon,
+    VItemGroup,
+    VLayout,
+    VTextField,
+    VToolbar,
+  }
+}
+</script>
+
+<script setup lang="ts">
+import { computed, watch } from 'vue'
 import { debounce } from 'lodash'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
+import { fetchStore } from '@/store'
 
-@Component({
-  components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VCol, VExpandTransition }
+const store = fetchStore()
+
+const status = computed(() => {
+  return store.state.search.status
 })
-class SearchService extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
 
-  get status () {
-    return this.store.state.search.status
-  }
+const results = computed(() => {
+  return store.state.search.results
+})
 
-  get results () {
-    return this.store.state.search.results
-  }
+const navigation = computed(() => {
+  return store.state.search.navigation
+})
 
-  get navigation () {
-    return this.store.state.search.navigation
-  }
+const query = computed(() => {
+  return store.state.search.query
+})
 
-  get query () {
-    return this.store.state.search.query
-  }
+const multifile = computed(() => {
+  return store.state.search.multifile
+})
 
-  get multifile () {
-    return this.store.state.search.multifile
-  }
+const regex_query = computed(() => {
+  return store.state.search.regex_query
+})
 
-  get regex_query () {
-    return this.store.state.search.regex_query
-  }
+const case_sensitive = computed(() => {
+  return store.state.search.case_sensitive
+})
 
-  get case_sensitive () {
-    return this.store.state.search.case_sensitive
-  }
+const state = computed(() => {
+  return [multifile.value, regex_query.value, case_sensitive.value]
+})
 
-  get state () {
-    const { multifile, regex_query, case_sensitive } = this
-    return [multifile, regex_query, case_sensitive]
-  }
+watch(state, () => {
+  debounce_update(query.value)
+})
 
-  get debounce_update () {
-    return debounce(this.update, 500)
-  }
+async function update (query) {
+  const path = store.state.repository.path
+  await store.dispatch('search/query', { path, query })
+}
 
-  @Watch('state')
-  state_update () {
-    this.debounce_update(this.query)
-  }
+const debounce_update = debounce(update, 500)
 
-  async update (query) {
-    const path = this.store.state.repository.path
-    await this.store.dispatch('search/query', { path, query })
-  }
+async function next () {
+  await store.dispatch('search/next')
+}
 
-  async next () {
-    await this.store.dispatch('search/next')
-  }
+async function previous () {
+  await store.dispatch('search/previous')
+}
 
-  async previous () {
-    await this.store.dispatch('search/previous')
-  }
+async function flag (key, value) {
+  await store.dispatch(`search/${key}`, value)
+}
 
-  async flag (key, value) {
-    await this.store.dispatch(`search/${key}`, value)
-  }
+async function select (path, target = 0, total = 0) {
+  await store.dispatch('files/select', { path })
 
-  async select (path, target = 0, total = 0) {
-    await this.store.dispatch('files/select', { path })
-
-    if (target > 0) {
-      await this.store.dispatch('search/navigate', { target, total })
-    }
-  }
-
-  async debounce_clear () {
-    return await this.debounce_update('')
+  if (target > 0) {
+    await store.dispatch('search/navigate', { target, total })
   }
 }
 
-export default toNative(SearchService)
+async function debounce_clear () {
+  return await debounce_update('')
+}
 </script>
 
 <style scoped>

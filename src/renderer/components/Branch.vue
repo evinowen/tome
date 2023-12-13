@@ -5,7 +5,7 @@
     :title="repository.branch"
     subtitle="branch"
     :layer="1"
-    :open="value"
+    :open="system.branch"
     :scroll="false"
     @close="close"
   >
@@ -66,64 +66,58 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
+import UtilityPage from '@/components/UtilityPage.vue'
 import {
   VBtn,
   VDataTable,
   VIcon,
 } from 'vuetify/components'
-import { DateTime } from 'luxon'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
-import UtilityPage from '@/components/UtilityPage.vue'
 
-@Component({
+export default {
   components: {
     UtilityPage,
     VBtn,
     VDataTable,
     VIcon,
   }
-})
-class Branch extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
+}
+</script>
 
-  @Prop({ default: false })
-  value!: boolean
+<script setup lang="ts">
+import { computed } from 'vue'
+import { fetchStore } from '@/store'
+import { DateTime } from 'luxon'
 
-  headers = [
-    { title: '', value: 'icon', width: '30px' },
-    { title: '', value: 'oid', width: '60px' },
-    { title: '', value: 'date', width: '120px' },
-    { title: 'message', value: 'message', width: '' }
-  ]
+const store = fetchStore()
 
-  get repository () {
-    return this.store.state.repository
-  }
+const headers = [
+  { title: '', value: 'icon', width: '30px' },
+  { title: '', value: 'oid', width: '60px' },
+  { title: '', value: 'date', width: '120px' },
+  { title: 'message', value: 'message', width: '' }
+]
 
-  async close () {
-    await this.store.dispatch('system/branch', false)
-  }
+const system = computed(() => store.state.system)
+const repository = computed(() => store.state.repository)
 
-  async diff (commit) {
-    await this.store.dispatch('repository/diff', { commit: commit.oid })
-    await this.store.dispatch('system/patch', true)
-  }
-
-  format_date (date) {
-    const datetime = DateTime.fromJSDate(date)
-    return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
-  }
-
-  format_date_relative (date) {
-    const datetime = DateTime.fromJSDate(date)
-    return `${datetime.toRelative()}`
-  }
+async function close () {
+  await store.dispatch('system/branch', false)
 }
 
-export default toNative(Branch)
+async function diff (commit) {
+  await store.dispatch('repository/diff', { commit: commit.oid })
+  await store.dispatch('system/patch', true)
+}
+
+function format_date (date) {
+  const datetime = DateTime.fromJSDate(date)
+  return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
+}
+
+function format_date_relative (date) {
+  const datetime = DateTime.fromJSDate(date)
+  return `${datetime.toRelative()}`
+}
 </script>
 
 <style scoped>

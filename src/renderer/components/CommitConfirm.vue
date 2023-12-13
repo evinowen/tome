@@ -107,7 +107,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
   VAvatar,
   VBtn,
@@ -128,12 +127,7 @@ import {
   VTextarea,
 } from 'vuetify/components'
 
-export const CommitConfirmMessages = {
-  Staging: 'Commit details are being staged ... ',
-  Ready: 'Commit is prepared and ready to publish'
-}
-
-@Component({
+export default {
   components: {
     VAvatar,
     VBtn,
@@ -159,40 +153,44 @@ export const CommitConfirmMessages = {
     'message',
     'push',
   ]
-})
-class CommitConfirm extends Vue {
-  @Prop({ default: false })
-  value!: boolean
-
-  @Prop({ default: '' })
-  name!: string
-
-  @Prop({ default: '' })
-  email!: string
-
-  @Prop({ default: '' })
-  message!: string
-
-  @Prop({ default: false })
-  disabled!: boolean
-
-  @Prop({ default: false })
-  staging!: boolean
-
-  @Prop({ default: false })
-  waiting!: boolean
-
-  @Prop({ default: false })
-  push!: boolean
-
-  get status () {
-    return this.staging
-      ? CommitConfirmMessages.Staging
-      : CommitConfirmMessages.Ready
-  }
 }
 
-export default toNative(CommitConfirm)
+export const CommitConfirmMessages = {
+  Staging: 'Commit details are being staged ... ',
+  Ready: 'Commit is prepared and ready to publish'
+}
+</script>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+
+export interface Props {
+  value: boolean
+  name: string,
+  email: string,
+  message: string,
+  disabled: boolean,
+  staging: boolean,
+  waiting: boolean,
+  push: boolean,
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  value: false,
+  name: '',
+  email: '',
+  message: '',
+  disabled: false,
+  staging: false,
+  waiting: false,
+  push: false,
+})
+
+const status = computed(() => {
+  return props.staging
+    ? CommitConfirmMessages.Staging
+    : CommitConfirmMessages.Ready
+})
 </script>
 
 <style scoped>

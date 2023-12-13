@@ -1,5 +1,5 @@
 <template>
-  <v-menu :model-value="value">
+  <v-menu>
     <template #activator="{ props }">
       <v-btn
         v-if="repository.path"
@@ -61,54 +61,62 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VBtn, VDivider, VIcon, VMenu, VList, VListItem, VListItemTitle } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
+import {
+  VBtn,
+  VDivider,
+  VIcon,
+  VList,
+  VListItem,
+  VListItemTitle,
+  VMenu,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     VBtn,
     VDivider,
     VIcon,
-    VMenu,
     VList,
     VListItem,
-    VListItemTitle
-  }
-})
-class LibraryButton extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
-
-  @Prop({ default: false })
-  value: boolean
-
-  @Prop({ default: false })
-  disabled: boolean
-
-  get repository () {
-    return this.store.state.repository
-  }
-
-  get library () {
-    return this.store.state.library
-  }
-
-  async select () {
-    await this.store.dispatch('library/select')
-  }
-
-  async open (item) {
-    await this.store.dispatch('library/open', item)
-  }
-
-  async close () {
-    await this.store.dispatch('library/close')
+    VListItemTitle,
+    VMenu,
   }
 }
+</script>
 
-export default toNative(LibraryButton)
+<script setup lang="ts">
+import { computed } from 'vue'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+export interface Props {
+  disabled: boolean,
+}
+
+withDefaults(defineProps<Props>(), {
+  disabled: false,
+})
+
+const repository = computed(() => {
+  return store.state.repository
+})
+
+const library = computed(() => {
+  return store.state.library
+})
+
+async function select () {
+  await store.dispatch('library/select')
+}
+
+async function open (item) {
+  await store.dispatch('library/open', item)
+}
+
+async function close () {
+  await store.dispatch('library/close')
+}
 </script>
 
 <style scoped>

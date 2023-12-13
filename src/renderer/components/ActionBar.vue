@@ -28,7 +28,7 @@
 
       <branch-button
         :branch="repository.branch"
-        :error="repository.branch.error"
+        :error="!repository.branch ? 'error' : ''"
         :disabled="disabled_unless(system.branch)"
         @click.stop="branch"
       />
@@ -47,7 +47,7 @@
 
       <edit-switch
         action-bar-edit
-        :value="edit"
+        :value="system.edit"
         :disabled="disabled_unless()"
         @click.stop="edit"
       />
@@ -93,96 +93,101 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VFooter, VExpandXTransition, VSwitch } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
-import Divider from './ActionBar/Divider.vue'
-import LibraryButton from './ActionBar/LibraryButton.vue'
 import BranchButton from './ActionBar/BranchButton.vue'
 import ConsoleButton from './ActionBar/ConsoleButton.vue'
+import Divider from './ActionBar/Divider.vue'
 import EditSwitch from './ActionBar/EditSwitch.vue'
+import LibraryButton from './ActionBar/LibraryButton.vue'
 import PageButton from './ActionBar/PageButton.vue'
 import RepositoryButton from './ActionBar/RepositoryButton.vue'
+import {
+  VExpandXTransition,
+  VFooter,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
-    VFooter,
-    VExpandXTransition,
-    VSwitch,
-    Divider,
-    LibraryButton,
     BranchButton,
     ConsoleButton,
+    Divider,
     EditSwitch,
+    LibraryButton,
     PageButton,
-    RepositoryButton
-  }
-})
-class ActionBar extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
-
-  library: false
-
-  get system () {
-    return this.store.state.system
-  }
-
-  get repository () {
-    return this.store.state.repository
-  }
-
-  get status () {
-    return this.store.state.status
-  }
-
-  get message () {
-    return this.store.state.message
-  }
-
-  get disabled () {
-    const system = this.store.state.system
-    return system.settings || system.branch || system.commit || system.push || system.console
-  }
-
-  async open (path) {
-    this.library = false
-    await this.store.dispatch('system/open', path)
-  }
-
-  async close () {
-    await this.store.dispatch('system/close')
-  }
-
-  async edit () {
-    await this.store.dispatch('system/edit', !this.system.edit)
-  }
-
-  async branch () {
-    await this.store.dispatch('system/branch', !this.system.branch)
-  }
-
-  async commit () {
-    await this.store.dispatch('system/commit', !this.system.commit)
-  }
-
-  async push () {
-    await this.store.dispatch('system/push', !this.system.push)
-  }
-
-  async search () {
-    await this.store.dispatch('system/search', !this.system.search)
-  }
-
-  disabled_unless (unless?) {
-    if (unless) {
-      return this.system.settings
-    }
-
-    return this.disabled
+    RepositoryButton,
+    VExpandXTransition,
+    VFooter,
   }
 }
+</script>
 
-export default toNative(ActionBar)
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { fetchStore } from '@/store'
+
+const library = ref(false)
+
+const store = fetchStore()
+
+const repository = computed(() => store.state.repository)
+const system = computed(() => store.state.system)
+const status = computed(() => store.state.status)
+const message = computed(() => store.state.message)
+
+function disabled_unless (enabled: boolean = false) {
+  if (enabled) {
+    return system.value.settings
+  }
+
+  const flags = [
+    system.value.settings,
+    system.value.branch,
+    system.value.commit,
+    system.value.push,
+    system.value.console,
+  ]
+
+  return flags.includes(true)
+}
+
+async function open (path) {
+  library.value = false
+  await store.dispatch('system/open', path)
+}
+
+async function close () {
+  await store.dispatch('system/close')
+}
+
+async function edit () {
+  await store.dispatch('system/edit', !system.value.edit)
+}
+
+async function branch () {
+  await store.dispatch('system/branch', !system.value.branch)
+}
+
+async function commit () {
+  await store.dispatch('system/commit', !system.value.commit)
+}
+
+async function push () {
+  await store.dispatch('system/push', !system.value.push)
+}
+
+async function search () {
+  await store.dispatch('system/search', !system.value.search)
+}
+
+defineExpose({
+  library,
+  repository,
+  system,
+  open,
+  close,
+  edit,
+  branch,
+  commit,
+  push,
+  search,
+})
 </script>

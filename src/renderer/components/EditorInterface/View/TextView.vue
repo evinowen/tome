@@ -9,166 +9,158 @@
   />
 </template>
 
-<script lang="ts">
-import { Component, Vue, Setup, toNative, Watch, Prop } from 'vue-facing-decorator'
-import { Store } from 'vuex'
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
 import { marked } from 'marked'
 import Mark from 'mark.js'
-import { State, File, fetchStore } from '@/store'
+import { fetchStore, File } from '@/store'
 
-@Component({})
-class TextView extends Vue {
-  $refs: {
-    root: HTMLElement
-  }
+const store = fetchStore()
 
-  @Prop({ type: File, default: undefined })
-  file?: File
+export interface Props {
+  file?: File,
+}
 
-  @Setup(() => fetchStore())
-  store: Store<State>
+const props = withDefaults(defineProps<Props>(), {
+  file: undefined,
+})
 
-  mark?: Mark
-  target?: any
-  results: Element[]
+const root = ref<HTMLElement>(null)
 
-  get search () {
-    return this.store.state.search
-  }
+let mark: Mark
+let target: any
+let results: Element[]
 
-  get search_state () {
-    return [
-      this.store.state.search.query,
-      this.store.state.search.regex_query,
-      this.store.state.search.case_sensitive,
-      this.store.state.search.navigation.target
-    ]
-  }
+onMounted(() => {
+  mark = new Mark('#mark-js-root')
+})
 
-  mounted (): void {
-    this.mark = new Mark('#mark-js-root')
-  }
+const search = computed(() => {
+  return store.state.search
+})
 
-  get actions () {
-    return this.store.state.actions.options.map(name => ({
-      title: name,
+const search_state = computed(() => {
+  return [
+    store.state.search.query,
+    store.state.search.regex_query,
+    store.state.search.case_sensitive,
+    store.state.search.navigation.target
+  ]
+})
+
+const actions = computed(() => {
+  return store.state.actions.options.map(name => ({
+    title: name,
+    action: async () => {
+      const selection = document.getSelection().toString()
+      await store.dispatch('actions/execute', { name, target: props.file.path, selection })
+    }
+  }))
+})
+
+const context = computed(() => {
+  return [
+    {
+      title: 'Action',
+      load: () => actions.value
+    },
+    { divider: true },
+    {
+      title: 'Cut',
+      active: () => false
+    },
+    {
+      title: 'Copy',
       action: async () => {
         const selection = document.getSelection().toString()
-        await this.store.dispatch('actions/execute', { name, target: this.file.path, selection })
+        await store.dispatch('clipboard/text', selection)
       }
-    }))
-  }
-
-  get context () {
-    return [
-      {
-        title: 'Action',
-        load: () => this.actions
-      },
-      { divider: true },
-      {
-        title: 'Cut',
-        active: () => false
-      },
-      {
-        title: 'Copy',
-        action: async () => {
-          const selection = document.getSelection().toString()
-          await this.store.dispatch('clipboard/text', selection)
-        }
-      },
-      {
-        title: 'Paste',
-        active: () => false
-      }
-    ]
-  }
-
-  async contextmenu (event) {
-    const position = {
-      x: event.clientX,
-      y: event.clientY
+    },
+    {
+      title: 'Paste',
+      active: () => false
     }
+  ]
+})
 
-    await this.store.dispatch('context/open', { items: this.context, position })
-  }
-
-  get rendered (): string {
-    if (this.file === undefined || this.file.directory || !this.file.document) {
-      return ''
-    }
-
-    const content = this.file.document.content || ''
-
-    if (['.md'].includes(this.file.extension)) {
-      return marked.parse(content)
-    }
-
-    if (['.htm', '.html'].includes(this.file.extension)) {
-      return content
-    }
-
+const rendered = computed((): string => {
+  if (props.file === undefined || props.file.directory || !props.file.document) {
     return ''
   }
 
-  @Watch('search_state')
-  async search_mark () {
-    // eslint-disable-next-line no-console
-    console.log('search trigger')
+  const content = props.file.document.content || ''
 
-    await new Promise((resolve) => {
-      this.mark.unmark({ done: resolve })
-    })
-
-    let regex: RegExp
-    try {
-      regex = new RegExp(
-        this.search.regex_query ? this.search.query : String(this.search.query).replace(/[$()*+./?[\\\]^{|}-]/g, '\\$&'),
-        String('g').concat(this.search.case_sensitive ? '' : 'i')
-      )
-    } catch (error) {
-      await this.store.dispatch('error', error)
-      return
-    }
-
-    const total = await new Promise((resolve) => {
-      this.mark.markRegExp(
-        regex,
-        {
-          className: 'highlight-rendered',
-          acrossElements: false,
-          done: total => {
-            this.store.dispatch('search/navigate', { total, target: undefined })
-            resolve(total)
-          }
-        }
-      )
-    })
-
-    this.results = [...this.$refs.root.querySelectorAll('mark > mark')]
-
-    if (this.results.length !== total) {
-      this.results = [...this.$refs.root.querySelectorAll('mark')]
-    }
-
-    await this.search_navigate()
+  if (['.md'].includes(props.file.extension)) {
+    return marked.parse(content)
   }
 
-  async search_navigate () {
-    if (this.target) {
-      this.target.classList.remove('highlight-rendered-target')
-    }
-
-    this.target = this.results[this.search.navigation.target - 1]
-
-    if (this.target) {
-      this.target.classList.add('highlight-rendered-target')
-      this.target.scrollIntoView()
-    }
+  if (['.htm', '.html'].includes(props.file.extension)) {
+    return content
   }
+
+  return ''
+})
+
+async function contextmenu (event) {
+  const position = {
+    x: event.clientX,
+    y: event.clientY
+  }
+
+  await store.dispatch('context/open', { items: context.value, position })
 }
 
-export default toNative(TextView)
+watch(search_state, async () => {
+  await new Promise((resolve) => {
+    mark.unmark({ done: resolve })
+  })
+
+  let regex: RegExp
+  try {
+    regex = new RegExp(
+      search.value.regex_query ? search.value.query : String(search.value.query).replace(/[$()*+./?[\\\]^{|}-]/g, '\\$&'),
+      String('g').concat(search.value.case_sensitive ? '' : 'i')
+    )
+  } catch (error) {
+    await store.dispatch('error', error)
+    return
+  }
+
+  const total = await new Promise((resolve) => {
+    mark.markRegExp(
+      regex,
+      {
+        className: 'highlight-rendered',
+        acrossElements: false,
+        done: total => {
+          store.dispatch('search/navigate', { total, target: undefined })
+          resolve(total)
+        }
+      }
+    )
+  })
+
+  results = [...root.value.querySelectorAll('mark > mark')]
+
+  if (results.length !== total) {
+    results = [...root.value.querySelectorAll('mark')]
+  }
+
+  await search_navigate()
+})
+
+async function search_navigate () {
+  if (target) {
+    target.classList.remove('highlight-rendered-target')
+  }
+
+  target = results[search.value.navigation.target - 1]
+
+  if (target) {
+    target.classList.add('highlight-rendered-target')
+    target.scrollIntoView()
+  }
+}
 </script>
 
 <style scoped>

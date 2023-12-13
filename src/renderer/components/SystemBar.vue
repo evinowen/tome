@@ -54,50 +54,58 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VBtn, VIcon, VSystemBar, VSpacer } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
+import {
+  VBtn,
+  VIcon,
+  VSpacer,
+  VSystemBar,
+} from 'vuetify/components'
 
-@Component({
-  components: { VBtn, VIcon, VSystemBar, VSpacer }
-})
-class SystemBar extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
-
-  get maximized () {
-    return this.store.state.system.maximized
-  }
-
-  get icon () {
-    return this.store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
-  }
-
-  get title () {
-    return this.store.state.repository?.name || undefined
-  }
-
-  async settings () {
-    await this.store.dispatch('system/settings', !this.store.state.system.settings)
-  }
-
-  async minimize () {
-    await this.store.dispatch('system/minimize')
-  }
-
-  async maximize () {
-    this.maximized
-      ? await this.store.dispatch('system/restore')
-      : await this.store.dispatch('system/maximize')
-  }
-
-  async exit () {
-    await this.store.dispatch('system/exit')
+export default {
+  components: {
+    VBtn,
+    VIcon,
+    VSpacer,
+    VSystemBar,
   }
 }
+</script>
 
-export default toNative(SystemBar)
+<script setup lang="ts">
+import { computed } from 'vue'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+const maximized = computed(() => {
+  return store.state.system.maximized
+})
+
+const icon = computed(() => {
+  return store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
+})
+
+const title = computed(() => {
+  return store.state.repository?.name || undefined
+})
+
+async function settings () {
+  await store.dispatch('system/settings', !store.state.system.settings)
+}
+
+async function minimize () {
+  await store.dispatch('system/minimize')
+}
+
+async function maximize () {
+  maximized.value
+    ? await store.dispatch('system/restore')
+    : await store.dispatch('system/maximize')
+}
+
+async function exit () {
+  await store.dispatch('system/exit')
+}
 </script>
 
 <style scoped>

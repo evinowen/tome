@@ -18,24 +18,29 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VBtn, VIcon } from 'vuetify/components'
+import {
+  VBtn,
+  VIcon,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     VBtn,
-    VIcon
+    VIcon,
   }
-})
-class BranchButton extends Vue {
-  @Prop({ default: '' })
-  branch: string
+}
+</script>
 
-  @Prop({ default: '' })
-  error: string
+<script setup lang="ts">
+export interface Props {
+  branch: string,
+  error: string,
 }
 
-export default toNative(BranchButton)
+withDefaults(defineProps<Props>(), {
+  branch: '',
+  error: '',
+})
 </script>
 
 <style scoped>

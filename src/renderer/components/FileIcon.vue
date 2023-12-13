@@ -23,135 +23,139 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VBtn, VIcon } from 'vuetify/components'
+import {
+  VBtn,
+  VIcon,
+} from 'vuetify/components'
 
-@Component({
-  components: { VBtn, VIcon },
-  emits: [ 'click' ]
+export default {
+  components: {
+    VBtn,
+    VIcon,
+  },
+  emits: [
+    'click',
+  ]
+}
+</script>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+
+export interface Props {
+  alert?: boolean,
+  directory?: boolean,
+  disabled?: boolean,
+  expanded?: boolean,
+  extension?: string,
+  image?: boolean,
+  path: string,
+  relationship: string,
+  selected?: boolean,
+  size?: string,
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  alert: false,
+  directory: false,
+  disabled: false,
+  expanded: false,
+  extension: '',
+  image: false,
+  path: '',
+  relationship: '',
+  selected: false,
+  size: 'small',
 })
-class FileIcon extends Vue {
-  @Prop({ default: '' })
-  path: string
 
-  @Prop({ default: '' })
-  extension: string
+const system = computed(() => {
+  return ['git', 'tome', 'tome-templates', 'tome-actions'].includes(props.relationship)
+})
 
-  @Prop({ default: '' })
-  relationship: string
+const icon = computed(() => {
+  if (props.directory) {
+    if (props.relationship === 'root') {
+      return props.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+    }
 
-  @Prop({ default: false })
-  directory: boolean
-
-  @Prop({ default: false })
-  expanded: boolean
-
-  @Prop({ default: false })
-  selected: boolean
-
-  @Prop({ default: false })
-  image: boolean
-
-  @Prop({ default: false })
-  alert: boolean
-
-  @Prop({ default: false })
-  disabled: boolean
-
-  @Prop({ default: 'small' })
-  size: string
-
-  get system () {
-    return ['git', 'tome', 'tome-templates', 'tome-actions'].includes(this.relationship)
+    return props.expanded ? 'mdi-folder-open' : 'mdi-folder'
   }
 
-  get icon () {
-    if (this.directory) {
-      if (this.relationship === 'root') {
-        return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
-      }
-
-      return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
-    }
-
-    if (this.image) {
-      return 'mdi-image'
-    }
-
-    if (this.relationship === 'tome-file') {
-      return 'mdi-file'
-    }
-
-    return 'mdi-newspaper-variant'
+  if (props.image) {
+    return 'mdi-image'
   }
 
-  get badge () {
-    const base = this.alert ? 'mdi-alert-circle' : ''
+  if (props.relationship === 'tome-file') {
+    return 'mdi-file'
+  }
 
-    switch (this.relationship) {
-      case 'root':
-        return ''
+  return 'mdi-newspaper-variant'
+})
 
-      case 'git':
-        return 'mdi-lock'
+const badge = computed(() => {
+  const base = props.alert ? 'mdi-alert-circle' : ''
 
-      case 'tome':
-        return this.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
+  switch (props.relationship) {
+    case 'root':
+      return ''
 
-      case 'tome-feature-actions':
-      case 'tome-feature-templates':
-        return 'mdi-cog'
+    case 'git':
+      return 'mdi-lock'
 
-      case 'tome-action':
-        return 'mdi-play-circle'
+    case 'tome':
+      return props.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
 
-      case 'tome-template':
-        return 'mdi-lightning-bolt-circle'
-    }
+    case 'tome-feature-actions':
+    case 'tome-feature-templates':
+      return 'mdi-cog'
 
-    if (this.image) {
-      return base
-    }
+    case 'tome-action':
+      return 'mdi-play-circle'
 
-    if (this.relationship === 'tome-file') {
-      switch (this.extension) {
-        case '.md':
-          return 'mdi-arrow-down-bold-circle'
+    case 'tome-template':
+      return 'mdi-lightning-bolt-circle'
+  }
 
-        case '.js':
-          return 'mdi-language-javascript'
-
-        case '.json':
-          return 'mdi-code-json'
-      }
-    }
-
+  if (props.image) {
     return base
   }
 
-  get modifier () {
-    switch (this.badge) {
-      case 'mdi-cog':
-        return 'modify-cog'
+  if (props.relationship === 'tome-file') {
+    switch (props.extension) {
+      case '.md':
+        return 'mdi-arrow-down-bold-circle'
 
-      case 'mdi-eye-circle':
-        return 'modify-eye'
+      case '.js':
+        return 'mdi-language-javascript'
 
-      case 'mdi-language-javascript':
-        return 'modify-js'
-
-      case 'mdi-lock':
-        return 'modify-lock'
-
-      case 'mdi-code-json':
-        return 'modify-json'
+      case '.json':
+        return 'mdi-code-json'
     }
-
-    return ''
   }
-}
 
-export default toNative(FileIcon)
+  return base
+})
+
+const modifier = computed(() => {
+  switch (badge.value) {
+    case 'mdi-cog':
+      return 'modify-cog'
+
+    case 'mdi-eye-circle':
+      return 'modify-eye'
+
+    case 'mdi-language-javascript':
+      return 'modify-js'
+
+    case 'mdi-lock':
+      return 'modify-lock'
+
+    case 'mdi-code-json':
+      return 'modify-json'
+  }
+
+  return ''
+})
 </script>
 
 <style scoped>
@@ -201,6 +205,12 @@ export default toNative(FileIcon)
       rgba(0, 0, 0, 0) var(--tome-file-icon-icon-badged-gradient),
       rgba(0, 0, 0, 1) var(--tome-file-icon-icon-badged-gradient-edge)
     );
+  mask-image:
+    radial-gradient(
+      circle at var(--tome-file-icon-icon-badged-circle-x) var(--tome-file-icon-icon-badged-circle-y),
+      rgba(0, 0, 0, 0) var(--tome-file-icon-icon-badged-gradient),
+      rgba(0, 0, 0, 1) var(--tome-file-icon-icon-badged-gradient-edge)
+    );
 }
 
 .file-icon-icon-badged.file-icon-expanded {
@@ -222,6 +232,11 @@ export default toNative(FileIcon)
   min-height: var(--tome-file-icon-badge) !important;
 
   -webkit-mask-image:
+    radial-gradient(
+      rgba(0, 0, 0, 1) var(--tome-file-icon-badge-gradient),
+      rgba(0, 0, 0, 0) var(--tome-file-icon-badge-gradient-edge)
+    );
+  mask-image:
     radial-gradient(
       rgba(0, 0, 0, 1) var(--tome-file-icon-badge-gradient),
       rgba(0, 0, 0, 0) var(--tome-file-icon-badge-gradient-edge)

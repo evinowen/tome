@@ -51,7 +51,7 @@
 
       <commit-list-container
         grow
-        height="320"
+        :height="320"
       >
         <template #left>
           <commit-list
@@ -59,7 +59,7 @@
             title="Available"
             :items="available"
             icon="mdi-plus-thick"
-            height="320"
+            :height="320"
             @input="stage"
             @click="diff"
           />
@@ -70,7 +70,7 @@
             title="Staged"
             :items="staged"
             icon="mdi-cancel"
-            height="320"
+            :height="320"
             @input="reset"
             @click="diff"
           />
@@ -131,7 +131,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
+import CommitConfirm from '@/components/CommitConfirm.vue'
+import CommitList from '@/components/CommitList.vue'
+import CommitListContainer from '@/components/CommitListContainer.vue'
+import UtilityPage from '@/components/UtilityPage.vue'
 import {
   VContainer,
   VLayout,
@@ -142,14 +145,8 @@ import {
   VTextField,
   VTextarea
 } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
-import UtilityPage from '@/components/UtilityPage.vue'
-import CommitList from '@/components/CommitList.vue'
-import CommitListContainer from '@/components/CommitListContainer.vue'
-import CommitConfirm from '@/components/CommitConfirm.vue'
 
-@Component({
+export default {
   components: {
     CommitConfirm,
     CommitList,
@@ -158,96 +155,73 @@ import CommitConfirm from '@/components/CommitConfirm.vue'
     VBtn,
     VCol,
     VContainer,
-    VLayout,
     VIcon,
+    VLayout,
     VRow,
     VTextarea,
     VTextField,
   }
-})
-class Commit extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
+}
+</script>
 
-  $refs: {
-    list: HTMLElement
-  }
+<script setup lang="ts">
+import { computed } from 'vue'
+import { fetchStore } from '@/store'
 
-  get system () {
-    return this.store.state.system
-  }
+const store = fetchStore()
 
-  get repository () {
-    return this.store.state.repository
-  }
+const system = computed(() => store.state.system)
+const repository = computed(() => store.state.repository)
+const staging = computed(() => store.state.repository.staging > 0)
+const staged = computed(() => store.state.repository.status.staged)
+const available = computed(() => store.state.repository.status.available)
+const configuration = computed(() => store.state.configuration)
+const working = computed(() => store.state.repository.commit_working)
 
-  get staging () {
-    return this.store.state.repository.staging > 0
-  }
-
-  get staged () {
-    return this.store.state.repository.status.staged
-  }
-
-  get available () {
-    return this.store.state.repository.status.available
-  }
-
-  get configuration () {
-    return this.store.state.configuration
-  }
-
-  get working () {
-    return this.store.state.repository.commit_working
-  }
-
-  async sign_name (value) {
-    await this.store.dispatch('system/signature/name', value)
-  }
-
-  async sign_email (value) {
-    await this.store.dispatch('system/signature/email', value)
-  }
-
-  async sign_message (value) {
-    await this.store.dispatch('system/signature/message', value)
-  }
-
-  async close () {
-    await this.store.dispatch('system/commit', false)
-  }
-
-  async confirm (value) {
-    await this.store.dispatch('system/commit_confirm', value)
-  }
-
-  async push (value) {
-    await this.store.dispatch('system/commit_push', value)
-  }
-
-  async message (message) {
-    await this.store.dispatch('repository/message', message)
-  }
-
-  async diff (path) {
-    await this.store.dispatch('repository/diff', { path })
-    await this.store.dispatch('system/patch', true)
-  }
-
-  async stage (path) {
-    await this.store.dispatch('repository/stage', path)
-  }
-
-  async reset (path) {
-    await this.store.dispatch('repository/reset', path)
-  }
-
-  async commit () {
-    await this.store.dispatch('system/perform', 'commit')
-  }
+async function sign_name (value) {
+  await store.dispatch('system/signature/name', value)
 }
 
-export default toNative(Commit)
+async function sign_email (value) {
+  await store.dispatch('system/signature/email', value)
+}
+
+async function sign_message (value) {
+  await store.dispatch('system/signature/message', value)
+}
+
+async function close () {
+  await store.dispatch('system/commit', false)
+}
+
+async function confirm (value) {
+  await store.dispatch('system/commit_confirm', value)
+}
+
+async function push (value) {
+  await store.dispatch('system/commit_push', value)
+}
+
+async function message (message) {
+  await store.dispatch('repository/message', message)
+}
+
+async function diff (path) {
+  await store.dispatch('repository/diff', { path })
+  await store.dispatch('system/patch', true)
+}
+
+async function stage (path) {
+  await store.dispatch('repository/stage', path)
+}
+
+async function reset (path) {
+  await store.dispatch('repository/reset', path)
+}
+
+async function commit () {
+  await store.dispatch('system/perform', 'commit')
+}
 </script>
 
 <style scoped>

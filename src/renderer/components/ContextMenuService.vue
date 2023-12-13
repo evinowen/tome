@@ -17,37 +17,39 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { Resize } from 'vuetify/directives'
 import ContextMenuNode from './ContextMenuNode.vue'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
+import {
+  Resize,
+} from 'vuetify/directives'
 
-@Component({
-  components: { ContextMenuNode },
-  directives: { Resize }
-})
-class ContextMenuService extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
-
-  window_x = 0
-  window_y = 0
-  visible = true
-
-  get context () {
-    return this.store.state.context
-  }
-
-  resize () {
-    this.window_x = window.innerWidth
-    this.window_y = window.innerHeight
-  }
-
-  async close () {
-    await this.store.dispatch('context/close')
+export default {
+  components: {
+    ContextMenuNode,
+  },
+  directives: {
+    Resize,
   }
 }
+</script>
 
-export default toNative(ContextMenuService)
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+const window_x = ref(0)
+const window_y = ref(0)
+const visible = ref(true)
+
+const context = computed(() => store.state.context)
+
+function resize () {
+  window_x.value = window.innerWidth
+  window_y.value = window.innerHeight
+}
+
+async function close () {
+  await store.dispatch('context/close')
+}
 </script>

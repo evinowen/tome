@@ -1,5 +1,5 @@
 import component from '../factory'
-import * as log from 'electron-log'
+import log from 'electron-log/main'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { cloneDeep } from 'lodash'

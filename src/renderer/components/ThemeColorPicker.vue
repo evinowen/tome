@@ -35,26 +35,39 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VCard, VCardTitle, VSwitch, VColorPicker } from 'vuetify/components'
+import {
+  VCard,
+  VCardTitle,
+  VColorPicker,
+  VSwitch,
+} from 'vuetify/components'
 
-@Component({
-  components: { VCard, VCardTitle, VSwitch, VColorPicker },
-  emits: [ "enabled", "input" ]
-})
-class ThemeColorPicker extends Vue {
-  @Prop({ default: true })
-  enabled: boolean
+export default {
+  components: {
+    VCard,
+    VCardTitle,
+    VColorPicker,
+    VSwitch,
+  },
+  emits: [
+    'enabled',
+    'input',
+  ]
+}
+</script>
 
-  @Prop({ default: true })
-  value: string
-
-  @Prop({ default: true })
-  color: string
-
-  @Prop({ default: '#000000' })
-  base: string
+<script setup lang="ts">
+export interface Props {
+  base: string,
+  color: string,
+  enabled: boolean,
+  value: string,
 }
 
-export default toNative(ThemeColorPicker)
+withDefaults(defineProps<Props>(), {
+  base: '#000000',
+  color: '',
+  enabled: true,
+  value: '',
+})
 </script>

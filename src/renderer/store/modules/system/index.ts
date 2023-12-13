@@ -11,29 +11,44 @@ export const SystemPerformances = {
   QuickPush: 'quick-push'
 }
 
-export class State {
+export interface State {
   version?: string
   process?: {
     versions?: Record<string, string>
     sandboxed: boolean
   }
-  maximized = false
-  branch = false
-  commit = false
-  commit_confirm = false
-  commit_push = false
-  console = false
-  edit = false
-  patch = false
-  push = false
-  push_confirm = false
-  search = false
-  settings = false
+  maximized: boolean
+  branch: boolean
+  commit: boolean
+  commit_confirm: boolean
+  commit_push: boolean
+  console: boolean
+  edit: boolean
+  patch: boolean
+  push: boolean
+  push_confirm: boolean
+  search: boolean
+  settings: boolean
+}
+
+export const StateDefaults: State = {
+  maximized: false,
+  branch: false,
+  commit: false,
+  commit_confirm: false,
+  commit_push: false,
+  console: false,
+  edit: false,
+  patch: false,
+  push: false,
+  push_confirm: false,
+  search: false,
+  settings: false,
 }
 
 export default {
   namespaced: true,
-  state: new State,
+  state: () => StateDefaults,
   mutations: <MutationTree<State>>{
     load: function (state, { version, process }) {
       state.version = version

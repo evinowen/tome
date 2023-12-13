@@ -33,7 +33,7 @@
           :relationship="relationship"
           :expanded="expanded"
           :alert="alert"
-          @click="locked || $emit(directory ? 'toggle' : 'select', { path })"
+          @click="locked || (directory ? $emit('toggle', { path }) : $emit('select', { path }))"
         />
         <div class="flex-grow-1">
           <v-form
@@ -43,7 +43,6 @@
           >
             <v-text-field
               v-show="(selected && edit)"
-              ref="input"
               v-model="input"
               density="compact"
               variant="plain"
@@ -57,7 +56,6 @@
             />
             <v-text-field
               v-show="!(selected && edit)"
-              ref="input"
               :model-value="display"
               readonly
               density="compact"
@@ -108,12 +106,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VContainer, VLayout, VCol, VForm, VTextField } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
-import FileIcon from '@/components/FileIcon.vue'
 import File from '@/store/modules/files/file'
+import FileIcon from '@/components/FileIcon.vue'
+import {
+  VCol,
+  VContainer,
+  VForm,
+  VLayout,
+  VTextField,
+} from 'vuetify/components'
 
 export const ExplorerNodeGhostType = {
   FILE: 'file',
@@ -122,341 +123,346 @@ export const ExplorerNodeGhostType = {
   ACTION: 'action'
 }
 
-@Component({
+export default {
   name: 'ExplorerNode',
-  components: { VContainer, VLayout, VCol, VForm, VTextField, FileIcon },
-  emits: [
-    'action',
-    'blur',
-    'create',
-    'delete',
-    'drag',
-    'drop',
-    'edit',
-    'open',
-    'select',
-    'submit',
-    'template',
-    'toggle',
-  ]
+  components: {
+    FileIcon,
+    VCol,
+    VContainer,
+    VForm,
+    VLayout,
+    VTextField,
+  }
+}
+</script>
+
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+let hold: { path: string }
+
+export interface Props {
+  uuid: string,
+  enabled: boolean,
+  title: boolean,
+  active: string,
+  edit: boolean,
+  format?: any,
+  root?: boolean,
+  depth?: number,
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  uuid: '',
+  enabled: false,
+  title: false,
+  active: '',
+  edit: false,
+  format: undefined,
+  root: false,
+  depth: 0,
 })
-class ExplorerNode extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
 
-  @Prop({ default: '' })
-  uuid: string
+const emit = defineEmits([
+  'action',
+  'blur',
+  'create',
+  'delete',
+  'drag',
+  'drop',
+  'edit',
+  'open',
+  'select',
+  'submit',
+  'template',
+  'toggle',
+])
 
-  @Prop({ default: false })
-  enabled: boolean
+const input = ref<string>('')
+const valid = ref<boolean>(false)
+const error = ref<string>('')
 
-  @Prop({ default: false })
-  title: boolean
+const file = computed((): File => {
+  return store.state.files.directory[props.uuid] || File.Empty
+})
 
-  @Prop({ default: '' })
-  active: string
+const ephemeral = computed(() => {
+  return file.value.ephemeral
+})
 
-  @Prop({ default: false })
-  edit: boolean
+const name = computed(() => {
+  return file.value.name
+})
 
-  @Prop({ default: undefined })
-  format?: any
+const path = computed(() => {
+  return file.value.path
+})
 
-  @Prop({ default: false })
-  root: boolean
+const extension = computed(() => {
+  return file.value.extension
+})
 
-  @Prop({ default: 0 })
-  depth: number
+const image = computed(() => {
+  return file.value.image
+})
 
-  valid = false
-  input = ''
-  error?: string
+const relationship = computed(() => {
+  return file.value.relationship || ''
+})
 
-  get file (): File {
-    return this.store.state.files.directory[this.uuid] || File.Empty
-  }
+const children = computed(() => {
+  return file.value.children
+})
 
-  get ephemeral () {
-    return this.file.ephemeral
-  }
+const directory = computed(() => {
+  return file.value.directory
+})
 
-  get name () {
-    return this.file.name
-  }
+const expanded = computed(() => {
+  return file.value.expanded
+})
 
-  get path () {
-    return this.file.path
-  }
+const selected = computed(() => {
+  return props.uuid === props.active
+})
 
-  get extension () {
-    return this.file.extension
-  }
+const locked = computed(() => {
+  return relationship.value === 'git'
+})
 
-  get image () {
-    return this.file.image
-  }
+const system = computed(() => {
+  const relationships = new Set(['root', 'git', 'tome', 'tome-templates', 'tome-actions'])
+  return relationships.has(relationship.value)
+})
 
-  get relationship () {
-    return this.file.relationship || ''
-  }
+const actions = computed(() => {
+  return store.state.actions.options.map(name => ({
+    title: name,
+    action: (path) => emit('action', { name, target: path, selection: undefined })
+  }))
+})
 
-  get children () {
-    return this.file.children
-  }
+const templates = computed(() => {
+  return store.state.templates.options.map(name => ({
+    title: name,
+    action: (path) => emit('template', { name, target: path })
+  }))
+})
 
-  get directory () {
-    return this.file.directory
-  }
-
-  get expanded () {
-    return this.file.expanded
-  }
-
-  get selected () {
-    return this.uuid === this.active
-  }
-
-  get locked () {
-    return this.relationship === 'git'
-  }
-
-  get system () {
-    const relationships = new Set(['root', 'git', 'tome', 'tome-templates', 'tome-actions'])
-    return relationships.has(this.relationship)
-  }
-
-  get actions () {
-    return this.store.state.actions.options.map(name => ({
-      title: name,
-      action: (path) => this.$emit('action', { name, target: path, selection: undefined })
-    }))
-  }
-
-  get templates () {
-    return this.store.state.templates.options.map(name => ({
-      title: name,
-      action: (path) => this.$emit('template', { name, target: path })
-    }))
-  }
-
-  get instance () {
-    return this
-  }
-
-  get display () {
-    if (this.title && !this.system) {
-      try {
-        return this.format(this.name, this.directory)
-      } catch {
-        return (this.ephemeral || this.name) ? this.name : ' - '
-      }
-    }
-
-    return this.name
-  }
-
-  get visible () {
-    return this.root || this.ephemeral || !(this.title && (this.display === '' || this.system))
-  }
-
-  get rules (): ((value: string) => boolean|string)[] {
-    const rules:((value: string) => boolean|string)[] = [
-      () => !this.error || this.error,
-      (value) => String(value).search(/[^\s\w.-]/g) === -1 || 'special characters are not allowed.',
-      (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'
-    ]
-
-    if (this.title) {
-      rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
-    } else if (!this.directory) {
-      rules.push(
-        (value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.',
-        (value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.'
-      )
-    }
-
-    return rules
-  }
-
-  get alert () {
-    if (this.system || this.ephemeral) {
-      return false
-    }
-
-    if (this.relationship === 'tome-file') {
-      return false
-    }
-
+const display = computed(() => {
+  if (props.title && !system.value) {
     try {
-      this.format(this.name, this.directory)
+      return props.format(name.value, directory.value)
     } catch {
-      return true
+      return (ephemeral.value || name.value) ? name.value : ' - '
     }
+  }
 
+  return name.value
+})
+
+const visible = computed(() => {
+  return props.root || ephemeral.value || !(props.title && (display.value === '' || system.value))
+})
+
+const rules = computed((): ((value: string) => boolean|string)[] => {
+  const rules:((value: string) => boolean|string)[] = [
+    () => !error.value || error.value,
+    (value) => String(value).search(/[^\s\w.-]/g) === -1 || 'special characters are not allowed.',
+    (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'
+  ]
+
+  if (props.title) {
+    rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
+  } else if (!directory.value) {
+    rules.push(
+      (value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.',
+      (value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.'
+    )
+  }
+
+  return rules
+})
+
+const alert = computed(() => {
+  if (system.value || ephemeral.value) {
     return false
   }
 
-  get context () {
-    const items = []
-    const push = (array) => {
-      if (items.length > 0) {
-        items.push({ divider: true })
-      }
+  if (relationship.value === 'tome-file') {
+    return false
+  }
 
-      items.push(...array)
+  try {
+    props.format(name.value, directory.value)
+  } catch {
+    return true
+  }
+
+  return false
+})
+
+const context = computed(() => {
+  const items = []
+  const push = (array) => {
+    if (items.length > 0) {
+      items.push({ divider: true })
     }
 
-    const expand = [
-      {
-        title: 'Expand',
-        action: undefined
-      }
-    ]
+    items.push(...array)
+  }
 
-    const script = [
-      {
-        title: 'Template',
-        load: () => this.templates
-      },
-      {
-        title: 'Action',
-        load: () => this.actions
-      }
-    ]
-
-    const special = []
-
-    if (['root', 'tome', 'tome-feature-templates'].includes(this.relationship)) {
-      special.push({
-        title: 'New Template',
-        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path })
-      })
+  const expand = [
+    {
+      title: 'Expand',
+      action: undefined
     }
+  ]
 
-    if (['root', 'tome', 'tome-feature-actions'].includes(this.relationship)) {
-      special.push({
-        title: 'New Action',
-        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.ACTION, target: path })
-      })
+  const script = [
+    {
+      title: 'Template',
+      load: () => templates.value
+    },
+    {
+      title: 'Action',
+      load: () => actions.value
     }
+  ]
 
-    const file = [
-      {
-        title: 'Open',
-        action: (path) => this.$emit('open', { target: path })
-      },
-      {
-        title: 'Open Folder',
-        action: (path) => this.$emit('open', { target: path, container: true })
-      },
-      {
-        title: 'New File',
-        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.FILE, target: path })
-      },
-      {
-        title: 'New Folder',
-        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path })
-      }
-    ]
+  const special = []
 
-    const clipboard = [
-      {
-        title: 'Cut',
-        action: async (path) => await this.store.dispatch('clipboard/cut', { type: 'file', target: path }),
-        active: () => !this.system
-      },
-      {
-        title: 'Copy',
-        action: async (path) => await this.store.dispatch('clipboard/copy', { type: 'file', target: path })
-      },
-      {
-        title: 'Paste',
-        active: () => this.store.state.clipboard.content,
-        action: async (path) => await this.store.dispatch('clipboard/paste', { type: 'file', target: path })
-      }
-    ]
-
-    const move = [
-      {
-        title: 'Rename',
-        action: async (path) => this.$emit('edit', { target: path }),
-        active: () => !this.system
-      },
-      {
-        title: 'Delete',
-        action: async (path) => this.$emit('delete', { target: path }),
-        active: () => !this.system
-      }
-    ]
-
-    push(this.directory ? expand : [])
-    push(special.length > 0 && this.system ? special : [])
-    push(this.system && !this.root ? [] : script)
-    push(file)
-    push(clipboard)
-    push(move)
-
-    return items
+  if (['root', 'tome', 'tome-feature-templates'].includes(relationship.value)) {
+    special.push({
+      title: 'New Template',
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path })
+    })
   }
 
-  async contextmenu (event) {
-    if (this.locked) {
-      return
+  if (['root', 'tome', 'tome-feature-actions'].includes(relationship.value)) {
+    special.push({
+      title: 'New Action',
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.ACTION, target: path })
+    })
+  }
+
+  const file = [
+    {
+      title: 'Open',
+      action: (path) => emit('open', { target: path })
+    },
+    {
+      title: 'Open Folder',
+      action: (path) => emit('open', { target: path, container: true })
+    },
+    {
+      title: 'New File',
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.FILE, target: path })
+    },
+    {
+      title: 'New Folder',
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path })
     }
+  ]
 
-    const position = {
-      x: event.clientX,
-      y: event.clientY
+  const clipboard = [
+    {
+      title: 'Cut',
+      action: async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
+      active: () => !system.value
+    },
+    {
+      title: 'Copy',
+      action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path })
+    },
+    {
+      title: 'Paste',
+      active: () => store.state.clipboard.content,
+      action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path })
     }
+  ]
 
-    await this.store.dispatch('context/open', { target: this.path, title: this.path, items: this.context, position })
-  }
-
-  drag_start (event) {
-    if (this.system) {
-      event.preventDefault()
-      return
+  const move = [
+    {
+      title: 'Rename',
+      action: async (path) => emit('edit', { target: path }),
+      active: () => !system.value
+    },
+    {
+      title: 'Delete',
+      action: async (path) => emit('delete', { target: path }),
+      active: () => !system.value
     }
+  ]
 
-    event.dataTransfer.dropEffect = 'move'
-    event.target.style.opacity = 0.2
+  push(directory.value ? expand : [])
+  push(special.length > 0 && system.value ? special : [])
+  push(system.value && !props.root ? [] : script)
+  push(file)
+  push(clipboard)
+  push(move)
 
-    this.$emit('drag', { path: this.path })
+  return items
+})
+
+async function contextmenu (event) {
+  if (locked.value) {
+    return
   }
 
-  drag_end (event) {
-    event.target.style.opacity = 1
+  const position = {
+    x: event.clientX,
+    y: event.clientY
   }
 
-  drag_enter (event) {
-    const container = event.target.closest('[droppable]')
-    container.classList.add('drop')
-  }
-
-  drag_leave (event) {
-    const container = event.target.closest('[droppable]')
-    container.classList.remove('drop')
-  }
-
-  drop (event) {
-    this.drag_leave(event)
-    this.$emit('drop', { path: this.path })
-  }
-
-  focus () {
-    this.input = this.display
-  }
-
-  submit () {
-    if (!this.valid) {
-      return
-    }
-
-    this.$emit('submit', { input: this.input, title: this.title })
-  }
+  await store.dispatch('context/open', { target: path.value, title: path.value, items: context.value, position })
 }
 
-export default toNative(ExplorerNode)
+function drag_start (event) {
+  if (system.value) {
+    event.preventDefault()
+    return
+  }
+
+  event.dataTransfer.dropEffect = 'move'
+  event.target.style.opacity = 0.2
+
+  emit('drag', { path: path.value })
+}
+
+function drag_end (event) {
+  event.target.style.opacity = 1
+}
+
+function drag_enter (event) {
+  const container = event.target.closest('[droppable]')
+  container.classList.add('drop')
+}
+
+function drag_leave (event) {
+  const container = event.target.closest('[droppable]')
+  container.classList.remove('drop')
+}
+
+function drop (event) {
+  drag_leave(event)
+  emit('drop', { path: path.value })
+}
+
+function focus () {
+  input.value = display.value
+}
+
+function submit () {
+  if (!valid.value) {
+    return
+  }
+
+  emit('submit', { input: input.value, title: props.title })
+}
 </script>
 
 <style scoped>

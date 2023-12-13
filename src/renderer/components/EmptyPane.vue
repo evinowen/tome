@@ -6,16 +6,14 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-
-@Component({})
-class EmptyPane extends Vue {
-  @Prop({ default: '' })
-  error: string
+<script setup lang="ts">
+export interface Props {
+  error?: string,
 }
 
-export default toNative(EmptyPane)
+withDefaults(defineProps<Props>(), {
+  error: '',
+})
 </script>
 
 <style scoped>

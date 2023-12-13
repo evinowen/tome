@@ -9,7 +9,7 @@ interface RepositoryPayload {
   name: string,
   path: string,
   history: { oid: string, date: Date, message: string }[],
-  branch?: { name: string, short: string },
+  branch?: string,
   remotes: { name: string, url: string }[],
   available: { path: string, type: number }[],
   staged: { path: string, type: number }[]
@@ -41,7 +41,7 @@ export interface RepositoryRemote {
 export interface State {
   name: string
   path: string
-  branch?: { name: string, short: string, error?: string }
+  branch?: string
   history: { oid: string, date: Date, message: string }[]
   pending: { oid: string, date: Date, message: string }[]
   patches: RepositoryPatches[]
@@ -57,8 +57,8 @@ export interface State {
   metadata: RepositoryMetadata
   commit_working: boolean
   push_working: boolean
-  credentials: CredentialState
-  signature: SignatureState
+  credentials?: CredentialState
+  signature?: SignatureState
 }
 
 export interface CredentialState {
@@ -72,40 +72,38 @@ export interface SignatureState {
   message?: string
 }
 
-function InitialState (): State {
-  return <State>{
-    name: '',
-    path: '',
-    branch: undefined,
-    history: [],
-    pending: [],
-    patches: [],
-    patches_type: '',
-    patches_reference: '',
-    patches_message: '',
-    remotes: [],
-    loaded: false,
-    staging: 0,
-    status: { available: [], staged: [] },
-    remote: { name: '', url: '', branch: { name: '', short: '', error: '' }},
-    repository: undefined,
-    metadata: {
-      readme: undefined,
-      license: undefined,
-      authors: undefined,
-      contributors: undefined,
-    },
-    commit_working: false,
-    push_working: false
-  }
+export const StateDefaults: State = {
+  name: '',
+  path: '',
+  branch: undefined,
+  history: [],
+  pending: [],
+  patches: [],
+  patches_type: '',
+  patches_reference: '',
+  patches_message: '',
+  remotes: [],
+  loaded: false,
+  staging: 0,
+  status: { available: [], staged: [] },
+  remote: { name: '', url: '', branch: { name: '', short: '', error: '' }},
+  repository: undefined,
+  metadata: {
+    readme: undefined,
+    license: undefined,
+    authors: undefined,
+    contributors: undefined,
+  },
+  commit_working: false,
+  push_working: false,
 }
 
 export default {
   namespaced: true,
-  state: InitialState(),
+  state: () => StateDefaults,
   mutations: <MutationTree<State>>{
     clear: function (state) {
-      Object.assign(state, InitialState())
+      Object.assign(state, StateDefaults)
     },
     initialize: function (state, repository) {
       state.repository = repository

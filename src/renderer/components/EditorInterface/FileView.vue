@@ -14,23 +14,27 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, toNative, Prop } from 'vue-facing-decorator'
-import { File } from '@/store'
 import DirectoryView from './View/DirectoryView.vue'
-import TextView from './View/TextView.vue'
 import ImageView from './View/ImageView.vue'
+import TextView from './View/TextView.vue'
 
-@Component({
+export default {
   components: {
     DirectoryView,
-    TextView,
     ImageView,
+    TextView,
   }
-})
-class FileView extends Vue {
-  @Prop({ type: File, default: undefined })
-  file?: File
+}
+</script>
+
+<script setup lang="ts">
+import { File } from '@/store'
+
+export interface Props {
+  file?: File,
 }
 
-export default toNative(FileView)
+withDefaults(defineProps<Props>(), {
+  file: undefined,
+})
 </script>

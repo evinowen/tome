@@ -51,24 +51,39 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VLayout, VCol, VBtn, VIcon, VTextField } from 'vuetify/components'
+import {
+  VBtn,
+  VCol,
+  VIcon,
+  VLayout,
+  VTextField,
+} from 'vuetify/components'
 
-@Component({
-  components: { VLayout, VCol, VBtn, VIcon, VTextField }
-})
-class PushPassphraseInput extends Vue {
-  @Prop({ default: '' })
-  value: string
+export default {
+  components: {
+    VBtn,
+    VCol,
+    VIcon,
+    VLayout,
+    VTextField,
+  }
+}
+</script>
 
-  @Prop({ default: false })
-  storable: boolean
+<script setup lang="ts">
+import { ref } from 'vue'
 
-  @Prop({ default: '' })
-  stored: string
-
-  obscured = true
+export interface Props {
+  value: string,
+  storable: boolean,
+  stored: string,
 }
 
-export default toNative(PushPassphraseInput)
+withDefaults(defineProps<Props>(), {
+  value: '',
+  storable: false,
+  stored: '',
+})
+
+const obscured = ref(true)
 </script>

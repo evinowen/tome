@@ -1,7 +1,7 @@
 <template>
   <div
     ref="node"
-    v-click-outside="{ handler: () => $emit('close'), closeConditional: () => root, include }"
+    v-click-outside.prevent="{ handler: () => $emit('close'), closeConditional: () => root, include }"
     class="context-menu"
   >
     <v-list
@@ -77,184 +77,187 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator'
-import { VLayout, VCol, VList, VListItem, VListItemTitle, VListSubheader, VIcon, VDivider } from 'vuetify/components'
-import { ClickOutside } from 'vuetify/directives'
+import {
+  VCol,
+  VDivider,
+  VIcon,
+  VLayout,
+  VList,
+  VListItem,
+  VListItemTitle,
+  VListSubheader,
+} from 'vuetify/components'
+import {
+  ClickOutside,
+} from 'vuetify/directives'
+
+export default {
+  name: 'ContextMenuNode',
+  components: {
+    VCol,
+    VDivider,
+    VIcon,
+    VLayout,
+    VList,
+    VListItem,
+    VListItemTitle,
+    VListSubheader,
+  },
+  directives: {
+    ClickOutside,
+  }
+}
+</script>
+
+<script setup lang="ts">
+import { onMounted, ref, watch } from 'vue'
 import ResizeObserver from 'resize-observer-polyfill'
 
-@Component({
-  name: 'ContextMenuNode',
-  components: { VLayout, VCol, VList, VListItem, VListItemTitle, VListSubheader, VIcon, VDivider },
-  directives: { ClickOutside },
-  emits: [ 'close' ]
+export interface Props {
+  title?: string,
+  root: boolean,
+  target?: string,
+  items: any[],
+  position_x: number,
+  position_y: number,
+  flip_x?: boolean,
+  flip_y?: boolean,
+  window_x: number,
+  window_y: number,
+  layer: number,
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  title: undefined,
+  root: false,
+  target: undefined,
+  items: () => [],
+  position_x: 0,
+  position_y: 0,
+  flip_x: undefined,
+  flip_y: undefined,
+  window_x: 0,
+  window_y: 0,
+  layer: 0,
 })
-class ContextMenuNode extends Vue {
-  @Prop({ default: undefined })
-  title?: string
 
-  @Prop({ type: Boolean, default: false })
-  root: Boolean
+const emit = defineEmits([
+  'close',
+])
 
-  @Prop({ default: undefined })
-  target?: string
+const node = ref<HTMLElement>(null)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Prop({ default: () => [] })
-  items: any[]
+const active = ref(-1)
+const promoted = ref(-1)
+const width = ref(0)
+const height = ref(0)
+const local_position_x = ref(0)
+const local_position_y = ref(0)
+const local_flip_x = ref(false)
+const local_flip_y = ref(false)
 
-  @Prop({ default: 0 })
-  position_x: number
+let resize_observer: ResizeObserver
 
-  @Prop({ default: 0 })
-  position_y: number
+watch(() => props.position_x, reposition)
+watch(() => props.position_y, reposition)
+watch(() => props.flip_x, reposition)
+watch(() => props.flip_y, reposition)
 
-  @Prop({ default: undefined })
-  flip_x?: boolean
+onMounted(() => {
+  resize_observer = new ResizeObserver(resize)
+  resize_observer.observe(node.value)
+})
 
-  @Prop({ default: undefined })
-  flip_y?: boolean
+function include () {
+  return [...node.value.querySelectorAll('*')]
+}
 
-  @Prop({ default: 0 })
-  window_x: number
-
-  @Prop({ default: 0 })
-  window_y: number
-
-  @Prop({ default: 0 })
-  layer: number
-
-  $refs: {
-    node: HTMLElement
+function resize () {
+  if (node) {
+    width.value = node.value.clientWidth
+    height.value = node.value.clientHeight
   }
 
-  active = -1
-  promoted = -1
-  width = 0
-  height = 0
-  local_position_x = 0
-  local_position_y = 0
-  local_flip_x = false
-  local_flip_y = false
-  resize_observer?: ResizeObserver
+  reposition()
+}
 
-  @Watch('position_x')
-  position_x_update () {
-    this.reposition()
+function offset (target) {
+  let height = 19
+
+  for (let index = 0; index < target; index++) {
+    const item = props.items[index]
+
+    item.divider
+      ? height += 1
+      : height += 18
   }
 
-  @Watch('position_y')
-  position_y_update () {
-    this.reposition()
-  }
+  return height
+}
 
-  @Watch('flip_x')
-  flip_x_update () {
-    this.reposition()
-  }
+function reposition () {
+  const overflow_x = props.position_x - (props.window_x / 2)
+  const overflow_y = props.position_y - (props.window_y / 2)
 
-  @Watch('flip_y')
-  flip_y_update () {
-    this.reposition()
-  }
+  local_flip_x.value = props.flip_x === undefined ? overflow_x > 0 : props.flip_x
+  local_flip_y.value = props.flip_y === undefined ? overflow_y > 0 : props.flip_y
 
-  mounted () {
-    this.resize_observer = new ResizeObserver(this.resize)
-    this.resize_observer.observe(this.$refs.node)
-  }
+  local_position_x.value = props.position_x - (local_flip_x.value ? width.value : 0)
+  local_position_y.value = props.position_y - (local_flip_y.value ? height.value : 0)
 
-  include () {
-    return [...this.$refs.node.querySelectorAll('*')]
-  }
-
-  resize () {
-    if (this.$refs.node) {
-      this.width = this.$refs.node.clientWidth
-      this.height = this.$refs.node.clientHeight
-    }
-
-    this.reposition()
-  }
-
-  offset (target) {
-    let height = 19
-
-    for (let index = 0; index < target; index++) {
-      const item = this.items[index]
-
-      item.divider
-        ? height += 1
-        : height += 18
-    }
-
-    return height
-  }
-
-  reposition () {
-    const overflow_x = this.position_x - (this.window_x / 2)
-    const overflow_y = this.position_y - (this.window_y / 2)
-
-    this.local_flip_x = this.flip_x === undefined ? overflow_x > 0 : this.flip_x
-    this.local_flip_y = this.flip_y === undefined ? overflow_y > 0 : this.flip_y
-
-    this.local_position_x = this.position_x - (this.local_flip_x ? this.width : 0)
-    this.local_position_y = this.position_y - (this.local_flip_y ? this.height : 0)
-
-    if (this.$refs.node) {
-      this.$refs.node.style.zIndex = `${this.layer}`
-      this.$refs.node.style.left = `${this.local_position_x}px`
-      this.$refs.node.style.top = `${this.local_position_y}px`
-    }
-  }
-
-  activate (index) {
-    this.promote(index)
-    this.active = index
-  }
-
-  deactivate (index) {
-    if (this.active !== index) {
-      return
-    }
-
-    this.active = -1
-  }
-
-  async promote (index) {
-    if (this.promoted === index) {
-      return
-    }
-
-    this.active = -1
-    this.promoted = -1
-
-    if (!this.items) {
-      return
-    }
-
-    if (index < 0) {
-      return
-    }
-
-    const item = this.items[index]
-
-    if (item.load) {
-      item.items = await item.load()
-    }
-
-    this.promoted = index
-  }
-
-  async execute (action) {
-    if (action === undefined) {
-      return
-    }
-
-    this.$emit('close')
-    await action(this.target)
+  if (node) {
+    node.value.style.zIndex = `${props.layer}`
+    node.value.style.left = `${local_position_x}px`
+    node.value.style.top = `${local_position_y}px`
   }
 }
 
-export default toNative(ContextMenuNode)
+function activate (index) {
+  promote(index)
+  active.value = index
+}
+
+function deactivate (index) {
+  if (active !== index) {
+    return
+  }
+
+  active.value = -1
+}
+
+async function promote (index) {
+  if (promoted === index) {
+    return
+  }
+
+  active.value = -1
+  promoted.value = -1
+
+  if (!props.items) {
+    return
+  }
+
+  if (index < 0) {
+    return
+  }
+
+  const item = props.items[index]
+
+  if (item.load) {
+    item.items = await item.load()
+  }
+
+  promoted.value = index
+}
+
+async function execute (action) {
+  if (action === undefined) {
+    return
+  }
+
+  emit('close')
+  await action(props.target)
+}
 </script>
 
 <style scoped>

@@ -24,31 +24,44 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VCard, VLayout, VRow, VBtn, VIcon, VDivider, VContainer, VNavigationDrawer } from 'vuetify/components'
+import {
+  VBtn,
+  VCard,
+  VContainer,
+  VDivider,
+  VIcon,
+  VLayout,
+  VNavigationDrawer,
+  VRow,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
-    VCard,
-    VRow,
     VBtn,
-    VIcon,
-    VDivider,
+    VCard,
     VContainer,
-    VNavigationDrawer,
+    VDivider,
+    VIcon,
     VLayout,
+    VNavigationDrawer,
+    VRow,
   },
-  emits: [ "close" ]
-})
-class ConsolePage extends Vue {
-  @Prop({ default: false })
-  open: boolean
+  emits: [
+    'close',
+  ]
+}
+</script>
 
-  @Prop({ default: 0 })
-  layer: number
+<script setup lang="ts">
+export interface Props {
+  open: boolean,
+  layer: number,
 }
 
-export default toNative(ConsolePage)
+withDefaults(defineProps<Props>(), {
+  open: false,
+  layer: 0,
+})
 </script>
 
 <style scoped>

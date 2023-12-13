@@ -13,23 +13,28 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VSwitch } from 'vuetify/components'
+import {
+  VSwitch,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
-    VSwitch
+    VSwitch,
   },
   emits: [
-    'click'
+    'click',
   ]
-})
-class EditSwitch extends Vue {
-  @Prop({ default: false })
-  value: boolean
+}
+</script>
+
+<script setup lang="ts">
+export interface Props {
+  value: boolean,
 }
 
-export default toNative(EditSwitch)
+withDefaults(defineProps<Props>(), {
+  value: false,
+})
 </script>
 
 <style scoped>

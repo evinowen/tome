@@ -62,48 +62,63 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
+import {
+  VBtn,
+  VCard,
+  VCardActions,
+  VCardSubtitle,
+  VCardTitle,
+  VDivider,
+  VMenu,
+  VSpacer,
+} from 'vuetify/components'
 
-@Component({
-  components: { VCardActions, VCard, VCardTitle, VBtn, VSpacer, VDivider, VCardSubtitle, VMenu }
-})
-class RepositoryButton extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
-
-  @Prop({ default: '' })
-  name: string
-
-  @Prop({ default: '' })
-  path: string
-
-  @Prop({ default: '' })
-  readme: string
-
-  @Prop({ default: '' })
-  authors: string
-
-  @Prop({ default: '' })
-  contributors: string
-
-  @Prop({ default: '' })
-  license: string
-
-  @Prop({ default: false })
-  disabled: boolean
-
-  value = false
-
-  async open (path) {
-    this.value = false
-    await this.store.dispatch('files/select', { path })
+export default {
+  components: {
+    VBtn,
+    VCard,
+    VCardActions,
+    VCardSubtitle,
+    VCardTitle,
+    VDivider,
+    VMenu,
+    VSpacer,
   }
 }
+</script>
 
-export default toNative(RepositoryButton)
+<script setup lang="ts">
+import { ref } from 'vue'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+export interface Props {
+  name: string,
+  path: string,
+  readme: string,
+  authors: string,
+  contributors: string,
+  license: string,
+  disabled: boolean,
+}
+
+withDefaults(defineProps<Props>(), {
+  name: '',
+  path: '',
+  readme: '',
+  authors: '',
+  contributors: '',
+  license: '',
+  disabled: false,
+})
+
+const value = ref(false)
+
+async function open (path) {
+  value.value = false
+  await store.dispatch('files/select', { path })
+}
 </script>
 
 <style scoped>

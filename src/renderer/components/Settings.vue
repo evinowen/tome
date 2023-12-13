@@ -3,7 +3,7 @@
     left
     title="Settings"
     :layer="10"
-    :open="value"
+    :open="system.settings"
     @close="close"
   >
     <v-row>
@@ -295,23 +295,17 @@
       <v-col>
         <div class="d-flex">
           <div class="flex-shrink-1">
-            <v-layout class="tome">
-              <v-col
-                class="pa-0"
-                style="text-align: center;"
-              >
-                <img :src="logo">
-              </v-col>
-              <v-col
-                class="px-0 justify-center"
-                align-self-center
-              >
+            <div class="tome-badge">
+              <div class="tome-badge-logo">
+                <img :src="logo" style="height: 64px; width: 64px;">
+              </div>
+              <div class="tome-badge-data">
                 <h3>Tome</h3>
                 <span style="white-space: nowrap;">
                   version {{ system.version }}
                 </span>
-              </v-col>
-            </v-layout>
+              </div>
+            </div>
           </div>
           <div class="flex-grow-1">
             <sea-game />
@@ -335,105 +329,114 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VLayout, VCol, VRow, VBtn, VDivider, VContainer, VSwitch, VTextField } from 'vuetify/components'
-import { debounce } from 'lodash'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
-import { presets } from '@/vuetify'
-import UtilityPage from './UtilityPage.vue'
-import ThemePreview from './ThemePreview.vue'
 import KeyfileInput from './KeyfileInput.vue'
 import KeyfileOutput from './KeyfileOutput.vue'
-import ThemeColorPicker from './ThemeColorPicker.vue'
 import SeaGame from './SeaGame.vue'
+import ThemeColorPicker from './ThemeColorPicker.vue'
+import ThemePreview from './ThemePreview.vue'
+import UtilityPage from './UtilityPage.vue'
+import {
+  VBtn,
+  VCol,
+  VContainer,
+  VDivider,
+  VLayout,
+  VRow,
+  VSwitch,
+  VTextField,
+} from 'vuetify/components'
+
+export default {
+  components: {
+    KeyfileInput,
+    KeyfileOutput,
+    SeaGame,
+    ThemeColorPicker,
+    ThemePreview,
+    UtilityPage,
+    VBtn,
+    VCol,
+    VContainer,
+    VDivider,
+    VLayout,
+    VRow,
+    VSwitch,
+    VTextField,
+  }
+}
+</script>
+
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { debounce } from 'lodash'
+import { fetchStore } from '@/store'
+import { presets } from '@/vuetify'
 
 import logo_url from './logo.png'
 
-@Component({
-  components: {
-    VCol,
-    VRow,
-    VBtn,
-    VDivider,
-    VContainer,
-    VSwitch,
-    VTextField,
-    KeyfileInput,
-    KeyfileOutput,
-    ThemePreview,
-    ThemeColorPicker,
-    VLayout,
-    SeaGame,
-    UtilityPage,
-  }
+const store = fetchStore()
+
+const obscure_passphrase = ref(true)
+
+const logo = computed(() => {
+  return logo_url
 })
-class Settings extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
 
-  @Prop({ default: false })
-  value: boolean
+const configuration = computed(() => store.state.configuration)
+const system = computed(() => store.state.system)
 
-  obscure_passphrase = true
-  version?: string
-  process?: {
-    versions?: Record<string, string>
-    sandboxed: boolean
+function color_base (theme, color) {
+  if (color in presets[theme]) {
+    return presets[theme][color]
   }
 
-  get logo () {
-    return logo_url
-  }
-
-  get configuration () {
-    return this.store.state.configuration
-  }
-
-  get system () {
-    return this.store.state.system
-  }
-
-  get debounce_save () {
-    return debounce(this.save, 1000)
-  }
-
-  color_base (theme, color) {
-    if (color in presets[theme]) {
-      return presets[theme][color]
-    }
-
-    return '#000000'
-  }
-
-  async close () {
-    await this.store.dispatch('system/settings', false)
-  }
-
-  async assign_value (name, value) {
-    await this.store.dispatch('configuration/update', { [name]: value })
-    this.debounce_save()
-  }
-
-  async generate_key (passphrase) {
-    await this.store.dispatch('configuration/generate', passphrase)
-  }
-
-  async save () {
-    await this.store.dispatch('configuration/write', this.store.state.configuration_path)
-  }
+  return '#000000'
 }
 
-export default toNative(Settings)
+async function close () {
+  await store.dispatch('system/settings', false)
+}
+
+async function assign_value (name, value) {
+  await store.dispatch('configuration/update', { [name]: value })
+  debounce_save()
+}
+
+async function generate_key (passphrase) {
+  await store.dispatch('configuration/generate', passphrase)
+}
+
+async function save () {
+  await store.dispatch('configuration/write', store.state.configuration_path)
+}
+
+const debounce_save = debounce(save, 1000)
 </script>
 
 <style scoped>
-.tome {
+.tome-badge {
+  display: flex;
   background: rgba(0, 0, 0, 0.2);
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
   margin: auto;
   width: 200px;
   padding: 6px;
+  text-align: center;
+}
+
+.tome-badge-logo {
+  flex-grow: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tome-badge-data {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  justify-content: center;
   text-align: center;
 }
 </style>

@@ -26,33 +26,45 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VIcon, VBtn, VTextField, VLayout, VCol } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
+import {
+  VBtn,
+  VCol,
+  VIcon,
+  VLayout,
+  VTextField,
+} from 'vuetify/components'
 
-@Component({
-  components: { VIcon, VBtn, VTextField, VLayout, VCol }
-})
-class KeyfileOutput extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
-
-  @Prop({ default: '' })
-  value: string
-
-  @Prop({ default: false })
-  small: boolean
-
-  @Prop({ default: '' })
-  label: string
-
-  async copy () {
-    await this.store.dispatch('clipboard/text', this.value)
+export default {
+  components: {
+    VBtn,
+    VCol,
+    VIcon,
+    VLayout,
+    VTextField,
   }
 }
+</script>
 
-export default toNative(KeyfileOutput)
+<script setup lang="ts">
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+export interface Props {
+  label: string,
+  small?: boolean,
+  value: string,
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  label: '',
+  small: false,
+  value: '',
+})
+
+async function copy () {
+  await store.dispatch('clipboard/text', props.value)
+}
 </script>
 
 <style scoped>

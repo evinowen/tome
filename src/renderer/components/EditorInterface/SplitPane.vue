@@ -26,39 +26,37 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, toNative } from 'vue-facing-decorator'
 
-@Component({})
-class SplitPane extends Vue {
-  $refs: {
-    resized: HTMLElement
-  }
+export default {}
+</script>
 
-  resizing = false
-  origin = 0
-  width = 240
+<script setup lang="ts">
+import { ref } from 'vue'
 
-  resize_start (event) {
-    this.resizing = true
-    this.width = this.$refs.resized.offsetWidth
-    this.origin = event.pageX
-  }
+const resized = ref<HTMLElement>(null)
 
-  resize_move (event) {
-    if (!this.resizing) {
-      return
-    }
+let resizing = false
+let origin = 0
+let width = 240
 
-    this.width += event.pageX - this.origin
-    this.origin = event.pageX
-  }
-
-  resize_end () {
-    this.resizing = false
-  }
+function resize_start (event) {
+  resizing = true
+  width = resized.value.offsetWidth
+  origin = event.pageX
 }
 
-export default toNative(SplitPane)
+function resize_move (event) {
+  if (!resizing) {
+    return
+  }
+
+  width += event.pageX - origin
+  origin = event.pageX
+}
+
+function resize_end () {
+  resizing = false
+}
 </script>
 
 <style scoped>

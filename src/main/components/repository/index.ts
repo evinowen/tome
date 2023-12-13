@@ -1,6 +1,6 @@
 import component from '../factory'
 import Repository from './Repository'
-import * as log from 'electron-log'
+import log from 'electron-log/main'
 
 let repository: Repository
 

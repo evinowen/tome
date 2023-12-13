@@ -4,7 +4,7 @@
     :title="repository.patches_reference"
     :subtitle="repository.patches_type"
     :layer="2"
-    :open="value"
+    :open="system.patch"
     @close="close"
   >
     <div class="flex-grow-0">
@@ -48,11 +48,32 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { VContainer, VBtn, VIcon, VCard, VCardTitle, VCardText } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
 import UtilityPage from '@/components/UtilityPage.vue'
+import {
+  VBtn,
+  VCard,
+  VCardText,
+  VCardTitle,
+  VContainer,
+  VIcon,
+} from 'vuetify/components'
+
+export default {
+  components: {
+    UtilityPage,
+    VBtn,
+    VCard,
+    VCardText,
+    VCardTitle,
+    VContainer,
+    VIcon,
+  }
+}
+</script>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { fetchStore } from '@/store'
 
 class RepositoryPatch {
   static LineType = {
@@ -68,64 +89,41 @@ class RepositoryPatch {
   }
 }
 
-@Component({
-  components: {
-    UtilityPage,
-    VBtn,
-    VCard,
-    VCardText,
-    VCardTitle,
-    VContainer,
-    VIcon,
-  }
-})
-class Patch extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
+const store = fetchStore()
 
-  @Prop({ default: false })
-  value: boolean
+const system = computed(() => store.state.system)
+const repository = computed(() => store.state.repository)
+const patches = computed(() => store.state.repository.patches)
 
-  get repository () {
-    return this.store.state.repository
-  }
+async function close () {
+  await store.dispatch('system/patch', false)
+}
 
-  get patches () {
-    return this.store.state.repository.patches
-  }
-
-  async close () {
-    await this.store.dispatch('system/patch', false)
-  }
-
-  line_color (type) {
-    switch (type) {
-      case RepositoryPatch.LineType.HUNK_HDR:
-        return 'blue--text'
-      case RepositoryPatch.LineType.ADDITION:
-        return 'green--text'
-      case RepositoryPatch.LineType.DELETION:
-        return 'red--text'
-      default:
-        return ''
-    }
-  }
-
-  line_prefix (type) {
-    switch (type) {
-      case RepositoryPatch.LineType.HUNK_HDR:
-        return ''
-      case RepositoryPatch.LineType.ADDITION:
-        return '+ '
-      case RepositoryPatch.LineType.DELETION:
-        return '- '
-      default:
-        return '  '
-    }
+function line_color (type) {
+  switch (type) {
+    case RepositoryPatch.LineType.HUNK_HDR:
+      return 'blue--text'
+    case RepositoryPatch.LineType.ADDITION:
+      return 'green--text'
+    case RepositoryPatch.LineType.DELETION:
+      return 'red--text'
+    default:
+      return ''
   }
 }
 
-export default toNative(Patch)
+function line_prefix (type) {
+  switch (type) {
+    case RepositoryPatch.LineType.HUNK_HDR:
+      return ''
+    case RepositoryPatch.LineType.ADDITION:
+      return '+ '
+    case RepositoryPatch.LineType.DELETION:
+      return '- '
+    default:
+      return '  '
+  }
+}
 </script>
 
 <style scoped>

@@ -7,17 +7,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, toNative } from 'vue-facing-decorator'
-import { VDivider } from 'vuetify/components'
+import {
+  VDivider,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
-    VDivider
+    VDivider,
   }
-})
-class Divider extends Vue {}
-
-export default toNative(Divider)
+}
 </script>
 
 <style scoped>

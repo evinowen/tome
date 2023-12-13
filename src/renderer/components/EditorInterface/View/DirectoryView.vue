@@ -24,23 +24,29 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VDivider } from 'vuetify/components'
-import { File } from '@/store'
 import EmptyPane from '@/components/EmptyPane.vue'
 import FileIcon from '@/components/FileIcon.vue'
+import {
+  VDivider,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     EmptyPane,
     FileIcon,
-    VDivider
+    VDivider,
   }
-})
-class DirectoryView extends Vue {
-  @Prop({ type: File, default: undefined })
-  file?: File
+}
+</script>
+
+<script setup lang="ts">
+import { File } from '@/store'
+
+export interface Props {
+  file?: File,
 }
 
-export default toNative(DirectoryView)
+withDefaults(defineProps<Props>(), {
+  file: undefined,
+})
 </script>

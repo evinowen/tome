@@ -7,7 +7,7 @@
     "outDir": "../../dist/main",
     "baseUrl": ".",
     "paths": {
-      "@/*": [ "../../src/main/*" ]
+      "@/*": [ "./*" ]
     },
     "lib": [
       "esnext",

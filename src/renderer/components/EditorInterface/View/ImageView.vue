@@ -21,49 +21,56 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch, toNative } from 'vue-facing-decorator'
-import { File } from '@/store'
 import FileIcon from '@/components/FileIcon.vue'
+import { nextTick } from 'vue'
 
-@Component({
-  components: { FileIcon }
-})
-class ImageView extends Vue {
-  @Prop({ type: File, default: undefined })
-  file?: File
-
-  $refs: {
-    preview: HTMLElement
-  }
-
-  hide = false
-  zoom = false
-
-  @Watch('file')
-  reset () {
-    this.hide = false
-    this.zoom = false
-  }
-
-  error () {
-    this.hide = true
-  }
-  async click (event) {
-    const scroll_x = event.offsetX / event.target.offsetWidth
-    const scroll_y = event.offsetY / event.target.offsetHeight
-
-    this.zoom = !this.zoom
-    await this.$nextTick()
-
-    const top = (scroll_y * event.target.offsetHeight) - (this.$refs.preview.offsetHeight * 0.5)
-    const left = (scroll_x * event.target.offsetWidth) - (this.$refs.preview.offsetWidth * 0.5)
-    const behavior = 'auto'
-
-    this.$refs.preview.scrollTo({ top, left, behavior })
+export default {
+  components: {
+    FileIcon,
   }
 }
+</script>
 
-export default toNative(ImageView)
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { File } from '@/store'
+
+export interface Props {
+  file?: File,
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  file: undefined,
+})
+
+const preview = ref<HTMLElement>(null)
+
+const hide = ref(false)
+const zoom = ref(false)
+
+watch(() => props.file, () => {
+  hide.value = false
+  zoom.value = false
+})
+
+function error () {
+  hide.value = true
+}
+
+async function click (event) {
+  const scroll_x = event.offsetX / event.target.offsetWidth
+  const scroll_y = event.offsetY / event.target.offsetHeight
+
+  zoom.value = !zoom.value
+
+  await nextTick()
+
+  const top = (scroll_y * event.target.offsetHeight) - (preview.value.offsetHeight * 0.5)
+  const left = (scroll_x * event.target.offsetWidth) - (preview.value.offsetWidth * 0.5)
+  const behavior = 'auto'
+
+  preview.value.scrollTo({ top, left, behavior })
+}
 </script>
 
 <style scoped>

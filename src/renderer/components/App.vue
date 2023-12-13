@@ -8,20 +8,17 @@
     <action-bar />
     <v-main class="app-main">
       <div class="app-container">
-        <settings :value="system.settings" />
-        <console :value="system.console" />
+        <settings />
+        <console />
 
         <template v-if="repository.loaded">
-          <branch :value="system.branch" />
-          <push ref="push" />
-          <commit ref="commit" />
-          <patch :value="system.patch" />
+          <branch />
+          <push />
+          <commit />
+          <patch />
         </template>
 
-        <editor-interface
-          v-show="repository.path"
-          ref="interface"
-        />
+        <editor-interface v-show="repository.path"/>
         <empty-pane v-show="!repository.path" />
 
         <context-menu-service />
@@ -34,70 +31,64 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
-
-import ContextMenuService from '@/components/ContextMenuService.vue'
-import SearchService from '@/components/SearchService.vue'
-
-import {
-  VApp,
-  VMain
-} from 'vuetify/components'
-import SystemBar from '@/components/SystemBar.vue'
-import Settings from '@/components/Settings.vue'
+import ActionBar from '@/components/ActionBar.vue'
 import Branch from '@/components/Branch.vue'
-import Patch from '@/components/Patch.vue'
 import Commit from '@/components/Commit.vue'
-import Push from '@/components/Push.vue'
 import Console from '@/components/Console.vue'
+import ContextMenuService from '@/components/ContextMenuService.vue'
 import EditorInterface from '@/components/EditorInterface.vue'
 import EmptyPane from '@/components/EmptyPane.vue'
-import ActionBar from '@/components/ActionBar.vue'
+import Patch from '@/components/Patch.vue'
+import Push from '@/components/Push.vue'
+import SearchService from '@/components/SearchService.vue'
+import Settings from '@/components/Settings.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
+import SystemBar from '@/components/SystemBar.vue'
+import {
+  VApp,
+  VMain,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
-    VApp,
-    VMain,
-    SystemBar,
-    Settings,
+    ActionBar,
     Branch,
-    Patch,
     Commit,
-    Push,
     Console,
+    ContextMenuService,
     EditorInterface,
     EmptyPane,
-    ActionBar,
-    ContextMenuService,
+    Patch,
+    Push,
     SearchService,
-    ShortcutService
-  }
-})
-class App extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
-
-  get repository () {
-    return this.store.state.repository
-  }
-
-  get system () {
-    return this.store.state.system
-  }
-
-  get theme () {
-    return this.store.state.configuration.dark_mode ? "dark" : "light"
-  }
-
-  scroll (event) {
-    event.target.scrollTop = 0
+    Settings,
+    ShortcutService,
+    SystemBar,
+    VApp,
+    VMain,
   }
 }
+</script>
 
-export default toNative(App)
+<script setup lang="ts">
+import { computed } from 'vue'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+const repository = computed(() => store.state.repository)
+
+const system = computed(() => store.state.system)
+
+const theme = computed(() => store.state.configuration.dark_mode ? "dark" : "light")
+
+const scroll = (event) => {
+  event.target.scrollTop = 0
+}
+
+defineExpose({
+  scroll
+})
 </script>
 
 <style scoped>

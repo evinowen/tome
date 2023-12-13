@@ -1,7 +1,7 @@
 <template>
   <console-page
     :layer="8"
-    :open="value"
+    :open="system.console"
     @close="close"
   >
     <v-dialog
@@ -39,14 +39,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { DateTime } from 'luxon'
-import { VDialog, VIcon, VBtn, VCard, VCardText, VCardActions } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
 import ConsolePage from './ConsolePage.vue'
+import {
+  VBtn,
+  VCard,
+  VCardActions,
+  VCardText,
+  VDialog,
+  VIcon,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     ConsolePage,
     VBtn,
@@ -56,45 +59,51 @@ import ConsolePage from './ConsolePage.vue'
     VDialog,
     VIcon,
   }
+}
+</script>
+
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { fetchStore } from '@/store'
+import { DateTime } from 'luxon'
+
+const store = fetchStore()
+
+export interface Props {
+  open?: boolean,
+}
+
+withDefaults(defineProps<Props>(), {
+  open: false,
 })
-class Console extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
 
-  @Prop({ default: false })
-  value!: boolean
+const detail = ref(false)
+const stack = ref('')
 
-  detail = false
-  stack = ''
+const system = computed(() => store.state.system)
+const events = computed(() => store.state.events)
 
-  get events () {
-    return this.store.state.events
-  }
+async function close () {
+  await store.dispatch('system/console', false)
+}
 
-  async close () {
-    await this.store.dispatch('system/console', false)
-  }
+function show_stack (input: string) {
+  stack.value = input.trim()
 
-  show_stack (stack) {
-    this.stack = stack.trim()
-
-    if (this.stack) {
-      this.detail = true
-    }
-  }
-
-  format_date (datetime) {
-    return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
-  }
-
-  format_message (message) {
-    return String(message)
-      .replace(/\r/g, '\u240D')
-      .replace(/\n/g, '\u2424')
+  if (stack) {
+    detail.value = true
   }
 }
 
-export default toNative(Console)
+function format_date (datetime) {
+  return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
+}
+
+function format_message (message) {
+  return String(message)
+    .replace(/\r/g, '\u240D')
+    .replace(/\n/g, '\u2424')
+}
 </script>
 
 <style scoped>

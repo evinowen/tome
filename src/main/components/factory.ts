@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import * as log from 'electron-log'
+import log from 'electron-log/main'
 
 export default (namespace) => {
   const handle = (channel, listener) => {

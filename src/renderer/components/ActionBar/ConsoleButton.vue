@@ -14,37 +14,42 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Setup, Vue, toNative } from 'vue-facing-decorator'
-import { VBtn, VIcon } from 'vuetify/components'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
+import {
+  VBtn,
+  VIcon,
+} from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     VBtn,
-    VIcon
-  }
-})
-class ConsoleButton extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
-
-  @Prop({ default: '' })
-  status: string
-
-  @Prop({ default: '' })
-  message: string
-
-  get open () {
-    return this.store.state.system.console
-  }
-
-  async click () {
-    await this.store.dispatch('system/console', !this.open)
+    VIcon,
   }
 }
+</script>
 
-export default toNative(ConsoleButton)
+<script setup lang="ts">
+import { computed } from 'vue'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+export interface Props {
+  status: string,
+  message: string,
+}
+
+withDefaults(defineProps<Props>(), {
+  status: '',
+  message: '',
+})
+
+const open = computed(() => {
+  return store.state.system.console
+})
+
+async function click () {
+  await store.dispatch('system/console', !open.value)
+}
 </script>
 
 <style scoped>

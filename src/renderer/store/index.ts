@@ -27,29 +27,31 @@ export interface State {
   configuration_path: string
   library_path: string
 
-  repository: RepositoryState
-  library: LibraryState
-  files: FilesState
-  system: SystemState
-  templates: TemplatesState
-  actions: ActionsState
-  configuration: ConfigurationState
-  context: ContextState
-  clipboard: CliboardState
-  search: SearchState
+  repository?: RepositoryState
+  library?: LibraryState
+  files?: FilesState
+  system?: SystemState
+  templates?: TemplatesState
+  actions?: ActionsState
+  configuration?: ConfigurationState
+  context?: ContextState
+  clipboard?: CliboardState
+  search?: SearchState
+}
+
+export const StateDefaults: State = {
+  events: [],
+  status: '',
+  message: '',
+  application_path: '',
+  configuration_path: '',
+  library_path: '',
 }
 
 export const key: InjectionKey<Store<State>> = Symbol()
 
 export const store = createStore({
-  state: {
-    events: [],
-    status: '',
-    message: '',
-    application_path: '',
-    configuration_path: '',
-    library_path: ''
-  } as unknown as State,
+  state: () => StateDefaults,
   mutations: <MutationTree<State>>{
     hydrate: function (state, data) {
       Object.assign(state, data)

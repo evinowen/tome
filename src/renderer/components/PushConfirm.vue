@@ -94,7 +94,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
   VAvatar,
   VBtn,
@@ -111,7 +110,7 @@ import {
   VSpacer,
 } from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     VAvatar,
     VBtn,
@@ -132,27 +131,28 @@ import {
     'input',
     'push',
   ]
-})
-class PushConfirm extends Vue {
-  @Prop({ default: false })
-  value: boolean
+}
+</script>
 
-  @Prop({ default: false })
-  disabled: boolean
-
-  @Prop({ default: false })
-  waiting: boolean
-
-  @Prop({ default: () => [] })
-  history: any[]
-
-  headers = [
-    { title: '', value: 'oid', width: '60px' },
-    { title: '', value: 'message', width: '' }
-  ]
+<script setup lang="ts">
+export interface Props {
+  value: boolean,
+  disabled: boolean,
+  waiting: boolean,
+  history: any[],
 }
 
-export default toNative(PushConfirm)
+withDefaults(defineProps<Props>(), {
+  value: false,
+  disabled: false,
+  waiting: false,
+  history: () => [],
+})
+
+const headers = [
+  { title: '', value: 'oid', width: '60px' },
+  { title: '', value: 'message', width: '' }
+]
 </script>
 
 <style scoped>

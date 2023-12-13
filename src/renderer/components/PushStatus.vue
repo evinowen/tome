@@ -128,63 +128,62 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
 import {
   VAvatar,
-  VIcon,
-  VListItem,
-  VListItemTitle,
-  VListItemSubtitle,
+  VBtn,
   VCard,
   VCardText,
-  VDivider,
   VContainer,
   VDataTable,
-  VBtn,
+  VDivider,
+  VIcon,
+  VListItem,
+  VListItemSubtitle,
+  VListItemTitle,
 } from 'vuetify/components'
 
-@Component({
+export default {
   components: {
     VAvatar,
-    VIcon,
-    VListItem,
-    VListItemTitle,
-    VListItemSubtitle,
+    VBtn,
     VCard,
     VCardText,
-    VDivider,
     VContainer,
     VDataTable,
-    VBtn
+    VDivider,
+    VIcon,
+    VListItem,
+    VListItemSubtitle,
+    VListItemTitle,
   },
   emits: [
     'commit',
     'reload',
   ]
-})
-class PushStatus extends Vue {
-  @Prop({ default: false })
-  active: boolean
+}
+</script>
 
-  @Prop({ default: false })
-  loading: boolean
-
-  @Prop({ default: false })
-  match: boolean
-
-  @Prop({ default: '' })
-  error: string
-
-  @Prop({ default: () => [] })
-  history: any[]
-
-  headers = [
-    { title: '', value: 'oid', width: '60px' },
-    { title: '', value: 'message', width: '' }
-  ]
+<script setup lang="ts">
+export interface Props {
+  active: boolean,
+  loading: boolean,
+  match: boolean,
+  error: string,
+  history: any[],
 }
 
-export default toNative(PushStatus)
+withDefaults(defineProps<Props>(), {
+  active: false,
+  loading: false,
+  match: false,
+  error: '',
+  history: () => [],
+})
+
+const headers = [
+  { title: '', value: 'oid', width: '60px' },
+  { title: '', value: 'message', width: '' }
+]
 </script>
 
 <style scoped>

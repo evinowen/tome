@@ -31,52 +31,49 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch, Setup, toNative } from 'vue-facing-decorator'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
-import File from '@/store/modules/files/file'
 import Explorer from '@/components/Explorer.vue'
 import FileEdit from './EditorInterface/FileEdit.vue'
 import FileView from './EditorInterface/FileView.vue'
 import SplitPane from './EditorInterface/SplitPane.vue'
 
-@Component({
+export default {
   components: {
     Explorer,
     FileEdit,
     FileView,
     SplitPane,
   }
-})
-class EditorInterface extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
-
-  selected = File.Empty
-
-  get active () {
-    return this.store.state.files.active
-  }
-
-  get system () {
-    return this.store.state.system
-  }
-
-  get explore () {
-    return !(this.system.commit || this.system.push)
-  }
-
-  @Watch('active')
-  select () {
-    if (this.active === '') {
-      this.selected = undefined
-    }
-
-    this.selected = this.store.state.files.directory[this.active]
-  }
 }
+</script>
 
-export default toNative(EditorInterface)
+<script setup lang="ts">
+import { computed, watch, ref } from 'vue'
+import { fetchStore } from '@/store'
+import File from '@/store/modules/files/file'
+
+const store = fetchStore()
+
+const selected = ref(File.Empty)
+
+const active = computed(() => {
+  return store.state.files.active
+})
+
+const system = computed(() => {
+  return store.state.system
+})
+
+const explore = computed(() => {
+  return !(store.state.system.commit || store.state.system.push)
+})
+
+watch(active, (value) => {
+  if (value === '') {
+    selected.value = File.Empty
+  }
+
+  selected.value = store.state.files.directory[value]
+})
 </script>
 
 <style scoped>

@@ -30,138 +30,136 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Setup, toNative } from 'vue-facing-decorator'
-import { Store } from 'vuex'
-import { State, fetchStore } from '@/store'
-import ExplorerNode, { ExplorerNodeGhostType } from './ExplorerNode.vue'
+import ExplorerNode from './ExplorerNode.vue'
+
+export default {
+  components: {
+    ExplorerNode,
+  }
+}
+</script>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { fetchStore } from '@/store'
 import File from '@/store/modules/files/file'
+import { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
-@Component({
-  components: { ExplorerNode }
+const store = fetchStore()
+
+let hold: { path: string }
+
+export interface Props {
+  enabled: boolean,
+}
+
+withDefaults(defineProps<Props>(), {
+  enabled: false,
 })
-class Explorer extends Vue {
-  @Setup(() => fetchStore())
-  store!: Store<State>
 
-  @Prop({ default: () => ({}) })
-  value: any
+const repository = computed(() => store.state.repository)
+const configuration = computed(() => store.state.configuration)
 
-  @Prop({ default: false })
-  enabled: boolean
-
-  hold?: { path: string }
-
-  get repository () {
-    return this.store.state.repository
-  }
-
-  get configuration () {
-    return this.store.state.configuration
-  }
-
-  get active () {
-    if (this.store.state.files.active === '') {
-      return ''
-    }
-
-    const selected = this.store.state.files.directory[this.store.state.files.active]
-
-    if (selected) {
-      return selected.uuid
-    }
-
+const active = computed(() => {
+  if (store.state.files.active === '') {
     return ''
   }
 
-  get editing () {
-    return this.store.state.files.editing
+  const selected = store.state.files.directory[store.state.files.active]
+
+  if (selected) {
+    return selected.uuid
   }
 
-  get root (): File {
-    return this.store.state.files.directory[this.store.state.files.base] || File.Empty
+  return ''
+})
+
+const editing = computed(() => {
+  return store.state.files.editing
+})
+
+const root = computed((): File => {
+  return store.state.files.directory[store.state.files.base] || File.Empty
+})
+
+function format (name, directory = false) {
+  if (!name) {
+    throw new Error('Name provided is falsey')
   }
 
-  format (name, directory = false) {
-    if (!name) {
-      throw new Error('Name provided is falsey')
-    }
-
-    if (/[^\d.a-z-]/.test(name)) {
-      throw new Error('Name contains invalid characters')
-    }
-
-    const words = String(name).split('.')
-
-    if (words.length > 0 && !directory) {
-      words.pop()
-    }
-
-    return words.map(item => `${String(item).slice(0, 1).toUpperCase()}${item.slice(1)}`).join(' ').trim()
+  if (/[^\d.a-z-]/.test(name)) {
+    throw new Error('Name contains invalid characters')
   }
 
-  async toggle (state) {
-    const { path } = state
+  const words = String(name).split('.')
 
-    await this.store.dispatch('files/toggle', { path })
+  if (words.length > 0 && !directory) {
+    words.pop()
   }
 
-  async select (state) {
-    const { path } = state
-    await this.store.dispatch('files/select', { path })
-  }
-
-  async open (state) {
-    const { target, container = false } = state
-
-    await this.store.dispatch('files/open', { path: target, container })
-  }
-
-  async edit (state) {
-    await this.store.dispatch('files/edit', { path: state.target })
-  }
-
-  async create (state) {
-    const { type, target } = state
-
-    switch (type) {
-      case ExplorerNodeGhostType.FILE:
-        await this.store.dispatch('files/ghost', { path: target, directory: false })
-        break
-
-      case ExplorerNodeGhostType.DIRECTORY:
-        await this.store.dispatch('files/ghost', { path: target, directory: true })
-        break
-
-      case ExplorerNodeGhostType.TEMPLATE:
-        await this.store.dispatch('templates/ghost')
-        break
-
-      case ExplorerNodeGhostType.ACTION:
-        await this.store.dispatch('actions/ghost')
-        break
-    }
-  }
-
-  async delete_event (state) {
-    const { target } = state
-    await this.store.dispatch('files/delete', { path: target })
-  }
-
-  async submit (state) { await this.store.dispatch('files/submit', state) }
-  async blur () { await this.store.dispatch('files/blur') }
-  async drag (state) {
-    this.hold = state
-  }
-
-  async drop (state) {
-    await this.store.dispatch('files/move', { path: this.hold.path, proposed: state.path })
-  }
-
-  async template (state) { await this.store.dispatch('templates/execute', state) }
-  async action (state) { await this.store.dispatch('actions/execute', state) }
+  return words.map(item => `${String(item).slice(0, 1).toUpperCase()}${item.slice(1)}`).join(' ').trim()
 }
 
-export default toNative(Explorer)
+async function toggle (state) {
+  const { path } = state
+
+  await store.dispatch('files/toggle', { path })
+}
+
+async function select (state) {
+  const { path } = state
+  await store.dispatch('files/select', { path })
+}
+
+async function open (state) {
+  const { target, container = false } = state
+
+  await store.dispatch('files/open', { path: target, container })
+}
+
+async function edit (state) {
+  await store.dispatch('files/edit', { path: state.target })
+}
+
+async function create (state) {
+  const { type, target } = state
+
+  switch (type) {
+    case ExplorerNodeGhostType.FILE:
+      await store.dispatch('files/ghost', { path: target, directory: false })
+      break
+
+    case ExplorerNodeGhostType.DIRECTORY:
+      await store.dispatch('files/ghost', { path: target, directory: true })
+      break
+
+    case ExplorerNodeGhostType.TEMPLATE:
+      await store.dispatch('templates/ghost')
+      break
+
+    case ExplorerNodeGhostType.ACTION:
+      await store.dispatch('actions/ghost')
+      break
+  }
+}
+
+async function delete_event (state) {
+  const { target } = state
+  await store.dispatch('files/delete', { path: target })
+}
+
+async function submit (state) { await store.dispatch('files/submit', state) }
+async function blur () { await store.dispatch('files/blur') }
+async function template (state) { await store.dispatch('templates/execute', state) }
+async function action (state) { await store.dispatch('actions/execute', state) }
+
+async function drag (state) {
+  hold = state
+}
+
+async function drop (state) {
+  await store.dispatch('files/move', { path: hold.path, proposed: state.path })
+}
 </script>
 
 <style scoped>

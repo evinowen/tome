@@ -5,7 +5,7 @@
         ref="input"
         type="file"
         style="display: none"
-        @change="input"
+        @change="update"
       >
       <v-text-field
         :model-value="value || ' '"
@@ -17,7 +17,7 @@
         variant="outlined"
         hide-details
         density="compact"
-        @click.stop="$refs.input.click()"
+        @click.stop="input.click()"
       />
     </v-col>
     <v-btn
@@ -62,56 +62,61 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VIcon, VBtn, VTextField, VLayout, VCol } from 'vuetify/components'
+import {
+  VBtn,
+  VCol,
+  VIcon,
+  VLayout,
+  VTextField,
+} from 'vuetify/components'
 
-@Component({
-  components: { VIcon, VBtn, VTextField, VLayout, VCol }
-})
-class KeyfileInput extends Vue {
-  @Prop({ default: '' })
-  value: string
-
-  @Prop({ default: false })
-  forge: boolean
-
-  @Prop({ default: false })
-  storable: boolean
-
-  @Prop({ default: '' })
-  stored: string
-
-  @Prop({ default: false })
-  small: boolean
-
-  @Prop({ default: '' })
-  label: string
-
-  @Prop({ default: '' })
-  id: string
-
-  $refs: {
-    input: HTMLInputElement
-  }
-
-  get color () {
-    return this.value ? 'green' : 'red'
-  }
-
-  async input (event) {
-    const files = event.target.files || event.dataTransfer.files
-    const file = files.length > 0 ? files[0] : undefined
-
-    if (!file.path) {
-      return
-    }
-
-    this.$emit('input', file.path)
-    this.$refs.input.value = ''
+export default {
+  components: {
+    VBtn,
+    VCol,
+    VIcon,
+    VLayout,
+    VTextField,
   }
 }
+</script>
 
-export default toNative(KeyfileInput)
+<script setup lang="ts">
+import { ref } from 'vue'
+
+export interface Props {
+  forge?: boolean,
+  label?: string,
+  small?: boolean,
+  storable?: boolean,
+  stored?: string,
+  value: string,
+}
+
+withDefaults(defineProps<Props>(), {
+  forge: false,
+  label: '',
+  small: false,
+  storable: false,
+  stored: '',
+  value: '',
+})
+
+const emit = defineEmits(['input', 'forge'])
+
+const input = ref<HTMLInputElement>(null)
+
+async function update (event) {
+  const files = event.target.files || event.dataTransfer.files
+  const file = files.length > 0 ? files[0] : undefined
+
+  if (!file.path) {
+    return
+  }
+
+  emit('input', file.path)
+  input.value.value = ''
+}
 </script>
 
 <style scoped>

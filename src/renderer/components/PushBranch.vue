@@ -17,25 +17,31 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator'
-import { VCard, VCardText } from 'vuetify/components'
+import {
+  VCard,
+  VCardText,
+} from 'vuetify/components'
 
-@Component({
-  components: { VCard, VCardText }
-})
-class PushBranch extends Vue {
-  @Prop({ default: undefined })
-  name: string
+export default {
+  components: {
+    VCard,
+    VCardText,
+  }
+}
+</script>
 
-  @Prop({ default: undefined })
-  url: string
-
-  @Prop({ default: false })
-  loading: boolean
-
-  @Prop({ default: false })
-  disabled: boolean
+<script setup lang="ts">
+export interface Props {
+  name: string,
+  url: string,
+  loading: boolean,
+  disabled: boolean,
 }
 
-export default toNative(PushBranch)
+withDefaults(defineProps<Props>(), {
+  name: '',
+  url: '',
+  loading: false,
+  disabled: false,
+})
 </script>
