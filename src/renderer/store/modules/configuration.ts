@@ -1,51 +1,90 @@
 import { MutationTree, ActionTree } from 'vuex'
 import vuetify, { presets } from '@/vuetify'
+import api from '@/api'
 
-export class State {
-  [name: string]: string|boolean
-
-  name = ''
-  email = ''
-  private_key = ''
-  public_key = ''
-  passphrase = ''
-  format_titles = true
-  dark_mode = true
-  auto_push = false
-  default_remote = 'origin'
-  light_primary = ''
-  light_primary_enabled = false
-  light_secondary = ''
-  light_secondary_enabled = false
-  light_accent = ''
-  light_accent_enabled = false
-  light_error = ''
-  light_error_enabled = false
-  light_info = ''
-  light_info_enabled = false
-  light_warning = ''
-  light_warning_enabled = false
-  light_success = ''
-  light_success_enabled = false
-  dark_primary = ''
-  dark_primary_enabled = false
-  dark_secondary = ''
-  dark_secondary_enabled = false
-  dark_accent = ''
-  dark_accent_enabled = false
-  dark_error = ''
-  dark_error_enabled = false
-  dark_info = ''
-  dark_info_enabled = false
-  dark_warning = ''
-  dark_warning_enabled = false
-  dark_success = ''
-  dark_success_enabled = false
+export interface State {
+  name: string
+  email: string
+  private_key: string
+  public_key: string
+  passphrase: string
+  format_titles: boolean
+  dark_mode: boolean
+  auto_push: boolean
+  default_remote: string
+  light_primary: string
+  light_primary_enabled: boolean
+  light_secondary: string
+  light_secondary_enabled: boolean
+  light_accent: string
+  light_accent_enabled: boolean
+  light_error: string
+  light_error_enabled: boolean
+  light_info: string
+  light_info_enabled: boolean
+  light_warning: string
+  light_warning_enabled: boolean
+  light_success: string
+  light_success_enabled: boolean
+  dark_primary: string
+  dark_primary_enabled: boolean
+  dark_secondary: string
+  dark_secondary_enabled: boolean
+  dark_accent: string
+  dark_accent_enabled: boolean
+  dark_error: string
+  dark_error_enabled: boolean
+  dark_info: string
+  dark_info_enabled: boolean
+  dark_warning: string
+  dark_warning_enabled: boolean
+  dark_success: string
+  dark_success_enabled: boolean
 }
+
+export const StateDefaults = (): State => ({
+  name: '',
+  email: '',
+  private_key: '',
+  public_key: '',
+  passphrase: '',
+  format_titles: true,
+  dark_mode: true,
+  auto_push: false,
+  default_remote: 'origin',
+  light_primary: '',
+  light_primary_enabled: false,
+  light_secondary: '',
+  light_secondary_enabled: false,
+  light_accent: '',
+  light_accent_enabled: false,
+  light_error: '',
+  light_error_enabled: false,
+  light_info: '',
+  light_info_enabled: false,
+  light_warning: '',
+  light_warning_enabled: false,
+  light_success: '',
+  light_success_enabled: false,
+  dark_primary: '',
+  dark_primary_enabled: false,
+  dark_secondary: '',
+  dark_secondary_enabled: false,
+  dark_accent: '',
+  dark_accent_enabled: false,
+  dark_error: '',
+  dark_error_enabled: false,
+  dark_info: '',
+  dark_info_enabled: false,
+  dark_warning: '',
+  dark_warning_enabled: false,
+  dark_success: '',
+  dark_success_enabled: false,
+})
 
 export default {
   namespaced: true,
-  state: new State,
+  state: StateDefaults,
   mutations: <MutationTree<State>>{
     set: function (state, data) {
       for (const key in data) {
@@ -57,10 +96,10 @@ export default {
     load: async function (context, target) {
       let data = {}
 
-      const exists = await window.api.file.exists(target)
+      const exists = await api.file.exists(target)
 
       if (exists) {
-        const raw = await window.api.file.contents(target)
+        const raw = await api.file.contents(target)
 
         try {
           data = JSON.parse(raw)
@@ -161,14 +200,14 @@ export default {
       return
     },
     generate: async function (context, passphrase) {
-      const { path: private_key } = await window.api.ssl.generate_private_key(passphrase)
+      const { path: private_key } = await api.ssl.generate_private_key(passphrase)
 
       await context.dispatch('update', { private_key, passphrase })
     },
     update: async function (context, data) {
       context.commit('set', data)
 
-      const { data: public_key } = await window.api.ssl.generate_public_key(
+      const { data: public_key } = await api.ssl.generate_public_key(
         context.state.private_key,
         context.state.passphrase
       )
@@ -178,7 +217,7 @@ export default {
       await context.dispatch('present')
     },
     write: async function (context, path) {
-      await window.api.file.write(path, JSON.stringify(context.state))
+      await api.file.write(path, JSON.stringify(context.state))
     },
     present: async function (context) {
       const theme = context.state.dark_mode ? 'dark' : 'light'

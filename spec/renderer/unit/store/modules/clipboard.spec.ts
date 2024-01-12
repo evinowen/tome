@@ -1,35 +1,34 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-
-import { createLocalVue } from '@vue/test-utils'
-import clipboard, { State as ClipboardState } from '@/store/modules/clipboard'
 import { cloneDeep } from 'lodash'
-
+import clipboard, { State as ClipboardState, StateDefaults as ClipboardStateDefaults } from '@/store/modules/clipboard'
+import * as api_module from '@/api'
 import builders from '?/builders'
 
-Object.assign(window, builders.window())
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 interface State {
   clipboard: ClipboardState
 }
 
 describe('store/modules/clipboard', () => {
-  let localVue
   let store
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
     store = new Vuex.Store<State>(cloneDeep({ modules: { clipboard } }))
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should populate empty values when initalized', async () => {
-    expect(store.state.clipboard.action).toBe(undefined)
-    expect(store.state.clipboard.content).toBe(undefined)
+    const defaults = ClipboardStateDefaults()
+
+    expect(store.state.clipboard.action).toBe(defaults.action)
+    expect(store.state.clipboard.error).toBe(defaults.error)
+    expect(store.state.clipboard.content).toEqual(defaults.content)
 
     expect(store.state.clipboard.undefined).toBeUndefined()
   })
@@ -43,7 +42,7 @@ describe('store/modules/clipboard', () => {
     await store.dispatch('clipboard/copy', cut_content)
 
     expect(store.state.clipboard.action).toBe('copy')
-    expect(store.state.clipboard.content).toBe(cut_content)
+    expect(store.state.clipboard.content).toEqual(cut_content)
   })
 
   it('should populate empty values when clear is called', async () => {
@@ -55,12 +54,15 @@ describe('store/modules/clipboard', () => {
     await store.dispatch('clipboard/copy', cut_content)
 
     expect(store.state.clipboard.action).toBe('copy')
-    expect(store.state.clipboard.content).toBe(cut_content)
+    expect(store.state.clipboard.content).toEqual(cut_content)
 
     await store.dispatch('clipboard/clear')
 
-    expect(store.state.clipboard.action).toBe(undefined)
-    expect(store.state.clipboard.content).toBe(undefined)
+    const defaults = ClipboardStateDefaults()
+
+    expect(store.state.clipboard.action).toBe(defaults.action)
+    expect(store.state.clipboard.error).toBe(defaults.error)
+    expect(store.state.clipboard.content).toEqual(defaults.content)
   })
 
   it('should set action and load value on path cut', async () => {
@@ -72,7 +74,7 @@ describe('store/modules/clipboard', () => {
     await store.dispatch('clipboard/cut', cut_content)
 
     expect(store.state.clipboard.action).toBe('cut')
-    expect(store.state.clipboard.content).toBe(cut_content)
+    expect(store.state.clipboard.content).toEqual(cut_content)
   })
 
   it('should set error if paste triggered with no clipboard', async () => {
@@ -97,7 +99,7 @@ describe('store/modules/clipboard', () => {
     await store.dispatch('clipboard/copy', cut_content)
 
     expect(store.state.clipboard.action).toBe('copy')
-    expect(store.state.clipboard.content).toBe(cut_content)
+    expect(store.state.clipboard.content).toEqual(cut_content)
 
     const paste_content = {
       type: 'path',
@@ -109,27 +111,27 @@ describe('store/modules/clipboard', () => {
     await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
-    expect(window.api.clipboard.paste).toHaveBeenCalled()
+    expect(mocked_api.clipboard.paste).toHaveBeenCalled()
   })
 
   it('should call clipboard_writetext if text called with a value', async () => {
     const value = 'value'
     await store.dispatch('clipboard/text', value)
 
-    expect(window.api.clipboard.writetext).toHaveBeenCalled()
+    expect(mocked_api.clipboard.writetext).toHaveBeenCalled()
   })
 
   it('should call clipboard_readtext if text called without a value', async () => {
     await store.dispatch('clipboard/text')
 
-    expect(window.api.clipboard.readtext).toHaveBeenCalled()
+    expect(mocked_api.clipboard.readtext).toHaveBeenCalled()
   })
 
   it('should return clipboard text value if text called without a value', async () => {
     const value = 'value'
     await store.dispatch('clipboard/text', value)
 
-    expect(window.api.clipboard.writetext).toHaveBeenCalled()
+    expect(mocked_api.clipboard.writetext).toHaveBeenCalled()
 
     const result = await store.dispatch('clipboard/text')
 
@@ -171,7 +173,7 @@ describe('store/modules/clipboard', () => {
     await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
-    expect(window.api.file.rename).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.rename).toHaveBeenCalledTimes(1)
   })
 
   it('should fail gracefully when destination is not going to change', async () => {
@@ -208,7 +210,7 @@ describe('store/modules/clipboard', () => {
     await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
-    expect(window.api.file.rename).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.rename).toHaveBeenCalledTimes(1)
   })
 
   it('should paste stored content using copyFile if action is copied', async () => {
@@ -227,7 +229,7 @@ describe('store/modules/clipboard', () => {
     await store.dispatch('clipboard/paste', paste_content)
 
     expect(store.state.clipboard.error).toBeFalsy()
-    expect(window.api.file.copy).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.copy).toHaveBeenCalledTimes(1)
   })
   */
 })

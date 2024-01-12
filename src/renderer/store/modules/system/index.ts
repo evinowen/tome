@@ -1,4 +1,5 @@
 import { MutationTree, ActionTree } from 'vuex'
+import api from '@/api'
 import Commit from './commit'
 import QuickCommit from './quick_commit'
 import Push from './push'
@@ -31,7 +32,7 @@ export interface State {
   settings: boolean
 }
 
-export const StateDefaults: State = {
+export const StateDefaults = (): State => ({
   maximized: false,
   branch: false,
   commit: false,
@@ -44,11 +45,11 @@ export const StateDefaults: State = {
   push_confirm: false,
   search: false,
   settings: false,
-}
+})
 
 export default {
   namespaced: true,
-  state: () => StateDefaults,
+  state: StateDefaults,
   mutations: <MutationTree<State>>{
     load: function (state, { version, process }) {
       state.version = version
@@ -60,61 +61,30 @@ export default {
   },
   actions: <ActionTree<State, unknown>>{
     load: async function (context) {
-      const version = await window.api.app.getVersion()
-      const process = await window.api.app.getProcess()
+      const version = await api.app.getVersion()
+      const process = await api.app.getProcess()
       context.commit('load', { version, process })
 
-      const maximized = await window.api.window.is_maximized()
+      const maximized = await api.window.is_maximized()
       context.commit('set', { maximized })
     },
     read: async function (context, key) {
-      switch (key) {
-        case 'version':
-          return context.state.version
-        case 'process':
-          return context.state.process
-        case 'maximized':
-          return context.state.maximized
-        case 'branch':
-          return context.state.branch
-        case 'commit':
-          return context.state.commit
-        case 'commit_confirm':
-          return context.state.commit_confirm
-        case 'commit_push':
-          return context.state.commit_push
-        case 'console':
-          return context.state.console
-        case 'edit':
-          return context.state.edit
-        case 'patch':
-          return context.state.patch
-        case 'push':
-          return context.state.push
-        case 'push_confirm':
-          return context.state.push_confirm
-        case 'search':
-          return context.state.search
-        case 'settings':
-          return context.state.settings
-      }
-
-      return
+      return context.state[key] ?? undefined
     },
     minimize: async function (context) {
-      await window.api.window.minimize()
+      await api.window.minimize()
       context.commit('set', { maximized: false })
     },
     restore: async function (context) {
-      await window.api.window.restore()
+      await api.window.restore()
       context.commit('set', { maximized: false })
     },
     maximize: async function (context) {
-      await window.api.window.maximize()
+      await api.window.maximize()
       context.commit('set', { maximized: true })
     },
     exit: async function () {
-      await window.api.window.close()
+      await api.window.close()
     },
     perform: async function (context, performance) {
       const dispatch: (action: string, data?: unknown) => Promise<boolean>

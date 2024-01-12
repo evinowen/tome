@@ -90,7 +90,7 @@ async function close () {
 function show_stack (input: string) {
   stack.value = input.trim()
 
-  if (stack) {
+  if (stack.value) {
     detail.value = true
   }
 }
@@ -104,6 +104,15 @@ function format_message (message) {
     .replace(/\r/g, '\u240D')
     .replace(/\n/g, '\u2424')
 }
+
+defineExpose({
+  close,
+  detail,
+  format_date,
+  format_message,
+  show_stack,
+  stack,
+})
 </script>
 
 <style scoped>

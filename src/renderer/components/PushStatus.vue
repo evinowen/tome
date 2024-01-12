@@ -2,7 +2,7 @@
   <v-card style="height: 100%">
     <template v-if="active">
       <template v-if="loading">
-        <v-list-item>
+        <v-list-item ref="loading">
           <template #prepend>
             <v-avatar color="grey">
               <v-icon>mdi-upload-multiple</v-icon>
@@ -20,7 +20,7 @@
       </template>
 
       <template v-else-if="error">
-        <v-list-item>
+        <v-list-item ref="error">
           <template #prepend>
             <v-avatar color="warning">
               <v-icon>mdi-alert</v-icon>
@@ -43,7 +43,7 @@
       </template>
 
       <template v-else-if="match">
-        <v-list-item>
+        <v-list-item ref="match">
           <template #prepend>
             <v-avatar color="info">
               <v-icon>mdi-thumb-up</v-icon>
@@ -61,7 +61,7 @@
       </template>
 
       <template v-else>
-        <v-list-item>
+        <v-list-item ref="compare">
           <template #prepend>
             <v-avatar color="success">
               <v-icon>mdi-check</v-icon>
@@ -108,7 +108,7 @@
     </template>
 
     <template v-else>
-      <v-list-item>
+      <v-list-item ref="blank">
         <template #prepend>
           <v-avatar color="grey">
             <v-icon>mdi-cursor-pointer</v-icon>
@@ -165,11 +165,11 @@ export default {
 
 <script setup lang="ts">
 export interface Props {
-  active: boolean,
-  loading: boolean,
-  match: boolean,
-  error: string,
-  history: any[],
+  active?: boolean,
+  loading?: boolean,
+  match?: boolean,
+  error?: string,
+  history?: any[],
 }
 
 withDefaults(defineProps<Props>(), {

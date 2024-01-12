@@ -51,7 +51,7 @@ import { fetchStore } from '@/store'
 const store = fetchStore()
 
 export interface Props {
-  label: string,
+  label?: string,
   small?: boolean,
   value: string,
 }
@@ -65,6 +65,10 @@ const props = withDefaults(defineProps<Props>(), {
 async function copy () {
   await store.dispatch('clipboard/text', props.value)
 }
+
+defineExpose({
+  copy,
+})
 </script>
 
 <style scoped>

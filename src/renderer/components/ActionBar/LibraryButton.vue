@@ -1,8 +1,12 @@
 <template>
-  <v-menu>
+  <v-menu
+    :model-value="show"
+    @update:model-value="show = !show"
+  >
     <template #activator="{ props }">
       <v-btn
         v-if="repository.path"
+        ref="close_button"
         action-bar-bookshelf
         rounded="0"
         size="small"
@@ -21,6 +25,7 @@
       </v-btn>
       <v-btn
         v-else
+        ref="bookshelf_button"
         action-bar-bookshelf
         rounded="0"
         size="small"
@@ -85,13 +90,15 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
+const show = ref(false)
+
 export interface Props {
-  disabled: boolean,
+  disabled?: boolean,
 }
 
 withDefaults(defineProps<Props>(), {
@@ -117,6 +124,13 @@ async function open (item) {
 async function close () {
   await store.dispatch('library/close')
 }
+
+defineExpose({
+  close,
+  open,
+  select,
+  show,
+})
 </script>
 
 <style scoped>

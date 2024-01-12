@@ -47,7 +47,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed, watch, ref } from 'vue'
+import { computed, watch, ref, reactive } from 'vue'
 import { fetchStore } from '@/store'
 import File from '@/store/modules/files/file'
 
@@ -70,9 +70,14 @@ const explore = computed(() => {
 watch(active, (value) => {
   if (value === '') {
     selected.value = File.Empty
+  } else {
+    selected.value = store.state.files.directory[value]
   }
+})
 
-  selected.value = store.state.files.directory[value]
+defineExpose({
+  active,
+  selected
 })
 </script>
 

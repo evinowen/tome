@@ -1,9 +1,10 @@
 import Vue from 'vue'
-import { createLocalVue, mount } from '@vue/test-utils'
+import { vi } from 'vitest'
+import { mount } from '@vue/test-utils'
 
 const respond = (routable) => {
   const _routable = routable || []
-  const _mock = jest.fn(async (type, callback) => {
+  const _mock = vi.fn(async (type, callback) => {
     if (_routable.includes(type)) {
       await callback()
     }
@@ -12,36 +13,32 @@ const respond = (routable) => {
   return { routable: _routable, mock: _mock }
 }
 
-
 type FactoryComponentContextMethod = () => Record<string, unknown>
-type FactoryComponentHookMethod = (factory: Factory) => void
+type FactoryComponentHookMethod<T> = (factory: Factory<T>) => void
 
-interface FactoryBase {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  object: any
-  properties: Record<string, unknown>
-  // eslint-disable-next-line @typescript-eslint/ban-types
+interface FactoryBase<T> {
+  component: T
+  properties: { [key: string]: any }
   listeners: Record<string, Function|Function[]>
 }
 
-interface FactoryComponent {
+interface FactoryComponent<T> {
   context?: FactoryComponentContextMethod
-  hook?: FactoryComponentHookMethod
+  hook?: FactoryComponentHookMethod<T>
 }
 
 interface FactoryGenerated {
   vue?: typeof Vue
-  context?: Record<string, unknown>
+  context?: Record<string, any>
 }
 
-class Factory {
-  base: FactoryBase
-  component: FactoryComponent
+class Factory<T> {
+  base: FactoryBase<T>
+  component: FactoryComponent<T>
   generated: FactoryGenerated
 
-  // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
-  constructor (object: any, properties: Record<string, unknown> = {}, listeners: Record<string, Function|Function[]> = {}) {
-    this.base = { object, properties, listeners }
+  constructor (component: T, properties: { [key: string]: any } = {}, listeners: Record<string, Function|Function[]> = {}) {
+    this.base = { component, properties, listeners }
     this.component = {}
     this.generated = {}
   }
@@ -51,43 +48,39 @@ class Factory {
     return this
   }
 
-  hook (hook: FactoryComponentHookMethod) {
+  hook (hook: FactoryComponentHookMethod<T>) {
     this.component.hook = hook
     return this
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  wrap (properties?: Record<string, unknown>, listeners?: Record<string, Function|Function[]>) {
+  wrap(properties: Record<string, any> = {}, listeners: Record<string, Function|Function[]> = {}) {
     if (this.component.context) {
       this.generated.context = this.component.context()
     }
-
-    this.generated.vue = createLocalVue()
 
     if (this.component.hook) {
       this.component.hook(this)
     }
 
-    return mount(
-      this.base.object,
+    return mount<T>(
+      this.base.component,
       {
-        localVue: this.generated.vue,
         ...this.generated.context,
-        propsData: {
+        props: {
           ...this.base.properties,
           ...properties
-        },
+        } as any,
         listeners: {
           ...this.base.listeners,
           ...listeners
-        }
+        } as any,
       }
     )
   }
 }
 
-const assemble = (object, default_properties = {}, default_listeners = {}) => {
-  return new Factory(object, default_properties, default_listeners)
+const assemble = <T>(component: T, default_properties: Record<string, any> = {}, default_listeners: Record<string, Function|Function[]> = {}) => {
+  return new Factory<T>(component, default_properties, default_listeners)
 }
 
 export {

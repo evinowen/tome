@@ -1,98 +1,228 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import Vue from 'vue'
-import Vuetify from 'vuetify'
-import * as VueShortKey from 'vue-shortkey'
-import store from '@/store'
+import { createVuetify } from 'vuetify'
+import { createStore } from 'vuex'
+import { State, key } from '@/store'
 import ShortcutService from '@/components/ShortcutService.vue'
+import { operate as operate_shortcuts } from '@/modules/Shortcuts'
+import { shortcuts } from '@/shortcuts'
 
-jest.mock('@/store', () => ({
-  state: {
-    system: {
-      settings: false,
-      console: false,
-      patch: false,
-      search: false,
-      branch: false,
-      push: false,
-      commit: false,
-      edit: false
-    }
-  },
-  dispatch: jest.fn()
-}))
+vi.mock('@/modules/Shortcuts', () => ({ operate: vi.fn() }))
+vi.mock('@/shortcuts', () => ({ shortcuts: vi.fn() }))
 
-Vue.use(VueShortKey)
+class MockedShorcutOperator {
+  static escape = vi.fn()
+  static layer = vi.fn()
+  static perform = vi.fn()
+  static dispatch = vi.fn()
+}
+
+vi.mocked(operate_shortcuts, true).mockImplementation(() => MockedShorcutOperator)
+
+const shortcut_map = {
+  layer: { layer: 'layer' },
+  perform: { perform: 'performance' },
+  dispatch: { dispatch: 'action' },
+}
+
+vi.mocked(shortcuts, true).mockImplementation((key) => (shortcut_map[key] ?? null))
 
 describe('components/ShortcutService', () => {
   let vuetify
+  let store
 
   const factory = assemble(ShortcutService)
-    .context(() => ({ vuetify }))
+    .context(() => ({
+      global: {
+        plugins: [ vuetify, [store, key] ],
+      }
+    }))
 
   beforeEach(() => {
-    vuetify = new Vuetify()
+    vuetify = createVuetify()
+    store = createStore<State>({})
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
-  it('should mount into test scafolding without error', async () => {
+  it('should add event listener on component mount', async () => {
+    const spy_addEventListener = vi.spyOn(window, 'addEventListener')
+    expect(spy_addEventListener).not.toHaveBeenCalled()
+
     const wrapper = factory.wrap()
-    expect(wrapper).toBeDefined()
+
+    expect(spy_addEventListener).toHaveBeenCalledWith('keyup', wrapper.vm.keyup)
   })
 
-  it('should dispatch system/settings with true when escape is called and no flags are set', async () => {
+  it('should remove event listener on component unmount', async () => {
+    const spy_removeEventListener = vi.spyOn(window, 'removeEventListener')
+    expect(spy_removeEventListener).not.toHaveBeenCalled()
+
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ShortcutService
+    wrapper.unmount()
 
-    await local.escape()
-
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/settings')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(true)
+    expect(spy_removeEventListener).toHaveBeenCalledWith('keyup', wrapper.vm.keyup)
   })
 
-  it('should dispatch system flag for layer name with inverse value when layer is called with a layer name', async () => {
-    const mocked_store = jest.mocked(store)
-    const value = mocked_store.state.system.commit
+  it('should call escape when keyup is called with Escape key event', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ShortcutService
 
-    const layer = 'commit'
-    await local.layer(layer)
+    const event = {
+      key: 'Escape'
+    } as KeyboardEvent
 
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/commit')
+    expect(MockedShorcutOperator.escape).not.toHaveBeenCalled()
 
-    expect(action).toBeDefined()
-    expect(data).toEqual(!value)
+    await wrapper.vm.keyup(event)
+
+    expect(MockedShorcutOperator.escape).toHaveBeenCalled()
   })
 
-  it('should dispatch system/perform with perform name when perform is called with a name', async () => {
+  it('should call escape when keyup is called with Escape key event', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ShortcutService
 
-    const performance = 'example-performance'
-    await local.perform(performance)
+    const event = {
+      key: 'Escape'
+    } as KeyboardEvent
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/perform')
+    expect(MockedShorcutOperator.escape).not.toHaveBeenCalled()
 
-    expect(action).toBeDefined()
-    expect(data).toEqual(performance)
+    await wrapper.vm.keyup(event)
+
+    expect(MockedShorcutOperator.escape).toHaveBeenCalled()
   })
 
-  it('should dispatch library/select when select is called', async () => {
+  it('should not take action when keyup is called for unmapped key event', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ShortcutService
 
-    await local.select()
+    const event = {
+      ctrlKey: true,
+      key: 'unmapped'
+    } as KeyboardEvent
 
-    const mocked_store = jest.mocked(store)
-    const [action] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'library/select')
+    expect(MockedShorcutOperator.escape).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.layer).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()
 
-    expect(action).toBeDefined()
+    await wrapper.vm.keyup(event)
+
+    expect(MockedShorcutOperator.escape).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.layer).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()
+  })
+
+  it('should not take action when keyup is called for unmapped key event without ctrl key pressed', async () => {
+    const wrapper = factory.wrap()
+
+    const event = {
+      ctrlKey: false,
+      key: 'unmapped'
+    } as KeyboardEvent
+
+    expect(MockedShorcutOperator.escape).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.layer).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()
+
+    await wrapper.vm.keyup(event)
+
+    expect(MockedShorcutOperator.escape).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.layer).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
+    expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()
+  })
+
+  it('should call mapped layer when keyup is called for mapped key event', async () => {
+    const wrapper = factory.wrap()
+
+    const event = {
+      ctrlKey: true,
+      key: 'layer'
+    } as KeyboardEvent
+
+    expect(MockedShorcutOperator.layer).not.toHaveBeenCalled()
+
+    await wrapper.vm.keyup(event)
+
+    expect(MockedShorcutOperator.layer).toHaveBeenCalledWith(shortcut_map.layer.layer)
+  })
+
+  it('should not call mapped layer when keyup is called for mapped key event without ctrl key pressed', async () => {
+    const wrapper = factory.wrap()
+
+    const event = {
+      ctrlKey: false,
+      key: 'layer'
+    } as KeyboardEvent
+
+    expect(MockedShorcutOperator.layer).not.toHaveBeenCalled()
+
+    await wrapper.vm.keyup(event)
+
+    expect(MockedShorcutOperator.layer).not.toHaveBeenCalled()
+  })
+
+  it('should call perform when keyup is called for mapped key event', async () => {
+    const wrapper = factory.wrap()
+
+    const event = {
+      ctrlKey: true,
+      key: 'perform'
+    } as KeyboardEvent
+
+    expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
+
+    await wrapper.vm.keyup(event)
+
+    expect(MockedShorcutOperator.perform).toHaveBeenCalledWith(shortcut_map.perform.perform)
+  })
+
+  it('should not call mapped layer when keyup is called for mapped key event without ctrl key pressed', async () => {
+    const wrapper = factory.wrap()
+
+    const event = {
+      ctrlKey: false,
+      key: 'perform'
+    } as KeyboardEvent
+
+    expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
+
+    await wrapper.vm.keyup(event)
+
+    expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
+  })
+
+  it('should call dispatch when keyup is called for mapped key event', async () => {
+    const wrapper = factory.wrap()
+
+    const event = {
+      ctrlKey: true,
+      key: 'dispatch'
+    } as KeyboardEvent
+
+    expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()
+
+    await wrapper.vm.keyup(event)
+
+    expect(MockedShorcutOperator.dispatch).toHaveBeenCalledWith(shortcut_map.dispatch.dispatch)
+  })
+
+  it('should not call dispatch when keyup is called for mapped key event without ctrl key pressed', async () => {
+    const wrapper = factory.wrap()
+
+    const event = {
+      ctrlKey: false,
+      key: 'dispatch'
+    } as KeyboardEvent
+
+    expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()
+
+    await wrapper.vm.keyup(event)
+
+    expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()
   })
 })

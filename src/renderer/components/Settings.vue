@@ -16,22 +16,18 @@
         class="xs"
         sm="6"
       >
-        <v-text-field
-          density="compact"
+        <text-input
           label="name"
-          :model-value="configuration.name"
-          @update:model-value="assign_value('name', $event)"
+          index="name"
         />
       </v-col>
       <v-col
         class="xs"
         sm="6"
       >
-        <v-text-field
-          density="compact"
+        <text-input
           label="e-mail"
-          :model-value="configuration.email"
-          @update:model-value="assign_value('email', $event)"
+          index="email"
         />
       </v-col>
     </v-row>
@@ -41,26 +37,17 @@
         sm="12"
       >
         <keyfile-input
-          id="settings_private_key"
           label="private key"
-          :value="configuration.private_key"
-          forge
-          @input="assign_value('private_key', $event)"
-          @forge="generate_key(configuration.passphrase)"
+          index="private_key"
         />
       </v-col>
     </v-row>
     <v-row dense>
       <v-col>
-        <v-text-field
-          :model-value="configuration.passphrase"
+        <text-input
           label="passphrase"
-          density="compact"
-          clearable
-          :append-icon="obscure_passphrase ? 'mdi-eye-off' : 'mdi-eye'"
-          :type="obscure_passphrase ? 'password' : 'text'"
-          @click:append="obscure_passphrase = !obscure_passphrase"
-          @update:model-value="assign_value('passphrase', $event)"
+          index="passphrase"
+          obscureable
         />
       </v-col>
     </v-row>
@@ -84,10 +71,9 @@
         md="3"
         lg="2"
       >
-        <v-switch
-          :model-value="configuration.auto_push"
+        <boolean-input
           label="Automatic Push"
-          @update:model-value="assign_value('auto_push', $event || false)"
+          index="auto_push"
         />
       </v-col>
       <v-col
@@ -96,197 +82,83 @@
         md="9"
         lg="12"
       >
-        <v-text-field
-          density="compact"
+        <text-input
           label="default remote"
-          :model-value="configuration.default_remote"
-          @update:model-value="assign_value('default_remote', $event)"
+          index="default_remote"
         />
       </v-col>
     </v-row>
     <v-row dense>
       <v-col>
         <h3>Display Options</h3>
-        <v-switch
-          :model-value="configuration.format_titles"
-          label="Format Titles"
-          @update:model-value="assign_value('format_titles', $event || false)"
-        />
       </v-col>
     </v-row>
     <v-row dense>
       <v-col>
-        <h3>Theme Colors</h3>
-        <v-switch
-          :model-value="configuration.dark_mode"
+        <boolean-input
+          label="Format Titles"
+          index="format_titles"
+        />
+      </v-col>
+      <v-col>
+        <boolean-input
           label="Dark Mode"
-          @update:model-value="assign_value('dark_mode', $event || false)"
+          index="dark_mode"
         />
       </v-col>
     </v-row>
     <v-row dense>
-      <v-col
-        class="xs"
-        sm="12"
-        md="12"
-        lg="4"
-      >
-        <theme-preview />
-      </v-col>
+    </v-row>
+    <theme-preview />
+    <v-row dense>
       <v-col>
         <v-container>
-          <template v-if="configuration.dark_mode">
-            <v-row dense>
-              <v-col>
-                <theme-color-picker
-                  color="primary"
-                  :value="configuration.dark_primary"
-                  :enabled="configuration.dark_primary_enabled"
-                  :base="color_base('dark', 'primary')"
-                  @enabled="assign_value('dark_primary_enabled', $event)"
-                  @input="assign_value('dark_primary', $event || '#000000')"
-                />
-              </v-col>
-              <v-col>
-                <theme-color-picker
-                  color="secondary"
-                  :value="configuration.dark_secondary"
-                  :enabled="configuration.dark_secondary_enabled"
-                  :base="color_base('dark', 'secondary')"
-                  @enabled="assign_value('dark_secondary_enabled', $event)"
-                  @input="assign_value('dark_secondary', $event || '#000000')"
-                />
-              </v-col>
-              <v-col>
-                <theme-color-picker
-                  color="accent"
-                  :value="configuration.dark_accent"
-                  :enabled="configuration.dark_accent_enabled"
-                  :base="color_base('dark', 'accent')"
-                  @enabled="assign_value('dark_accent_enabled', $event)"
-                  @input="assign_value('dark_accent', $event || '#000000')"
-                />
-              </v-col>
-            </v-row>
-            <v-row dense>
-              <v-col>
-                <theme-color-picker
-                  color="error"
-                  :value="configuration.dark_error"
-                  :enabled="configuration.dark_error_enabled"
-                  :base="color_base('dark', 'error')"
-                  @enabled="assign_value('dark_error_enabled', $event)"
-                  @input="assign_value('dark_error', $event || '#000000')"
-                />
-              </v-col>
-              <v-col>
-                <theme-color-picker
-                  color="info"
-                  :value="configuration.dark_info"
-                  :enabled="configuration.dark_info_enabled"
-                  :base="color_base('dark', 'info')"
-                  @enabled="assign_value('dark_info_enabled', $event)"
-                  @input="assign_value('dark_info', $event || '#000000')"
-                />
-              </v-col>
-              <v-col>
-                <theme-color-picker
-                  color="success"
-                  :value="configuration.dark_success"
-                  :enabled="configuration.dark_success_enabled"
-                  :base="color_base('dark', 'success')"
-                  @enabled="assign_value('dark_success_enabled', $event)"
-                  @input="assign_value('dark_success', $event || '#000000')"
-                />
-              </v-col>
-              <v-col>
-                <theme-color-picker
-                  color="warning"
-                  :value="configuration.dark_warning"
-                  :enabled="configuration.dark_warning_enabled"
-                  :base="color_base('dark', 'warning')"
-                  @enabled="assign_value('dark_warning_enabled', $event)"
-                  @input="assign_value('dark_warning', $event || '#000000')"
-                />
-              </v-col>
-            </v-row>
-          </template>
-          <template v-else>
-            <v-row dense>
-              <v-col>
-                <theme-color-picker
-                  color="primary"
-                  :value="configuration.light_primary"
-                  :enabled="configuration.light_primary_enabled"
-                  :base="color_base('light', 'primary')"
-                  @enabled="assign_value('light_primary_enabled', $event)"
-                  @input="assign_value('light_primary', $event || '#000000')"
-                />
-              </v-col>
-              <v-col>
-                <theme-color-picker
-                  color="secondary"
-                  :value="configuration.light_secondary"
-                  :enabled="configuration.light_secondary_enabled"
-                  :base="color_base('light', 'secondary')"
-                  @enabled="assign_value('light_secondary_enabled', $event)"
-                  @input="assign_value('light_secondary', $event || '#000000')"
-                />
-              </v-col>
-              <v-col>
-                <theme-color-picker
-                  color="accent"
-                  :value="configuration.light_accent"
-                  :enabled="configuration.light_accent_enabled"
-                  :base="color_base('light', 'accent')"
-                  @enabled="assign_value('light_accent_enabled', $event)"
-                  @input="assign_value('light_accent', $event || '#000000')"
-                />
-              </v-col>
-            </v-row>
-            <v-row dense>
-              <v-col>
-                <theme-color-picker
-                  color="error"
-                  :value="configuration.light_error"
-                  :enabled="configuration.light_error_enabled"
-                  :base="color_base('light', 'error')"
-                  @enabled="assign_value('light_error_enabled', $event)"
-                  @input="assign_value('light_error', $event || '#000000')"
-                />
-              </v-col>
-              <v-col>
-                <theme-color-picker
-                  color="info"
-                  :value="configuration.light_info"
-                  :enabled="configuration.light_info_enabled"
-                  :base="color_base('light', 'info')"
-                  @enabled="assign_value('light_info_enabled', $event)"
-                  @input="assign_value('light_info', $event || '#000000')"
-                />
-              </v-col>
-              <v-col>
-                <theme-color-picker
-                  color="success"
-                  :value="configuration.light_success"
-                  :enabled="configuration.light_success_enabled"
-                  :base="color_base('light', 'success')"
-                  @enabled="assign_value('light_success_enabled', $event)"
-                  @input="assign_value('light_success', $event || '#000000')"
-                />
-              </v-col>
-              <v-col>
-                <theme-color-picker
-                  color="warning"
-                  :value="configuration.light_warning"
-                  :enabled="configuration.light_warning_enabled"
-                  :base="color_base('light', 'warning')"
-                  @enabled="assign_value('light_warning_enabled', $event)"
-                  @input="assign_value('light_warning', $event || '#000000')"
-                />
-              </v-col>
-            </v-row>
-          </template>
+          <v-row dense>
+            <v-col>
+              <theme-color-picker
+                :theme="theme"
+                color="primary"
+              />
+            </v-col>
+            <v-col>
+              <theme-color-picker
+                :theme="theme"
+                color="secondary"
+              />
+            </v-col>
+            <v-col>
+              <theme-color-picker
+                :theme="theme"
+                color="accent"
+              />
+            </v-col>
+          </v-row>
+          <v-row dense>
+            <v-col>
+              <theme-color-picker
+                :theme="theme"
+                color="error"
+              />
+            </v-col>
+            <v-col>
+              <theme-color-picker
+                :theme="theme"
+                color="info"
+              />
+            </v-col>
+            <v-col>
+              <theme-color-picker
+                :theme="theme"
+                color="success"
+              />
+            </v-col>
+            <v-col>
+              <theme-color-picker
+                :theme="theme"
+                color="warning"
+              />
+            </v-col>
+          </v-row>
         </v-container>
       </v-col>
     </v-row>
@@ -329,88 +201,60 @@
 </template>
 
 <script lang="ts">
-import KeyfileInput from './KeyfileInput.vue'
+import KeyfileInput from './Settings/KeyfileInput.vue'
 import KeyfileOutput from './KeyfileOutput.vue'
 import SeaGame from './SeaGame.vue'
-import ThemeColorPicker from './ThemeColorPicker.vue'
-import ThemePreview from './ThemePreview.vue'
+import BooleanInput from './Settings/BooleanInput.vue'
+import TextInput from './Settings/TextInput.vue'
+import ThemeColorPicker from './Settings/ThemeColorPicker.vue'
+import ThemePreview from './Settings/ThemePreview.vue'
 import UtilityPage from './UtilityPage.vue'
 import {
-  VBtn,
   VCol,
   VContainer,
   VDivider,
   VLayout,
   VRow,
-  VSwitch,
-  VTextField,
 } from 'vuetify/components'
 
 export default {
   components: {
+    BooleanInput,
     KeyfileInput,
     KeyfileOutput,
     SeaGame,
+    TextInput,
     ThemeColorPicker,
     ThemePreview,
     UtilityPage,
-    VBtn,
     VCol,
     VContainer,
     VDivider,
     VLayout,
     VRow,
-    VSwitch,
-    VTextField,
   }
 }
 </script>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { debounce } from 'lodash'
 import { fetchStore } from '@/store'
-import { presets } from '@/vuetify'
-
-import logo_url from './logo.png'
+import logo from './logo.png'
 
 const store = fetchStore()
-
-const obscure_passphrase = ref(true)
-
-const logo = computed(() => {
-  return logo_url
-})
 
 const configuration = computed(() => store.state.configuration)
 const system = computed(() => store.state.system)
 
-function color_base (theme, color) {
-  if (color in presets[theme]) {
-    return presets[theme][color]
-  }
-
-  return '#000000'
-}
+const theme = computed(() => configuration.value.dark_mode ? 'dark' : 'light')
 
 async function close () {
   await store.dispatch('system/settings', false)
 }
 
-async function assign_value (name, value) {
-  await store.dispatch('configuration/update', { [name]: value })
-  debounce_save()
-}
-
-async function generate_key (passphrase) {
-  await store.dispatch('configuration/generate', passphrase)
-}
-
-async function save () {
-  await store.dispatch('configuration/write', store.state.configuration_path)
-}
-
-const debounce_save = debounce(save, 1000)
+defineExpose({
+  close,
+})
 </script>
 
 <style scoped>

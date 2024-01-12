@@ -33,6 +33,7 @@
         </template>
         <template #append>
           <v-btn
+            ref="edit-button"
             icon
             :color="edit ? 'warning' : 'darken-1'"
             @click.stop="edit = !edit"
@@ -58,7 +59,9 @@
               sm="3"
             >
               <v-text-field
-                v-model="form.name"
+                ref="form-name"
+                :model-value="form.name"
+                @update:model-value="form.name = $event"
                 label="Name"
                 required
                 density="compact"
@@ -69,7 +72,9 @@
               sm="9"
             >
               <v-text-field
-                v-model="form.url"
+                ref="form-url"
+                :model-value="form.url"
+                @update:model-value="form.url = $event"
                 label="URL"
                 required
                 density="compact"
@@ -133,8 +138,8 @@ export default {
 import { reactive, ref } from 'vue'
 
 export interface Props {
-  value: string,
-  items: RepositoryRemote[],
+  value?: string,
+  items?: RepositoryRemote[],
 }
 
 withDefaults(defineProps<Props>(), {
@@ -160,4 +165,11 @@ async function create () {
 async function input (remote) {
   emit('input', remote)
 }
+
+defineExpose({
+  create,
+  edit,
+  form,
+  input,
+})
 </script>

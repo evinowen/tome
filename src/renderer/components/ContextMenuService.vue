@@ -40,7 +40,6 @@ const store = fetchStore()
 
 const window_x = ref(0)
 const window_y = ref(0)
-const visible = ref(true)
 
 const context = computed(() => store.state.context)
 
@@ -52,4 +51,9 @@ function resize () {
 async function close () {
   await store.dispatch('context/close')
 }
+
+defineExpose({
+  close,
+  resize,
+})
 </script>

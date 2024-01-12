@@ -222,6 +222,20 @@ async function reset (path) {
 async function commit () {
   await store.dispatch('system/perform', 'commit')
 }
+
+defineExpose({
+  close,
+  commit,
+  confirm,
+  diff,
+  message,
+  push,
+  reset,
+  sign_email,
+  sign_message,
+  sign_name,
+  stage,
+})
 </script>
 
 <style scoped>

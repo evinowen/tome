@@ -1,37 +1,46 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import Vuetify from 'vuetify'
-import store from '@/store'
+import { stub_actions } from '?/builders/store'
+import { createVuetify } from 'vuetify'
+import { createStore } from 'vuex'
+import { State, key } from '@/store'
 import KeyfileOutput from '@/components/KeyfileOutput.vue'
-
-jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
 
 describe('components/KeyfileOutput', () => {
   let vuetify
+  let store
+  let store_dispatch
 
   const factory = assemble(KeyfileOutput)
     .context(() => ({
-      vuetify
+      global: {
+        plugins: [ vuetify, [store, key] ],
+      }
     }))
 
   beforeEach(() => {
-    vuetify = new Vuetify()
+    vuetify = createVuetify()
+
+    store = createStore<State>({
+      state: {},
+      actions: stub_actions([
+        'clipboard/text',
+      ]),
+    })
+
+    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should dispatch clipboard/text with the component value when copy is called', async () => {
     const value = 'ssh-rsa 1245'
     const wrapper = factory.wrap({ value })
-    const local = wrapper.vm as KeyfileOutput
 
-    await local.copy()
+    await wrapper.vm.copy()
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'clipboard/text')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(value)
+    expect(store_dispatch).toHaveBeenCalledWith('clipboard/text', value)
   })
 })

@@ -32,10 +32,10 @@ export default {
 
 <script setup lang="ts">
 export interface Props {
-  name: string,
-  url: string,
-  loading: boolean,
-  disabled: boolean,
+  name?: string,
+  url?: string,
+  loading?: boolean,
+  disabled?: boolean,
 }
 
 withDefaults(defineProps<Props>(), {

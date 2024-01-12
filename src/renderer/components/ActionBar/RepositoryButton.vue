@@ -1,12 +1,12 @@
 <template>
   <v-menu
     location="top"
-    :model-value="value"
+    :model-value="open"
     transition="slide-y-reverse-transition"
     content-class="menu"
     :close-on-content-click="false"
     width="50%"
-    @update:model-value="value = !value"
+    @update:model-value="open = !open"
   >
     <template #activator="{ props }">
       <v-btn
@@ -25,9 +25,10 @@
       <v-card-subtitle>{{ path }}</v-card-subtitle>
       <v-card-actions>
         <v-btn
+          ref="license_button"
           variant="text"
           :disabled="!license"
-          @click="open(license)"
+          @click="select(license)"
         >
           License
         </v-btn>
@@ -35,24 +36,27 @@
       <v-divider />
       <v-card-actions>
         <v-btn
+          ref="readme_button"
           variant="text"
           :disabled="!readme"
-          @click="open(readme)"
+          @click="select(readme)"
         >
           Read Me
         </v-btn>
         <v-spacer />
         <v-btn
+          ref="authors_button"
           variant="text"
           :disabled="!authors"
-          @click="open(authors)"
+          @click="select(authors)"
         >
           Authors
         </v-btn>
         <v-btn
+          ref="contributors_button"
           variant="text"
           :disabled="!contributors"
-          @click="open(contributors)"
+          @click="select(contributors)"
         >
           Contributors
         </v-btn>
@@ -94,13 +98,13 @@ import { fetchStore } from '@/store'
 const store = fetchStore()
 
 export interface Props {
-  name: string,
-  path: string,
-  readme: string,
-  authors: string,
-  contributors: string,
-  license: string,
-  disabled: boolean,
+  name?: string,
+  path?: string,
+  readme?: string,
+  authors?: string,
+  contributors?: string,
+  license?: string,
+  disabled?: boolean,
 }
 
 withDefaults(defineProps<Props>(), {
@@ -113,12 +117,17 @@ withDefaults(defineProps<Props>(), {
   disabled: false,
 })
 
-const value = ref(false)
+const open = ref(false)
 
-async function open (path) {
-  value.value = false
+async function select (path) {
+  open.value = false
   await store.dispatch('files/select', { path })
 }
+
+defineExpose({
+  open,
+  select,
+})
 </script>
 
 <style scoped>

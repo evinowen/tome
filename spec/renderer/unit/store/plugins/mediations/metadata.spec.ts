@@ -1,28 +1,34 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-
-import { createLocalVue } from '@vue/test-utils'
 import metadata from '@/store/plugins/mediations/metadata'
 
 describe('store/plugins/mediations/metadata', () => {
-  let localVue
   let store
   let object
+  let spy
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
+    spy = 0
 
     const repository = {
       namespaced: true,
-      actions: {
-        metadata: jest.fn()
+      mutations: {
+        metadata: vi.fn()
       }
     }
 
     object = {
       state: {
-        files: {
-          tree: undefined
+        files: {}
+      },
+      mutations: {
+        assign: function (state, data) {
+          Object.assign(state.files, data)
+        }
+      },
+      actions: {
+        assign: function (context, data) {
+          context.commit('assign', data)
         }
       },
       modules: {
@@ -37,27 +43,24 @@ describe('store/plugins/mediations/metadata', () => {
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should dispatch files load action when templating completes', async () => {
-    store.state.files.tree = {
-      timestamp: 100,
-      base: {
-        children: [
-          { name: 'readme.md', path: 'readme.md' },
-          { name: 'license.md', path: 'license.md' },
-          { name: 'authors.md', path: 'authors.md' },
-          { name: 'contributors.md', path: 'contributors.md' }
-        ]
+    await store.dispatch('assign', {
+      tree: {
+        timestamp: 100,
+        base: {
+          children: [
+            { name: 'readme.md', path: 'readme.md' },
+            { name: 'license.md', path: 'license.md' },
+            { name: 'authors.md', path: 'authors.md' },
+            { name: 'contributors.md', path: 'contributors.md' },
+          ]
+        }
       }
-    }
+    })
 
-    await localVue.nextTick()
-    await localVue.nextTick()
-    await localVue.nextTick()
-    await localVue.nextTick()
-
-    expect(object.modules.repository.actions.metadata).toHaveBeenCalledTimes(4)
+    expect(object.modules.repository.mutations.metadata).toHaveBeenCalledTimes(4)
   })
 })

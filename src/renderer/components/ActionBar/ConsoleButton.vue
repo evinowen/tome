@@ -1,5 +1,6 @@
 <template>
   <v-btn
+    ref="button"
     rounded="0"
     size="small"
     variant="flat"
@@ -34,8 +35,8 @@ import { fetchStore } from '@/store'
 const store = fetchStore()
 
 export interface Props {
-  status: string,
-  message: string,
+  status?: string,
+  message?: string,
 }
 
 withDefaults(defineProps<Props>(), {
@@ -50,6 +51,11 @@ const open = computed(() => {
 async function click () {
   await store.dispatch('system/console', !open.value)
 }
+
+defineExpose({
+  open,
+  click,
+})
 </script>
 
 <style scoped>

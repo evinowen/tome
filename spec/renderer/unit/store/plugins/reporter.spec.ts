@@ -1,17 +1,12 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-
-import { createLocalVue } from '@vue/test-utils'
 import reporter from '@/store/plugins/reporter'
 
 describe('store/plugins/reporter', () => {
-  let localVue
   let store
   let object
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
     const module = {
       namespaced: true,
       actions: {
@@ -28,7 +23,7 @@ describe('store/plugins/reporter', () => {
         }
       },
       actions: {
-        error: jest.fn()
+        error: vi.fn()
       },
       modules: {
         module
@@ -42,7 +37,7 @@ describe('store/plugins/reporter', () => {
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should catch errors and dispatch message to "error" action on exception', async () => {

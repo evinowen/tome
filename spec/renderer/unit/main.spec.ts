@@ -1,35 +1,62 @@
-import Vue from 'vue'
+import { describe, afterEach, it, expect, vi } from 'vitest'
 
-jest.mock('vue', () => jest.fn())
-jest.mock('vue-codemirror', () => ({}))
-jest.mock('vue-splitpane', () => ({}))
+const mocked_app = {
+  use: vi.fn(),
+  mount: vi.fn(),
+}
 
-jest.mock('@/components/App.vue', () => ({}))
-jest.mock('@/store', () => ({ state: {}, dispatch: jest.fn() }))
-jest.mock('@/vuetify', () => ({}))
+const mocked_createApp = vi.fn(() => mocked_app)
 
-const mocked_Vue = jest.mocked(Vue)
-const mocked_vue_instance = { $mount: jest.fn() }
-mocked_Vue.mockImplementation((options) => {
-  const { render } = options
-
-  // eslint-disable-next-line unicorn/no-useless-undefined
-  render((app) => undefined, undefined)
-
-  return mocked_Vue as unknown as Vue
+vi.doMock('vue', async () => {
+  const actual = await vi.importActual('vue') as any
+  return {
+    ...actual,
+    createApp: mocked_createApp,
+    h: vi.fn()
+  }
 })
 
-// Vue.config = {}
+const store = { state: {}, dispatch: vi.fn() }
+const key = '1234'
+vi.doMock('@/store', () => ({ store, key }))
+
+const vuetify = {}
+vi.doMock('@/vuetify', () => ({ default: vuetify }))
+
+vi.doMock('@/components/App.vue', () => ({ default: {} }))
 
 describe('main', () => {
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.resetModules()
+    vi.clearAllMocks()
   })
 
   it('is able to be mocked and prepared for testing', async () => {
-    let promise: Promise<void>
-    jest.isolateModules(() => { promise = require('@/main') })
+    await import('@/main')
+  })
 
-    await promise
+  it('calls store hydrate action to prepare state', async () => {
+    expect(store.dispatch).not.toHaveBeenCalled()
+
+    await import('@/main')
+
+    expect(store.dispatch).toHaveBeenCalled()
+    expect(store.dispatch).toHaveBeenCalledWith('hydrate')
+  })
+
+  it('loads the store plugin with the identified key', async () => {
+    expect(mocked_app.use).not.toHaveBeenCalled()
+
+    await import('@/main')
+
+    expect(mocked_app.use).toHaveBeenCalledWith(store, key)
+  })
+
+  it('loads the vuetify plugin', async () => {
+    expect(mocked_app.use).not.toHaveBeenCalled()
+
+    await import('@/main')
+
+    expect(mocked_app.use).toHaveBeenCalledWith(vuetify)
   })
 })

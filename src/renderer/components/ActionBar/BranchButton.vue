@@ -7,7 +7,8 @@
     variant="flat"
   >
     <v-icon
-      v-if="error"
+      v-if="!branch"
+      ref="error_icon"
       size="small"
       class="pr-1"
     >

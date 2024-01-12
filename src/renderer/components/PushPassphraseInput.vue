@@ -12,6 +12,7 @@
       />
     </v-col>
     <v-btn
+      ref="clear"
       rounded="0"
       icon
       size="small"
@@ -24,6 +25,7 @@
       </v-icon>
     </v-btn>
     <v-btn
+      ref="display"
       rounded="0"
       icon
       size="small"
@@ -35,6 +37,7 @@
       </v-icon>
     </v-btn>
     <v-btn
+      ref="load"
       v-if="storable"
       rounded="0"
       icon
@@ -71,12 +74,12 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 
 export interface Props {
-  value: string,
-  storable: boolean,
-  stored: string,
+  value?: string,
+  storable?: boolean,
+  stored?: string,
 }
 
 withDefaults(defineProps<Props>(), {
@@ -86,4 +89,11 @@ withDefaults(defineProps<Props>(), {
 })
 
 const obscured = ref(true)
+const data = reactive({
+  obscured
+})
+
+defineExpose({
+  obscured
+})
 </script>

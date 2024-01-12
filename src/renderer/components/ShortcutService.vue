@@ -1,86 +1,47 @@
+<template></template>
+
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { fetchStore } from '@/store'
+import { operate as operate_shortcuts } from '@/modules/Shortcuts'
+import { shortcuts } from '@/shortcuts'
 
 const store = fetchStore()
-
-const system = computed(() => store.state.system)
+const ShortcutOperator = operate_shortcuts(store)
 
 onMounted(() => window.addEventListener('keyup', keyup))
 onUnmounted(() => window.removeEventListener('keyup', keyup))
 
-function keyup (event: KeyboardEvent) {
+async function keyup (event: KeyboardEvent) {
   switch (event.key) {
     case 'Escape':
-      escape()
-      break;
+      await ShortcutOperator.escape()
+      return
   }
 
   if (!event.ctrlKey) {
     return
   }
 
-  switch (event.key) {
-    case '`':
-      layer('console')
-      break;
+  const shortcut = shortcuts(event.key)
+  if (!shortcut) {
+    return
+  }
 
-    case 'e':
-      layer('edit')
-      break;
+  if (shortcut.layer) {
+    await ShortcutOperator.layer(shortcut.layer)
+  }
 
-    case 's':
-      layer('commit')
-      break;
+  if (shortcut.perform) {
+    await ShortcutOperator.perform(shortcut.perform)
+  }
 
-    case 'S':
-      perform('quick-commit')
-      break;
-
-    case 'p':
-      layer('push')
-      break;
-
-    case 'f':
-      layer('search')
-      break;
-
-    case 'o':
-      select()
-      break;
+  if (shortcut.dispatch) {
+    await ShortcutOperator.dispatch(shortcut.dispatch)
   }
 }
 
-async function escape () {
-  const layers = [
-    'settings',
-    'console',
-    'patch',
-    'search',
-    'branch',
-    'push',
-    'commit',
-    'edit',
-  ]
-
-  for (const layer of layers) {
-    if (system.value[layer]) {
-      return await store.dispatch(`system/${layer}`, false)
-    }
-  }
-
-  return await store.dispatch('system/settings', true)
-}
-
-async function layer (layer) {
-  return await store.dispatch(`system/${layer}`, !system.value[layer])
-}
-
-async function perform (performance) {
-  await store.dispatch('system/perform', performance)
-}
-
-async function select () {
-  await store.dispatch('library/select')
-}
+defineExpose({
+  keyup,
+})
 </script>

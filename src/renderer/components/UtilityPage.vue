@@ -18,6 +18,7 @@
         </div>
       </div>
       <v-btn
+        ref="close"
         variant="flat"
         class="close-button"
         @click.stop="$emit('close')"
@@ -32,6 +33,7 @@
       <v-divider class="mt-0 mb-2" />
       <slot name="actions">
         <v-btn
+          ref="close_action"
           size="small"
           color="primary"
           @click.stop="$emit('close')"
@@ -109,6 +111,10 @@ const location = computed(() => {
   }
 
   return 'top'
+})
+
+defineExpose({
+  location,
 })
 </script>
 

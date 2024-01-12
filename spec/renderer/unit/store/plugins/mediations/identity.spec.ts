@@ -1,22 +1,17 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-
-import { createLocalVue } from '@vue/test-utils'
 import identity from '@/store/plugins/mediations/identity'
 
 describe('store/plugins/mediations/identity', () => {
-  let localVue
   let store
   let repository
   let system
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
     repository = {
       namespaced: true,
       actions: {
-        remote: jest.fn()
+        remote: vi.fn()
       },
       modules: {
         credentials: {
@@ -34,16 +29,16 @@ describe('store/plugins/mediations/identity', () => {
             set: (context, data) => {
               context.commit('set', data)
             },
-            private_key: jest.fn(),
-            passphrase: jest.fn()
+            private_key: vi.fn(),
+            passphrase: vi.fn()
           }
         },
         signature: {
           namespaced: true,
           actions: {
-            name: jest.fn(),
-            email: jest.fn(),
-            message: jest.fn()
+            name: vi.fn(),
+            email: vi.fn(),
+            message: vi.fn()
           }
         }
       }
@@ -92,7 +87,7 @@ describe('store/plugins/mediations/identity', () => {
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should dispatch repository signature name action when tome key value changes', async () => {

@@ -124,6 +124,11 @@ function line_prefix (type) {
       return '  '
   }
 }
+
+defineExpose({
+  line_color,
+  line_prefix,
+})
 </script>
 
 <style scoped>

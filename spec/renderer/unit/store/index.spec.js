@@ -1,36 +1,33 @@
-import Vuex from 'vuex'
-import { createLocalVue } from '@vue/test-utils'
-
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
+import { build_store } from '@/store'
+import * as api_module from '@/api'
 import builders from '?/builders'
 
-Object.assign(window, builders.window())
+vi.mock('@/store/modules/repository')
+vi.mock('@/store/modules/configuration')
+vi.mock('@/store/modules/library')
+vi.mock('@/store/modules/files')
+vi.mock('@/store/modules/templates')
+vi.mock('@/store/modules/actions')
+vi.mock('@/store/modules/configuration')
+vi.mock('@/store/modules/clipboard')
+vi.mock('@/store/modules/search')
+vi.mock('@/store/modules/system')
+vi.mock('@/store/plugins/mediator')
 
-jest.mock('@/store/modules/repository')
-jest.mock('@/store/modules/configuration')
-jest.mock('@/store/modules/library')
-jest.mock('@/store/modules/files')
-jest.mock('@/store/modules/templates')
-jest.mock('@/store/modules/actions')
-jest.mock('@/store/modules/configuration')
-jest.mock('@/store/modules/clipboard')
-jest.mock('@/store/modules/search')
-jest.mock('@/store/plugins/mediator')
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 describe('store', () => {
-  let localVue
   let store
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
-    jest.isolateModules(() => {
-      store = require('@/store').default
-    })
+    vi.resetModules()
+    store = build_store()
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should populate empty values when initalized', () => {
@@ -44,26 +41,26 @@ describe('store', () => {
   })
 
   it('should store message event on dispatch of error action', async () => {
-    expect(store.state.events.length).toBe(0)
+    expect(store.state.events).toHaveLength(0)
 
     await store.dispatch('message', 'Message!')
 
-    expect(store.state.events.length).toBe(1)
+    expect(store.state.events).toHaveLength(1)
   })
 
   it('should store error event on dispatch of error action with string', async () => {
-    expect(store.state.events.length).toBe(0)
+    expect(store.state.events).toHaveLength(0)
 
     await store.dispatch('error', 'Error!')
 
-    expect(store.state.events.length).toBe(1)
+    expect(store.state.events).toHaveLength(1)
   })
 
   it('should store error event on dispatch of error action with Error object', async () => {
-    expect(store.state.events.length).toBe(0)
+    expect(store.state.events).toHaveLength(0)
 
     await store.dispatch('error', new Error('Error!'))
 
-    expect(store.state.events.length).toBe(1)
+    expect(store.state.events).toHaveLength(1)
   })
 })

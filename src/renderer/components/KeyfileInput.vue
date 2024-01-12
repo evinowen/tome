@@ -5,7 +5,7 @@
         ref="input"
         type="file"
         style="display: none"
-        @change="update"
+        @change="select"
       >
       <v-text-field
         :model-value="value || ' '"
@@ -21,38 +21,26 @@
       />
     </v-col>
     <v-btn
+      ref="clear"
       rounded="0"
       icon
-      :size="small ? 'small' : undefined"
+      size="small"
       style="height: auto;"
       :disabled="value === ''"
-      @click.stop="$emit('input', '')"
+      @click.stop="clear"
     >
       <v-icon size="small">
         mdi-close
       </v-icon>
     </v-btn>
     <v-btn
-      v-if="forge"
+      ref="recall"
       rounded="0"
       icon
-      :size="small ? 'small' : undefined"
-      style="height: auto;"
-      :disabled="value !== ''"
-      @click.stop="$emit('forge')"
-    >
-      <v-icon size="small">
-        mdi-anvil
-      </v-icon>
-    </v-btn>
-    <v-btn
-      v-if="storable"
-      rounded="0"
-      icon
-      :size="small ? 'small' : undefined"
+      size="small"
       style="height: auto;"
       :disabled="stored === ''"
-      @click.stop="$emit('input', stored)"
+      @click.stop="recall"
     >
       <v-icon size="small">
         mdi-cog
@@ -82,22 +70,17 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 export interface Props {
-  forge?: boolean,
   label?: string,
-  small?: boolean,
-  storable?: boolean,
   stored?: string,
-  value: string,
+  value?: string,
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   forge: false,
   label: '',
-  small: false,
-  storable: false,
   stored: '',
   value: '',
 })
@@ -106,7 +89,7 @@ const emit = defineEmits(['input', 'forge'])
 
 const input = ref<HTMLInputElement>(null)
 
-async function update (event) {
+function select (event) {
   const files = event.target.files || event.dataTransfer.files
   const file = files.length > 0 ? files[0] : undefined
 
@@ -114,9 +97,25 @@ async function update (event) {
     return
   }
 
-  emit('input', file.path)
+  update(file.path)
   input.value.value = ''
 }
+
+function clear () {
+  update('')
+}
+
+function recall () {
+  update(props.stored)
+}
+
+function update (path) {
+  emit('input', path)
+}
+
+defineExpose({
+  update,
+})
 </script>
 
 <style scoped>

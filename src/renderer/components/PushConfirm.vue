@@ -78,6 +78,7 @@
         </v-btn>
         <v-spacer />
         <v-btn
+          ref="return"
           color="darken-1"
           variant="text"
           :disabled="waiting"
@@ -136,10 +137,10 @@ export default {
 
 <script setup lang="ts">
 export interface Props {
-  value: boolean,
-  disabled: boolean,
-  waiting: boolean,
-  history: any[],
+  value?: boolean,
+  disabled?: boolean,
+  waiting?: boolean,
+  history?: any[],
 }
 
 withDefaults(defineProps<Props>(), {

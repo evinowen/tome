@@ -1,12 +1,23 @@
 import { MutationTree, ActionTree } from 'vuex'
 
-export class State {
-  visible = false
+export interface State {
+  visible: boolean
   target?: string
-  position: { x: number, y: number } = { x: 0, y: 0 }
-  title = ''
-  items: ContextItem[] = []
+  position: { x: number, y: number }
+  title: string
+  items: ContextItem[]
 }
+
+export const StateDefaults = (): State => ({
+  visible: false,
+  target: '',
+  position: {
+    x: 0,
+    y: 0,
+  },
+  title: '',
+  items: [],
+})
 
 interface ContextItem {
   divider?: boolean
@@ -18,15 +29,13 @@ interface ContextItem {
 
 export default {
   namespaced: true,
-  state: new State,
+  state: StateDefaults,
   mutations: <MutationTree<State>>{
     fill: function (state, items) {
       state.items = items
     },
     clear: function (state) {
-      state.target = undefined
-      state.title = ''
-      state.items = []
+      Object.assign(state, StateDefaults())
     },
     show: function (state, { target, title, position }) {
       state.target = target

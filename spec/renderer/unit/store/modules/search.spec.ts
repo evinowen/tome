@@ -1,19 +1,20 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
 import { cloneDeep } from 'lodash'
-import { createLocalVue } from '@vue/test-utils'
 import search, { State as SearchState } from '@/store/modules/search'
-import builders from '?/builders'
 import Disk from '../../../mocks/support/disk'
-import { set_disk } from '?/builders/window/file'
+import { set_disk } from '?/builders/api/file'
+import * as api_module from '@/api'
+import builders from '?/builders'
 
-Object.assign(window, builders.window())
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 interface State {
   search: SearchState
 }
 
 describe('store/modules/search', () => {
-  let localVue
   let store
 
   const disk = new Disk
@@ -22,14 +23,11 @@ describe('store/modules/search', () => {
   beforeEach(() => {
     disk.reset_disk()
 
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
     store = new Vuex.Store<State>(cloneDeep({ modules: { search } }))
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should set multifile flag when the multifile action is dispatched', async () => {
@@ -57,11 +55,11 @@ describe('store/modules/search', () => {
   })
 
   it('should return when path is not set and execute is dispatched', async () => {
-    expect(store.state.search.path).toBe(undefined)
+    expect(store.state.search.path).toBe('')
 
     await store.dispatch('search/execute')
 
-    expect(window.api.file.search_path).not.toHaveBeenCalled()
+    expect(mocked_api.file.search_path).not.toHaveBeenCalled()
   })
 
   it('should return when query is not set and execute is dispatched', async () => {
@@ -74,7 +72,7 @@ describe('store/modules/search', () => {
     await store.dispatch('search/multifile', true)
     await store.dispatch('search/execute')
 
-    expect(window.api.file.search_path).not.toHaveBeenCalled()
+    expect(mocked_api.file.search_path).not.toHaveBeenCalled()
   })
 
   it('should set the search query when the query action is dispatched', async () => {
@@ -96,7 +94,7 @@ describe('store/modules/search', () => {
 
     await store.dispatch('search/query', { path, query })
 
-    expect(window.api.file.search_path).not.toHaveBeenCalled()
+    expect(mocked_api.file.search_path).not.toHaveBeenCalled()
   })
 
   it('should search search path if multifile is false when the query action is dispatched', async () => {
@@ -108,7 +106,7 @@ describe('store/modules/search', () => {
     await store.dispatch('search/multifile', true)
     await store.dispatch('search/query', { path, query })
 
-    expect(window.api.file.search_path).toHaveBeenCalled()
+    expect(mocked_api.file.search_path).toHaveBeenCalled()
   })
 
   it('should clear the search query when the clear action is dispatched', async () => {

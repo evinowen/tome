@@ -1,3 +1,4 @@
+import api from '@/api'
 import File, { FileRelationshipType } from './file'
 
 export class FileIdentity {
@@ -38,8 +39,8 @@ export default class FileTree {
   }
 
   async listen (listener: (data: {event: string, path: string}) => void) {
-    await window.api.file.clear_subscriptions()
-    window.api.file.subscribe(this.base.path || '', listener)
+    await api.file.clear_subscriptions()
+    api.file.subscribe(this.base.path || '', listener)
   }
 
   static async make (path: string) {
@@ -50,7 +51,7 @@ export default class FileTree {
       directory: true
     })
 
-    const separator = await window.api.path.sep()
+    const separator = await api.path.sep()
 
     return new FileTree(file, separator)
   }
@@ -82,7 +83,7 @@ export default class FileTree {
   }
 
   async relative (path: string) {
-    return await window.api.path.relative(this.base.path || '', path)
+    return await api.path.relative(this.base.path || '', path)
   }
 
   identify (relative: string) {

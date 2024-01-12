@@ -5,7 +5,13 @@ export const vuetify = createVuetify()
 
 export default vuetify
 
-export const presets = {}
+export const presets: {
+  light: { [key: string]: string }
+  dark: { [key: string]: string }
+} = {
+  light: {},
+  dark: {},
+}
 
 for (const theme of ['light', 'dark']) {
   presets[theme] = {}

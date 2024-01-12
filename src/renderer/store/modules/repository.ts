@@ -1,5 +1,6 @@
 import { MutationTree, ActionTree } from 'vuex'
 import { DateTime } from 'luxon'
+import api from '@/api'
 
 class RepositoryNotLoadedError extends Error {}
 class RepositoryRemoteNotLoadedError extends Error {}
@@ -72,7 +73,7 @@ export interface SignatureState {
   message?: string
 }
 
-export const StateDefaults: State = {
+export const StateDefaults = (): State => ({
   name: '',
   path: '',
   branch: undefined,
@@ -96,14 +97,25 @@ export const StateDefaults: State = {
   },
   commit_working: false,
   push_working: false,
-}
+})
+
+export const CredentialStateDefaults = (): CredentialState => ({
+  key: undefined,
+  passphrase: undefined,
+})
+
+export const SignatureStateDefaults = (): SignatureState => ({
+  name: undefined,
+  email: undefined,
+  message: undefined,
+})
 
 export default {
   namespaced: true,
-  state: () => StateDefaults,
+  state: StateDefaults,
   mutations: <MutationTree<State>>{
     clear: function (state) {
-      Object.assign(state, StateDefaults)
+      Object.assign(state, StateDefaults())
     },
     initialize: function (state, repository) {
       state.repository = repository
@@ -165,7 +177,7 @@ export default {
     load: async function (context, path) {
       await context.dispatch('message', `Loading repository at ${path} ... `, { root: true })
 
-      const repository = await window.api.repository.load(path)
+      const repository = await api.repository.load(path)
 
       context.commit('initialize', repository)
       context.commit('load')
@@ -192,7 +204,7 @@ export default {
 
       try {
         await context.dispatch('message', `Staging query ${query}`, { root: true })
-        await window.api.repository.stage(query)
+        await api.repository.stage(query)
 
         await context.dispatch('inspect')
         await context.dispatch('message', 'Stage complete', { root: true })
@@ -208,7 +220,7 @@ export default {
 
       try {
         await context.dispatch('message', `Reseting query ${query}`, { root: true })
-        await window.api.repository.reset(query)
+        await api.repository.reset(query)
 
         await context.dispatch('inspect')
         await context.dispatch('message', 'Reset complete', { root: true })
@@ -220,12 +232,12 @@ export default {
       }
     },
     inspect: async function (context) {
-      await window.api.repository.inspect()
+      await api.repository.inspect()
 
       await context.dispatch('refresh')
     },
     refresh: async function (context) {
-      const result = await window.api.repository.refresh()
+      const result = await api.repository.refresh()
 
       await context.commit('refresh', result)
     },
@@ -239,7 +251,7 @@ export default {
       if (path) {
         type = 'patch'
         reference = path
-        await window.api.repository.diff_path(path)
+        await api.repository.diff_path(path)
       } else if (commit) {
         type = 'commit'
         reference = String(commit).toLowerCase()
@@ -251,10 +263,10 @@ export default {
           }
         }
 
-        await window.api.repository.diff_commit(commit)
+        await api.repository.diff_commit(commit)
       }
 
-      const { patches } = await window.api.repository.refresh_patches()
+      const { patches } = await api.repository.refresh_patches()
       context.commit('patches', { type, reference, patches, message })
     },
     commit: async function (context) {
@@ -264,7 +276,7 @@ export default {
 
       await context.dispatch('message', `Creating commit "${message}" ...`, { root: true })
 
-      const oid = await window.api.repository.commit(name, email, message)
+      const oid = await api.repository.commit(name, email, message)
 
       await context.dispatch('message', `Commit "${message}" ${oid} created`, { root: true })
 
@@ -277,7 +289,7 @@ export default {
       context.commit('commit', false)
     },
     remote: async function (context, name) {
-      await window.api.repository.clear_remote()
+      await api.repository.clear_remote()
       context.commit('remote', { remote: { name: '', url: ''}, branch: { name: '', short: '' }})
 
       if (!name) {
@@ -290,9 +302,9 @@ export default {
         return
       }
 
-      const { path: public_key } = await window.api.ssl.generate_public_key(private_key, passphrase)
+      const { path: public_key } = await api.ssl.generate_public_key(private_key, passphrase)
 
-      await window.api.repository.credential(private_key, public_key, passphrase)
+      await api.repository.credential(private_key, public_key, passphrase)
 
       const remote = context.state.remotes.find((remote) => remote.name === name)
 
@@ -300,9 +312,9 @@ export default {
         throw new RepositoryRemoteNotFoundError()
       }
 
-      await window.api.repository.load_remote_url(remote.url)
+      await api.repository.load_remote_url(remote.url)
 
-      const result = await window.api.repository.remote()
+      const result = await api.repository.remote()
       context.commit('remote', { remote: result.remote, branch: result.branch })
       context.commit('pending', result.pending)
     },
@@ -313,15 +325,15 @@ export default {
 
       const { key: private_key, passphrase } = context.state.credentials
 
-      const { path: public_key } = await window.api.ssl.generate_public_key(private_key, passphrase)
+      const { path: public_key } = await api.ssl.generate_public_key(private_key, passphrase)
 
-      await window.api.repository.credential(private_key, public_key, passphrase)
+      await api.repository.credential(private_key, public_key, passphrase)
 
       context.commit('push', true)
 
       await context.dispatch('message', `Pushing to remote ${context.state.remote.name} ...`, { root: true })
 
-      await window.api.repository.push()
+      await api.repository.push()
 
       await context.dispatch('message', `Push to remote ${context.state.remote.name} complete`, { root: true })
 
@@ -337,10 +349,7 @@ export default {
   modules: {
     credentials: {
       namespaced: true,
-      state: <CredentialState>{
-        key: undefined,
-        passphrase: undefined
-      },
+      state: CredentialStateDefaults,
       mutations: <MutationTree<CredentialState>>{
         set: function (state, data) {
           Object.assign(state, data)
@@ -357,11 +366,7 @@ export default {
     },
     signature: {
       namespaced: true,
-      state: <SignatureState>{
-        name: undefined,
-        email: undefined,
-        message: undefined
-      },
+      state: SignatureStateDefaults,
       mutations: <MutationTree<SignatureState>>{
         set: function (state, data) {
           Object.assign(state, data)

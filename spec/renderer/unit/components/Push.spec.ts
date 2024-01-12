@@ -1,55 +1,65 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import Vuetify from 'vuetify'
-import store from '@/store'
+import BasicComponentStub from '?/stubs/BasicComponentStub'
+import { stub_actions } from '?/builders/store'
+import { createVuetify } from 'vuetify'
+import { createStore } from 'vuex'
+import { State, key } from '@/store'
+import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
+import { CredentialStateDefaults as RepositoryCredentialStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import Push from '@/components/Push.vue'
-
-jest.mock('@/store', () => ({
-  state: {
-    configuration: {
-      private_key: '',
-      passphrase: ''
-    },
-    repository: {
-      name: 'Name',
-      branch: 'master',
-      pending: [],
-      remotes: [],
-      remote: {
-        name: '',
-        url: '',
-        branch: {
-          name: '',
-          short: '',
-          error: ''
-        }
-      },
-      repository: {},
-      credentials: {
-        key: '',
-        passphrase: ''
-      }
-    },
-    system: {
-      push: true,
-      push_confirm: false
-    }
-  }, dispatch: jest.fn() }))
 
 describe('components/Push', () => {
   let vuetify
+  let store
+  let store_dispatch
 
   const factory = assemble(Push)
     .context(() => ({
-      vuetify,
-      stubs: { StatusButton: true }
+      global: {
+        plugins: [ vuetify, [store, key] ],
+        stubs: {
+          StatusButton: BasicComponentStub,
+          PushBranch: BasicComponentStub,
+          PushConfirm: BasicComponentStub,
+        }
+      }
     }))
 
   beforeEach(() => {
-    vuetify = new Vuetify()
+    vuetify = createVuetify()
+
+    store = createStore<State>({
+      state: {
+        configuration: ConfigurationStateDefaults(),
+        repository: {
+          ...RepositoryStateDefaults(),
+          credentials: RepositoryCredentialStateDefaults(),
+          name: 'Name',
+          branch: 'master',
+        },
+        system: {
+          ...SystemStateDefaults(),
+          push: true,
+          push_confirm: false
+        }
+      },
+      actions: stub_actions([
+        'repository/create-remote',
+        'repository/diff',
+        'repository/remote',
+        'system/patch',
+        'system/perform',
+      ]),
+    })
+
+    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should mount into test scafolding without error', async () => {
@@ -59,65 +69,48 @@ describe('components/Push', () => {
 
   it('should call store to load commit OID into patch when diff is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Push
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
-    await local.diff({ oid: 1 })
+    await wrapper.vm.diff({ oid: 1 })
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'repository/diff')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual({ commit: 1 })
+    expect(store_dispatch).toHaveBeenCalledWith('repository/diff', { commit: 1 })
   })
 
   it('should dispatch system/perform for push when push is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Push
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
-    await local.push()
+    await wrapper.vm.push()
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/perform')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual('push')
+    expect(store_dispatch).toHaveBeenCalledWith('system/perform', 'push')
   })
 
   it('should dispatch repository/remote with name when select_remote is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Push
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
     const remote = 'origin'
 
-    await local.select_remote(remote)
+    await wrapper.vm.select_remote(remote)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'repository/remote')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(remote)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/remote', remote)
   })
 
   it('should call store to create remote when add_remote is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Push
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
 
     const name = 'new'
     const url = 'git@git.example.com:remote.git'
 
-    await local.add_remote(name, url)
+    await wrapper.vm.add_remote(name, url)
 
-    const mocked_store = jest.mocked(store)
-    expect(mocked_store.dispatch).toHaveBeenCalledTimes(1)
-    expect(mocked_store.dispatch.mock.calls[0][0]).toEqual('repository/create-remote')
-    expect(mocked_store.dispatch.mock.calls[0][1]).toEqual({ name, url })
+    expect(store_dispatch).toHaveBeenCalledTimes(1)
+    expect(store_dispatch.mock.calls[0][0]).toEqual('repository/create-remote')
+    expect(store_dispatch.mock.calls[0][1]).toEqual({ name, url })
   })
 })

@@ -7,6 +7,7 @@
         class="search-buttons"
       >
         <v-btn
+          ref="multifile-button"
           size="small"
           rounded="0"
           :color="multifile ? 'primary' : undefined"
@@ -15,6 +16,7 @@
           <v-icon>mdi-file-multiple</v-icon>
         </v-btn>
         <v-btn
+          ref="case-sensitive-button"
           size="small"
           rounded="0"
           :color="case_sensitive ? 'primary' : ''"
@@ -23,6 +25,7 @@
           <v-icon>mdi-format-letter-case</v-icon>
         </v-btn>
         <v-btn
+          ref="regex-query-button"
           size="small"
           rounded="0"
           :color="regex_query ? 'primary' : ''"
@@ -122,7 +125,6 @@
 <script lang="ts">
 import {
   VBtn,
-  VCol,
   VExpandTransition,
   VIcon,
   VItemGroup,
@@ -134,7 +136,6 @@ import {
 export default {
   components: {
     VBtn,
-    VCol,
     VExpandTransition,
     VIcon,
     VItemGroup,
@@ -218,6 +219,13 @@ async function select (path, target = 0, total = 0) {
 async function debounce_clear () {
   return await debounce_update('')
 }
+
+defineExpose({
+  next,
+  previous,
+  select,
+  update,
+})
 </script>
 
 <style scoped>

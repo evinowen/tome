@@ -146,10 +146,10 @@ let hold: { path: string }
 
 export interface Props {
   uuid: string,
-  enabled: boolean,
-  title: boolean,
+  enabled?: boolean,
+  title?: boolean,
   active: string,
-  edit: boolean,
+  edit?: boolean,
   format?: any,
   root?: boolean,
   depth?: number,
@@ -463,6 +463,20 @@ function submit () {
 
   emit('submit', { input: input.value, title: props.title })
 }
+
+defineExpose({
+  context,
+  display,
+  drag_end,
+  drag_enter,
+  drag_leave,
+  drag_start,
+  drop,
+  focus,
+  input,
+  submit,
+  system,
+})
 </script>
 
 <style scoped>

@@ -118,6 +118,13 @@ function format_date_relative (date) {
   const datetime = DateTime.fromJSDate(date)
   return `${datetime.toRelative()}`
 }
+
+defineExpose({
+  close,
+  diff,
+  format_date,
+  format_date_relative,
+})
 </script>
 
 <style scoped>

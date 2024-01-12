@@ -16,8 +16,6 @@
             Credentials
           </v-card-title>
           <keyfile-input
-            size="small"
-            storable
             :value="repository.credentials.key"
             :stored="configuration.private_key"
             @input="credential_key"
@@ -193,4 +191,11 @@ async function diff (commit) {
 async function push () {
   await store.dispatch('system/perform', 'push')
 }
+
+defineExpose({
+  add_remote,
+  diff,
+  push,
+  select_remote,
+})
 </script>

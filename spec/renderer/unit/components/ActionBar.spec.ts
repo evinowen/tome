@@ -1,164 +1,140 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import Vuetify from 'vuetify'
-import store from '@/store'
+import BasicComponentStub from '?/stubs/BasicComponentStub'
+import { stub_actions } from '?/builders/store'
+import { createVuetify } from 'vuetify'
+import { createStore } from 'vuex'
+import { State, key } from '@/store'
+import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
 import ActionBar from '@/components/ActionBar.vue'
-
-jest.mock('@/store', () => ({
-  state: {
-    system: {
-      edit: false
-    },
-    repository: {
-      path: './tome_path',
-      name: 'Name',
-      branch: {
-        name: 'master',
-        error: undefined
-      },
-      metadata: {
-        readme: undefined,
-        license: undefined,
-        authors: undefined,
-        contributors: undefined
-      }
-    }
-  },
-  dispatch: jest.fn()
-}))
 
 describe('components/ActionBar', () => {
   let vuetify
+  let store
+  let store_dispatch
 
-  const branch = false
-  const commit = false
-  const push = false
-
-  const factory = assemble(ActionBar, { branch, commit, push })
+  const factory = assemble(ActionBar)
     .context(() => ({
-      vuetify,
-      stubs: { LibraryButton: true, RepositoryButton: true }
+      global: {
+        plugins: [ vuetify, [store, key] ],
+        stubs: {
+          VFooter: BasicComponentStub,
+          VExpandXTransition: BasicComponentStub,
+          Divider: true,
+          LibraryButton: BasicComponentStub,
+          BranchButton: BasicComponentStub,
+          ConsoleButton: BasicComponentStub,
+          EditSwitch: BasicComponentStub,
+          PageButton: BasicComponentStub,
+          RepositoryButton: BasicComponentStub,
+        }
+      }
     }))
 
   beforeEach(() => {
-    vuetify = new Vuetify()
+    vuetify = createVuetify()
+
+    store = createStore<State>({
+      state: {
+        system: SystemStateDefaults(),
+        repository: {
+          ...RepositoryStateDefaults(),
+          path: './tome_path',
+          name: 'Name',
+          branch: 'master',
+          metadata: {
+            readme: undefined,
+            license: undefined,
+            authors: undefined,
+            contributors: undefined
+          }
+        }
+      },
+      actions: stub_actions([
+        'system/open',
+        'system/close',
+        'system/edit',
+        'system/branch',
+        'system/commit',
+        'system/push',
+        'system/search',
+      ]),
+    })
+
+    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should dispatch system/open with path when open is called with path', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ActionBar
 
     const path = './file_path'
-    await local.open(path)
+    await wrapper.vm.open(path)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/open')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(path)
+    expect(store_dispatch).toHaveBeenCalledWith('system/open', path)
   })
 
   it('should close library when open is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ActionBar
-    wrapper.setData({ library: true })
+    wrapper.vm.library = true
+
+    expect(wrapper.vm.library).toBe(true)
 
     const path = './file_path'
-    await local.open(path)
+    await wrapper.vm.open(path)
 
-    expect(local.library).toBe(false)
+    expect(wrapper.vm.library).toBe(false)
   })
 
   it('should dispatch system/close when close is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ActionBar
 
-    await local.close()
+    await wrapper.vm.close()
 
-    const mocked_store = jest.mocked(store)
-    const [action] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/close')
-
-    expect(action).toBeDefined()
+    expect(store_dispatch).toHaveBeenCalledWith('system/close')
   })
 
   it('should dispatch system/edit with inverse of current system edit when edit is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ActionBar
 
-    await local.edit()
+    await wrapper.vm.edit()
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/edit')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(true)
+    expect(store_dispatch).toHaveBeenCalledWith('system/edit', true)
   })
 
   it('should dispatch system/branch with inverse of current system branch when branch is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ActionBar
 
-    await local.branch()
+    await wrapper.vm.branch()
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/branch')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(true)
+    expect(store_dispatch).toHaveBeenCalledWith('system/branch', true)
   })
 
   it('should dispatch system/commit with inverse of current system commit when commit is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ActionBar
 
-    await local.commit()
+    await wrapper.vm.commit()
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/commit')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(true)
+    expect(store_dispatch).toHaveBeenCalledWith('system/commit', true)
   })
 
   it('should dispatch system/push with inverse of current system push when push is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ActionBar
 
-    await local.push()
+    await wrapper.vm.push()
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/push')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(true)
-  })
-
-  it('should dispatch system/console with inverse of current system console when console is called', async () => {
-    const wrapper = factory.wrap()
-    const local = wrapper.vm as ActionBar
-
-    await local.console()
-
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/console')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(true)
+    expect(store_dispatch).toHaveBeenCalledWith('system/push', true)
   })
 
   it('should dispatch system/search with inverse of current system search when search is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as ActionBar
 
-    await local.search()
+    await wrapper.vm.search()
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/search')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(true)
+    expect(store_dispatch).toHaveBeenCalledWith('system/search', true)
   })
 })

@@ -107,19 +107,7 @@ onUnmounted(() => {
   clearInterval(ticker.value)
 })
 
-async function click (event) {
-  if (!sea.value) {
-    return
-  }
-
-  if (!boat.value) {
-    return
-  }
-
-  if (!cannon.ball.sunk) {
-    return
-  }
-
+function click (event) {
   const sea_rect = sea.value.getBoundingClientRect()
   const boat_rect = boat.value.getBoundingClientRect()
 
@@ -138,10 +126,10 @@ async function click (event) {
 
   cannon.ball.sunk = false
 
-  await update()
+  update()
 }
 
-async function tick () {
+function tick () {
   if (!cannon.ball.sunk) {
     cannon.ball.dy -= 0.05
 
@@ -191,20 +179,16 @@ async function tick () {
     }
   }
 
-  await update()
+  update()
 }
 
-async function update () {
+function update () {
   update_cannon_ball()
   update_splash()
   update_distance()
 }
 
-async function update_cannon_ball () {
-  if (!cannon_ball.value) {
-    return
-  }
-
+function update_cannon_ball () {
   if (cannon.ball.sunk) {
     return
   }
@@ -213,16 +197,12 @@ async function update_cannon_ball () {
   cannon_ball.value.style.top = `${cannon.ball.y}px`
 }
 
-async function update_splash () {
-  if (!cannon_splash.value) {
-    return
-  }
-
+function update_splash () {
   cannon_splash.value.style.left = `${cannon.splash.x}px`
   cannon_splash.value.style.top = `${cannon.splash.y + 2}px`
 }
 
-async function update_distance () {
+function update_distance () {
   if (!cannon.distance || !cannon.distance.move.value) {
     return
   }
@@ -232,6 +212,11 @@ async function update_distance () {
   distance.value.style.left = `${cannon.distance.x - 32}px`
   distance.value.style.top = `${cannon.distance.y - 3}px`
 }
+
+defineExpose({
+  ticker,
+  cannon,
+})
 </script>
 
 <style scoped>

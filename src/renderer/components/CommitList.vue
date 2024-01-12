@@ -92,15 +92,11 @@ export class RepositoryFile {
 </script>
 
 <script setup lang="ts">
-import { fetchStore } from '@/store'
-
-const store = fetchStore()
-
 export interface Props {
-  title: string,
-  items: any[],
-  icon: string,
-  height: number,
+  title?: string,
+  items?: any[],
+  icon?: string,
+  height?: number,
 }
 
 withDefaults(defineProps<Props>(), {
@@ -158,6 +154,12 @@ function file_icon (type) {
 
   return ''
 }
+
+defineExpose({
+  file_color,
+  file_icon,
+  file_type,
+})
 </script>
 
 <style scoped>

@@ -395,6 +395,10 @@ async function save (path) {
 
 const debounce_save = debounce(save, 1000)
 
+defineExpose({
+  input,
+  save,
+})
 </script>
 
 <style scoped>

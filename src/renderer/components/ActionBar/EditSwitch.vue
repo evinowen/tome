@@ -1,6 +1,7 @@
 <template>
   <div id="edit-switch">
     <v-switch
+      ref="switch"
       action-bar-edit
       :value="value"
       inset

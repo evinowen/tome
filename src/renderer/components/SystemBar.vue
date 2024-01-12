@@ -106,6 +106,13 @@ async function maximize () {
 async function exit () {
   await store.dispatch('system/exit')
 }
+
+defineExpose({
+  exit,
+  maximize,
+  minimize,
+  settings,
+})
 </script>
 
 <style scoped>

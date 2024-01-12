@@ -1,19 +1,29 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import Vuetify from 'vuetify'
+import BasicComponentStub from '?/stubs/BasicComponentStub'
+import { createVuetify } from 'vuetify'
 import StatusButton from '@/components/StatusButton.vue'
 
 describe('components/StatusButton', () => {
   let vuetify
 
   const factory = assemble(StatusButton)
-    .context(() => ({ vuetify }))
+    .context(() => ({
+      global: {
+        plugins: [ vuetify ],
+        stubs: {
+          VBtn: BasicComponentStub,
+          VProgressCircular: BasicComponentStub,
+        }
+      }
+    }))
 
   beforeEach(() => {
-    vuetify = new Vuetify()
+    vuetify = createVuetify()
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should mount into test scafolding without error', async () => {

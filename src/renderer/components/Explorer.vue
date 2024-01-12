@@ -1,7 +1,6 @@
 <template>
-  <div class="root">
+  <div class="root" v-if="root.path !== ''">
     <explorer-node
-      v-if="root.path !== ''"
       ref="explorer_root"
       root
       :uuid="root.uuid"
@@ -40,14 +39,15 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { fetchStore } from '@/store'
 import File from '@/store/modules/files/file'
 import { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
 const store = fetchStore()
 
-let hold: { path: string }
+const explorer_root = ref<typeof ExplorerNode>(null)
+const hold = ref<{ path: string }>(null)
 
 export interface Props {
   enabled: boolean,
@@ -57,7 +57,6 @@ withDefaults(defineProps<Props>(), {
   enabled: false,
 })
 
-const repository = computed(() => store.state.repository)
 const configuration = computed(() => store.state.configuration)
 
 const active = computed(() => {
@@ -153,13 +152,29 @@ async function blur () { await store.dispatch('files/blur') }
 async function template (state) { await store.dispatch('templates/execute', state) }
 async function action (state) { await store.dispatch('actions/execute', state) }
 
-async function drag (state) {
-  hold = state
+async function drag(state) {
+  hold.value = state
 }
 
 async function drop (state) {
-  await store.dispatch('files/move', { path: hold.path, proposed: state.path })
+  await store.dispatch('files/move', { path: hold.value.path, proposed: state.path })
 }
+
+defineExpose({
+  action,
+  active,
+  blur,
+  create,
+  delete_event,
+  edit,
+  explorer_root,
+  format,
+  hold,
+  open,
+  select,
+  template,
+  toggle,
+})
 </script>
 
 <style scoped>

@@ -20,7 +20,7 @@
           v-else
           :disabled="item.active ? !item.active() : false"
           :inactive="item.action ? false : true"
-          @click.stop="execute(item.action)"
+          @click="execute(item.action)"
           @mouseover="promote(index)"
         >
           <v-list-item-title
@@ -115,16 +115,16 @@ import ResizeObserver from 'resize-observer-polyfill'
 
 export interface Props {
   title?: string,
-  root: boolean,
+  root?: boolean,
   target?: string,
   items: any[],
   position_x: number,
   position_y: number,
   flip_x?: boolean,
   flip_y?: boolean,
-  window_x: number,
-  window_y: number,
-  layer: number,
+  window_x?: number,
+  window_y?: number,
+  layer?: number,
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -134,8 +134,8 @@ const props = withDefaults(defineProps<Props>(), {
   items: () => [],
   position_x: 0,
   position_y: 0,
-  flip_x: undefined,
-  flip_y: undefined,
+  flip_x: false,
+  flip_y: false,
   window_x: 0,
   window_y: 0,
   layer: 0,
@@ -212,13 +212,13 @@ function reposition () {
   }
 }
 
-function activate (index) {
-  promote(index)
+async function activate (index) {
+  await promote(index)
   active.value = index
 }
 
 function deactivate (index) {
-  if (active !== index) {
+  if (active.value !== index) {
     return
   }
 
@@ -226,20 +226,12 @@ function deactivate (index) {
 }
 
 async function promote (index) {
-  if (promoted === index) {
+  if (promoted.value === index) {
     return
   }
 
   active.value = -1
   promoted.value = -1
-
-  if (!props.items) {
-    return
-  }
-
-  if (index < 0) {
-    return
-  }
 
   const item = props.items[index]
 
@@ -258,6 +250,17 @@ async function execute (action) {
   emit('close')
   await action(props.target)
 }
+
+defineExpose({
+  active,
+  activate,
+  deactivate,
+  execute,
+  promoted,
+  promote,
+  local_position_x,
+  local_position_y,
+})
 </script>
 
 <style scoped>

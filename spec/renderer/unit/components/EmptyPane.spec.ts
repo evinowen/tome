@@ -1,28 +1,26 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import Vue from 'vue'
-import Vuetify from 'vuetify'
+import { createVuetify } from 'vuetify'
 
 import EmptyPane from '@/components/EmptyPane.vue'
-
-Vue.use(Vuetify)
-
-jest.mock('@/store', () => ({
-  state: {}
-}))
 
 describe('components/EmptyPane', () => {
   let vuetify
 
   beforeEach(() => {
-    vuetify = new Vuetify()
+    vuetify = createVuetify()
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   const factory = assemble(EmptyPane)
-    .context(() => ({ vuetify }))
+    .context(() => ({
+      global: {
+        plugins: [ vuetify ],
+      }
+    }))
 
   it('is able to be mocked and prepared for testing', () => {
     const wrapper = factory.wrap()

@@ -35,28 +35,38 @@ import { ref } from 'vue'
 
 const resized = ref<HTMLElement>(null)
 
-let resizing = false
-let origin = 0
-let width = 240
+const resizing = ref(false)
+const origin = ref(0)
+const width = ref(240)
 
 function resize_start (event) {
-  resizing = true
-  width = resized.value.offsetWidth
-  origin = event.pageX
+  resizing.value = true
+  width.value = resized.value.offsetWidth
+  origin.value = event.pageX
 }
 
 function resize_move (event) {
-  if (!resizing) {
+  if (!resizing.value) {
     return
   }
 
-  width += event.pageX - origin
-  origin = event.pageX
+  width.value += event.pageX - origin.value
+  origin.value = event.pageX
 }
 
 function resize_end () {
-  resizing = false
+  resizing.value = false
 }
+
+defineExpose({
+  origin,
+  resize_end,
+  resize_move,
+  resize_start,
+  resized,
+  resizing,
+  width,
+})
 </script>
 
 <style scoped>

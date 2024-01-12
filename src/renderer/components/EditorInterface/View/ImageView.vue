@@ -12,6 +12,7 @@
     />
     <img
       v-else
+      ref="image"
       :src="file.path"
       :class="[ 'preview', zoom ? 'preview-zoom' : '' ]"
       @click="click"
@@ -71,6 +72,12 @@ async function click (event) {
 
   preview.value.scrollTo({ top, left, behavior })
 }
+
+defineExpose({
+  error,
+  hide,
+  zoom,
+})
 </script>
 
 <style scoped>

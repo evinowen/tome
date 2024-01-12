@@ -46,6 +46,7 @@
 
       <v-card-text class="commit">
         <v-textarea
+          ref="message"
           class="pa-0 ma-0"
           counter="50"
           :model-value="message"
@@ -81,6 +82,7 @@
         </v-btn>
         <v-spacer />
         <v-btn
+          ref="push"
           :color="push ? 'warning' : ''"
           variant="text"
           @click="$emit('push', !push)"
@@ -91,6 +93,7 @@
           Push
         </v-btn>
         <v-btn
+          ref="return"
           color="darken-1"
           variant="text"
           :disabled="waiting"
@@ -162,17 +165,17 @@ export const CommitConfirmMessages = {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 export interface Props {
-  value: boolean
-  name: string,
-  email: string,
-  message: string,
-  disabled: boolean,
-  staging: boolean,
-  waiting: boolean,
-  push: boolean,
+  value?: boolean
+  name?: string,
+  email?: string,
+  message?: string,
+  disabled?: boolean,
+  staging?: boolean,
+  waiting?: boolean,
+  push?: boolean,
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -190,6 +193,10 @@ const status = computed(() => {
   return props.staging
     ? CommitConfirmMessages.Staging
     : CommitConfirmMessages.Ready
+})
+
+defineExpose({
+  status,
 })
 </script>
 

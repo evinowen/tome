@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 
 import files from './modules/files'
 import search from './modules/search'
+import { vi } from 'vitest'
 
 export default function () {
   return new Vuex.Store({
@@ -20,4 +21,24 @@ export default function () {
       search: cloneDeep(search)
     }
   })
+}
+
+export function scafold (config) {
+  return cloneDeep({
+    actions: {
+      message: vi.fn(),
+      error: vi.fn(),
+    },
+    ...config,
+  })
+}
+
+export function stub_actions (list: string[]) {
+  const result = {}
+
+  for (const action of list) {
+    result[action] = () => {}
+  }
+
+  return result
 }

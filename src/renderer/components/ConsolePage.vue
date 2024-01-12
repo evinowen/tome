@@ -7,6 +7,7 @@
     ]"
   >
     <v-btn
+      ref="close"
       rounded="0"
       class="pa-0"
       style="height: 16px; width: 100%"
@@ -26,25 +27,13 @@
 <script lang="ts">
 import {
   VBtn,
-  VCard,
-  VContainer,
-  VDivider,
   VIcon,
-  VLayout,
-  VNavigationDrawer,
-  VRow,
 } from 'vuetify/components'
 
 export default {
   components: {
     VBtn,
-    VCard,
-    VContainer,
-    VDivider,
     VIcon,
-    VLayout,
-    VNavigationDrawer,
-    VRow,
   },
   emits: [
     'close',

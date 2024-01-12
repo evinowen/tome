@@ -1,26 +1,21 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-
-import { createLocalVue } from '@vue/test-utils'
 import template from '@/store/plugins/mediations/template'
 
 describe('store/plugins/mediations/template', () => {
-  let localVue
   let store
 
   let templates
   let repository
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
     templates = {
       namespaced: true,
       mutations: {
-        load: jest.fn()
+        load: vi.fn()
       },
       actions: {
-        load: jest.fn()
+        load: vi.fn()
       }
     }
 
@@ -54,7 +49,7 @@ describe('store/plugins/mediations/template', () => {
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should dispatch template load action when repository path changes', async () => {

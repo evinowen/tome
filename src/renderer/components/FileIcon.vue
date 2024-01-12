@@ -1,5 +1,6 @@
 <template>
   <v-btn
+    ref="button"
     rounded="0"
     variant="text"
     size="x-small"
@@ -49,8 +50,8 @@ export interface Props {
   expanded?: boolean,
   extension?: string,
   image?: boolean,
-  path: string,
-  relationship: string,
+  path?: string,
+  relationship?: string,
   selected?: boolean,
   size?: string,
 }
@@ -116,10 +117,6 @@ const badge = computed(() => {
       return 'mdi-lightning-bolt-circle'
   }
 
-  if (props.image) {
-    return base
-  }
-
   if (props.relationship === 'tome-file') {
     switch (props.extension) {
       case '.md':
@@ -155,6 +152,12 @@ const modifier = computed(() => {
   }
 
   return ''
+})
+
+defineExpose({
+  badge,
+  icon,
+  system,
 })
 </script>
 

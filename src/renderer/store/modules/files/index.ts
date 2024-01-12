@@ -17,17 +17,28 @@ export const ChokidarEvent = {
 }
 
 export class State {
-  path = ''
+  path: string
   directory: { [key: string]: File } = {}
-  active = ''
-  content = ''
-  ghost = ''
-  base = ''
-  selected = ''
-  editing = false
+  active: string
+  content: string
+  ghost: string
+  base: string
+  selected: string
+  editing: boolean
   tree?: FileTree
   post?: (path: string) => void
 }
+
+export const StateDefaults = (): State => ({
+  path: '',
+  directory: {},
+  active: '',
+  content: '',
+  ghost: '',
+  base: '',
+  selected: '',
+  editing: false,
+})
 
 export const debounce_save = debounce((context, criteria) => {
   return context.dispatch('save', criteria)
@@ -35,7 +46,7 @@ export const debounce_save = debounce((context, criteria) => {
 
 export default {
   namespaced: true,
-  state: new State,
+  state: StateDefaults,
   mutations: <MutationTree<State>>{
     initialize: function (state, tree) {
       state.tree = tree
