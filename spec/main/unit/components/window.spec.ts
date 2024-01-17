@@ -1,29 +1,18 @@
+import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import { cloneDeep } from 'lodash'
-import * as electron from 'electron'
 import _component from '@/components/window'
-import preload from '@/components/window/preload'
+import { window as preload } from '@/preload'
+import * as electron_meta from '?/meta/electron'
+import * as electron_mock from '?/mocks/electron'
 
-let ipcMainMap
-
-jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
-jest.mock('electron', () => ({
-  ipcMain: {
-    handle: jest.fn(),
-    removeHandler: jest.fn()
-  },
-  ipcRenderer: { invoke: jest.fn() }
-}))
-
-const mocked_electron = jest.mocked(electron)
-mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
+jest.doMock('electron', () => electron_mock)
 
 describe('components/window', () => {
   let component
   let win
 
   beforeEach(() => {
-    ipcMainMap = new Map()
+    electron_meta.ipc_reset()
 
     win = {
       isMaximized: jest.fn(() => true),

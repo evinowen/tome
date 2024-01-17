@@ -60,7 +60,7 @@ export default component('clipboard')(
         }
 
         case 'copy': {
-          await promise_with_reject(fs.copyFile)(source, destination, 0)
+          await promise_with_reject(fs.copyFile)(source, destination)
           break
         }
       }

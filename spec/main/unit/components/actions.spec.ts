@@ -1,49 +1,24 @@
+import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import { cloneDeep } from 'lodash'
-import * as electron from 'electron'
-import * as fs from 'node:fs'
+import Disk from '../../mocks/support/disk'
 import * as path from 'node:path'
 import * as vm from 'node:vm'
 import helpers from '../../helpers'
 import _component from '@/components/actions'
-import preload from '@/components/actions/preload'
+import { action as preload } from '@/preload'
+import fs_meta from '../../meta/node/fs'
+import * as fs_mock from '../../mocks/node/fs'
+import * as electron_meta from '?/meta/electron'
+import * as electron_mock from '?/mocks/electron'
 
-let ipcMainMap
+jest.doMock('electron', () => electron_mock)
+jest.doMock('node:fs', () => fs_mock)
 
 const { random_string } = helpers(expect)
 const { environment } = _component.data()
 
 jest.spyOn(environment, 'require').mockImplementation(() => ({ resolve: jest.fn() }))
 jest.spyOn(environment, 'resolve').mockImplementation(() => ({ resolve: jest.fn() }))
-
-jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
-jest.mock('electron', () => ({
-  ipcMain: {
-    handle: jest.fn(),
-    removeHandler: jest.fn()
-  },
-  ipcRenderer: { invoke: jest.fn() }
-}))
-
-const mocked_electron = jest.mocked(electron)
-mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
-
-jest.mock('node:fs', () => ({
-  lstat: jest.fn(),
-  readFile: jest.fn(),
-  writeFile: jest.fn()
-}))
-
-const fs_lstat_return = {
-  isDirectory: jest.fn(() => true)
-}
-
-const optional = (first, second) => second || first
-
-const mocked_fs = jest.mocked(fs)
-mocked_fs.lstat.mockImplementation((path, options?, callback?) => optional(options, callback)(undefined, fs_lstat_return))
-mocked_fs.readFile.mockImplementation((target, options?, callback?) => optional(options, callback)(undefined, random_string(128)))
-mocked_fs.writeFile.mockImplementation((target, content, encoding?, callback?) => optional(encoding, callback)())
 
 jest.mock('node:path', () => ({
   join: jest.fn()
@@ -54,23 +29,26 @@ mocked_path.join.mockImplementation((...input) => input.join('/'))
 
 let vm_script_success = true
 
+const vm_script_context_fn = jest.fn((context: vm.Context) => {
+  const { require, resolve, content } = context
+
+  const input = 'Test Content'
+  content(input)
+  content()
+
+  if (!vm_script_success) {
+    throw new Error('Mock Error')
+  }
+
+  require('example')
+
+  resolve(true)
+})
+
 const vm_script = {
-  runInNewContext: jest.fn((context) => {
-    const { require, resolve, content } = context
-
-    const input = 'Test Content'
-    content(input)
-    content()
-
-    if (!vm_script_success) {
-      throw new Error('Mock Error')
-    }
-
-    require('example')
-
-    resolve(true)
-  })
-} as unknown as vm.Script
+  runInContext: vm_script_context_fn,
+  runInNewContext: vm_script_context_fn,
+} as unknown as jest.MockedObject<vm.Script>
 
 jest.mock('node:vm', () => ({
   Script: jest.fn()
@@ -82,8 +60,14 @@ mocked_vm.Script.mockImplementation(() => vm_script)
 describe('components/actions', () => {
   let component
 
+  const disk = new Disk
+
   beforeEach(() => {
-    ipcMainMap = new Map()
+    electron_meta.ipc_reset()
+
+    fs_meta.set_disk(disk)
+    disk.reset_disk()
+
     vm_script_success = true
 
     component = cloneDeep(_component)
@@ -95,9 +79,9 @@ describe('components/actions', () => {
   })
 
   it('should find and invoke action upon call to invoke', async () => {
-    const name = 'action'
+    const source = '/project/.tome/actions/example.action.a'
 
-    const result = await preload.invoke(name)
+    const result = await preload.invoke(source)
 
     expect(result.success).toBeTruthy()
   })
@@ -105,9 +89,9 @@ describe('components/actions', () => {
   it('should find and invoke action but return error on exception upon call to invoke', async () => {
     vm_script_success = false
 
-    const name = 'action'
+    const source = '/project/.tome/actions/example.action.a'
 
-    const result = await preload.invoke(name)
+    const result = await preload.invoke(source)
 
     expect(result.success).toBeFalsy()
   })

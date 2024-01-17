@@ -42,6 +42,7 @@ export default component('file')(
       }
 
       watcher = chokidar.watch(target, options).on('all', (event, path) => {
+        console.log('chokidar all event to win.webContents', win)
         win.webContents.send(channel, { event, path })
       })
     })

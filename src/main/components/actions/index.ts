@@ -20,6 +20,7 @@ const timeout = 30_000
 export default component('action')(
   ({ handle }) => {
     handle('invoke', async (source, target, selection) => {
+      console.log('invoke test', source, target, selection)
       const stats = await promise_with_reject<fs.Dirent>(fs.lstat)(source)
 
       const source_script = stats.isDirectory() ? path.join(source, 'index.js') : source

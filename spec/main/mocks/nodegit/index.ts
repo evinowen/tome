@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals'
 
 export const mocked_references = [
   {
@@ -80,10 +81,10 @@ export const mocked_repository_status = [
 ]
 
 export const mocked_repository = {
-  headDetached: jest.fn(),
-  headUnborn: jest.fn(),
-  isMerging: jest.fn(),
-  isRebasing: jest.fn(),
+  headDetached: jest.fn(() => 0),
+  headUnborn: jest.fn(() => 0),
+  isMerging: jest.fn(() => false),
+  isRebasing: jest.fn(() => false),
   head: jest.fn(() => mocked_branch),
   createCommit: jest.fn(),
   getCommit: jest.fn(() => mocked_commit),

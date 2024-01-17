@@ -1,14 +1,8 @@
+import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import RepositoryPatch from '@/components/repository/RepositoryPatch'
 import * as NodeGit from 'nodegit'
 
 jest.mock('nodegit')
-
-jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
-jest.mock('electron', () => ({
-  remote: {
-    require: jest.fn()
-  }
-}))
 
 describe('components/repository/RepositoryPatch', () => {
   let patch
@@ -60,7 +54,7 @@ describe('components/repository/RepositoryPatch', () => {
 
     await repository_patch.build(patch)
 
-    expect(repository_patch.lines.length).toEqual(4)
+    expect(repository_patch.lines).toHaveLength(4)
 
     expect(repository_patch.lines[0].type).toEqual(NodeGit.Diff.LINE.HUNK_HDR)
     expect(repository_patch.lines[0].line).toEqual('header')

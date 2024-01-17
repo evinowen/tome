@@ -1,3 +1,5 @@
+import { random_string } from '?/helpers'
+
 class DiskFile {
   directory = false
   children?: Map<string, DiskFile>
@@ -48,6 +50,7 @@ export default class Disk {
 
   reset_disk () {
     this.content.clear()
+    this.content.set('/home/user/.ssh/id_rsa', random_string())
     this.content.set('/project/a.md', 'Test    Content\n\rTest    Content\n\rTest    Content')
     this.content.set('/project/b.md', 'Content Content\n\rTest    Content\n\rContent Content')
     this.content.set('/project/c.md', 'Content Content\n\rContent Content\n\rTest    Content')
@@ -59,6 +62,13 @@ export default class Disk {
     }))
 
     this.files.reset({
+      'home': file({
+        'user': file({
+          '.ssh': file({
+            'id_rsa': file()
+          }),
+        }),
+      }),
       'config.json': file(),
       'library.json': file(),
       'project': file({

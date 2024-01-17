@@ -1,28 +1,17 @@
+import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import { cloneDeep } from 'lodash'
-import * as electron from 'electron'
 import Disk from '../../mocks/support/disk'
 import * as Mustache from 'mustache'
 import _component from '@/components/templates'
-import preload from '@/components/templates/preload'
+import { template as preload } from '@/preload'
 import fs_meta from '../../meta/node/fs'
 import * as fs_mock from '../../mocks/node/fs'
+import * as electron_meta from '?/meta/electron'
+import * as electron_mock from '?/mocks/electron'
 
-let ipcMainMap
+jest.doMock('node:fs', () => fs_mock)
+jest.doMock('electron', () => electron_mock)
 
-jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
-jest.mock('electron', () => ({
-  ipcMain: {
-    handle: jest.fn(),
-    removeHandler: jest.fn()
-  },
-  ipcRenderer: { invoke: jest.fn() }
-}))
-
-const mocked_electron = jest.mocked(electron)
-mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
-
-jest.setMock('node:fs', () => fs_mock)
 jest.mock('node:path')
 jest.mock('mustache', () => ({ render: jest.fn() }))
 
@@ -34,10 +23,11 @@ describe('components/templates', () => {
   const disk = new Disk
 
   beforeEach(() => {
+    electron_meta.ipc_reset()
+
     fs_meta.set_disk(disk)
     disk.reset_disk()
 
-    ipcMainMap = new Map()
     component = cloneDeep(_component)
     component.register()
   })

@@ -1,33 +1,22 @@
+import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import { cloneDeep } from 'lodash'
 import * as electron from 'electron'
 import helpers from '../../helpers'
-import _component from '@/components/metadata'
-import preload from '@/components/metadata/preload'
+import _component from '@/components/app'
+import { app as preload } from '@/preload'
+import * as electron_meta from '?/meta/electron'
+import * as electron_mock from '?/mocks/electron'
 
-let ipcMainMap
+jest.doMock('electron', () => electron_mock)
+
 const { expect_call_parameters_to_return } = helpers(expect)
 
-jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
-jest.mock('electron', () => ({
-  ipcMain: {
-    handle: jest.fn(),
-    removeHandler: jest.fn()
-  },
-  ipcRenderer: { invoke: jest.fn() },
-  app: {
-    getPath: jest.fn()
-  }
-}))
-
-const mocked_electron = jest.mocked(electron)
-mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
-
-describe('components/metadata', () => {
+describe('components/app', () => {
   let component
 
   beforeEach(() => {
-    ipcMainMap = new Map()
+    electron_meta.ipc_reset()
+
     component = cloneDeep(_component)
     component.register()
   })
