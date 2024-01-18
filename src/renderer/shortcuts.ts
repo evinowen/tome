@@ -8,4 +8,4 @@ export const map = {
   'o': { dispatch: 'library/select' },
 }
 
-export const shortcuts = (key) => (map[key] ?? null)
+export const shortcuts = (key) => (map[key] ?? undefined)

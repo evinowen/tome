@@ -14,8 +14,8 @@ describe('components/KeyfileOutput', () => {
   const factory = assemble(KeyfileOutput)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
-      }
+        plugins: [ vuetify, [ store, key ] ],
+      },
     }))
 
   beforeEach(() => {

@@ -41,7 +41,7 @@ export default {
     VIcon,
     VLayout,
     VTextField,
-  }
+  },
 }
 </script>
 
@@ -50,20 +50,20 @@ import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-export interface Props {
-  label?: string,
-  small?: boolean,
-  value: string,
+export interface Properties {
+  label?: string
+  small?: boolean
+  value: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   label: '',
   small: false,
   value: '',
 })
 
 async function copy () {
-  await store.dispatch('clipboard/text', props.value)
+  await store.dispatch('clipboard/text', properties.value)
 }
 
 defineExpose({

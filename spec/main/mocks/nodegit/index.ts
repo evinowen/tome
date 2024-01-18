@@ -3,8 +3,8 @@ import { jest } from '@jest/globals'
 export const mocked_references = [
   {
     name: jest.fn(() => 'refs/heads/master'),
-    oid: jest.fn()
-  }
+    oid: jest.fn(),
+  },
 ]
 
 export const mocked_remote = {
@@ -12,24 +12,24 @@ export const mocked_remote = {
   url: jest.fn(() => 'git@git.example.com:remote.git'),
   connect: jest.fn(),
   referenceList: jest.fn(() => mocked_references),
-  push: jest.fn()
+  push: jest.fn(),
 }
 
 export const mocked_remotes = [
-  mocked_remote
+  mocked_remote,
 ]
 
 export const mocked_branch = {
-  shorthand: jest.fn(() => 'master')
+  shorthand: jest.fn(() => 'master'),
 }
 
 export const mocked_tree = {
-  diff: jest.fn(() => mocked_diff)
+  diff: jest.fn(() => mocked_diff),
 }
 
 export const mocked_commit_id = {
   cmp: jest.fn(() => 0),
-  tostrS: jest.fn(() => '1234')
+  tostrS: jest.fn(() => '1234'),
 }
 
 export const mocked_commit = {
@@ -38,15 +38,15 @@ export const mocked_commit = {
   message: jest.fn(() => 'Commit Message'),
   parentcount: jest.fn(() => 0),
   parent: jest.fn(),
-  getParents: jest.fn(() => [mocked_commit]),
-  getTree: jest.fn(() => mocked_tree)
+  getParents: jest.fn(() => [ mocked_commit ]),
+  getTree: jest.fn(() => mocked_tree),
 }
 
 export const mocked_repository_index = {
   addByPath: jest.fn(),
   removeByPath: jest.fn(),
   write: jest.fn(),
-  writeTree: jest.fn()
+  writeTree: jest.fn(),
 }
 
 export const mocked_repository_status = [
@@ -55,29 +55,29 @@ export const mocked_repository_status = [
     isNew: jest.fn(() => true),
     isModified: jest.fn(() => false),
     isRenamed: jest.fn(() => false),
-    isDeleted: jest.fn(() => false)
+    isDeleted: jest.fn(() => false),
   },
   {
     path: jest.fn(() => './second_file'),
     isNew: jest.fn(() => false),
     isModified: jest.fn(() => true),
     isRenamed: jest.fn(() => false),
-    isDeleted: jest.fn(() => false)
+    isDeleted: jest.fn(() => false),
   },
   {
     path: jest.fn(() => './third_file'),
     isNew: jest.fn(() => false),
     isModified: jest.fn(() => false),
     isRenamed: jest.fn(() => true),
-    isDeleted: jest.fn(() => false)
+    isDeleted: jest.fn(() => false),
   },
   {
     path: jest.fn(() => './fourth_file'),
     isNew: jest.fn(() => false),
     isModified: jest.fn(() => false),
     isRenamed: jest.fn(() => false),
-    isDeleted: jest.fn(() => true)
-  }
+    isDeleted: jest.fn(() => true),
+  },
 ]
 
 export const mocked_repository = {
@@ -92,19 +92,19 @@ export const mocked_repository = {
   getReferenceCommit: jest.fn(() => mocked_commit),
   getRemotes: jest.fn(() => mocked_remotes),
   getStatus: jest.fn(() => Promise.resolve(mocked_repository_status)),
-  refreshIndex: jest.fn(() => mocked_repository_index)
+  refreshIndex: jest.fn(() => mocked_repository_index),
 }
 
-export const mocked_patches = [{}, {}, {}]
+export const mocked_patches = [ {}, {}, {} ]
 
 export const mocked_diff = {
-  patches: jest.fn(() => mocked_patches)
+  patches: jest.fn(() => mocked_patches),
 }
 
 export const Cred = {
   sshKeyNew: jest.fn((username, public_key, private_key, passphrase) => ({
-    username, public_key, private_key, passphrase
-  }))
+    username, public_key, private_key, passphrase,
+  })),
 }
 
 export const Diff = {
@@ -113,46 +113,46 @@ export const Diff = {
     HUNK_HDR: 72,
     ADDITION: 1,
     DELETION: 2,
-    CONTEXT: 3
+    CONTEXT: 3,
   },
   OPTION: {
     DISABLE_PATHSPEC_MATCH: 0,
     INCLUDE_UNREADABLE: 0,
     INCLUDE_UNTRACKED: 0,
-    RECURSE_UNTRACKED_DIRS: 0
-  }
+    RECURSE_UNTRACKED_DIRS: 0,
+  },
 }
 
 export const DiffOptions = {}
 
 export const Enums = {
   DIRECTION: {
-    FETCH: 0
-  }
+    FETCH: 0,
+  },
 }
 
 export const Reset = {
-  default: jest.fn()
+  default: jest.fn(),
 }
 
 export const Reference = {
-  nameToId: jest.fn(() => mocked_branch)
+  nameToId: jest.fn(() => mocked_branch),
 }
 
 export const Repository = {
   open: jest.fn(() => mocked_repository),
-  init: jest.fn(() => mocked_repository)
+  init: jest.fn(() => mocked_repository),
 }
 
 export const Signature = {
-  now: jest.fn(() => ({}))
+  now: jest.fn(() => ({})),
 }
 
 export const Status = {
   SHOW: {
     INDEX_AND_WORKDIR: 0,
     INDEX_ONLY: 1,
-    WORKDIR_ONLY: 2
+    WORKDIR_ONLY: 2,
   },
   OPT: {
     INCLUDE_UNTRACKED: 1,
@@ -170,8 +170,8 @@ export const Status = {
     NO_REFRESH: 4096,
     UPDATE_INDEX: 8192,
     INCLUDE_UNREADABLE: 16_384,
-    INCLUDE_UNREADABLE_AS_UNTRACKED: 32_768
-  }
+    INCLUDE_UNREADABLE_AS_UNTRACKED: 32_768,
+  },
 }
 
 export const StatusOptions = {}

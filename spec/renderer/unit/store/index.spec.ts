@@ -16,6 +16,7 @@ vi.mock('@/store/modules/system')
 vi.mock('@/store/plugins/mediator')
 
 const mocked_api = builders.api()
+// eslint-disable-next-line no-import-assign
 Object.assign(api_module, { default: mocked_api })
 
 describe('store', () => {

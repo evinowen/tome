@@ -12,25 +12,25 @@ describe('store/plugins/reporter', () => {
       actions: {
         test: async function () {
           throw new Error('Error!')
-        }
-      }
+        },
+      },
     }
 
     object = {
       state: {
         files: {
-          tree: undefined
-        }
+          tree: undefined,
+        },
       },
       actions: {
-        error: vi.fn()
+        error: vi.fn(),
       },
       modules: {
-        module
+        module,
       },
       plugins: [
-        reporter
-      ]
+        reporter,
+      ],
     }
 
     store = new Vuex.Store(object)

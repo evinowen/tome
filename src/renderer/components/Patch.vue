@@ -50,24 +50,18 @@
 <script lang="ts">
 import UtilityPage from '@/components/UtilityPage.vue'
 import {
-  VBtn,
   VCard,
   VCardText,
   VCardTitle,
-  VContainer,
-  VIcon,
 } from 'vuetify/components'
 
 export default {
   components: {
     UtilityPage,
-    VBtn,
     VCard,
     VCardText,
     VCardTitle,
-    VContainer,
-    VIcon,
-  }
+  },
 }
 </script>
 
@@ -85,7 +79,7 @@ class RepositoryPatch {
     DEL_EOFNL: 60,
     FILE_HDR: 70,
     HUNK_HDR: 72,
-    BINARY: 66
+    BINARY: 66,
   }
 }
 

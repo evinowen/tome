@@ -2,12 +2,12 @@ import { MutationTree, ActionTree } from 'vuex'
 import api from '@/api'
 
 interface SearchResult {
-  path: undefined|{
-    absolute: string,
-    relative: string,
+  path: undefined | {
+    absolute: string
+    relative: string
     matched: number
-  },
-  directory: boolean,
+  }
+  directory: boolean
   matches: { index: number, line: string }[]
 }
 
@@ -30,7 +30,7 @@ export const StateDefaults = (): State => ({
   regex_query: false,
   case_sensitive: false,
   results: [],
-  navigation: { target: 1, total: 0},
+  navigation: { target: 1, total: 0 },
 })
 
 export default {
@@ -69,7 +69,7 @@ export default {
       } else if (state.navigation.target > state.navigation.total) {
         state.navigation.target = 1
       }
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     multifile: async function (context, value) {
@@ -108,7 +108,7 @@ export default {
         query: context.state.query,
         multifile: context.state.multifile,
         regex_query: context.state.regex_query,
-        case_sensitive: context.state.case_sensitive
+        case_sensitive: context.state.case_sensitive,
       }
 
       await api.file.search_path(target, criteria)
@@ -157,6 +157,6 @@ export default {
     },
     previous: async function (context) {
       context.commit('navigate', { target: context.state.navigation.target - 1, total: undefined })
-    }
-  }
+    },
+  },
 }

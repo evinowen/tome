@@ -131,19 +131,19 @@ export default {
     'commit',
     'input',
     'push',
-  ]
+  ],
 }
 </script>
 
 <script setup lang="ts">
-export interface Props {
-  value?: boolean,
-  disabled?: boolean,
-  waiting?: boolean,
-  history?: any[],
+export interface Properties {
+  value?: boolean
+  disabled?: boolean
+  waiting?: boolean
+  history?: any[]
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   value: false,
   disabled: false,
   waiting: false,
@@ -152,7 +152,7 @@ withDefaults(defineProps<Props>(), {
 
 const headers = [
   { title: '', value: 'oid', width: '60px' },
-  { title: '', value: 'message', width: '' }
+  { title: '', value: 'message', width: '' },
 ]
 </script>
 

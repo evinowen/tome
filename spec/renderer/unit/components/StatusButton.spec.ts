@@ -14,8 +14,8 @@ describe('components/StatusButton', () => {
         stubs: {
           VBtn: BasicComponentStub,
           VProgressCircular: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {

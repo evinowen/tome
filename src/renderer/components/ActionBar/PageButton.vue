@@ -22,7 +22,7 @@ export default {
   components: {
     VBtn,
     VIcon,
-  }
+  },
 }
 </script>
 

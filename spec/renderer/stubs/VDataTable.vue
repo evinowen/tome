@@ -2,24 +2,30 @@
   <div>
     <slot name="headers" />
     <slot
-      name="item"
       v-for="(item, index) in items"
+      name="item"
       :item="item"
       :index="index"
     >
-      <slot v-for="header in headers" :name="`item.${header.value}`" :item="item" />
+      <slot
+        v-for="header in headers"
+        :name="`item.${header.value}`"
+        :item="item"
+      />
     </slot>
     <slot name="bottom" />
   </div>
 </template>
 
 <script setup lang="ts">
-export interface Props {
-  headers: { value: string, [key: string]: any }[],
-  items: any[],
+export interface Properties {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  headers: { value: string, [key: string]: any }[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  items: any[]
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   headers: () => [],
   items: () => [],
 })

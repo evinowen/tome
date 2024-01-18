@@ -4,7 +4,9 @@ import Disk from '../../mocks/support/disk'
 
 let disk: Disk
 
-export const set_disk = (_disk: Disk) => { disk = _disk }
+export const set_disk = (_disk: Disk) => {
+  disk = _disk
+}
 export const get_disk = () => disk
 
 const { result_dialog } = dialog
@@ -13,7 +15,7 @@ const _file_list_directory = async (path) => {
   const item = disk.get_disk(path)
   const result = []
 
-  for (const [name, file] of item.children) {
+  for (const [ name, file ] of item.children) {
     result.push({ name, mime: 'text/plain', directory: file.directory })
   }
 
@@ -103,10 +105,10 @@ const _search_next_result = {
   path: {
     absolute: '/project/path',
     relative: 'path',
-    matched: true
+    matched: true,
   },
   directory: false,
-  matches: []
+  matches: [],
 }
 
 export default {
@@ -127,6 +129,6 @@ export default {
     directory_list: vi.fn(_directory_list),
     select_directory: vi.fn(_select_directory),
     search_path: vi.fn(),
-    search_next: vi.fn().mockReturnValue({ path: undefined }).mockReturnValueOnce(_search_next_result)
-  }
+    search_next: vi.fn().mockReturnValue({ path: undefined }).mockReturnValueOnce(_search_next_result),
+  },
 }

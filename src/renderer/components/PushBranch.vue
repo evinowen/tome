@@ -26,19 +26,19 @@ export default {
   components: {
     VCard,
     VCardText,
-  }
+  },
 }
 </script>
 
 <script setup lang="ts">
-export interface Props {
-  name?: string,
-  url?: string,
-  loading?: boolean,
-  disabled?: boolean,
+export interface Properties {
+  name?: string
+  url?: string
+  loading?: boolean
+  disabled?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   name: '',
   url: '',
   loading: false,

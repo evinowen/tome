@@ -18,14 +18,14 @@ describe('components/SystemBar', () => {
   const factory = assemble(SystemBar, { title })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           VBtn: BasicComponentStub,
           VIcon: BasicComponentStub,
           VSpacer: BasicComponentStub,
           VSystemBar: BasicComponentStub,
-       }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {

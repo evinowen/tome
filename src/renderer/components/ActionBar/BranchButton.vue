@@ -28,17 +28,17 @@ export default {
   components: {
     VBtn,
     VIcon,
-  }
+  },
 }
 </script>
 
 <script setup lang="ts">
-export interface Props {
-  branch: string,
-  error: string,
+export interface Properties {
+  branch?: string
+  error?: string
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   branch: '',
   error: '',
 })

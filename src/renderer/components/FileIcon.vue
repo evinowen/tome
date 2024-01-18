@@ -36,27 +36,27 @@ export default {
   },
   emits: [
     'click',
-  ]
+  ],
 }
 </script>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 
-export interface Props {
-  alert?: boolean,
-  directory?: boolean,
-  disabled?: boolean,
-  expanded?: boolean,
-  extension?: string,
-  image?: boolean,
-  path?: string,
-  relationship?: string,
-  selected?: boolean,
-  size?: string,
+export interface Properties {
+  alert?: boolean
+  directory?: boolean
+  disabled?: boolean
+  expanded?: boolean
+  extension?: string
+  image?: boolean
+  path?: string
+  relationship?: string
+  selected?: boolean
+  size?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   alert: false,
   directory: false,
   disabled: false,
@@ -70,23 +70,23 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const system = computed(() => {
-  return ['git', 'tome', 'tome-templates', 'tome-actions'].includes(props.relationship)
+  return [ 'git', 'tome', 'tome-templates', 'tome-actions' ].includes(properties.relationship)
 })
 
 const icon = computed(() => {
-  if (props.directory) {
-    if (props.relationship === 'root') {
-      return props.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+  if (properties.directory) {
+    if (properties.relationship === 'root') {
+      return properties.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
     }
 
-    return props.expanded ? 'mdi-folder-open' : 'mdi-folder'
+    return properties.expanded ? 'mdi-folder-open' : 'mdi-folder'
   }
 
-  if (props.image) {
+  if (properties.image) {
     return 'mdi-image'
   }
 
-  if (props.relationship === 'tome-file') {
+  if (properties.relationship === 'tome-file') {
     return 'mdi-file'
   }
 
@@ -94,9 +94,9 @@ const icon = computed(() => {
 })
 
 const badge = computed(() => {
-  const base = props.alert ? 'mdi-alert-circle' : ''
+  const base = properties.alert ? 'mdi-alert-circle' : ''
 
-  switch (props.relationship) {
+  switch (properties.relationship) {
     case 'root':
       return ''
 
@@ -104,7 +104,7 @@ const badge = computed(() => {
       return 'mdi-lock'
 
     case 'tome':
-      return props.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
+      return properties.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
 
     case 'tome-feature-actions':
     case 'tome-feature-templates':
@@ -117,8 +117,8 @@ const badge = computed(() => {
       return 'mdi-lightning-bolt-circle'
   }
 
-  if (props.relationship === 'tome-file') {
-    switch (props.extension) {
+  if (properties.relationship === 'tome-file') {
+    switch (properties.extension) {
       case '.md':
         return 'mdi-arrow-down-bold-circle'
 

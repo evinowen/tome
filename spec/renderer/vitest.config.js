@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 import { defineConfig, mergeConfig } from 'vitest/config'
 import config from '../../src/renderer/vite.config.js'
 
@@ -21,11 +21,11 @@ export default mergeConfig(config, defineConfig({
         functions: 80,
         lines: 80,
         statements: 80,
-      }
+      },
     },
     deps: {
-      inline: ['vuetify']
+      inline: [ 'vuetify' ],
     },
-    outputFile: '../../reports/renderer/results.json'
-  }
+    outputFile: '../../reports/renderer/results.json',
+  },
 }))

@@ -136,14 +136,10 @@ import CommitList from '@/components/CommitList.vue'
 import CommitListContainer from '@/components/CommitListContainer.vue'
 import UtilityPage from '@/components/UtilityPage.vue'
 import {
-  VContainer,
-  VLayout,
   VIcon,
   VBtn,
-  VRow,
-  VCol,
   VTextField,
-  VTextarea
+  VTextarea,
 } from 'vuetify/components'
 
 export default {
@@ -153,14 +149,10 @@ export default {
     CommitListContainer,
     UtilityPage,
     VBtn,
-    VCol,
-    VContainer,
     VIcon,
-    VLayout,
-    VRow,
     VTextarea,
     VTextField,
-  }
+  },
 }
 </script>
 

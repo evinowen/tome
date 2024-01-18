@@ -3,7 +3,6 @@ import { cloneDeep } from 'lodash'
 import Disk from '../../mocks/support/disk'
 import * as path from 'node:path'
 import * as vm from 'node:vm'
-import helpers from '../../helpers'
 import _component from '@/components/actions'
 import { action as preload } from '@/preload'
 import fs_meta from '../../meta/node/fs'
@@ -14,14 +13,13 @@ import * as electron_mock from '?/mocks/electron'
 jest.doMock('electron', () => electron_mock)
 jest.doMock('node:fs', () => fs_mock)
 
-const { random_string } = helpers(expect)
 const { environment } = _component.data()
 
 jest.spyOn(environment, 'require').mockImplementation(() => ({ resolve: jest.fn() }))
 jest.spyOn(environment, 'resolve').mockImplementation(() => ({ resolve: jest.fn() }))
 
 jest.mock('node:path', () => ({
-  join: jest.fn()
+  join: jest.fn(),
 }))
 
 const mocked_path = jest.mocked(path)
@@ -29,7 +27,7 @@ mocked_path.join.mockImplementation((...input) => input.join('/'))
 
 let vm_script_success = true
 
-const vm_script_context_fn = jest.fn((context: vm.Context) => {
+const vm_script_context_function = jest.fn((context: vm.Context) => {
   const { require, resolve, content } = context
 
   const input = 'Test Content'
@@ -46,12 +44,12 @@ const vm_script_context_fn = jest.fn((context: vm.Context) => {
 })
 
 const vm_script = {
-  runInContext: vm_script_context_fn,
-  runInNewContext: vm_script_context_fn,
+  runInContext: vm_script_context_function,
+  runInNewContext: vm_script_context_function,
 } as unknown as jest.MockedObject<vm.Script>
 
 jest.mock('node:vm', () => ({
-  Script: jest.fn()
+  Script: jest.fn(),
 }))
 
 const mocked_vm = jest.mocked(vm)
@@ -60,7 +58,7 @@ mocked_vm.Script.mockImplementation(() => vm_script)
 describe('components/actions', () => {
   let component
 
-  const disk = new Disk
+  const disk = new Disk()
 
   beforeEach(() => {
     electron_meta.ipc_reset()

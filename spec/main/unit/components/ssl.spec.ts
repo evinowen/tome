@@ -2,7 +2,6 @@ import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals
 import { cloneDeep } from 'lodash'
 import Disk from '../../mocks/support/disk'
 import * as forge from 'node-forge'
-import * as fs from 'node:fs'
 import * as tmp from 'tmp-promise'
 import helpers from '../../helpers'
 import _component from '@/components/ssl'
@@ -15,7 +14,7 @@ import * as electron_mock from '?/mocks/electron'
 jest.doMock('node:fs', () => fs_mock)
 jest.doMock('electron', () => electron_mock)
 
-const { optional, random_string, expect_call_parameters_to_return } = helpers(expect)
+const { random_string, expect_call_parameters_to_return } = helpers(expect)
 
 jest.mock('node-forge', () => ({
   pki: {
@@ -23,13 +22,13 @@ jest.mock('node-forge', () => ({
     privateKeyFromPem: jest.fn(),
     rsa: {
       setPublicKey: jest.fn(),
-      generateKeyPair: jest.fn()
-    }
+      generateKeyPair: jest.fn(),
+    },
   },
   ssh: {
     privateKeyToOpenSSH: jest.fn(),
-    publicKeyToOpenSSH: jest.fn()
-  }
+    publicKeyToOpenSSH: jest.fn(),
+  },
 }))
 
 const mocked_forge = jest.mocked(forge)
@@ -38,7 +37,7 @@ mocked_forge.pki.privateKeyFromPem.mockImplementation(() => ({ n: Math.random(),
 mocked_forge.pki.rsa.generateKeyPair.mockImplementation((options?, callback?) => {
   const keypair = {
     publicKey: { n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PublicKey,
-    privateKey: { n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PrivateKey
+    privateKey: { n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PrivateKey,
   }
 
   callback(undefined, keypair)
@@ -46,11 +45,11 @@ mocked_forge.pki.rsa.generateKeyPair.mockImplementation((options?, callback?) =>
 })
 
 jest.mock('node:path', () => ({
-  join: jest.fn()
+  join: jest.fn(),
 }))
 
 jest.mock('tmp-promise', () => ({
-  file: jest.fn()
+  file: jest.fn(),
 }))
 
 const mocked_temporary = jest.mocked(tmp)
@@ -58,7 +57,7 @@ mocked_temporary.file.mockImplementation(() => Promise.resolve({ path: random_st
 
 describe('components/ssl', () => {
   let component
-  const disk = new Disk
+  const disk = new Disk()
 
   beforeEach(() => {
     electron_meta.ipc_reset()

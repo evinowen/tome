@@ -1,5 +1,5 @@
-export default store => {
-  store.watch(state => state.files.tree?.timestamp || 0, () => {
+export default (store) => {
+  store.watch((state) => state.files.tree?.timestamp || 0, () => {
     const tree = store.state.files.tree
     const files = tree.base.children
 
@@ -7,7 +7,7 @@ export default store => {
       readme: /^readme(\.md|\.txt)?$/i,
       license: /^license(\.md|\.txt)?$/i,
       authors: /^authors(\.md|\.txt)?$/i,
-      contributors: /^contributors(\.md|\.txt)?$/i
+      contributors: /^contributors(\.md|\.txt)?$/i,
     }
 
     for (const file of files) {

@@ -42,7 +42,7 @@
             justify="center"
           >
             <v-col>
-              <push-branch :name="repository.branch"/>
+              <push-branch :name="repository.branch" />
             </v-col>
 
             <v-col
@@ -141,7 +141,7 @@ export default {
     VDivider,
     VIcon,
     VRow,
-  }
+  },
 }
 </script>
 

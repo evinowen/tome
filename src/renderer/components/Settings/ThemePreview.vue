@@ -47,12 +47,12 @@
       <v-switch
         ref="error-switch"
         :model-value="error"
-        @update:model-value="error = !error"
         density="compact"
         class="mt-2"
         label="Error"
         color="error"
         hide-details
+        @update:model-value="error = !error"
       />
     </v-card-text>
     <v-card-actions>
@@ -106,7 +106,7 @@ export default {
     VSpacer,
     VSwitch,
     VTextField,
-  }
+  },
 }
 </script>
 

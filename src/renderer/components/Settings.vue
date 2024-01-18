@@ -107,8 +107,7 @@
         />
       </v-col>
     </v-row>
-    <v-row dense>
-    </v-row>
+    <v-row dense />
     <theme-preview />
     <v-row dense>
       <v-col>
@@ -169,7 +168,10 @@
           <div class="flex-shrink-1">
             <div class="tome-badge">
               <div class="tome-badge-logo">
-                <img :src="logo" style="height: 64px; width: 64px;">
+                <img
+                  :src="logo"
+                  style="height: 64px; width: 64px;"
+                >
               </div>
               <div class="tome-badge-data">
                 <h3>Tome</h3>
@@ -213,7 +215,6 @@ import {
   VCol,
   VContainer,
   VDivider,
-  VLayout,
   VRow,
 } from 'vuetify/components'
 
@@ -230,14 +231,13 @@ export default {
     VCol,
     VContainer,
     VDivider,
-    VLayout,
     VRow,
-  }
+  },
 }
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { fetchStore } from '@/store'
 import logo from './logo.png'
 

@@ -10,7 +10,7 @@ describe('components/CommitList', async () => {
   let height
 
   const items = [
-    { path: './index.md', type: RepositoryFile.Type.NEW }
+    { path: './index.md', type: RepositoryFile.Type.NEW },
   ]
 
   const factory = assemble(CommitList, { height, items })
@@ -21,8 +21,8 @@ describe('components/CommitList', async () => {
           VBtn: BasicComponentStub,
           VIcon: BasicComponentStub,
           VDataTable,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {

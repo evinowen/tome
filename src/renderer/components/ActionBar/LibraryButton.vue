@@ -85,7 +85,7 @@ export default {
     VListItem,
     VListItemTitle,
     VMenu,
-  }
+  },
 }
 </script>
 
@@ -97,11 +97,11 @@ const store = fetchStore()
 
 const show = ref(false)
 
-export interface Props {
-  disabled?: boolean,
+export interface Properties {
+  disabled?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   disabled: false,
 })
 

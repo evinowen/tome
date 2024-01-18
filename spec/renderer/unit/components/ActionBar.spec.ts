@@ -17,7 +17,7 @@ describe('components/ActionBar', () => {
   const factory = assemble(ActionBar)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           VFooter: BasicComponentStub,
           VExpandXTransition: BasicComponentStub,
@@ -28,8 +28,8 @@ describe('components/ActionBar', () => {
           EditSwitch: BasicComponentStub,
           PageButton: BasicComponentStub,
           RepositoryButton: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -47,9 +47,9 @@ describe('components/ActionBar', () => {
             readme: undefined,
             license: undefined,
             authors: undefined,
-            contributors: undefined
-          }
-        }
+            contributors: undefined,
+          },
+        },
       },
       actions: stub_actions([
         'system/open',

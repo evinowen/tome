@@ -65,5 +65,5 @@ export default component('clipboard')(
         }
       }
     })
-  }
+  },
 )

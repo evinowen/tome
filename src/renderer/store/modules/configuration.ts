@@ -90,7 +90,7 @@ export default {
       for (const key in data) {
         Reflect.set(state, key, data[key])
       }
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     load: async function (context, target) {
@@ -209,7 +209,7 @@ export default {
 
       const { data: public_key } = await api.ssl.generate_public_key(
         context.state.private_key,
-        context.state.passphrase
+        context.state.passphrase,
       )
 
       context.commit('set', { public_key })
@@ -223,12 +223,10 @@ export default {
       const theme = context.state.dark_mode ? 'dark' : 'light'
 
       for (const color in presets[theme]) {
-        if (context.state[`${theme}_${color}_enabled`]) {
-          vuetify.theme.themes.value[theme].colors[color] = <string>context.state[`${theme}_${color}`]
-        } else {
-          vuetify.theme.themes.value[theme].colors[color] = presets[theme][color]
-        }
+        context.state[`${theme}_${color}_enabled`]
+          ? vuetify.theme.themes.value[theme].colors[color] = <string>context.state[`${theme}_${color}`]
+          : vuetify.theme.themes.value[theme].colors[color] = presets[theme][color]
       }
-    }
-  }
+    },
+  },
 }

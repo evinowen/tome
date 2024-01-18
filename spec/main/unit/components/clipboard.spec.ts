@@ -21,7 +21,7 @@ jest.mock('node:path', () => ({
   basename: jest.fn(),
   dirname: jest.fn(),
   parse: jest.fn(),
-  join: jest.fn()
+  join: jest.fn(),
 }))
 
 const mocked_path = jest.mocked(path)
@@ -33,7 +33,7 @@ mocked_path.join.mockImplementation((...input) => input.join('/'))
 describe('components/clipboard', () => {
   let component
 
-  const disk = new Disk
+  const disk = new Disk()
 
   beforeEach(() => {
     electron_meta.ipc_reset()
@@ -53,7 +53,7 @@ describe('components/clipboard', () => {
     const text = 'text'
     await preload.writetext(text)
 
-    expect_call_parameters_to_return(electron.clipboard.writeText, [text])
+    expect_call_parameters_to_return(electron.clipboard.writeText, [ text ])
   })
 
   it('should call for and return clipboard text upon call to readtext', async () => {

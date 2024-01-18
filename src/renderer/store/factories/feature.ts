@@ -35,7 +35,7 @@ export default <T>(feature: string, create: FeatureCreateFunction, execute: Feat
     options: function (state, options) {
       state.options.length = 0
       state.options.push(...options)
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     load: async function (context, { path }) {
@@ -45,7 +45,7 @@ export default <T>(feature: string, create: FeatureCreateFunction, execute: Feat
       const target = <FeatureTarget>{
         base: path,
         absolute,
-        relative
+        relative,
       }
 
       context.commit('target', target)
@@ -95,6 +95,6 @@ export default <T>(feature: string, create: FeatureCreateFunction, execute: Feat
           ? parent = item
           : parent = await context.dispatch('files/create', { item: parent, name: target, directory: true }, { root: true })
       }
-    }
-  }
+    },
+  },
 })

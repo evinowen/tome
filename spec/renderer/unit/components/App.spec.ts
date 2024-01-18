@@ -13,7 +13,7 @@ describe('components/App', () => {
   const factory = assemble(App)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           VApp: true,
           VMain: true,
@@ -29,16 +29,16 @@ describe('components/App', () => {
           ActionBar: true,
           ContextMenuService: true,
           SearchService: true,
-          ShortcutService: true
-        }
-      }
+          ShortcutService: true,
+        },
+      },
     }))
 
   beforeEach(() => {
     store = createStore<State>({
       state: {
         configuration: {
-          dark_mode: true
+          dark_mode: true,
         },
         repository: {
           loaded: false,
@@ -52,7 +52,7 @@ describe('components/App', () => {
           search: false,
           settings: false,
         },
-      } as unknown as State
+      } as unknown as State,
     })
 
     vuetify = createVuetify()
@@ -69,7 +69,7 @@ describe('components/App', () => {
 
   it('should reset the scroll for element included as event for scroll method', async () => {
     const event = {
-      target: { scrollTop: 100 }
+      target: { scrollTop: 100 },
     }
 
     expect(event.target.scrollTop).not.toBe(0)

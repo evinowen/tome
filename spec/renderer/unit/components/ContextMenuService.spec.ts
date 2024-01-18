@@ -13,11 +13,11 @@ describe('components/ContextMenuService', () => {
   let store_dispatch
 
   const factory = assemble(ContextMenuService)
-  .context(() => ({
-    global: {
-      plugins: [ vuetify, [store, key] ],
-    }
-  }))
+    .context(() => ({
+      global: {
+        plugins: [ vuetify, [ store, key ] ],
+      },
+    }))
 
   beforeEach(() => {
     vuetify = createVuetify()
@@ -28,7 +28,7 @@ describe('components/ContextMenuService', () => {
       },
       actions: stub_actions([
         'context/close',
-      ])
+      ]),
     })
 
     store_dispatch = vi.spyOn(store, 'dispatch')
@@ -51,5 +51,4 @@ describe('components/ContextMenuService', () => {
 
     expect(store_dispatch).toHaveBeenCalledWith('context/close')
   })
-
 })

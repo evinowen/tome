@@ -28,11 +28,11 @@ describe('components/EditorInterface', () => {
               path: '/pa/th/to/fi/le.txt',
               extension: 'txt',
               children: [],
-              directory: false
-            })
-          }
-        }
-      }
+              directory: false,
+            }),
+          },
+        },
+      },
     })
   })
 
@@ -44,14 +44,14 @@ describe('components/EditorInterface', () => {
     .context(() => (
       {
         global: {
-          plugins: [ vuetify, [store, key] ],
+          plugins: [ vuetify, [ store, key ] ],
           stubs: {
             Explorer: true,
             FileEdit: true,
             FileView: true,
             SplitPane: SplitPaneComponentStub,
-          }
-        }
+          },
+        },
       }
     ))
 
@@ -84,6 +84,5 @@ describe('components/EditorInterface', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.selected).toEqual(File.Empty)
-
   })
 })

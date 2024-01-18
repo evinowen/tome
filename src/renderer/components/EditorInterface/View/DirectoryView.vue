@@ -35,18 +35,18 @@ export default {
     EmptyPane,
     FileIcon,
     VDivider,
-  }
+  },
 }
 </script>
 
 <script setup lang="ts">
 import { File } from '@/store'
 
-export interface Props {
-  file?: File,
+export interface Properties {
+  file?: File
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   file: undefined,
 })
 </script>

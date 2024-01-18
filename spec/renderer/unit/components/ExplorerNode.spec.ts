@@ -33,26 +33,26 @@ describe('components/ExplorerNode', () => {
               path: '/pa/th/to/fi/le.txt',
               extension: 'txt',
               children: [],
-              directory: false
-            })
-          }
+              directory: false,
+            }),
+          },
         },
         clipboard: {
           ...ClipboardStateDefaults(),
-          content: { type: 'file', target: '/path' }
+          content: { type: 'file', target: '/path' },
         },
         repository: {
           ...RepositoryStateDefaults(),
-          path: '/project'
+          path: '/project',
         },
         templates: {
           ...TemplatesStateDefaults(),
-          options: ['one', 'two', 'three']
+          options: [ 'one', 'two', 'three' ],
         },
         actions: {
           ...ActionsStateDefaults(),
-          options: ['one', 'two', 'three']
-        }
+          options: [ 'one', 'two', 'three' ],
+        },
       },
       actions: stub_actions([
         'clipboard/copy',
@@ -76,13 +76,13 @@ describe('components/ExplorerNode', () => {
   const factory = assemble(ExplorerNode, {
     uuid: file_uuid,
     active: 'Active',
-    format
+    format,
   })
-  .context(() => ({
-    global: {
-      plugins: [ vuetify, [store, key] ],
-    }
-  }))
+    .context(() => ({
+      global: {
+        plugins: [ vuetify, [ store, key ] ],
+      },
+    }))
 
   it('should be flagged as system if the relationship equals root', async () => {
     file.relationship = FileRelationshipType.Root
@@ -124,8 +124,8 @@ describe('components/ExplorerNode', () => {
     await wrapper.vm.drag_start({
       dataTransfer: {},
       target: {
-        style: {}
-      }
+        style: {},
+      },
     })
 
     expect(wrapper.emitted('drag')).toHaveLength(1)
@@ -139,7 +139,7 @@ describe('components/ExplorerNode', () => {
     expect(wrapper.emitted('drop')).not.toBeDefined()
 
     const elm = {
-      classList: { add: vi.fn(), remove: vi.fn() }
+      classList: { add: vi.fn(), remove: vi.fn() },
     }
 
     await wrapper.vm.drop({
@@ -147,8 +147,8 @@ describe('components/ExplorerNode', () => {
         hasAttribute: vi.fn(() => true),
         classList: { remove: vi.fn() },
         closest: vi.fn(() => elm),
-        parentElement: undefined
-      }
+        parentElement: undefined,
+      },
     })
 
     expect(wrapper.emitted('drop')).toHaveLength(1)
@@ -162,8 +162,8 @@ describe('components/ExplorerNode', () => {
     const event = {
       dataTransfer: {},
       target: {
-        style: { opacity: 1 }
-      }
+        style: { opacity: 1 },
+      },
     }
 
     const opacity = event.target.style.opacity
@@ -183,7 +183,7 @@ describe('components/ExplorerNode', () => {
     await wrapper.vm.$nextTick()
 
     const elm = {
-      classList: { add: vi.fn(), remove: vi.fn() }
+      classList: { add: vi.fn(), remove: vi.fn() },
     }
 
     const event = {
@@ -194,9 +194,9 @@ describe('components/ExplorerNode', () => {
         closest: vi.fn(() => elm),
         parentElement: {
           hasAttribute: vi.fn(() => true),
-          classList: { add: vi.fn() }
-        }
-      }
+          classList: { add: vi.fn() },
+        },
+      },
     }
 
     await wrapper.vm.drag_start(event)
@@ -214,7 +214,7 @@ describe('components/ExplorerNode', () => {
     await wrapper.vm.$nextTick()
 
     const elm = {
-      classList: { add: vi.fn(), remove: vi.fn() }
+      classList: { add: vi.fn(), remove: vi.fn() },
     }
 
     const event = {
@@ -227,10 +227,10 @@ describe('components/ExplorerNode', () => {
           hasAttribute: vi.fn(() => true),
           classList: {
             add: vi.fn(),
-            remove: vi.fn()
-          }
-        }
-      }
+            remove: vi.fn(),
+          },
+        },
+      },
     }
 
     await wrapper.vm.drag_start(event)
@@ -270,7 +270,9 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should find a placeholder display name if title is set and format fails', async () => {
-    format.mockImplementationOnce(() => { throw new Error('Mock Error') })
+    format.mockImplementationOnce(() => {
+      throw new Error('Mock Error')
+    })
     const wrapper = factory.wrap({ title: true, format })
     await wrapper.vm.$nextTick()
 
@@ -359,7 +361,7 @@ describe('components/ExplorerNode', () => {
 
     const target = './index.md'
 
-    await wrapper.vm.context.find(item => item.title === 'Cut').action(target)
+    await wrapper.vm.context.find((item) => item.title === 'Cut').action(target)
 
     expect(store_dispatch).toHaveBeenCalledWith('clipboard/cut', { target, type: 'file' })
   })
@@ -373,7 +375,7 @@ describe('components/ExplorerNode', () => {
 
     const target = './index.md'
 
-    await wrapper.vm.context.find(item => item.title === 'Copy').action(target)
+    await wrapper.vm.context.find((item) => item.title === 'Copy').action(target)
 
     expect(store_dispatch).toHaveBeenCalledWith('clipboard/copy', { target, type: 'file' })
   })
@@ -387,7 +389,7 @@ describe('components/ExplorerNode', () => {
 
     const target = './index.md'
 
-    await wrapper.vm.context.find(item => item.title === 'Paste').action(target)
+    await wrapper.vm.context.find((item) => item.title === 'Paste').action(target)
 
     expect(store_dispatch).toHaveBeenCalledWith('clipboard/paste', { target, type: 'file' })
   })

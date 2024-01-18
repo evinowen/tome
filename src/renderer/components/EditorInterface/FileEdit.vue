@@ -23,18 +23,18 @@ export default {
     DirectoryView,
     ImageView,
     TextEdit,
-  }
+  },
 }
 </script>
 
 <script setup lang="ts">
 import { File } from '@/store'
 
-export interface Props {
-  file?: File,
+export interface Properties {
+  file?: File
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   file: undefined,
 })
 </script>

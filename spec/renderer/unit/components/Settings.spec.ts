@@ -17,7 +17,7 @@ describe('components/Settings', () => {
   const factory = assemble(Settings)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           KeyfileInput: true,
           KeyfileOutput: true,
@@ -33,8 +33,8 @@ describe('components/Settings', () => {
           VRow: BasicComponentStub,
           VSwitch: true,
           VTextField: true,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {

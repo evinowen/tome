@@ -20,7 +20,7 @@ import {
 export default {
   components: {
     VTextField,
-  }
+  },
 }
 </script>
 
@@ -32,22 +32,22 @@ const store = fetchStore()
 
 const obscured = ref(true)
 
-export interface Props {
-  label: string,
-  index: string,
-  obscureable?: boolean,
+export interface Properties {
+  label: string
+  index: string
+  obscureable?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   label: '',
   index: '',
-  obscureable: false
+  obscureable: false,
 })
 
-const value = computed<string>(() => store.state.configuration[props.index])
+const value = computed<string>(() => store.state.configuration[properties.index])
 
 async function update (value: string) {
-  await store.dispatch('configuration/update', { [props.index]: value })
+  await store.dispatch('configuration/update', { [properties.index]: value })
 }
 
 defineExpose({

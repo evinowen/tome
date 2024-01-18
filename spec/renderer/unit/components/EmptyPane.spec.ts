@@ -19,7 +19,7 @@ describe('components/EmptyPane', () => {
     .context(() => ({
       global: {
         plugins: [ vuetify ],
-      }
+      },
     }))
 
   it('is able to be mocked and prepared for testing', () => {

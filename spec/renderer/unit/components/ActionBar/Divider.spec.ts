@@ -13,8 +13,8 @@ describe('components/ActionBar/Divider', () => {
         plugins: [ vuetify ],
         stubs: {
           VDivider: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {

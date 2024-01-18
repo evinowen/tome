@@ -46,7 +46,7 @@ export default {
     },
     hide: function (state) {
       state.visible = false
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     open: async function (context, state) {
@@ -58,6 +58,6 @@ export default {
     close: async function (context) {
       context.commit('hide')
       context.commit('clear')
-    }
-  }
+    },
+  },
 }

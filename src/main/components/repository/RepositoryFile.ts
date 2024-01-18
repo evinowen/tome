@@ -7,10 +7,10 @@ export default class RepositoryFile {
     MODIFIED: 2,
     RENAMED: 3,
     DELETED: 4,
-    UNKNOWN: 0
+    UNKNOWN: 0,
   }
 
-  constructor(path, type) {
+  constructor (path, type) {
     this.path = path
     this.type = type || RepositoryFile.Type.UNKNOWN
   }

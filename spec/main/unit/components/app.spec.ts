@@ -29,7 +29,7 @@ describe('components/app', () => {
     const target = 'main'
     const result = await preload.getPath(target)
 
-    expect_call_parameters_to_return(electron.app.getPath, [target], result)
+    expect_call_parameters_to_return(electron.app.getPath, [ target ], result)
   })
 
   it('should return process version upon call to getPath', async () => {

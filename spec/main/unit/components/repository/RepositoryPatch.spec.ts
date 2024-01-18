@@ -13,35 +13,35 @@ describe('components/repository/RepositoryPatch', () => {
 
   beforeEach(() => {
     file = {
-      path: jest.fn(() => './file.path')
+      path: jest.fn(() => './file.path'),
     }
 
     lines = [
       {
         origin: jest.fn(() => NodeGit.Diff.LINE.ADDITION),
-        content: jest.fn(() => 'first line')
+        content: jest.fn(() => 'first line'),
       },
       {
         origin: jest.fn(() => NodeGit.Diff.LINE.DELETION),
-        content: jest.fn(() => 'second line')
+        content: jest.fn(() => 'second line'),
       },
       {
         origin: jest.fn(() => NodeGit.Diff.LINE.CONTEXT),
-        content: jest.fn(() => 'third line')
-      }
+        content: jest.fn(() => 'third line'),
+      },
     ]
 
     hunk = {
       header: jest.fn(() => 'header'),
-      lines: jest.fn(() => lines)
+      lines: jest.fn(() => lines),
     }
 
-    hunks = [hunk]
+    hunks = [ hunk ]
 
     patch = {
       oldFile: jest.fn(() => file),
       newFile: jest.fn(() => file),
-      hunks: jest.fn(() => hunks)
+      hunks: jest.fn(() => hunks),
     }
   })
 

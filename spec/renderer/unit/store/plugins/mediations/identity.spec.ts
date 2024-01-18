@@ -11,37 +11,37 @@ describe('store/plugins/mediations/identity', () => {
     repository = {
       namespaced: true,
       actions: {
-        remote: vi.fn()
+        remote: vi.fn(),
       },
       modules: {
         credentials: {
           namespaced: true,
           state: {
             key: '',
-            passphrase: ''
+            passphrase: '',
           },
           mutations: {
             set: (state, { key, value }) => {
               state[key] = value
-            }
+            },
           },
           actions: {
             set: (context, data) => {
               context.commit('set', data)
             },
             private_key: vi.fn(),
-            passphrase: vi.fn()
-          }
+            passphrase: vi.fn(),
+          },
         },
         signature: {
           namespaced: true,
           actions: {
             name: vi.fn(),
             email: vi.fn(),
-            message: vi.fn()
-          }
-        }
-      }
+            message: vi.fn(),
+          },
+        },
+      },
     }
 
     system = {
@@ -50,12 +50,12 @@ describe('store/plugins/mediations/identity', () => {
         signature: {
           name: '',
           email: '',
-          message: ''
+          message: '',
         },
         credentials: {
           private_key: '',
-          passphrase: ''
-        }
+          passphrase: '',
+        },
       },
       mutations: {
         signature: (state, { key, value }) => {
@@ -63,7 +63,7 @@ describe('store/plugins/mediations/identity', () => {
         },
         credentials: (state, { key, value }) => {
           state.credentials[key] = value
-        }
+        },
       },
       actions: {
         signature: (context, data) => {
@@ -71,18 +71,18 @@ describe('store/plugins/mediations/identity', () => {
         },
         credentials: (context, data) => {
           context.commit('credentials', data)
-        }
-      }
+        },
+      },
     }
 
     store = new Vuex.Store({
       modules: {
         repository,
-        system
+        system,
       },
       plugins: [
-        identity
-      ]
+        identity,
+      ],
     })
   })
 

@@ -9,7 +9,7 @@ export const SystemPerformances = {
   Commit: 'commit',
   QuickCommit: 'quick-commit',
   Push: 'push',
-  QuickPush: 'quick-push'
+  QuickPush: 'quick-push',
 }
 
 export interface State {
@@ -57,7 +57,7 @@ export default {
     },
     set: function (state, data) {
       Object.assign(state, data)
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     load: async function (context) {
@@ -161,19 +161,19 @@ export default {
     settings: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { settings: value })
       return context.state.settings
-    }
+    },
   },
   modules: {
     credentials: {
       namespaced: true,
       state: {
         key: undefined,
-        passphrase: undefined
+        passphrase: undefined,
       },
       mutations: <MutationTree<State>>{
         set: function (state, data) {
           Object.assign(state, data)
-        }
+        },
       },
       actions: <ActionTree<State, unknown>>{
         key: async function (context, value) {
@@ -181,20 +181,20 @@ export default {
         },
         passphrase: async function (context, value) {
           typeof value === undefined || context.commit('set', { passphrase: value })
-        }
-      }
+        },
+      },
     },
     signature: {
       namespaced: true,
       state: {
         name: undefined,
         email: undefined,
-        message: undefined
+        message: undefined,
       },
       mutations: <MutationTree<State>>{
         set: function (state, data) {
           Object.assign(state, data)
-        }
+        },
       },
       actions: <ActionTree<State, unknown>>{
         name: async function (context, value) {
@@ -205,8 +205,8 @@ export default {
         },
         message: function (context, value) {
           typeof value === undefined || context.commit('set', { message: value })
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  },
 }

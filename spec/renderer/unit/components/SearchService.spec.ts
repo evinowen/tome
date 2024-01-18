@@ -17,7 +17,7 @@ describe('components/SearchService', () => {
   const factory = assemble(SearchService)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           VBtn: BasicComponent,
           VExpandTransition: BasicComponent,
@@ -26,8 +26,8 @@ describe('components/SearchService', () => {
           VLayout: BasicComponent,
           VTextField: BasicComponent,
           VToolbar: BasicComponent,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -112,7 +112,7 @@ describe('components/SearchService', () => {
 
     const value = store.state.search.case_sensitive
 
-    const multifile_button = wrapper.findComponent({ref: 'multifile-button'})
+    const multifile_button = wrapper.findComponent({ ref: 'multifile-button' })
     expect(multifile_button.exists()).toBe(true)
 
     await multifile_button.vm.$emit('click', !value)
@@ -125,7 +125,7 @@ describe('components/SearchService', () => {
 
     const value = store.state.search.case_sensitive
 
-    const case_sensitive_button = wrapper.findComponent({ref: 'case-sensitive-button'})
+    const case_sensitive_button = wrapper.findComponent({ ref: 'case-sensitive-button' })
     expect(case_sensitive_button.exists()).toBe(true)
 
     await case_sensitive_button.vm.$emit('click', !value)
@@ -138,7 +138,7 @@ describe('components/SearchService', () => {
 
     const value = store.state.search.case_sensitive
 
-    const regex_query_button = wrapper.findComponent({ref: 'regex-query-button'})
+    const regex_query_button = wrapper.findComponent({ ref: 'regex-query-button' })
     expect(regex_query_button.exists()).toBe(true)
 
     await regex_query_button.vm.$emit('click', !value)

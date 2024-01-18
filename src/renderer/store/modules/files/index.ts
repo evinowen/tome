@@ -13,7 +13,7 @@ export const ChokidarEvent = {
   ADD: 'add',
   ADD_DIR: 'addDir',
   DELETE: 'unlink',
-  DELETE_DIR: 'unlinkDir'
+  DELETE_DIR: 'unlinkDir',
 }
 
 export class State {
@@ -124,7 +124,7 @@ export default {
     blur: function (state) {
       state.active = ''
       state.selected = ''
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     initialize: async function (context, { path }) {
@@ -160,7 +160,7 @@ export default {
         }
       })
 
-      await context.dispatch('toggle', { item: context.state.tree.base } )
+      await context.dispatch('toggle', { item: context.state.tree.base })
     },
     clear: async function (context) {
       context.commit('clear')
@@ -197,15 +197,15 @@ export default {
             context.state.tree.base,
             async (object) => {
               switch (object.type) {
-              case 'read':
-                await context.dispatch('message', `Read (identity) ${object.bytes} bytes @ ${object.path}`, { root: true })
-                break
+                case 'read':
+                  await context.dispatch('message', `Read (identity) ${object.bytes} bytes @ ${object.path}`, { root: true })
+                  break
 
-              case 'populated':
-                await context.dispatch('message', `Populate (identity) ${object.path}`, { root: true })
-                break
+                case 'populated':
+                  await context.dispatch('message', `Populate (identity) ${object.path}`, { root: true })
+                  break
               }
-            }
+            },
           )
 
           context.commit('load', contract)
@@ -247,15 +247,15 @@ export default {
           context.state.tree.base,
           async (object) => {
             switch (object.type) {
-            case 'read':
-              await context.dispatch('message', `Read (load) ${object.bytes} bytes @ ${object.path}`, { root: true })
-              break
+              case 'read':
+                await context.dispatch('message', `Read (load) ${object.bytes} bytes @ ${object.path}`, { root: true })
+                break
 
-            case 'populated':
-              await context.dispatch('message', `Populate (load) ${object.path}`, { root: true })
-              break
+              case 'populated':
+                await context.dispatch('message', `Populate (load) ${object.path}`, { root: true })
+                break
             }
-          }
+          },
         )
 
         context.commit('load', contract)
@@ -342,7 +342,7 @@ export default {
 
       context.commit('edit', { edit: false })
 
-      let name = input.toLowerCase().replace(/[ .-]+/g, '.').replace(/[^\d.a-z-]/g, '')
+      let name = input.toLowerCase().replaceAll(/[ .-]+/g, '.').replaceAll(/[^\d.a-z-]/g, '')
 
       if (title && !directory) {
         name = `${name}.md`
@@ -386,7 +386,7 @@ export default {
 
       const parents = {
         original: item.parent,
-        replacement: await context.dispatch('container', { path: proposed })
+        replacement: await context.dispatch('container', { path: proposed }),
       }
 
       const path = await item.move(parents.replacement.path)
@@ -433,6 +433,6 @@ export default {
 
       context.commit('unload', item.parent)
       await context.dispatch('load', { item: item.parent })
-    }
-  }
+    },
+  },
 }

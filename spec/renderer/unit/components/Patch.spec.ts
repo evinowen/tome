@@ -17,7 +17,7 @@ class RepositoryPatch {
     DEL_EOFNL: 60,
     FILE_HDR: 70,
     HUNK_HDR: 72,
-    BINARY: 66
+    BINARY: 66,
   }
 }
 
@@ -29,9 +29,9 @@ describe('components/Patch', () => {
   const factory = assemble(Patch, { height })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
-        stubs: { VDataTable: true }
-      }
+        plugins: [ vuetify, [ store, key ] ],
+        stubs: { VDataTable: true },
+      },
     }))
 
   beforeEach(() => {
@@ -42,9 +42,9 @@ describe('components/Patch', () => {
         system: SystemStateDefaults(),
         repository: {
           ...RepositoryStateDefaults(),
-          path: './tome_path'
-        }
-      }
+          path: './tome_path',
+        },
+      },
     })
 
     height = 100

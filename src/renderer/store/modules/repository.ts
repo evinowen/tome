@@ -7,12 +7,12 @@ class RepositoryRemoteNotLoadedError extends Error {}
 class RepositoryRemoteNotFoundError extends Error {}
 
 interface RepositoryPayload {
-  name: string,
-  path: string,
-  history: { oid: string, date: Date, message: string }[],
-  branch?: string,
-  remotes: { name: string, url: string }[],
-  available: { path: string, type: number }[],
+  name: string
+  path: string
+  history: { oid: string, date: Date, message: string }[]
+  branch?: string
+  remotes: { name: string, url: string }[]
+  available: { path: string, type: number }[]
   staged: { path: string, type: number }[]
 }
 
@@ -46,14 +46,14 @@ export interface State {
   history: { oid: string, date: Date, message: string }[]
   pending: { oid: string, date: Date, message: string }[]
   patches: RepositoryPatches[]
-  patches_type: string,
-  patches_reference: string,
-  patches_message: string,
+  patches_type: string
+  patches_reference: string
+  patches_message: string
   remotes: RepositoryRemote[]
   loaded: boolean
   staging: number
   status: RepositoryStatus
-  remote: { name: string, url: string, branch: { name: string, short: string, error: string }}
+  remote: { name: string, url: string, branch: { name: string, short: string, error: string } }
   repository?: RepositoryPayload
   metadata: RepositoryMetadata
   commit_working: boolean
@@ -87,7 +87,7 @@ export const StateDefaults = (): State => ({
   loaded: false,
   staging: 0,
   status: { available: [], staged: [] },
-  remote: { name: '', url: '', branch: { name: '', short: '', error: '' }},
+  remote: { name: '', url: '', branch: { name: '', short: '', error: '' } },
   repository: undefined,
   metadata: {
     readme: undefined,
@@ -168,7 +168,7 @@ export default {
     },
     metadata: function (state, data) {
       Object.assign(state.metadata, data)
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     clear: async function (context) {
@@ -290,7 +290,7 @@ export default {
     },
     remote: async function (context, name) {
       await api.repository.clear_remote()
-      context.commit('remote', { remote: { name: '', url: ''}, branch: { name: '', short: '' }})
+      context.commit('remote', { remote: { name: '', url: '' }, branch: { name: '', short: '' } })
 
       if (!name) {
         return
@@ -344,7 +344,7 @@ export default {
     },
     staging: function (context, advance) {
       context.commit('staging', advance)
-    }
+    },
   },
   modules: {
     credentials: {
@@ -353,7 +353,7 @@ export default {
       mutations: <MutationTree<CredentialState>>{
         set: function (state, data) {
           Object.assign(state, data)
-        }
+        },
       },
       actions: <ActionTree<CredentialState, unknown>>{
         key: async function (context, value) {
@@ -361,8 +361,8 @@ export default {
         },
         passphrase: async function (context, value) {
           context.commit('set', { passphrase: value })
-        }
-      }
+        },
+      },
     },
     signature: {
       namespaced: true,
@@ -370,7 +370,7 @@ export default {
       mutations: <MutationTree<SignatureState>>{
         set: function (state, data) {
           Object.assign(state, data)
-        }
+        },
       },
       actions: <ActionTree<SignatureState, unknown>>{
         name: async function (context, value) {
@@ -384,8 +384,8 @@ export default {
         message: function (context, value) {
           const message = value || `Update for ${DateTime.now().toISODate()}`
           context.commit('set', { message })
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  },
 }

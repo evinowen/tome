@@ -9,12 +9,15 @@
 </template>
 
 <script setup lang="ts">
-export interface Props {
-  modelValue?: any,
-  items: any[],
+export interface Properties {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  modelValue?: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  items: any[]
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
+  modelValue: undefined,
   items: () => [],
 })
 </script>

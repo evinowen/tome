@@ -26,32 +26,32 @@ import { debounce } from 'lodash'
 
 const store = fetchStore()
 
-export interface Props {
-  file?: File,
+export interface Properties {
+  file?: File
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   file: undefined,
 })
 
-const root = ref<HTMLElement>(null)
+const root = ref<HTMLElement>(undefined)
 
 interface Compartments {
-  language: Compartment,
-  line_numbers: Compartment,
-  tabs: Compartment,
-  theme: Compartment,
-  search: Compartment,
+  language: Compartment
+  line_numbers: Compartment
+  tabs: Compartment
+  theme: Compartment
+  search: Compartment
   search_target: Compartment
 }
 
 const compartments: Compartments = {
-  language: new Compartment,
-  line_numbers: new Compartment,
-  tabs: new Compartment,
-  theme: new Compartment,
-  search: new Compartment,
-  search_target: new Compartment
+  language: new Compartment(),
+  line_numbers: new Compartment(),
+  tabs: new Compartment(),
+  theme: new Compartment(),
+  search: new Compartment(),
+  search_target: new Compartment(),
 }
 
 const search_decoration: Decoration = Decoration.mark({ class: 'highlight' })
@@ -60,12 +60,12 @@ const search_decoration_target: Decoration = Decoration.mark({ class: 'highlight
 const theme_light_mode: Extension = EditorView.baseTheme({
   '.highlight': {
     backgroundColor: 'rgba(255, 0, 0, 0.2)',
-    outline: '2px solid rgba(255, 0, 0, 0.2)'
-    },
+    outline: '2px solid rgba(255, 0, 0, 0.2)',
+  },
   '.highlight-target': {
     backgroundColor: 'rgba(255, 0, 0, 0.4)',
-    outline: '2px solid rgba(255, 0, 0, 0.4)'
-    }
+    outline: '2px solid rgba(255, 0, 0, 0.4)',
+  },
 })
 
 const theme_dark_mode: Extension = oneDark
@@ -90,31 +90,31 @@ const search_state = computed(() => {
     search.value.query,
     search.value.regex_query,
     search.value.case_sensitive,
-    search.value.navigation.target
+    search.value.navigation.target,
   ]
 })
 
 watch(line_numbers, configure_line_numbers)
 function configure_line_numbers () {
   view.dispatch({
-    effects: compartments.line_numbers.reconfigure(line_numbers.value ? lineNumbers() : [])
+    effects: compartments.line_numbers.reconfigure(line_numbers.value ? lineNumbers() : []),
   })
 }
 
 watch(dark_mode, configure_dark_mode)
 function configure_dark_mode () {
   view.dispatch({
-    effects: compartments.theme.reconfigure(dark_mode.value ? theme_dark_mode : theme_light_mode)
+    effects: compartments.theme.reconfigure(dark_mode.value ? theme_dark_mode : theme_light_mode),
   })
 }
 
-watch(() => props.file, () => {
-  if (!props.file) {
+watch(() => properties.file, () => {
+  if (!properties.file) {
     return
   }
 
   let language: Extension
-  switch (props.file.extension) {
+  switch (properties.file.extension) {
     case '.md':
       language = markdown()
       break
@@ -126,29 +126,29 @@ watch(() => props.file, () => {
   }
 
   view.dispatch({
-    effects: compartments.language.reconfigure(language ?? [])
+    effects: compartments.language.reconfigure(language ?? []),
   })
 
   view.dispatch({
     changes: {
       from: 0,
       to: view.state.doc.length,
-      insert: props.file.document.content
-    }
+      insert: properties.file.document.content,
+    },
   })
 })
 
 const actions = computed(() => {
-  return store.state.actions.options.map(name => ({
+  return store.state.actions.options.map((name) => ({
     title: name,
     action: async () => {
       const selection = selection_fetch()
-      const output = await store.dispatch('actions/execute', { name, target: props.file.path, selection })
+      const output = await store.dispatch('actions/execute', { name, target: properties.file.path, selection })
 
       selection_replace(output || selection)
 
       await input()
-    }
+    },
   }))
 })
 
@@ -156,18 +156,18 @@ const context = computed(() => {
   return [
     {
       title: 'Action',
-      load: () => actions.value
+      load: () => actions.value,
     },
     { divider: true },
     {
       title: 'Cut',
-      active: () => !props.file.readonly,
+      active: () => !properties.file.readonly,
       action: async () => {
         const selection = selection_fetch()
 
         await store.dispatch('clipboard/text', selection)
         selection_replace('')
-      }
+      },
     },
     {
       title: 'Copy',
@@ -175,23 +175,23 @@ const context = computed(() => {
         const selection = selection_fetch()
 
         await store.dispatch('clipboard/text', selection)
-      }
+      },
     },
     {
       title: 'Paste',
-      active: () => !props.file.readonly,
+      active: () => !properties.file.readonly,
       action: async () => {
         const clipboard = await store.dispatch('clipboard/text')
         selection_replace(clipboard)
-      }
-    }
+      },
+    },
   ]
 })
 
 async function contextmenu (event) {
   const position = {
     x: event.clientX,
-    y: event.clientY
+    y: event.clientY,
   }
 
   await store.dispatch('context/open', { items: context.value, position })
@@ -206,8 +206,8 @@ onMounted(() => {
         }
 
         updated.value++
-      }
-    })
+      },
+    }),
   )
 
   view = new EditorView({
@@ -217,7 +217,7 @@ onMounted(() => {
       keymap.of([
         ...defaultKeymap,
         ...historyKeymap,
-        indentWithTab
+        indentWithTab,
       ]),
       syntaxHighlighting(defaultHighlightStyle),
       compartments.language.of([]),
@@ -226,7 +226,7 @@ onMounted(() => {
       compartments.search.of([]),
       compartments.search_target.of([]),
     ],
-    parent: root.value
+    parent: root.value,
   })
 
   configure_line_numbers()
@@ -254,12 +254,12 @@ function search_cursor (text, from, to) {
   const { query, regex_query, case_sensitive } = search.value
   return regex_query
     ? new RegExpCursor(text, query, { ignoreCase: !case_sensitive }, from, to)
-    : new SearchCursor(text, query, from, to, case_sensitive ? undefined : x => x.toLowerCase())
+    : new SearchCursor(text, query, from, to, case_sensitive ? undefined : (x) => x.toLowerCase())
 }
 
 watch(search_state, select)
 async function select () {
-  if (!props.file) {
+  if (!properties.file) {
     return
   }
 
@@ -269,8 +269,8 @@ async function select () {
     view.dispatch({
       effects: [
         compartments.search.reconfigure([]),
-        compartments.search_target.reconfigure([])
-      ]
+        compartments.search_target.reconfigure([]),
+      ],
     })
 
     return
@@ -283,11 +283,11 @@ async function select () {
     for (const range of view.visibleRanges) {
       const cursor = search_cursor(state.doc, range.from, range.to)
 
-      while(!cursor.next().done) {
+      while (!cursor.next().done) {
         decoration_builder.add(
           cursor.value.from,
           cursor.value.to,
-          search_decoration
+          search_decoration,
         )
       }
     }
@@ -296,21 +296,23 @@ async function select () {
   }
 
   const search_view_plugin = ViewPlugin.define(
-    view => {
+    (view) => {
       const plugin = {
         decorations: Decoration.none,
-        update({view, state}) { highlight(this, view, state) }
+        update ({ view, state }) {
+          highlight(this, view, state)
+        },
       }
 
       highlight(plugin, view, view.state)
 
       return plugin
     },
-    { decorations: plugin => plugin.decorations }
+    { decorations: (plugin) => plugin.decorations },
   )
 
   view.dispatch({
-    effects: compartments.search.reconfigure(search_view_plugin)
+    effects: compartments.search.reconfigure(search_view_plugin),
   })
 
   await search_navigate()
@@ -338,7 +340,7 @@ async function search_navigate () {
         decoration_builder.add(
           selection.anchor,
           selection.head,
-          search_decoration_target
+          search_decoration_target,
         )
       }
     }
@@ -348,21 +350,23 @@ async function search_navigate () {
   }
 
   const search_target_view_plugin = ViewPlugin.define(
-    view => {
+    (view) => {
       const plugin = {
         decorations: Decoration.none,
-        update({ state}) { search_target_highlight(this, state) }
+        update ({ state }) {
+          search_target_highlight(this, state)
+        },
       }
 
       search_target_highlight(plugin, view.state)
 
       return plugin
     },
-    { decorations: plugin => plugin.decorations }
+    { decorations: (plugin) => plugin.decorations },
   )
 
   view.dispatch({
-    effects: compartments.search_target.reconfigure(search_target_view_plugin)
+    effects: compartments.search_target.reconfigure(search_target_view_plugin),
   })
 
   await store.dispatch('search/navigate', { total, target: undefined })
@@ -373,7 +377,7 @@ async function search_navigate () {
 
   view.dispatch({
     effects: EditorView.scrollIntoView(selection.anchor),
-    selection: EditorSelection.range(selection.anchor, selection.head)
+    selection: EditorSelection.range(selection.anchor, selection.head),
   })
 }
 
@@ -382,7 +386,7 @@ async function input () {
     return
   }
 
-  await debounce_save(props.file.path)
+  await debounce_save(properties.file.path)
 }
 
 watch(updated, input)

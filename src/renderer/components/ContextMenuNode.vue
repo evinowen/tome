@@ -8,7 +8,9 @@
       density="compact"
       class="context-menu-list"
     >
-      <v-list-subheader class="menu-title">{{ title || '&nbsp;' }}</v-list-subheader>
+      <v-list-subheader class="menu-title">
+        {{ title || '&nbsp;' }}
+      </v-list-subheader>
       <v-divider />
       <div
         v-for="(item, index) in items"
@@ -105,7 +107,7 @@ export default {
   },
   directives: {
     ClickOutside,
-  }
+  },
 }
 </script>
 
@@ -113,21 +115,21 @@ export default {
 import { onMounted, ref, watch } from 'vue'
 import ResizeObserver from 'resize-observer-polyfill'
 
-export interface Props {
-  title?: string,
-  root?: boolean,
-  target?: string,
-  items: any[],
-  position_x: number,
-  position_y: number,
-  flip_x?: boolean,
-  flip_y?: boolean,
-  window_x?: number,
-  window_y?: number,
-  layer?: number,
+export interface Properties {
+  title?: string
+  root?: boolean
+  target?: string
+  items: any[]
+  position_x: number
+  position_y: number
+  flip_x?: boolean
+  flip_y?: boolean
+  window_x?: number
+  window_y?: number
+  layer?: number
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   title: undefined,
   root: false,
   target: undefined,
@@ -145,7 +147,7 @@ const emit = defineEmits([
   'close',
 ])
 
-const node = ref<HTMLElement>(null)
+const node = ref<HTMLElement>(undefined)
 
 const active = ref(-1)
 const promoted = ref(-1)
@@ -158,10 +160,10 @@ const local_flip_y = ref(false)
 
 let resize_observer: ResizeObserver
 
-watch(() => props.position_x, reposition)
-watch(() => props.position_y, reposition)
-watch(() => props.flip_x, reposition)
-watch(() => props.flip_y, reposition)
+watch(() => properties.position_x, reposition)
+watch(() => properties.position_y, reposition)
+watch(() => properties.flip_x, reposition)
+watch(() => properties.flip_y, reposition)
 
 onMounted(() => {
   resize_observer = new ResizeObserver(resize)
@@ -169,11 +171,11 @@ onMounted(() => {
 })
 
 function include () {
-  return [...node.value.querySelectorAll('*')]
+  return [ ...node.value.querySelectorAll('*') ]
 }
 
 function resize () {
-  if (node) {
+  if (node.value) {
     width.value = node.value.clientWidth
     height.value = node.value.clientHeight
   }
@@ -185,7 +187,7 @@ function offset (target) {
   let height = 19
 
   for (let index = 0; index < target; index++) {
-    const item = props.items[index]
+    const item = properties.items[index]
 
     item.divider
       ? height += 1
@@ -196,19 +198,19 @@ function offset (target) {
 }
 
 function reposition () {
-  const overflow_x = props.position_x - (props.window_x / 2)
-  const overflow_y = props.position_y - (props.window_y / 2)
+  const overflow_x = properties.position_x - (properties.window_x / 2)
+  const overflow_y = properties.position_y - (properties.window_y / 2)
 
-  local_flip_x.value = props.flip_x === undefined ? overflow_x > 0 : props.flip_x
-  local_flip_y.value = props.flip_y === undefined ? overflow_y > 0 : props.flip_y
+  local_flip_x.value = properties.flip_x === undefined ? overflow_x > 0 : properties.flip_x
+  local_flip_y.value = properties.flip_y === undefined ? overflow_y > 0 : properties.flip_y
 
-  local_position_x.value = props.position_x - (local_flip_x.value ? width.value : 0)
-  local_position_y.value = props.position_y - (local_flip_y.value ? height.value : 0)
+  local_position_x.value = properties.position_x - (local_flip_x.value ? width.value : 0)
+  local_position_y.value = properties.position_y - (local_flip_y.value ? height.value : 0)
 
-  if (node) {
-    node.value.style.zIndex = `${props.layer}`
-    node.value.style.left = `${local_position_x}px`
-    node.value.style.top = `${local_position_y}px`
+  if (node.value) {
+    node.value.style.zIndex = `${properties.layer}`
+    node.value.style.left = `${local_position_x.value}px`
+    node.value.style.top = `${local_position_y.value}px`
   }
 }
 
@@ -233,7 +235,7 @@ async function promote (index) {
   active.value = -1
   promoted.value = -1
 
-  const item = props.items[index]
+  const item = properties.items[index]
 
   if (item.load) {
     item.items = await item.load()
@@ -248,7 +250,7 @@ async function execute (action) {
   }
 
   emit('close')
-  await action(props.target)
+  await action(properties.target)
 }
 
 defineExpose({

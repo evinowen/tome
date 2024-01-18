@@ -10,7 +10,7 @@ describe('components/SeaGame', () => {
     .context(() => ({
       global: {
         plugins: [ vuetify ],
-      }
+      },
     }))
 
   beforeEach(() => {
@@ -43,7 +43,7 @@ describe('components/SeaGame', () => {
     const wrapper = factory.wrap()
     expect(wrapper.vm.cannon.ball.sunk).toBe(true)
 
-    const sea = wrapper.find({ref: 'sea'})
+    const sea = wrapper.find({ ref: 'sea' })
     expect(sea.exists()).toBe(true)
 
     const event = {
@@ -62,7 +62,7 @@ describe('components/SeaGame', () => {
     const wrapper = factory.wrap()
     expect(wrapper.vm.cannon.ball.sunk).toBe(true)
 
-    const sea = wrapper.find({ref: 'sea'})
+    const sea = wrapper.find({ ref: 'sea' })
     expect(sea.exists()).toBe(true)
 
     const event = {

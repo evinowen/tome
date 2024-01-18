@@ -23,11 +23,11 @@ const mock = {
       }
     }
 
-    for (const [key, value] of Object.entries(data)) {
+    for (const [ key, value ] of Object.entries(data)) {
       target[key] = value
     }
   },
-  action: async (context, data) => context.commit('mock', data)
+  action: async (context, data) => context.commit('mock', data),
 }
 
 export default {
@@ -35,5 +35,5 @@ export default {
   state: cloneDeep(template),
   mutations: { mock: mock.mutation },
   // eslint-disable-next-line unicorn/no-array-reduce
-  actions: Object.keys(search.actions).reduce((object, target) => Object.assign(object, { [target]: vi.fn() }), { mock: mock.action })
+  actions: Object.keys(search.actions).reduce((object, target) => Object.assign(object, { [target]: vi.fn() }), { mock: mock.action }),
 }

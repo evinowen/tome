@@ -18,7 +18,7 @@
           <patch />
         </template>
 
-        <editor-interface v-show="repository.path"/>
+        <editor-interface v-show="repository.path" />
         <empty-pane v-show="!repository.path" />
 
         <context-menu-service />
@@ -66,7 +66,7 @@ export default {
     SystemBar,
     VApp,
     VMain,
-  }
+  },
 }
 </script>
 
@@ -80,14 +80,14 @@ const repository = computed(() => store.state.repository)
 
 const system = computed(() => store.state.system)
 
-const theme = computed(() => store.state.configuration.dark_mode ? "dark" : "light")
+const theme = computed(() => store.state.configuration.dark_mode ? 'dark' : 'light')
 
 const scroll = (event) => {
   event.target.scrollTop = 0
 }
 
 defineExpose({
-  scroll
+  scroll,
 })
 </script>
 

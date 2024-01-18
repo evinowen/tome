@@ -27,14 +27,14 @@ describe('store/modules/system', () => {
           namespaced: true,
           actions: {
             read: vi.fn(),
-          }
+          },
         },
         files: {
           namespaced: true,
           actions: {
             debounce_flush: vi.fn(),
             reselect: vi.fn(),
-          }
+          },
         },
         repository: {
           namespaced: true,
@@ -48,11 +48,11 @@ describe('store/modules/system', () => {
               namespaced: true,
               actions: {
                 message: vi.fn(),
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      },
     }))
   })
 
@@ -112,7 +112,7 @@ describe('store/modules/system', () => {
     'push',
     'push_confirm',
     'search',
-    'settings'
+    'settings',
   ]
 
   for (const flag of flags) {

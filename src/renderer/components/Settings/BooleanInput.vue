@@ -14,30 +14,30 @@ import {
 export default {
   components: {
     VSwitch,
-  }
+  },
 }
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-export interface Props {
-  label: string,
-  index: string,
+export interface Properties {
+  label: string
+  index: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   label: '',
   index: '',
 })
 
-const value = computed<boolean>(() => store.state.configuration[props.index])
+const value = computed<boolean>(() => store.state.configuration[properties.index])
 
 async function update (value: boolean) {
-  await store.dispatch('configuration/update', { [props.index]: value })
+  await store.dispatch('configuration/update', { [properties.index]: value })
 }
 
 defineExpose({

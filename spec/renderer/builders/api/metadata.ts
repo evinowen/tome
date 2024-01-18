@@ -9,9 +9,9 @@ export default {
         chrome: '0.0.0',
         electron: '0.0.0',
         node: '0.0.0',
-        v8: '0.0.0'
+        v8: '0.0.0',
       },
-      sandboxed: false
-    }))
-  }
+      sandboxed: false,
+    })),
+  },
 }

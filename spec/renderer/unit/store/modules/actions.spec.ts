@@ -23,7 +23,7 @@ describe('store/modules/actions', () => {
   const message = vi.fn()
   const error = vi.fn()
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
   beforeEach(() => {
@@ -41,7 +41,7 @@ describe('store/modules/actions', () => {
         selected: undefined,
         editing: false,
         post: undefined,
-        watcher: undefined
+        watcher: undefined,
       },
       actions: {
         create: vi.fn(),
@@ -50,16 +50,16 @@ describe('store/modules/actions', () => {
           post = criteria.post
         }),
         select: vi.fn(),
-        save: vi.fn()
-      }
+        save: vi.fn(),
+      },
     }
 
     store = new Vuex.Store<State>(cloneDeep({
       actions: { message, error },
       modules: {
         actions,
-        files
-      }
+        files,
+      },
     }))
   })
 

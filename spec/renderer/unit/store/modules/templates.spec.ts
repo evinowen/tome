@@ -20,7 +20,7 @@ describe('store/modules/templates', () => {
   let files
   let post
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
   const message = vi.fn()
@@ -42,7 +42,7 @@ describe('store/modules/templates', () => {
         selected: undefined,
         editing: false,
         post: undefined,
-        watcher: undefined
+        watcher: undefined,
       },
       actions: {
         create: vi.fn(),
@@ -52,16 +52,16 @@ describe('store/modules/templates', () => {
         }),
         load: vi.fn(),
         select: vi.fn(),
-        save: vi.fn()
-      }
+        save: vi.fn(),
+      },
     }
 
     store = new Vuex.Store<State>(cloneDeep({
       actions: { message, error },
       modules: {
         files,
-        templates
-      }
+        templates,
+      },
     }))
   })
 

@@ -9,7 +9,10 @@
     :scroll="false"
     @close="close"
   >
-    <div class="mb-3" style="height: 100%; display: flex">
+    <div
+      class="mb-3"
+      style="height: 100%; display: flex"
+    >
       <v-data-table
         style="flex-grow: 1;"
         density="compact"
@@ -79,7 +82,7 @@ export default {
     VBtn,
     VDataTable,
     VIcon,
-  }
+  },
 }
 </script>
 
@@ -94,7 +97,7 @@ const headers = [
   { title: '', value: 'icon', width: '30px' },
   { title: '', value: 'oid', width: '60px' },
   { title: '', value: 'date', width: '120px' },
-  { title: 'message', value: 'message', width: '' }
+  { title: 'message', value: 'message', width: '' },
 ]
 
 const system = computed(() => store.state.system)

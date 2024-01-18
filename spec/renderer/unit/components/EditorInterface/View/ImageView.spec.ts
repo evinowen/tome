@@ -17,8 +17,8 @@ describe('components/EditorInterface/View/ImageView', async () => {
         plugins: [ vuetify ],
         stubs: {
           FileIcon: BasicComponent,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -75,10 +75,10 @@ describe('components/EditorInterface/View/ImageView', async () => {
     const wrapper = factory.wrap()
     expect(wrapper.vm.zoom).toBe(false)
 
-    const preview = wrapper.find({ref: 'preview'}) as DOMWrapper<HTMLElement>
+    const preview = wrapper.find({ ref: 'preview' }) as DOMWrapper<HTMLElement>
     const spy = vi.spyOn(preview.element, 'scrollTo')
 
-    const image = wrapper.find({ref: 'image'})
+    const image = wrapper.find({ ref: 'image' })
     expect(image.exists()).toBe(true)
 
     const event = {

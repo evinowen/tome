@@ -20,11 +20,11 @@ describe('components/Branch', () => {
     .context(() => ({
       vuetify,
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
-          VDataTable
-        }
-      }
+          VDataTable,
+        },
+      },
     }))
 
   beforeEach(() => {

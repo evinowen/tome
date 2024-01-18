@@ -20,14 +20,14 @@ describe('components/Settings/ThemeColorPicker', () => {
   const factory = assemble(ThemeColorPicker, { theme, color })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           VCard: BasicComponent,
           VCardTitle: BasicComponent,
           VColorPicker: BasicComponent,
           VSwitch: BooleanComponent,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -57,7 +57,7 @@ describe('components/Settings/ThemeColorPicker', () => {
   it('should dispatch configuration/update with new enabled value when enabled switch emits model update', async () => {
     const wrapper = factory.wrap()
 
-    const enabled_switch = wrapper.findComponent({ref: 'enabled'})
+    const enabled_switch = wrapper.findComponent({ ref: 'enabled' })
     expect(enabled_switch.exists()).toBe(true)
 
     const enabled = false
@@ -70,7 +70,7 @@ describe('components/Settings/ThemeColorPicker', () => {
   it('should dispatch configuration/update with new color value when color picker emits model update', async () => {
     const wrapper = factory.wrap()
 
-    const color_picker = wrapper.findComponent({ref: 'color'})
+    const color_picker = wrapper.findComponent({ ref: 'color' })
     expect(color_picker.exists()).toBe(true)
 
     const color = '#000000'

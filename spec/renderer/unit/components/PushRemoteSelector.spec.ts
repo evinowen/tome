@@ -24,8 +24,8 @@ describe('components/PushRemoteSelector', () => {
           VRow: BasicComponentStub,
           VTextField,
           VSelect,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -70,7 +70,7 @@ describe('components/PushRemoteSelector', () => {
     const wrapper = factory.wrap()
     const edit = wrapper.vm.edit
 
-    const edit_button = wrapper.findComponent({ref: 'edit-button'})
+    const edit_button = wrapper.findComponent({ ref: 'edit-button' })
     expect(edit_button.exists()).toBe(true)
 
     edit_button.trigger('click')
@@ -89,7 +89,7 @@ describe('components/PushRemoteSelector', () => {
     wrapper.vm.edit = true
     wrapper.vm.form.name = 'initial name'
 
-    const form_name_input = wrapper.findComponent({ref: 'form-name'})
+    const form_name_input = wrapper.findComponent({ ref: 'form-name' })
     expect(form_name_input.exists()).toBe(true)
 
     const value = 'updated name'
@@ -104,7 +104,7 @@ describe('components/PushRemoteSelector', () => {
     wrapper.vm.edit = true
     wrapper.vm.form.url = 'initial url'
 
-    const form_url_input = wrapper.findComponent({ref: 'form-url'})
+    const form_url_input = wrapper.findComponent({ ref: 'form-url' })
     expect(form_url_input.exists()).toBe(true)
 
     const value = 'updated url'

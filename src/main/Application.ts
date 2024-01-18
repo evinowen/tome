@@ -24,7 +24,8 @@ class Application {
   window: BrowserWindow
   emitter: EventEmitter
 
-  constructor() {
+  constructor () {
+    // eslint-disable-next-line unicorn/prefer-event-target
     this.emitter = (new EventEmitter({ captureRejections: true }))
       .on(Events.CREATE_APPLICATION, async () => {
         log.info('Application Present')
@@ -67,7 +68,6 @@ class Application {
           this.emitter.emit(Events.EXIT_APPLICATION)
         }
       })
-
     } catch (error) {
       this.emitter.emit(Events.ERROR, error)
     }
@@ -94,8 +94,8 @@ class Application {
       show: false,
       webPreferences: {
         webSecurity: !development,
-        preload: path.join(__dirname, 'preload.js')
-      }
+        preload: path.join(__dirname, 'preload.js'),
+      },
     })
 
     log.info('Window build complete', this.window)

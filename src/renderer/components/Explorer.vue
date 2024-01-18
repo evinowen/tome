@@ -1,5 +1,8 @@
 <template>
-  <div class="root" v-if="root.path !== ''">
+  <div
+    v-if="root.path !== ''"
+    class="root"
+  >
     <explorer-node
       ref="explorer_root"
       root
@@ -34,7 +37,7 @@ import ExplorerNode from './ExplorerNode.vue'
 export default {
   components: {
     ExplorerNode,
-  }
+  },
 }
 </script>
 
@@ -46,14 +49,14 @@ import { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
 const store = fetchStore()
 
-const explorer_root = ref<typeof ExplorerNode>(null)
-const hold = ref<{ path: string }>(null)
+const explorer_root = ref<typeof ExplorerNode>(undefined)
+const hold = ref<{ path: string }>(undefined)
 
-export interface Props {
-  enabled: boolean,
+export interface Properties {
+  enabled: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   enabled: false,
 })
 
@@ -96,7 +99,7 @@ function format (name, directory = false) {
     words.pop()
   }
 
-  return words.map(item => `${String(item).slice(0, 1).toUpperCase()}${item.slice(1)}`).join(' ').trim()
+  return words.map((item) => `${String(item).slice(0, 1).toUpperCase()}${item.slice(1)}`).join(' ').trim()
 }
 
 async function toggle (state) {
@@ -147,12 +150,20 @@ async function delete_event (state) {
   await store.dispatch('files/delete', { path: target })
 }
 
-async function submit (state) { await store.dispatch('files/submit', state) }
-async function blur () { await store.dispatch('files/blur') }
-async function template (state) { await store.dispatch('templates/execute', state) }
-async function action (state) { await store.dispatch('actions/execute', state) }
+async function submit (state) {
+  await store.dispatch('files/submit', state)
+}
+async function blur () {
+  await store.dispatch('files/blur')
+}
+async function template (state) {
+  await store.dispatch('templates/execute', state)
+}
+async function action (state) {
+  await store.dispatch('actions/execute', state)
+}
 
-async function drag(state) {
+async function drag (state) {
   hold.value = state
 }
 

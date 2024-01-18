@@ -22,5 +22,5 @@ export default component('path')(
     handle('relative', (base, query) => path.relative(base, query))
 
     handle('sep', () => path.sep)
-  }
+  },
 )

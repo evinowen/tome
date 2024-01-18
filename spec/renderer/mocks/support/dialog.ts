@@ -1,13 +1,13 @@
 const baseline = {
   canceled: false,
   filePaths: [
-    '/project'
-  ]
+    '/project',
+  ],
 }
 
 const result = {
   canceled: false,
-  filePaths: []
+  filePaths: [],
 }
 
 Object.assign(result, baseline)
@@ -22,5 +22,5 @@ export default {
   },
   trip_empty_dialog: () => {
     result.filePaths.length = 0
-  }
+  },
 }

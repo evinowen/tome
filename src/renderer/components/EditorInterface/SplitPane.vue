@@ -33,7 +33,7 @@ export default {}
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const resized = ref<HTMLElement>(null)
+const resized = ref<HTMLElement>(undefined)
 
 const resizing = ref(false)
 const origin = ref(0)

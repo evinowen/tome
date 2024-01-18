@@ -7,7 +7,7 @@ import FileEdit from '@/components/EditorInterface/FileEdit.vue'
 
 describe('components/EditorInterface/FileEdit', () => {
   let vuetify
-  let file = File.Empty
+  const file = File.Empty
 
   const factory = assemble(FileEdit, { file })
     .context(() => ({
@@ -17,8 +17,8 @@ describe('components/EditorInterface/FileEdit', () => {
           DirectoryView: BasicComponentStub,
           ImageView: BasicComponentStub,
           TextEdit: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {

@@ -3,10 +3,10 @@ import { vi } from 'vitest'
 const repository = (path) => ({
   path,
   history: [],
-  remotes: [{
+  remotes: [ {
     name: 'origin',
-    url: 'git@git.example.com:remote.git'
-  }]
+    url: 'git@git.example.com:remote.git',
+  } ],
 })
 
 export default {
@@ -24,6 +24,6 @@ export default {
     diff_path: vi.fn(),
     diff_commit: vi.fn(),
     commit: vi.fn(),
-    push: vi.fn()
-  }
+    push: vi.fn(),
+  },
 }

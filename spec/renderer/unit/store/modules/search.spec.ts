@@ -17,7 +17,7 @@ interface State {
 describe('store/modules/search', () => {
   let store
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
   beforeEach(() => {

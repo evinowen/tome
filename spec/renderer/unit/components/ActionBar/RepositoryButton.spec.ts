@@ -13,25 +13,25 @@ describe('components/RepositoryButton', () => {
   let store
   let store_dispatch
 
-  const props = {
+  const properties = {
     authors: 'AUTHORS.md',
     contributors: 'CONTRIBUTORS.md',
     license: 'LICENSE.md',
     readme: 'README.md',
   }
 
-  const factory = assemble(RepositoryButton, props)
+  const factory = assemble(RepositoryButton, properties)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           VBtn: BasicComponentStub,
           VCard: BasicComponentStub,
           VCardTitle: BasicComponentStub,
           VCardSubtitle: BasicComponentStub,
           VMenu,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -75,13 +75,13 @@ describe('components/RepositoryButton', () => {
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
 
-    const authors_button = wrapper.findComponent({ref: 'authors_button'})
+    const authors_button = wrapper.findComponent({ ref: 'authors_button' })
     expect(authors_button.exists()).toBe(true)
 
     authors_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: props.authors })
+    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: properties.authors })
   })
 
   it('should dispatch "files/select" action for contributors file when contributors button emits "click" event', async () => {
@@ -89,13 +89,13 @@ describe('components/RepositoryButton', () => {
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
 
-    const contributors_button = wrapper.findComponent({ref: 'contributors_button'})
+    const contributors_button = wrapper.findComponent({ ref: 'contributors_button' })
     expect(contributors_button.exists()).toBe(true)
 
     contributors_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: props.contributors })
+    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: properties.contributors })
   })
 
   it('should dispatch "files/select" action for license file when license button emits "click" event', async () => {
@@ -103,13 +103,13 @@ describe('components/RepositoryButton', () => {
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
 
-    const license_button = wrapper.findComponent({ref: 'license_button'})
+    const license_button = wrapper.findComponent({ ref: 'license_button' })
     expect(license_button.exists()).toBe(true)
 
     license_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: props.license })
+    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: properties.license })
   })
 
   it('should dispatch "files/select" action for readme file when readme button emits "click" event', async () => {
@@ -117,12 +117,12 @@ describe('components/RepositoryButton', () => {
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
 
-    const readme_button = wrapper.findComponent({ref: 'readme_button'})
+    const readme_button = wrapper.findComponent({ ref: 'readme_button' })
     expect(readme_button.exists()).toBe(true)
 
     readme_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: props.readme })
+    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: properties.readme })
   })
 })

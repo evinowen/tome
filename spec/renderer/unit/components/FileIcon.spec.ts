@@ -10,7 +10,7 @@ describe('components/FileIcon', () => {
     .context(() => ({
       global: {
         plugins: [ vuetify ],
-      }
+      },
     }))
 
   beforeEach(() => {
@@ -30,7 +30,7 @@ describe('components/FileIcon', () => {
   it('should emit "click" event when button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
-    const button = wrapper.findComponent({ref: 'button'})
+    const button = wrapper.findComponent({ ref: 'button' })
     expect(button.exists()).toBe(true)
 
     button.trigger('click')

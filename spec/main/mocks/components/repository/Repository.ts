@@ -12,7 +12,7 @@ const mock = jest.fn().mockImplementation((path) => ({
   remotes: [],
   remote: undefined,
   remote_branch: { name: '', short: '' },
-  pending:  [],
+  pending: [],
   available: [],
   staged: [],
   patches: [],

@@ -116,7 +116,7 @@ export default {
     RepositoryButton,
     VExpandXTransition,
     VFooter,
-  }
+  },
 }
 </script>
 
@@ -133,7 +133,7 @@ const system = computed(() => store.state.system)
 const status = computed(() => store.state.status)
 const message = computed(() => store.state.message)
 
-function disabled_unless (enabled: boolean = false) {
+function disabled_unless (enabled = false) {
   if (enabled) {
     return system.value.settings
   }

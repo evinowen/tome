@@ -13,7 +13,7 @@ describe('main', () => {
   it('should create and execute the Application', async () => {
     expect(mocked_Application).not.toHaveBeenCalled()
 
-    let promise = await import('@/main')
+    const promise = await import('@/main')
     await promise
 
     expect(mocked_Application).toHaveBeenCalledTimes(1)

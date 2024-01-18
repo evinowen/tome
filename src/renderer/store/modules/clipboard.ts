@@ -22,7 +22,7 @@ export default {
   mutations: <MutationTree<State>>{
     set: function (state, data) {
       const { action, content } = data
-1
+      1
       state.action = action
       state.content = content
     },
@@ -32,7 +32,7 @@ export default {
     error: function (state, data) {
       const { message } = data
       state.error = message
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     clear: function (context) {
@@ -46,13 +46,13 @@ export default {
     cut: async function (context, content) {
       context.commit('set', {
         action: 'cut',
-        content
+        content,
       })
     },
     copy: async function (context, content) {
       context.commit('set', {
         action: 'copy',
-        content
+        content,
       })
     },
     paste: async function (context, content) {
@@ -64,6 +64,6 @@ export default {
       const source = context.state.content.target
 
       await api.clipboard.paste(context.state.action || '', source, content.target)
-    }
-  }
+    },
+  },
 }

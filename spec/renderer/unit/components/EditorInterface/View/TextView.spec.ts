@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-function-scoping */
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { stub_actions } from '?/builders/store'
@@ -18,18 +19,18 @@ vi.mock('mark.js', () => {
 })
 
 vi.mock('marked', () => ({
-  marked: { parse: vi.fn() }
+  marked: { parse: vi.fn() },
 }))
 
 describe('components/EditorInterface/View/TextView', () => {
-  let file = File.Empty
+  const file = File.Empty
   let store
 
   const factory = assemble(TextView, { file })
-  .context(() => ({
+    .context(() => ({
       global: {
-        plugins: [ [store, key] ],
-      }
+        plugins: [ [ store, key ] ],
+      },
     }))
 
   beforeEach(() => {

@@ -45,28 +45,24 @@
 
 <script lang="ts">
 import {
-  VCol,
   VIcon,
-  VLayout,
 } from 'vuetify/components'
 
 export default {
   components: {
-    VCol,
     VIcon,
-    VLayout,
-  }
+  },
 }
 </script>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, reactive } from 'vue'
 
-const boat = ref<HTMLElement>(null)
-const cannon_ball = ref<HTMLElement>(null)
-const cannon_splash = ref<HTMLElement>(null)
-const distance = ref<HTMLElement>(null)
-const sea = ref<HTMLElement>(null)
+const boat = ref<HTMLElement>(undefined)
+const cannon_ball = ref<HTMLElement>(undefined)
+const cannon_splash = ref<HTMLElement>(undefined)
+const distance = ref<HTMLElement>(undefined)
+const sea = ref<HTMLElement>(undefined)
 
 const ticker = ref<number>(0)
 const cannon = reactive({
@@ -95,7 +91,7 @@ const cannon = reactive({
     timeout: ref(0),
     x: ref(0),
     y: ref(0),
-  }
+  },
 })
 
 onMounted(() => {
@@ -117,7 +113,7 @@ function click (event) {
   const point_x = event.clientX - sea_rect.left
   const point_y = event.clientY - sea_rect.top
 
-  const length = Math.sqrt(point_x * point_x + point_y * point_y)
+  const length = Math.hypot(point_x * point_x + point_y * point_y)
 
   const velocity = 5
 

@@ -2,18 +2,17 @@ import { ActionContext } from 'vuex'
 import api from '@/api'
 import factory, {
   State as FactoryState,
-  StateDefaults as FactoryStateDefaults,
   FeatureExecuteInput,
 } from '../factories/feature'
 
 export type State = FactoryState
-export const StateDefaults = FactoryStateDefaults
+export { StateDefaults } from '../factories/feature'
 
 export const TemplateBaseConfiguration = {
   directory: false,
   map: {
-    'index.md': 'index.md'
-  }
+    'index.md': 'index.md',
+  },
 }
 
 export const TemplateBaseIndex = '# New Template\n'

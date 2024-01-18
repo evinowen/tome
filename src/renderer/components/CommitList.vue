@@ -56,8 +56,6 @@
 <script lang="ts">
 import {
   VBtn,
-  VCard,
-  VCardTitle,
   VDataTable,
   VIcon,
 } from 'vuetify/components'
@@ -66,18 +64,16 @@ import { Resize } from 'vuetify/directives'
 export default {
   components: {
     VBtn,
-    VCard,
-    VCardTitle,
     VDataTable,
     VIcon,
   },
   directives: {
-    Resize
+    Resize,
   },
   emits: [
     'click',
     'input',
-  ]
+  ],
 }
 
 export class RepositoryFile {
@@ -86,20 +82,20 @@ export class RepositoryFile {
     MODIFIED: 2,
     RENAMED: 3,
     DELETED: 4,
-    UNKNOWN: 0
+    UNKNOWN: 0,
   }
 }
 </script>
 
 <script setup lang="ts">
-export interface Props {
-  title?: string,
-  items?: any[],
-  icon?: string,
-  height?: number,
+export interface Properties {
+  title?: string
+  items?: any[]
+  icon?: string
+  height?: number
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   title: 'List',
   items: () => [],
   icon: '',
@@ -109,7 +105,7 @@ withDefaults(defineProps<Props>(), {
 const headers = [
   { title: 'File', value: 'path', width: 'auto' },
   { title: 'Type', value: 'type', width: '78px' },
-  { title: '', value: 'action', width: '23px', sortable: false }
+  { title: '', value: 'action', width: '23px', sortable: false },
 ]
 
 function file_type (type) {

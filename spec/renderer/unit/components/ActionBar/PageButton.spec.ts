@@ -14,8 +14,8 @@ describe('components/ActionBar/PageButton', () => {
         stubs: {
           VBtn: BasicComponentStub,
           VIcon: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {

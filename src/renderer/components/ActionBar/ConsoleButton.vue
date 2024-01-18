@@ -24,7 +24,7 @@ export default {
   components: {
     VBtn,
     VIcon,
-  }
+  },
 }
 </script>
 
@@ -34,12 +34,12 @@ import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-export interface Props {
-  status?: string,
-  message?: string,
+export interface Properties {
+  status?: string
+  message?: string
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   status: '',
   message: '',
 })

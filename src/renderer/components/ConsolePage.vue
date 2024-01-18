@@ -37,17 +37,17 @@ export default {
   },
   emits: [
     'close',
-  ]
+  ],
 }
 </script>
 
 <script setup lang="ts">
-export interface Props {
-  open: boolean,
-  layer: number,
+export interface Properties {
+  open: boolean
+  layer?: number
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   open: false,
   layer: 0,
 })

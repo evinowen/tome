@@ -142,7 +142,7 @@ export default {
     VLayout,
     VTextField,
     VToolbar,
-  }
+  },
 }
 </script>
 
@@ -182,7 +182,7 @@ const case_sensitive = computed(() => {
 })
 
 const state = computed(() => {
-  return [multifile.value, regex_query.value, case_sensitive.value]
+  return [ multifile.value, regex_query.value, case_sensitive.value ]
 })
 
 watch(state, () => {

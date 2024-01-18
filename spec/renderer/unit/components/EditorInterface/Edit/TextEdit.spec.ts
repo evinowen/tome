@@ -25,12 +25,12 @@ vi.mock('@codemirror/language', () => ({
 
 vi.mock('@codemirror/state', () => {
   const Compartment = class {
-    of = () => {}
-    reconfigure = () => {}
+    of = vi.fn()
+    reconfigure = vi.fn()
   }
 
   const EditorSelection = class {
-    range = () => {}
+    range = vi.fn()
   }
 
   return {
@@ -44,11 +44,11 @@ vi.mock('@codemirror/state', () => {
 
 vi.mock('@codemirror/search', () => {
   const SearchCursor = class {
-    next = () => ({ done: true})
+    next = () => ({ done: true })
   }
 
   const RegExpCursor = class {
-    next = () => ({ done: true})
+    next = () => ({ done: true })
   }
 
   return {
@@ -59,28 +59,30 @@ vi.mock('@codemirror/search', () => {
 
 vi.mock('@codemirror/view', () => {
   const Decoration = class {
-    static mark = () => new Decoration
+    static mark = () => new Decoration()
     static none = {}
   }
 
   const EditorView = class {
-    static baseTheme = () => ({} as Extension)
-    static scrollIntoView = () => {}
-    dispatch = () => {}
+    static baseTheme = vi.fn(() => ({} as Extension))
+    static scrollIntoView = vi.fn()
+    dispatch = vi.fn()
     state = {
-      doc: 'document content'
+      doc: 'document content',
     }
   }
 
   const ViewPlugin = class {
-    static define = (fn: Function) => { fn() }
+    static define = (define: () => void) => {
+      define()
+    }
   }
 
   return {
     Decoration,
     EditorView,
     keymap: {
-      of: vi.fn()
+      of: vi.fn(),
     },
     lineNumbers: vi.fn(),
     ViewPlugin,
@@ -111,21 +113,21 @@ vi.mock('mark.js', () => {
 })
 
 vi.mock('marked', () => ({
-  marked: { parse: vi.fn() }
+  marked: { parse: vi.fn() },
 }))
 
 describe('components/EditorInterface/Edit/TextEdit', () => {
-  let file = File.Empty
+  const file = File.Empty
   file.path = './document.md'
 
   let store
   let store_dispatch
 
   const factory = assemble(TextEdit, { file })
-  .context(() => ({
+    .context(() => ({
       global: {
-        plugins: [ [store, key] ],
-      }
+        plugins: [ [ store, key ] ],
+      },
     }))
 
   beforeEach(() => {

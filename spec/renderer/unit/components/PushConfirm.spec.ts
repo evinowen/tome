@@ -24,8 +24,8 @@ describe('components/PushConfirm', () => {
           VProgressCircular: BasicComponentStub,
           VTextarea: BasicComponentStub,
           VDataTable,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe('components/PushConfirm', () => {
   it('should emit "push" event when push button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
-    const push_button = wrapper.findComponent({ref: 'push_confirm'})
+    const push_button = wrapper.findComponent({ ref: 'push_confirm' })
     expect(push_button.exists()).toBe(true)
 
     push_button.trigger('click')
@@ -56,7 +56,7 @@ describe('components/PushConfirm', () => {
   it('should emit "input" event when return button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
-    const return_button = wrapper.findComponent({ref: 'return'})
+    const return_button = wrapper.findComponent({ ref: 'return' })
     expect(return_button.exists()).toBe(true)
 
     return_button.trigger('click')

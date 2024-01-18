@@ -24,16 +24,16 @@ export default {
   },
   emits: [
     'click',
-  ]
+  ],
 }
 </script>
 
 <script setup lang="ts">
-export interface Props {
-  value: boolean,
+export interface Properties {
+  value?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   value: false,
 })
 </script>

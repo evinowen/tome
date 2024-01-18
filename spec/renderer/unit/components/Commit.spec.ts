@@ -23,7 +23,7 @@ describe('components/Commit', () => {
     .context(() => ({
       vuetify,
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           CommitList: true,
           CommitConfirm: true,
@@ -36,8 +36,8 @@ describe('components/Commit', () => {
           VRow: BasicComponentStub,
           VTextarea: BasicComponentStub,
           VTextField: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -150,7 +150,7 @@ describe('components/Commit', () => {
     const wrapper = factory.wrap()
 
     const file = {
-      path: './file.md'
+      path: './file.md',
     }
 
     await wrapper.vm.diff(file)

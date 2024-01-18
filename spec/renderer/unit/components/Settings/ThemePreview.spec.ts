@@ -17,8 +17,8 @@ describe('components/Settings/ThemePreview', () => {
           VCardText: BasicComponent,
           VListItem: BasicComponent,
           VSwitch: BooleanComponent,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -39,7 +39,7 @@ describe('components/Settings/ThemePreview', () => {
 
     const error = wrapper.vm.error
 
-    const error_switch = wrapper.findComponent({ref: 'error-switch'})
+    const error_switch = wrapper.findComponent({ ref: 'error-switch' })
     expect(error_switch.exists()).toBe(true)
 
     error_switch.vm.$emit('update:model-value', !error)

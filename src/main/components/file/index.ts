@@ -7,42 +7,41 @@ import * as chokidar from 'chokidar'
 import { promise_with_reject, promise_access } from '../../promise'
 import * as mime from 'mime-types'
 
-const search:{
-  target: string|undefined,
-  targets: string[],
-  length: number,
+const search: {
+  target: string | undefined
+  targets: string[]
+  length: number
   criteria: {
-    query: string,
-    regex_query: boolean,
-    case_sensitive: boolean,
-  }|undefined,
+    query: string
+    regex_query: boolean
+    case_sensitive: boolean
+  } | undefined
   files: string[]
 } = {
   target: undefined,
   targets: [],
   length: 0,
   criteria: undefined,
-  files: []
+  files: [],
 }
 
 const excluded_filenames = new Set([
   '.git',
-  '.tome'
+  '.tome',
 ])
 
-let watcher:chokidar.FSWatcher|undefined
+let watcher: chokidar.FSWatcher | undefined
 
 export default component('file')(
   ({ handle, on }, win) => {
     on('events', (channel, target) => {
       const options = {
         cwd: target,
-        ignored: ['.git'],
-        ignoreInitial: true
+        ignored: [ '.git' ],
+        ignoreInitial: true,
       }
 
       watcher = chokidar.watch(target, options).on('all', (event, path) => {
-        console.log('chokidar all event to win.webContents', win)
         win.webContents.send(channel, { event, path })
       })
     })
@@ -71,14 +70,14 @@ export default component('file')(
     handle('list-directory', async (target) => {
       const results = await promise_with_reject<fs.Dirent[]>(fs.readdir)(target, { withFileTypes: true })
 
-      const files:{ name: string, mime: string, directory: boolean }[] = []
+      const files: { name: string, mime: string, directory: boolean }[] = []
       for (const result of results) {
         const mime_type = mime.lookup(path.join(target, result.name)) || 'text/plain'
 
         files.push({
           name: result.name,
           mime: mime_type,
-          directory: result.isDirectory()
+          directory: result.isDirectory(),
         })
       }
 
@@ -140,9 +139,9 @@ export default component('file')(
     })
 
     handle('select-directory', () => {
-      const options:Electron.OpenDialogOptions = {
+      const options: Electron.OpenDialogOptions = {
         title: 'Select Tome Directory',
-        properties: ['openDirectory']
+        properties: [ 'openDirectory' ],
       }
 
       return dialog.showOpenDialog(win, options)
@@ -166,7 +165,7 @@ export default component('file')(
       search.target = target
       search.criteria = criteria
       search.length = 0
-      search.targets = [target]
+      search.targets = [ target ]
     })
 
     handle('search-next', async () => {
@@ -175,7 +174,7 @@ export default component('file')(
       }
 
       const target = search.targets.shift()
-      const matches:{ index: number, line: string|undefined }[] = []
+      const matches: { index: number, line: string | undefined }[] = []
 
       const stats = await promise_with_reject<fs.Dirent>(fs.lstat)(target)
 
@@ -264,11 +263,11 @@ export default component('file')(
         path: {
           absolute: target,
           relative: path_relative,
-          matched: path_matched
+          matched: path_matched,
         },
         directory,
-        matches
+        matches,
       }
     })
-  }
+  },
 )

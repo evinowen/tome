@@ -17,7 +17,7 @@ interface State {
 describe('store/modules/configuration', () => {
   let store
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
   disk.set_content_default(JSON.stringify({
@@ -26,7 +26,7 @@ describe('store/modules/configuration', () => {
     private_key: 'id_rsa',
     passphrase: 'password',
     format_titles: false,
-    dark_mode: true
+    dark_mode: true,
   }))
 
   beforeEach(() => {
@@ -34,8 +34,8 @@ describe('store/modules/configuration', () => {
 
     store = new Vuex.Store<State>(store_scafold({
       modules: {
-        configuration
-      }
+        configuration,
+      },
     }))
   })
 
@@ -82,7 +82,7 @@ describe('store/modules/configuration', () => {
   it('should set values from object when update is dispatched', async () => {
     const update = {
       name: 'New Name',
-      passphrase: 'q1h7$u*3~y:}l$:akiKUa&z%:VhDP|'
+      passphrase: 'q1h7$u*3~y:}l$:akiKUa&z%:VhDP|',
     }
 
     await store.dispatch('configuration/update', update)
@@ -120,7 +120,7 @@ describe('store/modules/configuration', () => {
       'dark_error',
       'dark_info',
       'dark_warning',
-      'dark_success'
+      'dark_success',
     ]
 
     for (const key of string_keys) {
@@ -151,7 +151,7 @@ describe('store/modules/configuration', () => {
       'dark_error_enabled',
       'dark_info_enabled',
       'dark_warning_enabled',
-      'dark_success_enabled'
+      'dark_success_enabled',
     ]
 
     for (const key of boolean_keys) {

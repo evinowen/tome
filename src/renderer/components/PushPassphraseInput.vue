@@ -37,8 +37,8 @@
       </v-icon>
     </v-btn>
     <v-btn
-      ref="load"
       v-if="storable"
+      ref="load"
       rounded="0"
       icon
       size="small"
@@ -69,31 +69,28 @@ export default {
     VIcon,
     VLayout,
     VTextField,
-  }
+  },
 }
 </script>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 
-export interface Props {
-  value?: string,
-  storable?: boolean,
-  stored?: string,
+export interface Properties {
+  value?: string
+  storable?: boolean
+  stored?: string
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   value: '',
   storable: false,
   stored: '',
 })
 
 const obscured = ref(true)
-const data = reactive({
-  obscured
-})
 
 defineExpose({
-  obscured
+  obscured,
 })
 </script>

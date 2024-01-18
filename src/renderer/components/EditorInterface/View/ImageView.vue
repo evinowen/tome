@@ -28,7 +28,7 @@ import { nextTick } from 'vue'
 export default {
   components: {
     FileIcon,
-  }
+  },
 }
 </script>
 
@@ -36,20 +36,20 @@ export default {
 import { ref, watch } from 'vue'
 import { File } from '@/store'
 
-export interface Props {
-  file?: File,
+export interface Properties {
+  file?: File
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   file: undefined,
 })
 
-const preview = ref<HTMLElement>(null)
+const preview = ref<HTMLElement>(undefined)
 
 const hide = ref(false)
 const zoom = ref(false)
 
-watch(() => props.file, () => {
+watch(() => properties.file, () => {
   hide.value = false
   zoom.value = false
 })

@@ -19,7 +19,7 @@ describe('components/window', () => {
       minimize: jest.fn(),
       maximize: jest.fn(),
       restore: jest.fn(),
-      close: jest.fn()
+      close: jest.fn(),
     }
 
     component = cloneDeep(_component)

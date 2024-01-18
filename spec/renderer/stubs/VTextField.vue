@@ -1,23 +1,24 @@
 <template>
   <div>
-    <slot name="append-outer" />
     <input
       type="text"
       :value="modelValue"
-    />
+    >
+    <slot name="append-outer" />
   </div>
 </template>
 
 <script setup lang="ts">
-export interface Props {
-  modelValue: string,
+export interface Properties {
+  modelValue: string
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   modelValue: '',
 })
 
-const emit = defineEmits([
-  'update:model-value'
+defineEmits([
+  'update:model-value',
+  'click:append',
 ])
 </script>

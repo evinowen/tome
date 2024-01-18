@@ -5,38 +5,35 @@ import metadata from '@/store/plugins/mediations/metadata'
 describe('store/plugins/mediations/metadata', () => {
   let store
   let object
-  let spy
 
   beforeEach(() => {
-    spy = 0
-
     const repository = {
       namespaced: true,
       mutations: {
-        metadata: vi.fn()
-      }
+        metadata: vi.fn(),
+      },
     }
 
     object = {
       state: {
-        files: {}
+        files: {},
       },
       mutations: {
         assign: function (state, data) {
           Object.assign(state.files, data)
-        }
+        },
       },
       actions: {
         assign: function (context, data) {
           context.commit('assign', data)
-        }
+        },
       },
       modules: {
-        repository
+        repository,
       },
       plugins: [
-        metadata
-      ]
+        metadata,
+      ],
     }
 
     store = new Vuex.Store(object)
@@ -56,9 +53,9 @@ describe('store/plugins/mediations/metadata', () => {
             { name: 'license.md', path: 'license.md' },
             { name: 'authors.md', path: 'authors.md' },
             { name: 'contributors.md', path: 'contributors.md' },
-          ]
-        }
-      }
+          ],
+        },
+      },
     })
 
     expect(object.modules.repository.mutations.metadata).toHaveBeenCalledTimes(4)

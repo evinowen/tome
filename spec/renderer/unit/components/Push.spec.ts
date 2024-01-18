@@ -19,13 +19,13 @@ describe('components/Push', () => {
   const factory = assemble(Push)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           StatusButton: BasicComponentStub,
           PushBranch: BasicComponentStub,
           PushConfirm: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -43,8 +43,8 @@ describe('components/Push', () => {
         system: {
           ...SystemStateDefaults(),
           push: true,
-          push_confirm: false
-        }
+          push_confirm: false,
+        },
       },
       actions: stub_actions([
         'repository/create-remote',

@@ -7,11 +7,11 @@
 </template>
 
 <script setup lang="ts">
-export interface Props {
-  error?: string,
+export interface Properties {
+  error?: string
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   error: '',
 })
 </script>

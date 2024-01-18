@@ -1,12 +1,9 @@
-import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
+import { describe, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import SplitPane from '@/components/EditorInterface/SplitPane.vue'
 
 describe('components/EditorInterface/SplitPane', () => {
   const factory = assemble(SplitPane)
-
-  beforeEach(() => {
-  })
 
   afterEach(() => {
     vi.clearAllMocks()

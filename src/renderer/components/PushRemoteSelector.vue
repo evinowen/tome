@@ -61,10 +61,10 @@
               <v-text-field
                 ref="form-name"
                 :model-value="form.name"
-                @update:model-value="form.name = $event"
                 label="Name"
                 required
                 density="compact"
+                @update:model-value="form.name = $event"
               />
             </v-col>
             <v-col
@@ -74,11 +74,11 @@
               <v-text-field
                 ref="form-url"
                 :model-value="form.url"
-                @update:model-value="form.url = $event"
                 label="URL"
                 required
                 density="compact"
                 append-icon="mdi-plus-thick"
+                @update:model-value="form.url = $event"
               >
                 <template #append-outer>
                   <v-btn
@@ -111,7 +111,6 @@ import {
   VListItem,
   VRow,
   VSelect,
-  VSpacer,
   VTextField,
 } from 'vuetify/components'
 import { RepositoryRemote } from '@/store/modules/repository'
@@ -128,23 +127,22 @@ export default {
     VListItem,
     VRow,
     VSelect,
-    VSpacer,
     VTextField,
-  }
+  },
 }
 </script>
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 
-export interface Props {
-  value?: string,
-  items?: RepositoryRemote[],
+export interface Properties {
+  value?: string
+  items?: RepositoryRemote[]
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   value: '',
-  items: () => []
+  items: () => [],
 })
 
 const emit = defineEmits([

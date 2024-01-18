@@ -155,30 +155,30 @@ export default {
     'input',
     'message',
     'push',
-  ]
+  ],
 }
 
 export const CommitConfirmMessages = {
   Staging: 'Commit details are being staged ... ',
-  Ready: 'Commit is prepared and ready to publish'
+  Ready: 'Commit is prepared and ready to publish',
 }
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
-export interface Props {
+export interface Properties {
   value?: boolean
-  name?: string,
-  email?: string,
-  message?: string,
-  disabled?: boolean,
-  staging?: boolean,
-  waiting?: boolean,
-  push?: boolean,
+  name?: string
+  email?: string
+  message?: string
+  disabled?: boolean
+  staging?: boolean
+  waiting?: boolean
+  push?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   value: false,
   name: '',
   email: '',
@@ -190,7 +190,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const status = computed(() => {
-  return props.staging
+  return properties.staging
     ? CommitConfirmMessages.Staging
     : CommitConfirmMessages.Ready
 })

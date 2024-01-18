@@ -12,22 +12,22 @@ vi.mock('resize-observer-polyfill', () => ({
     }
 
     observe = vi.fn()
-  }
+  },
 }))
 
 const item_none = {
   title: 'None',
-  action: undefined
+  action: undefined,
 }
 
 const item_load = {
   title: 'Load',
-  load: vi.fn()
+  load: vi.fn(),
 }
 
 const item_action = {
   title: 'Action',
-  action: vi.fn()
+  action: vi.fn(),
 }
 
 describe('components/ContextMenuNode', () => {
@@ -46,11 +46,11 @@ describe('components/ContextMenuNode', () => {
     target,
     items,
     position_x,
-    position_y
+    position_y,
   }).context(() => ({
     global: {
       plugins: [ vuetify ],
-    }
+    },
   }))
 
   beforeEach(() => {
@@ -131,12 +131,6 @@ describe('components/ContextMenuNode', () => {
       expect(wrapper.emitted().close).toHaveLength(1)
       expect(item_action.action).toHaveBeenCalledOnce()
     }
-  })
-
-  it('should execute the item action of the item that emits a click event', async () => {
-    const wrapper = factory.wrap()
-
-
   })
 
   it('should set the current promoted item when calling promote', async () => {

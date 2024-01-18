@@ -13,8 +13,8 @@ describe('components/ActionBar/EditSwitch', () => {
         plugins: [ vuetify ],
         stubs: {
           VSwitch: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -35,7 +35,7 @@ describe('components/ActionBar/EditSwitch', () => {
     const wrapper = factory.wrap()
     await wrapper.vm.$nextTick()
 
-    const toggle_switch = wrapper.findComponent({ref: 'switch'})
+    const toggle_switch = wrapper.findComponent({ ref: 'switch' })
     expect(toggle_switch.exists()).toBe(true)
 
     toggle_switch.trigger('click')

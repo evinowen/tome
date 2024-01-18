@@ -21,7 +21,7 @@ jest.mock('electron')
 const mocked_log = jest.mocked(log)
 
 jest.mock('node:path', () => ({
-  join: jest.fn()
+  join: jest.fn(),
 }))
 
 const mocked_electron_app = jest.mocked(electron.app)
@@ -29,7 +29,7 @@ const mocked_BrowserWindow = jest.mocked(electron.BrowserWindow)
 
 describe('Application', () => {
   let app: Application
-  let ElectronAppListeners = new Map<string, () => void>()
+  const ElectronAppListeners = new Map<string, () => void>()
 
   function ExecElectronAppEvent (event) {
     const listener = ElectronAppListeners.get(event)

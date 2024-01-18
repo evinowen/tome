@@ -1,4 +1,4 @@
-export function operate(store) {
+export function operate (store) {
   const system = store.state.system
 
   return class ShortcutOperator {

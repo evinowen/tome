@@ -76,7 +76,7 @@ describe('modules/OperateShortcuts', () => {
   it('should dispatch specified action when dispatch is called', async () => {
     const ShortcutOperator = operate_shortcuts(store)
 
-    const dispatch = 'libary/select'
+    const dispatch = 'library/select'
 
     await ShortcutOperator.dispatch(dispatch)
 

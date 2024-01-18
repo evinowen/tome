@@ -159,20 +159,20 @@ export default {
   emits: [
     'commit',
     'reload',
-  ]
+  ],
 }
 </script>
 
 <script setup lang="ts">
-export interface Props {
-  active?: boolean,
-  loading?: boolean,
-  match?: boolean,
-  error?: string,
-  history?: any[],
+export interface Properties {
+  active?: boolean
+  loading?: boolean
+  match?: boolean
+  error?: string
+  history?: any[]
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   active: false,
   loading: false,
   match: false,
@@ -182,7 +182,7 @@ withDefaults(defineProps<Props>(), {
 
 const headers = [
   { title: '', value: 'oid', width: '60px' },
-  { title: '', value: 'message', width: '' }
+  { title: '', value: 'message', width: '' },
 ]
 </script>
 

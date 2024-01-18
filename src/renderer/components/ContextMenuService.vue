@@ -28,7 +28,7 @@ export default {
   },
   directives: {
     Resize,
-  }
+  },
 }
 </script>
 

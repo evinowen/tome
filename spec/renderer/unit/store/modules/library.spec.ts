@@ -20,7 +20,7 @@ describe('store/modules/library', () => {
   let repository
   let files
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
   const factory = {
@@ -28,14 +28,14 @@ describe('store/modules/library', () => {
       modules: {
         library,
         repository,
-        files
-      }
-    })
+        files,
+      },
+    }),
   }
 
   beforeEach(() => {
     disk.reset_disk()
-    disk.set_content('./library.json', ['./first_path', './second_path', './third_path'].join('\n'))
+    disk.set_content('./library.json', [ './first_path', './second_path', './third_path' ].join('\n'))
 
     dialog.reset_dialog()
 
@@ -46,16 +46,16 @@ describe('store/modules/library', () => {
       actions: {
         load: vi.fn(),
         inspect: vi.fn(),
-        clear: vi.fn()
-      }
+        clear: vi.fn(),
+      },
     }
 
     files = {
       namespaced: true,
       actions: {
         clear: vi.fn(),
-        initialize: vi.fn()
-      }
+        initialize: vi.fn(),
+      },
     }
   })
 
@@ -123,7 +123,7 @@ describe('store/modules/library', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = ['./first_path', './second_path', './third_path']
+    const paths = [ './first_path', './second_path', './third_path' ]
     await store.dispatch('library/load', path)
 
     expect(store.state.library.path).toEqual(path)
@@ -137,7 +137,7 @@ describe('store/modules/library', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = ['./first_path', './second_path', './third_path', './fourth_path']
+    const paths = [ './first_path', './second_path', './third_path', './fourth_path' ]
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/add', './fourth_path')
@@ -153,7 +153,7 @@ describe('store/modules/library', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = ['./first_path', './second_path', './third_path']
+    const paths = [ './first_path', './second_path', './third_path' ]
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/add', './third_path')
@@ -169,7 +169,7 @@ describe('store/modules/library', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = ['./first_path', './second_path', './third_path']
+    const paths = [ './first_path', './second_path', './third_path' ]
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/remove', paths.pop())
@@ -185,7 +185,7 @@ describe('store/modules/library', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = ['./first_path', './second_path', './third_path']
+    const paths = [ './first_path', './second_path', './third_path' ]
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/remove', './forth_path')

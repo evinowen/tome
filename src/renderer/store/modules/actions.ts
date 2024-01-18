@@ -2,14 +2,13 @@ import { ActionContext } from 'vuex'
 import api from '@/api'
 import factory, {
   State as FactoryState,
-  StateDefaults as FactoryStateDefaults,
   FeatureExecuteInput,
 } from '../factories/feature'
 
 export const ActionBaseIndex = 'resolve(\'done\')\n'
 
 export type State = FactoryState
-export const StateDefaults = FactoryStateDefaults
+export { StateDefaults } from '../factories/feature'
 
 const create = (context: ActionContext<State, unknown>) => async (path: string) => {
   const index_item = await context.dispatch('files/create', { path, name: 'index.js' }, { root: true })

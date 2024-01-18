@@ -8,11 +8,11 @@ import repository, { State as RepositoryState } from './modules/repository'
 import library, { State as LibraryState } from './modules/library'
 import files, { State as FilesState } from './modules/files'
 import system, { State as SystemState } from './modules/system'
-import templates, { State as TemplatesState }from './modules/templates'
+import templates, { State as TemplatesState } from './modules/templates'
 import actions, { State as ActionsState } from './modules/actions'
 import configuration, { State as ConfigurationState } from './modules/configuration'
 import context, { State as ContextState } from './modules/context'
-import clipboard , { State as CliboardState }from './modules/clipboard'
+import clipboard, { State as CliboardState } from './modules/clipboard'
 import search, { State as SearchState } from './modules/search'
 
 import reporter from './plugins/reporter'
@@ -66,9 +66,9 @@ export function build_store () {
           type,
           message,
           stack,
-          datetime: DateTime.now()
+          datetime: DateTime.now(),
         })
-      }
+      },
     },
     actions: <ActionTree<State, unknown>>({
       hydrate: async function (context) {
@@ -85,7 +85,7 @@ export function build_store () {
 
         await context.dispatch('message', `Configuration established at ${context.state.configuration_path}`)
 
-        await context.dispatch('library/hydrate', context.state.library_path)
+        await context.dispatch('library/load', context.state.library_path)
 
         await context.dispatch('message', 'Welcome to Tome')
       },
@@ -102,7 +102,7 @@ export function build_store () {
         } else {
           context.commit('log', { type: 'error', message: String(error) })
         }
-      }
+      },
     }),
     modules: {
       repository,
@@ -114,12 +114,12 @@ export function build_store () {
       context,
       clipboard,
       search,
-      system
+      system,
     },
     plugins: [
       reporter,
-      mediator
-    ]
+      mediator,
+    ],
   })
 }
 

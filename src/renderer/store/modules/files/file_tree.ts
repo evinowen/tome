@@ -38,7 +38,7 @@ export default class FileTree {
     this.separator = separator
   }
 
-  async listen (listener: (data: {event: string, path: string}) => void) {
+  async listen (listener: (data: { event: string, path: string }) => void) {
     await api.file.clear_subscriptions()
     api.file.subscribe(this.base.path || '', listener)
   }
@@ -48,7 +48,7 @@ export default class FileTree {
       path,
       relationship: FileRelationshipType.Root,
       expanded: false,
-      directory: true
+      directory: true,
     })
 
     const separator = await api.path.sep()
@@ -56,7 +56,7 @@ export default class FileTree {
     return new FileTree(file, separator)
   }
 
-  static search (element: File, queue: string[]): FileIdentity|FileIdentityContract {
+  static search (element: File, queue: string[]): FileIdentity | FileIdentityContract {
     const name = queue.shift()
 
     if (name === '') {
@@ -64,11 +64,11 @@ export default class FileTree {
     }
 
     if ((!element.directory) || (!element.loaded)) {
-      return new FileIdentityContract(element, [name || '', ...queue])
+      return new FileIdentityContract(element, [ name || '', ...queue ])
     }
 
     const children = element.children
-    const index = children.findIndex(child => child.name === name)
+    const index = children.findIndex((child) => child.name === name)
 
     if (index === -1) {
       return new FileIdentity(undefined, element, index, name)

@@ -87,7 +87,7 @@ export default {
     VDivider,
     VMenu,
     VSpacer,
-  }
+  },
 }
 </script>
 
@@ -97,17 +97,17 @@ import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-export interface Props {
-  name?: string,
-  path?: string,
-  readme?: string,
-  authors?: string,
-  contributors?: string,
-  license?: string,
-  disabled?: boolean,
+export interface Properties {
+  name?: string
+  path?: string
+  readme?: string
+  authors?: string
+  contributors?: string
+  license?: string
+  disabled?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   name: '',
   path: '',
   readme: '',

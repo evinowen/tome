@@ -46,7 +46,6 @@ import {
   VCardActions,
   VCardText,
   VDialog,
-  VIcon,
 } from 'vuetify/components'
 
 export default {
@@ -57,8 +56,7 @@ export default {
     VCardActions,
     VCardText,
     VDialog,
-    VIcon,
-  }
+  },
 }
 </script>
 
@@ -69,11 +67,11 @@ import { DateTime } from 'luxon'
 
 const store = fetchStore()
 
-export interface Props {
-  open?: boolean,
+export interface Properties {
+  open?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   open: false,
 })
 
@@ -101,8 +99,8 @@ function format_date (datetime) {
 
 function format_message (message) {
   return String(message)
-    .replace(/\r/g, '\u240D')
-    .replace(/\n/g, '\u2424')
+    .replaceAll('\r', '\u240D')
+    .replaceAll('\n', '\u2424')
 }
 
 defineExpose({

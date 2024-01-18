@@ -1,6 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { stub_actions } from '?/builders/store'
+import VTextField from '?/stubs/VTextField.vue'
 import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
 import { State, key } from '@/store'
@@ -18,8 +19,11 @@ describe('components/Settings/TextInput', () => {
   const factory = assemble(TextInput, { label, index })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
-      }
+        plugins: [ vuetify, [ store, key ] ],
+        stubs: {
+          VTextField,
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -50,7 +54,7 @@ describe('components/Settings/TextInput', () => {
   it('should dispatch configuration/update with new value when input emits model update', async () => {
     const wrapper = factory.wrap()
 
-    const input_field = wrapper.findComponent({ref: 'input'})
+    const input_field = wrapper.findComponent({ ref: 'input' })
     expect(input_field.exists()).toBe(true)
 
     const value = 'John Doe'
@@ -65,7 +69,7 @@ describe('components/Settings/TextInput', () => {
 
     const obscured = wrapper.vm.obscured
 
-    const input_field = wrapper.findComponent({ref: 'input'})
+    const input_field = wrapper.findComponent({ ref: 'input' })
     expect(input_field.exists()).toBe(true)
 
     const value = 'John Doe'

@@ -16,12 +16,12 @@ describe('components/ActionBar/ConsoleButton', () => {
   const factory = assemble(ConsoleButton)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           VBtn: BasicComponentStub,
           VIcon: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -35,6 +35,7 @@ describe('components/ActionBar/ConsoleButton', () => {
         'library/select',
         'library/open',
         'library/close',
+        'system/console',
       ]),
     })
 
@@ -54,7 +55,7 @@ describe('components/ActionBar/ConsoleButton', () => {
   it('should dispatch "system/console" action when button is clicked', async () => {
     const wrapper = factory.wrap()
 
-    const button = wrapper.findComponent({ref: 'button'})
+    const button = wrapper.findComponent({ ref: 'button' })
     expect(button.exists()).toBe(true)
 
     button.trigger('click')

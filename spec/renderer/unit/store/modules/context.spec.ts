@@ -12,9 +12,9 @@ describe('store/modules/context', () => {
   const factory = {
     wrap: () => new Vuex.Store<State>({
       modules: {
-        context
-      }
-    })
+        context,
+      },
+    }),
   }
 
   beforeEach(() => {

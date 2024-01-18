@@ -4,7 +4,6 @@ import * as electron from 'electron'
 import Disk from '../../mocks/support/disk'
 import * as fs from 'node:fs'
 import * as chokidar from 'chokidar'
-import helpers from '../../helpers'
 import _component from '@/components/file'
 import { file as preload } from '@/preload'
 import mocked_fs_data from '../../meta/node/fs'
@@ -19,14 +18,14 @@ jest.doMock('electron', () => electron_mock)
 jest.mock('node:path')
 
 jest.mock('chokidar', () => ({
-  watch: jest.fn()
+  watch: jest.fn(),
 }))
 
-const chokidar_listeners = new Map<string, (...parameters: any) => void>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const chokidar_listeners = new Map<string, (...parameters: any) => void>()
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const chokidar_exec_event = (event: string, ...parameters: any) => {
-  console.log('chokidar_exec_event', event, ...parameters)
   if (!chokidar_listeners.has(event)) {
-    console.log('no listener')
     return
   }
 
@@ -37,10 +36,9 @@ const chokidar_exec_event = (event: string, ...parameters: any) => {
 const chokidar_watcher = {
   close: jest.fn(() => chokidar_listeners.clear()),
   on: function (channel, listener) {
-    console.log('chokidar_watcher on', channel)
     chokidar_listeners.set(channel, listener)
     return this
-  }
+  },
 } as unknown as chokidar.FSWatcher
 
 const mocked_chokidar = jest.mocked(chokidar)
@@ -50,7 +48,7 @@ describe('components/file', () => {
   let component
   let win
 
-  const disk = new Disk
+  const disk = new Disk()
 
   beforeEach(() => {
     electron_meta.ipc_reset()
@@ -214,7 +212,7 @@ describe('components/file', () => {
     const criteria = {
       query: 'Test',
       case_sensitive: false,
-      regex_query: false
+      regex_query: false,
     }
 
     await preload.search_path(target, criteria)
@@ -225,7 +223,7 @@ describe('components/file', () => {
     const criteria = {
       query: 'Test',
       case_sensitive: false,
-      regex_query: false
+      regex_query: false,
     }
 
     await preload.search_path(target, criteria)
@@ -238,7 +236,7 @@ describe('components/file', () => {
     const criteria = {
       query: 'Test',
       case_sensitive: true,
-      regex_query: false
+      regex_query: false,
     }
 
     await preload.search_path(target, criteria)
@@ -251,7 +249,7 @@ describe('components/file', () => {
     const criteria = {
       query: '[^ ]*',
       case_sensitive: false,
-      regex_query: true
+      regex_query: true,
     }
 
     await preload.search_path(target, criteria)
@@ -263,7 +261,7 @@ describe('components/file', () => {
     const criteria = {
       query: '[^ ]*',
       case_sensitive: true,
-      regex_query: true
+      regex_query: true,
     }
 
     await preload.search_path(target, criteria)

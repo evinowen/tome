@@ -16,12 +16,12 @@
 </template>
 
 <script setup lang="ts">
-export interface Props {
-  grow?: boolean,
-  height?: number,
+export interface Properties {
+  grow?: boolean
+  height?: number
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   grow: false,
   height: 0,
 })

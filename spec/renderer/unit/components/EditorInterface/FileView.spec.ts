@@ -7,7 +7,7 @@ import FileView from '@/components/EditorInterface/FileView.vue'
 
 describe('components/EditorInterface/FileView', () => {
   let vuetify
-  let file = File.Empty
+  const file = File.Empty
 
   const factory = assemble(FileView, { file })
     .context(() => ({
@@ -17,8 +17,8 @@ describe('components/EditorInterface/FileView', () => {
           DirectoryView: BasicComponentStub,
           ImageView: BasicComponentStub,
           TextView: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {

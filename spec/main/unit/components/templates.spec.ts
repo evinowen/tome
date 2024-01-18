@@ -20,7 +20,7 @@ mocked_Mustache.render.mockImplementation(() => 'Mock Rendered')
 
 describe('components/templates', () => {
   let component
-  const disk = new Disk
+  const disk = new Disk()
 
   beforeEach(() => {
     electron_meta.ipc_reset()

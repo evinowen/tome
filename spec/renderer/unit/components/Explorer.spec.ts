@@ -9,7 +9,6 @@ import { State, key } from '@/store'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import { StateDefaults as FilesStateDefaults, File } from '@/store/modules/files'
 import Explorer from '@/components/Explorer.vue'
-import ExplorerNode from '@/components/ExplorerNode.vue'
 import { ExplorerNodeGhostType } from '@/components/ExplorerNode.vue'
 
 describe('components/ExplorerNode', () => {
@@ -24,7 +23,7 @@ describe('components/ExplorerNode', () => {
       state: {
         configuration: {
           ...ConfigurationStateDefaults(),
-          format_titles: false
+          format_titles: false,
         },
         files: {
           ...FilesStateDefaults(),
@@ -35,12 +34,13 @@ describe('components/ExplorerNode', () => {
           directory: {
             '/project': new File({
               path: '/project',
-            })
-          }
+            }),
+          },
         },
       },
       actions: stub_actions([
         'actions/execute',
+        'actions/ghost',
         'files/blur',
         'files/delete',
         'files/edit',
@@ -51,6 +51,7 @@ describe('components/ExplorerNode', () => {
         'files/select',
         'files/submit',
         'templates/execute',
+        'templates/ghost',
       ]),
     })
 
@@ -66,7 +67,7 @@ describe('components/ExplorerNode', () => {
         children: [],
         templates: [],
         actions: [],
-        expanded: false
+        expanded: false,
       },
       {
         uuid: uuidv4(),
@@ -77,7 +78,7 @@ describe('components/ExplorerNode', () => {
         templates: [],
         actions: [],
         expanded: false,
-        ephemeral: true
+        ephemeral: true,
       },
       {
         uuid: uuidv4(),
@@ -87,7 +88,7 @@ describe('components/ExplorerNode', () => {
         children: [],
         templates: [],
         actions: [],
-        expanded: false
+        expanded: false,
       },
       {
         uuid: uuidv4(),
@@ -97,7 +98,7 @@ describe('components/ExplorerNode', () => {
         children: [],
         templates: [],
         actions: [],
-        expanded: false
+        expanded: false,
       },
       {
         uuid: uuidv4(),
@@ -107,8 +108,8 @@ describe('components/ExplorerNode', () => {
         children: [],
         templates: [],
         actions: [],
-        expanded: false
-      }
+        expanded: false,
+      },
     )
   })
 
@@ -116,40 +117,21 @@ describe('components/ExplorerNode', () => {
     vi.clearAllMocks()
   })
 
-  const value = { create: vi.fn(), parent: { remove_item: vi.fn(() => ({ path: '/item.path' })) } }
   const hold = {
-    path: '/project/second'
+    path: '/project/second',
   }
 
   const children = []
 
-  const populate = vi.fn(item => {
-    switch (item.path) {
-      case '/project':
-        item.children.length = 0
-        item.children.push(...children)
-        break
-
-      case '/project/first':
-        break
-
-      case '/project/second':
-        break
-
-      case '/project/third':
-        break
-    }
-  })
-
   const factory = assemble(Explorer, { enabled: true })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           VIcon: true,
           VContainer: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   it('is able to be mocked and prepared for testing', () => {
@@ -180,7 +162,7 @@ describe('components/ExplorerNode', () => {
 
     store_dispatch.mockClear()
 
-    expect(wrapper.vm.hold).toBeNull()
+    expect(wrapper.vm.hold).toBeUndefined()
 
     const node = wrapper.vm.explorer_root
     await node.$emit('drag', hold)
@@ -233,13 +215,13 @@ describe('components/ExplorerNode', () => {
 
   it('should dispatch file move action when drop is triggered for a node', async () => {
     const wrapper = factory.wrap()
-        wrapper.vm.hold = hold
+    wrapper.vm.hold = hold
     await wrapper.vm.$nextTick()
 
     store_dispatch.mockClear()
 
     const context = {
-      directory: false
+      directory: false,
     }
 
     expect(store_dispatch).toHaveBeenCalledTimes(0)
@@ -263,7 +245,7 @@ describe('components/ExplorerNode', () => {
     const context = {
       path: '/project/file.md',
       input: 'file.change.md',
-      title: false
+      title: false,
     }
 
     const node = wrapper.vm.explorer_root

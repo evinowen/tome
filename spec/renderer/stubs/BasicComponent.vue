@@ -9,15 +9,15 @@
 </template>
 
 <script setup lang="ts">
-export interface Props {
-  modelValue?: string,
+export interface Properties {
+  modelValue?: string
 }
 
-withDefaults(defineProps<Props>(), {
-  modelValue: ''
+withDefaults(defineProps<Properties>(), {
+  modelValue: '',
 })
 
-const emit = defineEmits([
+defineEmits([
   'click',
   'update:model-value',
 ])

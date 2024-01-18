@@ -9,15 +9,15 @@
 </template>
 
 <script setup lang="ts">
-export interface Props {
-  modelValue?: boolean,
+export interface Properties {
+  modelValue?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Properties>(), {
   modelValue: false,
 })
 
-const emit = defineEmits([
+defineEmits([
   'update:model-value',
 ])
 </script>

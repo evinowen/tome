@@ -17,7 +17,7 @@ interface State {
 describe('store/modules/files', () => {
   let store
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
   const identify = async (path) => {

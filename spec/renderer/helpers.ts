@@ -18,8 +18,8 @@ type FactoryComponentHookMethod<T> = (factory: Factory<T>) => void
 
 interface FactoryBase<T> {
   component: T
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: { [key: string]: any }
-  listeners: Record<string, Function|Function[]>
 }
 
 interface FactoryComponent<T> {
@@ -29,6 +29,7 @@ interface FactoryComponent<T> {
 
 interface FactoryGenerated {
   vue?: typeof Vue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: Record<string, any>
 }
 
@@ -37,8 +38,9 @@ class Factory<T> {
   component: FactoryComponent<T>
   generated: FactoryGenerated
 
-  constructor (component: T, properties: { [key: string]: any } = {}, listeners: Record<string, Function|Function[]> = {}) {
-    this.base = { component, properties, listeners }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor (component: T, properties: { [key: string]: any } = {}) {
+    this.base = { component, properties }
     this.component = {}
     this.generated = {}
   }
@@ -53,7 +55,8 @@ class Factory<T> {
     return this
   }
 
-  wrap(properties: Record<string, any> = {}, listeners: Record<string, Function|Function[]> = {}) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  wrap (properties: Record<string, any> = {}) {
     if (this.component.context) {
       this.generated.context = this.component.context()
     }
@@ -68,22 +71,20 @@ class Factory<T> {
         ...this.generated.context,
         props: {
           ...this.base.properties,
-          ...properties
+          ...properties,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
-        listeners: {
-          ...this.base.listeners,
-          ...listeners
-        } as any,
-      }
+      },
     )
   }
 }
 
-const assemble = <T>(component: T, default_properties: Record<string, any> = {}, default_listeners: Record<string, Function|Function[]> = {}) => {
-  return new Factory<T>(component, default_properties, default_listeners)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const assemble = <T>(component: T, default_properties: Record<string, any> = {}) => {
+  return new Factory<T>(component, default_properties)
 }
 
 export {
   respond,
-  assemble
+  assemble,
 }

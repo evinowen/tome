@@ -1,9 +1,9 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <div
+    id="mark-js-root"
     ref="root"
     class="root"
-    id="mark-js-root"
     @contextmenu="contextmenu"
     v-html="rendered"
   />
@@ -17,15 +17,15 @@ import { fetchStore, File } from '@/store'
 
 const store = fetchStore()
 
-export interface Props {
-  file?: File,
+export interface Properties {
+  file?: File
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   file: undefined,
 })
 
-const root = ref<HTMLElement>(null)
+const root = ref<HTMLElement>(undefined)
 
 let mark: Mark
 let target: any
@@ -44,17 +44,17 @@ const search_state = computed(() => {
     store.state.search.query,
     store.state.search.regex_query,
     store.state.search.case_sensitive,
-    store.state.search.navigation.target
+    store.state.search.navigation.target,
   ]
 })
 
 const actions = computed(() => {
-  return store.state.actions.options.map(name => ({
+  return store.state.actions.options.map((name) => ({
     title: name,
     action: async () => {
       const selection = document.getSelection().toString()
-      await store.dispatch('actions/execute', { name, target: props.file.path, selection })
-    }
+      await store.dispatch('actions/execute', { name, target: properties.file.path, selection })
+    },
   }))
 })
 
@@ -62,39 +62,39 @@ const context = computed(() => {
   return [
     {
       title: 'Action',
-      load: () => actions.value
+      load: () => actions.value,
     },
     { divider: true },
     {
       title: 'Cut',
-      active: () => false
+      active: () => false,
     },
     {
       title: 'Copy',
       action: async () => {
         const selection = document.getSelection().toString()
         await store.dispatch('clipboard/text', selection)
-      }
+      },
     },
     {
       title: 'Paste',
-      active: () => false
-    }
+      active: () => false,
+    },
   ]
 })
 
 const rendered = computed((): string => {
-  if (props.file === undefined || props.file.directory || !props.file.document) {
+  if (properties.file === undefined || properties.file.directory || !properties.file.document) {
     return ''
   }
 
-  const content = props.file.document.content || ''
+  const content = properties.file.document.content || ''
 
-  if (['.md'].includes(props.file.extension)) {
+  if ([ '.md' ].includes(properties.file.extension)) {
     return marked.parse(content)
   }
 
-  if (['.htm', '.html'].includes(props.file.extension)) {
+  if ([ '.htm', '.html' ].includes(properties.file.extension)) {
     return content
   }
 
@@ -104,7 +104,7 @@ const rendered = computed((): string => {
 async function contextmenu (event) {
   const position = {
     x: event.clientX,
-    y: event.clientY
+    y: event.clientY,
   }
 
   await store.dispatch('context/open', { items: context.value, position })
@@ -118,8 +118,8 @@ watch(search_state, async () => {
   let regex: RegExp
   try {
     regex = new RegExp(
-      search.value.regex_query ? search.value.query : String(search.value.query).replace(/[$()*+./?[\\\]^{|}-]/g, '\\$&'),
-      String('g').concat(search.value.case_sensitive ? '' : 'i')
+      search.value.regex_query ? search.value.query : String(search.value.query).replaceAll(/[$()*+./?[\\\]^{|}-]/g, '\\$&'),
+      String('g').concat(search.value.case_sensitive ? '' : 'i'),
     )
   } catch (error) {
     await store.dispatch('error', error)
@@ -132,18 +132,18 @@ watch(search_state, async () => {
       {
         className: 'highlight-rendered',
         acrossElements: false,
-        done: total => {
+        done: (total) => {
           store.dispatch('search/navigate', { total, target: undefined })
           resolve(total)
-        }
-      }
+        },
+      },
     )
   })
 
-  results = [...root.value.querySelectorAll('mark > mark')]
+  results = [ ...root.value.querySelectorAll('mark > mark') ]
 
   if (results.length !== total) {
-    results = [...root.value.querySelectorAll('mark')]
+    results = [ ...root.value.querySelectorAll('mark') ]
   }
 
   await search_navigate()

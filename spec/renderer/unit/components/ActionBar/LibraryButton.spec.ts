@@ -18,16 +18,16 @@ describe('components/ActionBar/LibraryButton', () => {
   const factory = assemble(LibraryButton)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
           VBtn: BasicComponentStub,
           VIcon: BasicComponentStub,
           VList: BasicComponentStub,
           VListItem: BasicComponentStub,
           VListItemTitle: BasicComponentStub,
-          VMenu
-        }
-      }
+          VMenu,
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -38,13 +38,13 @@ describe('components/ActionBar/LibraryButton', () => {
         library: {
           ...LibraryStateDefaults(),
           history: [
-            '/path'
-          ]
+            '/path',
+          ],
         },
         repository: {
           ...RepositoryStateDefaults(),
           path: './tome_path',
-        }
+        },
       },
       actions: stub_actions([
         'library/select',
@@ -67,10 +67,10 @@ describe('components/ActionBar/LibraryButton', () => {
     wrapper.vm.show = true
     await wrapper.vm.$nextTick()
 
-    const bookshelf_button = wrapper.findComponent({ref: 'bookshelf_button'})
+    const bookshelf_button = wrapper.findComponent({ ref: 'bookshelf_button' })
     expect(bookshelf_button.exists()).toBe(true)
 
-    const close_button = wrapper.findComponent({ref: 'close_button'})
+    const close_button = wrapper.findComponent({ ref: 'close_button' })
     expect(close_button.exists()).toBe(false)
   })
 
@@ -81,10 +81,10 @@ describe('components/ActionBar/LibraryButton', () => {
     wrapper.vm.show = true
     await wrapper.vm.$nextTick()
 
-    const bookshelf_button = wrapper.findComponent({ref: 'bookshelf_button'})
+    const bookshelf_button = wrapper.findComponent({ ref: 'bookshelf_button' })
     expect(bookshelf_button.exists()).toBe(false)
 
-    const close_button = wrapper.findComponent({ref: 'close_button'})
+    const close_button = wrapper.findComponent({ ref: 'close_button' })
     expect(close_button.exists()).toBe(true)
   })
 

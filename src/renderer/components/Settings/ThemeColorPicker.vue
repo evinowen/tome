@@ -50,7 +50,7 @@ export default {
     VCardTitle,
     VColorPicker,
     VSwitch,
-  }
+  },
 }
 </script>
 
@@ -61,21 +61,21 @@ import { presets } from '@/vuetify'
 
 const store = fetchStore()
 
-export interface Props {
-  theme: string,
-  color: string,
+export interface Properties {
+  theme: string
+  color: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   theme: '',
   color: '',
 })
 
-const enabled_index = computed(() => `${props.theme}_${props.color}_enabled`)
+const enabled_index = computed(() => `${properties.theme}_${properties.color}_enabled`)
 const enabled_state = computed(() => store.state.configuration[enabled_index.value] ?? false)
 
-const color_base = computed(() => presets[props.theme][props.color] ?? '#000000')
-const color_index = computed(() => `${props.theme}_${props.color}`)
+const color_base = computed(() => presets[properties.theme][properties.color] ?? '#000000')
+const color_index = computed(() => `${properties.theme}_${properties.color}`)
 const color_state = computed(() => store.state.configuration[color_index.value] ?? color_base.value)
 
 async function color_enabled (value) {

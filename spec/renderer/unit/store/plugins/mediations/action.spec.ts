@@ -12,39 +12,39 @@ describe('store/plugins/mediations/action', () => {
     actions = {
       namespaced: true,
       mutations: {
-        load: vi.fn()
+        load: vi.fn(),
       },
       actions: {
-        load: vi.fn()
-      }
+        load: vi.fn(),
+      },
     }
 
     repository = {
       namespaced: true,
       state: {
-        path: undefined
+        path: undefined,
       },
       mutations: {
         path: (state, path) => {
           state.path = path
-        }
+        },
       },
       actions: {
         path: (context, path) => {
           context.commit('path', path)
-        }
-      }
+        },
+      },
     }
 
     store = new Vuex.Store({
       state: {},
       modules: {
         actions,
-        repository
+        repository,
       },
       plugins: [
-        template
-      ]
+        template,
+      ],
     })
   })
 

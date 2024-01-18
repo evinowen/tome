@@ -1,9 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-const invoker = (namespace) => (channel) => (...parameters) => ipcRenderer.invoke([namespace, channel].join('-'), ...parameters)
+const invoker = (namespace) => (channel) => (...parameters) => ipcRenderer.invoke([ namespace, channel ].join('-'), ...parameters)
 const subscriber = (namespace) => (channel) => (...parameters) => (listener) => {
-  const named_channel = [namespace, channel].join('-')
-  const named_channel_return = [named_channel, 'return'].join('-')
+  const named_channel = [ namespace, channel ].join('-')
+  const named_channel_return = [ named_channel, 'return' ].join('-')
   ipcRenderer.send(named_channel, named_channel_return, ...parameters)
   ipcRenderer.on(named_channel_return, listener)
 }
@@ -27,16 +27,16 @@ const subscribe = {
 export const log = {
   info: (message) => {
     ipcRenderer.send('__ELECTRON_LOG__', {
-      data: [message],
+      data: [ message ],
       level: 'info',
     })
   },
   error: (message) => {
     ipcRenderer.send('__ELECTRON_LOG__', {
-      data: [message],
+      data: [ message ],
       level: 'error',
     })
-  }
+  },
 }
 
 export const action = {

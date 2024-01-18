@@ -10,16 +10,16 @@ export default function () {
     state: {
       repository: {
         name: 'project',
-        path: '/project'
+        path: '/project',
       },
       configuration: {
-        format_titles: false
-      }
+        format_titles: false,
+      },
     },
     modules: {
       files: cloneDeep(files),
-      search: cloneDeep(search)
-    }
+      search: cloneDeep(search),
+    },
   })
 }
 
@@ -37,6 +37,7 @@ export function stub_actions (list: string[]) {
   const result = {}
 
   for (const action of list) {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     result[action] = () => {}
   }
 

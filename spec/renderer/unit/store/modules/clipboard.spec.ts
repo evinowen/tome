@@ -36,7 +36,7 @@ describe('store/modules/clipboard', () => {
   it('should set action and load value on path copy', async () => {
     const cut_content = {
       type: 'path',
-      target: '/path/to/copy/item'
+      target: '/path/to/copy/item',
     }
 
     await store.dispatch('clipboard/copy', cut_content)
@@ -48,7 +48,7 @@ describe('store/modules/clipboard', () => {
   it('should populate empty values when clear is called', async () => {
     const cut_content = {
       type: 'path',
-      target: '/path/to/copy/item'
+      target: '/path/to/copy/item',
     }
 
     await store.dispatch('clipboard/copy', cut_content)
@@ -68,7 +68,7 @@ describe('store/modules/clipboard', () => {
   it('should set action and load value on path cut', async () => {
     const cut_content = {
       type: 'path',
-      target: '/project/first/a.md'
+      target: '/project/first/a.md',
     }
 
     await store.dispatch('clipboard/cut', cut_content)
@@ -80,7 +80,7 @@ describe('store/modules/clipboard', () => {
   it('should set error if paste triggered with no clipboard', async () => {
     const paste_content = {
       type: 'path',
-      target: '/project/second/z.md'
+      target: '/project/second/z.md',
     }
 
     expect(store.state.clipboard.error).toBeFalsy()
@@ -93,7 +93,7 @@ describe('store/modules/clipboard', () => {
   it('should call clipboard_paste if paste triggered with clipboard', async () => {
     const cut_content = {
       type: 'path',
-      target: '/path/to/copy/item'
+      target: '/path/to/copy/item',
     }
 
     await store.dispatch('clipboard/copy', cut_content)
@@ -103,7 +103,7 @@ describe('store/modules/clipboard', () => {
 
     const paste_content = {
       type: 'path',
-      target: '/project/second/z.md'
+      target: '/project/second/z.md',
     }
 
     expect(store.state.clipboard.error).toBeFalsy()

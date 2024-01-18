@@ -14,7 +14,7 @@ export class FileDirent {
       relative,
       extension,
       directory: dirent.directory,
-      parent
+      parent,
     })
 
     await File.relate(file)
@@ -51,7 +51,7 @@ interface FileConstructor {
   mime?: string
   path?: string
   relative?: string
-  relationship?: FileRelationshipType,
+  relationship?: FileRelationshipType
   parent?: File
   loaded?: boolean
   directory?: boolean
@@ -75,15 +75,15 @@ export enum FileRelationshipType {
   TomeFeatureActions = 'tome-feature-actions',
   TomeTemplate = 'tome-template',
   TomeAction = 'tome-action',
-  TomeFile = 'tome-file'
+  TomeFile = 'tome-file',
 }
 
 class FileRelationship {
   base?: FileRelationshipType
 
   map?: {
-    base?: FileRelationshipType,
-    child?: FileRelationshipType,
+    base?: FileRelationshipType
+    child?: FileRelationshipType
     descendant?: FileRelationshipType
   }
 
@@ -92,7 +92,7 @@ class FileRelationship {
   }
 }
 
-type FileRelationshipMember = FileRelationship|FileRelationshipType
+type FileRelationshipMember = FileRelationship | FileRelationshipType
 
 export default class File {
   uuid: string = uuidv4()
@@ -114,18 +114,19 @@ export default class File {
   document: FileDocument = {
     path: '',
     title: '',
-    content: ''
+    content: '',
   }
+
   updated?: number
   clean = true
   readonly = false
   image = false
 
-  static Empty:File = new File({})
+  static Empty: File = new File({})
 
   static blacklist = [
     '.git',
-    '.tome'
+    '.tome',
   ]
 
   static System = {
@@ -136,35 +137,35 @@ export default class File {
     TomeFeatureActions: 'tome-feature-actions',
     TomeTemplate: 'tome-template',
     TomeAction: 'tome-action',
-    TomeFile: 'tome-file'
+    TomeFile: 'tome-file',
   }
 
-  static Relationships:FileRelationship = {
+  static Relationships: FileRelationship = {
     base: FileRelationshipType.Root,
     children: {
       '.git': FileRelationshipType.Git,
       '.tome': {
         map: {
           base: FileRelationshipType.Tome,
-          descendant: FileRelationshipType.TomeFile
+          descendant: FileRelationshipType.TomeFile,
         },
         children: {
           'templates': {
             map: {
               base: FileRelationshipType.TomeFeatureTemplates,
-              child: FileRelationshipType.TomeTemplate
-            }
+              child: FileRelationshipType.TomeTemplate,
+            },
           },
           'actions': {
             base: FileRelationshipType.TomeFeatureActions,
             map: {
               base: FileRelationshipType.TomeFeatureTemplates,
-              child: FileRelationshipType.TomeAction
-            }
-          }
-        }
-      }
-    }
+              child: FileRelationshipType.TomeAction,
+            },
+          },
+        },
+      },
+    },
   }
 
   constructor (data: FileConstructor) {
@@ -176,7 +177,7 @@ export default class File {
   async load (base: File, listener?: CallableFunction) {
     const { directory } = this
 
-    const payload = new FileLoadPayload
+    const payload = new FileLoadPayload()
     if (directory) {
       payload.children = await this.populate(base, listener)
     } else {
@@ -193,12 +194,12 @@ export default class File {
   async read (listener?: CallableFunction) {
     const { path } = this
     const content = await api.file.contents(path)
-    listener({ type: 'read', path, bytes: new Blob([content]).size })
+    listener({ type: 'read', path, bytes: new Blob([ content ]).size })
 
     return {
       path,
       title: await api.path.basename(path),
-      content
+      content,
     }
   }
 
@@ -251,7 +252,7 @@ export default class File {
     const children = []
 
     for (const dirent of dirents) {
-      let child = this.children.find(file => file.name === dirent.name)
+      let child = this.children.find((file) => file.name === dirent.name)
 
       if (!child) {
         child = await FileDirent.convert(dirent, this, base)
@@ -327,7 +328,7 @@ export default class File {
       return 0
     }
 
-    return ((first.path)  < (second.path) ? -1 : 1)
+    return ((first.path) < (second.path) ? -1 : 1)
   }
 
   static async relate (instance: File) {
@@ -337,7 +338,7 @@ export default class File {
     const assign: { base: FileRelationshipMember, child: FileRelationshipMember, descendant: FileRelationshipMember } = {
       base: undefined,
       child: undefined,
-      descendant: undefined
+      descendant: undefined,
     }
 
     while (items.length > 0) {
@@ -346,7 +347,6 @@ export default class File {
       if (!item) {
         break
       }
-
 
       if (typeof node === 'string' || node instanceof String) {
         node = undefined

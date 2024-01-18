@@ -63,7 +63,7 @@ export default {
     VIcon,
     VLayout,
     VTextField,
-  }
+  },
 }
 </script>
 
@@ -73,20 +73,20 @@ import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-export interface Props {
-  label: string,
-  index: string,
+export interface Properties {
+  label: string
+  index: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   label: '',
   index: '',
 })
 
-const emit = defineEmits(['input', 'forge'])
+defineEmits([ 'input', 'forge' ])
 
-const input = ref<HTMLInputElement>(null)
-const value = computed<string>(() => store.state.configuration[props.index])
+const input = ref<HTMLInputElement>(undefined)
+const value = computed<string>(() => store.state.configuration[properties.index])
 const passphrase = computed<string>(() => store.state.configuration.passphrase)
 
 async function select (event) {
@@ -106,7 +106,7 @@ async function clear () {
 }
 
 async function update (path) {
-  await store.dispatch('configuration/update', { [props.index]: path })
+  await store.dispatch('configuration/update', { [properties.index]: path })
 }
 
 async function generate () {

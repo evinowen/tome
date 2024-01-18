@@ -13,7 +13,7 @@ export const presets: {
   dark: {},
 }
 
-for (const theme of ['light', 'dark']) {
+for (const theme of [ 'light', 'dark' ]) {
   presets[theme] = {}
 
   for (const color in vuetify.theme.themes.value[theme].colors) {

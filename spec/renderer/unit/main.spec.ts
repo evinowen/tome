@@ -8,11 +8,12 @@ const mocked_app = {
 const mocked_createApp = vi.fn(() => mocked_app)
 
 vi.doMock('vue', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actual = await vi.importActual('vue') as any
   return {
     ...actual,
     createApp: mocked_createApp,
-    h: vi.fn()
+    h: vi.fn(),
   }
 })
 

@@ -65,29 +65,29 @@ export default {
     VIcon,
     VLayout,
     VTextField,
-  }
+  },
 }
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
-export interface Props {
-  label?: string,
-  stored?: string,
-  value?: string,
+export interface Properties {
+  label?: string
+  stored?: string
+  value?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   forge: false,
   label: '',
   stored: '',
   value: '',
 })
 
-const emit = defineEmits(['input', 'forge'])
+const emit = defineEmits([ 'input', 'forge' ])
 
-const input = ref<HTMLInputElement>(null)
+const input = ref<HTMLInputElement>(undefined)
 
 function select (event) {
   const files = event.target.files || event.dataTransfer.files
@@ -106,7 +106,7 @@ function clear () {
 }
 
 function recall () {
-  update(props.stored)
+  update(properties.stored)
 }
 
 function update (path) {

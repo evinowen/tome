@@ -59,28 +59,28 @@ export default {
     VIcon,
   },
   emits: [
-    'close'
-  ]
+    'close',
+  ],
 }
 </script>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 
-export interface Props {
-  open: boolean,
-  title?: string,
-  subtitle?: string,
-  layer?: number,
-  scroll?: boolean,
-  fixed?: boolean,
-  left?: boolean,
-  right?: boolean,
-  bottom?: boolean,
-  top?: boolean,
+export interface Properties {
+  open: boolean
+  title?: string
+  subtitle?: string
+  layer?: number
+  scroll?: boolean
+  fixed?: boolean
+  left?: boolean
+  right?: boolean
+  bottom?: boolean
+  top?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   open: false,
   title: '',
   subtitle: '',
@@ -94,19 +94,19 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const location = computed(() => {
-  if (props.left) {
+  if (properties.left) {
     return 'left'
   }
 
-  if (props.right) {
+  if (properties.right) {
     return 'right'
   }
 
-  if (props.bottom) {
+  if (properties.bottom) {
     return 'bottom'
   }
 
-  if (props.top) {
+  if (properties.top) {
     return 'top'
   }
 

@@ -25,7 +25,7 @@ const shortcut_map = {
   dispatch: { dispatch: 'action' },
 }
 
-vi.mocked(shortcuts, true).mockImplementation((key) => (shortcut_map[key] ?? null))
+vi.mocked(shortcuts, true).mockImplementation((key) => (shortcut_map[key] ?? undefined))
 
 describe('components/ShortcutService', () => {
   let vuetify
@@ -34,8 +34,8 @@ describe('components/ShortcutService', () => {
   const factory = assemble(ShortcutService)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [store, key] ],
-      }
+        plugins: [ vuetify, [ store, key ] ],
+      },
     }))
 
   beforeEach(() => {
@@ -70,7 +70,7 @@ describe('components/ShortcutService', () => {
     const wrapper = factory.wrap()
 
     const event = {
-      key: 'Escape'
+      key: 'Escape',
     } as KeyboardEvent
 
     expect(MockedShorcutOperator.escape).not.toHaveBeenCalled()
@@ -84,7 +84,7 @@ describe('components/ShortcutService', () => {
     const wrapper = factory.wrap()
 
     const event = {
-      key: 'Escape'
+      key: 'Escape',
     } as KeyboardEvent
 
     expect(MockedShorcutOperator.escape).not.toHaveBeenCalled()
@@ -99,7 +99,7 @@ describe('components/ShortcutService', () => {
 
     const event = {
       ctrlKey: true,
-      key: 'unmapped'
+      key: 'unmapped',
     } as KeyboardEvent
 
     expect(MockedShorcutOperator.escape).not.toHaveBeenCalled()
@@ -120,7 +120,7 @@ describe('components/ShortcutService', () => {
 
     const event = {
       ctrlKey: false,
-      key: 'unmapped'
+      key: 'unmapped',
     } as KeyboardEvent
 
     expect(MockedShorcutOperator.escape).not.toHaveBeenCalled()
@@ -141,7 +141,7 @@ describe('components/ShortcutService', () => {
 
     const event = {
       ctrlKey: true,
-      key: 'layer'
+      key: 'layer',
     } as KeyboardEvent
 
     expect(MockedShorcutOperator.layer).not.toHaveBeenCalled()
@@ -156,7 +156,7 @@ describe('components/ShortcutService', () => {
 
     const event = {
       ctrlKey: false,
-      key: 'layer'
+      key: 'layer',
     } as KeyboardEvent
 
     expect(MockedShorcutOperator.layer).not.toHaveBeenCalled()
@@ -171,7 +171,7 @@ describe('components/ShortcutService', () => {
 
     const event = {
       ctrlKey: true,
-      key: 'perform'
+      key: 'perform',
     } as KeyboardEvent
 
     expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
@@ -186,7 +186,7 @@ describe('components/ShortcutService', () => {
 
     const event = {
       ctrlKey: false,
-      key: 'perform'
+      key: 'perform',
     } as KeyboardEvent
 
     expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
@@ -201,7 +201,7 @@ describe('components/ShortcutService', () => {
 
     const event = {
       ctrlKey: true,
-      key: 'dispatch'
+      key: 'dispatch',
     } as KeyboardEvent
 
     expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()
@@ -216,7 +216,7 @@ describe('components/ShortcutService', () => {
 
     const event = {
       ctrlKey: false,
-      key: 'dispatch'
+      key: 'dispatch',
     } as KeyboardEvent
 
     expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()

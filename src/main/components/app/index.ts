@@ -8,5 +8,5 @@ export default component('app')(
     handle('getVersion', async () => process.env.npm_package_version || app.getVersion())
 
     handle('getProcess', async () => ({ versions: process.versions, sandboxed: process.sandboxed === true }))
-  }
+  },
 )

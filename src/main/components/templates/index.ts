@@ -10,16 +10,16 @@ import { promise_with_reject } from '../../promise'
 const TemplateFileType = {
   INACCESSABLE: -1,
   FILE: 0,
-  DIRECTORY: 1
+  DIRECTORY: 1,
 }
 
 class TemplateFile {
   name: string
   shown: boolean
   path: {
-    root: string|undefined,
-    parent: { absolute: string|undefined, relative: string|undefined }
-    target: { absolute: string|undefined, relative: string|undefined }
+    root: string | undefined
+    parent: { absolute: string | undefined, relative: string | undefined }
+    target: { absolute: string | undefined, relative: string | undefined }
   }
 
   constructor (root, directory, name) {
@@ -28,12 +28,12 @@ class TemplateFile {
       root,
       parent: {
         absolute: directory,
-        relative: undefined
+        relative: undefined,
       },
       target: {
         absolute: undefined,
-        relative: undefined
-      }
+        relative: undefined,
+      },
     }
 
     this.path.parent.relative = path.relative(this.path.root || '', this.path.parent.absolute || '')
@@ -112,10 +112,10 @@ class TemplateFile {
 
 class Template {
   context: {
-    compute: object,
+    compute: object
     config: {
-      directory: boolean,
-      index: string|undefined
+      directory: boolean
+      index: string | undefined
     }
   }
 
@@ -136,14 +136,14 @@ class Template {
     let output = input
 
     const today = new Date()
-    const [month, day, year] = today.toLocaleDateString().split('/')
-    const [hour, minute, second] = today.toLocaleTimeString().slice(0, 7).split(':')
-    output = output.replace(/%Y/g, year.padStart(4, '0'))
-    output = output.replace(/%m/g, month.padStart(2, '0'))
-    output = output.replace(/%d/g, day.padStart(2, '0'))
-    output = output.replace(/%H/g, hour.padStart(2, '0'))
-    output = output.replace(/%i/g, minute.padStart(2, '0'))
-    output = output.replace(/%s/g, second.padStart(2, '0'))
+    const [ month, day, year ] = today.toLocaleDateString().split('/')
+    const [ hour, minute, second ] = today.toLocaleTimeString().slice(0, 7).split(':')
+    output = output.replaceAll('%Y', year.padStart(4, '0'))
+    output = output.replaceAll('%m', month.padStart(2, '0'))
+    output = output.replaceAll('%d', day.padStart(2, '0'))
+    output = output.replaceAll('%H', hour.padStart(2, '0'))
+    output = output.replaceAll('%i', minute.padStart(2, '0'))
+    output = output.replaceAll('%s', second.padStart(2, '0'))
 
     return output
   }
@@ -217,7 +217,7 @@ class Template {
       }
     }
 
-    let index: string|undefined
+    let index: string | undefined
 
     const leafs: TemplateLeaf[] = []
 
@@ -239,7 +239,7 @@ class Template {
   }
 
   async construct_file () {
-    const { compute , config } = this.context
+    const { compute, config } = this.context
 
     switch (await this.destination.type()) {
       case TemplateFileType.DIRECTORY: {
@@ -258,7 +258,7 @@ class Template {
         config,
         source: this.source.path.target.absolute,
         desination: this.destination.path.target.absolute,
-        ...compute
+        ...compute,
       }
 
       const rendered = Mustache.render(raw, metadata)
@@ -295,5 +295,5 @@ export default component('template')(
         return { success: false, result: String(error) }
       }
     })
-  }
+  },
 )

@@ -10,7 +10,7 @@ describe('components/PushBranch', () => {
     .context(() => ({
       global: {
         plugins: [ vuetify ],
-      }
+      },
     }))
 
   beforeEach(() => {

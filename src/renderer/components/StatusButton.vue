@@ -44,7 +44,6 @@ import {
   VProgressCircular,
 } from 'vuetify/components'
 
-
 export default {
   components: {
     VBtn,
@@ -56,20 +55,20 @@ export default {
 <script setup lang="ts">
 import { computed } from 'vue'
 
-export interface Props {
-  available_modified?: number,
-  available_new?: number,
-  available_removed?: number,
-  available_renamed?: number,
-  staged_modified?: number,
-  staged_new?: number,
-  staged_removed?: number,
-  staged_renamed?: number,
-  waiting_max?: number,
-  waiting?: number,
+export interface Properties {
+  available_modified?: number
+  available_new?: number
+  available_removed?: number
+  available_renamed?: number
+  staged_modified?: number
+  staged_new?: number
+  staged_removed?: number
+  staged_renamed?: number
+  waiting_max?: number
+  waiting?: number
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   available_modified: 0,
   available_new: 0,
   available_removed: 0,
@@ -83,10 +82,10 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const available_added = computed(() => {
-  return props.available_new + props.available_renamed + props.available_modified
+  return properties.available_new + properties.available_renamed + properties.available_modified
 })
 
 const staged_added = computed(() => {
-  return props.staged_new + props.staged_renamed + props.staged_modified
+  return properties.staged_new + properties.staged_renamed + properties.staged_modified
 })
 </script>

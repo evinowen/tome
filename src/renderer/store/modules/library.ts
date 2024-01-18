@@ -33,7 +33,7 @@ export default {
       if (index >= 0) {
         state.history.splice(index, 1)
       }
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     load: async function (context, path) {
@@ -43,7 +43,7 @@ export default {
         const raw = await api.file.contents(path)
 
         if (raw) {
-          const lines = raw.split(/[\n\r]+/).map(line => line.trim())
+          const lines = raw.split(/[\n\r]+/).map((line) => line.trim())
 
           for (const line of lines) {
             if (line !== '') {
@@ -86,6 +86,6 @@ export default {
     },
     record: async function (context) {
       await api.file.write_library(context.state.path, context.state.history)
-    }
-  }
+    },
+  },
 }

@@ -20,6 +20,6 @@ export default function () {
     ...repository,
     ...ssl,
     ...templates,
-    ...window
+    ...window,
   }
 }

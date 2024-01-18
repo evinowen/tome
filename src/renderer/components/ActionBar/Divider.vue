@@ -14,7 +14,7 @@ import {
 export default {
   components: {
     VDivider,
-  }
+  },
 }
 </script>
 

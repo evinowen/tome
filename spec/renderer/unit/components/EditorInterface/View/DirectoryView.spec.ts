@@ -7,7 +7,7 @@ import DirectoryView from '@/components/EditorInterface/View/DirectoryView.vue'
 
 describe('components/EditorInterface/DirectoryView', () => {
   let vuetify
-  let file = File.Empty
+  const file = File.Empty
 
   const factory = assemble(DirectoryView, { file })
     .context(() => ({
@@ -17,8 +17,8 @@ describe('components/EditorInterface/DirectoryView', () => {
           EmptyPane: BasicComponentStub,
           FileIcon: true,
           VDivider: true,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {

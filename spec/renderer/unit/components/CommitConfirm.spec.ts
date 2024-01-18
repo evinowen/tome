@@ -22,8 +22,8 @@ describe('components/CommitConfirm', () => {
           VListItemTitle: BasicComponentStub,
           VProgressCircular: BasicComponentStub,
           VTextarea: BasicComponentStub,
-        }
-      }
+        },
+      },
     }))
 
   beforeEach(() => {
@@ -49,7 +49,7 @@ describe('components/CommitConfirm', () => {
   })
 
   it('should emit "message" event when message input emits "update:model-value" event', async () => {
-    //TODO: Cannot trigger "update:model-value" event
+    // TODO: Cannot trigger "update:model-value" event
     // const wrapper = factory.wrap()
 
     // const message_input = wrapper.findComponent({ref: 'message'})
@@ -64,7 +64,7 @@ describe('components/CommitConfirm', () => {
   it('should emit "commit" event when commit button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
-    const commit_button = wrapper.findComponent({ref: 'commit'})
+    const commit_button = wrapper.findComponent({ ref: 'commit' })
     expect(commit_button.exists()).toBe(true)
 
     commit_button.trigger('click')
@@ -76,7 +76,7 @@ describe('components/CommitConfirm', () => {
   it('should emit "push" event when push button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
-    const push_button = wrapper.findComponent({ref: 'push'})
+    const push_button = wrapper.findComponent({ ref: 'push' })
     expect(push_button.exists()).toBe(true)
 
     push_button.trigger('click')
@@ -88,7 +88,7 @@ describe('components/CommitConfirm', () => {
   it('should emit "input" event when return button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
-    const return_button = wrapper.findComponent({ref: 'return'})
+    const return_button = wrapper.findComponent({ ref: 'return' })
     expect(return_button.exists()).toBe(true)
 
     return_button.trigger('click')

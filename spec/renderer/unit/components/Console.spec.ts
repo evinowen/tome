@@ -16,20 +16,20 @@ describe('components/Console', () => {
   let value = true
 
   const factory = assemble(Console, { value })
-  .context(() => ({
-    global: {
-      plugins: [ vuetify, [store, key] ],
-      stubs: {
-        ConsolePage: BasicComponentStub,
-        VBtn: BasicComponentStub,
-        VCard: BasicComponentStub,
-        VCardActions: BasicComponentStub,
-        VCardText: BasicComponentStub,
-        VDialog: BasicComponentStub,
-        VIcon: BasicComponentStub,
-      }
-    }
-  }))
+    .context(() => ({
+      global: {
+        plugins: [ vuetify, [ store, key ] ],
+        stubs: {
+          ConsolePage: BasicComponentStub,
+          VBtn: BasicComponentStub,
+          VCard: BasicComponentStub,
+          VCardActions: BasicComponentStub,
+          VCardText: BasicComponentStub,
+          VDialog: BasicComponentStub,
+          VIcon: BasicComponentStub,
+        },
+      },
+    }))
 
   beforeEach(() => {
     vuetify = createVuetify()
@@ -42,7 +42,7 @@ describe('components/Console', () => {
           { type: 'error', message: 'Message 2', datetime: DateTime.now().minus({ minutes: 60 }), stack: '' },
           { type: 'info', message: 'Message 3', datetime: DateTime.now().minus({ minutes: 45 }), stack: '' },
           { type: 'error', message: 'Message 4', datetime: DateTime.now().minus({ minutes: 30 }), stack: '' },
-          { type: 'error', message: 'Message 5', datetime: DateTime.now().minus({ minutes: 15 }), stack: '' }
+          { type: 'error', message: 'Message 5', datetime: DateTime.now().minus({ minutes: 15 }), stack: '' },
         ],
         system: SystemStateDefaults(),
       },

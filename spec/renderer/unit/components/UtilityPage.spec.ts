@@ -10,7 +10,7 @@ describe('components/UtilityPage', () => {
     .context(() => ({
       global: {
         plugins: [ vuetify ],
-      }
+      },
     }))
 
   beforeEach(() => {
@@ -54,7 +54,7 @@ describe('components/UtilityPage', () => {
   it('should emit "close" event when close button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
-    const close_button = wrapper.findComponent({ref: 'close'})
+    const close_button = wrapper.findComponent({ ref: 'close' })
     expect(close_button.exists()).toBe(true)
 
     close_button.trigger('click')
@@ -66,7 +66,7 @@ describe('components/UtilityPage', () => {
   it('should emit "close" event when close action button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
-    const close_action_button = wrapper.findComponent({ref: 'close_action'})
+    const close_action_button = wrapper.findComponent({ ref: 'close_action' })
     expect(close_action_button.exists()).toBe(true)
 
     close_action_button.trigger('click')

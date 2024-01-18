@@ -109,10 +109,8 @@
 import File from '@/store/modules/files/file'
 import FileIcon from '@/components/FileIcon.vue'
 import {
-  VCol,
   VContainer,
   VForm,
-  VLayout,
   VTextField,
 } from 'vuetify/components'
 
@@ -120,19 +118,17 @@ export const ExplorerNodeGhostType = {
   FILE: 'file',
   DIRECTORY: 'directory',
   TEMPLATE: 'template',
-  ACTION: 'action'
+  ACTION: 'action',
 }
 
 export default {
   name: 'ExplorerNode',
   components: {
     FileIcon,
-    VCol,
     VContainer,
     VForm,
-    VLayout,
     VTextField,
-  }
+  },
 }
 </script>
 
@@ -142,20 +138,18 @@ import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-let hold: { path: string }
-
-export interface Props {
-  uuid: string,
-  enabled?: boolean,
-  title?: boolean,
-  active: string,
-  edit?: boolean,
-  format?: any,
-  root?: boolean,
-  depth?: number,
+export interface Properties {
+  uuid: string
+  enabled?: boolean
+  title?: boolean
+  active: string
+  edit?: boolean
+  format?: any
+  root?: boolean
+  depth?: number
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   uuid: '',
   enabled: false,
   title: false,
@@ -186,7 +180,7 @@ const valid = ref<boolean>(false)
 const error = ref<string>('')
 
 const file = computed((): File => {
-  return store.state.files.directory[props.uuid] || File.Empty
+  return store.state.files.directory[properties.uuid] || File.Empty
 })
 
 const ephemeral = computed(() => {
@@ -226,7 +220,7 @@ const expanded = computed(() => {
 })
 
 const selected = computed(() => {
-  return props.uuid === props.active
+  return properties.uuid === properties.active
 })
 
 const locked = computed(() => {
@@ -234,28 +228,28 @@ const locked = computed(() => {
 })
 
 const system = computed(() => {
-  const relationships = new Set(['root', 'git', 'tome', 'tome-templates', 'tome-actions'])
+  const relationships = new Set([ 'root', 'git', 'tome', 'tome-templates', 'tome-actions' ])
   return relationships.has(relationship.value)
 })
 
 const actions = computed(() => {
-  return store.state.actions.options.map(name => ({
+  return store.state.actions.options.map((name) => ({
     title: name,
-    action: (path) => emit('action', { name, target: path, selection: undefined })
+    action: (path) => emit('action', { name, target: path, selection: undefined }),
   }))
 })
 
 const templates = computed(() => {
-  return store.state.templates.options.map(name => ({
+  return store.state.templates.options.map((name) => ({
     title: name,
-    action: (path) => emit('template', { name, target: path })
+    action: (path) => emit('template', { name, target: path }),
   }))
 })
 
 const display = computed(() => {
-  if (props.title && !system.value) {
+  if (properties.title && !system.value) {
     try {
-      return props.format(name.value, directory.value)
+      return properties.format(name.value, directory.value)
     } catch {
       return (ephemeral.value || name.value) ? name.value : ' - '
     }
@@ -265,22 +259,22 @@ const display = computed(() => {
 })
 
 const visible = computed(() => {
-  return props.root || ephemeral.value || !(props.title && (display.value === '' || system.value))
+  return properties.root || ephemeral.value || !(properties.title && (display.value === '' || system.value))
 })
 
-const rules = computed((): ((value: string) => boolean|string)[] => {
-  const rules:((value: string) => boolean|string)[] = [
+const rules = computed((): ((value: string) => boolean | string)[] => {
+  const rules: ((value: string) => boolean | string)[] = [
     () => !error.value || error.value,
     (value) => String(value).search(/[^\s\w.-]/g) === -1 || 'special characters are not allowed.',
-    (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'
+    (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.',
   ]
 
-  if (props.title) {
+  if (properties.title) {
     rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
   } else if (!directory.value) {
     rules.push(
       (value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.',
-      (value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.'
+      (value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.',
     )
   }
 
@@ -297,7 +291,7 @@ const alert = computed(() => {
   }
 
   try {
-    props.format(name.value, directory.value)
+    properties.format(name.value, directory.value)
   } catch {
     return true
   }
@@ -318,89 +312,89 @@ const context = computed(() => {
   const expand = [
     {
       title: 'Expand',
-      action: undefined
-    }
+      action: undefined,
+    },
   ]
 
   const script = [
     {
       title: 'Template',
-      load: () => templates.value
+      load: () => templates.value,
     },
     {
       title: 'Action',
-      load: () => actions.value
-    }
+      load: () => actions.value,
+    },
   ]
 
   const special = []
 
-  if (['root', 'tome', 'tome-feature-templates'].includes(relationship.value)) {
+  if ([ 'root', 'tome', 'tome-feature-templates' ].includes(relationship.value)) {
     special.push({
       title: 'New Template',
-      action: async (path) => emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path })
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path }),
     })
   }
 
-  if (['root', 'tome', 'tome-feature-actions'].includes(relationship.value)) {
+  if ([ 'root', 'tome', 'tome-feature-actions' ].includes(relationship.value)) {
     special.push({
       title: 'New Action',
-      action: async (path) => emit('create', { type: ExplorerNodeGhostType.ACTION, target: path })
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.ACTION, target: path }),
     })
   }
 
   const file = [
     {
       title: 'Open',
-      action: (path) => emit('open', { target: path })
+      action: (path) => emit('open', { target: path }),
     },
     {
       title: 'Open Folder',
-      action: (path) => emit('open', { target: path, container: true })
+      action: (path) => emit('open', { target: path, container: true }),
     },
     {
       title: 'New File',
-      action: async (path) => emit('create', { type: ExplorerNodeGhostType.FILE, target: path })
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.FILE, target: path }),
     },
     {
       title: 'New Folder',
-      action: async (path) => emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path })
-    }
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path }),
+    },
   ]
 
   const clipboard = [
     {
       title: 'Cut',
       action: async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
-      active: () => !system.value
+      active: () => !system.value,
     },
     {
       title: 'Copy',
-      action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path })
+      action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path }),
     },
     {
       title: 'Paste',
       active: () => store.state.clipboard.content,
-      action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path })
-    }
+      action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path }),
+    },
   ]
 
   const move = [
     {
       title: 'Rename',
       action: async (path) => emit('edit', { target: path }),
-      active: () => !system.value
+      active: () => !system.value,
     },
     {
       title: 'Delete',
       action: async (path) => emit('delete', { target: path }),
-      active: () => !system.value
-    }
+      active: () => !system.value,
+    },
   ]
 
   push(directory.value ? expand : [])
   push(special.length > 0 && system.value ? special : [])
-  push(system.value && !props.root ? [] : script)
+  push(system.value && !properties.root ? [] : script)
   push(file)
   push(clipboard)
   push(move)
@@ -415,7 +409,7 @@ async function contextmenu (event) {
 
   const position = {
     x: event.clientX,
-    y: event.clientY
+    y: event.clientY,
   }
 
   await store.dispatch('context/open', { target: path.value, title: path.value, items: context.value, position })
@@ -461,7 +455,7 @@ function submit () {
     return
   }
 
-  emit('submit', { input: input.value, title: props.title })
+  emit('submit', { input: input.value, title: properties.title })
 }
 
 defineExpose({

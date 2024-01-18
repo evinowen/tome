@@ -21,19 +21,19 @@ describe('store/modules/repository', () => {
   beforeEach(() => {
     root_actions = {
       message: vi.fn(),
-      error: vi.fn()
+      error: vi.fn(),
     }
 
     configuration = {
       namespaced: true,
       actions: {
-        read: vi.fn()
-      }
+        read: vi.fn(),
+      },
     }
 
     store = new Vuex.Store<State>(cloneDeep({
       actions: root_actions,
-      modules: { repository, configuration }
+      modules: { repository, configuration },
     }))
   })
 
@@ -68,7 +68,9 @@ describe('store/modules/repository', () => {
   })
 
   it('should dispatch error when file fails to stage on dispatch of stage action', async () => {
-    mocked_api.repository.stage.mockImplementationOnce(() => { throw new Error('Error!') })
+    mocked_api.repository.stage.mockImplementationOnce(() => {
+      throw new Error('Error!')
+    })
 
     await store.dispatch('repository/load', '/path/to/repository')
 
@@ -90,7 +92,9 @@ describe('store/modules/repository', () => {
   })
 
   it('should dispatch error when file fails to reset on dispatch of reset action', async () => {
-    mocked_api.repository.reset.mockImplementationOnce(() => { throw new Error('Error!') })
+    mocked_api.repository.reset.mockImplementationOnce(() => {
+      throw new Error('Error!')
+    })
 
     await store.dispatch('repository/load', '/path/to/repository')
 
@@ -139,7 +143,7 @@ describe('store/modules/repository', () => {
     const data = {
       name: 'Test',
       email: 'text@example.com',
-      message: 'Test Commit'
+      message: 'Test Commit',
     }
 
     await store.dispatch('repository/commit', data)
@@ -154,7 +158,7 @@ describe('store/modules/repository', () => {
     const data = {
       name: 'Test',
       email: 'text@example.com',
-      message: 'Test Commit'
+      message: 'Test Commit',
     }
 
     expect(store.state.repository.staging).toBeGreaterThan(0)
@@ -169,7 +173,7 @@ describe('store/modules/repository', () => {
 
     const credentials = {
       key: './test_rsa',
-      passphrase: '1234'
+      passphrase: '1234',
     }
 
     await store.dispatch('repository/credentials/key', credentials.key)
@@ -187,7 +191,7 @@ describe('store/modules/repository', () => {
 
     const credentials = {
       key: './test_rsa',
-      passphrase: '1234'
+      passphrase: '1234',
     }
 
     await store.dispatch('repository/credentials/key', credentials.key)

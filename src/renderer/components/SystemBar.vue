@@ -67,7 +67,7 @@ export default {
     VIcon,
     VSpacer,
     VSystemBar,
-  }
+  },
 }
 </script>
 

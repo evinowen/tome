@@ -19,7 +19,7 @@ export default component('repository')(
         branch: repository.branch,
         remotes: repository.remotes,
         available: repository.available,
-        staged: repository.staged
+        staged: repository.staged,
       }
     })
 
@@ -63,13 +63,13 @@ export default component('repository')(
     handle('remote', async () => {
       const branch = {
         name: repository.remote_branch.name,
-        short: repository.remote_branch.short
+        short: repository.remote_branch.short,
       }
 
       const result = {
         remote: repository.remote,
         branch,
-        pending: repository.pending
+        pending: repository.pending,
       }
 
       return result
@@ -81,5 +81,5 @@ export default component('repository')(
       return oid.tostrS()
     })
   },
-  () => ({ repository })
+  () => ({ repository }),
 )

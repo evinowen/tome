@@ -6,6 +6,8 @@ export default {
   clipboard: {
     paste: vi.fn(),
     readtext: vi.fn(() => text),
-    writetext: vi.fn((value) => { text = value })
-  }
+    writetext: vi.fn((value) => {
+      text = value
+    }),
+  },
 }
