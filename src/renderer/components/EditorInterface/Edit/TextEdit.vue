@@ -108,35 +108,7 @@ function configure_dark_mode () {
   })
 }
 
-watch(() => properties.file, () => {
-  if (!properties.file) {
-    return
-  }
-
-  let language: Extension
-  switch (properties.file.extension) {
-    case '.md':
-      language = markdown()
-      break
-
-    case '.js':
-    case '.json':
-      language = javascript()
-      break
-  }
-
-  view.dispatch({
-    effects: compartments.language.reconfigure(language ?? []),
-  })
-
-  view.dispatch({
-    changes: {
-      from: 0,
-      to: view.state.doc.length,
-      insert: properties.file.document.content,
-    },
-  })
-})
+watch(() => properties.file, load)
 
 const actions = computed(() => {
   return store.state.actions.options.map((name) => ({
@@ -232,7 +204,39 @@ onMounted(() => {
   configure_line_numbers()
   configure_dark_mode()
   select()
+
+  load(properties.file)
 })
+
+function load (file?: File) {
+  if (!file) {
+    return
+  }
+
+  let language: Extension
+  switch (file.extension) {
+    case '.md':
+      language = markdown()
+      break
+
+    case '.js':
+    case '.json':
+      language = javascript()
+      break
+  }
+
+  view.dispatch({
+    effects: compartments.language.reconfigure(language ?? []),
+  })
+
+  view.dispatch({
+    changes: {
+      from: 0,
+      to: view.state.doc.length,
+      insert: file.document.content,
+    },
+  })
+}
 
 function selection_fetch () {
   let value = ''
