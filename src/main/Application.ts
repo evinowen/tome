@@ -98,7 +98,7 @@ class Application {
       },
     })
 
-    log.info('Window build complete', this.window)
+    log.info('Window build complete')
 
     log.info('Registering components with built window')
     this.register()
