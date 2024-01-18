@@ -113,7 +113,7 @@ function click (event) {
   const point_x = event.clientX - sea_rect.left
   const point_y = event.clientY - sea_rect.top
 
-  const length = Math.hypot(point_x * point_x + point_y * point_y)
+  const length = Math.hypot(point_x, point_y)
 
   const velocity = 5
 
