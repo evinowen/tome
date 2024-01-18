@@ -42,6 +42,7 @@
       <v-btn
         class="action-button"
         rounded="0"
+        variant="text"
         icon
         @click.stop="$emit('input', item.path)"
       >
@@ -104,8 +105,8 @@ withDefaults(defineProps<Properties>(), {
 
 const headers = [
   { title: 'File', value: 'path', width: 'auto' },
-  { title: 'Type', value: 'type', width: '78px' },
-  { title: '', value: 'action', width: '23px', sortable: false },
+  { title: 'Type', value: 'type', width: '96px' },
+  { title: '', value: 'action', width: '32px', sortable: false },
 ]
 
 function file_type (type) {
@@ -172,7 +173,7 @@ defineExpose({
   overflow-x: none;
 }
 
-.root :deep(td),
+.root :deep(table > tbody > tr > td),
 .root :deep(th) {
   font-size: 10px;
   padding: 0;
@@ -186,9 +187,8 @@ defineExpose({
 .action-button {
   width: 100%;
   height: 100%;
-  padding: 0;
+  padding: 8px;
   color: rgb(var(--v-theme-on-surface));
-  background: rgb(var(--v-theme-surface));
 }
 .path-button {
   padding-left: 4px;
