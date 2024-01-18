@@ -1,7 +1,7 @@
 <template>
   <context-menu-node
     v-if="context.visible"
-    ref="root"
+    ref="root-node"
     v-resize="resize"
     :window_x="window_x"
     :window_y="window_y"

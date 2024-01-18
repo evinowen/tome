@@ -6,7 +6,7 @@
     <template #activator="{ props }">
       <v-btn
         v-if="repository.path"
-        ref="close_button"
+        ref="close-button"
         action-bar-bookshelf
         rounded="0"
         size="small"
@@ -25,7 +25,7 @@
       </v-btn>
       <v-btn
         v-else
-        ref="bookshelf_button"
+        ref="bookshelf-button"
         action-bar-bookshelf
         rounded="0"
         size="small"

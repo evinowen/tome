@@ -44,19 +44,19 @@ describe('components/PushStatus', () => {
     const wrapper = factory.wrap()
     expect(wrapper).toBeDefined()
 
-    const content_blank = wrapper.findComponent({ ref: 'blank' })
+    const content_blank = wrapper.findComponent({ ref: 'blank-view' })
     expect(content_blank.exists()).toBe(true)
 
-    const content_loading = wrapper.findComponent({ ref: 'loading' })
+    const content_loading = wrapper.findComponent({ ref: 'loading-view' })
     expect(content_loading.exists()).toBe(false)
 
-    const content_error = wrapper.findComponent({ ref: 'error' })
+    const content_error = wrapper.findComponent({ ref: 'error-view' })
     expect(content_error.exists()).toBe(false)
 
-    const content_match = wrapper.findComponent({ ref: 'match' })
+    const content_match = wrapper.findComponent({ ref: 'match-view' })
     expect(content_match.exists()).toBe(false)
 
-    const content_compare = wrapper.findComponent({ ref: 'compare' })
+    const content_compare = wrapper.findComponent({ ref: 'compare-view' })
     expect(content_compare.exists()).toBe(false)
   })
 
@@ -64,19 +64,19 @@ describe('components/PushStatus', () => {
     const wrapper = factory.wrap({ active: true, loading: true })
     expect(wrapper).toBeDefined()
 
-    const content_blank = wrapper.findComponent({ ref: 'blank' })
+    const content_blank = wrapper.findComponent({ ref: 'blank-view' })
     expect(content_blank.exists()).toBe(false)
 
-    const content_loading = wrapper.findComponent({ ref: 'loading' })
+    const content_loading = wrapper.findComponent({ ref: 'loading-view' })
     expect(content_loading.exists()).toBe(true)
 
-    const content_error = wrapper.findComponent({ ref: 'error' })
+    const content_error = wrapper.findComponent({ ref: 'error-view' })
     expect(content_error.exists()).toBe(false)
 
-    const content_match = wrapper.findComponent({ ref: 'match' })
+    const content_match = wrapper.findComponent({ ref: 'match-view' })
     expect(content_match.exists()).toBe(false)
 
-    const content_compare = wrapper.findComponent({ ref: 'compare' })
+    const content_compare = wrapper.findComponent({ ref: 'compare-view' })
     expect(content_compare.exists()).toBe(false)
   })
 
@@ -84,19 +84,19 @@ describe('components/PushStatus', () => {
     const wrapper = factory.wrap({ active: true, error: 'Error!' })
     expect(wrapper).toBeDefined()
 
-    const content_blank = wrapper.findComponent({ ref: 'blank' })
+    const content_blank = wrapper.findComponent({ ref: 'blank-view' })
     expect(content_blank.exists()).toBe(false)
 
-    const content_loading = wrapper.findComponent({ ref: 'loading' })
+    const content_loading = wrapper.findComponent({ ref: 'loading-view' })
     expect(content_loading.exists()).toBe(false)
 
-    const content_error = wrapper.findComponent({ ref: 'error' })
+    const content_error = wrapper.findComponent({ ref: 'error-view' })
     expect(content_error.exists()).toBe(true)
 
-    const content_match = wrapper.findComponent({ ref: 'match' })
+    const content_match = wrapper.findComponent({ ref: 'match-view' })
     expect(content_match.exists()).toBe(false)
 
-    const content_compare = wrapper.findComponent({ ref: 'compare' })
+    const content_compare = wrapper.findComponent({ ref: 'compare-view' })
     expect(content_compare.exists()).toBe(false)
   })
 
@@ -104,19 +104,19 @@ describe('components/PushStatus', () => {
     const wrapper = factory.wrap({ active: true, match: true })
     expect(wrapper).toBeDefined()
 
-    const content_blank = wrapper.findComponent({ ref: 'blank' })
+    const content_blank = wrapper.findComponent({ ref: 'blank-view' })
     expect(content_blank.exists()).toBe(false)
 
-    const content_loading = wrapper.findComponent({ ref: 'loading' })
+    const content_loading = wrapper.findComponent({ ref: 'loading-view' })
     expect(content_loading.exists()).toBe(false)
 
-    const content_error = wrapper.findComponent({ ref: 'error' })
+    const content_error = wrapper.findComponent({ ref: 'error-view' })
     expect(content_error.exists()).toBe(false)
 
-    const content_match = wrapper.findComponent({ ref: 'match' })
+    const content_match = wrapper.findComponent({ ref: 'match-view' })
     expect(content_match.exists()).toBe(true)
 
-    const content_compare = wrapper.findComponent({ ref: 'compare' })
+    const content_compare = wrapper.findComponent({ ref: 'compare-view' })
     expect(content_compare.exists()).toBe(false)
   })
 
@@ -124,19 +124,19 @@ describe('components/PushStatus', () => {
     const wrapper = factory.wrap({ active: true, compare: true })
     expect(wrapper).toBeDefined()
 
-    const content_blank = wrapper.findComponent({ ref: 'blank' })
+    const content_blank = wrapper.findComponent({ ref: 'blank-view' })
     expect(content_blank.exists()).toBe(false)
 
-    const content_loading = wrapper.findComponent({ ref: 'loading' })
+    const content_loading = wrapper.findComponent({ ref: 'loading-view' })
     expect(content_loading.exists()).toBe(false)
 
-    const content_error = wrapper.findComponent({ ref: 'error' })
+    const content_error = wrapper.findComponent({ ref: 'error-view' })
     expect(content_error.exists()).toBe(false)
 
-    const content_match = wrapper.findComponent({ ref: 'match' })
+    const content_match = wrapper.findComponent({ ref: 'match-view' })
     expect(content_match.exists()).toBe(false)
 
-    const content_compare = wrapper.findComponent({ ref: 'compare' })
+    const content_compare = wrapper.findComponent({ ref: 'compare-view' })
     expect(content_compare.exists()).toBe(true)
   })
 })

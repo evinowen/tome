@@ -75,7 +75,7 @@ describe('components/RepositoryButton', () => {
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
 
-    const authors_button = wrapper.findComponent({ ref: 'authors_button' })
+    const authors_button = wrapper.findComponent({ ref: 'authors-button' })
     expect(authors_button.exists()).toBe(true)
 
     authors_button.trigger('click')
@@ -89,7 +89,7 @@ describe('components/RepositoryButton', () => {
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
 
-    const contributors_button = wrapper.findComponent({ ref: 'contributors_button' })
+    const contributors_button = wrapper.findComponent({ ref: 'contributors-button' })
     expect(contributors_button.exists()).toBe(true)
 
     contributors_button.trigger('click')
@@ -103,7 +103,7 @@ describe('components/RepositoryButton', () => {
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
 
-    const license_button = wrapper.findComponent({ ref: 'license_button' })
+    const license_button = wrapper.findComponent({ ref: 'license-button' })
     expect(license_button.exists()).toBe(true)
 
     license_button.trigger('click')
@@ -117,7 +117,7 @@ describe('components/RepositoryButton', () => {
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
 
-    const readme_button = wrapper.findComponent({ ref: 'readme_button' })
+    const readme_button = wrapper.findComponent({ ref: 'readme-button' })
     expect(readme_button.exists()).toBe(true)
 
     readme_button.trigger('click')

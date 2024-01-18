@@ -21,7 +21,7 @@
       />
     </v-col>
     <v-btn
-      ref="clear"
+      ref="clear-button"
       rounded="0"
       icon
       style="height: auto;"
@@ -33,7 +33,7 @@
       </v-icon>
     </v-btn>
     <v-btn
-      ref="generate"
+      ref="generate-button"
       rounded="0"
       icon
       style="height: auto;"

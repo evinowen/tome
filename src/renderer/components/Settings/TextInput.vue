@@ -1,6 +1,6 @@
 <template>
   <v-text-field
-    ref="input"
+    ref="input-field"
     density="compact"
     clearable
     :label="label"

@@ -54,7 +54,7 @@ describe('components/Settings/TextInput', () => {
   it('should dispatch configuration/update with new value when input emits model update', async () => {
     const wrapper = factory.wrap()
 
-    const input_field = wrapper.findComponent({ ref: 'input' })
+    const input_field = wrapper.findComponent({ ref: 'input-field' })
     expect(input_field.exists()).toBe(true)
 
     const value = 'John Doe'
@@ -69,7 +69,7 @@ describe('components/Settings/TextInput', () => {
 
     const obscured = wrapper.vm.obscured
 
-    const input_field = wrapper.findComponent({ ref: 'input' })
+    const input_field = wrapper.findComponent({ ref: 'input-field' })
     expect(input_field.exists()).toBe(true)
 
     const value = 'John Doe'

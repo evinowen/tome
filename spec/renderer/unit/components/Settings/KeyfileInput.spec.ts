@@ -87,7 +87,7 @@ describe('components/Settings/KeyfileInput', () => {
   it('should dispatch configuration/update with empty value when clear button emits click', async () => {
     const wrapper = factory.wrap()
 
-    const clear_button = wrapper.findComponent({ ref: 'clear' })
+    const clear_button = wrapper.findComponent({ ref: 'clear-button' })
     expect(clear_button.exists()).toBe(true)
 
     await clear_button.trigger('click')
@@ -101,7 +101,7 @@ describe('components/Settings/KeyfileInput', () => {
 
     const wrapper = factory.wrap()
 
-    const generate_button = wrapper.findComponent({ ref: 'generate' })
+    const generate_button = wrapper.findComponent({ ref: 'generate-button' })
     expect(generate_button.exists()).toBe(true)
     await generate_button.trigger('click')
 

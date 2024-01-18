@@ -67,10 +67,10 @@ describe('components/ActionBar/LibraryButton', () => {
     wrapper.vm.show = true
     await wrapper.vm.$nextTick()
 
-    const bookshelf_button = wrapper.findComponent({ ref: 'bookshelf_button' })
+    const bookshelf_button = wrapper.findComponent({ ref: 'bookshelf-button' })
     expect(bookshelf_button.exists()).toBe(true)
 
-    const close_button = wrapper.findComponent({ ref: 'close_button' })
+    const close_button = wrapper.findComponent({ ref: 'close-button' })
     expect(close_button.exists()).toBe(false)
   })
 
@@ -81,10 +81,10 @@ describe('components/ActionBar/LibraryButton', () => {
     wrapper.vm.show = true
     await wrapper.vm.$nextTick()
 
-    const bookshelf_button = wrapper.findComponent({ ref: 'bookshelf_button' })
+    const bookshelf_button = wrapper.findComponent({ ref: 'bookshelf-button' })
     expect(bookshelf_button.exists()).toBe(false)
 
-    const close_button = wrapper.findComponent({ ref: 'close_button' })
+    const close_button = wrapper.findComponent({ ref: 'close-button' })
     expect(close_button.exists()).toBe(true)
   })
 

@@ -8,7 +8,7 @@
   >
     <v-icon
       v-if="!branch"
-      ref="error_icon"
+      ref="error-icon"
       size="small"
       class="pr-1"
     >

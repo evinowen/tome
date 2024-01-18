@@ -1,6 +1,6 @@
 <template>
   <div
-    ref="node"
+    id="node"
     v-click-outside.prevent="{ handler: () => $emit('close'), closeConditional: () => root, include }"
     class="context-menu"
   >

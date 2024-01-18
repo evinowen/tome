@@ -35,14 +35,14 @@ describe('components/ActionBar/BranchButton', () => {
   it('should show error icon if branch is not truthy', async () => {
     const wrapper = factory.wrap({ branch: '' })
 
-    const error_icon = wrapper.findComponent({ ref: 'error_icon' })
+    const error_icon = wrapper.findComponent({ ref: 'error-icon' })
     expect(error_icon.exists()).toBe(true)
   })
 
   it('should not show error icon if branch is truthy', async () => {
     const wrapper = factory.wrap({ branch: 'master' })
 
-    const error_icon = wrapper.findComponent({ ref: 'error_icon' })
+    const error_icon = wrapper.findComponent({ ref: 'error-icon' })
     expect(error_icon.exists()).toBe(false)
   })
 })

@@ -61,7 +61,7 @@
       </v-container>
       <v-card-actions>
         <v-btn
-          ref="push_confirm"
+          ref="push-button"
           color="warning"
           variant="text"
           :disabled="waiting"
@@ -78,7 +78,7 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          ref="return"
+          ref="return-button"
           color="darken-1"
           variant="text"
           :disabled="waiting"

@@ -7,7 +7,7 @@
     ]"
   >
     <v-btn
-      ref="close"
+      ref="close-button"
       rounded="0"
       class="pa-0"
       style="height: 16px; width: 100%"

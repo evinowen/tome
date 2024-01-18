@@ -5,7 +5,7 @@
   >
     <v-card-title class="pa-2">
       <v-switch
-        ref="enabled"
+        ref="enabled-switch"
         density="compact"
         hide-details
         :label="color"
@@ -16,7 +16,7 @@
       />
     </v-card-title>
     <v-color-picker
-      ref="color"
+      ref="color-input"
       rounded="0"
       :model-value="color_state"
       :modes="['rgb']"

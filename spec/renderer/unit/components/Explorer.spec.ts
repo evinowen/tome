@@ -164,8 +164,8 @@ describe('components/ExplorerNode', () => {
 
     expect(wrapper.vm.hold).toBeUndefined()
 
-    const node = wrapper.vm.explorer_root
-    await node.$emit('drag', hold)
+    const node = wrapper.findComponent({ ref: 'root-node' })
+    await node.vm.$emit('drag', hold)
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.hold).toEqual(hold)
@@ -226,8 +226,8 @@ describe('components/ExplorerNode', () => {
 
     expect(store_dispatch).toHaveBeenCalledTimes(0)
 
-    const node = wrapper.vm.explorer_root
-    await node.$emit('drop', { context })
+    const node = wrapper.findComponent({ ref: 'root-node' })
+    await node.vm.$emit('drop', { context })
     await wrapper.vm.$nextTick()
 
     expect(store_dispatch).toHaveBeenCalledTimes(1)
@@ -248,8 +248,8 @@ describe('components/ExplorerNode', () => {
       title: false,
     }
 
-    const node = wrapper.vm.explorer_root
-    await node.$emit('submit', context)
+    const node = wrapper.findComponent({ ref: 'root-node' })
+    await node.vm.$emit('submit', context)
     await wrapper.vm.$nextTick()
 
     expect(store_dispatch).toHaveBeenCalledTimes(1)

@@ -4,7 +4,7 @@
     class="root"
   >
     <explorer-node
-      ref="explorer_root"
+      ref="root-node"
       root
       :uuid="root.uuid"
       :active="active"
@@ -49,7 +49,6 @@ import { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
 const store = fetchStore()
 
-const explorer_root = ref<typeof ExplorerNode>(undefined)
 const hold = ref<{ path: string }>(undefined)
 
 export interface Properties {
@@ -178,7 +177,6 @@ defineExpose({
   create,
   delete_event,
   edit,
-  explorer_root,
   format,
   hold,
   open,

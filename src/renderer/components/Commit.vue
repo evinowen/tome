@@ -80,7 +80,7 @@
       <commit-list-container>
         <template #left>
           <v-btn
-            ref="stage"
+            ref="stage-button"
             class="ma-2"
             rounded="0"
             :disabled="available.length === 0"
@@ -91,7 +91,7 @@
         </template>
         <template #right>
           <v-btn
-            ref="reset"
+            ref="reset-button"
             class="ma-2"
             rounded="0"
             :disabled="staged.length === 0"

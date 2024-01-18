@@ -57,7 +57,7 @@ describe('components/Settings/ThemeColorPicker', () => {
   it('should dispatch configuration/update with new enabled value when enabled switch emits model update', async () => {
     const wrapper = factory.wrap()
 
-    const enabled_switch = wrapper.findComponent({ ref: 'enabled' })
+    const enabled_switch = wrapper.findComponent({ ref: 'enabled-switch' })
     expect(enabled_switch.exists()).toBe(true)
 
     const enabled = false
@@ -70,7 +70,7 @@ describe('components/Settings/ThemeColorPicker', () => {
   it('should dispatch configuration/update with new color value when color picker emits model update', async () => {
     const wrapper = factory.wrap()
 
-    const color_picker = wrapper.findComponent({ ref: 'color' })
+    const color_picker = wrapper.findComponent({ ref: 'color-input' })
     expect(color_picker.exists()).toBe(true)
 
     const color = '#000000'

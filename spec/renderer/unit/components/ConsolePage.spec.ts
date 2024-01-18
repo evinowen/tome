@@ -35,7 +35,7 @@ describe('components/FileIcon', () => {
   it('should emit "close" event when close button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
-    const close_button = wrapper.findComponent({ ref: 'close' })
+    const close_button = wrapper.findComponent({ ref: 'close-button' })
     expect(close_button.exists()).toBe(true)
 
     close_button.trigger('click')

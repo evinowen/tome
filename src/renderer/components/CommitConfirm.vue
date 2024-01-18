@@ -46,7 +46,7 @@
 
       <v-card-text class="commit">
         <v-textarea
-          ref="message"
+          ref="message-input"
           class="pa-0 ma-0"
           counter="50"
           :model-value="message"
@@ -65,7 +65,7 @@
 
       <v-card-actions>
         <v-btn
-          ref="commit"
+          ref="commit-button"
           color="warning"
           variant="text"
           :disabled="staging || waiting"
@@ -82,7 +82,7 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          ref="push"
+          ref="push-button"
           :color="push ? 'warning' : ''"
           variant="text"
           @click="$emit('push', !push)"
@@ -93,7 +93,7 @@
           Push
         </v-btn>
         <v-btn
-          ref="return"
+          ref="return-button"
           color="darken-1"
           variant="text"
           :disabled="waiting"

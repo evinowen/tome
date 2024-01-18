@@ -2,7 +2,7 @@
   <v-card style="height: 100%">
     <template v-if="active">
       <template v-if="loading">
-        <v-list-item ref="loading">
+        <v-list-item ref="loading-view">
           <template #prepend>
             <v-avatar color="grey">
               <v-icon>mdi-upload-multiple</v-icon>
@@ -20,7 +20,7 @@
       </template>
 
       <template v-else-if="error">
-        <v-list-item ref="error">
+        <v-list-item ref="error-view">
           <template #prepend>
             <v-avatar color="warning">
               <v-icon>mdi-alert</v-icon>
@@ -43,7 +43,7 @@
       </template>
 
       <template v-else-if="match">
-        <v-list-item ref="match">
+        <v-list-item ref="match-view">
           <template #prepend>
             <v-avatar color="info">
               <v-icon>mdi-thumb-up</v-icon>
@@ -61,7 +61,7 @@
       </template>
 
       <template v-else>
-        <v-list-item ref="compare">
+        <v-list-item ref="compare-view">
           <template #prepend>
             <v-avatar color="success">
               <v-icon>mdi-check</v-icon>
@@ -108,7 +108,7 @@
     </template>
 
     <template v-else>
-      <v-list-item ref="blank">
+      <v-list-item ref="blank-view">
         <template #prepend>
           <v-avatar color="grey">
             <v-icon>mdi-cursor-pointer</v-icon>

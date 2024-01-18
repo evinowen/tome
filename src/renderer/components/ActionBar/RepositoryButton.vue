@@ -25,7 +25,7 @@
       <v-card-subtitle>{{ path }}</v-card-subtitle>
       <v-card-actions>
         <v-btn
-          ref="license_button"
+          ref="license-button"
           variant="text"
           :disabled="!license"
           @click="select(license)"
@@ -36,7 +36,7 @@
       <v-divider />
       <v-card-actions>
         <v-btn
-          ref="readme_button"
+          ref="readme-button"
           variant="text"
           :disabled="!readme"
           @click="select(readme)"
@@ -45,7 +45,7 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          ref="authors_button"
+          ref="authors-button"
           variant="text"
           :disabled="!authors"
           @click="select(authors)"
@@ -53,7 +53,7 @@
           Authors
         </v-btn>
         <v-btn
-          ref="contributors_button"
+          ref="contributors-button"
           variant="text"
           :disabled="!contributors"
           @click="select(contributors)"
