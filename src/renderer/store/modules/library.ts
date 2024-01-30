@@ -1,13 +1,19 @@
 import { MutationTree, ActionTree } from 'vuex'
+import api from '@/api'
 
-export class State {
-  path = ''
-  history: string[] = []
+export interface State {
+  path: string
+  history: string[]
 }
+
+export const StateDefaults = (): State => ({
+  path: '',
+  history: [],
+})
 
 export default {
   namespaced: true,
-  state: new State,
+  state: StateDefaults,
   mutations: <MutationTree<State>>{
     set: function (state, data) {
       const { path, history } = data
@@ -27,17 +33,17 @@ export default {
       if (index >= 0) {
         state.history.splice(index, 1)
       }
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     load: async function (context, path) {
       const history = []
 
-      if (await window.api.file.exists(path)) {
-        const raw = await window.api.file.contents(path)
+      if (await api.file.exists(path)) {
+        const raw = await api.file.contents(path)
 
         if (raw) {
-          const lines = raw.split(/[\n\r]+/).map(line => line.trim())
+          const lines = raw.split(/[\n\r]+/).map((line) => line.trim())
 
           for (const line of lines) {
             if (line !== '') {
@@ -50,7 +56,7 @@ export default {
       context.commit('set', { path, history })
     },
     select: async function (context) {
-      const result = await window.api.file.select_directory()
+      const result = await api.file.select_directory()
 
       if (result.canceled) {
         return
@@ -79,7 +85,7 @@ export default {
       await context.dispatch('record')
     },
     record: async function (context) {
-      await window.api.file.write_library(context.state.path, context.state.history)
-    }
-  }
+      await api.file.write_library(context.state.path, context.state.history)
+    },
+  },
 }

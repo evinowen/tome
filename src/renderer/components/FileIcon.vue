@@ -1,8 +1,9 @@
 <template>
   <v-btn
-    tile
-    text
-    x-small
+    ref="button"
+    rounded="0"
+    variant="text"
+    size="x-small"
     :class="[ `file-icon-${size}`, `file-icon-button`, disabled ? 'file-icon-disabled' : '' ]"
     @click.stop="$emit('click')"
   >
@@ -23,127 +24,150 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VBtn, VIcon } from 'vuetify/lib'
+import {
+  VBtn,
+  VIcon,
+} from 'vuetify/components'
 
-export const FileIconProperties = Vue.extend({
-  props: {
-    path: { type: String, default: '' },
-    extension: { type: String, default: '' },
-    relationship: { type: String, default: '' },
-    directory: { type: Boolean, default: false },
-    expanded: { type: Boolean, default: false },
-    selected: { type: Boolean, default: false },
-    image: { type: Boolean, default: false },
-    alert: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false },
-    size: { type: String, default: 'small' }
-  }
-})
-
-@Component({
-  components: { VBtn, VIcon }
-})
-export default class FileIcon extends FileIconProperties {
-  get system () {
-    return ['git', 'tome', 'tome-templates', 'tome-actions'].includes(this.relationship)
-  }
-
-  get icon () {
-    if (this.directory) {
-      if (this.relationship === 'root') {
-        return this.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
-      }
-
-      return this.expanded ? 'mdi-folder-open' : 'mdi-folder'
-    }
-
-    if (this.image) {
-      return 'mdi-image'
-    }
-
-    if (this.relationship === 'tome-file') {
-      return 'mdi-file'
-    }
-
-    return 'mdi-newspaper-variant'
-  }
-
-  get badge () {
-    const base = this.alert ? 'mdi-alert-circle' : ''
-
-    switch (this.relationship) {
-      case 'root':
-        return ''
-
-      case 'git':
-        return 'mdi-lock'
-
-      case 'tome':
-        return this.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
-
-      case 'tome-feature-actions':
-      case 'tome-feature-templates':
-        return 'mdi-cog'
-
-      case 'tome-action':
-        return 'mdi-play-circle'
-
-      case 'tome-template':
-        return 'mdi-lightning-bolt-circle'
-    }
-
-    if (this.image) {
-      return base
-    }
-
-    if (this.relationship === 'tome-file') {
-      switch (this.extension) {
-        case '.md':
-          return 'mdi-arrow-down-bold-circle'
-
-        case '.js':
-          return 'mdi-language-javascript'
-
-        case '.json':
-          return 'mdi-code-json'
-      }
-    }
-
-    return base
-  }
-
-  get modifier () {
-    switch (this.badge) {
-      case 'mdi-cog':
-        return 'modify-cog'
-
-      case 'mdi-eye-circle':
-        return 'modify-eye'
-
-      case 'mdi-language-javascript':
-        return 'modify-js'
-
-      case 'mdi-lock':
-        return 'modify-lock'
-
-      case 'mdi-code-json':
-        return 'modify-json'
-    }
-
-    return ''
-  }
+export default {
+  components: {
+    VBtn,
+    VIcon,
+  },
+  emits: [
+    'click',
+  ],
 }
 </script>
 
-<style>
+<script setup lang="ts">
+import { computed } from 'vue'
+
+export interface Properties {
+  alert?: boolean
+  directory?: boolean
+  disabled?: boolean
+  expanded?: boolean
+  extension?: string
+  image?: boolean
+  path?: string
+  relationship?: string
+  selected?: boolean
+  size?: string
+}
+
+const properties = withDefaults(defineProps<Properties>(), {
+  alert: false,
+  directory: false,
+  disabled: false,
+  expanded: false,
+  extension: '',
+  image: false,
+  path: '',
+  relationship: '',
+  selected: false,
+  size: 'small',
+})
+
+const system = computed(() => {
+  return [ 'git', 'tome', 'tome-templates', 'tome-actions' ].includes(properties.relationship)
+})
+
+const icon = computed(() => {
+  if (properties.directory) {
+    if (properties.relationship === 'root') {
+      return properties.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+    }
+
+    return properties.expanded ? 'mdi-folder-open' : 'mdi-folder'
+  }
+
+  if (properties.image) {
+    return 'mdi-image'
+  }
+
+  if (properties.relationship === 'tome-file') {
+    return 'mdi-file'
+  }
+
+  return 'mdi-newspaper-variant'
+})
+
+const badge = computed(() => {
+  const base = properties.alert ? 'mdi-alert-circle' : ''
+
+  switch (properties.relationship) {
+    case 'root':
+      return ''
+
+    case 'git':
+      return 'mdi-lock'
+
+    case 'tome':
+      return properties.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
+
+    case 'tome-feature-actions':
+    case 'tome-feature-templates':
+      return 'mdi-cog'
+
+    case 'tome-action':
+      return 'mdi-play-circle'
+
+    case 'tome-template':
+      return 'mdi-lightning-bolt-circle'
+  }
+
+  if (properties.relationship === 'tome-file') {
+    switch (properties.extension) {
+      case '.md':
+        return 'mdi-arrow-down-bold-circle'
+
+      case '.js':
+        return 'mdi-language-javascript'
+
+      case '.json':
+        return 'mdi-code-json'
+    }
+  }
+
+  return base
+})
+
+const modifier = computed(() => {
+  switch (badge.value) {
+    case 'mdi-cog':
+      return 'modify-cog'
+
+    case 'mdi-eye-circle':
+      return 'modify-eye'
+
+    case 'mdi-language-javascript':
+      return 'modify-js'
+
+    case 'mdi-lock':
+      return 'modify-lock'
+
+    case 'mdi-code-json':
+      return 'modify-json'
+  }
+
+  return ''
+})
+
+defineExpose({
+  badge,
+  icon,
+  system,
+})
+</script>
+
+<style scoped>
 .file-icon-disabled,
-.file-icon-disabled * {
+.file-icon-disabled :deep(*) {
   pointer-events: none !important;
 }
 
-:root {
+* {
   --tome-file-icon-small: 1;
   --tome-file-icon-large: 8;
 }
@@ -178,6 +202,12 @@ export default class FileIcon extends FileIconProperties {
   --tome-file-icon-icon-badged-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 9px);
   --tome-file-icon-icon-badged-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 9px) + 1px);
 
+  -webkit-mask-image:
+    radial-gradient(
+      circle at var(--tome-file-icon-icon-badged-circle-x) var(--tome-file-icon-icon-badged-circle-y),
+      rgba(0, 0, 0, 0) var(--tome-file-icon-icon-badged-gradient),
+      rgba(0, 0, 0, 1) var(--tome-file-icon-icon-badged-gradient-edge)
+    );
   mask-image:
     radial-gradient(
       circle at var(--tome-file-icon-icon-badged-circle-x) var(--tome-file-icon-icon-badged-circle-y),
@@ -190,12 +220,12 @@ export default class FileIcon extends FileIconProperties {
   --tome-file-icon-icon-badged-circle-y: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 5px));
 }
 
-.v-icon.v-icon.file-icon-badge {
+.file-icon-badge {
   --tome-file-icon-badge: calc(var(--tome-file-icon-factor) * 10px);
   --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 9px);
   --tome-file-icon-badge-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 7px);
   --tome-file-icon-badge-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 7px) + 1px);
-  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * 0.5 * -3px);
+  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * 0.5 * 3px);
   --tome-file-icon-badge-right: calc(var(--tome-file-icon-factor) * 0.5 * 6px);
 
   position: absolute;
@@ -203,6 +233,12 @@ export default class FileIcon extends FileIconProperties {
   min-width: var(--tome-file-icon-badge) !important;
   height: var(--tome-file-icon-badge) !important;
   min-height: var(--tome-file-icon-badge) !important;
+
+  -webkit-mask-image:
+    radial-gradient(
+      rgba(0, 0, 0, 1) var(--tome-file-icon-badge-gradient),
+      rgba(0, 0, 0, 0) var(--tome-file-icon-badge-gradient-edge)
+    );
   mask-image:
     radial-gradient(
       rgba(0, 0, 0, 1) var(--tome-file-icon-badge-gradient),
@@ -213,8 +249,8 @@ export default class FileIcon extends FileIconProperties {
   right: var(--tome-file-icon-badge-right);
 }
 
-.v-icon.v-icon.file-icon-badge.file-icon-expanded {
-  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * -2.5px);
+.file-icon-badge.file-icon-expanded {
+  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * 0.5px);
 }
 
 @keyframes rotating {
@@ -243,7 +279,7 @@ export default class FileIcon extends FileIconProperties {
   --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 7.5px) !important;
 }
 
-.v-btn.file-icon-button:active .modify-lock,
+.file-icon-button:active .modify-lock,
 .modify-lock:active {
   color: darkorange !important;
 }

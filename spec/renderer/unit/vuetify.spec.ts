@@ -1,27 +1,31 @@
-import Vue from 'vue'
-
-jest.mock('vue', () => ({
-  extend: jest.fn(),
-  component: jest.fn(),
-  use: jest.fn(),
-  $mount: jest.fn(),
-  config: {}
-}))
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
+import * as vuetify from 'vuetify'
 
 describe('vuetify', () => {
-  afterEach(() => {
-    jest.clearAllMocks()
+  let spy_createVuetify
+
+  beforeEach(() => {
+    spy_createVuetify = vi.spyOn(vuetify, 'createVuetify')
   })
 
-  it('is able to be mocked and prepared for testing', () => {
-    expect(Vue.use).toHaveBeenCalledTimes(0)
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
 
-    // TODO: Fix this test to report correctly --
-    //    There is a problem with importing vuetify/lib that reports:
-    //      TypeError: Cannot read property 'extend' of undefined
-    // jest.isolateModules(() => { require('@/vuetify') })
+  it('is able to create an instance of vuetify via the createVuetify method', async () => {
+    expect(spy_createVuetify).not.toHaveBeenCalled()
 
-    // expect(Vue.use).toHaveBeenCalledTimes(1)
-    // expect(Vue.use.mock.calls[0][0]).toBe(Vuetify)
+    const { default: vuetify } = await import('@/vuetify')
+
+    expect(spy_createVuetify).toHaveBeenCalled()
+    expect(spy_createVuetify).toHaveReturnedWith(vuetify)
+  })
+
+  it('is able to generate preset values for theme colors', async () => {
+    const { presets } = await import('@/vuetify')
+
+    expect(presets).toBeDefined()
+    expect(presets.light).toBeDefined()
+    expect(presets.dark).toBeDefined()
   })
 })

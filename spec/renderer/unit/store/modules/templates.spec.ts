@@ -1,30 +1,30 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-import { createLocalVue } from '@vue/test-utils'
 import templates, { State as TemplateState } from '@/store/modules/templates'
 import { cloneDeep } from 'lodash'
-import builders from '?/builders'
 import Disk from '../../../mocks/support/disk'
-import { set_disk } from '?/builders/window/file'
+import { set_disk } from '?/builders/api/file'
+import * as api_module from '@/api'
+import builders from '?/builders'
 
-Object.assign(window, builders.window())
-
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 interface State {
   templates: TemplateState
 }
 
 describe('store/modules/templates', () => {
-  let localVue
   let store
 
   let files
   let post
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
-  const message = jest.fn()
-  const error = jest.fn()
+  const message = vi.fn()
+  const error = vi.fn()
 
   beforeEach(() => {
     disk.reset_disk()
@@ -42,34 +42,31 @@ describe('store/modules/templates', () => {
         selected: undefined,
         editing: false,
         post: undefined,
-        watcher: undefined
+        watcher: undefined,
       },
       actions: {
-        create: jest.fn(),
-        identify: jest.fn(() => ({})),
-        ghost: jest.fn((context, criteria) => {
+        create: vi.fn(),
+        identify: vi.fn(() => ({})),
+        ghost: vi.fn((context, criteria) => {
           post = criteria.post
         }),
-        load: jest.fn(),
-        select: jest.fn(),
-        save: jest.fn()
-      }
+        load: vi.fn(),
+        select: vi.fn(),
+        save: vi.fn(),
+      },
     }
-
-    localVue = createLocalVue()
-    localVue.use(Vuex)
 
     store = new Vuex.Store<State>(cloneDeep({
       actions: { message, error },
       modules: {
         files,
-        templates
-      }
+        templates,
+      },
     }))
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should populate empty values when initalized', async () => {
@@ -125,8 +122,7 @@ describe('store/modules/templates', () => {
   })
 
   it('should dispatch load and select if result is returned from template when execute is dispatched', async () => {
-    const mocked_window = jest.mocked(window)
-    mocked_window.api.template.invoke.mockImplementation(() => Promise.resolve({ success: true, result: '/path' }))
+    mocked_api.template.invoke.mockImplementation(() => Promise.resolve({ success: true, result: '/path' }))
 
     const project = '/project'
     const template = 'example.template.a'
@@ -142,8 +138,7 @@ describe('store/modules/templates', () => {
   })
 
   it('should provide error if executed template failed when execute is dispatched', async () => {
-    const mocked_window = jest.mocked(window)
-    mocked_window.api.template.invoke.mockImplementation(() => Promise.resolve({ success: false, result: 'Error Message' }))
+    mocked_api.template.invoke.mockImplementation(() => Promise.resolve({ success: false, result: 'Error Message' }))
 
     const project = '/project'
     const template = 'example.template.a'

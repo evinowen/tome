@@ -1,22 +1,23 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-import { cloneDeep } from 'lodash'
-import { createLocalVue } from '@vue/test-utils'
 import files, { State as FileState, ChokidarEvent } from '@/store/modules/files'
-import builders from '?/builders'
 import Disk from '../../../mocks/support/disk'
-import { set_disk } from '?/builders/window/file'
+import { set_disk } from '?/builders/api/file'
+import * as api_module from '@/api'
+import builders from '?/builders'
+import { scafold as store_scafold } from '?/builders/store'
 
-Object.assign(window, builders.window())
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 interface State {
   files: FileState
 }
 
 describe('store/modules/files', () => {
-  let localVue
   let store
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
   const identify = async (path) => {
@@ -25,16 +26,13 @@ describe('store/modules/files', () => {
   }
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
     disk.reset_disk()
 
-    store = new Vuex.Store<State>(cloneDeep({ modules: { files } }))
+    store = new Vuex.Store<State>(store_scafold({ modules: { files } }))
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should construct the file tree on initialize', async () => {
@@ -66,8 +64,7 @@ describe('store/modules/files', () => {
 
     expect(store.state.files.tree).toBeUndefined()
 
-    const mocked_window = jest.mocked(window)
-    mocked_window.api.file.subscribe.mockImplementationOnce(async (target, listener) => {
+    mocked_api.file.subscribe.mockImplementationOnce(async (target, listener) => {
       listener({ event: ChokidarEvent.ADD, path })
     })
 
@@ -75,8 +72,8 @@ describe('store/modules/files', () => {
 
     expect(store.state.files.tree).not.toBeUndefined()
 
-    expect(window.api.file.clear_subscriptions).toHaveBeenCalledTimes(1)
-    expect(window.api.file.subscribe).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.clear_subscriptions).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.subscribe).toHaveBeenCalledTimes(1)
   })
 
   it('should reconstruct the file tree on reinitialize', async () => {
@@ -116,13 +113,13 @@ describe('store/modules/files', () => {
     const path = '/project'
     const target = '/project/first'
 
-    expect(window.api.file.open).toHaveBeenCalledTimes(0)
+    expect(mocked_api.file.open).toHaveBeenCalledTimes(0)
 
     await store.dispatch('files/initialize', { path })
     await store.dispatch('files/load', { path })
     await store.dispatch('files/open', { path: target })
 
-    expect(window.api.file.open).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.open).toHaveBeenCalledTimes(1)
   })
 
   it('should collapse an expanded item on toggle', async () => {
@@ -192,7 +189,7 @@ describe('store/modules/files', () => {
 
     await store.dispatch('files/save', { path: target, content })
 
-    expect(window.api.file.write).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.write).toHaveBeenCalledTimes(1)
   })
 
   it('should place the ghost adjacent to the target provided', async () => {
@@ -260,11 +257,11 @@ describe('store/modules/files', () => {
     const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
-    expect(window.api.file.create_directory).toHaveBeenCalledTimes(0)
+    expect(mocked_api.file.create_directory).toHaveBeenCalledTimes(0)
 
     await store.dispatch('files/submit', { path: directory, input, title: false })
 
-    expect(window.api.file.create_directory).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.create_directory).toHaveBeenCalledTimes(1)
   })
 
   it('should fail gracefully when creating a new item that already exists', async () => {
@@ -280,7 +277,7 @@ describe('store/modules/files', () => {
     const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
-    expect(window.api.file.create_directory).toHaveBeenCalledTimes(0)
+    expect(mocked_api.file.create_directory).toHaveBeenCalledTimes(0)
 
     await expect(store.dispatch('files/submit', { path: directory, input, title: false })).rejects.toBeDefined()
   })
@@ -298,11 +295,11 @@ describe('store/modules/files', () => {
     const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
-    expect(window.api.file.create).toHaveBeenCalledTimes(0)
+    expect(mocked_api.file.create).toHaveBeenCalledTimes(0)
 
     await store.dispatch('files/submit', { path: directory, input, title: false })
 
-    expect(window.api.file.create).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.create).toHaveBeenCalledTimes(1)
   })
 
   it('should rename item on submit when item is not ephemeral', async () => {

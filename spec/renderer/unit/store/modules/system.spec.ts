@@ -1,103 +1,104 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-
-import { createLocalVue } from '@vue/test-utils'
-import _system, { State as SystemState } from '@/store/modules/system'
-import { cloneDeep } from 'lodash'
-import builders from '?/builders'
+import system, { State as SystemState } from '@/store/modules/system'
 import Commit from '@/store/modules/system/commit'
 import QuickCommit from '@/store/modules/system/quick_commit'
 import Push from '@/store/modules/system/push'
 import QuickPush from '@/store/modules/system/quick_push'
+import * as api_module from '@/api'
+import builders from '?/builders'
+import { scafold as store_scafold } from '?/builders/store'
 
-Object.assign(window, builders.window())
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 interface State {
   system: SystemState
 }
 
 describe('store/modules/system', () => {
-  let localVue
-  let system
-  let configuration
-
-  const factory = {
-    wrap: () => new Vuex.Store<State>({
-      modules: {
-        system,
-        configuration
-      }
-    })
-  }
+  let store
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
-    system = cloneDeep(_system)
-
-    configuration = {
-      namespaced: true,
-      actions: {
-        read: jest.fn()
-      }
-    }
+    store = new Vuex.Store<State>(store_scafold({
+      modules: {
+        system,
+        configuration: {
+          namespaced: true,
+          actions: {
+            read: vi.fn(),
+          },
+        },
+        files: {
+          namespaced: true,
+          actions: {
+            debounce_flush: vi.fn(),
+            reselect: vi.fn(),
+          },
+        },
+        repository: {
+          namespaced: true,
+          actions: {
+            commit: vi.fn(),
+            push: vi.fn(),
+            stage: vi.fn(),
+          },
+          modules: {
+            signature: {
+              namespaced: true,
+              actions: {
+                message: vi.fn(),
+              },
+            },
+          },
+        },
+      },
+    }))
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should load system metadata on load dispatch', async () => {
-    const store = factory.wrap()
-
     await store.dispatch('system/load')
 
-    expect(window.api.app.getVersion).toHaveBeenCalled()
-    expect(window.api.app.getProcess).toHaveBeenCalled()
-    expect(window.api.window.is_maximized).toHaveBeenCalled()
+    expect(mocked_api.app.getVersion).toHaveBeenCalled()
+    expect(mocked_api.app.getProcess).toHaveBeenCalled()
+    expect(mocked_api.window.is_maximized).toHaveBeenCalled()
   })
 
   it('should return current state for key on read dispatch', async () => {
-    const store = factory.wrap()
-
     const result = await store.dispatch('system/read', 'settings')
 
     expect(result).toBe(false)
   })
 
   it('should call for minimize and set maximize flag on minimize dispatch', async () => {
-    const store = factory.wrap()
-
     await store.dispatch('system/minimize')
 
-    expect(window.api.window.minimize).toHaveBeenCalled()
+    expect(mocked_api.window.minimize).toHaveBeenCalled()
     expect(store.state.system.maximized).toBe(false)
   })
 
   it('should call for restore and set maximize flag on minimize dispatch', async () => {
-    const store = factory.wrap()
-
     await store.dispatch('system/restore')
 
-    expect(window.api.window.restore).toHaveBeenCalled()
+    expect(mocked_api.window.restore).toHaveBeenCalled()
     expect(store.state.system.maximized).toBe(false)
   })
 
   it('should call for maximize and set maximize flag on maximize dispatch', async () => {
-    const store = factory.wrap()
-
     await store.dispatch('system/maximize')
 
-    expect(window.api.window.maximize).toHaveBeenCalled()
+    expect(mocked_api.window.maximize).toHaveBeenCalled()
     expect(store.state.system.maximized).toBe(true)
   })
 
   it('should call to exit on exit dispatch', async () => {
-    const store = factory.wrap()
-
     await store.dispatch('system/exit')
 
-    expect(window.api.window.close).toHaveBeenCalled()
+    expect(mocked_api.window.close).toHaveBeenCalled()
   })
 
   const flags = [
@@ -111,21 +112,17 @@ describe('store/modules/system', () => {
     'push',
     'push_confirm',
     'search',
-    'settings'
+    'settings',
   ]
 
   for (const flag of flags) {
     it(`should set ${flag} flag on ${flag} dispatch with non-undefined value`, async () => {
-      const store = factory.wrap()
-
       expect(store.state.system[flag]).toBe(false)
       await store.dispatch(`system/${flag}`, true)
       expect(store.state.system[flag]).toBe(true)
     })
 
     it(`should not set ${flag} flag on ${flag} dispatch with no value`, async () => {
-      const store = factory.wrap()
-
       expect(store.state.system[flag]).toBe(false)
       await store.dispatch(`system/${flag}`, true)
       expect(store.state.system[flag]).toBe(true)
@@ -142,8 +139,6 @@ describe('store/modules/system', () => {
 
   // for (const item of signature) {
   //   it(`should set ${item} flag on ${item} signature dispatch with non-undefined value`, async () => {
-  //     const store = factory.wrap()
-
   //     expect(store.state.system.signature[item]).toBe(undefined)
   //     await store.dispatch(`system/signature/${item}`, item)
   //     expect(store.state.system.signature[item]).toBe(item)
@@ -157,8 +152,6 @@ describe('store/modules/system', () => {
 
   // for (const item of credentials) {
   //   it(`should set ${item} flag on ${item} credentials dispatch with non-undefined value`, async () => {
-  //     const store = factory.wrap()
-
   //     expect(store.state.system.credentials[item]).toBe(undefined)
   //     await store.dispatch(`system/credentials/${item}`, item)
   //     expect(store.state.system.credentials[item]).toBe(item)
@@ -166,9 +159,7 @@ describe('store/modules/system', () => {
   // }
 
   it('should call Commit performance on perform dispatch', async () => {
-    const spy = jest.spyOn(Commit, 'perform')
-
-    const store = factory.wrap()
+    const spy = vi.spyOn(Commit, 'perform')
 
     expect(spy).not.toHaveBeenCalled()
 
@@ -179,9 +170,7 @@ describe('store/modules/system', () => {
   })
 
   it('should call QuickCommit performance on perform dispatch', async () => {
-    const spy = jest.spyOn(QuickCommit, 'perform')
-
-    const store = factory.wrap()
+    const spy = vi.spyOn(QuickCommit, 'perform')
 
     expect(spy).not.toHaveBeenCalled()
 
@@ -191,9 +180,7 @@ describe('store/modules/system', () => {
   })
 
   it('should call Push performance on perform dispatch', async () => {
-    const spy = jest.spyOn(Push, 'perform')
-
-    const store = factory.wrap()
+    const spy = vi.spyOn(Push, 'perform')
 
     expect(spy).not.toHaveBeenCalled()
 
@@ -203,9 +190,7 @@ describe('store/modules/system', () => {
   })
 
   it('should call QuickPush performance on perform dispatch', async () => {
-    const spy = jest.spyOn(QuickPush, 'perform')
-
-    const store = factory.wrap()
+    const spy = vi.spyOn(QuickPush, 'perform')
 
     expect(spy).not.toHaveBeenCalled()
 

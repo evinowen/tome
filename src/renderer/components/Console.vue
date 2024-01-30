@@ -1,143 +1,136 @@
 <template>
-  <div>
-    <div id="console" />
-    <v-bottom-sheet
-      attach="#console"
-      scrollable
-      persistent
-      hide-overlay
-      no-click-animation
-      internal-activator
-      :value="value"
-      content-class="console"
-      @input="$event || close()"
+  <console-page
+    :layer="8"
+    :open="system.console"
+    @close="close"
+  >
+    <v-dialog
+      v-model="detail"
+      :scrim="false"
     >
       <v-card>
-        <v-btn
-          tile
-          class="pa-0"
-          style="height: 16px; width: 100%"
-          color="accent"
-          @click.stop="close"
-        >
-          <v-icon small>
-            mdi-chevron-down
-          </v-icon>
-        </v-btn>
-        <div class="output">
-          <div
-            v-for="(event, index) in events.slice().reverse()"
-            :key="index"
-            :class="['log', `event-${event.type}`]"
-            @click.stop="() => { show_stack(event.stack || event.message) }"
-          >
-            <pre class="pre datetime">{{ format_date(event.datetime) }}</pre>
-            <pre :class="['pre', `event-${event.type}`, 'px-2']">{{ event.type.padEnd(6) }}</pre>
-            <pre class="pre message">{{ format_message(event.message) }}</pre>
-          </div>
-        </div>
-      </v-card>
-      <v-snackbar
-        v-model="detail"
-        timeout="-1"
-        multi-line
-        centered
-        vertical
-      >
-        <div style="font-family: monospace; white-space: pre-wrap;">
+        <v-card-text style="font-family: monospace; white-space: pre-wrap;">
           {{ stack }}
-        </div>
-        <template #action="{}">
+        </v-card-text>
+        <v-card-actions>
           <v-btn
-            tile
-            small
-            color="primary"
+            block
+            size="small"
             @click.stop="detail = false"
           >
             Done
           </v-btn>
-        </template>
-      </v-snackbar>
-    </v-bottom-sheet>
-  </div>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <div class="output">
+      <div
+        v-for="(event, index) in events.slice().reverse()"
+        :key="index"
+        :class="['log', `event-${event.type}`]"
+        @click.stop="() => { show_stack(event.stack || event.message) }"
+      >
+        <pre class="pre datetime">{{ format_date(event.datetime) }}</pre>
+        <pre :class="['pre', `event-${event.type}`, 'px-2']">{{ event.type.padEnd(6) }}</pre>
+        <pre class="pre message">{{ format_message(event.message) }}</pre>
+      </div>
+    </div>
+  </console-page>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { DateTime } from 'luxon'
-import { VIcon, VBtn, VCard, VBottomSheet, VSnackbar } from 'vuetify/lib'
-import store from '@/store'
+import ConsolePage from './ConsolePage.vue'
+import {
+  VBtn,
+  VCard,
+  VCardActions,
+  VCardText,
+  VDialog,
+} from 'vuetify/components'
 
-export const ConsoleProperties = Vue.extend({
-  props: {
-    value: { type: Boolean, default: false }
-  }
-})
-
-@Component({
-  components: { VIcon, VBtn, VCard, VBottomSheet, VSnackbar }
-})
-export default class Console extends ConsoleProperties {
-  detail = false
-  stack = ''
-
-  get events () {
-    return store.state.events
-  }
-
-  async close () {
-    await store.dispatch('system/console', false)
-  }
-
-  show_stack (stack) {
-    this.stack = stack.trim()
-
-    if (this.stack) {
-      this.detail = true
-    }
-  }
-
-  format_date (datetime) {
-    return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
-  }
-
-  format_message (message) {
-    return String(message)
-      .replace(/\r/g, '\u240D')
-      .replace(/\n/g, '\u2424')
-  }
+export default {
+  components: {
+    ConsolePage,
+    VBtn,
+    VCard,
+    VCardActions,
+    VCardText,
+    VDialog,
+  },
 }
 </script>
 
-<style>
-.v-dialog {
-  max-height: calc(100% - 25px) !important;
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { fetchStore } from '@/store'
+import { DateTime } from 'luxon'
+
+const store = fetchStore()
+
+export interface Properties {
+  open?: boolean
 }
-</style>
+
+withDefaults(defineProps<Properties>(), {
+  open: false,
+})
+
+const detail = ref(false)
+const stack = ref('')
+
+const system = computed(() => store.state.system)
+const events = computed(() => store.state.events)
+
+async function close () {
+  await store.dispatch('system/console', false)
+}
+
+function show_stack (input: string) {
+  stack.value = input.trim()
+
+  if (stack.value) {
+    detail.value = true
+  }
+}
+
+function format_date (datetime) {
+  return `${datetime.toLocaleString(DateTime.DATE_SHORT)} ${datetime.toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET)}`
+}
+
+function format_message (message) {
+  return String(message)
+    .replaceAll('\r', '\u240D')
+    .replaceAll('\n', '\u2424')
+}
+
+defineExpose({
+  close,
+  detail,
+  format_date,
+  format_message,
+  show_stack,
+  stack,
+})
+</script>
 
 <style scoped>
 .log {
   display: flex;
   margin: 0;
   padding: 2px 4px 1px;
-  border-bottom: 1px dotted rgba(128,128,128,0.5)
+  border-bottom: 1px dotted rgba(128,128,128,0.5);
+  cursor: pointer;
+  transition: all 100ms ease-in-out;
 }
 
 .log.event-info:hover {
-  background: var(--v-info-base);
-}
-
-.log.event-info:hover .pre.event-info {
-  color: var(--v-info-lighten4);
+  color: rgb(var(--v-theme-on-info));
+  background: rgb(var(--v-theme-info));
 }
 
 .log.event-error:hover {
-  background: var(--v-error-base);
-}
-
-.log.event-error:hover .pre.event-error {
-  color: var(--v-error-lighten4);
+  color: rgb(var(--v-theme-on-error));
+  background: rgb(var(--v-theme-error));
 }
 
 .pre {
@@ -157,11 +150,19 @@ export default class Console extends ConsoleProperties {
 }
 
 .pre.event-info {
-  color: var(--v-info-base);
+  color: rgb(var(--v-theme-info));
+}
+
+.log.event-info:hover .pre.event-info {
+  color: rgb(var(--v-theme-on-info));
 }
 
 .pre.event-error {
-  color: var(--v-error-base);
+  color: rgb(var(--v-theme-error));
+}
+
+.log.event-error:hover .pre.event-error {
+  color: rgb(var(--v-theme-on-error));
 }
 
 .output {
@@ -170,7 +171,6 @@ export default class Console extends ConsoleProperties {
   overflow: auto;
   display: flex;
   flex-direction: column-reverse;
-  border-radius: 0 !important;
-  margin-bottom: 18px;
+  border-radius: 0;
 }
 </style>

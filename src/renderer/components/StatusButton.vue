@@ -1,12 +1,12 @@
 <template>
   <v-btn
-    tile
-    small
-    class="px-2 grey--text text--lighten-1"
+    rounded="0"
+    size="small"
+    class="px-2 text-grey-lighten-1"
     style="height: 18px;"
   >
     <v-progress-circular
-      :value="(waiting * 100) / waiting_max"
+      :model-value="(waiting * 100) / waiting_max"
       :size="12"
       :width="2"
       color="warning"
@@ -14,59 +14,78 @@
     />
     <strong
       v-if="available_added"
-      class="green--text"
+      class="text-green"
     >{{ available_added }}</strong>
     <strong v-else>0</strong>
     <strong>/</strong>
     <strong
       v-if="available_removed"
-      class="red--text"
+      class="text-red"
     >{{ available_removed }}</strong>
     <strong v-else>0</strong>
     <strong>&bull;</strong>
     <strong
       v-if="staged_added"
-      class="lime--text"
+      class="text-lime"
     >{{ staged_added }}</strong>
     <strong v-else>0</strong>
     <strong>/</strong>
     <strong
       v-if="staged_removed"
-      class="orange--text"
+      class="text-orange"
     >{{ staged_removed }}</strong>
     <strong v-else>0</strong>
   </v-btn>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import {
+  VBtn,
+  VProgressCircular,
+} from 'vuetify/components'
 
-export const StatusButtonProperties = Vue.extend({
-  props: {
-    waiting: { type: Number, default: 0 },
-    waiting_max: { type: Number, default: 3 },
-    available_new: { type: Number, default: 0 },
-    available_renamed: { type: Number, default: 0 },
-    available_modified: { type: Number, default: 0 },
-    available_removed: { type: Number, default: 0 },
-    staged_new: { type: Number, default: 0 },
-    staged_renamed: { type: Number, default: 0 },
-    staged_modified: { type: Number, default: 0 },
-    staged_removed: { type: Number, default: 0 }
-  }
-})
-
-@Component({
-  components: {}
-})
-export default class StatusButton extends StatusButtonProperties {
-  get available_added () {
-    return this.available_new + this.available_renamed + this.available_modified
-  }
-
-  get staged_added () {
-    return this.staged_new + this.staged_renamed + this.staged_modified
-  }
+export default {
+  components: {
+    VBtn,
+    VProgressCircular,
+  },
 }
+</script>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+
+export interface Properties {
+  available_modified?: number
+  available_new?: number
+  available_removed?: number
+  available_renamed?: number
+  staged_modified?: number
+  staged_new?: number
+  staged_removed?: number
+  staged_renamed?: number
+  waiting_max?: number
+  waiting?: number
+}
+
+const properties = withDefaults(defineProps<Properties>(), {
+  available_modified: 0,
+  available_new: 0,
+  available_removed: 0,
+  available_renamed: 0,
+  staged_modified: 0,
+  staged_new: 0,
+  staged_removed: 0,
+  staged_renamed: 0,
+  waiting_max: 0,
+  waiting: 0,
+})
+
+const available_added = computed(() => {
+  return properties.available_new + properties.available_renamed + properties.available_modified
+})
+
+const staged_added = computed(() => {
+  return properties.staged_new + properties.staged_renamed + properties.staged_modified
+})
 </script>

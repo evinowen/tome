@@ -1,7 +1,7 @@
+import api from './api'
 import store from './store'
-import window from './window'
 
 export default {
+  api,
   store,
-  window
 }

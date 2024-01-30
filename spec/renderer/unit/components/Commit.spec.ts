@@ -1,232 +1,186 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import Vuetify from 'vuetify'
-import store from '@/store'
+import BasicComponentStub from '?/stubs/BasicComponentStub'
+import { stub_actions } from '?/builders/store'
+import { createVuetify } from 'vuetify'
+import { createStore } from 'vuex'
+import { State, key } from '@/store'
+import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
+import { CredentialStateDefaults as RepositoryCredentialStateDefaults } from '@/store/modules/repository'
+import { SignatureStateDefaults as RepositorySignatureStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import Commit from '@/components/Commit.vue'
 
-jest.mock('@/store', () => ({
-  state: {
-    system: {
-      commit: false,
-      commit_confirm: false,
-      commit_push: false,
-      signature: {
-        name: '',
-        email: '',
-        message: ''
-      }
-    },
-    repository: {
-      status: {
-        staged: [],
-        available: []
-      },
-      signature: {
-        name: 'Fred',
-        email: 'fred@example.com'
-      },
-      message: ''
-    },
-    configuration: {
-      auto_push: false,
-      private_key: './id_rsa',
-      passphrase: '1234'
-    }
-  },
-  dispatch: jest.fn()
-}))
-
-jest.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {} }))
+vi.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {} }))
 
 describe('components/Commit', () => {
   let vuetify
+  let store
+  let store_dispatch
 
   const factory = assemble(Commit)
     .context(() => ({
       vuetify,
-      stubs: {
-        CommitList: true,
-        CommitConfirm: true,
-        VDataTable: true
-      }
+      global: {
+        plugins: [ vuetify, [ store, key ] ],
+        stubs: {
+          CommitList: true,
+          CommitConfirm: true,
+          VDataTable: true,
+          VBtn: BasicComponentStub,
+          VCol: BasicComponentStub,
+          VContainer: BasicComponentStub,
+          VIcon: BasicComponentStub,
+          VLayout: BasicComponentStub,
+          VRow: BasicComponentStub,
+          VTextarea: BasicComponentStub,
+          VTextField: BasicComponentStub,
+        },
+      },
     }))
 
   beforeEach(() => {
-    vuetify = new Vuetify()
+    vuetify = createVuetify()
 
+    store = createStore<State>({
+      state: {
+        configuration: ConfigurationStateDefaults(),
+        repository: {
+          ...RepositoryStateDefaults(),
+          credentials: RepositoryCredentialStateDefaults(),
+          signature: RepositorySignatureStateDefaults(),
+        },
+        system: SystemStateDefaults(),
+      },
+      actions: stub_actions([
+        'repository/diff',
+        'repository/message',
+        'repository/reset',
+        'repository/stage',
+        'system/commit_confirm',
+        'system/commit_push',
+        'system/commit',
+        'system/patch',
+        'system/perform',
+        'system/signature/email',
+        'system/signature/message',
+        'system/signature/name',
+      ]),
+    })
 
+    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should dispatch system/signature/name with new value when sign_name is called with a value', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
     const name = 'John Doe'
-    await local.sign_name(name)
+    await wrapper.vm.sign_name(name)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/signature/name')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(name)
+    expect(store_dispatch).toHaveBeenCalledWith('system/signature/name', name)
   })
 
   it('should dispatch system/signature/email with new value when sign_email is called with a value', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
     const email = 'test@example.com'
-    await local.sign_email(email)
+    await wrapper.vm.sign_email(email)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/signature/email')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(email)
+    expect(store_dispatch).toHaveBeenCalledWith('system/signature/email', email)
   })
 
   it('should dispatch system/signature/message with new value when sign_message is called with a value', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
     const message = 'Test Message'
-    await local.sign_message(message)
+    await wrapper.vm.sign_message(message)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/signature/message')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(message)
+    expect(store_dispatch).toHaveBeenCalledWith('system/signature/message', message)
   })
 
   it('should dispatch system/commit with false when close is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
-    await local.close()
+    await wrapper.vm.close()
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/commit')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(false)
+    expect(store_dispatch).toHaveBeenCalledWith('system/commit', false)
   })
 
   it('should dispatch system/commit_confirm with new value when confirm is called with a value', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
-    await local.confirm(true)
+    await wrapper.vm.confirm(true)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/commit_confirm')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(true)
+    expect(store_dispatch).toHaveBeenCalledWith('system/commit_confirm', true)
   })
 
   it('should dispatch system/commit_push with new value when push is called with a value', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
-    await local.push(true)
+    await wrapper.vm.push(true)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/commit_push')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(true)
+    expect(store_dispatch).toHaveBeenCalledWith('system/commit_push', true)
   })
 
   it('should dispatch repository/message with message when message is called with message', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
     const message = 'Test Message'
-    await local.message(message)
+    await wrapper.vm.message(message)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'repository/message')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(message)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/message', message)
   })
 
   it('should dispatch repository/diff with path when diff is called with file', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
-    const file = {
-      path: './file.md'
-    }
+    const path = './file.md'
 
-    await local.diff(file)
+    await wrapper.vm.diff(path)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'repository/diff')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual({ path: file.path })
+    expect(store_dispatch).toHaveBeenCalledWith('repository/diff', { path })
   })
 
   it('should dispatch system/patch with true when diff is called with file', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
     const file = {
-      path: './file.md'
+      path: './file.md',
     }
 
-    await local.diff(file)
+    await wrapper.vm.diff(file)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/patch')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(true)
+    expect(store_dispatch).toHaveBeenCalledWith('system/patch', true)
   })
 
   it('should dispatch repository/stage with path when stage is called with path', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
     const path = './file.md'
-    await local.stage(path)
+    await wrapper.vm.stage(path)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'repository/stage')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(path)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/stage', path)
   })
 
   it('should dispatch repository/reset with path when reset is called with path', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
     const path = './file.md'
-    await local.reset(path)
+    await wrapper.vm.reset(path)
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'repository/reset')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(path)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/reset', path)
   })
 
   it('should dispatch system/perform for commit when commit is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as Commit
 
-    await local.commit()
+    await wrapper.vm.commit()
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/perform')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual('commit')
+    expect(store_dispatch).toHaveBeenCalledWith('system/perform', 'commit')
   })
 })

@@ -1,5 +1,5 @@
 import component from '../factory'
-import * as log from 'electron-log'
+import log from 'electron-log/main'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Script } from 'node:vm'
@@ -11,8 +11,8 @@ const environment = {
   cache: require.cache,
   console: {
     log: (...parameters) => log.info(...parameters),
-    error: (...parameters) => log.error(...parameters)
-  }
+    error: (...parameters) => log.error(...parameters),
+  },
 }
 
 const timeout = 30_000
@@ -69,5 +69,5 @@ export default component('action')(
       }
     })
   },
-  () => ({ environment, timeout })
+  () => ({ environment, timeout }),
 )

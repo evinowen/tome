@@ -1,4 +1,6 @@
+import { jest, expect } from '@jest/globals'
 import helpers from '../../../helpers'
+
 const { random_string } = helpers(expect)
 
 const mock = jest.fn().mockImplementation((path) => ({
@@ -10,7 +12,7 @@ const mock = jest.fn().mockImplementation((path) => ({
   remotes: [],
   remote: undefined,
   remote_branch: { name: '', short: '' },
-  pending:  [],
+  pending: [],
   available: [],
   staged: [],
   patches: [],
@@ -19,13 +21,13 @@ const mock = jest.fn().mockImplementation((path) => ({
   diffPath: jest.fn(),
   diffCommit: jest.fn(),
   storeCredentials: jest.fn(),
-  stage: jest.fn((query, listener) => {
+  stage: jest.fn((query: string, listener: (channel: string, query: string) => void) => {
     listener('add', query)
     listener('remove', query)
     listener('test', query)
   }),
   stagePath: jest.fn(),
-  reset: jest.fn((query, listener) => {
+  reset: jest.fn((query: string, listener: (channel: string, query: string) => void) => {
     listener('add', query)
     listener('remove', query)
     listener('test', query)

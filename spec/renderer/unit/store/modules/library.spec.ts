@@ -1,26 +1,26 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-import { createLocalVue } from '@vue/test-utils'
 import _library, { State as LibraryState } from '@/store/modules/library'
 import { cloneDeep } from 'lodash'
-import builders from '?/builders'
 import Disk from '../../../mocks/support/disk'
 import dialog from '../../../mocks/support/dialog'
-import { set_disk } from '?/builders/window/file'
+import { set_disk } from '?/builders/api/file'
+import * as api_module from '@/api'
+import builders from '?/builders'
 
-Object.assign(window, builders.window())
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 interface State {
   library: LibraryState
 }
 
 describe('store/modules/library', () => {
-  let localVue
-
   let library
   let repository
   let files
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
   const factory = {
@@ -28,17 +28,14 @@ describe('store/modules/library', () => {
       modules: {
         library,
         repository,
-        files
-      }
-    })
+        files,
+      },
+    }),
   }
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
     disk.reset_disk()
-    disk.set_content('./library.json', ['./first_path', './second_path', './third_path'].join('\n'))
+    disk.set_content('./library.json', [ './first_path', './second_path', './third_path' ].join('\n'))
 
     dialog.reset_dialog()
 
@@ -47,23 +44,23 @@ describe('store/modules/library', () => {
     repository = {
       namespaced: true,
       actions: {
-        load: jest.fn(),
-        inspect: jest.fn(),
-        clear: jest.fn()
-      }
+        load: vi.fn(),
+        inspect: vi.fn(),
+        clear: vi.fn(),
+      },
     }
 
     files = {
       namespaced: true,
       actions: {
-        clear: jest.fn(),
-        initialize: jest.fn()
-      }
+        clear: vi.fn(),
+        initialize: vi.fn(),
+      },
     }
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should populate empty values when initalized', async () => {
@@ -74,7 +71,7 @@ describe('store/modules/library', () => {
   })
 
   it('should load without records file on load dispatch', async () => {
-    await window.api.file.delete('./library.json')
+    await mocked_api.file.delete('./library.json')
     const store = factory.wrap()
 
     expect(store.state.library.path).toEqual('')
@@ -126,7 +123,7 @@ describe('store/modules/library', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = ['./first_path', './second_path', './third_path']
+    const paths = [ './first_path', './second_path', './third_path' ]
     await store.dispatch('library/load', path)
 
     expect(store.state.library.path).toEqual(path)
@@ -140,7 +137,7 @@ describe('store/modules/library', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = ['./first_path', './second_path', './third_path', './fourth_path']
+    const paths = [ './first_path', './second_path', './third_path', './fourth_path' ]
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/add', './fourth_path')
@@ -156,7 +153,7 @@ describe('store/modules/library', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = ['./first_path', './second_path', './third_path']
+    const paths = [ './first_path', './second_path', './third_path' ]
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/add', './third_path')
@@ -172,7 +169,7 @@ describe('store/modules/library', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = ['./first_path', './second_path', './third_path']
+    const paths = [ './first_path', './second_path', './third_path' ]
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/remove', paths.pop())
@@ -188,7 +185,7 @@ describe('store/modules/library', () => {
     expect(store.state.library.history).toEqual([])
 
     const path = './library.json'
-    const paths = ['./first_path', './second_path', './third_path']
+    const paths = [ './first_path', './second_path', './third_path' ]
 
     await store.dispatch('library/load', path)
     await store.dispatch('library/remove', './forth_path')
@@ -201,7 +198,7 @@ describe('store/modules/library', () => {
     const store = factory.wrap()
 
     await store.dispatch('library/select')
-    expect(window.api.file.select_directory).toHaveBeenCalled()
+    expect(mocked_api.file.select_directory).toHaveBeenCalled()
   })
 
   it('should return quickly when select cancelled with undefined result on select dispatch', async () => {
@@ -214,7 +211,7 @@ describe('store/modules/library', () => {
   })
 
   it('should call to open on successful select after select dispatch', async () => {
-    library.actions.open = jest.fn()
+    library.actions.open = vi.fn()
 
     const store = factory.wrap()
 

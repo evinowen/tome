@@ -1,48 +1,43 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-
-import { createLocalVue } from '@vue/test-utils'
 import reporter from '@/store/plugins/reporter'
 
 describe('store/plugins/reporter', () => {
-  let localVue
   let store
   let object
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
     const module = {
       namespaced: true,
       actions: {
         test: async function () {
           throw new Error('Error!')
-        }
-      }
+        },
+      },
     }
 
     object = {
       state: {
         files: {
-          tree: undefined
-        }
+          tree: undefined,
+        },
       },
       actions: {
-        error: jest.fn()
+        error: vi.fn(),
       },
       modules: {
-        module
+        module,
       },
       plugins: [
-        reporter
-      ]
+        reporter,
+      ],
     }
 
     store = new Vuex.Store(object)
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should catch errors and dispatch message to "error" action on exception', async () => {

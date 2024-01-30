@@ -29,14 +29,14 @@ export default class RepositoryPatch {
     for (const hunk of hunks) {
       this.lines.push({
         type: NodeGit.Diff.LINE.HUNK_HDR,
-        line: hunk.header()
+        line: hunk.header(),
       })
 
       const lines = await hunk.lines()
       for (const line of lines) {
         this.lines.push({
           type: line.origin(),
-          line: line.content()
+          line: line.content(),
         })
       }
     }

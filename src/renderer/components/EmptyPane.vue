@@ -1,39 +1,29 @@
 <template>
-  <v-container
-    fill-height
-    fluid
-    class="view"
-  >
-    <v-row
-      align="center"
-      justify="center"
-    >
-      <v-col class="text-center">
-        <slot />
-      </v-col>
-    </v-row>
-  </v-container>
+  <div class="root">
+    <div class="content pa-2">
+      <slot />
+    </div>
+  </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VContainer, VCol, VRow } from 'vuetify/lib'
+<script setup lang="ts">
+export interface Properties {
+  error?: string
+}
 
-export const EmptyPaneProperties = Vue.extend({
-  props: {
-    error: { type: String, default: '' }
-  }
+withDefaults(defineProps<Properties>(), {
+  error: '',
 })
-
-@Component({
-  components: { VContainer, VCol, VRow }
-})
-export default class EmptyPane extends EmptyPaneProperties {}
 </script>
 
 <style scoped>
-.view {
+.root {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   background-image:
     repeating-linear-gradient(
       45deg,
@@ -42,5 +32,9 @@ export default class EmptyPane extends EmptyPaneProperties {}
       rgba(64,64,64,.075) 3.5px,
       rgba(64,64,64,.1) 7px
     );
+}
+
+.content {
+  width: 100%;
 }
 </style>

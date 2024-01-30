@@ -1,9 +1,14 @@
 import { ActionContext } from 'vuex'
-import factory, { State as FactoryState, FeatureExecuteInput } from '../factories/feature'
+import api from '@/api'
+import factory, {
+  State as FactoryState,
+  FeatureExecuteInput,
+} from '../factories/feature'
 
 export const ActionBaseIndex = 'resolve(\'done\')\n'
 
 export type State = FactoryState
+export { StateDefaults } from '../factories/feature'
 
 const create = (context: ActionContext<State, unknown>) => async (path: string) => {
   const index_item = await context.dispatch('files/create', { path, name: 'index.js' }, { root: true })
@@ -17,7 +22,7 @@ const create = (context: ActionContext<State, unknown>) => async (path: string) 
 
 const execute = (context: ActionContext<State, unknown>) => async (data: FeatureExecuteInput) => {
   const { source, target, selection } = data
-  const result = await window.api.action.invoke(source, target, selection)
+  const result = await api.action.invoke(source, target, selection)
 
   if (result.success) {
     const message = `Action ${name} complete${result.message ? `: ${result.message}` : ''}`

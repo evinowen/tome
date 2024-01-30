@@ -1,216 +1,218 @@
 <template>
-  <v-layout
-    style="height: 100%;"
-    @click.stop="click"
+  <div
+    style="height: 100%; overflow: visible;"
   >
-    <v-flex
-      ref="sea"
-      grow
-      class="sea"
-    >
+    <div class="pa-0 sea grow">
       <div
-        ref="boat"
-        class="boat"
+        ref="sea"
+        class="sea"
+        @click.stop="click"
       >
-        <v-icon>mdi-sail-boat</v-icon>
-      </div>
-      <div
-        ref="cannon_ball"
-        class="cannon_ball"
-      >
-        <v-icon>
-          {{ cannon.ball.sunk ? '' : 'mdi-circle-small' }}
-        </v-icon>
-      </div>
-      <div
-        ref="cannon_splash"
-        :class="['splash', cannon.splash.splashing ? 'splashing' : '' ]"
-      >
-        <div style="position: relative">
-          <v-icon class="splash-outline">
-            {{ 'mdi-circle-outline' }}
+        <div
+          ref="boat"
+          class="boat"
+        >
+          <v-icon>mdi-sail-boat</v-icon>
+        </div>
+        <div
+          ref="cannon_ball"
+          class="cannon_ball"
+        >
+          <v-icon>
+            {{ cannon.ball.sunk ? '' : 'mdi-circle-small' }}
           </v-icon>
         </div>
+        <div
+          ref="cannon_splash"
+          :class="['splash', cannon.splash.splashing ? 'splashing' : '' ]"
+        >
+          <div style="position: relative">
+            <v-icon class="splash-outline">
+              {{ 'mdi-circle-outline' }}
+            </v-icon>
+          </div>
+        </div>
+        <div
+          ref="distance"
+          :class="['distance', cannon.distance.show.value ? 'visible' : '' ]"
+        >
+          {{ cannon.distance.value.toFixed(2) }}m
+        </div>
       </div>
-      <div
-        ref="distance"
-        :class="['distance', cannon.distance.show ? 'visible' : '' ]"
-      >
-        {{ cannon.distance.value.toFixed(2) }}m
-      </div>
-    </v-flex>
-  </v-layout>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VLayout, VFlex, VIcon } from 'vuetify/lib'
+import {
+  VIcon,
+} from 'vuetify/components'
 
-export const SeaGameProperties = Vue.extend({})
-
-@Component({
-  components: { VLayout, VFlex, VIcon }
-})
-export default class SeaGame extends SeaGameProperties {
-  $refs!: {
-    boat: HTMLElement,
-    cannon_ball: HTMLElement,
-    cannon_splash: HTMLElement,
-    distance: HTMLElement,
-    sea: HTMLElement
-  }
-
-  ticker?: number
-  cannon = {
-    distance: {
-      timeout: 0,
-      value: 0,
-      show: false,
-      x: 0,
-      y: 0
-    },
-    ball: {
-      sunk: true,
-      x: 0,
-      y: 0,
-      dx: 0,
-      dy: 0
-    },
-    splash: {
-      splashing: false,
-      timeout: undefined as number|undefined,
-      x: 0,
-      y: 0
-    }
-  }
-
-  mounted () {
-    clearInterval(this.ticker)
-    this.ticker = setInterval(() => this.tick(), 50)
-  }
-
-  unmounted () {
-    clearInterval(this.ticker)
-  }
-
-  async click (event) {
-    if (!this.$refs.sea) {
-      return
-    }
-
-    if (!this.$refs.boat) {
-      return
-    }
-
-    if (!this.cannon.ball.sunk) {
-      return
-    }
-
-    const sea_rect = this.$refs.sea.getBoundingClientRect()
-    const boat_rect = this.$refs.boat.getBoundingClientRect()
-
-    this.cannon.ball.x = boat_rect.left - sea_rect.left + 6
-    this.cannon.ball.y = boat_rect.top - sea_rect.top
-
-    const point_x = event.clientX - sea_rect.left
-    const point_y = event.clientY - sea_rect.top
-
-    const length = Math.sqrt(point_x * point_x + point_y * point_y)
-
-    const velocity = 5
-
-    this.cannon.ball.dx = velocity * (point_x - this.cannon.ball.x) / length
-    this.cannon.ball.dy = velocity * (this.cannon.ball.y - point_y) / length
-
-    this.cannon.ball.sunk = false
-
-    await this.update()
-  }
-
-  async tick () {
-    if (!this.cannon.ball.sunk) {
-      this.cannon.ball.dy -= 0.05
-
-      this.cannon.ball.x += this.cannon.ball.dx
-      this.cannon.ball.y -= this.cannon.ball.dy
-
-      const sea_rect = this.$refs.sea.getBoundingClientRect()
-      const boat_rect = this.$refs.boat.getBoundingClientRect()
-
-      if (this.cannon.ball.y > boat_rect.top - sea_rect.top + 8) {
-        this.cannon.ball.sunk = true
-        this.cannon.splash.x = this.cannon.ball.x - 9
-        this.cannon.splash.y = this.cannon.ball.y
-        this.cannon.splash.splashing = true
-
-        if (this.cannon.splash.timeout) {
-          clearTimeout(this.cannon.splash.timeout)
-          this.cannon.splash.timeout = undefined
-        }
-
-        this.cannon.splash.timeout = setTimeout(() => {
-          this.cannon.splash.splashing = false
-        }, 1000)
-
-        this.cannon.distance.value = this.cannon.ball.x - (boat_rect.left - sea_rect.left) - 6
-        this.cannon.distance.show = true
-        this.cannon.distance.x = this.cannon.ball.x
-        this.cannon.distance.y = this.cannon.ball.y - 2
-
-        if (this.cannon.distance.timeout) {
-          clearTimeout(this.cannon.distance.timeout)
-          this.cannon.distance.timeout = undefined
-        }
-
-        this.cannon.distance.timeout = setTimeout(() => {
-          this.cannon.distance.show = false
-        }, 1200)
-      }
-    }
-
-    await this.update()
-  }
-
-  async update () {
-    this.update_cannon_ball()
-    this.update_splash()
-    this.update_distance()
-  }
-
-  async update_cannon_ball () {
-    if (!this.$refs.cannon_ball) {
-      return
-    }
-
-    if (this.cannon.ball.sunk) {
-      return
-    }
-
-    this.$refs.cannon_ball.style.left = `${this.cannon.ball.x}px`
-    this.$refs.cannon_ball.style.top = `${this.cannon.ball.y}px`
-  }
-
-  async update_splash () {
-    if (!this.$refs.cannon_splash) {
-      return
-    }
-
-    this.$refs.cannon_splash.style.left = `${this.cannon.splash.x}px`
-    this.$refs.cannon_splash.style.top = `${this.cannon.splash.y + 2}px`
-  }
-
-  async update_distance () {
-    if (!this.cannon.distance.value) {
-      return
-    }
-
-    this.cannon.distance.y = this.cannon.distance.y - 1
-
-    this.$refs.distance.style.left = `${this.cannon.distance.x - 32}px`
-    this.$refs.distance.style.top = `${this.cannon.distance.y - 3}px`
-  }
+export default {
+  components: {
+    VIcon,
+  },
 }
+</script>
+
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref, reactive } from 'vue'
+
+const boat = ref<HTMLElement>(undefined)
+const cannon_ball = ref<HTMLElement>(undefined)
+const cannon_splash = ref<HTMLElement>(undefined)
+const distance = ref<HTMLElement>(undefined)
+const sea = ref<HTMLElement>(undefined)
+
+const ticker = ref<number>(0)
+const cannon = reactive({
+  distance: {
+    value: ref(0),
+    show: {
+      timeout: ref(0),
+      value: ref(false),
+    },
+    move: {
+      timeout: ref(0),
+      value: ref(false),
+    },
+    x: ref(0),
+    y: ref(0),
+  },
+  ball: {
+    sunk: ref(true),
+    x: ref(0),
+    y: ref(0),
+    dx: ref(0),
+    dy: ref(0),
+  },
+  splash: {
+    splashing: ref(false),
+    timeout: ref(0),
+    x: ref(0),
+    y: ref(0),
+  },
+})
+
+onMounted(() => {
+  clearInterval(ticker.value)
+  ticker.value = setInterval(() => tick(), 50)
+})
+
+onUnmounted(() => {
+  clearInterval(ticker.value)
+})
+
+function click (event) {
+  const sea_rect = sea.value.getBoundingClientRect()
+  const boat_rect = boat.value.getBoundingClientRect()
+
+  cannon.ball.x = boat_rect.left - sea_rect.left + 6
+  cannon.ball.y = boat_rect.top - sea_rect.top
+
+  const point_x = event.clientX - sea_rect.left
+  const point_y = event.clientY - sea_rect.top
+
+  const length = Math.hypot(point_x, point_y)
+
+  const velocity = 5
+
+  cannon.ball.dx = velocity * (point_x - cannon.ball.x) / length
+  cannon.ball.dy = velocity * (cannon.ball.y - point_y) / length
+
+  cannon.ball.sunk = false
+
+  update()
+}
+
+function tick () {
+  if (!cannon.ball.sunk) {
+    cannon.ball.dy -= 0.05
+
+    cannon.ball.x += cannon.ball.dx
+    cannon.ball.y -= cannon.ball.dy
+
+    const sea_rect = sea.value.getBoundingClientRect()
+    const boat_rect = boat.value.getBoundingClientRect()
+
+    if (cannon.ball.y > boat_rect.top - sea_rect.top + 8) {
+      cannon.ball.sunk = true
+      cannon.splash.x = cannon.ball.x - 9
+      cannon.splash.y = cannon.ball.y
+      cannon.splash.splashing = true
+
+      if (cannon.splash.timeout) {
+        clearTimeout(cannon.splash.timeout)
+        cannon.splash.timeout = 0
+      }
+
+      cannon.splash.timeout = setTimeout(() => {
+        cannon.splash.splashing = false
+      }, 1000)
+
+      cannon.distance.value = cannon.ball.x - (boat_rect.left - sea_rect.left) - 6
+      cannon.distance.show.value = true
+      cannon.distance.move.value = true
+      cannon.distance.x = cannon.ball.x
+      cannon.distance.y = cannon.ball.y - 2
+
+      if (cannon.distance.show.timeout) {
+        clearTimeout(cannon.distance.show.timeout)
+        cannon.distance.show.timeout = 0
+      }
+
+      if (cannon.distance.move.timeout) {
+        clearTimeout(cannon.distance.move.timeout)
+        cannon.distance.move.timeout = 0
+      }
+
+      cannon.distance.show.timeout = setTimeout(() => {
+        cannon.distance.show.value = false
+        cannon.distance.move.timeout = setTimeout(() => {
+          cannon.distance.move.value = false
+        }, 1600)
+      }, 1200)
+    }
+  }
+
+  update()
+}
+
+function update () {
+  update_cannon_ball()
+  update_splash()
+  update_distance()
+}
+
+function update_cannon_ball () {
+  if (cannon.ball.sunk) {
+    return
+  }
+
+  cannon_ball.value.style.left = `${cannon.ball.x}px`
+  cannon_ball.value.style.top = `${cannon.ball.y}px`
+}
+
+function update_splash () {
+  cannon_splash.value.style.left = `${cannon.splash.x}px`
+  cannon_splash.value.style.top = `${cannon.splash.y + 2}px`
+}
+
+function update_distance () {
+  if (!cannon.distance || !cannon.distance.move.value) {
+    return
+  }
+
+  cannon.distance.y = cannon.distance.y - 1
+
+  distance.value.style.left = `${cannon.distance.x - 32}px`
+  distance.value.style.top = `${cannon.distance.y - 3}px`
+}
+
+defineExpose({
+  ticker,
+  cannon,
+})
 </script>
 
 <style scoped>
@@ -219,6 +221,7 @@ export default class SeaGame extends SeaGameProperties {
   overflow: visible;
   height: 100%;
 }
+
 .boat {
   position: absolute;
   bottom: 12px;

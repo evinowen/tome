@@ -1,5 +1,5 @@
 <template>
-  <div class="search-container">
+  <div class="search-container pa-2">
     <v-toolbar class="search-box">
       <v-item-group
         dense
@@ -7,52 +7,51 @@
         class="search-buttons"
       >
         <v-btn
-          small
-          tile
-          :depressed="multifile"
-          :color="multifile ? 'primary' : ''"
+          ref="multifile-button"
+          size="small"
+          rounded="0"
+          :color="multifile ? 'primary' : undefined"
           @click="flag('multifile', !multifile)"
         >
           <v-icon>mdi-file-multiple</v-icon>
         </v-btn>
         <v-btn
-          small
-          tile
-          :depressed="case_sensitive"
+          ref="case-sensitive-button"
+          size="small"
+          rounded="0"
           :color="case_sensitive ? 'primary' : ''"
           @click="flag('case_sensitive', !case_sensitive)"
         >
           <v-icon>mdi-format-letter-case</v-icon>
         </v-btn>
         <v-btn
-          small
-          tile
-          :depressed="regex_query"
+          ref="regex-query-button"
+          size="small"
+          rounded="0"
           :color="regex_query ? 'primary' : ''"
           @click="flag('regex_query', !regex_query)"
         >
           <v-icon>mdi-regex</v-icon>
         </v-btn>
       </v-item-group>
-      <v-layout column>
-        <v-flex class="search-input px-2">
-          <v-text-field
-            ref="input"
-            :value="query"
-            rows="1"
-            :messages="status"
-            clearable
-            single-line
-            hide-details
-            :prepend-icon="regex_query ? 'mdi-slash-forward' : ' '"
-            :append-outer-icon="regex_query ? 'mdi-slash-forward' : ' '"
-            @input="debounce_update"
-            @click:clear="debounce_clear"
-            @keydown.enter="next"
-            @keydown.esc="$emit('close')"
-          />
-        </v-flex>
-      </v-layout>
+      <div class="search-input px-4">
+        <v-text-field
+          ref="input"
+          class="pa-0"
+          :model-value="query"
+          rows="1"
+          :messages="status"
+          clearable
+          single-line
+          hide-details
+          :prepend-icon="regex_query ? 'mdi-slash-forward' : undefined"
+          :append-icon="regex_query ? 'mdi-slash-forward' : undefined"
+          @update:model-value="debounce_update"
+          @click:clear="debounce_clear"
+          @keydown.enter="next"
+          @keydown.esc="$emit('close')"
+        />
+      </div>
       <div
         v-if="navigation"
         class="search-navigation"
@@ -63,16 +62,16 @@
           class="search-buttons"
         >
           <v-btn
-            small
-            tile
+            size="small"
+            rounded="0"
             :disabled="!query"
             @click="previous"
           >
             <v-icon>mdi-chevron-left</v-icon>
           </v-btn>
           <v-btn
-            small
-            tile
+            size="small"
+            rounded="0"
             :disabled="!query"
             @click="next"
           >
@@ -89,30 +88,32 @@
             v-for="result in results"
             :key="result.path.relative"
           >
-            <v-layout
+            <div
               class="search-file"
               @click="select(result.path.absolute, 1, result.matches.length)"
             >
               <v-icon
-                small
-                class="pr-1"
+                size="small"
+                class="pr-1 flex-grow-0"
               >
                 {{ result.directory ? 'mdi-folder' : 'mdi-file' }}
               </v-icon>
-              <v-flex grow>
+              <div class="flex-grow-1 pl-2">
                 {{ result.path.relative }}
-              </v-flex>
-              <small>{{ result.path.absolute }}</small>
-            </v-layout>
+              </div>
+              <div class="flex-grow-1 text-end pr-3">
+                <small>{{ result.path.absolute }}</small>
+              </div>
+            </div>
             <v-layout
               v-for="(match, index) in result.matches"
               :key="match.index"
               class="search-result"
               @click="select(result.path.absolute, index + 1, result.matches.length)"
             >
-              <v-flex grow>
+              <div class="grow">
                 {{ match.line }}
-              </v-flex>
+              </div>
             </v-layout>
           </div>
         </div>
@@ -122,99 +123,121 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition } from 'vuetify/lib'
-import { debounce } from 'lodash'
-import store from '@/store'
+import {
+  VBtn,
+  VExpandTransition,
+  VIcon,
+  VItemGroup,
+  VLayout,
+  VTextField,
+  VToolbar,
+} from 'vuetify/components'
 
-export const SearchServiceProperties = Vue.extend({})
-
-@Component({
-  components: { VIcon, VTextField, VItemGroup, VBtn, VToolbar, VLayout, VFlex, VExpandTransition }
-})
-export default class SearchService extends SearchServiceProperties {
-  get status () {
-    return store.state.search.status
-  }
-
-  get results () {
-    return store.state.search.results
-  }
-
-  get navigation () {
-    return store.state.search.navigation
-  }
-
-  get query () {
-    return store.state.search.query
-  }
-
-  get multifile () {
-    return store.state.search.multifile
-  }
-
-  get regex_query () {
-    return store.state.search.regex_query
-  }
-
-  get case_sensitive () {
-    return store.state.search.case_sensitive
-  }
-
-  get state () {
-    const { multifile, regex_query, case_sensitive } = this
-    return [multifile, regex_query, case_sensitive]
-  }
-
-  get debounce_update () {
-    return debounce(this.update, 500)
-  }
-
-  @Watch('state')
-  state_update () {
-    this.debounce_update(this.query)
-  }
-
-  async update (query) {
-    const path = store.state.repository.path
-    await store.dispatch('search/query', { path, query })
-  }
-
-  async next () {
-    await store.dispatch('search/next')
-  }
-
-  async previous () {
-    await store.dispatch('search/previous')
-  }
-
-  async flag (key, value) {
-    await store.dispatch(`search/${key}`, value)
-  }
-
-  async select (path, target = 0, total = 0) {
-    await store.dispatch('files/select', { path })
-
-    if (target > 0) {
-      await store.dispatch('search/navigate', { target, total })
-    }
-  }
-
-  async debounce_clear () {
-    return await this.debounce_update('')
-  }
+export default {
+  components: {
+    VBtn,
+    VExpandTransition,
+    VIcon,
+    VItemGroup,
+    VLayout,
+    VTextField,
+    VToolbar,
+  },
 }
 </script>
 
-<style>
-.search-buttons .v-btn {
-  min-width: 0px !important;
+<script setup lang="ts">
+import { computed, watch } from 'vue'
+import { debounce } from 'lodash'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+const status = computed(() => {
+  return store.state.search.status
+})
+
+const results = computed(() => {
+  return store.state.search.results
+})
+
+const navigation = computed(() => {
+  return store.state.search.navigation
+})
+
+const query = computed(() => {
+  return store.state.search.query
+})
+
+const multifile = computed(() => {
+  return store.state.search.multifile
+})
+
+const regex_query = computed(() => {
+  return store.state.search.regex_query
+})
+
+const case_sensitive = computed(() => {
+  return store.state.search.case_sensitive
+})
+
+const state = computed(() => {
+  return [ multifile.value, regex_query.value, case_sensitive.value ]
+})
+
+watch(state, () => {
+  debounce_update(query.value)
+})
+
+async function update (query) {
+  const path = store.state.repository.path
+  await store.dispatch('search/query', { path, query })
+}
+
+const debounce_update = debounce(update, 500)
+
+async function next () {
+  await store.dispatch('search/next')
+}
+
+async function previous () {
+  await store.dispatch('search/previous')
+}
+
+async function flag (key, value) {
+  await store.dispatch(`search/${key}`, value)
+}
+
+async function select (path, target = 0, total = 0) {
+  await store.dispatch('files/select', { path })
+
+  if (target > 0) {
+    await store.dispatch('search/navigate', { target, total })
+  }
+}
+
+async function debounce_clear () {
+  return await debounce_update('')
+}
+
+defineExpose({
+  next,
+  previous,
+  select,
+  update,
+})
+</script>
+
+<style scoped>
+
+.search-buttons :deep(.v-btn) {
+  min-width: 0px;
 }
 
 .search-container {
   position: absolute;
   width: 100%;
-  bottom: 18px;
+  bottom: 0;
   z-index: 99;
 }
 
@@ -224,19 +247,18 @@ export default class SearchService extends SearchServiceProperties {
 
 .search-results {
   height: 120px;
-  margin: 12px;
-  margin-top: 0px;
   overflow-x: hidden;
   overflow-y: overlay;
   border-top: 1px dotted rgba(0, 0, 0, 0.2);
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
-  color: var(--v-secondary-lighten5) !important;
-  background: var(--v-secondary-base) !important;
+  color: rgb(var(--v-theme-on-surface));
+  background: rgba(var(--v-theme-surface), 0.9);
 }
 
 .search-file {
   padding: 2px 6px 1px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  display: flex;
 }
 
 .search-result {
@@ -247,20 +269,14 @@ export default class SearchService extends SearchServiceProperties {
 
 .search-file:hover,
 .search-result:hover {
-  color: var(--v-primary-lighten5) !important;
-  background: var(--v-primary-base) !important;
+  color: rgb(var(--v-theme-on-primary));
+  background: rgba(var(--v-theme-primary), 0.9);
 }
 
 .search-file small,
-.search-result small{
+.search-result small {
   font-size: 0.7em;
   padding-top: 3px;
-}
-
-.search-file:hover small,
-.search-result:hover small{
-  font-size: 0.7em;
-  color: var(--v-primary-lighten2) !important;
 }
 
 .search-score {
@@ -274,32 +290,28 @@ export default class SearchService extends SearchServiceProperties {
 }
 
 .search-box {
-  margin: 12px;
+  overflow: visible;
+  padding: 0 12px;
   box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
 }
 
 .search-input {
-  padding: 0 12px;
+  flex-grow: 1;
 }
 
-.search-input .v-input__control,
-.search-input .v-input__slot,
-.search-input .v-text-field__slot {
+.search-input :deep(*) {
+  overflow-y: visible;
+}
+
+.search-input :deep(.v-input__control),
+.search-input :deep(.v-input__slot),
+.search-input :deep(.v-text-field__slot) {
   height: 28px;
   position: relative;
+  overflow: visible;
 }
 
-.search-input .v-input__prepend-outer,
-.search-input .v-input__append-outer {
-  margin-right: 0px !important;
-  margin-left: 0px !important;
-}
-.search-input .v-input__prepend-outer div .v-icon,
-.search-input .v-input__append-outer div .v-icon {
-  font-size: 2.0em;
-}
-
-.search-input input {
+.search-input :deep(input.v-field__input) {
   font-size: 6em;
   font-weight: 700;
   padding: 0px 4px;
@@ -308,11 +320,7 @@ export default class SearchService extends SearchServiceProperties {
   position: absolute;
   bottom: -18px;
   text-indent: 4px;
-  text-shadow:
-    -2px -2px 0 var(--v-secondary-base),
-    2px -2px 0 var(--v-secondary-base),
-    -2px 2px 0 var(--v-secondary-base),
-    2px 2px 0 var(--v-secondary-base);
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
-
 </style>

@@ -1,47 +1,44 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-import { createLocalVue } from '@vue/test-utils'
 import repository, { State as RepositoryState } from '@/store/modules/repository'
 import { cloneDeep } from 'lodash'
-
+import * as api_module from '@/api'
 import builders from '?/builders'
 
-Object.assign(window, builders.window())
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 interface State {
   repository: RepositoryState
 }
 
 describe('store/modules/repository', () => {
-  let localVue
   let store
 
   let root_actions
   let configuration
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
     root_actions = {
-      message: jest.fn(),
-      error: jest.fn()
+      message: vi.fn(),
+      error: vi.fn(),
     }
 
     configuration = {
       namespaced: true,
       actions: {
-        read: jest.fn()
-      }
+        read: vi.fn(),
+      },
     }
 
     store = new Vuex.Store<State>(cloneDeep({
       actions: root_actions,
-      modules: { repository, configuration }
+      modules: { repository, configuration },
     }))
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should load and initalize the repository on dispatch of load action', async () => {
@@ -63,16 +60,17 @@ describe('store/modules/repository', () => {
   it('should instruct the repository to stage the query on dispatch of stage action', async () => {
     await store.dispatch('repository/load', '/path/to/repository')
 
-    expect(window.api.repository.load).toHaveBeenCalledTimes(1)
+    expect(mocked_api.repository.load).toHaveBeenCalledTimes(1)
 
     await store.dispatch('repository/stage', './path.md')
 
-    expect(window.api.repository.stage).toHaveBeenCalledTimes(1)
+    expect(mocked_api.repository.stage).toHaveBeenCalledTimes(1)
   })
 
   it('should dispatch error when file fails to stage on dispatch of stage action', async () => {
-    const mocked_window = jest.mocked(window)
-    mocked_window.api.repository.stage.mockImplementationOnce(() => { throw new Error('Error!') })
+    mocked_api.repository.stage.mockImplementationOnce(() => {
+      throw new Error('Error!')
+    })
 
     await store.dispatch('repository/load', '/path/to/repository')
 
@@ -90,12 +88,13 @@ describe('store/modules/repository', () => {
 
     await store.dispatch('repository/reset', './path.md')
 
-    expect(window.api.repository.reset).toHaveBeenCalledTimes(1)
+    expect(mocked_api.repository.reset).toHaveBeenCalledTimes(1)
   })
 
   it('should dispatch error when file fails to reset on dispatch of reset action', async () => {
-    const mocked_window = jest.mocked(window)
-    mocked_window.api.repository.reset.mockImplementationOnce(() => { throw new Error('Error!') })
+    mocked_api.repository.reset.mockImplementationOnce(() => {
+      throw new Error('Error!')
+    })
 
     await store.dispatch('repository/load', '/path/to/repository')
 
@@ -111,11 +110,11 @@ describe('store/modules/repository', () => {
   it('should instruct the repository to run inspect cycle on dispatch of inspect action', async () => {
     await store.dispatch('repository/load', '/path/to/repository')
 
-    expect(window.api.repository.inspect).toHaveBeenCalledTimes(1)
+    expect(mocked_api.repository.inspect).toHaveBeenCalledTimes(1)
 
     await store.dispatch('repository/inspect')
 
-    expect(window.api.repository.inspect).toHaveBeenCalledTimes(2)
+    expect(mocked_api.repository.inspect).toHaveBeenCalledTimes(2)
   })
 
   it('should instruct the repository to calculate diff for path on dispatch of diff action with path', async () => {
@@ -125,7 +124,7 @@ describe('store/modules/repository', () => {
 
     await store.dispatch('repository/diff', { path })
 
-    expect(window.api.repository.diff_path).toHaveBeenCalledTimes(1)
+    expect(mocked_api.repository.diff_path).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the repository to calculate diff for commit on dispatch of diff action with commit', async () => {
@@ -135,7 +134,7 @@ describe('store/modules/repository', () => {
 
     await store.dispatch('repository/diff', { commit })
 
-    expect(window.api.repository.diff_commit).toHaveBeenCalledTimes(1)
+    expect(mocked_api.repository.diff_commit).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the repository to commit staged with details on dispatch of commit action', async () => {
@@ -144,12 +143,12 @@ describe('store/modules/repository', () => {
     const data = {
       name: 'Test',
       email: 'text@example.com',
-      message: 'Test Commit'
+      message: 'Test Commit',
     }
 
     await store.dispatch('repository/commit', data)
 
-    expect(window.api.repository.commit).toHaveBeenCalledTimes(1)
+    expect(mocked_api.repository.commit).toHaveBeenCalledTimes(1)
   })
 
   it('should clear staging counter on dispatch of commit action', async () => {
@@ -159,7 +158,7 @@ describe('store/modules/repository', () => {
     const data = {
       name: 'Test',
       email: 'text@example.com',
-      message: 'Test Commit'
+      message: 'Test Commit',
     }
 
     expect(store.state.repository.staging).toBeGreaterThan(0)
@@ -174,7 +173,7 @@ describe('store/modules/repository', () => {
 
     const credentials = {
       key: './test_rsa',
-      passphrase: '1234'
+      passphrase: '1234',
     }
 
     await store.dispatch('repository/credentials/key', credentials.key)
@@ -184,7 +183,7 @@ describe('store/modules/repository', () => {
 
     await store.dispatch('repository/remote', name)
 
-    expect(window.api.repository.load_remote_url).toHaveBeenCalledTimes(1)
+    expect(mocked_api.repository.load_remote_url).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the repository to push to loaded remote on dispatch of push action', async () => {
@@ -192,7 +191,7 @@ describe('store/modules/repository', () => {
 
     const credentials = {
       key: './test_rsa',
-      passphrase: '1234'
+      passphrase: '1234',
     }
 
     await store.dispatch('repository/credentials/key', credentials.key)
@@ -204,7 +203,7 @@ describe('store/modules/repository', () => {
 
     await store.dispatch('repository/push')
 
-    expect(window.api.repository.push).toHaveBeenCalledTimes(1)
+    expect(mocked_api.repository.push).toHaveBeenCalledTimes(1)
   })
 
   it('should store metadata file locations on dispatch of metadata action', async () => {

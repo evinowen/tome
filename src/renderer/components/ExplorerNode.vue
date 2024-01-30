@@ -1,8 +1,7 @@
 <template>
   <v-container
     v-show="visible"
-    class="pa-0"
-    style="user-select: none; clear: both;"
+    class="root"
   >
     <div
       ref="draggable"
@@ -16,14 +15,13 @@
       @dragleave.stop="drag_leave"
       @drop.stop="drop"
     >
-      <v-layout
+      <div
         :class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
         @click.left.stop="$emit('select', { path })"
         @click.right.stop="contextmenu"
       >
-        <v-flex
-          shrink
-          class="explorer-node-indent"
+        <div
+          class="explorer-node-indent flex-shrink-1"
           :style="{ width: `${depth * 6}px`}"
         />
         <file-icon
@@ -35,42 +33,43 @@
           :relationship="relationship"
           :expanded="expanded"
           :alert="alert"
-          @click="locked || $emit(directory ? 'toggle' : 'select', { path })"
+          @click="locked || (directory ? $emit('toggle', { path }) : $emit('select', { path }))"
         />
-        <v-flex>
+        <div class="flex-grow-1">
           <v-form
             ref="form"
             v-model="valid"
+            class="explorer-input"
           >
             <v-text-field
               v-show="(selected && edit)"
-              ref="input"
               v-model="input"
-              dense
-              small
+              density="compact"
+              variant="plain"
+              rounded="0"
               autofocus
               :rules="rules"
               @blur="$emit('blur')"
               @focus="focus"
-              @input="error = undefined"
+              @update:model-value="error = undefined"
               @keyup.enter="valid ? submit() : undefined"
             />
             <v-text-field
               v-show="!(selected && edit)"
-              ref="input"
-              :value="display"
+              :model-value="display"
               readonly
-              dense
-              small
+              density="compact"
+              variant="plain"
+              rounded="0"
               class="pa-0"
               @click.left.stop="$emit('select', { path })"
             />
           </v-form>
-        </v-flex>
-      </v-layout>
+        </div>
+      </div>
     </div>
     <div style="height: 2px;" />
-    <v-container
+    <div
       v-if="directory"
       v-show="expanded"
       class="explorer-node-container"
@@ -87,473 +86,459 @@
         :title="title"
 
         :depth="depth + 1"
-        v-on="$listeners"
-      />
-    </v-container>
 
+        @action="$emit('action', $event)"
+        @blur="$emit('blur', $event)"
+        @create="$emit('create', $event)"
+        @delete="$emit('delete', $event)"
+        @drag="$emit('drag', $event)"
+        @drop="$emit('drop', $event)"
+        @edit="$emit('edit', $event)"
+        @open="$emit('open', $event)"
+        @select="$emit('select', $event)"
+        @submit="$emit('submit', $event)"
+        @template="$emit('template', $event)"
+        @toggle="$emit('toggle', $event)"
+      />
+    </div>
     <div class="explorer-node-break" />
   </v-container>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VContainer, VLayout, VFlex, VForm, VTextField } from 'vuetify/lib'
-import store from '@/store'
-import FileIcon from '@/components/FileIcon.vue'
 import File from '@/store/modules/files/file'
+import FileIcon from '@/components/FileIcon.vue'
+import {
+  VContainer,
+  VForm,
+  VTextField,
+} from 'vuetify/components'
 
 export const ExplorerNodeGhostType = {
   FILE: 'file',
   DIRECTORY: 'directory',
   TEMPLATE: 'template',
-  ACTION: 'action'
+  ACTION: 'action',
 }
 
-export const ExplorerNodeProperties = Vue.extend({
-  props: {
-    uuid: { type: String, default: '' },
-    enabled: { type: Boolean, default: false },
-    title: { type: Boolean, default: false },
-    active: { type: String, default: '' },
-    edit: { type: Boolean, default: false },
-    format: { type: Function, default: undefined },
-    root: { type: Boolean, default: false },
-    depth: { type: Number, default: 0 }
-  }
-})
-
-@Component({
+export default {
   name: 'ExplorerNode',
-  components: { VContainer, VLayout, VFlex, VForm, VTextField, FileIcon }
-})
-export default class ExplorerNode extends ExplorerNodeProperties {
-  valid = false
-  input = ''
-  error?: string
-
-  get file (): File {
-    return store.state.files.directory[this.uuid] || File.Empty
-  }
-
-  get ephemeral () {
-    return this.file.ephemeral
-  }
-
-  get name () {
-    return this.file.name
-  }
-
-  get path () {
-    return this.file.path
-  }
-
-  get extension () {
-    return this.file.extension
-  }
-
-  get image () {
-    return this.file.image
-  }
-
-  get relationship () {
-    return this.file.relationship || ''
-  }
-
-  get children () {
-    return this.file.children
-  }
-
-  get directory () {
-    return this.file.directory
-  }
-
-  get expanded () {
-    return this.file.expanded
-  }
-
-  get selected () {
-    return this.uuid === this.active
-  }
-
-  get locked () {
-    return this.relationship === 'git'
-  }
-
-  get system () {
-    const relationships = new Set(['root', 'git', 'tome', 'tome-templates', 'tome-actions'])
-    return relationships.has(this.relationship)
-  }
-
-  get actions () {
-    return store.state.actions.options.map(name => ({
-      title: name,
-      action: (path) => this.$emit('action', { name, target: path, selection: undefined })
-    }))
-  }
-
-  get templates () {
-    return store.state.templates.options.map(name => ({
-      title: name,
-      action: (path) => this.$emit('template', { name, target: path })
-    }))
-  }
-
-  get instance () {
-    return this
-  }
-
-  get display () {
-    if (this.title && !this.system) {
-      try {
-        return this.format(this.name, this.directory)
-      } catch {
-        return (this.ephemeral || this.name) ? this.name : ' - '
-      }
-    }
-
-    return this.name
-  }
-
-  get visible () {
-    return this.root || this.ephemeral || !(this.title && (this.display === '' || this.system))
-  }
-
-  get rules (): ((value: string) => boolean|string)[] {
-    const rules:((value: string) => boolean|string)[] = [
-      () => !this.error || this.error,
-      (value) => String(value).search(/[^\s\w.-]/g) === -1 || 'special characters are not allowed.',
-      (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.'
-    ]
-
-    if (this.title) {
-      rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
-    } else if (!this.directory) {
-      rules.push(
-        (value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.',
-        (value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.'
-      )
-    }
-
-    return rules
-  }
-
-  get alert () {
-    if (this.system || this.ephemeral) {
-      return false
-    }
-
-    if (this.relationship === 'tome-file') {
-      return false
-    }
-
-    try {
-      this.format(this.name, this.directory)
-    } catch {
-      return true
-    }
-
-    return false
-  }
-
-  get context () {
-    const items = []
-    const push = (array) => {
-      if (items.length > 0) {
-        items.push({ divider: true })
-      }
-
-      items.push(...array)
-    }
-
-    const expand = [
-      {
-        title: 'Expand',
-        action: undefined
-      }
-    ]
-
-    const script = [
-      {
-        title: 'Template',
-        load: () => this.templates
-      },
-      {
-        title: 'Action',
-        load: () => this.actions
-      }
-    ]
-
-    const special = []
-
-    if (['root', 'tome', 'tome-feature-templates'].includes(this.relationship)) {
-      special.push({
-        title: 'New Template',
-        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path })
-      })
-    }
-
-    if (['root', 'tome', 'tome-feature-actions'].includes(this.relationship)) {
-      special.push({
-        title: 'New Action',
-        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.ACTION, target: path })
-      })
-    }
-
-    const file = [
-      {
-        title: 'Open',
-        action: (path) => this.$emit('open', { target: path })
-      },
-      {
-        title: 'Open Folder',
-        action: (path) => this.$emit('open', { target: path, container: true })
-      },
-      {
-        title: 'New File',
-        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.FILE, target: path })
-      },
-      {
-        title: 'New Folder',
-        action: async (path) => this.$emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path })
-      }
-    ]
-
-    const clipboard = [
-      {
-        title: 'Cut',
-        action: async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
-        active: () => !this.system
-      },
-      {
-        title: 'Copy',
-        action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path })
-      },
-      {
-        title: 'Paste',
-        active: () => store.state.clipboard.content,
-        action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path })
-      }
-    ]
-
-    const move = [
-      {
-        title: 'Rename',
-        action: async (path) => this.$emit('edit', { target: path }),
-        active: () => !this.system
-      },
-      {
-        title: 'Delete',
-        action: async (path) => this.$emit('delete', { target: path }),
-        active: () => !this.system
-      }
-    ]
-
-    push(this.directory ? expand : [])
-    push(special.length > 0 && this.system ? special : [])
-    push(this.system && !this.root ? [] : script)
-    push(file)
-    push(clipboard)
-    push(move)
-
-    return items
-  }
-
-  async contextmenu (event) {
-    if (this.locked) {
-      return
-    }
-
-    const position = {
-      x: event.clientX,
-      y: event.clientY
-    }
-
-    await store.dispatch('context/open', { target: this.path, title: this.path, items: this.context, position })
-  }
-
-  drag_start (event) {
-    if (this.system) {
-      event.preventDefault()
-      return
-    }
-
-    event.dataTransfer.dropEffect = 'move'
-    event.target.style.opacity = 0.2
-
-    this.$emit('drag', { path: this.path })
-  }
-
-  drag_end (event) {
-    event.target.style.opacity = 1
-  }
-
-  drag_enter (event) {
-    const container = event.target.closest('[droppable]')
-    container.classList.add('drop')
-  }
-
-  drag_leave (event) {
-    const container = event.target.closest('[droppable]')
-    container.classList.remove('drop')
-  }
-
-  drop (event) {
-    this.drag_leave(event)
-    this.$emit('drop', { path: this.path })
-  }
-
-  focus () {
-    this.input = this.display
-  }
-
-  submit () {
-    if (!this.valid) {
-      return
-    }
-
-    this.$emit('submit', { input: this.input, title: this.title })
-  }
+  components: {
+    FileIcon,
+    VContainer,
+    VForm,
+    VTextField,
+  },
 }
 </script>
 
-<style>
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+export interface Properties {
+  uuid: string
+  enabled?: boolean
+  title?: boolean
+  active: string
+  edit?: boolean
+  format?: any
+  root?: boolean
+  depth?: number
+}
+
+const properties = withDefaults(defineProps<Properties>(), {
+  uuid: '',
+  enabled: false,
+  title: false,
+  active: '',
+  edit: false,
+  format: undefined,
+  root: false,
+  depth: 0,
+})
+
+const emit = defineEmits([
+  'action',
+  'blur',
+  'create',
+  'delete',
+  'drag',
+  'drop',
+  'edit',
+  'open',
+  'select',
+  'submit',
+  'template',
+  'toggle',
+])
+
+const input = ref<string>('')
+const valid = ref<boolean>(false)
+const error = ref<string>('')
+
+const file = computed((): File => {
+  return store.state.files.directory[properties.uuid] || File.Empty
+})
+
+const ephemeral = computed(() => {
+  return file.value.ephemeral
+})
+
+const name = computed(() => {
+  return file.value.name
+})
+
+const path = computed(() => {
+  return file.value.path
+})
+
+const extension = computed(() => {
+  return file.value.extension
+})
+
+const image = computed(() => {
+  return file.value.image
+})
+
+const relationship = computed(() => {
+  return file.value.relationship || ''
+})
+
+const children = computed(() => {
+  return file.value.children
+})
+
+const directory = computed(() => {
+  return file.value.directory
+})
+
+const expanded = computed(() => {
+  return file.value.expanded
+})
+
+const selected = computed(() => {
+  return properties.uuid === properties.active
+})
+
+const locked = computed(() => {
+  return relationship.value === 'git'
+})
+
+const system = computed(() => {
+  const relationships = new Set([ 'root', 'git', 'tome', 'tome-templates', 'tome-actions' ])
+  return relationships.has(relationship.value)
+})
+
+const actions = computed(() => {
+  return store.state.actions.options.map((name) => ({
+    title: name,
+    action: (path) => emit('action', { name, target: path, selection: undefined }),
+  }))
+})
+
+const templates = computed(() => {
+  return store.state.templates.options.map((name) => ({
+    title: name,
+    action: (path) => emit('template', { name, target: path }),
+  }))
+})
+
+const display = computed(() => {
+  if (properties.title && !system.value) {
+    try {
+      return properties.format(name.value, directory.value)
+    } catch {
+      return (ephemeral.value || name.value) ? name.value : ' - '
+    }
+  }
+
+  return name.value
+})
+
+const visible = computed(() => {
+  return properties.root || ephemeral.value || !(properties.title && (display.value === '' || system.value))
+})
+
+const rules = computed((): ((value: string) => boolean | string)[] => {
+  const rules: ((value: string) => boolean | string)[] = [
+    () => !error.value || error.value,
+    (value) => String(value).search(/[^\s\w.-]/g) === -1 || 'special characters are not allowed.',
+    (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.',
+  ]
+
+  if (properties.title) {
+    rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
+  } else if (!directory.value) {
+    rules.push(
+      (value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.',
+      (value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.',
+    )
+  }
+
+  return rules
+})
+
+const alert = computed(() => {
+  if (system.value || ephemeral.value) {
+    return false
+  }
+
+  if (relationship.value === 'tome-file') {
+    return false
+  }
+
+  try {
+    properties.format(name.value, directory.value)
+  } catch {
+    return true
+  }
+
+  return false
+})
+
+const context = computed(() => {
+  const items = []
+  const push = (array) => {
+    if (items.length > 0) {
+      items.push({ divider: true })
+    }
+
+    items.push(...array)
+  }
+
+  const expand = [
+    {
+      title: 'Expand',
+      action: undefined,
+    },
+  ]
+
+  const script = [
+    {
+      title: 'Template',
+      load: () => templates.value,
+    },
+    {
+      title: 'Action',
+      load: () => actions.value,
+    },
+  ]
+
+  const special = []
+
+  if ([ 'root', 'tome', 'tome-feature-templates' ].includes(relationship.value)) {
+    special.push({
+      title: 'New Template',
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path }),
+    })
+  }
+
+  if ([ 'root', 'tome', 'tome-feature-actions' ].includes(relationship.value)) {
+    special.push({
+      title: 'New Action',
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.ACTION, target: path }),
+    })
+  }
+
+  const file = [
+    {
+      title: 'Open',
+      action: (path) => emit('open', { target: path }),
+    },
+    {
+      title: 'Open Folder',
+      action: (path) => emit('open', { target: path, container: true }),
+    },
+    {
+      title: 'New File',
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.FILE, target: path }),
+    },
+    {
+      title: 'New Folder',
+      action: async (path) => emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path }),
+    },
+  ]
+
+  const clipboard = [
+    {
+      title: 'Cut',
+      action: async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
+      active: () => !system.value,
+    },
+    {
+      title: 'Copy',
+      action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path }),
+    },
+    {
+      title: 'Paste',
+      active: () => store.state.clipboard.content,
+      action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path }),
+    },
+  ]
+
+  const move = [
+    {
+      title: 'Rename',
+      action: async (path) => emit('edit', { target: path }),
+      active: () => !system.value,
+    },
+    {
+      title: 'Delete',
+      action: async (path) => emit('delete', { target: path }),
+      active: () => !system.value,
+    },
+  ]
+
+  push(directory.value ? expand : [])
+  push(special.length > 0 && system.value ? special : [])
+  push(system.value && !properties.root ? [] : script)
+  push(file)
+  push(clipboard)
+  push(move)
+
+  return items
+})
+
+async function contextmenu (event) {
+  if (locked.value) {
+    return
+  }
+
+  const position = {
+    x: event.clientX,
+    y: event.clientY,
+  }
+
+  await store.dispatch('context/open', { target: path.value, title: path.value, items: context.value, position })
+}
+
+function drag_start (event) {
+  if (system.value) {
+    event.preventDefault()
+    return
+  }
+
+  event.dataTransfer.dropEffect = 'move'
+  event.target.style.opacity = 0.2
+
+  emit('drag', { path: path.value })
+}
+
+function drag_end (event) {
+  event.target.style.opacity = 1
+}
+
+function drag_enter (event) {
+  const container = event.target.closest('[droppable]')
+  container.classList.add('drop')
+}
+
+function drag_leave (event) {
+  const container = event.target.closest('[droppable]')
+  container.classList.remove('drop')
+}
+
+function drop (event) {
+  drag_leave(event)
+  emit('drop', { path: path.value })
+}
+
+function focus () {
+  input.value = display.value
+}
+
+function submit () {
+  if (!valid.value) {
+    return
+  }
+
+  emit('submit', { input: input.value, title: properties.title })
+}
+
+defineExpose({
+  context,
+  display,
+  drag_end,
+  drag_enter,
+  drag_leave,
+  drag_start,
+  drop,
+  focus,
+  input,
+  submit,
+  system,
+})
+</script>
+
+<style scoped>
+.root {
+  padding: 0;
+}
+
+.root :deep(*) {
+  user-select: none;
+}
+
 .explorer-node {
-  min-height: 0 !important;
-  padding: 0 !important;
-  line-height: 12px !important;
-  text-overflow: ellipsis;
+  display: flex;
   white-space: nowrap;
   overflow: visible;
-  user-select: none;
-  vertical-align: text-bottom;
 }
 
-.explorer-node * {
-  text-overflow: ellipsis;
-  cursor: pointer !important;
-}
-
-.explorer-node .v-icon {
-  font-size: 14px !important;
-}
-
-.explorer-node .v-btn,
-.explorer-node input {
-  position: relative;
-  cursor: pointer !important;
-}
-
-.explorer-icon-badged {
-  mask-image:
-    radial-gradient(circle at calc(100% - 3px) calc(100% - 3px),
-    rgba(0, 0, 0, 0) 4px, rgba(0, 0, 0, 1) 40%);
-}
-
-.explorer-node .v-btn .explorer-badge {
-  position: absolute;
-  bottom: -1.5px;
-  right: -0.40px;
-  font-size: 10px !important;
-  background-blend-mode: overlay;
-}
-
-.explorer-node-break {
-  height: 0px;
-  width: 100%;
-}
-
-.explorer-node-drop {
-  height: 18px;
-  margin: 0;
-  text-overflow: ellipsis;
-}
-
-.explorer-node-drop.drop {
-  color: var(--v-accent-lighten4) !important;
-  background: var(--v-accent-darken1) !important;
-}
-
-.explorer-node-drop.drop .v-btn,
-.explorer-node-drop.drop input {
-  color: var(--v-accent-lighten4) !important;
-}
-
-.explorer-node .v-input,
-.explorer-node .v-input input {
-  margin: 0 !important;
-  padding: 0 !important;
-  font-size: 10px;
-}
-
-.explorer-node .v-input__slot {
-  min-height: 0 !important;
-  margin: 0 !important;
-}
-
-.explorer-node .v-input__slot::before {
-  border-style: none !important;
-}
-
-.explorer-node .v-input__slot:after {
-  border: none !important;
-}
-
-.explorer-node .v-text-field__details {
-  margin-top: 20px;
-  position: absolute !important;
-  right: 0px;
-  z-index: 1000;
-}
-
-.explorer-node .v-input__slot {
-  padding: 0 !important;
-}
-
-.explorer-node .v-input__icon {
-  height: 18px;
-}
-
-.explorer-node .v-input__prepend-inner {
-  margin-top: 0 !important;
-}
-
-.explorer-node .v-input--is-disabled .v-text-field__details {
-  display: none !important;
-}
-
-.explorer-node-container {
-  border: none;
-  width: auto !important;
-  min-height: 8px;
-  padding: 0 !important;
-  margin: 0 !important;
+.explorer-node,
+.explorer-node :deep(*) {
+  cursor: pointer;
 }
 
 .explorer-node:hover {
-  background: var(--v-primary-darken2) !important;
-}
-.explorer-node:hover .v-btn,
-.explorer-node:hover input {
-  color: var(--v-primary-lighten4) !important;
-}
-
-.explorer-node-selected {
-  background: var(--v-primary-darken3) !important;
+  background: rgba(var(--v-theme-primary), 0.5);
+  color: rgb(var(--v-theme-on-primary));
+  transition:
+    background-color 300ms linear,
+    color 300ms linear;
 }
 
-.explorer-node-selected .v-btn,
-.explorer-node-selected input {
-  color: var(--v-primary-lighten3) !important;
-}
-
+.explorer-node-selected,
 .explorer-node-selected:hover {
-  background: var(--v-primary-darken2) !important;
+  background: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
+  transition:
+    background-color 300ms linear,
+    color 300ms linear;
 }
 
-.explorer-node-selected:hover .v-btn,
-.explorer-node-selected:hover input {
-  color: var(--v-primary-lighten4) !important;
+.explorer-input,
+.explorer-input :deep(*) {
+  height: 100%;
+  display: flex;
+  flex-grow: 1;
 }
 
+.explorer-input :deep(.v-field__input) {
+  text-overflow: ellipsis;
+  font-size: 0.6em;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-inline-start: 2px;
+  padding-inline-end: 2px;
+  min-height: 0;
+  border: none;
+  background: none;
+  vertical-align: text-bottom;
+}
+
+.explorer-input :deep(.v-field__outline:before) {
+  border-bottom: 0;
+}
+
+.explorer-input :deep(.v-field__outline:after) {
+  border-bottom: 0;
+}
+
+.explorer-input :deep(.v-input__details) {
+  display: none;
+}
 </style>

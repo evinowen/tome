@@ -1,10 +1,11 @@
 import { v4 as uuidv4 } from 'uuid'
+import api from '@/api'
 
 export class FileDirent {
   static async convert (dirent: { name: string, mime: string, directory: boolean }, parent: File, base: File) {
-    const path = await window.api.path.join(parent.path, dirent.name)
-    const relative = await window.api.path.relative(base.path, path)
-    const extension = await window.api.path.extension(path)
+    const path = await api.path.join(parent.path, dirent.name)
+    const relative = await api.path.relative(base.path, path)
+    const extension = await api.path.extension(path)
 
     const file = new File({
       name: dirent.name,
@@ -13,7 +14,7 @@ export class FileDirent {
       relative,
       extension,
       directory: dirent.directory,
-      parent
+      parent,
     })
 
     await File.relate(file)
@@ -50,7 +51,7 @@ interface FileConstructor {
   mime?: string
   path?: string
   relative?: string
-  relationship?: FileRelationshipType,
+  relationship?: FileRelationshipType
   parent?: File
   loaded?: boolean
   directory?: boolean
@@ -74,15 +75,15 @@ export enum FileRelationshipType {
   TomeFeatureActions = 'tome-feature-actions',
   TomeTemplate = 'tome-template',
   TomeAction = 'tome-action',
-  TomeFile = 'tome-file'
+  TomeFile = 'tome-file',
 }
 
 class FileRelationship {
   base?: FileRelationshipType
 
   map?: {
-    base?: FileRelationshipType,
-    child?: FileRelationshipType,
+    base?: FileRelationshipType
+    child?: FileRelationshipType
     descendant?: FileRelationshipType
   }
 
@@ -91,7 +92,7 @@ class FileRelationship {
   }
 }
 
-type FileRelationshipMember = FileRelationship|FileRelationshipType
+type FileRelationshipMember = FileRelationship | FileRelationshipType
 
 export default class File {
   uuid: string = uuidv4()
@@ -104,6 +105,7 @@ export default class File {
   parent?: File
   loaded = false
   directory = false
+  text = false
   disabled = false
   children: File[] = []
   ghost?: File
@@ -112,18 +114,19 @@ export default class File {
   document: FileDocument = {
     path: '',
     title: '',
-    content: ''
+    content: '',
   }
+
   updated?: number
   clean = true
   readonly = false
   image = false
 
-  static Empty:File = new File({})
+  static Empty: File = new File({})
 
   static blacklist = [
     '.git',
-    '.tome'
+    '.tome',
   ]
 
   static System = {
@@ -134,46 +137,47 @@ export default class File {
     TomeFeatureActions: 'tome-feature-actions',
     TomeTemplate: 'tome-template',
     TomeAction: 'tome-action',
-    TomeFile: 'tome-file'
+    TomeFile: 'tome-file',
   }
 
-  static Relationships:FileRelationship = {
+  static Relationships: FileRelationship = {
     base: FileRelationshipType.Root,
     children: {
       '.git': FileRelationshipType.Git,
       '.tome': {
         map: {
           base: FileRelationshipType.Tome,
-          descendant: FileRelationshipType.TomeFile
+          descendant: FileRelationshipType.TomeFile,
         },
         children: {
           'templates': {
             map: {
               base: FileRelationshipType.TomeFeatureTemplates,
-              child: FileRelationshipType.TomeTemplate
-            }
+              child: FileRelationshipType.TomeTemplate,
+            },
           },
           'actions': {
             base: FileRelationshipType.TomeFeatureActions,
             map: {
               base: FileRelationshipType.TomeFeatureTemplates,
-              child: FileRelationshipType.TomeAction
-            }
-          }
-        }
-      }
-    }
+              child: FileRelationshipType.TomeAction,
+            },
+          },
+        },
+      },
+    },
   }
 
   constructor (data: FileConstructor) {
     Object.assign(this, data)
     this.image = this.mime.startsWith('image')
+    this.text = !(this.image || this.directory)
   }
 
   async load (base: File, listener?: CallableFunction) {
     const { directory } = this
 
-    const payload = new FileLoadPayload
+    const payload = new FileLoadPayload()
     if (directory) {
       payload.children = await this.populate(base, listener)
     } else {
@@ -184,18 +188,18 @@ export default class File {
   }
 
   async open (container: boolean) {
-    await window.api.file.open(this.path, container)
+    await api.file.open(this.path, container)
   }
 
   async read (listener?: CallableFunction) {
     const { path } = this
-    const content = await window.api.file.contents(path)
-    listener({ type: 'read', path, bytes: new Blob([content]).size })
+    const content = await api.file.contents(path)
+    listener({ type: 'read', path, bytes: new Blob([ content ]).size })
 
     return {
       path,
-      title: await window.api.path.basename(path),
-      content
+      title: await api.path.basename(path),
+      content,
     }
   }
 
@@ -243,12 +247,12 @@ export default class File {
   }
 
   async populate (base: File, listener?: CallableFunction) {
-    const dirents = await window.api.file.list_directory(this.path)
+    const dirents = await api.file.list_directory(this.path)
 
     const children = []
 
     for (const dirent of dirents) {
-      let child = this.children.find(file => file.name === dirent.name)
+      let child = this.children.find((file) => file.name === dirent.name)
 
       if (!child) {
         child = await FileDirent.convert(dirent, this, base)
@@ -264,12 +268,12 @@ export default class File {
   }
 
   async create (name: string, directory = false) {
-    const path = await window.api.path.join(this.path, name)
+    const path = await api.path.join(this.path, name)
     let result = false
 
     directory
-      ? result = await window.api.file.create_directory(path)
-      : result = await window.api.file.create(path)
+      ? result = await api.file.create_directory(path)
+      : result = await api.file.create(path)
 
     if (!result) {
       throw new Error(`Failed to create ${name} under directory ${this.path}`)
@@ -279,30 +283,30 @@ export default class File {
   }
 
   async rename (basename: string) {
-    const dirname = await window.api.path.dirname(this.path)
+    const dirname = await api.path.dirname(this.path)
 
-    const path = await window.api.path.join(dirname, basename)
+    const path = await api.path.join(dirname, basename)
 
-    await window.api.file.rename(this.path, path)
+    await api.file.rename(this.path, path)
 
     return path
   }
 
   async move (target: string) {
-    const basename = await window.api.path.basename(this.path)
-    const path = await window.api.path.join(target, basename)
+    const basename = await api.path.basename(this.path)
+    const path = await api.path.join(target, basename)
 
-    await window.api.file.rename(this.path, path)
+    await api.file.rename(this.path, path)
 
     return path
   }
 
   async write (content: string) {
-    await window.api.file.write(this.path, content)
+    await api.file.write(this.path, content)
   }
 
   async delete () {
-    await window.api.file.delete(this.path)
+    await api.file.delete(this.path)
   }
 
   static sort (children: File[]) {
@@ -324,17 +328,17 @@ export default class File {
       return 0
     }
 
-    return ((first.path)  < (second.path) ? -1 : 1)
+    return ((first.path) < (second.path) ? -1 : 1)
   }
 
   static async relate (instance: File) {
     let node: FileRelationshipMember = File.Relationships
-    const items = (instance.relative || '').split(await window.api.path.sep())
+    const items = (instance.relative || '').split(await api.path.sep())
 
     const assign: { base: FileRelationshipMember, child: FileRelationshipMember, descendant: FileRelationshipMember } = {
       base: undefined,
       child: undefined,
-      descendant: undefined
+      descendant: undefined,
     }
 
     while (items.length > 0) {
@@ -343,7 +347,6 @@ export default class File {
       if (!item) {
         break
       }
-
 
       if (typeof node === 'string' || node instanceof String) {
         node = undefined

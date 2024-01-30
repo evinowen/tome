@@ -1,7 +1,7 @@
 <template>
   <context-menu-node
     v-if="context.visible"
-    ref="root"
+    ref="root-node"
     v-resize="resize"
     :window_x="window_x"
     :window_y="window_y"
@@ -17,34 +17,43 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Resize } from 'vuetify/lib'
 import ContextMenuNode from './ContextMenuNode.vue'
-import store from '@/store'
+import {
+  Resize,
+} from 'vuetify/directives'
 
-export const ContextMenuServiceProperties = Vue.extend({})
-
-@Component({
-  components: { ContextMenuNode },
-  directives: { Resize }
-})
-export default class ContextMenuService extends ContextMenuServiceProperties {
-  window_x = 0
-  window_y = 0
-  visible = true
-
-  get context () {
-    return store.state.context
-  }
-
-  resize () {
-    this.window_x = window.innerWidth
-    this.window_y = window.innerHeight
-  }
-
-  async close () {
-    await store.dispatch('context/close')
-  }
+export default {
+  components: {
+    ContextMenuNode,
+  },
+  directives: {
+    Resize,
+  },
 }
+</script>
+
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+const window_x = ref(0)
+const window_y = ref(0)
+
+const context = computed(() => store.state.context)
+
+function resize () {
+  window_x.value = window.innerWidth
+  window_y.value = window.innerHeight
+}
+
+async function close () {
+  await store.dispatch('context/close')
+}
+
+defineExpose({
+  close,
+  resize,
+})
 </script>

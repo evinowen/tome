@@ -1,90 +1,62 @@
+import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import { cloneDeep } from 'lodash'
 import * as electron from 'electron'
 import Disk from '../../mocks/support/disk'
 import * as fs from 'node:fs'
 import * as chokidar from 'chokidar'
-import helpers from '../../helpers'
 import _component from '@/components/file'
-import preload from '@/components/file/preload'
-
+import { file as preload } from '@/preload'
 import mocked_fs_data from '../../meta/node/fs'
 import fs_meta from '../../meta/node/fs'
 import * as fs_mock from '../../mocks/node/fs'
+import * as electron_meta from '?/meta/electron'
+import * as electron_mock from '?/mocks/electron'
 
+jest.doMock('node:fs', () => fs_mock)
+jest.doMock('electron', () => electron_mock)
 
-let ipcMainMap
-const { random_string } = helpers(expect)
-
-jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
-jest.mock('electron', () => ({
-  ipcMain: {
-    handle: jest.fn(),
-    on: jest.fn(),
-    removeHandler: jest.fn()
-  },
-  ipcRenderer: {
-    invoke: jest.fn(),
-    send: jest.fn(),
-    on: jest.fn()
-  },
-  dialog: {
-    showOpenDialog: jest.fn()
-  },
-  shell: {
-    openPath: jest.fn()
-  }
-}))
-
-const chokider_event = {
-  event: random_string(),
-  path: random_string()
-}
-
-const mocked_electron = jest.mocked(electron)
-mocked_electron.ipcMain.handle.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-mocked_electron.ipcMain.on.mockImplementation((channel, listener) => ipcMainMap.set(channel, listener))
-mocked_electron.ipcRenderer.invoke.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
-mocked_electron.ipcRenderer.send.mockImplementation((channel, ...data) => ipcMainMap.get(channel)({}, ...data))
-mocked_electron.ipcRenderer.on.mockImplementation((channel, listener) => {
-  listener({} as electron.IpcRendererEvent, chokider_event)
-  return mocked_electron.ipcRenderer
-})
+jest.mock('node:path')
 
 jest.mock('chokidar', () => ({
-  watch: jest.fn()
+  watch: jest.fn(),
 }))
 
-const chokidar_watcher = {
-  close: jest.fn(),
-  on: function (channel, listener) {
-    listener('event', 'path')
-    return this
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const chokidar_listeners = new Map<string, (...parameters: any) => void>()
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const chokidar_exec_event = (event: string, ...parameters: any) => {
+  if (!chokidar_listeners.has(event)) {
+    return
   }
+
+  const listener = chokidar_listeners.get(event)
+  listener(event, ...parameters)
+}
+
+const chokidar_watcher = {
+  close: jest.fn(() => chokidar_listeners.clear()),
+  on: function (channel, listener) {
+    chokidar_listeners.set(channel, listener)
+    return this
+  },
 } as unknown as chokidar.FSWatcher
 
 const mocked_chokidar = jest.mocked(chokidar)
 mocked_chokidar.watch.mockImplementation(() => chokidar_watcher)
 
-jest.setMock('node:fs', () => fs_mock)
-jest.mock('node:path')
-
 describe('components/file', () => {
   let component
   let win
 
-  const disk = new Disk
+  const disk = new Disk()
 
   beforeEach(() => {
+    electron_meta.ipc_reset()
+
     fs_meta.set_disk(disk)
     disk.reset_disk()
 
-    ipcMainMap = new Map()
-
-    win = {
-      webContents: {
-        send: jest.fn()
-      }
-    }
+    win = new electron.BrowserWindow({})
 
     component = cloneDeep(_component)
     component.register(win)
@@ -100,6 +72,9 @@ describe('components/file', () => {
     await preload.subscribe(target, listener)
 
     expect(chokidar.watch).toHaveBeenCalled()
+
+    chokidar_exec_event('all', target)
+
     expect(listener).toHaveBeenCalled()
   })
 
@@ -109,9 +84,14 @@ describe('components/file', () => {
     await preload.subscribe(target, listener)
 
     expect(chokidar.watch).toHaveBeenCalled()
+
+    chokidar_exec_event('all', target)
+
     expect(listener).toHaveBeenCalled()
 
     await preload.clear_subscriptions()
+
+    expect(chokidar_watcher.close).toHaveBeenCalled()
   })
 
   it('should return target access upon call to exists', async () => {
@@ -232,7 +212,7 @@ describe('components/file', () => {
     const criteria = {
       query: 'Test',
       case_sensitive: false,
-      regex_query: false
+      regex_query: false,
     }
 
     await preload.search_path(target, criteria)
@@ -243,7 +223,7 @@ describe('components/file', () => {
     const criteria = {
       query: 'Test',
       case_sensitive: false,
-      regex_query: false
+      regex_query: false,
     }
 
     await preload.search_path(target, criteria)
@@ -256,7 +236,7 @@ describe('components/file', () => {
     const criteria = {
       query: 'Test',
       case_sensitive: true,
-      regex_query: false
+      regex_query: false,
     }
 
     await preload.search_path(target, criteria)
@@ -269,7 +249,7 @@ describe('components/file', () => {
     const criteria = {
       query: '[^ ]*',
       case_sensitive: false,
-      regex_query: true
+      regex_query: true,
     }
 
     await preload.search_path(target, criteria)
@@ -281,7 +261,7 @@ describe('components/file', () => {
     const criteria = {
       query: '[^ ]*',
       case_sensitive: true,
-      regex_query: true
+      regex_query: true,
     }
 
     await preload.search_path(target, criteria)

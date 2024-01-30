@@ -1,32 +1,54 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import Vuetify from 'vuetify'
-import store from '@/store'
+import BasicComponentStub from '?/stubs/BasicComponentStub'
+import { stub_actions } from '?/builders/store'
+import { createVuetify } from 'vuetify'
+import { createStore } from 'vuex'
+import { State, key } from '@/store'
+import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 import SystemBar from '@/components/SystemBar.vue'
-
-jest.mock('@/store', () => ({
-  state: {
-    system: {
-      maximized: false,
-      settings: false
-    }
-  },
-  dispatch: jest.fn()
-}))
 
 describe('components/SystemBar', () => {
   const title = 'Test Title'
 
   let vuetify
+  let store
+  let store_dispatch
 
   const factory = assemble(SystemBar, { title })
-    .context(() => ({ vuetify, stubs: { VIcon: true } }))
+    .context(() => ({
+      global: {
+        plugins: [ vuetify, [ store, key ] ],
+        stubs: {
+          VBtn: BasicComponentStub,
+          VIcon: BasicComponentStub,
+          VSpacer: BasicComponentStub,
+          VSystemBar: BasicComponentStub,
+        },
+      },
+    }))
 
   beforeEach(() => {
-    vuetify = new Vuetify()
+    vuetify = createVuetify()
+
+    store = createStore<State>({
+      state: {
+        system: SystemStateDefaults(),
+      },
+      actions: stub_actions([
+        'system/exit',
+        'system/maximize',
+        'system/minimize',
+        'system/restore',
+        'system/settings',
+      ]),
+    })
+
+    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(async () => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should mount into test scafolding without error', async () => {
@@ -37,64 +59,43 @@ describe('components/SystemBar', () => {
   it('should dispatch system/settings with inverted settings value when settings is called', async () => {
     const value = store.state.system.settings
     const wrapper = factory.wrap()
-    const local = wrapper.vm as SystemBar
 
-    await local.settings()
+    await wrapper.vm.settings()
 
-    const mocked_store = jest.mocked(store)
-    const [action, data] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/settings')
-
-    expect(action).toBeDefined()
-    expect(data).toEqual(!value)
+    expect(store_dispatch).toHaveBeenCalledWith('system/settings', !value)
   })
 
   it('should dispatch system/minimize when minimize is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as SystemBar
 
-    await local.minimize()
+    await wrapper.vm.minimize()
 
-    const mocked_store = jest.mocked(store)
-    const [action] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/minimize')
-
-    expect(action).toBeDefined()
+    expect(store_dispatch).toHaveBeenCalledWith('system/minimize')
   })
 
   it('should dispatch system/maximize when maximize is called and window is not maximized', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as SystemBar
 
-    await local.maximize()
+    await wrapper.vm.maximize()
 
-    const mocked_store = jest.mocked(store)
-    const [action] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/maximize')
-
-    expect(action).toBeDefined()
+    expect(store_dispatch).toHaveBeenCalledWith('system/maximize')
   })
 
   it('should dispatch system/restore when maximize is called and window is maximized', async () => {
     store.state.system.maximized = true
 
     const wrapper = factory.wrap()
-    const local = wrapper.vm as SystemBar
 
-    await local.maximize()
+    await wrapper.vm.maximize()
 
-    const mocked_store = jest.mocked(store)
-    const [action] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/restore')
-
-    expect(action).toBeDefined()
+    expect(store_dispatch).toHaveBeenCalledWith('system/restore')
   })
 
   it('should dispatch system/exit when exit is called', async () => {
     const wrapper = factory.wrap()
-    const local = wrapper.vm as SystemBar
 
-    await local.exit()
+    await wrapper.vm.exit()
 
-    const mocked_store = jest.mocked(store)
-    const [action] = mocked_store.dispatch.mock.calls.find(([action]) => (action as unknown as string) === 'system/exit')
-
-    expect(action).toBeDefined()
+    expect(store_dispatch).toHaveBeenCalledWith('system/exit')
   })
 })

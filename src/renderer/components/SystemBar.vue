@@ -6,9 +6,10 @@
     style="user-select: none;"
   >
     <v-btn
-      tile
-      icon
-      small
+      rounded="0"
+      variant="flat"
+      size="small"
+      class="system-bar-button"
       @click.stop="settings"
     >
       <v-icon>{{ icon }}</v-icon>
@@ -16,31 +17,34 @@
     <v-spacer />
     <span
       system-bar-title
-      :style="{ opacity: (title ? 1 : 0.4)}"
+      :style="{ opacity: (title ? 1 : 0.6)}"
     >{{ title || 'tome' }}</span>
     <v-spacer />
     <v-btn
-      tile
-      icon
-      small
+      rounded="0"
+      variant="flat"
+      size="small"
+      class="system-bar-button"
       system-bar-minimize
       @click.stop="minimize"
     >
       <v-icon>mdi-window-minimize</v-icon>
     </v-btn>
     <v-btn
-      tile
-      icon
-      small
+      rounded="0"
+      variant="flat"
+      size="small"
+      class="system-bar-button"
       system-bar-maximize
       @click.stop="maximize"
     >
       <v-icon>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
     </v-btn>
     <v-btn
-      tile
-      icon
-      small
+      rounded="0"
+      variant="flat"
+      size="small"
+      class="system-bar-button"
       system-bar-close
       @click.stop="exit"
     >
@@ -50,47 +54,65 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VBtn, VIcon, VSystemBar, VSpacer } from 'vuetify/lib'
-import store from '@/store'
+import {
+  VBtn,
+  VIcon,
+  VSpacer,
+  VSystemBar,
+} from 'vuetify/components'
 
-export const SystemBarProperties = Vue.extend({})
-
-@Component({
-  components: { VBtn, VIcon, VSystemBar, VSpacer }
-})
-export default class SystemBar extends SystemBarProperties {
-  get maximized () {
-    return store.state.system.maximized
-  }
-
-  get icon () {
-    return store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
-  }
-
-  get title () {
-    return store.state.repository?.name || undefined
-  }
-
-  async settings () {
-    await store.dispatch('system/settings', !store.state.system.settings)
-  }
-
-  async minimize () {
-    await store.dispatch('system/minimize')
-  }
-
-  async maximize () {
-    this.maximized
-      ? await store.dispatch('system/restore')
-      : await store.dispatch('system/maximize')
-  }
-
-  async exit () {
-    await store.dispatch('system/exit')
-  }
+export default {
+  components: {
+    VBtn,
+    VIcon,
+    VSpacer,
+    VSystemBar,
+  },
 }
+</script>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+const maximized = computed(() => {
+  return store.state.system.maximized
+})
+
+const icon = computed(() => {
+  return store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
+})
+
+const title = computed(() => {
+  return store.state.repository?.name || undefined
+})
+
+async function settings () {
+  await store.dispatch('system/settings', !store.state.system.settings)
+}
+
+async function minimize () {
+  await store.dispatch('system/minimize')
+}
+
+async function maximize () {
+  maximized.value
+    ? await store.dispatch('system/restore')
+    : await store.dispatch('system/maximize')
+}
+
+async function exit () {
+  await store.dispatch('system/exit')
+}
+
+defineExpose({
+  exit,
+  maximize,
+  minimize,
+  settings,
+})
 </script>
 
 <style scoped>
@@ -102,14 +124,6 @@ export default class SystemBar extends SystemBarProperties {
   -webkit-app-region: no-drag;
 }
 
-.v-system-bar .v-btn,
-.v-system-bar .v-btn .v-icon {
-  margin: 0 !important;
-  font-size: 12px;
-  height: 25px;
-  width: 25px;
-}
-
 @keyframes rotating {
   from{ transform: rotate(0deg); }
   to{ transform: rotate(360deg); }
@@ -117,5 +131,15 @@ export default class SystemBar extends SystemBarProperties {
 
 .rotate .v-icon {
   animation: rotating 2s linear infinite;
+}
+
+.system-bar-button {
+  background: transparent;
+  font-size: 1.2em;
+  padding: 0px;
+  height: 100%;
+  width: 30px;
+  min-height: 0;
+  min-width: 30px;
 }
 </style>

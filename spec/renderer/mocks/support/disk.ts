@@ -2,35 +2,35 @@ class DiskFile {
   directory = false
   children?: Map<string, DiskFile>
 
-  constructor(children?: Record<string, DiskFile>) {
+  constructor (children?: Record<string, DiskFile>) {
     if (children !== undefined) {
       this.directory = true
-      this.children = new Map<string, DiskFile>
+      this.children = new Map<string, DiskFile>()
 
       this.reset(children)
     }
   }
 
-  has(key) {
+  has (key) {
     return this.children.has(key)
   }
 
-  get(key) {
+  get (key) {
     return this.children.get(key)
   }
 
-  set(key, value) {
+  set (key, value) {
     return this.children.set(key, value)
   }
 
-  delete(key) {
+  delete (key) {
     return this.children.delete(key)
   }
 
-  reset(children: Record<string, DiskFile>) {
+  reset (children: Record<string, DiskFile>) {
     this.children.clear()
 
-    for (const [name, file] of Object.entries<DiskFile>(children)) {
+    for (const [ name, file ] of Object.entries<DiskFile>(children)) {
       this.children.set(name, file)
     }
   }
@@ -58,8 +58,8 @@ export default class Disk {
     this.content.set('/project/.tome/templates/example.template.a/config.json', JSON.stringify({
       directory: false,
       map: {
-        'index.md': 'index.%Y%m%d%H%i%s.md'
-      }
+        'index.md': 'index.%Y%m%d%H%i%s.md',
+      },
     }))
 
     this.files.reset({
@@ -71,7 +71,7 @@ export default class Disk {
           'actions': file({
             'example.action.a': file({ 'index.js': file() }),
             'example.action.b': file({ 'index.js': file() }),
-            'example.action.c': file({ 'index.js': file() })
+            'example.action.c': file({ 'index.js': file() }),
           }),
           'templates': file({
             'example.template.a': file({
@@ -81,37 +81,37 @@ export default class Disk {
               'example.file.c.md': file(),
               'example.directory.a': file({
                 'example.file.b.md': file(),
-                'example.file.c.md': file()
+                'example.file.c.md': file(),
               }),
               'example.directory.b': file({}),
               'index.md': file(),
               'image.png': file(),
               'image.jpeg': file(),
-              'image.tiff': file()
+              'image.tiff': file(),
             }),
             'example.template.b': file(),
-            'example.template.c': file()
-          })
+            'example.template.c': file(),
+          }),
         }),
         'a.md': file(),
         'b.md': file(),
         'first': file({
           'a.md': file(),
           'b.md': file(),
-          'c.md': file()
+          'c.md': file(),
         }),
         'second': file({
           'b.md': file(),
-          'c.md': file()
+          'c.md': file(),
         }),
         'c.md': file(),
         'x.md': file(),
         'y.md': file(),
         'z.md': file(),
         'third': file({
-          'c.md': file()
-        })
-      })
+          'c.md': file(),
+        }),
+      }),
     })
 
     return { files: this.files, content: this.content }

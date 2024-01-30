@@ -1,60 +1,48 @@
 <template>
   <v-layout class="key-border pt-1">
-    <v-flex class="pa-1">
+    <v-col class="pa-1">
       <input
         ref="input"
         type="file"
         style="display: none"
-        @change="input"
+        @change="select"
       >
       <v-text-field
-        :value="value || ' '"
+        :model-value="value || ' '"
         :label="label"
         :class="[ value ? 'v-text-field-green' : 'v-text-field-red' ]"
         :color="value ? 'green' : 'red'"
         :prepend-inner-icon="value ? 'mdi-lock-open' : 'mdi-lock'"
         readonly
-        outlined
+        variant="outlined"
         hide-details
-        dense
-        @click.stop="$refs.input.click()"
+        density="compact"
+        @click.stop="input.click()"
       />
-    </v-flex>
+    </v-col>
     <v-btn
-      tile
+      ref="clear"
+      rounded="0"
       icon
-      :small="small"
+      size="small"
       style="height: auto;"
       :disabled="value === ''"
-      @click.stop="$emit('input', '')"
+      @click.stop="clear"
     >
-      <v-icon small>
+      <v-icon size="small">
         mdi-close
       </v-icon>
     </v-btn>
     <v-btn
-      v-if="forge"
-      tile
+      ref="recall"
+      rounded="0"
       icon
-      :small="small"
-      style="height: auto;"
-      :disabled="value !== ''"
-      @click.stop="$emit('forge')"
-    >
-      <v-icon small>
-        mdi-anvil
-      </v-icon>
-    </v-btn>
-    <v-btn
-      v-if="storable"
-      tile
-      icon
-      :small="small"
+      size="small"
       style="height: auto;"
       :disabled="stored === ''"
-      @click.stop="$emit('input', stored)"
+      @click.stop="recall"
     >
-      <v-icon small>
+      <v-icon size="small">
         mdi-cog
       </v-icon>
     </v-btn>
@@ -62,46 +50,72 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
+import {
+  VBtn,
+  VCol,
+  VIcon,
+  VLayout,
+  VTextField,
+} from 'vuetify/components'
 
-export const KeyfileInputProperties = Vue.extend({
-  props: {
-    value: { type: String, default: '' },
-    forge: { type: Boolean, default: false },
-    storable: { type: Boolean, default: false },
-    stored: { type: String, default: '' },
-    small: { type: Boolean, default: false },
-    label: { type: String, default: '' },
-    id: { type: String, default: '' }
-  }
-})
-
-@Component({
-  components: { VIcon, VBtn, VTextField, VLayout, VFlex }
-})
-export default class KeyfileInput extends KeyfileInputProperties {
-  $refs!: {
-    input: HTMLInputElement
-  }
-
-  get color () {
-    return this.value ? 'green' : 'red'
-  }
-
-  async input (event) {
-    const files = event.target.files || event.dataTransfer.files
-    const file = files.length > 0 ? files[0] : undefined
-
-    if (!file.path) {
-      return
-    }
-
-    this.$emit('input', file.path)
-    this.$refs.input.value = ''
-  }
+export default {
+  components: {
+    VBtn,
+    VCol,
+    VIcon,
+    VLayout,
+    VTextField,
+  },
 }
+</script>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+export interface Properties {
+  label?: string
+  stored?: string
+  value?: string
+}
+
+const properties = withDefaults(defineProps<Properties>(), {
+  forge: false,
+  label: '',
+  stored: '',
+  value: '',
+})
+
+const emit = defineEmits([ 'input', 'forge' ])
+
+const input = ref<HTMLInputElement>(undefined)
+
+function select (event) {
+  const files = event.target.files || event.dataTransfer.files
+  const file = files.length > 0 ? files[0] : undefined
+
+  if (!file.path) {
+    return
+  }
+
+  update(file.path)
+  input.value.value = ''
+}
+
+function clear () {
+  update('')
+}
+
+function recall () {
+  update(properties.stored)
+}
+
+function update (path) {
+  emit('input', path)
+}
+
+defineExpose({
+  update,
+})
 </script>
 
 <style scoped>

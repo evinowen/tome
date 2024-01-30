@@ -1,13 +1,18 @@
 import { ActionContext } from 'vuex'
-import factory, { State as FactoryState, FeatureExecuteInput } from '../factories/feature'
+import api from '@/api'
+import factory, {
+  State as FactoryState,
+  FeatureExecuteInput,
+} from '../factories/feature'
 
 export type State = FactoryState
+export { StateDefaults } from '../factories/feature'
 
 export const TemplateBaseConfiguration = {
   directory: false,
   map: {
-    'index.md': 'index.md'
-  }
+    'index.md': 'index.md',
+  },
 }
 
 export const TemplateBaseIndex = '# New Template\n'
@@ -27,7 +32,7 @@ const create = (context: ActionContext<State, unknown>) => async (path: string) 
 
 const execute = (context: ActionContext<State, unknown>) => async (data: FeatureExecuteInput) => {
   const { source, target } = data
-  const { success, result } = await window.api.template.invoke(source, target)
+  const { success, result } = await api.template.invoke(source, target)
 
   if (success) {
     if (result) {

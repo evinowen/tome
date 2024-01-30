@@ -1,8 +1,9 @@
-import Vue from 'vue'
 import { MutationTree, ActionTree } from 'vuex'
 import File, { FileLoadContract } from './file'
 import FileTree, { FileIdentity, FileIdentityContract } from './file_tree'
 import { debounce } from 'lodash'
+
+export { default as File } from './file'
 
 class FileTreeNotEstablishedError extends Error {}
 class FileNotSelectedError extends Error {}
@@ -12,21 +13,32 @@ export const ChokidarEvent = {
   ADD: 'add',
   ADD_DIR: 'addDir',
   DELETE: 'unlink',
-  DELETE_DIR: 'unlinkDir'
+  DELETE_DIR: 'unlinkDir',
 }
 
 export class State {
-  path = ''
+  path: string
   directory: { [key: string]: File } = {}
-  active = ''
-  content = ''
-  ghost = ''
-  base = ''
-  selected = ''
-  editing = false
+  active: string
+  content: string
+  ghost: string
+  base: string
+  selected: string
+  editing: boolean
   tree?: FileTree
   post?: (path: string) => void
 }
+
+export const StateDefaults = (): State => ({
+  path: '',
+  directory: {},
+  active: '',
+  content: '',
+  ghost: '',
+  base: '',
+  selected: '',
+  editing: false,
+})
 
 export const debounce_save = debounce((context, criteria) => {
   return context.dispatch('save', criteria)
@@ -34,13 +46,13 @@ export const debounce_save = debounce((context, criteria) => {
 
 export default {
   namespaced: true,
-  state: new State,
+  state: StateDefaults,
   mutations: <MutationTree<State>>{
     initialize: function (state, tree) {
       state.tree = tree
       state.base = tree.base.uuid
       state.path = tree.base.path
-      Vue.set(state.directory, tree.base.uuid, tree.base)
+      state.directory[tree.base.uuid] = tree.base
     },
     clear: function (state) {
       state.tree = undefined
@@ -53,7 +65,7 @@ export default {
         item.fill(payload)
 
         for (const file of payload.children) {
-          Vue.set(state.directory, file.uuid, file)
+          state.directory[file.uuid] = file
         }
       } else {
         item.render(payload)
@@ -89,7 +101,7 @@ export default {
         if (selected.ephemeral) {
           state.directory[state.ghost].exercise()
 
-          Vue.delete(state.directory, state.ghost)
+          delete state.directory[state.ghost]
 
           state.ghost = ''
           state.selected = ''
@@ -107,12 +119,12 @@ export default {
       state.post = post
       state.editing = true
 
-      Vue.set(state.directory, ghost.uuid, ghost)
+      state.directory[ghost.uuid] = ghost
     },
     blur: function (state) {
       state.active = ''
       state.selected = ''
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     initialize: async function (context, { path }) {
@@ -148,7 +160,7 @@ export default {
         }
       })
 
-      await context.dispatch('toggle', { item: context.state.tree.base } )
+      await context.dispatch('toggle', { item: context.state.tree.base })
     },
     clear: async function (context) {
       context.commit('clear')
@@ -185,15 +197,15 @@ export default {
             context.state.tree.base,
             async (object) => {
               switch (object.type) {
-              case 'read':
-                await context.dispatch('message', `Read (identity) ${object.bytes} bytes @ ${object.path}`, { root: true })
-                break
+                case 'read':
+                  await context.dispatch('message', `Read (identity) ${object.bytes} bytes @ ${object.path}`, { root: true })
+                  break
 
-              case 'populated':
-                await context.dispatch('message', `Populate (identity) ${object.path}`, { root: true })
-                break
+                case 'populated':
+                  await context.dispatch('message', `Populate (identity) ${object.path}`, { root: true })
+                  break
               }
-            }
+            },
           )
 
           context.commit('load', contract)
@@ -230,20 +242,20 @@ export default {
       const item: File = await context.dispatch('identify', criteria)
       await context.dispatch('message', `Load ${item.path}`, { root: true })
 
-      if (!item.ephemeral) {
+      if (!(item.ephemeral || item.image)) {
         const contract = await item.load(
           context.state.tree.base,
           async (object) => {
             switch (object.type) {
-            case 'read':
-              await context.dispatch('message', `Read (load) ${object.bytes} bytes @ ${object.path}`, { root: true })
-              break
+              case 'read':
+                await context.dispatch('message', `Read (load) ${object.bytes} bytes @ ${object.path}`, { root: true })
+                break
 
-            case 'populated':
-              await context.dispatch('message', `Populate (load) ${object.path}`, { root: true })
-              break
+              case 'populated':
+                await context.dispatch('message', `Populate (load) ${object.path}`, { root: true })
+                break
             }
-          }
+          },
         )
 
         context.commit('load', contract)
@@ -330,7 +342,7 @@ export default {
 
       context.commit('edit', { edit: false })
 
-      let name = input.toLowerCase().replace(/[ .-]+/g, '.').replace(/[^\d.a-z-]/g, '')
+      let name = input.toLowerCase().replaceAll(/[ .-]+/g, '.').replaceAll(/[^\d.a-z-]/g, '')
 
       if (title && !directory) {
         name = `${name}.md`
@@ -374,7 +386,7 @@ export default {
 
       const parents = {
         original: item.parent,
-        replacement: await context.dispatch('container', { path: proposed })
+        replacement: await context.dispatch('container', { path: proposed }),
       }
 
       const path = await item.move(parents.replacement.path)
@@ -421,6 +433,6 @@ export default {
 
       context.commit('unload', item.parent)
       await context.dispatch('load', { item: item.parent })
-    }
-  }
+    },
+  },
 }

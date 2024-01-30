@@ -1,15 +1,15 @@
 <template>
   <v-dialog
-    :value="value"
+    :model-value="value"
     persistent
     max-width="600px"
-    @input="$emit('input', $event)"
+    @update:model-value="$emit('input', $event)"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-btn
         class="mr-4"
         :disabled="disabled"
-        v-on="on"
+        v-bind="props"
       >
         <v-icon class="mr-2">
           mdi-upload-multiple
@@ -18,16 +18,16 @@
       </v-btn>
     </template>
     <v-card>
-      <v-list-item>
-        <v-list-item-avatar color="warning">
-          <v-icon>mdi-upload-multiple</v-icon>
-        </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title class="headline">
-            Push
-          </v-list-item-title>
-          <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
-        </v-list-item-content>
+      <v-list-item class="my-2">
+        <template #prepend>
+          <v-avatar color="warning">
+            <v-icon>mdi-upload-multiple</v-icon>
+          </v-avatar>
+        </template>
+        <v-list-item-title class="text-h5">
+          Push
+        </v-list-item-title>
+        <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
       </v-list-item>
       <v-container
         fluid
@@ -39,27 +39,31 @@
           :items="history"
           :items-per-page="history.length"
           hide-default-footer
-          dense
+          density="compact"
           disable-sort
           class="my-0 commit-history"
         >
+          <template #headers />
+
           <template #item.oid="{ item }">
             <v-btn
-              tile
-              icon
-              x-small
+              rounded="0"
+              variant="text"
               color="warning"
+              @click.stop="$emit('commit', item)"
             >
               {{ item.oid.substring(0, 7) }}
             </v-btn>
           </template>
+
+          <template #bottom />
         </v-data-table>
       </v-container>
       <v-card-actions>
         <v-btn
-          ref="push_confirm"
+          ref="push-button"
           color="warning"
-          text
+          variant="text"
           :disabled="waiting"
           @click="$emit('push')"
         >
@@ -74,8 +78,9 @@
         </v-btn>
         <v-spacer />
         <v-btn
+          ref="return-button"
           color="darken-1"
-          text
+          variant="text"
           :disabled="waiting"
           @click="$emit('input', false)"
         >
@@ -90,93 +95,76 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
 import {
-  VContainer,
-  VDialog,
+  VAvatar,
   VBtn,
-  VSpacer,
-  VProgressCircular,
-  VIcon,
   VCard,
   VCardActions,
+  VContainer,
   VDataTable,
+  VDialog,
+  VIcon,
   VListItem,
-  VListItemTitle,
   VListItemSubtitle,
-  VListItemAvatar,
-  VListItemContent
-} from 'vuetify/lib'
+  VListItemTitle,
+  VProgressCircular,
+  VSpacer,
+} from 'vuetify/components'
 
-export const PushConfirmProperties = Vue.extend({
-  props: {
-    value: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false },
-    waiting: { type: Boolean, default: false },
-    history: { type: Array, default: () => [] }
-  }
-})
-
-@Component({
+export default {
   components: {
-    VContainer,
-    VDialog,
+    VAvatar,
     VBtn,
-    VSpacer,
-    VProgressCircular,
-    VIcon,
     VCard,
     VCardActions,
+    VContainer,
     VDataTable,
+    VDialog,
+    VIcon,
     VListItem,
-    VListItemTitle,
     VListItemSubtitle,
-    VListItemAvatar,
-    VListItemContent
-  }
-})
-export default class PushConfirm extends PushConfirmProperties {
-  headers = [
-    { text: '', value: 'oid', width: '60px' },
-    { text: '', value: 'message', width: '' }
-  ]
+    VListItemTitle,
+    VProgressCircular,
+    VSpacer,
+  },
+  emits: [
+    'commit',
+    'input',
+    'push',
+  ],
 }
 </script>
 
+<script setup lang="ts">
+export interface Properties {
+  value?: boolean
+  disabled?: boolean
+  waiting?: boolean
+  history?: any[]
+}
+
+withDefaults(defineProps<Properties>(), {
+  value: false,
+  disabled: false,
+  waiting: false,
+  history: () => [],
+})
+
+const headers = [
+  { title: '', value: 'oid', width: '60px' },
+  { title: '', value: 'message', width: '' },
+]
+</script>
+
 <style scoped>
-.v-data-table.commit-history {
-  border-radius: 0
-}
-
-.v-data-table.commit-history .v-btn {
-  width: 100% !important;
-  height: 100% !important;
-  text-align: left;
-  justify-content: left;
-}
-
-.v-data-table.commit-history th {
-  height: 1px;
-}
-
-.v-data-table.commit-history td {
+.v-data-table.commit-history :deep(td) {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   padding: 0 8px !important;
 }
 
-.v-data-table.commit-history td:first-child {
+.v-data-table.commit-history :deep(td:first-child) {
   padding: 0px !important;
-}
-
-.v-data-table.commit-history td:first-child .v-btn {
-  text-align: center;
-  justify-content: center;
-}
-
-.v-data-table.commit-history .v-btn .v-icon {
-  font-size: 14px !important;
 }
 </style>

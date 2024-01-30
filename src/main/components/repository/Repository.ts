@@ -19,27 +19,27 @@ class RepositoryPrivateKeyNotSetError extends Error {}
 export default class Repository {
   path: string
   name: string
-  branch: string|undefined = undefined
+  branch: string | undefined = undefined
 
-  repository: NodeGit.Repository|undefined = undefined
+  repository: NodeGit.Repository | undefined = undefined
 
-  private_key: string|undefined = undefined
-  public_key: string|undefined = undefined
-  passphrase: string|undefined = undefined
+  private_key: string | undefined = undefined
+  public_key: string | undefined = undefined
+  passphrase: string | undefined = undefined
 
   ahead = false
-  remote: { name: string, url: string }|undefined = undefined
+  remote: { name: string, url: string } | undefined = undefined
   remote_branch: { name: string, short: string, object?: NodeGitRemoteHead } = { name: '', short: '' }
   remotes: { name: string, url: string }[] = []
-  remote_map: Map<string, NodeGit.Remote>|undefined = undefined
-  remote_object: NodeGit.Remote|undefined = undefined
+  remote_map: Map<string, NodeGit.Remote> | undefined = undefined
+  remote_object: NodeGit.Remote | undefined = undefined
 
   patches: RepositoryPatch[] = []
   available: RepositoryFile[] = []
   staged: RepositoryFile[] = []
 
-  pending:{ oid: string, date: Date, message: string }[] = []
-  history:{ oid: string, date: Date, message: string }[] = []
+  pending: { oid: string, date: Date, message: string }[] = []
+  history: { oid: string, date: Date, message: string }[] = []
 
   constructor (path) {
     this.path = path
@@ -56,9 +56,8 @@ export default class Repository {
   }
 
   generateConnectionHooks (): NodeGit.RemoteCallbacks {
-
-    const hooks:NodeGit.RemoteCallbacks = {
-      certificateCheck: () => 0
+    const hooks: NodeGit.RemoteCallbacks = {
+      certificateCheck: () => 0,
     }
 
     if (this.private_key === undefined) {
@@ -72,7 +71,7 @@ export default class Repository {
     const credentials = {
       private_key: this.private_key,
       public_key: this.public_key,
-      passphrase: this.passphrase || ''
+      passphrase: this.passphrase || '',
     }
 
     let attempts = 10
@@ -148,7 +147,7 @@ export default class Repository {
       this.history.push({
         oid: commit.id().tostrS(),
         date: commit.date(),
-        message: commit.message()
+        message: commit.message(),
       })
 
       if (commit.parentcount()) {
@@ -166,9 +165,9 @@ export default class Repository {
 
     const list = await this.repository.getRemotes()
 
-    this.remotes = list.map(remote => ({
+    this.remotes = list.map((remote) => ({
       name: remote.name(),
-      url: remote.url()
+      url: remote.url(),
     }))
 
     this.remote_map = new Map()
@@ -239,7 +238,7 @@ export default class Repository {
 
     this.clearRemoteBranch()
 
-    this.remote = this.remotes.find(remote => remote.url === url) || undefined
+    this.remote = this.remotes.find((remote) => remote.url === url) || undefined
 
     if (this.remote === undefined) {
       throw new RepositoryRemoteNotFoundError()
@@ -274,7 +273,7 @@ export default class Repository {
       this.pending.push({
         oid: local_commit.id().tostrS(),
         date: local_commit.date(),
-        message: local_commit.message()
+        message: local_commit.message(),
       })
 
       this.ahead = true
@@ -292,13 +291,13 @@ export default class Repository {
   }
 
   matchRemoteBranchReference (references) {
-    let result: { name: string, short: string, object: NodeGitRemoteHead }|undefined
+    let result: { name: string, short: string, object: NodeGitRemoteHead } | undefined
 
     for (const reference of references) {
       const object: { name: string, short: string, object: NodeGitRemoteHead } = {
         name: reference.name(),
         short: '',
-        object: reference
+        object: reference,
       }
 
       const parsed = reference.name().match(/^refs\/heads\/(.*)$/m)
@@ -317,22 +316,22 @@ export default class Repository {
 
   async inspect () {
     return Promise.all([
-      this.inspectAvailable(), this.inspectStaged()
+      this.inspectAvailable(), this.inspectStaged(),
     ])
   }
 
   async inspectStaged () {
-    const options:NodeGit.StatusOptions = {
-      show: NodeGit.Status.SHOW.INDEX_ONLY
+    const options: NodeGit.StatusOptions = {
+      show: NodeGit.Status.SHOW.INDEX_ONLY,
     }
 
     this.staged = await this.inspectWithOptions(options)
   }
 
   async inspectAvailable () {
-    const options:NodeGit.StatusOptions = {
+    const options: NodeGit.StatusOptions = {
       show: NodeGit.Status.SHOW.WORKDIR_ONLY,
-      flags: NodeGit.Status.OPT.INCLUDE_UNTRACKED + NodeGit.Status.OPT.RECURSE_UNTRACKED_DIRS
+      flags: NodeGit.Status.OPT.INCLUDE_UNTRACKED + NodeGit.Status.OPT.RECURSE_UNTRACKED_DIRS,
     }
 
     this.available = await this.inspectWithOptions(options)
@@ -344,7 +343,7 @@ export default class Repository {
     }
 
     return this.repository.getStatus(options)
-      .then(result => result.map(status => {
+      .then((result) => result.map((status) => {
         let type = RepositoryFile.Type.UNKNOWN
 
         if (status.isNew()) {
@@ -371,7 +370,7 @@ export default class Repository {
     const commit = await this.repository.getCommit(oid)
     const commit_tree = await commit.getTree()
 
-    const [parent] = await commit.getParents(1)
+    const [ parent ] = await commit.getParents(1)
     const parent_tree = await parent.getTree()
 
     const diff = await commit_tree.diff(parent_tree)
@@ -387,13 +386,13 @@ export default class Repository {
     const head = await this.repository.getBranchCommit(await this.repository.head())
     const tree = await head.getTree()
 
-    const options:NodeGit.DiffOptions = {
+    const options: NodeGit.DiffOptions = {
       pathspec: path,
       flags: NodeGit.Diff.OPTION.DISABLE_PATHSPEC_MATCH
-        + NodeGit.Diff.OPTION.INCLUDE_UNREADABLE
-        + NodeGit.Diff.OPTION.INCLUDE_UNTRACKED
-        + NodeGit.Diff.OPTION.RECURSE_UNTRACKED_DIRS
-        + NodeGit.Diff.OPTION.SHOW_UNTRACKED_CONTENT
+      + NodeGit.Diff.OPTION.INCLUDE_UNREADABLE
+      + NodeGit.Diff.OPTION.INCLUDE_UNTRACKED
+      + NodeGit.Diff.OPTION.RECURSE_UNTRACKED_DIRS
+      + NodeGit.Diff.OPTION.SHOW_UNTRACKED_CONTENT,
     }
 
     const diff = await NodeGit.Diff.treeToWorkdir(this.repository, tree, options)
@@ -477,7 +476,7 @@ export default class Repository {
       notify('reset', path)
     }
 
-    await NodeGit.Reset.default(this.repository, head, [path])
+    await NodeGit.Reset.default(this.repository, head, [ path ])
   }
 
   async commit (name, email, message) {
@@ -487,7 +486,7 @@ export default class Repository {
 
     const index = await this.repository.refreshIndex()
     const oid = await index.writeTree()
-    const parents:NodeGit.Commit[] = []
+    const parents: NodeGit.Commit[] = []
 
     if (!this.repository.headUnborn()) {
       const head = await NodeGit.Reference.nameToId(this.repository, 'HEAD')
@@ -512,9 +511,9 @@ export default class Repository {
 
     const refspec = `refs/heads/${this.branch}:refs/heads/${this.branch}`
     const options = {
-      callbacks: this.generateConnectionHooks()
+      callbacks: this.generateConnectionHooks(),
     }
 
-    await this.remote_object.push([refspec], options)
+    await this.remote_object.push([ refspec ], options)
   }
 }

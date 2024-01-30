@@ -1,12 +1,22 @@
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
 
-Vue.use(Vuetify)
+export const vuetify = createVuetify()
 
-const options = {
-  theme: {
-    options: { customProperties: true },
-  }
+export default vuetify
+
+export const presets: {
+  light: { [key: string]: string }
+  dark: { [key: string]: string }
+} = {
+  light: {},
+  dark: {},
 }
 
-export default new Vuetify(options)
+for (const theme of [ 'light', 'dark' ]) {
+  presets[theme] = {}
+
+  for (const color in vuetify.theme.themes.value[theme].colors) {
+    presets[theme][color] = vuetify.theme.themes.value[theme].colors[color]
+  }
+}

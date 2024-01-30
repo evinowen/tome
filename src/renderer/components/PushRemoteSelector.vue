@@ -9,27 +9,31 @@
     <v-card-actions>
       <v-select
         ref="select"
-        :value="value"
+        :model-value="value"
         :items="items"
         item-value="name"
+        item-title="name"
+        item-props
         label="Remote"
-        dense
         clearable
         class="mt-4"
-        @change="$emit('input', $event)"
+        @update:model-value="input"
       >
-        <template #selection="data">
-          {{ data.item.name }}
-          <v-spacer />
-          <small>{{ data.item.url }}</small>
+        <template #selection="{ item }">
+          <v-list-item
+            :title="item.raw.name"
+            :subtitle="item.raw.url"
+          />
         </template>
-        <template #item="data">
-          {{ data.item.name }}
-          <v-spacer />
-          {{ data.item.url }}
+        <template #item="{ props, item }">
+          <v-list-item
+            v-bind="props"
+            :subtitle="item.raw.url"
+          />
         </template>
-        <template #append-outer>
+        <template #append>
           <v-btn
+            ref="edit-button"
             icon
             :color="edit ? 'warning' : 'darken-1'"
             @click.stop="edit = !edit"
@@ -47,18 +51,20 @@
       >
         <form>
           <v-row
+            class="background"
             dense
-            background="red"
           >
             <v-col
               cols="12"
               sm="3"
             >
               <v-text-field
-                v-model="form.name"
+                ref="form-name"
+                :model-value="form.name"
                 label="Name"
                 required
-                dense
+                density="compact"
+                @update:model-value="form.name = $event"
               />
             </v-col>
             <v-col
@@ -66,11 +72,13 @@
               sm="9"
             >
               <v-text-field
-                v-model="form.url"
+                ref="form-url"
+                :model-value="form.url"
                 label="URL"
                 required
-                dense
-                append-outer-icon="mdi-plus-thick"
+                density="compact"
+                append-icon="mdi-plus-thick"
+                @update:model-value="form.url = $event"
               >
                 <template #append-outer>
                   <v-btn
@@ -92,32 +100,74 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer } from 'vuetify/lib'
-export const PushProperties = Vue.extend({
-  props: {
-    value: { type: String, default: '' },
-    items: { type: Array, default: () => [] }
-  }
-})
+import {
+  VBtn,
+  VCard,
+  VCardActions,
+  VCardTitle,
+  VCol,
+  VExpandTransition,
+  VIcon,
+  VListItem,
+  VRow,
+  VSelect,
+  VTextField,
+} from 'vuetify/components'
+import { RepositoryRemote } from '@/store/modules/repository'
 
-@Component({
-  components: { VTextField, VCol, VRow, VExpandTransition, VSelect, VCardActions, VCard, VCardTitle, VBtn, VIcon, VSpacer }
-})
-export default class Push extends PushProperties {
-  edit = false
-  form = {
-    name: '',
-    url: ''
-  }
-
-  async create () {
-    this.$emit('create', this.form.name, this.form.url)
-  }
-
-  async input (remote) {
-    this.$emit('input', remote)
-  }
+export default {
+  components: {
+    VBtn,
+    VCard,
+    VCardActions,
+    VCardTitle,
+    VCol,
+    VExpandTransition,
+    VIcon,
+    VListItem,
+    VRow,
+    VSelect,
+    VTextField,
+  },
 }
+</script>
+
+<script setup lang="ts">
+import { reactive, ref } from 'vue'
+
+export interface Properties {
+  value?: string
+  items?: RepositoryRemote[]
+}
+
+withDefaults(defineProps<Properties>(), {
+  value: '',
+  items: () => [],
+})
+
+const emit = defineEmits([
+  'create',
+  'input',
+])
+
+const edit = ref(false)
+const form = reactive({
+  name: ref(''),
+  url: ref(''),
+})
+
+async function create () {
+  emit('create', form.name, form.url)
+}
+
+async function input (remote) {
+  emit('input', remote)
+}
+
+defineExpose({
+  create,
+  edit,
+  form,
+  input,
+})
 </script>

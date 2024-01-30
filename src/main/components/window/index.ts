@@ -11,5 +11,5 @@ export default component('window')(
     handle('restore', () => win.restore())
 
     handle('close', () => win.close())
-  }
+  },
 )

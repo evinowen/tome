@@ -1,29 +1,41 @@
 import { MutationTree, ActionTree } from 'vuex'
+import api from '@/api'
 
 interface SearchResult {
-  path: undefined|{
-    absolute: string,
-    relative: string,
+  path: undefined | {
+    absolute: string
+    relative: string
     matched: number
-  },
-  directory: boolean,
+  }
+  directory: boolean
   matches: { index: number, line: string }[]
 }
 
 export class State {
-  status?: string = ''
+  status?: string
   path?: string
-  query?: string = ''
-  multifile = false
-  regex_query = false
-  case_sensitive = false
-  results: SearchResult[] = []
-  navigation: { target: number, total: number } = { target: 1, total: 0}
+  query?: string
+  multifile: boolean
+  regex_query: boolean
+  case_sensitive: boolean
+  results: SearchResult[]
+  navigation: { target: number, total: number }
 }
+
+export const StateDefaults = (): State => ({
+  status: '',
+  path: '',
+  query: '',
+  multifile: false,
+  regex_query: false,
+  case_sensitive: false,
+  results: [],
+  navigation: { target: 1, total: 0 },
+})
 
 export default {
   namespaced: true,
-  state: new State(),
+  state: StateDefaults,
   mutations: <MutationTree<State>>{
     clear: function (state) {
       state.query = undefined
@@ -57,7 +69,7 @@ export default {
       } else if (state.navigation.target > state.navigation.total) {
         state.navigation.target = 1
       }
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     multifile: async function (context, value) {
@@ -96,13 +108,13 @@ export default {
         query: context.state.query,
         multifile: context.state.multifile,
         regex_query: context.state.regex_query,
-        case_sensitive: context.state.case_sensitive
+        case_sensitive: context.state.case_sensitive,
       }
 
-      await window.api.file.search_path(target, criteria)
+      await api.file.search_path(target, criteria)
 
       for (;;) {
-        const result = await window.api.file.search_next()
+        const result = await api.file.search_next()
 
         if (result === undefined || result.path === undefined) {
           break
@@ -145,6 +157,6 @@ export default {
     },
     previous: async function (context) {
       context.commit('navigate', { target: context.state.navigation.target - 1, total: undefined })
-    }
-  }
+    },
+  },
 }

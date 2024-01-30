@@ -1,4 +1,5 @@
 import { MutationTree, ActionTree } from 'vuex'
+import api from '@/api'
 import Commit from './commit'
 import QuickCommit from './quick_commit'
 import Push from './push'
@@ -8,32 +9,47 @@ export const SystemPerformances = {
   Commit: 'commit',
   QuickCommit: 'quick-commit',
   Push: 'push',
-  QuickPush: 'quick-push'
+  QuickPush: 'quick-push',
 }
 
-export class State {
+export interface State {
   version?: string
   process?: {
     versions?: Record<string, string>
     sandboxed: boolean
   }
-  maximized = false
-  branch = false
-  commit = false
-  commit_confirm = false
-  commit_push = false
-  console = false
-  edit = false
-  patch = false
-  push = false
-  push_confirm = false
-  search = false
-  settings = false
+  maximized: boolean
+  branch: boolean
+  commit: boolean
+  commit_confirm: boolean
+  commit_push: boolean
+  console: boolean
+  edit: boolean
+  patch: boolean
+  push: boolean
+  push_confirm: boolean
+  search: boolean
+  settings: boolean
 }
+
+export const StateDefaults = (): State => ({
+  maximized: false,
+  branch: false,
+  commit: false,
+  commit_confirm: false,
+  commit_push: false,
+  console: false,
+  edit: false,
+  patch: false,
+  push: false,
+  push_confirm: false,
+  search: false,
+  settings: false,
+})
 
 export default {
   namespaced: true,
-  state: new State,
+  state: StateDefaults,
   mutations: <MutationTree<State>>{
     load: function (state, { version, process }) {
       state.version = version
@@ -41,65 +57,34 @@ export default {
     },
     set: function (state, data) {
       Object.assign(state, data)
-    }
+    },
   },
   actions: <ActionTree<State, unknown>>{
     load: async function (context) {
-      const version = await window.api.app.getVersion()
-      const process = await window.api.app.getProcess()
+      const version = await api.app.getVersion()
+      const process = await api.app.getProcess()
       context.commit('load', { version, process })
 
-      const maximized = await window.api.window.is_maximized()
+      const maximized = await api.window.is_maximized()
       context.commit('set', { maximized })
     },
     read: async function (context, key) {
-      switch (key) {
-        case 'version':
-          return context.state.version
-        case 'process':
-          return context.state.process
-        case 'maximized':
-          return context.state.maximized
-        case 'branch':
-          return context.state.branch
-        case 'commit':
-          return context.state.commit
-        case 'commit_confirm':
-          return context.state.commit_confirm
-        case 'commit_push':
-          return context.state.commit_push
-        case 'console':
-          return context.state.console
-        case 'edit':
-          return context.state.edit
-        case 'patch':
-          return context.state.patch
-        case 'push':
-          return context.state.push
-        case 'push_confirm':
-          return context.state.push_confirm
-        case 'search':
-          return context.state.search
-        case 'settings':
-          return context.state.settings
-      }
-
-      return
+      return context.state[key] ?? undefined
     },
     minimize: async function (context) {
-      await window.api.window.minimize()
+      await api.window.minimize()
       context.commit('set', { maximized: false })
     },
     restore: async function (context) {
-      await window.api.window.restore()
+      await api.window.restore()
       context.commit('set', { maximized: false })
     },
     maximize: async function (context) {
-      await window.api.window.maximize()
+      await api.window.maximize()
       context.commit('set', { maximized: true })
     },
     exit: async function () {
-      await window.api.window.close()
+      await api.window.close()
     },
     perform: async function (context, performance) {
       const dispatch: (action: string, data?: unknown) => Promise<boolean>
@@ -176,19 +161,19 @@ export default {
     settings: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { settings: value })
       return context.state.settings
-    }
+    },
   },
   modules: {
     credentials: {
       namespaced: true,
       state: {
         key: undefined,
-        passphrase: undefined
+        passphrase: undefined,
       },
       mutations: <MutationTree<State>>{
         set: function (state, data) {
           Object.assign(state, data)
-        }
+        },
       },
       actions: <ActionTree<State, unknown>>{
         key: async function (context, value) {
@@ -196,20 +181,20 @@ export default {
         },
         passphrase: async function (context, value) {
           typeof value === undefined || context.commit('set', { passphrase: value })
-        }
-      }
+        },
+      },
     },
     signature: {
       namespaced: true,
       state: {
         name: undefined,
         email: undefined,
-        message: undefined
+        message: undefined,
       },
       mutations: <MutationTree<State>>{
         set: function (state, data) {
           Object.assign(state, data)
-        }
+        },
       },
       actions: <ActionTree<State, unknown>>{
         name: async function (context, value) {
@@ -220,8 +205,8 @@ export default {
         },
         message: function (context, value) {
           typeof value === undefined || context.commit('set', { message: value })
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  },
 }

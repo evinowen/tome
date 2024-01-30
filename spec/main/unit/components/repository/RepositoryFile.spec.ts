@@ -1,3 +1,4 @@
+import { jest, describe, it, expect } from '@jest/globals'
 import RepositoryFile from '@/components/repository/RepositoryFile'
 
 jest.mock('nodegit')

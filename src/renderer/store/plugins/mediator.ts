@@ -7,10 +7,10 @@ const mediations = [
   action,
   identity,
   metadata,
-  template
+  template,
 ]
 
-export default store => {
+export default (store) => {
   for (const mediation of mediations) {
     mediation(store)
   }

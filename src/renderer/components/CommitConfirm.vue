@@ -1,15 +1,15 @@
 <template>
   <v-dialog
-    :value="value"
+    :model-value="value"
     persistent
     max-width="600px"
-    @input="$emit('input', $event)"
+    @update:model-value="$emit('input', $event)"
   >
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-btn
         class="mr-4"
         :disabled="disabled"
-        v-on="on"
+        v-bind="props"
       >
         <v-icon class="mr-2">
           mdi-content-save
@@ -19,38 +19,39 @@
     </template>
 
     <v-card>
-      <v-list-item>
-        <v-progress-circular
-          v-if="staging"
-          indeterminate
-          :size="40"
-          :width="6"
-          color="warning"
-          class="mr-4"
-        />
-        <v-list-item-avatar
-          v-else
-          color="warning"
-        >
-          <v-icon>mdi-hammer-wrench</v-icon>
-        </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title class="headline">
-            Commit
-          </v-list-item-title>
-          <v-list-item-subtitle>{{ status }}</v-list-item-subtitle>
-        </v-list-item-content>
+      <v-list-item class="my-2">
+        <template #prepend>
+          <v-progress-circular
+            v-if="staging"
+            indeterminate
+            :size="40"
+            :width="6"
+            color="secondary"
+            class="mr-4"
+          />
+          <v-avatar
+            v-else
+            color="warning"
+          >
+            <v-icon>mdi-hammer-wrench</v-icon>
+          </v-avatar>
+        </template>
+        <v-list-item-title class="text-h5">
+          Commit
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ status }}</v-list-item-subtitle>
       </v-list-item>
 
       <v-divider />
 
       <v-card-text class="commit">
         <v-textarea
+          ref="message-input"
           class="pa-0 ma-0"
           counter="50"
-          :value="message"
+          :model-value="message"
           no-resize
-          @input="$emit('message', $event)"
+          @update:model-value="$emit('message', $event)"
         />
       </v-card-text>
 
@@ -64,9 +65,9 @@
 
       <v-card-actions>
         <v-btn
-          ref="commit"
+          ref="commit-button"
           color="warning"
-          text
+          variant="text"
           :disabled="staging || waiting"
           @click="$emit('commit')"
         >
@@ -81,9 +82,9 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          :depressed="push"
+          ref="push-button"
           :color="push ? 'warning' : ''"
-          text
+          variant="text"
           @click="$emit('push', !push)"
         >
           <v-icon class="mr-2">
@@ -92,8 +93,9 @@
           Push
         </v-btn>
         <v-btn
+          ref="return-button"
           color="darken-1"
-          text
+          variant="text"
           :disabled="waiting"
           @click="$emit('input', false)"
         >
@@ -108,85 +110,108 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
 import {
-  VIcon,
+  VAvatar,
   VBtn,
-  VSpacer,
-  VProgressCircular,
   VCard,
   VCardActions,
-  VRow,
+  VCardText,
   VCol,
   VContainer,
-  VCardText,
-  VDivider,
   VDialog,
+  VDivider,
+  VIcon,
   VListItem,
-  VListItemTitle,
   VListItemSubtitle,
-  VListItemAvatar,
-  VListItemContent,
-  VTextarea
-} from 'vuetify/lib'
+  VListItemTitle,
+  VProgressCircular,
+  VRow,
+  VSpacer,
+  VTextarea,
+} from 'vuetify/components'
+
+export default {
+  components: {
+    VAvatar,
+    VBtn,
+    VCard,
+    VCardActions,
+    VCardText,
+    VCol,
+    VContainer,
+    VDialog,
+    VDivider,
+    VIcon,
+    VListItem,
+    VListItemSubtitle,
+    VListItemTitle,
+    VProgressCircular,
+    VRow,
+    VSpacer,
+    VTextarea,
+  },
+  emits: [
+    'commit',
+    'input',
+    'message',
+    'push',
+  ],
+}
 
 export const CommitConfirmMessages = {
   Staging: 'Commit details are being staged ... ',
-  Ready: 'Commit is prepared and ready to publish'
-}
-
-export const CommitConfirmProperties = Vue.extend({
-  props: {
-    value: { type: Boolean, default: false },
-    name: { type: String, default: '' },
-    email: { type: String, default: '' },
-    message: { type: String, default: '' },
-    disabled: { type: Boolean, default: false },
-    staging: { type: Boolean, default: false },
-    waiting: { type: Boolean, default: false },
-    push: { type: Boolean, default: false }
-  }
-})
-
-@Component({
-  components: {
-    VIcon,
-    VBtn,
-    VSpacer,
-    VProgressCircular,
-    VCard,
-    VCardActions,
-    VRow,
-    VCol,
-    VContainer,
-    VCardText,
-    VDivider,
-    VDialog,
-    VListItem,
-    VListItemTitle,
-    VListItemSubtitle,
-    VListItemAvatar,
-    VListItemContent,
-    VTextarea
-  }
-})
-export default class CommitConfirm extends CommitConfirmProperties {
-  get status () {
-    return this.staging
-      ? CommitConfirmMessages.Staging
-      : CommitConfirmMessages.Ready
-  }
+  Ready: 'Commit is prepared and ready to publish',
 }
 </script>
 
-<style>
+<script setup lang="ts">
+import { computed } from 'vue'
+
+export interface Properties {
+  value?: boolean
+  name?: string
+  email?: string
+  message?: string
+  disabled?: boolean
+  staging?: boolean
+  waiting?: boolean
+  push?: boolean
+}
+
+const properties = withDefaults(defineProps<Properties>(), {
+  value: false,
+  name: '',
+  email: '',
+  message: '',
+  disabled: false,
+  staging: false,
+  waiting: false,
+  push: false,
+})
+
+const status = computed(() => {
+  return properties.staging
+    ? CommitConfirmMessages.Staging
+    : CommitConfirmMessages.Ready
+})
+
+defineExpose({
+  status,
+})
+</script>
+
+<style scoped>
 .commit {
   font-family: monospace;
   min-height: 120px;
   padding: 0 !important;
   font-size: 18px;
   line-height: 1.0em !important;
+}
+
+.commit :deep(v-field__input) {
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 .commit .v-textarea textarea {

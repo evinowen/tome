@@ -1,9 +1,9 @@
 import { ipcMain } from 'electron'
-import * as log from 'electron-log'
+import log from 'electron-log/main'
 
 export default (namespace) => {
   const handle = (channel, listener) => {
-    const channel_absolute = [namespace, channel].join('-')
+    const channel_absolute = [ namespace, channel ].join('-')
     ipcMain.removeHandler(channel_absolute)
     ipcMain.handle(channel_absolute, async (...parameters) => {
       const { processId, frameId } = parameters.shift()
@@ -14,7 +14,7 @@ export default (namespace) => {
   }
 
   const event = (channel, listener) => {
-    ipcMain.on([namespace, channel].join('-'), async (...parameters) => {
+    ipcMain.on([ namespace, channel ].join('-'), async (...parameters) => {
       const { processId, frameId } = parameters.shift()
       log.info(`Event ${namespace} ${channel}`, { processId, frameId })
 
@@ -28,6 +28,6 @@ export default (namespace) => {
       log.info(`Register component ${namespace}`)
       return register({ handle, on: event }, win)
     },
-    data: data || (() => ({}))
+    data: data || (() => ({})),
   })
 }

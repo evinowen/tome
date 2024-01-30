@@ -2,14 +2,16 @@
   <v-card style="height: 100%">
     <template v-if="active">
       <template v-if="loading">
-        <v-list-item>
-          <v-list-item-avatar color="darken-1" />
-          <v-list-item-content>
-            <v-list-item-title class="headline">
-              &mdash;
-            </v-list-item-title>
-            <v-list-item-subtitle>Loading ... </v-list-item-subtitle>
-          </v-list-item-content>
+        <v-list-item ref="loading-view">
+          <template #prepend>
+            <v-avatar color="grey">
+              <v-icon>mdi-upload-multiple</v-icon>
+            </v-avatar>
+          </template>
+          <v-list-item-title class="text-h5">
+            &mdash;
+          </v-list-item-title>
+          <v-list-item-subtitle>Loading ... </v-list-item-subtitle>
         </v-list-item>
         <v-divider />
         <v-card-text class="text-center">
@@ -18,16 +20,16 @@
       </template>
 
       <template v-else-if="error">
-        <v-list-item>
-          <v-list-item-avatar color="warning">
-            <v-icon>mdi-alert</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title class="headline">
-              Error
-            </v-list-item-title>
-            <v-list-item-subtitle>{{ error }}</v-list-item-subtitle>
-          </v-list-item-content>
+        <v-list-item ref="error-view">
+          <template #prepend>
+            <v-avatar color="warning">
+              <v-icon>mdi-alert</v-icon>
+            </v-avatar>
+          </template>
+          <v-list-item-title class="text-h5">
+            Error
+          </v-list-item-title>
+          <v-list-item-subtitle>{{ error }}</v-list-item-subtitle>
         </v-list-item>
         <v-divider />
         <v-card-text class="text-center">
@@ -41,16 +43,16 @@
       </template>
 
       <template v-else-if="match">
-        <v-list-item>
-          <v-list-item-avatar color="info">
-            <v-icon>mdi-thumb-up</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title class="headline">
-              Match
-            </v-list-item-title>
-            <v-list-item-subtitle>The local repository history matches the remote repository</v-list-item-subtitle>
-          </v-list-item-content>
+        <v-list-item ref="match-view">
+          <template #prepend>
+            <v-avatar color="info">
+              <v-icon>mdi-thumb-up</v-icon>
+            </v-avatar>
+          </template>
+          <v-list-item-title class="text-h5">
+            Match
+          </v-list-item-title>
+          <v-list-item-subtitle>The local repository history matches the remote repository</v-list-item-subtitle>
         </v-list-item>
         <v-divider />
         <v-card-text class="text-center">
@@ -59,16 +61,16 @@
       </template>
 
       <template v-else>
-        <v-list-item>
-          <v-list-item-avatar color="success">
-            <v-icon>mdi-check</v-icon>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title class="headline">
-              Compare
-            </v-list-item-title>
-            <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
-          </v-list-item-content>
+        <v-list-item ref="compare-view">
+          <template #prepend>
+            <v-avatar color="success">
+              <v-icon>mdi-check</v-icon>
+            </v-avatar>
+          </template>
+          <v-list-item-title class="text-h5">
+            Compare
+          </v-list-item-title>
+          <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
         </v-list-item>
         <v-container
           fluid
@@ -76,41 +78,46 @@
           style="min-height: 120px"
         >
           <v-data-table
-            dense
+            density="compact"
+            hide-header
             disable-sort
-            class="my-0 commit-history"
+            class="mt-2 mb-0 commit-history"
+            :height="320"
             :headers="headers"
             :items="history"
             :hide-default-footer="true"
             :items-per-page="history.length"
-            @click:row="$emit('click', $event)"
           >
+            <template #headers />
+
             <template #item.oid="{ item }">
               <v-btn
-                tile
-                icon
-                x-small
+                rounded="0"
+                variant="text"
                 color="success"
+                @click.stop="$emit('commit', item)"
               >
                 {{ item.oid.substring(0, 7) }}
               </v-btn>
             </template>
+
+            <template #bottom />
           </v-data-table>
         </v-container>
       </template>
     </template>
 
     <template v-else>
-      <v-list-item>
-        <v-list-item-avatar color="darken-1">
-          <v-icon>mdi-cursor-pointer</v-icon>
-        </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title class="headline">
-            Select Remote
-          </v-list-item-title>
-          <v-list-item-subtitle>Choose a remote to compare to the local repository</v-list-item-subtitle>
-        </v-list-item-content>
+      <v-list-item ref="blank-view">
+        <template #prepend>
+          <v-avatar color="grey">
+            <v-icon>mdi-cursor-pointer</v-icon>
+          </v-avatar>
+        </template>
+        <v-list-item-title class="text-h5">
+          Select Remote
+        </v-list-item-title>
+        <v-list-item-subtitle>Choose a remote to compare to the local repository</v-list-item-subtitle>
       </v-list-item>
       <v-divider />
       <v-card-text class="text-center">
@@ -121,95 +128,78 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
 import {
-  VIcon,
-  VListItem,
-  VListItemContent,
-  VListItemTitle,
-  VListItemSubtitle,
-  VListItemAvatar,
+  VAvatar,
+  VBtn,
   VCard,
   VCardText,
-  VDivider,
   VContainer,
   VDataTable,
-  VBtn
-} from 'vuetify/lib'
+  VDivider,
+  VIcon,
+  VListItem,
+  VListItemSubtitle,
+  VListItemTitle,
+} from 'vuetify/components'
 
-export const PushStatusProperties = Vue.extend({
-  props: {
-    active: { type: Boolean, default: false },
-    loading: { type: Boolean, default: false },
-    match: { type: Boolean, default: false },
-    error: { type: String, default: '' },
-    history: { type: Array, default: () => [] }
-  }
-})
-
-@Component({
+export default {
   components: {
-    VIcon,
-    VListItem,
-    VListItemContent,
-    VListItemTitle,
-    VListItemSubtitle,
-    VListItemAvatar,
+    VAvatar,
+    VBtn,
     VCard,
     VCardText,
-    VDivider,
     VContainer,
     VDataTable,
-    VBtn
-  }
-})
-export default class PushStatus extends PushStatusProperties {
-  headers = [
-    { text: '', value: 'oid', width: '60px' },
-    { text: '', value: 'message', width: '' }
-  ]
+    VDivider,
+    VIcon,
+    VListItem,
+    VListItemSubtitle,
+    VListItemTitle,
+  },
+  emits: [
+    'commit',
+    'reload',
+  ],
 }
 </script>
 
+<script setup lang="ts">
+export interface Properties {
+  active?: boolean
+  loading?: boolean
+  match?: boolean
+  error?: string
+  history?: any[]
+}
+
+withDefaults(defineProps<Properties>(), {
+  active: false,
+  loading: false,
+  match: false,
+  error: '',
+  history: () => [],
+})
+
+const headers = [
+  { title: '', value: 'oid', width: '60px' },
+  { title: '', value: 'message', width: '' },
+]
+</script>
+
 <style scoped>
-.passphrase.v-input .v-input__slot {
-  min-height: 0px !important;
-  border-radius: 0px;
-}
-
 .v-data-table.commit-history {
-  border-radius: 0
+  border-radius: 0;
+  flex-grow: 1;
 }
 
-.v-data-table.commit-history .v-btn {
-  width: 100% !important;
-  height: 100% !important;
-  text-align: left;
-  justify-content: left;
-}
-
-.v-data-table.commit-history th {
-  height: 1px;
-}
-
-.v-data-table.commit-history td {
+.v-data-table.commit-history :deep(td) {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   padding: 0 8px !important;
 }
 
-.v-data-table.commit-history td:first-child {
+.v-data-table.commit-history :deep(td:first-child) {
   padding: 0px !important;
-}
-
-.v-data-table.commit-history td:first-child .v-btn {
-  text-align: center;
-  justify-content: center;
-}
-
-.v-data-table.commit-history .v-btn .v-icon {
-  font-size: 14px !important;
 }
 </style>

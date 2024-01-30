@@ -1,23 +1,23 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-import vuetify from '@/vuetify'
-import { createLocalVue } from '@vue/test-utils'
 import configuration, { State as ConfigurationState } from '@/store/modules/configuration'
-import { cloneDeep } from 'lodash'
-import builders from '?/builders'
 import Disk from '../../../mocks/support/disk'
-import { set_disk } from '?/builders/window/file'
+import { set_disk } from '?/builders/api/file'
+import * as api_module from '@/api'
+import builders from '?/builders'
+import { scafold as store_scafold } from '?/builders/store'
 
-Object.assign(window, builders.window())
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 interface State {
   configuration: ConfigurationState
 }
 
 describe('store/modules/configuration', () => {
-  let localVue
   let store
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
   disk.set_content_default(JSON.stringify({
@@ -26,24 +26,21 @@ describe('store/modules/configuration', () => {
     private_key: 'id_rsa',
     passphrase: 'password',
     format_titles: false,
-    dark_mode: true
+    dark_mode: true,
   }))
 
   beforeEach(() => {
-    localVue = createLocalVue()
-    localVue.use(Vuex)
-
     disk.reset_disk()
 
-    store = new Vuex.Store<State>(cloneDeep({
+    store = new Vuex.Store<State>(store_scafold({
       modules: {
-        configuration
-      }
+        configuration,
+      },
     }))
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should populate empty values when initalized', async () => {
@@ -59,7 +56,7 @@ describe('store/modules/configuration', () => {
   it('should load json from provided file when load is dispatched', async () => {
     await store.dispatch('configuration/load', 'config.json')
 
-    expect(window.api.file.contents).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.contents).toHaveBeenCalledTimes(1)
 
     expect(store.state.configuration.name).toBe('Test User')
     expect(store.state.configuration.email).toBe('testuser@example.com')
@@ -69,12 +66,11 @@ describe('store/modules/configuration', () => {
   })
 
   it('should load when input file is not able to be parsed when load is dispatched', async () => {
-    const mocked_window = jest.mocked(window)
-    mocked_window.api.file.contents.mockImplementationOnce(() => Promise.resolve(''))
+    mocked_api.file.contents.mockImplementationOnce(() => Promise.resolve(''))
 
     await store.dispatch('configuration/load', 'config.json')
 
-    expect(window.api.file.contents).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.contents).toHaveBeenCalledTimes(1)
 
     expect(store.state.configuration.name).toBe('')
     expect(store.state.configuration.email).toBe('')
@@ -86,7 +82,7 @@ describe('store/modules/configuration', () => {
   it('should set values from object when update is dispatched', async () => {
     const update = {
       name: 'New Name',
-      passphrase: 'q1h7$u*3~y:}l$:akiKUa&z%:VhDP|'
+      passphrase: 'q1h7$u*3~y:}l$:akiKUa&z%:VhDP|',
     }
 
     await store.dispatch('configuration/update', update)
@@ -100,7 +96,7 @@ describe('store/modules/configuration', () => {
   it('should save json from provided file when configuration write is dispatched', async () => {
     await store.dispatch('configuration/write', 'config.json')
 
-    expect(window.api.file.write).toHaveBeenCalledTimes(1)
+    expect(mocked_api.file.write).toHaveBeenCalledTimes(1)
   })
 
   it('should return value requested when configuration read is dispatched', async () => {
@@ -124,7 +120,7 @@ describe('store/modules/configuration', () => {
       'dark_error',
       'dark_info',
       'dark_warning',
-      'dark_success'
+      'dark_success',
     ]
 
     for (const key of string_keys) {
@@ -155,7 +151,7 @@ describe('store/modules/configuration', () => {
       'dark_error_enabled',
       'dark_info_enabled',
       'dark_warning_enabled',
-      'dark_success_enabled'
+      'dark_success_enabled',
     ]
 
     for (const key of boolean_keys) {
@@ -175,7 +171,7 @@ describe('store/modules/configuration', () => {
   it('should request new ssl key when configuration generate is dispatched', async () => {
     await store.dispatch('configuration/generate', 'passphrase')
 
-    expect(window.api.ssl.generate_private_key).toHaveBeenCalledTimes(1)
+    expect(mocked_api.ssl.generate_private_key).toHaveBeenCalledTimes(1)
   })
 
   it('should present with light mode colors when update is dispatched and dark_mode is false', async () => {
@@ -186,8 +182,6 @@ describe('store/modules/configuration', () => {
     expect(store.state.configuration.dark_mode).toBe(false)
     expect(store.state.configuration.light_primary_enabled).toBe(true)
     expect(store.state.configuration.light_primary).toBe('#FFFFFF')
-
-    expect(vuetify.framework.theme.themes.light.primary).toBe(update.light_primary)
   })
 
   it('should present with dark mode colors when update is dispatched and dark_mode is true', async () => {
@@ -198,7 +192,5 @@ describe('store/modules/configuration', () => {
     expect(store.state.configuration.dark_mode).toBe(true)
     expect(store.state.configuration.dark_primary_enabled).toBe(true)
     expect(store.state.configuration.dark_primary).toBe('#000000')
-
-    expect(vuetify.framework.theme.themes.dark.primary).toBe(update.dark_primary)
   })
 })

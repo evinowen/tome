@@ -1,24 +1,24 @@
 <template>
   <v-layout class="key-border pt-1">
-    <v-flex class="pa-1">
+    <v-col class="pa-1">
       <v-text-field
-        :value="value || ' '"
+        :model-value="value || ' '"
         :label="label"
         class="key-output"
         readonly
-        outlined
+        variant="outlined"
         hide-details
       />
-    </v-flex>
+    </v-col>
     <v-btn
-      tile
+      rounded="0"
       icon
-      :small="small"
+      :size="small ? 'small' : undefined"
       style="height: auto;"
       :disabled="value === ''"
       @click.stop="copy"
     >
-      <v-icon small>
+      <v-icon size="small">
         mdi-content-copy
       </v-icon>
     </v-btn>
@@ -26,27 +26,49 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VIcon, VBtn, VTextField, VLayout, VFlex } from 'vuetify/lib'
-import store from '@/store'
+import {
+  VBtn,
+  VCol,
+  VIcon,
+  VLayout,
+  VTextField,
+} from 'vuetify/components'
 
-export const KeyfileOutputProperties = Vue.extend({
-  props: {
-    value: { type: String, default: '' },
-    small: { type: Boolean, default: false },
-    label: { type: String, default: '' }
-  }
-})
-
-@Component({
-  components: { VIcon, VBtn, VTextField, VLayout, VFlex }
-})
-export default class KeyfileOutput extends KeyfileOutputProperties {
-  async copy () {
-    await store.dispatch('clipboard/text', this.value)
-  }
+export default {
+  components: {
+    VBtn,
+    VCol,
+    VIcon,
+    VLayout,
+    VTextField,
+  },
 }
+</script>
+
+<script setup lang="ts">
+import { fetchStore } from '@/store'
+
+const store = fetchStore()
+
+export interface Properties {
+  label?: string
+  small?: boolean
+  value: string
+}
+
+const properties = withDefaults(defineProps<Properties>(), {
+  label: '',
+  small: false,
+  value: '',
+})
+
+async function copy () {
+  await store.dispatch('clipboard/text', properties.value)
+}
+
+defineExpose({
+  copy,
+})
 </script>
 
 <style scoped>

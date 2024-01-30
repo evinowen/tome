@@ -1,187 +1,217 @@
 <template>
-  <v-card
-    v-resize="resize"
-    style="position: relative"
+  <v-data-table
+    class="root"
+    density="compact"
+    fixed-header
+    mobile-breakpoint="0"
+    :height="height"
+    :headers="headers"
+    :items="items"
+    :sort-by="[{ key: 'file'}]"
+    :items-per-page="items.length"
   >
-    <v-card-title class="pa-2">
-      {{ title }}
-    </v-card-title>
-    <div ref="datatable">
-      <v-data-table
-        dense
-        fixed-header
-        hide-default-footer
-        :height="datatable.height || 24"
-        style="table-layout: fixed"
-        mobile-breakpoint="0"
-        :headers="headers"
-        :items="items"
-        :sort-by="['file']"
-        :items-per-page="items.length"
-        class="my-2"
-        @click:row="$emit('click', $event)"
+    <template #item.path="{ item }">
+      <v-btn
+        rounded="0"
+        variant="text"
+        class="path-button"
+        @click.stop="$emit('click', item.path)"
       >
-        <template #item.type="{ item }">
-          <v-btn
-            tile
-            icon
-            x-small
-            :color="file_color(item.type)"
-          >
-            <v-icon
-              small
-              class="mr-1"
-            >
-              {{ file_icon(item.type) }}
-            </v-icon>
-            {{ file_type(item.type) }}
-          </v-btn>
-        </template>
+        {{ item.path }}
+      </v-btn>
+    </template>
 
-        <template #item.action="{ item }">
-          <v-btn
-            tile
-            icon
-            x-small
-            @click.stop="$emit('input', item.path)"
-          >
-            <v-icon>{{ icon }}</v-icon>
-          </v-btn>
-        </template>
-      </v-data-table>
-    </div>
-  </v-card>
+    <template #item.type="{ item }">
+      <v-btn
+        rounded="0"
+        variant="text"
+        class="type-button"
+        :color="file_color(item.type)"
+      >
+        <v-icon
+          size="small"
+          class="mr-1"
+        >
+          {{ file_icon(item.type) }}
+        </v-icon>
+        {{ file_type(item.type) }}
+      </v-btn>
+    </template>
+
+    <template #item.action="{ item }">
+      <v-btn
+        class="action-button"
+        rounded="0"
+        variant="text"
+        icon
+        @click.stop="$emit('input', item.path)"
+      >
+        <v-icon>{{ icon }}</v-icon>
+      </v-btn>
+    </template>
+
+    <template #bottom />
+  </v-data-table>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VDataTable, VCard, VCardTitle, VBtn, VIcon, Resize } from 'vuetify/lib'
+import {
+  VBtn,
+  VDataTable,
+  VIcon,
+} from 'vuetify/components'
+import { Resize } from 'vuetify/directives'
 
-class RepositoryFile {
+export default {
+  components: {
+    VBtn,
+    VDataTable,
+    VIcon,
+  },
+  directives: {
+    Resize,
+  },
+  emits: [
+    'click',
+    'input',
+  ],
+}
+
+export class RepositoryFile {
   static Type = {
     NEW: 1,
     MODIFIED: 2,
     RENAMED: 3,
     DELETED: 4,
-    UNKNOWN: 0
-  }
-}
-
-export const CommitListProperties = Vue.extend({
-  props: {
-    title: { type: String, default: 'List' },
-    items: { type: Array, default: () => [] },
-    icon: { type: String, default: '' },
-    height: { type: Number, default: 0 }
-  }
-})
-
-@Component({
-  components: { VDataTable, VCard, VCardTitle, VBtn, VIcon },
-  directives: {
-    Resize
-  }
-})
-export default class CommitList extends CommitListProperties {
-  datatable = {
-    offset: 64,
-    height: 0,
-    min_height: 100
-  }
-
-  headers = [
-    { text: 'File', value: 'path', width: 'auto' },
-    { text: 'Type', value: 'type', width: '70px' },
-    { text: '', value: 'action', width: '23px', sortable: false }
-  ]
-
-  resize () {
-    const height = this.height - this.datatable.offset
-
-    this.datatable.height = height > this.datatable.min_height ? height : this.datatable.min_height
-  }
-
-  file_type (type) {
-    switch (type) {
-      case RepositoryFile.Type.NEW:
-        return 'New'
-      case RepositoryFile.Type.MODIFIED:
-        return 'Modified'
-      case RepositoryFile.Type.RENAMED:
-        return 'Renamed'
-      case RepositoryFile.Type.DELETED:
-        return 'Deleted'
-    }
-
-    return ''
-  }
-
-  file_color (type) {
-    switch (type) {
-      case RepositoryFile.Type.NEW:
-      case RepositoryFile.Type.MODIFIED:
-      case RepositoryFile.Type.RENAMED:
-        return 'green'
-      case RepositoryFile.Type.DELETED:
-        return 'red'
-    }
-
-    return ''
-  }
-
-  file_icon (type) {
-    switch (type) {
-      case RepositoryFile.Type.NEW:
-        return 'mdi-file-star'
-      case RepositoryFile.Type.MODIFIED:
-        return 'mdi-file-edit'
-      case RepositoryFile.Type.RENAMED:
-        return 'mdi-file-swap'
-      case RepositoryFile.Type.DELETED:
-        return 'mdi-file-remove'
-    }
-
-    return ''
+    UNKNOWN: 0,
   }
 }
 </script>
 
-<style>
-.v-data-table table {
+<script setup lang="ts">
+export interface Properties {
+  title?: string
+  items?: any[]
+  icon?: string
+  height?: number
+}
+
+withDefaults(defineProps<Properties>(), {
+  title: 'List',
+  items: () => [],
+  icon: '',
+  height: 320,
+})
+
+const headers = [
+  { title: 'File', value: 'path', width: 'auto' },
+  { title: 'Type', value: 'type', width: '96px' },
+  { title: '', value: 'action', width: '32px', sortable: false },
+]
+
+function file_type (type) {
+  switch (type) {
+    case RepositoryFile.Type.NEW:
+      return 'New'
+    case RepositoryFile.Type.MODIFIED:
+      return 'Modified'
+    case RepositoryFile.Type.RENAMED:
+      return 'Renamed'
+    case RepositoryFile.Type.DELETED:
+      return 'Deleted'
+  }
+
+  return ''
+}
+
+function file_color (type) {
+  switch (type) {
+    case RepositoryFile.Type.NEW:
+    case RepositoryFile.Type.MODIFIED:
+    case RepositoryFile.Type.RENAMED:
+      return 'green'
+    case RepositoryFile.Type.DELETED:
+      return 'red'
+  }
+
+  return ''
+}
+
+function file_icon (type) {
+  switch (type) {
+    case RepositoryFile.Type.NEW:
+      return 'mdi-file-star'
+    case RepositoryFile.Type.MODIFIED:
+      return 'mdi-file-edit'
+    case RepositoryFile.Type.RENAMED:
+      return 'mdi-file-swap'
+    case RepositoryFile.Type.DELETED:
+      return 'mdi-file-remove'
+  }
+
+  return ''
+}
+
+defineExpose({
+  file_color,
+  file_icon,
+  file_type,
+})
+</script>
+
+<style scoped>
+.root {
+  background: rgb(var(--v-theme-background));
+}
+
+.root :deep(table) {
   table-layout: fixed;
 }
 
-.v-data-table td {
-  padding: 0 !important;
-  font-size: 10px !important;
+.root :deep(.v-table__wrapper) {
+  overflow-y: scroll;
+  overflow-x: none;
+}
+
+.root :deep(table > tbody > tr > td),
+.root :deep(th) {
+  font-size: 10px;
+  padding: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.v-data-table td:first-child {
-  padding: 0 6px !important;
+.path-button,
+.type-button,
+.action-button {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  color: rgb(var(--v-theme-on-surface));
+}
+.path-button {
+  padding-left: 4px;
+  text-transform: none;
 }
 
-.v-data-table th:last-child {
-  padding: 0 !important;
-}
-
-.v-data-table .v-btn {
-  width: 100% !important;
-  height: 100% !important;
+.path-button,
+.type-button {
   text-align: left;
   justify-content: left;
-  color: white;
+  font-size: 8px;
 }
 
-.v-data-table td:last-child .v-btn{
+.type-button :deep(.v-icon) {
+  font-size: 12px;
+}
+
+.action-button {
   text-align: center;
   justify-content: center;
 }
 
-.v-data-table .v-btn .v-icon {
-  font-size: 14px !important;
+.action-button :deep(.v-icon) {
+  font-size: 14px;
 }
 </style>

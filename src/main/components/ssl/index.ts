@@ -8,7 +8,7 @@ import { promise_with_reject } from '../../promise'
 
 export default component('ssl')(
   ({ handle }) => {
-    handle('generate-public-key', async (target, passphrase: string|undefined) => {
+    handle('generate-public-key', async (target, passphrase: string | undefined) => {
       if (!target) {
         return { path: '', data: '' }
       }
@@ -32,7 +32,7 @@ export default component('ssl')(
       const { privateKey: private_key } = await new Promise<forge.pki.rsa.KeyPair>((resolve, reject) => {
         forge.pki.rsa.generateKeyPair(
           { bits: 2048, workers: 2 },
-          (error, keypair) => error ? reject(error) : resolve(keypair)
+          (error, keypair) => error ? reject(error) : resolve(keypair),
         )
       })
 
@@ -43,5 +43,5 @@ export default component('ssl')(
 
       return { path: ssh_private_key_path, data: ssh_private_key }
     })
-  }
+  },
 )

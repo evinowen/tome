@@ -1,28 +1,29 @@
+import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-import { createLocalVue } from '@vue/test-utils'
 import actions, { State as ActionState } from '@/store/modules/actions'
 import { cloneDeep } from 'lodash'
-import builders from '?/builders'
 import Disk from '../../../mocks/support/disk'
-import { set_disk } from '?/builders/window/file'
+import { set_disk } from '?/builders/api/file'
+import * as api_module from '@/api'
+import builders from '?/builders'
 
-Object.assign(window, builders.window())
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 interface State {
   actions: ActionState
 }
 
 describe('store/modules/actions', () => {
-  let localVue
   let store
 
   let files
   let post
 
-  const message = jest.fn()
-  const error = jest.fn()
+  const message = vi.fn()
+  const error = vi.fn()
 
-  const disk = new Disk
+  const disk = new Disk()
   set_disk(disk)
 
   beforeEach(() => {
@@ -40,33 +41,30 @@ describe('store/modules/actions', () => {
         selected: undefined,
         editing: false,
         post: undefined,
-        watcher: undefined
+        watcher: undefined,
       },
       actions: {
-        create: jest.fn(),
-        identify: jest.fn(() => ({})),
-        ghost: jest.fn((context, criteria) => {
+        create: vi.fn(),
+        identify: vi.fn(() => ({})),
+        ghost: vi.fn((context, criteria) => {
           post = criteria.post
         }),
-        select: jest.fn(),
-        save: jest.fn()
-      }
+        select: vi.fn(),
+        save: vi.fn(),
+      },
     }
-
-    localVue = createLocalVue()
-    localVue.use(Vuex)
 
     store = new Vuex.Store<State>(cloneDeep({
       actions: { message, error },
       modules: {
         actions,
-        files
-      }
+        files,
+      },
     }))
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should populate empty values when initalized', async () => {
@@ -122,8 +120,7 @@ describe('store/modules/actions', () => {
   })
 
   it('should execute actions with specific message provided when execute is dispatched', async () => {
-    const mocked_window = jest.mocked(window)
-    mocked_window.api.action.invoke.mockImplementationOnce(() => Promise.resolve({ success: true, message: 'specific message', selection: '' }))
+    mocked_api.action.invoke.mockImplementationOnce(() => Promise.resolve({ success: true, message: 'specific message', selection: '' }))
 
     const project = '/project'
     const action = 'example.action.a'
@@ -137,8 +134,7 @@ describe('store/modules/actions', () => {
   })
 
   it('should provide error if executed action failed when execute is dispatched', async () => {
-    const mocked_window = jest.mocked(window)
-    mocked_window.api.action.invoke.mockImplementation(() => Promise.resolve({ success: false, message: 'Error Message', selection: '' }))
+    mocked_api.action.invoke.mockImplementation(() => Promise.resolve({ success: false, message: 'Error Message', selection: '' }))
 
     const project = '/project'
     const action = 'example.action.a'
@@ -152,8 +148,7 @@ describe('store/modules/actions', () => {
   })
 
   it('should provide error with default message if executed action failed and no message provided when execute is dispatched', async () => {
-    const mocked_window = jest.mocked(window)
-    mocked_window.api.action.invoke.mockImplementation(() => Promise.resolve({ success: false, message: '', selection: '' }))
+    mocked_api.action.invoke.mockImplementation(() => Promise.resolve({ success: false, message: '', selection: '' }))
 
     const project = '/project'
     const action = 'example.action.a'

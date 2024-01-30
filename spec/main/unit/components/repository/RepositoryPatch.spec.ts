@@ -1,14 +1,8 @@
+import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import RepositoryPatch from '@/components/repository/RepositoryPatch'
 import * as NodeGit from 'nodegit'
 
 jest.mock('nodegit')
-
-jest.mock('electron-log', () => ({ info: jest.fn(), error: jest.fn() }))
-jest.mock('electron', () => ({
-  remote: {
-    require: jest.fn()
-  }
-}))
 
 describe('components/repository/RepositoryPatch', () => {
   let patch
@@ -19,35 +13,35 @@ describe('components/repository/RepositoryPatch', () => {
 
   beforeEach(() => {
     file = {
-      path: jest.fn(() => './file.path')
+      path: jest.fn(() => './file.path'),
     }
 
     lines = [
       {
         origin: jest.fn(() => NodeGit.Diff.LINE.ADDITION),
-        content: jest.fn(() => 'first line')
+        content: jest.fn(() => 'first line'),
       },
       {
         origin: jest.fn(() => NodeGit.Diff.LINE.DELETION),
-        content: jest.fn(() => 'second line')
+        content: jest.fn(() => 'second line'),
       },
       {
         origin: jest.fn(() => NodeGit.Diff.LINE.CONTEXT),
-        content: jest.fn(() => 'third line')
-      }
+        content: jest.fn(() => 'third line'),
+      },
     ]
 
     hunk = {
       header: jest.fn(() => 'header'),
-      lines: jest.fn(() => lines)
+      lines: jest.fn(() => lines),
     }
 
-    hunks = [hunk]
+    hunks = [ hunk ]
 
     patch = {
       oldFile: jest.fn(() => file),
       newFile: jest.fn(() => file),
-      hunks: jest.fn(() => hunks)
+      hunks: jest.fn(() => hunks),
     }
   })
 
@@ -60,7 +54,7 @@ describe('components/repository/RepositoryPatch', () => {
 
     await repository_patch.build(patch)
 
-    expect(repository_patch.lines.length).toEqual(4)
+    expect(repository_patch.lines).toHaveLength(4)
 
     expect(repository_patch.lines[0].type).toEqual(NodeGit.Diff.LINE.HUNK_HDR)
     expect(repository_patch.lines[0].line).toEqual('header')

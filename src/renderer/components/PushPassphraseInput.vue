@@ -1,49 +1,52 @@
 <template>
   <v-layout>
-    <v-flex class="pa-1">
+    <v-col class="pa-1">
       <v-text-field
-        :value="value"
+        :model-value="value"
         :type="obscured ? 'password' : 'text'"
-        outlined
+        variant="outlined"
         hide-details
-        dense
+        density="compact"
         label="passphrase"
-        @input="$emit('input', $event)"
+        @update:model-value="$emit('input', $event)"
       />
-    </v-flex>
+    </v-col>
     <v-btn
-      tile
+      ref="clear"
+      rounded="0"
       icon
-      small
+      size="small"
       style="height: auto;"
       :disabled="value === ''"
       @click.stop="$emit('input', '')"
     >
-      <v-icon small>
+      <v-icon size="small">
         mdi-close
       </v-icon>
     </v-btn>
     <v-btn
-      tile
+      ref="display"
+      rounded="0"
       icon
-      small
+      size="small"
       style="height: auto;"
       @click.stop="obscured = !obscured"
     >
-      <v-icon small>
+      <v-icon size="small">
         {{ obscured ? 'mdi-eye-off' : 'mdi-eye' }}
       </v-icon>
     </v-btn>
     <v-btn
       v-if="storable"
-      tile
+      ref="load"
+      rounded="0"
       icon
-      small
+      size="small"
       style="height: auto;"
       :disabled="stored === ''"
       @click.stop="$emit('input', stored)"
     >
-      <v-icon small>
+      <v-icon size="small">
         mdi-cog
       </v-icon>
     </v-btn>
@@ -51,22 +54,43 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VLayout, VFlex, VBtn, VIcon, VTextField } from 'vuetify/lib'
+import {
+  VBtn,
+  VCol,
+  VIcon,
+  VLayout,
+  VTextField,
+} from 'vuetify/components'
 
-export const PushPassphraseInputProperties = Vue.extend({
-  props: {
-    value: { type: String, default: '' },
-    storable: { type: Boolean, default: false },
-    stored: { type: String, default: '' }
-  }
-})
-
-@Component({
-  components: { VLayout, VFlex, VBtn, VIcon, VTextField }
-})
-export default class PushPassphraseInput extends PushPassphraseInputProperties {
-  obscured = true
+export default {
+  components: {
+    VBtn,
+    VCol,
+    VIcon,
+    VLayout,
+    VTextField,
+  },
 }
+</script>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+export interface Properties {
+  value?: string
+  storable?: boolean
+  stored?: string
+}
+
+withDefaults(defineProps<Properties>(), {
+  value: '',
+  storable: false,
+  stored: '',
+})
+
+const obscured = ref(true)
+
+defineExpose({
+  obscured,
+})
 </script>
