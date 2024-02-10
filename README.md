@@ -1,5 +1,5 @@
 ![tome](/assets/icon/tome.github.png)
-Git integrated cross-platform markdown editor, built leveraging Electron (https://github.com/electron/electron), Vue (https://github.com/vuejs/vue), and NodeGit (https://github.com/nodegit/nodegit).
+Git integrated cross-platform markdown editor, built leveraging [Electron](https://github.com/electron/electron), [Vue](https://github.com/vuejs/vue), and [NodeGit](https://github.com/nodegit/nodegit).
 
 Tome is intended as a general markdown editor and note taking application.
 Presently it supports the following features:
@@ -22,20 +22,23 @@ Tome also contains a powerful templating and action system. Templating allows fo
 
 ### Windows Prerequisites
 Using an Administrative (or elevated) PowerShell install Python, Perl, and NASM dependencies:
-```
+
+```powershell
 choco install python2 --version=2.7.15 --params "/InstallDir:$Env:SystemDrive\Python27"
 choco install strawberryperl
 choco install nasm
 ```
 
 Add both Perl and NASM to the local PATH:
-```
+
+```powershell
 $env:Path += ";$Env:SystemDrive\Strawberry\perl\bin;$Env:ProgramFiles\NASM"
 ```
 
 Using an Administrative (or elevated) PowerShell, install the `windows-build-tools` package
 globally using the following command:
-```
+
+```powershell
 npm install --global node-gyp
 npm install --global --production windows-build-tools@4.0.0
 ```
@@ -43,40 +46,47 @@ npm install --global --production windows-build-tools@4.0.0
 ### Install Workflow
 
 Install the application:
-```
+
+```powershell
 npm install
 ```
 
 Rebuild native modules (nodegit) for Electron
-```
+
+```powershell
 npm run rebuild-electron
 ```
 
 ### Validation Workflow
 Validate the Main process
-```
+
+```powershell
 npm run lint-main
 npm run test-main
 ```
 
 Validate the Renderer process
-```
+
+```powershell
 npm run lint-renderer
 npm run test-renderer
 ```
 
 ### Build Workflow
 Build the renderer &mdash; this operation outputs renderer artifacts to `./dist/renderer`
-```
+
+```powershell
 npm run build-renderer
 ```
+
 Note, running this command from an elevated prompt will result in build issues caused by
 the `nodegit` build process testing `OpenSSL` as several of these tests fail when ran from
 an elevated prompt.
 
 Finally build the application package &mdash; this operation outputs application artifacts
 to `./dist/main`
-```
+
+```powershell
 npm run build-electron
 ```
 
@@ -86,12 +96,14 @@ to either manually issue commands
 or delete OpenSSL content and redownload the package.
 
 To clear the downloaded OpenSSL package, issue the following command from PowerShell:
-```
+
+```powershell
 Remove-Item node_modules\nodegit\vendor\openssl -Recurse -Force -Confirm:$false
 ```
 
 Or from bash:
-```
+
+```bash
 rm -rf ./node_modules/nodegit/vendor/openssl
 ```
 
