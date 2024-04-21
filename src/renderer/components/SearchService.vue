@@ -1,6 +1,6 @@
 <template>
   <div class="search-container pa-2">
-    <v-toolbar class="search-box">
+    <v-toolbar class="search-box" color="surface">
       <v-item-group
         dense
         multiple

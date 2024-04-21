@@ -4,7 +4,7 @@
     class="mx-auto"
   >
     <v-card-title class="pa-2">
-      <v-switch
+      <v-checkbox
         ref="enabled-switch"
         density="compact"
         hide-details
@@ -41,6 +41,7 @@ import {
   VCard,
   VCardTitle,
   VColorPicker,
+  VCheckbox,
   VSwitch,
 } from 'vuetify/components'
 
@@ -49,6 +50,7 @@ export default {
     VCard,
     VCardTitle,
     VColorPicker,
+    VCheckbox,
     VSwitch,
   },
 }

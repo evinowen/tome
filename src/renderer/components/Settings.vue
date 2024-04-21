@@ -6,199 +6,158 @@
     :open="system.settings"
     @close="close"
   >
-    <v-row>
-      <v-col>
-        <h3>User Credentials</h3>
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col
-        class="xs"
-        sm="6"
-      >
-        <text-input
-          label="name"
-          index="name"
-        />
-      </v-col>
-      <v-col
-        class="xs"
-        sm="6"
-      >
-        <text-input
-          label="e-mail"
-          index="email"
-        />
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col
-        class="xs"
-        sm="12"
-      >
-        <keyfile-input
-          label="private key"
-          index="private_key"
-        />
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col>
-        <text-input
-          label="passphrase"
-          index="passphrase"
-          obscureable
-        />
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col>
-        <keyfile-output
-          label="public key"
-          :value="configuration.public_key"
-        />
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col>
-        <h3>Commit Options</h3>
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col
-        class="xs"
-        sm="5"
-        md="3"
-        lg="2"
-      >
-        <boolean-input
-          label="Automatic Push"
-          index="auto_push"
-        />
-      </v-col>
-      <v-col
-        class="xs"
-        sm="7"
-        md="9"
-        lg="12"
-      >
-        <text-input
-          label="default remote"
-          index="default_remote"
-        />
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col>
-        <h3>Display Options</h3>
-      </v-col>
-    </v-row>
-    <v-row dense>
-      <v-col>
-        <boolean-input
-          label="Format Titles"
-          index="format_titles"
-        />
-      </v-col>
-      <v-col>
-        <boolean-input
-          label="Dark Mode"
-          index="dark_mode"
-        />
-      </v-col>
-    </v-row>
-    <v-row dense />
-    <theme-preview />
-    <v-row dense>
-      <v-col>
-        <v-container>
-          <v-row dense>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="primary"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="secondary"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="accent"
-              />
-            </v-col>
-          </v-row>
-          <v-row dense>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="error"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="info"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="success"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="warning"
-              />
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-col>
-    </v-row>
-    <v-divider class="mt-4 mb-5" />
-    <v-row>
-      <v-col>
-        <div class="d-flex">
-          <div class="flex-shrink-1">
-            <div class="tome-badge">
-              <div class="tome-badge-logo">
-                <img
-                  :src="logo"
-                  style="height: 64px; width: 64px;"
-                >
-              </div>
-              <div class="tome-badge-data">
-                <h3>Tome</h3>
-                <span style="white-space: nowrap;">
-                  version {{ system.version }}
-                </span>
+    <v-card
+      color="surface"
+      title="User Credentials"
+      subtitle="Credentials provided here are used for Commits and for Pushing content to your remote repository"
+    >
+      <v-row dense no-gutters class="mt-0">
+        <v-col
+          class="xs"
+          cols="12"
+          sm="6"
+        >
+          <text-input
+            label="name"
+            index="name"
+          />
+        </v-col>
+        <v-col
+          class="xs"
+          cols="12"
+          sm="6"
+        >
+          <text-input
+            label="e-mail"
+            index="email"
+          />
+        </v-col>
+      </v-row>
+      <v-row dense no-gutters class="mt-0">
+        <v-col
+          class="xs"
+          sm="12"
+        >
+          <keyfile-input
+            label="private key"
+            index="private_key"
+          />
+        </v-col>
+      </v-row>
+      <v-row dense no-gutters class="mt-0">
+        <v-col>
+          <text-input
+            label="passphrase"
+            index="passphrase"
+            obscureable
+          />
+        </v-col>
+      </v-row>
+      <v-row dense no-gutters class="mt-0">
+        <v-col>
+          <keyfile-output
+            label="public key"
+            :value="configuration.public_key"
+          />
+        </v-col>
+      </v-row>
+    </v-card>
+    <v-divider class="py-2" />
+    <v-card
+      title="Commit Options"
+      subtitle="Options for how Tome should handle or react to Commit operations"
+    >
+      <v-row dense no-gutters class="mt-0">
+        <v-col
+          class="xs"
+          cols="12"
+        >
+          <boolean-input
+            label="Automatic Push"
+            detail="Push commits to the defined default remote once a commit is created"
+            index="auto_push"
+          />
+        </v-col>
+      </v-row>
+      <v-row dense no-gutters class="mt-0">
+        <v-col>
+          <text-input
+            label="default remote"
+            index="default_remote"
+          />
+        </v-col>
+      </v-row>
+    </v-card>
+    <v-divider class="py-2" />
+    <v-card
+      color="surface"
+      title="Display Options"
+      subtitle="Interface display and interaction options"
+    >
+      <v-row dense>
+        <v-col class="mx-2">
+          <v-btn block @click="edit_theme">Theme Editor</v-btn>
+        </v-col>
+      </v-row>
+      <v-row dense no-gutters class="mt-0">
+        <v-col>
+          <boolean-input
+            label="Dark Mode"
+            detail="Use a dark color scheme to reduce brightness level of the interface"
+            index="dark_mode"
+          />
+        </v-col>
+      </v-row>
+      <v-row dense no-gutters class="mt-0">
+        <v-col>
+          <boolean-input
+            label="Format Titles"
+            detail="Display entry titles as formatted, with underscores replaced with spaces and each word capitalized"
+            index="format_titles"
+          />
+        </v-col>
+      </v-row>
+    </v-card>
+    <template #footer>
+      <v-divider class="my-2" />
+      <v-row class="flex-shrink-0">
+        <v-col>
+          <div class="d-flex">
+            <div class="flex-shrink-1">
+              <div class="tome-badge">
+                <div class="tome-badge-logo">
+                  <img
+                    :src="logo"
+                    style="height: 64px; width: 64px;"
+                  >
+                </div>
+                <div class="tome-badge-data">
+                  <h3>Tome</h3>
+                  <span style="white-space: nowrap;">
+                    version {{ system.version }}
+                  </span>
+                </div>
               </div>
             </div>
+            <div class="flex-grow-1">
+              <sea-game />
+            </div>
+            <div
+              v-if="system.process"
+              class="flex-shrink-1"
+              style="font-size: 0.8em; text-align: right; opacity: 0.6;"
+            >
+              <b>electron</b> {{ system.process.versions.electron }}<br>
+              <b>chromium</b> {{ system.process.versions.chrome }}<br>
+              <b>node</b> {{ system.process.versions.node }}<br>
+              <b>v8</b> {{ system.process.versions.v8 }}<br>
+              <v-divider />
+              <b>sandboxed</b> {{ system.process.sandboxed ? 'true' : 'false' }}<br>
+            </div>
           </div>
-          <div class="flex-grow-1">
-            <sea-game />
-          </div>
-          <div
-            v-if="system.process"
-            class="flex-shrink-1"
-            style="font-size: 0.8em; text-align: right; opacity: 0.6;"
-          >
-            <b>electron</b> {{ system.process.versions.electron }}<br>
-            <b>chromium</b> {{ system.process.versions.chrome }}<br>
-            <b>node</b> {{ system.process.versions.node }}<br>
-            <b>v8</b> {{ system.process.versions.v8 }}<br>
-            <v-divider />
-            <b>sandboxed</b> {{ system.process.sandboxed ? 'true' : 'false' }}<br>
-          </div>
-        </div>
-      </v-col>
-    </v-row>
+        </v-col>
+      </v-row>
+    </template>
   </utility-page>
 </template>
 
@@ -212,6 +171,8 @@ import ThemeColorPicker from './Settings/ThemeColorPicker.vue'
 import ThemePreview from './Settings/ThemePreview.vue'
 import UtilityPage from './UtilityPage.vue'
 import {
+  VBtn,
+  VCard,
   VCol,
   VContainer,
   VDivider,
@@ -228,6 +189,8 @@ export default {
     ThemeColorPicker,
     ThemePreview,
     UtilityPage,
+    VBtn,
+    VCard,
     VCol,
     VContainer,
     VDivider,
@@ -250,6 +213,10 @@ const theme = computed(() => configuration.value.dark_mode ? 'dark' : 'light')
 
 async function close () {
   await store.dispatch('system/settings', false)
+}
+
+async function edit_theme () {
+  await store.dispatch('system/theme_editor', true)
 }
 
 defineExpose({

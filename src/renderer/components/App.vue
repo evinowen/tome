@@ -9,6 +9,7 @@
     <v-main class="app-main">
       <div class="app-container">
         <settings />
+        <theme-editor />
         <console />
 
         <template v-if="repository.loaded">
@@ -44,6 +45,7 @@ import SearchService from '@/components/SearchService.vue'
 import Settings from '@/components/Settings.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
 import SystemBar from '@/components/SystemBar.vue'
+import ThemeEditor from '@/components/ThemeEditor.vue'
 import {
   VApp,
   VMain,
@@ -64,6 +66,7 @@ export default {
     Settings,
     ShortcutService,
     SystemBar,
+    ThemeEditor,
     VApp,
     VMain,
   },

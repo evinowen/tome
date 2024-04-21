@@ -30,6 +30,7 @@ export interface State {
   push_confirm: boolean
   search: boolean
   settings: boolean
+  theme_editor: boolean
 }
 
 export const StateDefaults = (): State => ({
@@ -45,6 +46,7 @@ export const StateDefaults = (): State => ({
   push_confirm: false,
   search: false,
   settings: false,
+  theme_editor: false,
 })
 
 export default {
@@ -161,6 +163,10 @@ export default {
     settings: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { settings: value })
       return context.state.settings
+    },
+    theme_editor: async function (context, value) {
+      typeof value !== 'boolean' || context.commit('set', { theme_editor: value })
+      return context.state.theme_editor
     },
   },
   modules: {

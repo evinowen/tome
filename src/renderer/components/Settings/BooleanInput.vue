@@ -1,9 +1,21 @@
 <template>
   <v-switch
-    :label="label"
     :model-value="value"
     @update:model-value="update"
-  />
+    hide-details
+    class="ml-4"
+  >
+    <template #label>
+      <div class="d-flex key-border align-center">
+        <div class="flex-shrink-0 pa-1">
+          <strong>{{ label }}</strong>
+        </div>
+        <div class="flex-grow-1 pa-1">
+          {{ detail }}
+        </div>
+      </div>
+    </template>
+  </v-switch>
 </template>
 
 <script lang="ts">
@@ -24,13 +36,15 @@ import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-export interface Properties {
+interface Properties {
   label: string
+  detail: string
   index: string
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
   label: '',
+  detail: '',
   index: '',
 })
 

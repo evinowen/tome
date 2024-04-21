@@ -4,6 +4,7 @@
     height="25"
     class="pa-0"
     style="user-select: none;"
+    color="surface"
   >
     <v-btn
       rounded="0"
@@ -90,6 +91,7 @@ const title = computed(() => {
 })
 
 async function settings () {
+  await store.dispatch('system/theme_editor', false)
   await store.dispatch('system/settings', !store.state.system.settings)
 }
 

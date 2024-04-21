@@ -1,6 +1,6 @@
 <template>
-  <v-layout class="key-border pt-1">
-    <v-col class="pa-1">
+  <div class="d-flex key-border">
+    <div class="flex-grow-1 pa-1">
       <input
         ref="input"
         type="file"
@@ -14,37 +14,41 @@
         :color="value ? 'green' : 'red'"
         :prepend-inner-icon="value ? 'mdi-lock-open' : 'mdi-lock'"
         readonly
-        variant="outlined"
+        variant="solo"
         hide-details
         density="compact"
         @click="input.click()"
       />
-    </v-col>
-    <v-btn
-      ref="clear-button"
-      rounded="0"
-      icon
-      style="height: auto;"
-      :disabled="value === ''"
-      @click="clear"
-    >
-      <v-icon size="small">
-        mdi-close
-      </v-icon>
-    </v-btn>
-    <v-btn
-      ref="generate-button"
-      rounded="0"
-      icon
-      style="height: auto;"
-      :disabled="value !== ''"
-      @click.stop="generate"
-    >
-      <v-icon size="small">
-        mdi-anvil
-      </v-icon>
-    </v-btn>
-  </v-layout>
+    </div>
+    <div class="flex-grow-0 pa-1">
+      <v-btn
+        ref="clear-button"
+        rounded="0"
+        icon
+        style="height: 100%;"
+        :disabled="value === ''"
+        @click="clear"
+      >
+        <v-icon size="small">
+          mdi-close
+        </v-icon>
+      </v-btn>
+    </div>
+    <div class="flex-grow-0 pa-1">
+      <v-btn
+        ref="generate-button"
+        rounded="0"
+        icon
+        style="height: 100%;"
+        :disabled="value !== ''"
+        @click.stop="generate"
+      >
+        <v-icon size="small">
+          mdi-anvil
+        </v-icon>
+      </v-btn>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">

@@ -1,24 +1,49 @@
 <template>
-  <v-text-field
-    ref="input-field"
-    density="compact"
-    clearable
-    :label="label"
-    :model-value="value"
-    :append-icon="obscureable ? (obscured ? 'mdi-eye-off' : 'mdi-eye') : undefined"
-    :type="(obscureable && obscured) ? 'password' : 'text'"
-    @click:append="obscured = !obscured"
-    @update:model-value="update"
-  />
+  <div class="d-flex key-border">
+    <div class="flex-grow-1 pa-1">
+      <v-text-field
+        ref="input-field"
+        density="compact"
+        variant="solo"
+        hide-details
+        clearable
+        :label="label"
+        :model-value="value"
+        :type="(obscureable && obscured) ? 'password' : 'text'"
+        @update:model-value="update"
+      />
+    </div>
+    <div
+      v-if="obscureable"
+      class="flex-grow-0 pa-1"
+    >
+      <v-btn
+        ref="clear-button"
+        rounded="0"
+        icon
+        :disabled="value === ''"
+        style="height: 100%;"
+        @click="obscured = !obscured"
+      >
+        <v-icon size="small">
+          {{ obscured ? 'mdi-eye-off' : 'mdi-eye' }}
+        </v-icon>
+      </v-btn>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import {
+  VBtn,
+  VIcon,
   VTextField,
 } from 'vuetify/components'
 
 export default {
   components: {
+    VBtn,
+    VIcon,
     VTextField,
   },
 }
@@ -32,7 +57,7 @@ const store = fetchStore()
 
 const obscured = ref(true)
 
-export interface Properties {
+interface Properties {
   label: string
   index: string
   obscureable?: boolean
