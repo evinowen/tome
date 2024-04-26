@@ -54,18 +54,14 @@
 <script lang="ts">
 import {
   VBtn,
-  VCol,
   VIcon,
-  VLayout,
   VTextField,
 } from 'vuetify/components'
 
 export default {
   components: {
     VBtn,
-    VCol,
     VIcon,
-    VLayout,
     VTextField,
   },
 }
@@ -77,7 +73,7 @@ import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-export interface Properties {
+interface Properties {
   label: string
   index: string
 }

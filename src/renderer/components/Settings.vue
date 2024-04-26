@@ -11,7 +11,11 @@
       title="User Credentials"
       subtitle="Credentials provided here are used for Commits and for Pushing content to your remote repository"
     >
-      <v-row dense no-gutters class="mt-0">
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
         <v-col
           class="xs"
           cols="12"
@@ -33,7 +37,11 @@
           />
         </v-col>
       </v-row>
-      <v-row dense no-gutters class="mt-0">
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
         <v-col
           class="xs"
           sm="12"
@@ -44,7 +52,11 @@
           />
         </v-col>
       </v-row>
-      <v-row dense no-gutters class="mt-0">
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
         <v-col>
           <text-input
             label="passphrase"
@@ -53,7 +65,11 @@
           />
         </v-col>
       </v-row>
-      <v-row dense no-gutters class="mt-0">
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
         <v-col>
           <keyfile-output
             label="public key"
@@ -67,7 +83,11 @@
       title="Commit Options"
       subtitle="Options for how Tome should handle or react to Commit operations"
     >
-      <v-row dense no-gutters class="mt-0">
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
         <v-col
           class="xs"
           cols="12"
@@ -79,7 +99,11 @@
           />
         </v-col>
       </v-row>
-      <v-row dense no-gutters class="mt-0">
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
         <v-col>
           <text-input
             label="default remote"
@@ -96,10 +120,19 @@
     >
       <v-row dense>
         <v-col class="mx-2">
-          <v-btn block @click="edit_theme">Theme Editor</v-btn>
+          <v-btn
+            block
+            @click="edit_theme"
+          >
+            Theme Editor
+          </v-btn>
         </v-col>
       </v-row>
-      <v-row dense no-gutters class="mt-0">
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
         <v-col>
           <boolean-input
             label="Dark Mode"
@@ -108,7 +141,11 @@
           />
         </v-col>
       </v-row>
-      <v-row dense no-gutters class="mt-0">
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
         <v-col>
           <boolean-input
             label="Format Titles"
@@ -167,14 +204,11 @@ import KeyfileOutput from './KeyfileOutput.vue'
 import SeaGame from './SeaGame.vue'
 import BooleanInput from './Settings/BooleanInput.vue'
 import TextInput from './Settings/TextInput.vue'
-import ThemeColorPicker from './Settings/ThemeColorPicker.vue'
-import ThemePreview from './Settings/ThemePreview.vue'
 import UtilityPage from './UtilityPage.vue'
 import {
   VBtn,
   VCard,
   VCol,
-  VContainer,
   VDivider,
   VRow,
 } from 'vuetify/components'
@@ -186,13 +220,10 @@ export default {
     KeyfileOutput,
     SeaGame,
     TextInput,
-    ThemeColorPicker,
-    ThemePreview,
     UtilityPage,
     VBtn,
     VCard,
     VCol,
-    VContainer,
     VDivider,
     VRow,
   },
@@ -208,8 +239,6 @@ const store = fetchStore()
 
 const configuration = computed(() => store.state.configuration)
 const system = computed(() => store.state.system)
-
-const theme = computed(() => configuration.value.dark_mode ? 'dark' : 'light')
 
 async function close () {
   await store.dispatch('system/settings', false)

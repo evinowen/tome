@@ -65,7 +65,8 @@
     "vite-plugin-vuetify": "^1.0.2",
     "vue": "^3.3.4",
     "vuetify": "^3.4.3",
-    "vuex": "^4.1.0"
+    "vuex": "^4.1.0",
+    "zod": "^3.23.4"
   },
   "devDependencies": {
     "@electron/notarize": "^1.2.1",

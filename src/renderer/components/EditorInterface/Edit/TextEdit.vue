@@ -2,6 +2,10 @@
   <div
     ref="root"
     class="root"
+    :style="{
+      '--font-family': theme.font_family_editor || 'monospace',
+      '--font-size': `${theme.font_size_editor || 1}em`,
+    }"
     @contextmenu="contextmenu"
   />
 </template>
@@ -14,19 +18,19 @@ export default {}
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { fetchStore, File } from '@/store'
+import { tags } from '@lezer/highlight'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
-import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language'
+import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { Compartment, EditorSelection, Extension, RangeSetBuilder, EditorState } from '@codemirror/state'
 import { SearchCursor, RegExpCursor } from '@codemirror/search'
 import { Decoration, EditorView, keymap, lineNumbers, ViewPlugin } from '@codemirror/view'
 import { markdown } from '@codemirror/lang-markdown'
 import { javascript } from '@codemirror/lang-javascript'
-import { oneDark } from '@codemirror/theme-one-dark'
 import { debounce } from 'lodash'
 
 const store = fetchStore()
 
-export interface Properties {
+interface Properties {
   file?: File
 }
 
@@ -37,6 +41,7 @@ const properties = withDefaults(defineProps<Properties>(), {
 const root = ref<HTMLElement>(undefined)
 
 interface Compartments {
+  syntax: Compartment
   language: Compartment
   line_numbers: Compartment
   tabs: Compartment
@@ -46,6 +51,7 @@ interface Compartments {
 }
 
 const compartments: Compartments = {
+  syntax: new Compartment(),
   language: new Compartment(),
   line_numbers: new Compartment(),
   tabs: new Compartment(),
@@ -68,8 +74,6 @@ const theme_light_mode: Extension = EditorView.baseTheme({
   },
 })
 
-const theme_dark_mode: Extension = oneDark
-
 const updated = ref(0)
 let view: EditorView
 
@@ -80,6 +84,23 @@ const line_numbers = computed((): boolean => {
 const dark_mode = computed((): boolean => {
   return store.state.configuration.dark_mode
 })
+
+const theme = computed(() => {
+  return store.state.configuration.dark_mode
+    ? store.state.configuration.themes.dark.compose
+    : store.state.configuration.themes.light.compose
+})
+
+const syntax_definition = computed(() => [
+  { tag: tags.heading1, color: theme.value.header_1, textDecoration: 'underline' },
+  { tag: tags.heading2, color: theme.value.header_2, textDecoration: 'underline' },
+  { tag: tags.heading3, color: theme.value.header_3, textDecoration: 'underline' },
+  { tag: tags.heading4, color: theme.value.header_4, textDecoration: 'underline' },
+  { tag: tags.heading5, color: theme.value.header_5, textDecoration: 'underline' },
+  { tag: tags.heading6, color: theme.value.header_6, textDecoration: 'underline' },
+  { tag: tags.content, color: theme.value.content },
+  { tag: tags.link, color: theme.value.anchor, textDecoration: 'underline' },
+])
 
 const search = computed(() => {
   return store.state.search
@@ -101,10 +122,12 @@ function configure_line_numbers () {
   })
 }
 
-watch(dark_mode, configure_dark_mode)
-function configure_dark_mode () {
+watch(syntax_definition, configure_syntax_definition)
+function configure_syntax_definition () {
+  const extension = syntaxHighlighting(HighlightStyle.define(syntax_definition.value))
+
   view.dispatch({
-    effects: compartments.theme.reconfigure(dark_mode.value ? theme_dark_mode : theme_light_mode),
+    effects: [ compartments.syntax.reconfigure(extension) ],
   })
 }
 
@@ -191,7 +214,7 @@ onMounted(() => {
         ...historyKeymap,
         indentWithTab,
       ]),
-      syntaxHighlighting(defaultHighlightStyle),
+      compartments.syntax.of([]),
       compartments.language.of([]),
       compartments.line_numbers.of([]),
       compartments.theme.of([]),
@@ -202,7 +225,7 @@ onMounted(() => {
   })
 
   configure_line_numbers()
-  configure_dark_mode()
+  configure_syntax_definition()
   select()
 
   load(properties.file)
@@ -414,5 +437,20 @@ defineExpose({
 .root :deep(.cm-editor) {
   height: 100%;
   width: 100%;
+  background-color: rgb(var(--v-theme-compose-background));
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+}
+
+.root :deep(.cm-scroller) {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+}
+
+.root :deep(.cm-gutters) {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  background-color: rgb(var(--v-theme-compose-gutters));
+  color: rgb(var(--v-theme-compose-line-numbers));
 }
 </style>

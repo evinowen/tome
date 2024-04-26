@@ -18,7 +18,7 @@
       class="flex-grow-0 pa-1"
     >
       <v-btn
-        ref="clear-button"
+        ref="obscure-button"
         rounded="0"
         icon
         :disabled="value === ''"

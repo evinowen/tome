@@ -31,18 +31,14 @@
 <script lang="ts">
 import {
   VBtn,
-  VCol,
   VIcon,
-  VLayout,
   VTextField,
 } from 'vuetify/components'
 
 export default {
   components: {
     VBtn,
-    VCol,
     VIcon,
-    VLayout,
     VTextField,
   },
 }
@@ -53,7 +49,7 @@ import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-export interface Properties {
+interface Properties {
   label?: string
   small?: boolean
   value: string
@@ -75,7 +71,7 @@ defineExpose({
 </script>
 
 <style scoped>
-.key-output {
-  font-family: monospace !important;
+.key-output :deep(input) {
+  font-family: var(--font-monospace), monospace !important;
 }
 </style>

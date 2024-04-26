@@ -119,6 +119,7 @@ defineExpose({
 
 <style scoped>
 .v-system-bar {
+  font-family: var(--font-title);
   -webkit-app-region: drag;
 }
 

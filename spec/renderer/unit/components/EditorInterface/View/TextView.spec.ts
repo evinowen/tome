@@ -2,6 +2,7 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { stub_actions } from '?/builders/store'
+import BasicComponentStub from '?/stubs/BasicComponentStub'
 import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as ActionsStateDefaults } from '@/store/modules/actions'
@@ -18,10 +19,6 @@ vi.mock('mark.js', () => {
   return { default: Mark }
 })
 
-vi.mock('marked', () => ({
-  marked: { parse: vi.fn() },
-}))
-
 describe('components/EditorInterface/View/TextView', () => {
   const file = File.Empty
   let store
@@ -30,6 +27,9 @@ describe('components/EditorInterface/View/TextView', () => {
     .context(() => ({
       global: {
         plugins: [ [ store, key ] ],
+        stubs: {
+          RenderedViewport: BasicComponentStub,
+        },
       },
     }))
 

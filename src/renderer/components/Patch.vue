@@ -8,7 +8,7 @@
     @close="close"
   >
     <div class="flex-grow-0">
-      <div style="clear: both; font-size: 1.15em; font-family: 'Courier New', Courier, monospace; margin-bottom: 6px">
+      <div class="patch-message">
         {{ repository.patches_message }}
       </div>
     </div>
@@ -27,7 +27,7 @@
       >
         <v-card
           dense
-          style="font-family: monospace; overflow: auto;"
+          class="patch-content"
         >
           <v-card-title class="pa-2">
             {{ file.name }}
@@ -149,5 +149,19 @@ pre {
   font-size: 1.3em;
   text-align: center;
   opacity: 0.4;
+}
+
+.patch-content {
+  clear: both;
+  font-size: 1.15em;
+  font-family: var(--font-monospace), monospace !important;
+  font-size: var(--font-monospace-size);
+  margin-bottom: 6px;
+}
+
+.patch-message {
+  font-family: var(--font-monospace), monospace !important;
+  font-size: var(--font-monospace-size);
+  overflow: auto;
 }
 </style>

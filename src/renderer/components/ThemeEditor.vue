@@ -6,112 +6,78 @@
     :open="system.theme_editor"
     @close="close"
   >
-    <theme-preview />
-    <v-row dense>
-      <v-col>
-        <v-container>
-          <v-row dense>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="background"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="surface"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="primary"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="secondary"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="accent"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="error"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="info"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="success"
-              />
-            </v-col>
-            <v-col>
-              <theme-color-picker
-                :theme="theme"
-                color="warning"
-              />
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-col>
-    </v-row>
+    <v-tabs
+      v-model="tab"
+      align-tabs="center"
+      stacked
+    >
+      <v-tab value="application">
+        <v-icon>mdi-application-outline</v-icon>
+        Application
+      </v-tab>
+      <v-tab value="rendered">
+        <v-icon>mdi-note-text</v-icon>
+        Rendered
+      </v-tab>
+      <v-tab value="compose">
+        <v-icon>mdi-note-edit</v-icon>
+        Compose
+      </v-tab>
+    </v-tabs>
+    <v-window
+      v-model="tab"
+      class="flex-grow-1"
+    >
+      <v-window-item value="application">
+        <application-theme-editor />
+      </v-window-item>
+      <v-window-item value="rendered">
+        <rendered-theme-editor />
+      </v-window-item>
+      <v-window-item value="compose">
+        <compose-theme-editor />
+      </v-window-item>
+    </v-window>
   </utility-page>
 </template>
 
 <script lang="ts">
-import KeyfileInput from './Settings/KeyfileInput.vue'
-import KeyfileOutput from './KeyfileOutput.vue'
-import SeaGame from './SeaGame.vue'
-import BooleanInput from './Settings/BooleanInput.vue'
-import TextInput from './Settings/TextInput.vue'
-import ThemeColorPicker from './Settings/ThemeColorPicker.vue'
-import ThemePreview from './Settings/ThemePreview.vue'
+import ApplicationThemeEditor from './ThemeEditor/Sections/ApplicationThemeEditor.vue'
+import RenderedThemeEditor from './ThemeEditor/Sections/RenderedThemeEditor.vue'
+import ComposeThemeEditor from './ThemeEditor/Sections/ComposeThemeEditor.vue'
 import UtilityPage from './UtilityPage.vue'
 import {
-  VBtn,
-  VCard,
-  VCol,
-  VContainer,
-  VDivider,
-  VRow,
+  VIcon,
+  VTab,
+  VTabs,
+  VWindow,
+  VWindowItem,
 } from 'vuetify/components'
 
 export default {
   components: {
-    ThemeColorPicker,
-    ThemePreview,
+    ApplicationThemeEditor,
+    RenderedThemeEditor,
+    ComposeThemeEditor,
     UtilityPage,
-    VCol,
-    VContainer,
-    VRow,
+    VIcon,
+    VTab,
+    VTabs,
+    VWindow,
+    VWindowItem,
   },
 }
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-const configuration = computed(() => store.state.configuration)
-const system = computed(() => store.state.system)
+const tab = ref<string>('interface')
 
-const theme = computed(() => configuration.value.dark_mode ? 'dark' : 'light')
+const system = computed(() => store.state.system)
 
 async function close () {
   await store.dispatch('system/theme_editor', false)
@@ -123,6 +89,22 @@ defineExpose({
 </script>
 
 <style scoped>
+:deep(.v-color-picker) {
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.v-color-picker-canvas) {
+  flex-grow: 1;
+  flex-shrink: 0;
+  height: 256px;
+}
+
+:deep(v-color-picker__controls) {
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
 .tome-badge {
   display: flex;
   background: rgba(0, 0, 0, 0.2);

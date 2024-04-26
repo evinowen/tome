@@ -21,6 +21,8 @@ const store = { state: {}, dispatch: vi.fn() }
 const key = '1234'
 vi.doMock('@/store', () => ({ store, key }))
 
+vi.doMock('@/fonts', () => ({ hydrate: vi.fn() }))
+
 const vuetify = {}
 vi.doMock('@/vuetify', () => ({ default: vuetify }))
 

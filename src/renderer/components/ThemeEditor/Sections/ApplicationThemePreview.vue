@@ -15,7 +15,7 @@
             </v-avatar>
           </template>
           <v-list-item-title class="text-h5">
-            Theme Preview
+            <span class="title">Theme Preview</span>
           </v-list-item-title>
           <v-list-item-subtitle>Et tortor consequat id porta nibh venenatis cras.</v-list-item-subtitle>
         </v-list-item>

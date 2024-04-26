@@ -202,7 +202,7 @@ defineExpose({
 
 <style scoped>
 .commit {
-  font-family: monospace;
+  font-family: var(--font-monospace), monospace !important;
   min-height: 120px;
   padding: 0 !important;
   font-size: 18px;
@@ -219,7 +219,7 @@ defineExpose({
 }
 
 .author {
-  font-family: monospace;
+  font-family: var(--font-monospace), monospace !important;
   font-size: 1.2em;
 }
 </style>

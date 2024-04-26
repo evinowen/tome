@@ -107,20 +107,6 @@ describe('store/modules/configuration', () => {
       'public_key',
       'passphrase',
       'default_remote',
-      'light_primary',
-      'light_secondary',
-      'light_accent',
-      'light_error',
-      'light_info',
-      'light_warning',
-      'light_success',
-      'dark_primary',
-      'dark_secondary',
-      'dark_accent',
-      'dark_error',
-      'dark_info',
-      'dark_warning',
-      'dark_success',
     ]
 
     for (const key of string_keys) {
@@ -138,20 +124,6 @@ describe('store/modules/configuration', () => {
       'format_titles',
       'dark_mode',
       'auto_push',
-      'light_primary_enabled',
-      'light_secondary_enabled',
-      'light_accent_enabled',
-      'light_error_enabled',
-      'light_info_enabled',
-      'light_warning_enabled',
-      'light_success_enabled',
-      'dark_primary_enabled',
-      'dark_secondary_enabled',
-      'dark_accent_enabled',
-      'dark_error_enabled',
-      'dark_info_enabled',
-      'dark_warning_enabled',
-      'dark_success_enabled',
     ]
 
     for (const key of boolean_keys) {

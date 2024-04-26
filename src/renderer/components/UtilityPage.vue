@@ -13,10 +13,10 @@
     <div class="title-box mb-2">
       <div class="title">
         <div class="text-h6 text-sm-h5 text-md-h4">
-          {{ title }}
+          <span class="title">{{ title }}</span>
         </div>
         <div class="text-subtitle-1">
-          {{ subtitle }}
+          <span class="title">{{ subtitle }}</span>
         </div>
       </div>
       <v-btn
@@ -29,7 +29,10 @@
       </v-btn>
     </div>
     <div :class="['mb-2', 'content', fixed ? 'fixed' : undefined ]">
-      <div class="d-flex flex-column" style="min-height: 100%">
+      <div
+        class="d-flex flex-column"
+        style="min-height: 100%"
+      >
         <div class="flex-grow-1 flex-shrink-0">
           <slot />
         </div>
