@@ -167,6 +167,33 @@
           />
         </v-col>
       </v-row>
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
+        <v-col>
+          <option-input
+            label="Explorer Position"
+            detail="Dock the file explorer on the left or the right"
+            index="explorer_position"
+            :options="explorer_position_options"
+          />
+        </v-col>
+      </v-row>
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
+        <v-col>
+          <number-input
+            label="Explorer Width"
+            detail="Specify the width of the file explorer"
+            index="explorer_width"
+          />
+        </v-col>
+      </v-row>
     </v-card>
     <template #footer>
       <v-divider class="my-2" />
@@ -212,12 +239,14 @@
 </template>
 
 <script lang="ts">
+import BooleanInput from './Settings/BooleanInput.vue'
+import NumberInput from './Settings/NumberInput.vue'
+import OptionInput, { Option } from './Settings/OptionInput.vue'
 import KeyfileInput from './Settings/KeyfileInput.vue'
 import KeyfileOutput from './KeyfileOutput.vue'
-import SeaGame from './SeaGame.vue'
-import BooleanInput from './Settings/BooleanInput.vue'
 import TextInput from './Settings/TextInput.vue'
 import UtilityPage from './UtilityPage.vue'
+import SeaGame from './SeaGame.vue'
 import {
   VBtn,
   VCard,
@@ -226,9 +255,15 @@ import {
   VRow,
 } from 'vuetify/components'
 
+const explorer_position_options = [
+  { value: 'left', icon: 'mdi-dock-left' },
+  { value: 'right', icon: 'mdi-dock-right' },
+] as Option[]
+
 export default {
   components: {
     BooleanInput,
+    OptionInput,
     KeyfileInput,
     KeyfileOutput,
     SeaGame,

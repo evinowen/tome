@@ -1,6 +1,10 @@
 <template>
-  <split-pane>
-    <template #left>
+  <split-pane
+    :docked="explorer_position"
+    :docked_width="explorer_width"
+    @resize="update_explorer_width"
+  >
+    <template #docked>
       <div
         class="pane"
         style="overflow-y: overlay;"
@@ -12,7 +16,7 @@
       </div>
     </template>
 
-    <template #right>
+    <template #dynamic>
       <div
         v-show="active"
         class="pane"
@@ -66,6 +70,18 @@ const system = computed(() => {
 const explore = computed(() => {
   return !(store.state.system.commit || store.state.system.push)
 })
+
+const explorer_position = computed(() => {
+  return store.state.configuration.explorer_position
+})
+
+const explorer_width = computed(() => {
+  return store.state.configuration.explorer_width
+})
+
+async function update_explorer_width (value) {
+  await store.dispatch('configuration/update', { explorer_width: value })
+}
 
 watch(active, (value) => {
   value === ''

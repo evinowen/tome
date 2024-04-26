@@ -20,6 +20,9 @@ export const Schema = z.object({
   dark_mode: z.boolean().optional(),
   line_numbers: z.boolean().optional(),
 
+  explorer_width: z.number().optional(),
+  explorer_position: z.string().optional(),
+
   themes: ThemesSchema.optional(),
 })
 
@@ -38,6 +41,9 @@ export interface State {
   dark_mode: boolean
   line_numbers: boolean
 
+  explorer_position: string
+  explorer_width: number
+
   themes?: ThemesState
 }
 
@@ -55,6 +61,9 @@ export const StateDefaults = (): State => ({
   format_titles: true,
   dark_mode: false,
   line_numbers: false,
+
+  explorer_position: 'left',
+  explorer_width: 320,
 })
 
 export default {
