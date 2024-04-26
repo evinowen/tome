@@ -120,19 +120,31 @@ onMounted(() => {
   view = new EditorView({
     extensions: [
       compartments.syntax.of([]),
-      compartments.language.of(markdown()),
-      compartments.line_numbers.of(lineNumbers()),
+      compartments.language.of([]),
+      compartments.line_numbers.of([]),
       compartments.theme.of(theme_light_mode),
     ],
     parent: root.value,
   })
 
-  refresh_syntax_definition()
-  refresh_content()
+  configure_line_numbers()
+  configure_syntax_definition()
+  configure_content()
 })
 
-watch(syntax_definition, refresh_syntax_definition)
-function refresh_syntax_definition () {
+const line_numbers = computed((): boolean => {
+  return store.state.configuration.line_numbers
+})
+
+watch(line_numbers, configure_line_numbers)
+function configure_line_numbers () {
+  view.dispatch({
+    effects: compartments.line_numbers.reconfigure(line_numbers.value ? lineNumbers() : []),
+  })
+}
+
+watch(syntax_definition, configure_syntax_definition)
+function configure_syntax_definition () {
   const extension = syntaxHighlighting(HighlightStyle.define(syntax_definition.value))
 
   view.dispatch({
@@ -140,8 +152,8 @@ function refresh_syntax_definition () {
   })
 }
 
-watch(content, refresh_content)
-function refresh_content () {
+watch(content, configure_content)
+function configure_content () {
   let extension: Extension = []
   switch (language.value) {
     case 'markdown':

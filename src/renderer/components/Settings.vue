@@ -154,6 +154,19 @@
           />
         </v-col>
       </v-row>
+      <v-row
+        dense
+        no-gutters
+        class="mt-0"
+      >
+        <v-col>
+          <boolean-input
+            label="Line Numbers"
+            detail="Display line numbers in the composition view while editing documents"
+            index="line_numbers"
+          />
+        </v-col>
+      </v-row>
     </v-card>
     <template #footer>
       <v-divider class="my-2" />

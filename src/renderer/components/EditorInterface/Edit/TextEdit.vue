@@ -78,11 +78,7 @@ const updated = ref(0)
 let view: EditorView
 
 const line_numbers = computed((): boolean => {
-  return store.state.configuration.dark_mode
-})
-
-const dark_mode = computed((): boolean => {
-  return store.state.configuration.dark_mode
+  return store.state.configuration.line_numbers
 })
 
 const theme = computed(() => {

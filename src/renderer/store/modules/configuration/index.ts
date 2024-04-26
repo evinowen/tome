@@ -8,13 +8,17 @@ import themes, { Schema as ThemesSchema, State as ThemesState } from './themes'
 export const Schema = z.object({
   name: z.string().optional(),
   email: z.string().optional(),
+
   private_key: z.string().optional(),
   public_key: z.string().optional(),
   passphrase: z.string().optional(),
+
+  default_remote: z.string().optional(),
+  auto_push: z.boolean().optional(),
+
   format_titles: z.boolean().optional(),
   dark_mode: z.boolean().optional(),
-  auto_push: z.boolean().optional(),
-  default_remote: z.string().optional(),
+  line_numbers: z.boolean().optional(),
 
   themes: ThemesSchema.optional(),
 })
@@ -22,13 +26,17 @@ export const Schema = z.object({
 export interface State {
   name: string
   email: string
+
   private_key: string
   public_key: string
   passphrase: string
+
+  default_remote: string
+  auto_push: boolean
+
   format_titles: boolean
   dark_mode: boolean
-  auto_push: boolean
-  default_remote: string
+  line_numbers: boolean
 
   themes?: ThemesState
 }
@@ -36,13 +44,17 @@ export interface State {
 export const StateDefaults = (): State => ({
   name: '',
   email: '',
+
   private_key: '',
   public_key: '',
   passphrase: '',
+
+  default_remote: 'origin',
+  auto_push: false,
+
   format_titles: true,
   dark_mode: false,
-  auto_push: false,
-  default_remote: 'origin',
+  line_numbers: false,
 })
 
 export default {
