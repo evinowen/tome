@@ -116,6 +116,11 @@
         detail="Specify the width of the file explorer"
         index="explorer_width"
       />
+      <number-input
+        label="Resize Control Width"
+        detail="Specify the width of the control bar that resizes file explorer and viewport"
+        index="resize_width"
+      />
     </v-card>
     <template #footer>
       <v-divider class="my-2" />

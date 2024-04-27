@@ -18,6 +18,7 @@
     </div>
     <div
       class="pane-control"
+      :style="{ width: `${resize_width}px` }"
       @mousedown="resize_start"
     />
 
@@ -36,11 +37,13 @@ import { debounce } from 'lodash'
 interface Properties {
   docked: string
   docked_width: number
+  resize_width: number
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
   docked: 'left',
   docked_width: 320,
+  resize_width: 3,
 })
 
 const emit = defineEmits([
