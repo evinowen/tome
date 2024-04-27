@@ -420,7 +420,7 @@ async function contextmenu (event) {
 }
 
 function drag_start (event) {
-  if (system.value) {
+  if (system.value || !store.state.configuration.draggable_objects) {
     event.preventDefault()
     return
   }

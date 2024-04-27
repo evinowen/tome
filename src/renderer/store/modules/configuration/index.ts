@@ -18,6 +18,7 @@ export const Schema = z.object({
 
   format_titles: z.boolean().optional(),
   system_objects: z.boolean().optional(),
+  draggable_objects: z.boolean().optional(),
   dark_mode: z.boolean().optional(),
   line_numbers: z.boolean().optional(),
 
@@ -40,6 +41,7 @@ export interface State {
 
   format_titles: boolean
   system_objects: boolean
+  draggable_objects: boolean
   dark_mode: boolean
   line_numbers: boolean
 
@@ -62,6 +64,7 @@ export const StateDefaults = (): State => ({
 
   format_titles: true,
   system_objects: false,
+  draggable_objects: true,
   dark_mode: false,
   line_numbers: false,
 

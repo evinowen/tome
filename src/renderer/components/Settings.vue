@@ -69,7 +69,7 @@
     <v-divider class="py-2" />
     <v-card
       color="surface"
-      title="Display Options"
+      title="Interface Options"
       subtitle="Interface display and interaction options"
     >
       <div class="ma-1">
@@ -94,6 +94,11 @@
         label="System Objects"
         detail="Display system files and directories in explorer, such as the .git and .tome directories"
         index="system_objects"
+      />
+      <boolean-input
+        label="Drag + Drop"
+        detail="Enable dragging of files and folders to new parent directories"
+        index="draggable_objects"
       />
       <boolean-input
         label="Line Numbers"
