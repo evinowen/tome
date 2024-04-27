@@ -1,4 +1,4 @@
-import { z, ZodError } from 'zod'
+import { z } from 'zod'
 import { MutationTree, ActionTree } from 'vuex'
 import vuetify, { presets } from '@/vuetify'
 import api from '@/api'
@@ -17,6 +17,7 @@ export const Schema = z.object({
   auto_push: z.boolean().optional(),
 
   format_titles: z.boolean().optional(),
+  system_objects: z.boolean().optional(),
   dark_mode: z.boolean().optional(),
   line_numbers: z.boolean().optional(),
 
@@ -38,6 +39,7 @@ export interface State {
   auto_push: boolean
 
   format_titles: boolean
+  system_objects: boolean
   dark_mode: boolean
   line_numbers: boolean
 
@@ -59,6 +61,7 @@ export const StateDefaults = (): State => ({
   auto_push: false,
 
   format_titles: true,
+  system_objects: false,
   dark_mode: false,
   line_numbers: false,
 

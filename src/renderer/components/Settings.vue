@@ -91,6 +91,11 @@
         index="format_titles"
       />
       <boolean-input
+        label="System Objects"
+        detail="Display system files and directories in explorer, such as the .git and .tome directories"
+        index="system_objects"
+      />
+      <boolean-input
         label="Line Numbers"
         detail="Display line numbers in the composition view while editing documents"
         index="line_numbers"
