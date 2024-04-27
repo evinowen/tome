@@ -70,6 +70,7 @@ export default {
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { fetchStore } from '@/store'
+import { debounce } from 'lodash'
 
 const store = fetchStore()
 
@@ -97,17 +98,19 @@ async function select (event) {
     return
   }
 
-  await update(file.path)
+  await debounce_update(file.path)
   input.value.value = ''
 }
 
 async function clear () {
-  await update('')
+  await debounce_update('')
 }
 
 async function update (path) {
   await store.dispatch('configuration/update', { [properties.index]: path })
 }
+
+const debounce_update = debounce(update, 300)
 
 async function generate () {
   await store.dispatch('configuration/generate', passphrase.value)

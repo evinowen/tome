@@ -10,7 +10,7 @@
         :label="label"
         :model-value="value"
         :type="(obscureable && obscured) ? 'password' : 'text'"
-        @update:model-value="update"
+        @update:model-value="debounce_update"
       />
     </div>
     <div
@@ -52,6 +52,7 @@ export default {
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { fetchStore } from '@/store'
+import { debounce } from 'lodash'
 
 const store = fetchStore()
 
@@ -75,36 +76,10 @@ async function update (value: string) {
   await store.dispatch('configuration/update', { [properties.index]: value })
 }
 
+const debounce_update = debounce(update, 500)
+
 defineExpose({
   update,
   obscured,
 })
 </script>
-
-<style scoped>
-.tome-badge {
-  display: flex;
-  background: rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-  margin: auto;
-  width: 200px;
-  padding: 6px;
-  text-align: center;
-}
-
-.tome-badge-logo {
-  flex-grow: 0;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.tome-badge-data {
-  display: flex;
-  flex-grow: 1;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-</style>

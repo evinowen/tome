@@ -37,80 +37,34 @@
           />
         </v-col>
       </v-row>
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col
-          class="xs"
-          sm="12"
-        >
-          <keyfile-input
-            label="private key"
-            index="private_key"
-          />
-        </v-col>
-      </v-row>
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col>
-          <text-input
-            label="passphrase"
-            index="passphrase"
-            obscureable
-          />
-        </v-col>
-      </v-row>
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col>
-          <keyfile-output
-            label="public key"
-            :value="configuration.public_key"
-          />
-        </v-col>
-      </v-row>
+      <keyfile-input
+        label="private key"
+        index="private_key"
+      />
+      <text-input
+        label="passphrase"
+        index="passphrase"
+        obscureable
+      />
+      <keyfile-output
+        label="public key"
+        :value="configuration.public_key"
+      />
     </v-card>
     <v-divider class="py-2" />
     <v-card
       title="Commit Options"
       subtitle="Options for how Tome should handle or react to Commit operations"
     >
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col
-          class="xs"
-          cols="12"
-        >
-          <boolean-input
-            label="Automatic Push"
-            detail="Push commits to the defined default remote once a commit is created"
-            index="auto_push"
-          />
-        </v-col>
-      </v-row>
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col>
-          <text-input
-            label="default remote"
-            index="default_remote"
-          />
-        </v-col>
-      </v-row>
+      <boolean-input
+        label="Automatic Push"
+        detail="Push commits to the defined default remote once a commit is created"
+        index="auto_push"
+      />
+      <text-input
+        label="default remote"
+        index="default_remote"
+      />
     </v-card>
     <v-divider class="py-2" />
     <v-card
@@ -118,82 +72,40 @@
       title="Display Options"
       subtitle="Interface display and interaction options"
     >
-      <v-row dense>
-        <v-col class="mx-2">
-          <v-btn
-            block
-            @click="edit_theme"
-          >
-            Theme Editor
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col>
-          <boolean-input
-            label="Dark Mode"
-            detail="Use a dark color scheme to reduce brightness level of the interface"
-            index="dark_mode"
-          />
-        </v-col>
-      </v-row>
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col>
-          <boolean-input
-            label="Format Titles"
-            detail="Display entry titles as formatted, with underscores replaced with spaces and each word capitalized"
-            index="format_titles"
-          />
-        </v-col>
-      </v-row>
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col>
-          <boolean-input
-            label="Line Numbers"
-            detail="Display line numbers in the composition view while editing documents"
-            index="line_numbers"
-          />
-        </v-col>
-      </v-row>
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col>
-          <option-input
-            label="Explorer Position"
-            detail="Dock the file explorer on the left or the right"
-            index="explorer_position"
-            :options="explorer_position_options"
-          />
-        </v-col>
-      </v-row>
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col>
-          <number-input
-            label="Explorer Width"
-            detail="Specify the width of the file explorer"
-            index="explorer_width"
-          />
-        </v-col>
-      </v-row>
+      <div class="ma-1">
+        <v-btn
+          block
+          @click="edit_theme"
+        >
+          Theme Editor
+        </v-btn>
+      </div>
+      <boolean-input
+        label="Dark Mode"
+        detail="Use a dark color scheme to reduce brightness level of the interface"
+        index="dark_mode"
+      />
+      <boolean-input
+        label="Format Titles"
+        detail="Display entry titles as formatted, with underscores replaced with spaces and each word capitalized"
+        index="format_titles"
+      />
+      <boolean-input
+        label="Line Numbers"
+        detail="Display line numbers in the composition view while editing documents"
+        index="line_numbers"
+      />
+      <option-input
+        label="Explorer Position"
+        detail="Dock the file explorer on the left or the right"
+        index="explorer_position"
+        :options="explorer_position_options"
+      />
+      <number-input
+        label="Explorer Width"
+        detail="Specify the width of the file explorer"
+        index="explorer_width"
+      />
     </v-card>
     <template #footer>
       <v-divider class="my-2" />

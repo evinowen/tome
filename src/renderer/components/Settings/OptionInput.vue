@@ -1,31 +1,27 @@
 <template>
-  <div class="d-flex key-border align-center">
-    <div class="flex-shrink-0 pa-1">
-      <v-btn-toggle
-        :model-value="value"
-        mandatory
-        @update:model-value="debounce_update"
+  <setting-frame
+    :label="label"
+    :detail="detail"
+  >
+    <v-btn-toggle
+      :model-value="value"
+      mandatory
+      @update:model-value="debounce_update"
+    >
+      <v-btn
+        v-for="option in options"
+        :key="option.value"
+        :value="option.value"
+        density="compact"
       >
-        <v-btn
-          v-for="option in options"
-          :key="option.value"
-          :value="option.value"
-          density="compact"
-        >
-          <v-icon>{{ option.icon }}</v-icon>
-        </v-btn>
-      </v-btn-toggle>
-    </div>
-    <div class="flex-shrink-0 pa-1">
-      <strong>{{ label }}</strong>
-    </div>
-    <div class="flex-grow-1 pa-1">
-      {{ detail }}
-    </div>
-  </div>
+        <v-icon>{{ option.icon }}</v-icon>
+      </v-btn>
+    </v-btn-toggle>
+  </setting-frame>
 </template>
 
 <script lang="ts">
+import SettingFrame from './SettingFrame.vue'
 import {
   VBtn,
   VBtnToggle,
@@ -39,6 +35,7 @@ export interface Option {
 
 export default {
   components: {
+    SettingFrame,
     VBtn,
     VBtnToggle,
     VIcon,
@@ -79,31 +76,3 @@ defineExpose({
   update,
 })
 </script>
-
-<style scoped>
-.tome-badge {
-  display: flex;
-  background: rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-  margin: auto;
-  width: 200px;
-  padding: 6px;
-  text-align: center;
-}
-
-.tome-badge-logo {
-  flex-grow: 0;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.tome-badge-data {
-  display: flex;
-  flex-grow: 1;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-</style>
