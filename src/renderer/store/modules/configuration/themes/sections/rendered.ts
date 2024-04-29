@@ -15,6 +15,9 @@ export const Schema = z.object({
   header_6: z.coerce.string().optional(),
   content: z.coerce.string().optional(),
   anchor: z.coerce.string().optional(),
+  selection: z.coerce.string().optional(),
+  highlight: z.coerce.string().optional(),
+  highlight_focus: z.coerce.string().optional(),
 })
 
 export interface State {
@@ -31,6 +34,9 @@ export interface State {
   header_6: string
   content: string
   anchor: string
+  selection: string
+  highlight: string
+  highlight_focus: string
 }
 
 export const StateDefaults = (): State => ({
@@ -47,6 +53,9 @@ export const StateDefaults = (): State => ({
   header_6: '',
   content: '',
   anchor: '',
+  selection: '',
+  highlight: '',
+  highlight_focus: '',
 })
 
 export default {

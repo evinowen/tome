@@ -83,4 +83,22 @@ const rendered = computed((): string => {
 .rendered :deep(h6) {
   color: rgb(var(--v-theme-rendered-header-6));
 }
+
+.rendered :deep(::selection) {
+  background-color: rgba(var(--v-theme-rendered-selection), 0.6) !important;
+  outline: 2px solid rgba(var(--v-theme-rendered-selection), 0.6);
+  color: rgb(var(--v-theme-on-rendered-selection));
+}
+
+.rendered :deep(.highlight-rendered) {
+  background-color: rgba(var(--v-theme-rendered-highlight), 0.6) !important;
+  outline: 2px solid rgba(var(--v-theme-rendered-highlight), 0.6);
+  color: rgb(var(--v-theme-on-rendered-highlight));
+}
+
+.rendered :deep(.highlight-rendered-target) {
+  background-color: rgb(var(--v-theme-rendered-highlight-focus)) !important;
+  outline: 2px solid rgb(var(--v-theme-rendered-highlight-focus));
+  color: rgb(var(--v-theme-on-rendered-highlight-focus));
+}
 </style>

@@ -10,8 +10,8 @@
         ref="root"
         class="root"
         :style="{
-          '--font-family': theme.font_family_editor || 'monospace',
-          '--font-size': `${theme.font_size_editor || 1}em`,
+          '--font-family-compose': theme.font_family_compose || 'monospace',
+          '--font-size-compose': `${theme.font_size_compose || 1}em`,
         }"
       />
     </v-sheet>
@@ -41,13 +41,14 @@ export default {
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
 import { fetchStore } from '@/store'
-import { tags } from '@lezer/highlight'
-import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
+import { syntaxHighlighting } from '@codemirror/language'
 import { Compartment, Extension } from '@codemirror/state'
 import { EditorView, lineNumbers } from '@codemirror/view'
 import { markdown } from '@codemirror/lang-markdown'
 import { javascript } from '@codemirror/lang-javascript'
 import { html } from '@codemirror/lang-html'
+import EditorTheme from '@/composer/EditorTheme'
+import HighlightStyleDefinition from '@/composer/HighlightStyleDefinition'
 
 import ExampleMarkdown from './Content/Example.md?raw'
 import ExampleJavaScript from './Content/Example.js?raw'
@@ -61,17 +62,6 @@ const theme = computed(() => {
     ? store.state.configuration.themes.dark.compose
     : store.state.configuration.themes.light.compose
 })
-
-const syntax_definition = computed(() => [
-  { tag: tags.heading1, color: theme.value.header_1, textDecoration: 'underline' },
-  { tag: tags.heading2, color: theme.value.header_2, textDecoration: 'underline' },
-  { tag: tags.heading3, color: theme.value.header_3, textDecoration: 'underline' },
-  { tag: tags.heading4, color: theme.value.header_4, textDecoration: 'underline' },
-  { tag: tags.heading5, color: theme.value.header_5, textDecoration: 'underline' },
-  { tag: tags.heading6, color: theme.value.header_6, textDecoration: 'underline' },
-  { tag: tags.content, color: theme.value.content },
-  { tag: tags.link, color: theme.value.anchor, textDecoration: 'underline' },
-])
 
 const content = computed(() => {
   switch (language.value) {
@@ -89,16 +79,6 @@ const content = computed(() => {
 const root = ref<HTMLElement>(undefined)
 let view: EditorView
 
-const theme_light_mode: Extension = EditorView.baseTheme({
-  '.highlight': {
-    backgroundColor: 'rgba(255, 0, 0, 0.2)',
-    outline: '2px solid rgba(255, 0, 0, 0.2)',
-  },
-  '.highlight-target': {
-    backgroundColor: 'rgba(255, 0, 0, 0.4)',
-    outline: '2px solid rgba(255, 0, 0, 0.4)',
-  },
-})
 
 interface Compartments {
   syntax: Compartment
@@ -119,16 +99,15 @@ const compartments: Compartments = {
 onMounted(() => {
   view = new EditorView({
     extensions: [
-      compartments.syntax.of([]),
+      compartments.syntax.of(syntaxHighlighting(HighlightStyleDefinition)),
       compartments.language.of([]),
       compartments.line_numbers.of([]),
-      compartments.theme.of(theme_light_mode),
+      compartments.theme.of(EditorTheme),
     ],
     parent: root.value,
   })
 
   configure_line_numbers()
-  configure_syntax_definition()
   configure_content()
 })
 
@@ -140,15 +119,6 @@ watch(line_numbers, configure_line_numbers)
 function configure_line_numbers () {
   view.dispatch({
     effects: compartments.line_numbers.reconfigure(line_numbers.value ? lineNumbers() : []),
-  })
-}
-
-watch(syntax_definition, configure_syntax_definition)
-function configure_syntax_definition () {
-  const extension = syntaxHighlighting(HighlightStyle.define(syntax_definition.value))
-
-  view.dispatch({
-    effects: [ compartments.syntax.reconfigure(extension) ],
   })
 }
 
@@ -188,20 +158,5 @@ function configure_content () {
 .root :deep(.cm-editor) {
   height: 100%;
   width: 100%;
-  background-color: rgb(var(--v-theme-compose-background));
-  font-family: var(--font-family);
-  font-size: var(--font-size);
-}
-
-.root :deep(.cm-scroller) {
-  font-family: var(--font-family);
-  font-size: var(--font-size);
-}
-
-.root :deep(.cm-gutters) {
-  font-family: var(--font-family);
-  font-size: var(--font-size);
-  background-color: rgb(var(--v-theme-compose-gutters));
-  color: rgb(var(--v-theme-compose-line-numbers));
 }
 </style>

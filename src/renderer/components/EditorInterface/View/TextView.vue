@@ -169,14 +169,4 @@ async function search_navigate () {
   padding: revert;
   margin: revert;
 }
-
-.highlight-rendered {
-  background-color: rgba(255, 255, 0, 0.2) !important;
-  outline: 2px solid rgba(255, 255, 0, 0.2);
-}
-
-.highlight-rendered-target {
-  background-color: rgba(255, 255, 0, 0.4) !important;
-  outline: 2px solid rgba(255, 255, 0, 0.4);
-}
 </style>

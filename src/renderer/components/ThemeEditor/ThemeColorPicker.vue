@@ -29,6 +29,7 @@
         sm="5"
         md="4"
         lg="3"
+        style="max-height: 480px; overflow-y: auto;"
       >
         <v-list
           mandatory

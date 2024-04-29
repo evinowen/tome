@@ -39,5 +39,8 @@ const colors: Color[] = [
   { label: 'Header VI', index: 'header_6' },
   { label: 'Content', index: 'content' },
   { label: 'Archor', index: 'anchor' },
+  { label: 'Selection', index: 'selection' },
+  { label: 'Highlight', index: 'highlight' },
+  { label: 'Highlight Focused', index: 'highlight_focus' },
 ]
 </script>
