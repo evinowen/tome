@@ -213,7 +213,7 @@ jobs:
 
   build_on_macos:
     needs: [ version_validation ]
-    runs-on: macOS-latest
+    runs-on: macos-13
     steps:
     - name: Load Target Package Version
       run: |
