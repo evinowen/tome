@@ -3,25 +3,21 @@
     :label="label"
     :detail="detail"
   >
-    <v-switch
-      class="mx-4"
-      hide-details
-      :model-value="value"
-      @update:model-value="debounce_update"
+    <toggle-switch
+      :value="value"
+      @input="debounce_update"
     />
   </setting-frame>
 </template>
 
 <script lang="ts">
 import SettingFrame from './SettingFrame.vue'
-import {
-  VSwitch,
-} from 'vuetify/components'
+import ToggleSwitch from '../ToggleSwitch.vue'
 
 export default {
   components: {
     SettingFrame,
-    VSwitch,
+    ToggleSwitch,
   },
 }
 </script>

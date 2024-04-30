@@ -48,15 +48,15 @@
             pharetra et ultrices neque ornare aenean euismod. Sem undefineda pharetra diam sit amet. Eu feugiat pretium nibh ipsum consequat.
           </p>
         </div>
-        <v-switch
+        <toggle-switch
           ref="error-switch"
-          :model-value="error"
-          density="compact"
+          :value="error"
+          :height="20"
+          :width="40"
+          inset
           class="mt-2"
           label="Error"
-          color="error"
-          hide-details
-          @update:model-value="error = !error"
+          @input="error = !error"
         />
       </v-card-text>
       <v-card-actions>
@@ -82,6 +82,7 @@
 </template>
 
 <script lang="ts">
+import ToggleSwitch from '@/components/ToggleSwitch.vue'
 import {
   VAvatar,
   VBtn,
@@ -94,12 +95,12 @@ import {
   VListItemTitle,
   VSheet,
   VSpacer,
-  VSwitch,
   VTextField,
 } from 'vuetify/components'
 
 export default {
   components: {
+    ToggleSwitch,
     VAvatar,
     VBtn,
     VCard,
@@ -111,7 +112,6 @@ export default {
     VListItemTitle,
     VSheet,
     VSpacer,
-    VSwitch,
     VTextField,
   },
 }
