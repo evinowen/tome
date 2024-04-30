@@ -5,7 +5,6 @@ import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import { StateDefaults as RenderedStateDefaults } from '@/store/modules/configuration/themes/sections/rendered'
-import { File } from '@/store/modules/files'
 import TextView from '@/components/RenderedViewport.vue'
 
 vi.mock('marked', () => ({

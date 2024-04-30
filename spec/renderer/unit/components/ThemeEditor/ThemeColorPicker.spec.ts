@@ -13,7 +13,6 @@ import ThemeColorPicker, { Color } from '@/components/ThemeEditor/ThemeColorPick
 describe('components/ThemeEditor/ThemeColorPicker', () => {
   let vuetify
   let store
-  let store_dispatch
 
   const section = 'application'
   const colors: Color[] = [
@@ -63,30 +62,4 @@ describe('components/ThemeEditor/ThemeColorPicker', () => {
     const wrapper = factory.wrap()
     expect(wrapper).toBeDefined()
   })
-
-  // it('should dispatch configuration/update with new enabled value when enabled switch emits model update', async () => {
-  //   const wrapper = factory.wrap()
-
-  //   const enabled_switch = wrapper.findComponent({ ref: 'enabled-switch' })
-  //   expect(enabled_switch.exists()).toBe(true)
-
-  //   const enabled = false
-  //   enabled_switch.vm.$emit('update:model-value', enabled)
-
-  //   const data = { [wrapper.vm.enabled_index]: enabled }
-  //   expect(store_dispatch).toHaveBeenCalledWith('configuration/update', data)
-  // })
-
-  // it('should dispatch configuration/update with new color value when color picker emits model update', async () => {
-  //   const wrapper = factory.wrap()
-
-  //   const color_picker = wrapper.findComponent({ ref: 'color-input' })
-  //   expect(color_picker.exists()).toBe(true)
-
-  //   const color = '#000000'
-  //   color_picker.vm.$emit('update:model-value', color)
-
-  //   const data = { [wrapper.vm.color_index]: color }
-  //   expect(store_dispatch).toHaveBeenCalledWith('configuration/update', data)
-  // })
 })

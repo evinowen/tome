@@ -79,7 +79,6 @@ const content = computed(() => {
 const root = ref<HTMLElement>(undefined)
 let view: EditorView
 
-
 interface Compartments {
   syntax: Compartment
   language: Compartment
