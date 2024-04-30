@@ -50,8 +50,6 @@ describe('components/ThemeEditor/ThemeColorPicker', () => {
         'configuration/update',
       ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {

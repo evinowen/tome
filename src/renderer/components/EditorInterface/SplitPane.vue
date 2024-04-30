@@ -35,9 +35,9 @@ import { ref, watch } from 'vue'
 import { debounce } from 'lodash'
 
 interface Properties {
-  docked: string
-  docked_width: number
-  resize_width: number
+  docked?: string
+  docked_width?: number
+  resize_width?: number
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
