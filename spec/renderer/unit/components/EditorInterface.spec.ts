@@ -5,6 +5,7 @@ import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import { StateDefaults as FilesStateDefaults, File } from '@/store/modules/files'
 import EditorInterface from '@/components/EditorInterface.vue'
 
@@ -19,6 +20,7 @@ describe('components/EditorInterface', () => {
 
     store = createStore<State>({
       state: {
+        configuration: ConfigurationStateDefaults(),
         system: SystemStateDefaults(),
         files: {
           ...FilesStateDefaults(),

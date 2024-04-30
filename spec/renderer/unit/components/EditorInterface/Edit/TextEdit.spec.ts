@@ -67,6 +67,7 @@ vi.mock('@codemirror/view', () => {
   const EditorView = class {
     static baseTheme = vi.fn(() => ({} as Extension))
     static scrollIntoView = vi.fn()
+    static theme = vi.fn()
     dispatch = vi.fn()
     state = {
       doc: 'document content',

@@ -1,11 +1,12 @@
 <template>
   <toggle-switch
+    ref="switch"
     :value="value"
     :height="16"
     :width="32"
     :padding="2"
     class="mx-1"
-    @input="$emit('input', $event)"
+    @input="emit('input', $event)"
   />
 </template>
 
@@ -16,9 +17,6 @@ export default {
   components: {
     ToggleSwitch,
   },
-  emits: [
-    'input',
-  ],
 }
 </script>
 
@@ -30,4 +28,8 @@ export interface Properties {
 withDefaults(defineProps<Properties>(), {
   value: false,
 })
+
+const emit = defineEmits([
+  'input',
+])
 </script>

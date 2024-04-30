@@ -7,6 +7,7 @@
       density="compact"
       suffix="px"
       style="width: 120px"
+      hide-details
       :model-value="value"
       @update:model-value="debounce_update"
     />

@@ -8,6 +8,15 @@ import { State, key } from '@/store'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import TextInput from '@/components/Settings/TextInput.vue'
 
+vi.mock('lodash', () => ({
+  debounce: (callback) => {
+    callback.cancel = vi.fn()
+    callback.flush = vi.fn()
+    return callback
+  },
+  cloneDeep: (value) => value,
+}))
+
 describe('components/Settings/TextInput', () => {
   let vuetify
   let store

@@ -8,6 +8,15 @@ import { State, key } from '@/store'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import KeyfileInput from '@/components/Settings/KeyfileInput.vue'
 
+vi.mock('lodash', () => ({
+  debounce: (callback) => {
+    callback.cancel = vi.fn()
+    callback.flush = vi.fn()
+    return callback
+  },
+  cloneDeep: (value) => value,
+}))
+
 describe('components/Settings/KeyfileInput', () => {
   let vuetify
   let store
@@ -59,9 +68,7 @@ describe('components/Settings/KeyfileInput', () => {
     const files = new FileList()
     files[0] = {} as unknown as File
     input_field.element.files = files
-    input_field.trigger('change')
-
-    await wrapper.vm.$nextTick()
+    await input_field.trigger('change')
 
     const data = { [index]: path }
     expect(store_dispatch).not.toHaveBeenCalledWith('configuration/update', data)
@@ -88,8 +95,8 @@ describe('components/Settings/KeyfileInput', () => {
     const wrapper = factory.wrap()
 
     const clear_button = wrapper.findComponent({ ref: 'clear-button' })
-    expect(clear_button.exists()).toBe(true)
 
+    expect(clear_button.exists()).toBe(true)
     await clear_button.trigger('click')
 
     const data = { [index]: '' }
