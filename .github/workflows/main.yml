@@ -290,6 +290,7 @@ jobs:
         CSC_FOR_PULL_REQUEST: true
         APPLE_ID: ${{ secrets.APPLE_ID }}
         APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
     - name: Upload Setup Artifact
       uses: actions/upload-artifact@v3
