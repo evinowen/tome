@@ -8,6 +8,7 @@ import { StateDefaults as ActionsStateDefaults } from '@/store/modules/actions'
 import { StateDefaults as ClipboardStateDefaults } from '@/store/modules/clipboard'
 import { StateDefaults as FilesStateDefaults, File } from '@/store/modules/files'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import { StateDefaults as TemplatesStateDefaults } from '@/store/modules/templates'
 import ExplorerNode from '@/components/ExplorerNode.vue'
 import { FileRelationshipType } from '@/store/modules/files/file'
@@ -40,6 +41,10 @@ describe('components/ExplorerNode', () => {
         clipboard: {
           ...ClipboardStateDefaults(),
           content: { type: 'file', target: '/path' },
+        },
+        configuration: {
+          ...ConfigurationStateDefaults(),
+          draggable_objects: true,
         },
         repository: {
           ...RepositoryStateDefaults(),

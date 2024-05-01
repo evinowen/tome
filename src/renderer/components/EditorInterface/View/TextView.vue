@@ -1,17 +1,17 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div
+  <rendered-viewport
     id="mark-js-root"
     ref="root"
     class="root"
+    :content="content"
     @contextmenu="contextmenu"
-    v-html="rendered"
   />
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { marked } from 'marked'
+import RenderedViewport from '@/components/RenderedViewport.vue'
 import Mark from 'mark.js'
 import { fetchStore, File } from '@/store'
 
@@ -83,22 +83,16 @@ const context = computed(() => {
   ]
 })
 
-const rendered = computed((): string => {
+const content = computed((): string => {
   if (properties.file === undefined || properties.file.directory || !properties.file.document) {
     return ''
   }
 
-  const content = properties.file.document.content || ''
-
-  if ([ '.md' ].includes(properties.file.extension)) {
-    return marked.parse(content)
+  if (![ '.md' ].includes(properties.file.extension)) {
+    return ''
   }
 
-  if ([ '.htm', '.html' ].includes(properties.file.extension)) {
-    return content
-  }
-
-  return ''
+  return properties.file.document.content || ''
 })
 
 async function contextmenu (event) {
@@ -174,15 +168,5 @@ async function search_navigate () {
 .root :deep(*) {
   padding: revert;
   margin: revert;
-}
-
-.highlight-rendered {
-  background-color: rgba(255, 255, 0, 0.2) !important;
-  outline: 2px solid rgba(255, 255, 0, 0.2);
-}
-
-.highlight-rendered-target {
-  background-color: rgba(255, 255, 0, 0.4) !important;
-  outline: 2px solid rgba(255, 255, 0, 0.4);
 }
 </style>

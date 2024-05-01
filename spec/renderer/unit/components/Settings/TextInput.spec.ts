@@ -8,6 +8,15 @@ import { State, key } from '@/store'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import TextInput from '@/components/Settings/TextInput.vue'
 
+vi.mock('lodash', () => ({
+  debounce: (callback) => {
+    callback.cancel = vi.fn()
+    callback.flush = vi.fn()
+    return callback
+  },
+  cloneDeep: (value) => value,
+}))
+
 describe('components/Settings/TextInput', () => {
   let vuetify
   let store
@@ -65,15 +74,14 @@ describe('components/Settings/TextInput', () => {
   })
 
   it('should invert obscured when display button emits click event', async () => {
-    const wrapper = factory.wrap()
+    const wrapper = factory.wrap({ obscureable: true })
 
     const obscured = wrapper.vm.obscured
 
-    const input_field = wrapper.findComponent({ ref: 'input-field' })
-    expect(input_field.exists()).toBe(true)
+    const obscure_button = wrapper.findComponent({ ref: 'obscure-button' })
+    expect(obscure_button.exists()).toBe(true)
 
-    const value = 'John Doe'
-    input_field.vm.$emit('click:append', value)
+    obscure_button.vm.$emit('click')
 
     expect(wrapper.vm.obscured).toBe(!obscured)
   })

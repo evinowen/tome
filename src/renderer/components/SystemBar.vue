@@ -4,6 +4,7 @@
     height="25"
     class="pa-0"
     style="user-select: none;"
+    color="surface"
   >
     <v-btn
       rounded="0"
@@ -12,7 +13,43 @@
       class="system-bar-button"
       @click.stop="settings"
     >
-      <v-icon>{{ icon }}</v-icon>
+      <svg
+        :class="[
+          'settings',
+          rotate ? 'rotate' : '',
+        ]"
+        width="12"
+        height="12"
+        viewBox="0 0 127 127"
+      >
+        <g>
+          <path
+            d="
+              M 63.5 0
+              A 63.5 63.5 0 0 0 47.625 2.1342367 L 47.625 18.720821
+              A 47.625 47.625 0 0 0 32.572172 27.312545 L 18.333765 19.092375
+              A 63.5 63.5 0 0 0 2.3709147 46.537211 L 16.766935 54.849365
+              A 47.625 47.625 0 0 0 15.875 63.5
+              A 47.625 47.625 0 0 0 16.766935 72.150635 L 2.3709147 80.462789
+              A 63.5 63.5 0 0 0 18.333765 107.90763 L 32.572172 99.687455
+              A 47.625 47.625 0 0 0 47.625 108.27918 L 47.625 124.86576
+              A 63.5 63.5 0 0 0 63.5 127
+              A 63.5 63.5 0 0 0 79.375 124.86576 L 79.375 108.27918
+              A 47.625 47.625 0 0 0 94.427828 99.687455 L 108.66624 107.90763
+              A 63.5 63.5 0 0 0 124.62909 80.462789 L 110.23306 72.150635
+              A 47.625 47.625 0 0 0 111.125 63.5
+              A 47.625 47.625 0 0 0 110.31316 54.802856 L 124.66681 46.516024
+              A 63.5 63.5 0 0 0 108.79853 19.015894 L 94.435579 27.308411
+              A 47.625 47.625 0 0 0 79.375 18.602999 L 79.375 2.0267497
+              A 63.5 63.5 0 0 0 63.5 0 z M 63.5 39.6875
+              A 23.8125 23.8125 0 0 1 87.3125 63.5
+              A 23.8125 23.8125 0 0 1 63.5 87.3125
+              A 23.8125 23.8125 0 0 1 39.6875 63.5
+              A 23.8125 23.8125 0 0 1 63.5 39.6875 z
+              "
+          />
+        </g>
+      </svg>
     </v-btn>
     <v-spacer />
     <span
@@ -81,8 +118,8 @@ const maximized = computed(() => {
   return store.state.system.maximized
 })
 
-const icon = computed(() => {
-  return store.state.system.settings ? 'mdi-spin mdi-cog' : 'mdi-circle-medium'
+const rotate = computed(() => {
+  return store.state.system.settings
 })
 
 const title = computed(() => {
@@ -90,6 +127,7 @@ const title = computed(() => {
 })
 
 async function settings () {
+  await store.dispatch('system/theme_editor', false)
   await store.dispatch('system/settings', !store.state.system.settings)
 }
 
@@ -117,20 +155,12 @@ defineExpose({
 
 <style scoped>
 .v-system-bar {
+  font-family: var(--font-title);
   -webkit-app-region: drag;
 }
 
 .v-system-bar button {
   -webkit-app-region: no-drag;
-}
-
-@keyframes rotating {
-  from{ transform: rotate(0deg); }
-  to{ transform: rotate(360deg); }
-}
-
-.rotate .v-icon {
-  animation: rotating 2s linear infinite;
 }
 
 .system-bar-button {
@@ -141,5 +171,23 @@ defineExpose({
   width: 30px;
   min-height: 0;
   min-width: 30px;
+}
+
+@keyframes rotating {
+  from{ transform: rotate(0deg); }
+  to{ transform: rotate(360deg); }
+}
+
+.settings  {
+  animation: rotating 2s linear infinite;
+  animation-play-state: paused;
+}
+
+.settings path {
+  fill: rgb(var(--v-theme-on-surface));
+}
+
+.settings.rotate  {
+  animation-play-state: running;
 }
 </style>

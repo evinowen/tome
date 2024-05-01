@@ -1,7 +1,16 @@
 <template>
   <v-app
+    id="app"
     class="app-root"
-    :theme="theme"
+    :style="{
+      '--font-title': theme.application.font_family_title,
+      '--font-title-size': `${theme.application.font_size_title}em`,
+      '--font-content': theme.application.font_family_content,
+      '--font-content-size': `${theme.application.font_size_content}em`,
+      '--font-monospace': theme.application.font_family_monospace || 'monospace',
+      '--font-monospace-size': `${theme.application.font_size_monospace}em`,
+    }"
+    :theme="theme.name"
     @scroll.self="scroll"
   >
     <system-bar title="tome" />
@@ -9,6 +18,7 @@
     <v-main class="app-main">
       <div class="app-container">
         <settings />
+        <theme-editor />
         <console />
 
         <template v-if="repository.loaded">
@@ -44,6 +54,7 @@ import SearchService from '@/components/SearchService.vue'
 import Settings from '@/components/Settings.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
 import SystemBar from '@/components/SystemBar.vue'
+import ThemeEditor from '@/components/ThemeEditor.vue'
 import {
   VApp,
   VMain,
@@ -64,6 +75,7 @@ export default {
     Settings,
     ShortcutService,
     SystemBar,
+    ThemeEditor,
     VApp,
     VMain,
   },
@@ -80,7 +92,11 @@ const repository = computed(() => store.state.repository)
 
 const system = computed(() => store.state.system)
 
-const theme = computed(() => store.state.configuration.dark_mode ? 'dark' : 'light')
+const theme = computed(() => {
+  return store.state.configuration.dark_mode
+    ? { name: 'dark', ...store.state.configuration.themes.dark }
+    : { name: 'light', ...store.state.configuration.themes.light }
+})
 
 const scroll = (event) => {
   event.target.scrollTop = 0
@@ -99,6 +115,22 @@ defineExpose({
   bottom: 0;
   left: 0;
   right: 0;
+  font-family: 'Montserrat';
+}
+
+.app-root {
+  font-family: var(--font-content);
+  font-size: var(--font-content-size);
+}
+
+.app-root :deep(.title) {
+  font-family: var(--font-title) !important;
+  font-size: var(--font-title-size) !important;
+}
+
+.app-root :deep(pre) {
+  font-family: var(--font-monospace);
+  font-size: var(--font-monospace-size);
 }
 
 .app-main {

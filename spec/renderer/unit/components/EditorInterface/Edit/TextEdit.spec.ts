@@ -5,6 +5,7 @@ import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as ActionsStateDefaults } from '@/store/modules/actions'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { StateDefaults as ComposeStateDefaults } from '@/store/modules/configuration/themes/sections/compose'
 import { StateDefaults as SearchStateDefaults } from '@/store/modules/search'
 import { File } from '@/store/modules/files'
 import TextEdit from '@/components/EditorInterface/Edit/TextEdit.vue'
@@ -19,7 +20,7 @@ vi.mock('@codemirror/commands', () => ({
 }))
 
 vi.mock('@codemirror/language', () => ({
-  defaultHighlightStyle: [],
+  HighlightStyle: { define: vi.fn(() => []) },
   syntaxHighlighting: vi.fn(),
 }))
 
@@ -66,6 +67,7 @@ vi.mock('@codemirror/view', () => {
   const EditorView = class {
     static baseTheme = vi.fn(() => ({} as Extension))
     static scrollIntoView = vi.fn()
+    static theme = vi.fn()
     dispatch = vi.fn()
     state = {
       doc: 'document content',
@@ -134,7 +136,14 @@ describe('components/EditorInterface/Edit/TextEdit', () => {
     store = createStore<State>({
       state: {
         actions: ActionsStateDefaults(),
-        configuration: ConfigurationStateDefaults(),
+        configuration: {
+          ...ConfigurationStateDefaults(),
+          themes: {
+            light: {
+              compose: ComposeStateDefaults(),
+            },
+          },
+        },
         search: SearchStateDefaults(),
       },
       actions: stub_actions([

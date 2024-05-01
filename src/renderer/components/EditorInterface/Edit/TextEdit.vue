@@ -2,6 +2,10 @@
   <div
     ref="root"
     class="root"
+    :style="{
+      '--font-family': theme.font_family_compose || 'monospace',
+      '--font-size': `${theme.font_size_compose || 1}em`,
+    }"
     @contextmenu="contextmenu"
   />
 </template>
@@ -15,18 +19,19 @@ export default {}
 import { computed, onMounted, ref, watch } from 'vue'
 import { fetchStore, File } from '@/store'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
-import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language'
+import { syntaxHighlighting } from '@codemirror/language'
 import { Compartment, EditorSelection, Extension, RangeSetBuilder, EditorState } from '@codemirror/state'
 import { SearchCursor, RegExpCursor } from '@codemirror/search'
 import { Decoration, EditorView, keymap, lineNumbers, ViewPlugin } from '@codemirror/view'
 import { markdown } from '@codemirror/lang-markdown'
 import { javascript } from '@codemirror/lang-javascript'
-import { oneDark } from '@codemirror/theme-one-dark'
 import { debounce } from 'lodash'
+import EditorTheme from '@/composer/EditorTheme'
+import HighlightStyleDefinition from '@/composer/HighlightStyleDefinition'
 
 const store = fetchStore()
 
-export interface Properties {
+interface Properties {
   file?: File
 }
 
@@ -37,6 +42,7 @@ const properties = withDefaults(defineProps<Properties>(), {
 const root = ref<HTMLElement>(undefined)
 
 interface Compartments {
+  syntax: Compartment
   language: Compartment
   line_numbers: Compartment
   tabs: Compartment
@@ -46,6 +52,7 @@ interface Compartments {
 }
 
 const compartments: Compartments = {
+  syntax: new Compartment(),
   language: new Compartment(),
   line_numbers: new Compartment(),
   tabs: new Compartment(),
@@ -57,28 +64,17 @@ const compartments: Compartments = {
 const search_decoration: Decoration = Decoration.mark({ class: 'highlight' })
 const search_decoration_target: Decoration = Decoration.mark({ class: 'highlight-target' })
 
-const theme_light_mode: Extension = EditorView.baseTheme({
-  '.highlight': {
-    backgroundColor: 'rgba(255, 0, 0, 0.2)',
-    outline: '2px solid rgba(255, 0, 0, 0.2)',
-  },
-  '.highlight-target': {
-    backgroundColor: 'rgba(255, 0, 0, 0.4)',
-    outline: '2px solid rgba(255, 0, 0, 0.4)',
-  },
-})
-
-const theme_dark_mode: Extension = oneDark
-
 const updated = ref(0)
 let view: EditorView
 
 const line_numbers = computed((): boolean => {
-  return store.state.configuration.dark_mode
+  return store.state.configuration.line_numbers
 })
 
-const dark_mode = computed((): boolean => {
+const theme = computed(() => {
   return store.state.configuration.dark_mode
+    ? store.state.configuration.themes.dark.compose
+    : store.state.configuration.themes.light.compose
 })
 
 const search = computed(() => {
@@ -98,13 +94,6 @@ watch(line_numbers, configure_line_numbers)
 function configure_line_numbers () {
   view.dispatch({
     effects: compartments.line_numbers.reconfigure(line_numbers.value ? lineNumbers() : []),
-  })
-}
-
-watch(dark_mode, configure_dark_mode)
-function configure_dark_mode () {
-  view.dispatch({
-    effects: compartments.theme.reconfigure(dark_mode.value ? theme_dark_mode : theme_light_mode),
   })
 }
 
@@ -191,10 +180,10 @@ onMounted(() => {
         ...historyKeymap,
         indentWithTab,
       ]),
-      syntaxHighlighting(defaultHighlightStyle),
+      compartments.syntax.of(syntaxHighlighting(HighlightStyleDefinition)),
       compartments.language.of([]),
       compartments.line_numbers.of([]),
-      compartments.theme.of([]),
+      compartments.theme.of(EditorTheme),
       compartments.search.of([]),
       compartments.search_target.of([]),
     ],
@@ -202,7 +191,6 @@ onMounted(() => {
   })
 
   configure_line_numbers()
-  configure_dark_mode()
   select()
 
   load(properties.file)
@@ -414,5 +402,25 @@ defineExpose({
 .root :deep(.cm-editor) {
   height: 100%;
   width: 100%;
+  background-color: rgb(var(--v-theme-compose-background));
+  color: rgb(var(--v-theme-compose-content));
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+}
+
+.root :deep(.cm-focused .cm-cursor) {
+  border-left-color: rgb(var(--v-theme-compose-content));
+}
+
+.root :deep(.cm-scroller) {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+}
+
+.root :deep(.cm-gutters) {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  background-color: rgb(var(--v-theme-compose-gutters));
+  color: rgb(var(--v-theme-compose-line-numbers));
 }
 </style>

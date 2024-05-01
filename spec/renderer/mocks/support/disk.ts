@@ -63,7 +63,11 @@ export default class Disk {
     }))
 
     this.files.reset({
-      'config.json': file(),
+      'home': file({
+        'userData': file({
+          'config.json': file(),
+        }),
+      }),
       'library.json': file(),
       'project': file({
         '.git': file({}),

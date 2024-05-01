@@ -3,6 +3,8 @@ import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
 import { State, key } from '@/store'
+import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { StateDefaults as ApplicationStateDefaults } from '@/store/modules/configuration/themes/sections/application'
 
 import App from '@/components/App.vue'
 
@@ -38,7 +40,12 @@ describe('components/App', () => {
     store = createStore<State>({
       state: {
         configuration: {
-          dark_mode: true,
+          ...ConfigurationStateDefaults(),
+          themes: {
+            light: {
+              application: ApplicationStateDefaults(),
+            },
+          },
         },
         repository: {
           loaded: false,

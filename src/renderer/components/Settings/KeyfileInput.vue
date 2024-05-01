@@ -1,6 +1,6 @@
 <template>
-  <v-layout class="key-border pt-1">
-    <v-col class="pa-1">
+  <div class="d-flex key-border">
+    <div class="flex-grow-1 pa-1">
       <input
         ref="input"
         type="file"
@@ -14,54 +14,54 @@
         :color="value ? 'green' : 'red'"
         :prepend-inner-icon="value ? 'mdi-lock-open' : 'mdi-lock'"
         readonly
-        variant="outlined"
+        variant="solo"
         hide-details
         density="compact"
         @click="input.click()"
       />
-    </v-col>
-    <v-btn
-      ref="clear-button"
-      rounded="0"
-      icon
-      style="height: auto;"
-      :disabled="value === ''"
-      @click="clear"
-    >
-      <v-icon size="small">
-        mdi-close
-      </v-icon>
-    </v-btn>
-    <v-btn
-      ref="generate-button"
-      rounded="0"
-      icon
-      style="height: auto;"
-      :disabled="value !== ''"
-      @click.stop="generate"
-    >
-      <v-icon size="small">
-        mdi-anvil
-      </v-icon>
-    </v-btn>
-  </v-layout>
+    </div>
+    <div class="flex-grow-0 pa-1">
+      <v-btn
+        ref="clear-button"
+        rounded="0"
+        icon
+        style="height: 100%;"
+        :disabled="value === ''"
+        @click="clear"
+      >
+        <v-icon size="small">
+          mdi-close
+        </v-icon>
+      </v-btn>
+    </div>
+    <div class="flex-grow-0 pa-1">
+      <v-btn
+        ref="generate-button"
+        rounded="0"
+        icon
+        style="height: 100%;"
+        :disabled="value !== ''"
+        @click.stop="generate"
+      >
+        <v-icon size="small">
+          mdi-anvil
+        </v-icon>
+      </v-btn>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import {
   VBtn,
-  VCol,
   VIcon,
-  VLayout,
   VTextField,
 } from 'vuetify/components'
 
 export default {
   components: {
     VBtn,
-    VCol,
     VIcon,
-    VLayout,
     VTextField,
   },
 }
@@ -70,10 +70,11 @@ export default {
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { fetchStore } from '@/store'
+import { debounce } from 'lodash'
 
 const store = fetchStore()
 
-export interface Properties {
+interface Properties {
   label: string
   index: string
 }
@@ -97,17 +98,19 @@ async function select (event) {
     return
   }
 
-  await update(file.path)
+  await debounce_update(file.path)
   input.value.value = ''
 }
 
 async function clear () {
-  await update('')
+  await debounce_update('')
 }
 
 async function update (path) {
   await store.dispatch('configuration/update', { [properties.index]: path })
 }
+
+const debounce_update = debounce(update, 300)
 
 async function generate () {
   await store.dispatch('configuration/generate', passphrase.value)

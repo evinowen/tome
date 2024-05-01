@@ -1,30 +1,22 @@
 <template>
-  <div id="edit-switch">
-    <v-switch
-      ref="switch"
-      action-bar-edit
-      :value="value"
-      inset
-      hide-details
-      class="edit-switch"
-      :color="value ? 'primary' : undefined"
-      @click="$emit('click', $event)"
-    />
-  </div>
+  <toggle-switch
+    ref="switch"
+    :value="value"
+    :height="16"
+    :width="32"
+    :padding="2"
+    class="mx-1"
+    @input="emit('input', $event)"
+  />
 </template>
 
 <script lang="ts">
-import {
-  VSwitch,
-} from 'vuetify/components'
+import ToggleSwitch from '@/components/ToggleSwitch.vue'
 
 export default {
   components: {
-    VSwitch,
+    ToggleSwitch,
   },
-  emits: [
-    'click',
-  ],
 }
 </script>
 
@@ -36,29 +28,8 @@ export interface Properties {
 withDefaults(defineProps<Properties>(), {
   value: false,
 })
+
+const emit = defineEmits([
+  'input',
+])
 </script>
-
-<style scoped>
-@layer edit-switch {
-  #edit-switch {
-    flex-grow: 0;
-    flex-shrink: 0;
-    padding: 0 2px !important;
-  }
-
-  #edit-switch :deep(*) {
-    --v-selection-control-size: 12px;
-    --v-input-control-height: 100%;
-  }
-
-  #edit-switch :deep(.v-switch__track) {
-    height: 16px !important;
-    width: 36px !important;
-  }
-
-  #edit-switch :deep(.v-switch__thumb) {
-    height: 12px !important;
-    width: 12px !important;
-  }
-}
-</style>

@@ -1,45 +1,44 @@
 <template>
-  <v-layout class="key-border pt-1">
-    <v-col class="pa-1">
+  <div class="d-flex key-border">
+    <div class="flex-grow-1 pa-1">
       <v-text-field
         :model-value="value || ' '"
         :label="label"
         class="key-output"
         readonly
-        variant="outlined"
+        density="compact"
+        variant="solo"
         hide-details
       />
-    </v-col>
-    <v-btn
-      rounded="0"
-      icon
-      :size="small ? 'small' : undefined"
-      style="height: auto;"
-      :disabled="value === ''"
-      @click.stop="copy"
-    >
-      <v-icon size="small">
-        mdi-content-copy
-      </v-icon>
-    </v-btn>
-  </v-layout>
+    </div>
+    <div class="flex-grow-0 pa-1">
+      <v-btn
+        rounded="0"
+        icon
+        :size="small ? 'small' : undefined"
+        style="height: 100%;"
+        :disabled="value === ''"
+        @click.stop="copy"
+      >
+        <v-icon size="small">
+          mdi-content-copy
+        </v-icon>
+      </v-btn>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import {
   VBtn,
-  VCol,
   VIcon,
-  VLayout,
   VTextField,
 } from 'vuetify/components'
 
 export default {
   components: {
     VBtn,
-    VCol,
     VIcon,
-    VLayout,
     VTextField,
   },
 }
@@ -50,7 +49,7 @@ import { fetchStore } from '@/store'
 
 const store = fetchStore()
 
-export interface Properties {
+interface Properties {
   label?: string
   small?: boolean
   value: string
@@ -72,7 +71,7 @@ defineExpose({
 </script>
 
 <style scoped>
-.key-output {
-  font-family: monospace !important;
+.key-output :deep(input) {
+  font-family: var(--font-monospace), monospace !important;
 }
 </style>

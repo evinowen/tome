@@ -1,19 +1,23 @@
 <template>
-  <v-switch
+  <setting-frame
     :label="label"
-    :model-value="value"
-    @update:model-value="update"
-  />
+    :detail="detail"
+  >
+    <toggle-switch
+      :value="value"
+      @input="debounce_update"
+    />
+  </setting-frame>
 </template>
 
 <script lang="ts">
-import {
-  VSwitch,
-} from 'vuetify/components'
+import SettingFrame from './SettingFrame.vue'
+import ToggleSwitch from '../ToggleSwitch.vue'
 
 export default {
   components: {
-    VSwitch,
+    SettingFrame,
+    ToggleSwitch,
   },
 }
 </script>
@@ -21,16 +25,19 @@ export default {
 <script setup lang="ts">
 import { computed } from 'vue'
 import { fetchStore } from '@/store'
+import { debounce } from 'lodash'
 
 const store = fetchStore()
 
-export interface Properties {
+interface Properties {
   label: string
+  detail: string
   index: string
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
   label: '',
+  detail: '',
   index: '',
 })
 
@@ -40,35 +47,9 @@ async function update (value: boolean) {
   await store.dispatch('configuration/update', { [properties.index]: value })
 }
 
+const debounce_update = debounce(update, 100)
+
 defineExpose({
   update,
 })
 </script>
-
-<style scoped>
-.tome-badge {
-  display: flex;
-  background: rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-  margin: auto;
-  width: 200px;
-  padding: 6px;
-  text-align: center;
-}
-
-.tome-badge-logo {
-  flex-grow: 0;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.tome-badge-data {
-  display: flex;
-  flex-grow: 1;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-</style>

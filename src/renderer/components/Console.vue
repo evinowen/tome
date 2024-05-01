@@ -9,7 +9,7 @@
       :scrim="false"
     >
       <v-card>
-        <v-card-text style="font-family: monospace; white-space: pre-wrap;">
+        <v-card-text class="text">
           {{ stack }}
         </v-card-text>
         <v-card-actions>
@@ -67,7 +67,7 @@ import { DateTime } from 'luxon'
 
 const store = fetchStore()
 
-export interface Properties {
+interface Properties {
   open?: boolean
 }
 
@@ -114,6 +114,11 @@ defineExpose({
 </script>
 
 <style scoped>
+.text {
+  font-family: var(--font-monospace), monospace !important;
+  white-space: pre-wrap;
+}
+
 .log {
   display: flex;
   margin: 0;

@@ -3,12 +3,12 @@ import { assemble } from '?/helpers'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 import BooleanComponent from '?/stubs/BooleanComponent.vue'
 import { createVuetify } from 'vuetify'
-import ThemePreview from '@/components/Settings/ThemePreview.vue'
+import ApplicationThemePreview from '@/components/ThemeEditor/Sections/ApplicationThemePreview.vue'
 
-describe('components/Settings/ThemePreview', () => {
+describe('components/ThemeEditor/Sections/ApplicationThemePreview', () => {
   let vuetify
 
-  const factory = assemble(ThemePreview)
+  const factory = assemble(ApplicationThemePreview)
     .context(() => ({
       global: {
         plugins: [ vuetify ],
@@ -42,10 +42,10 @@ describe('components/Settings/ThemePreview', () => {
     const error_switch = wrapper.findComponent({ ref: 'error-switch' })
     expect(error_switch.exists()).toBe(true)
 
-    error_switch.vm.$emit('update:model-value', !error)
+    error_switch.vm.$emit('input', !error)
     expect(wrapper.vm.error).toBe(!error)
 
-    error_switch.vm.$emit('update:model-value', error)
+    error_switch.vm.$emit('input', error)
     expect(wrapper.vm.error).toBe(error)
   })
 })

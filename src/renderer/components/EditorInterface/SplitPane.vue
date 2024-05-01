@@ -4,40 +4,57 @@
       'root',
       resizing ? 'resizing' : undefined
     ]"
-    @mousemove="resize_move"
+    :style="{ 'flex-direction': docked === 'left' ? 'row' : 'row-reverse' }"
+    @mousemove="debounce_resize_move"
     @mouseup="resize_end"
     @mouseleave="resize_end"
   >
     <div
       ref="resized"
-      class="pane-left"
+      class="pane-docked"
       :style="{ width: `${width}px` }"
     >
-      <slot name="left" />
+      <slot name="docked" />
     </div>
     <div
       class="pane-control"
+      :style="{ width: `${resize_width}px` }"
       @mousedown="resize_start"
     />
-    <div class="pane-right">
-      <slot name="right" />
+
+    <div
+      class="pane-dynamic"
+    >
+      <slot name="dynamic" />
     </div>
   </div>
 </template>
 
-<script lang="ts">
-
-export default {}
-</script>
-
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { debounce } from 'lodash'
+
+interface Properties {
+  docked?: string
+  docked_width?: number
+  resize_width?: number
+}
+
+const properties = withDefaults(defineProps<Properties>(), {
+  docked: 'left',
+  docked_width: 320,
+  resize_width: 3,
+})
+
+const emit = defineEmits([
+  'resize',
+])
 
 const resized = ref<HTMLElement>(undefined)
 
 const resizing = ref(false)
 const origin = ref(0)
-const width = ref(240)
+const width = ref(properties.docked_width)
 
 function resize_start (event) {
   resizing.value = true
@@ -45,18 +62,31 @@ function resize_start (event) {
   origin.value = event.pageX
 }
 
+const debounce_resize_move = debounce(resize_move, 2)
+
 function resize_move (event) {
   if (!resizing.value) {
     return
   }
 
-  width.value += event.pageX - origin.value
+  switch (properties.docked) {
+    case 'left':
+      width.value += event.pageX - origin.value
+      break
+
+    case 'right':
+      width.value -= event.pageX - origin.value
+      break
+  }
   origin.value = event.pageX
 }
 
 function resize_end () {
   resizing.value = false
+  emit('resize', width.value)
 }
+
+watch(() => properties.docked_width, () => width.value = properties.docked_width)
 
 defineExpose({
   origin,
@@ -80,7 +110,7 @@ defineExpose({
   cursor: ew-resize;
 }
 
-.pane-left {
+.pane-docked {
   height: 100%;
   position: relative;
   flex-shrink: 0;
@@ -88,7 +118,7 @@ defineExpose({
   min-height: 0;
 }
 
-.pane-right {
+.pane-dynamic {
   height: 100%;
   flex-grow: 1;
   flex-shrink: 1;

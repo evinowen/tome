@@ -259,7 +259,11 @@ const display = computed(() => {
 })
 
 const visible = computed(() => {
-  return properties.root || ephemeral.value || !(properties.title && (display.value === '' || system.value))
+  if (!properties.root && system.value && !store.state.configuration.system_objects) {
+    return false
+  }
+
+  return properties.root || ephemeral.value || !properties.title || (properties.title && (display.value !== ''))
 })
 
 const rules = computed((): ((value: string) => boolean | string)[] => {
@@ -416,7 +420,7 @@ async function contextmenu (event) {
 }
 
 function drag_start (event) {
-  if (system.value) {
+  if (system.value || !store.state.configuration.draggable_objects) {
     event.preventDefault()
     return
   }

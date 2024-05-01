@@ -12,9 +12,11 @@
   >
     <div class="title-box mb-2">
       <div class="title">
-        <h1>{{ title }}</h1>
+        <div class="text-h6 text-sm-h5 text-md-h4">
+          <span class="title">{{ title }}</span>
+        </div>
         <div class="text-subtitle-1">
-          {{ subtitle }}
+          <span class="title">{{ subtitle }}</span>
         </div>
       </div>
       <v-btn
@@ -27,7 +29,17 @@
       </v-btn>
     </div>
     <div :class="['mb-2', 'content', fixed ? 'fixed' : undefined ]">
-      <slot />
+      <div
+        class="d-flex flex-column"
+        style="min-height: 100%"
+      >
+        <div class="flex-grow-1 flex-shrink-0">
+          <slot />
+        </div>
+        <div class="flex-grow-0 flex-shrink-0">
+          <slot name="footer" />
+        </div>
+      </div>
     </div>
     <div class="pb-2 actions">
       <v-divider class="mt-0 mb-2" />
@@ -121,6 +133,7 @@ defineExpose({
 <style scoped>
 .page {
   background: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-on-surface));
   display: flex;
   flex-direction: column;
   height: 100%;

@@ -12,7 +12,7 @@ describe('components/ActionBar/EditSwitch', () => {
       global: {
         plugins: [ vuetify ],
         stubs: {
-          VSwitch: BasicComponentStub,
+          ToggleSwitch: BasicComponentStub,
         },
       },
     }))
@@ -31,16 +31,16 @@ describe('components/ActionBar/EditSwitch', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should emit "click" event when switch emits "click" event', async () => {
+  it('should emit "input" event when switch emits "input" event', async () => {
     const wrapper = factory.wrap()
     await wrapper.vm.$nextTick()
 
     const toggle_switch = wrapper.findComponent({ ref: 'switch' })
     expect(toggle_switch.exists()).toBe(true)
 
-    toggle_switch.trigger('click')
+    toggle_switch.vm.$emit('input', true)
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.emitted().click).toBeTruthy()
+    expect(wrapper.emitted().input).toBeTruthy()
   })
 })
