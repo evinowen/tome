@@ -136,8 +136,8 @@ const properties = withDefaults(defineProps<Properties>(), {
   items: () => [],
   position_x: 0,
   position_y: 0,
-  flip_x: false,
-  flip_y: false,
+  flip_x: undefined,
+  flip_y: undefined,
   window_x: 0,
   window_y: 0,
   layer: 0,
@@ -278,6 +278,11 @@ defineExpose({
 
 .context-menu {
   position: fixed;
+  user-select: none;
+}
+
+.context-menu :deep(*) {
+  user-select: none;
 }
 
 .context-menu-list {
