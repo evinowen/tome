@@ -47,10 +47,6 @@ import { fetchStore } from '@/store'
 import File from '@/store/modules/files/file'
 import { ExplorerNodeGhostType } from './ExplorerNode.vue'
 
-const store = fetchStore()
-
-const hold = ref<{ path: string }>(undefined)
-
 export interface Properties {
   enabled: boolean
 }
@@ -59,7 +55,67 @@ withDefaults(defineProps<Properties>(), {
   enabled: false,
 })
 
+const store = fetchStore()
+
+const hold = ref<{ path: string }>(undefined)
+
 const configuration = computed(() => store.state.configuration)
+
+const context = computed(() => {
+  const items = []
+  const push = (array) => {
+    if (items.length > 0) {
+      items.push({ divider: true })
+    }
+
+    items.push(...array)
+  }
+
+  const special = [
+    {
+      title: 'New Template',
+      action: async (path) => create({ type: ExplorerNodeGhostType.TEMPLATE, target: path }),
+    },
+    {
+      title: 'New Action',
+      action: async (path) => create({ type: ExplorerNodeGhostType.ACTION, target: path }),
+    },
+  ]
+
+  const file = [
+    {
+      title: 'New File',
+      action: async (path) => create({ type: ExplorerNodeGhostType.FILE, target: path }),
+    },
+    {
+      title: 'New Folder',
+      action: async (path) => create({ type: ExplorerNodeGhostType.DIRECTORY, target: path }),
+    },
+  ]
+
+  const clipboard = [
+    {
+      title: 'Paste',
+      active: () => store.state.clipboard.content,
+      action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path }),
+    },
+  ]
+
+  push(special)
+  push(file)
+  push(clipboard)
+
+  return items
+})
+
+async function contextmenu (event) {
+  const position = {
+    x: event.clientX,
+    y: event.clientY,
+  }
+
+  await store.dispatch('context/open', { target: root.value.path, title: root.value.path, items: context.value, position })
+}
 
 const active = computed(() => {
   if (store.state.files.active === '') {
