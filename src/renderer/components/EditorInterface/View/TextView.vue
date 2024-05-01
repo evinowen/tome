@@ -14,6 +14,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import RenderedViewport from '@/components/RenderedViewport.vue'
 import Mark from 'mark.js'
 import { fetchStore, File } from '@/store'
+import RenderedViewportContextMenu from '@/context/RenderedViewportContextMenu'
 
 const store = fetchStore()
 
@@ -48,41 +49,6 @@ const search_state = computed(() => {
   ]
 })
 
-const actions = computed(() => {
-  return store.state.actions.options.map((name) => ({
-    title: name,
-    action: async () => {
-      const selection = document.getSelection().toString()
-      await store.dispatch('actions/execute', { name, target: properties.file.path, selection })
-    },
-  }))
-})
-
-const context = computed(() => {
-  return [
-    {
-      title: 'Action',
-      load: () => actions.value,
-    },
-    { divider: true },
-    {
-      title: 'Cut',
-      active: () => false,
-    },
-    {
-      title: 'Copy',
-      action: async () => {
-        const selection = document.getSelection().toString()
-        await store.dispatch('clipboard/text', selection)
-      },
-    },
-    {
-      title: 'Paste',
-      active: () => false,
-    },
-  ]
-})
-
 const content = computed((): string => {
   if (properties.file === undefined || properties.file.directory || !properties.file.document) {
     return ''
@@ -101,7 +67,11 @@ async function contextmenu (event) {
     y: event.clientY,
   }
 
-  await store.dispatch('context/open', { items: context.value, position })
+  const selection = document.getSelection().toString()
+
+  const context = RenderedViewportContextMenu(store, selection)
+
+  await store.dispatch('context/open', { items: context, position })
 }
 
 watch(search_state, async () => {

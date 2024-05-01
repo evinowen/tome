@@ -8,54 +8,17 @@
       density="compact"
       class="context-menu-list"
     >
-      <v-list-subheader class="menu-title">
-        {{ title || '&nbsp;' }}
-      </v-list-subheader>
-      <v-divider />
       <div
         v-for="(item, index) in items"
         :key="index"
         class="context-menu-item"
       >
-        <v-divider v-if="item.divider" />
-        <v-list-item
-          v-else
-          :disabled="item.active ? !item.active() : false"
-          :inactive="item.action ? false : true"
-          @click="execute(item.action)"
-          @mouseover="promote(index)"
-        >
-          <v-list-item-title
-            class="item"
-            style="line-height: 16px !important;"
-          >
-            <v-layout>
-              <v-col
-                class="menu-arrow"
-              >
-                <v-icon
-                  v-show="local_flip_x && (item.items || item.load)"
-                  size="small"
-                >
-                  {{ local_flip_x && (item.items || item.load) ? "mdi-menu-left" : "" }}
-                </v-icon>
-              </v-col>
-              <v-col class="menu-text">
-                {{ item.title }}
-              </v-col>
-              <v-col
-                class="menu-arrow"
-              >
-                <v-icon
-                  v-show="!local_flip_x && (item.items || item.load)"
-                  size="small"
-                >
-                  {{ !local_flip_x && (item.items || item.load) ? "mdi-menu-right" : "" }}
-                </v-icon>
-              </v-col>
-            </v-layout>
-          </v-list-item-title>
-        </v-list-item>
+        <context-menu-item
+          :item="item"
+          :point="local_flip_x ? 'left' : 'right'"
+          @execute="execute(item.action)"
+          @promote="promote(index)"
+        />
         <context-menu-node
           v-if="item.items || item.load"
           v-show="(index > -1) && (((promoted === index) || (active === index)))"
@@ -79,15 +42,9 @@
 </template>
 
 <script lang="ts">
+import ContextMenuItem from './ContextMenuItem.vue'
 import {
-  VCol,
-  VDivider,
-  VIcon,
-  VLayout,
   VList,
-  VListItem,
-  VListItemTitle,
-  VListSubheader,
 } from 'vuetify/components'
 import {
   ClickOutside,
@@ -96,14 +53,8 @@ import {
 export default {
   name: 'ContextMenuNode',
   components: {
-    VCol,
-    VDivider,
-    VIcon,
-    VLayout,
+    ContextMenuItem,
     VList,
-    VListItem,
-    VListItemTitle,
-    VListSubheader,
   },
   directives: {
     ClickOutside,
@@ -270,8 +221,7 @@ defineExpose({
   background: inherit;
 }
 
-.v-list-item:hover,
-.v-list-item:hover .item {
+.v-list-item:hover {
   color: rgb(var(--v-theme-on-primary));
   background: rgb(var(--v-theme-primary));
 }
@@ -286,9 +236,19 @@ defineExpose({
 }
 
 .context-menu-list {
-  border-radius: 0;
-  padding: 0;
+  border-radius: 6px;
+  outline: 1px solid rgba(var(--v-theme-on-surface), 0.25);
+  min-width: 160px;
+  padding: 2px;
   min-height: 20px;
+}
+
+.context-menu-list :first-child.context-menu-item .v-list-item {
+  border-radius: 5px 5px 0 0;
+}
+
+.context-menu-list :last-child.context-menu-item .v-list-item {
+  border-radius: 0 0 5px 5px;
 }
 
 .context-menu-list :deep(.v-list-subheader) {
@@ -301,23 +261,5 @@ defineExpose({
   min-height: 0;
   padding: 1px;
   font-weight: normal;
-}
-
-.menu-title {
-  padding: 2px;
-  padding-inline-start: 2px !important;
-  padding-inline-end: 2px;
-}
-
-.menu-arrow {
-  flex-grow: 0;
-  flex-shrink: 1;
-  min-width: 14px;
-  padding: 1px;
-}
-
-.menu-text {
-  text-align: left;
-  padding: 1px;
 }
 </style>

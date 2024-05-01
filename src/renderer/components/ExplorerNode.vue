@@ -87,17 +87,11 @@
 
         :depth="depth + 1"
 
-        @action="$emit('action', $event)"
         @blur="$emit('blur', $event)"
-        @create="$emit('create', $event)"
-        @delete="$emit('delete', $event)"
         @drag="$emit('drag', $event)"
         @drop="$emit('drop', $event)"
-        @edit="$emit('edit', $event)"
-        @open="$emit('open', $event)"
         @select="$emit('select', $event)"
         @submit="$emit('submit', $event)"
-        @template="$emit('template', $event)"
         @toggle="$emit('toggle', $event)"
       />
     </div>
@@ -135,8 +129,7 @@ export default {
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { fetchStore } from '@/store'
-
-const store = fetchStore()
+import ExplorerNodeContextMenu from '@/context/ExplorerNodeContextMenu'
 
 export interface Properties {
   uuid: string
@@ -161,19 +154,15 @@ const properties = withDefaults(defineProps<Properties>(), {
 })
 
 const emit = defineEmits([
-  'action',
   'blur',
-  'create',
-  'delete',
   'drag',
   'drop',
-  'edit',
-  'open',
   'select',
   'submit',
-  'template',
   'toggle',
 ])
+
+const store = fetchStore()
 
 const input = ref<string>('')
 const valid = ref<boolean>(false)
@@ -230,20 +219,6 @@ const locked = computed(() => {
 const system = computed(() => {
   const relationships = new Set([ 'root', 'git', 'tome', 'tome-templates', 'tome-actions' ])
   return relationships.has(relationship.value)
-})
-
-const actions = computed(() => {
-  return store.state.actions.options.map((name) => ({
-    title: name,
-    action: (path) => emit('action', { name, target: path, selection: undefined }),
-  }))
-})
-
-const templates = computed(() => {
-  return store.state.templates.options.map((name) => ({
-    title: name,
-    action: (path) => emit('template', { name, target: path }),
-  }))
 })
 
 const display = computed(() => {
@@ -303,109 +278,6 @@ const alert = computed(() => {
   return false
 })
 
-const context = computed(() => {
-  const items = []
-  const push = (array) => {
-    if (items.length > 0) {
-      items.push({ divider: true })
-    }
-
-    items.push(...array)
-  }
-
-  const expand = [
-    {
-      title: 'Expand',
-      action: undefined,
-    },
-  ]
-
-  const script = [
-    {
-      title: 'Template',
-      load: () => templates.value,
-    },
-    {
-      title: 'Action',
-      load: () => actions.value,
-    },
-  ]
-
-  const special = []
-
-  if ([ 'root', 'tome', 'tome-feature-templates' ].includes(relationship.value)) {
-    special.push({
-      title: 'New Template',
-      action: async (path) => emit('create', { type: ExplorerNodeGhostType.TEMPLATE, target: path }),
-    })
-  }
-
-  if ([ 'root', 'tome', 'tome-feature-actions' ].includes(relationship.value)) {
-    special.push({
-      title: 'New Action',
-      action: async (path) => emit('create', { type: ExplorerNodeGhostType.ACTION, target: path }),
-    })
-  }
-
-  const file = [
-    {
-      title: 'Open',
-      action: (path) => emit('open', { target: path }),
-    },
-    {
-      title: 'Open Folder',
-      action: (path) => emit('open', { target: path, container: true }),
-    },
-    {
-      title: 'New File',
-      action: async (path) => emit('create', { type: ExplorerNodeGhostType.FILE, target: path }),
-    },
-    {
-      title: 'New Folder',
-      action: async (path) => emit('create', { type: ExplorerNodeGhostType.DIRECTORY, target: path }),
-    },
-  ]
-
-  const clipboard = [
-    {
-      title: 'Cut',
-      action: async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
-      active: () => !system.value,
-    },
-    {
-      title: 'Copy',
-      action: async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path }),
-    },
-    {
-      title: 'Paste',
-      active: () => store.state.clipboard.content,
-      action: async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path }),
-    },
-  ]
-
-  const move = [
-    {
-      title: 'Rename',
-      action: async (path) => emit('edit', { target: path }),
-      active: () => !system.value,
-    },
-    {
-      title: 'Delete',
-      action: async (path) => emit('delete', { target: path }),
-      active: () => !system.value,
-    },
-  ]
-
-  push(directory.value ? expand : [])
-  push(special.length > 0 && system.value ? special : [])
-  push(system.value && !properties.root ? [] : script)
-  push(file)
-  push(clipboard)
-  push(move)
-
-  return items
-})
-
 async function contextmenu (event) {
   if (locked.value) {
     return
@@ -416,7 +288,9 @@ async function contextmenu (event) {
     y: event.clientY,
   }
 
-  await store.dispatch('context/open', { target: path.value, title: path.value, items: context.value, position })
+  const context = ExplorerNodeContextMenu(store, file.value)
+
+  await store.dispatch('context/open', { target: path.value, title: path.value, items: context, position })
 }
 
 function drag_start (event) {
@@ -463,7 +337,6 @@ function submit () {
 }
 
 defineExpose({
-  context,
   display,
   drag_end,
   drag_enter,

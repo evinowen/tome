@@ -28,6 +28,7 @@ import { javascript } from '@codemirror/lang-javascript'
 import { debounce } from 'lodash'
 import EditorTheme from '@/composer/EditorTheme'
 import HighlightStyleDefinition from '@/composer/HighlightStyleDefinition'
+import ComposerViewportContextMenu from '@/context/ComposerViewportContextMenu'
 
 const store = fetchStore()
 
@@ -99,63 +100,16 @@ function configure_line_numbers () {
 
 watch(() => properties.file, load)
 
-const actions = computed(() => {
-  return store.state.actions.options.map((name) => ({
-    title: name,
-    action: async () => {
-      const selection = selection_fetch()
-      const output = await store.dispatch('actions/execute', { name, target: properties.file.path, selection })
-
-      selection_replace(output || selection)
-
-      await input()
-    },
-  }))
-})
-
-const context = computed(() => {
-  return [
-    {
-      title: 'Action',
-      load: () => actions.value,
-    },
-    { divider: true },
-    {
-      title: 'Cut',
-      active: () => !properties.file.readonly,
-      action: async () => {
-        const selection = selection_fetch()
-
-        await store.dispatch('clipboard/text', selection)
-        selection_replace('')
-      },
-    },
-    {
-      title: 'Copy',
-      action: async () => {
-        const selection = selection_fetch()
-
-        await store.dispatch('clipboard/text', selection)
-      },
-    },
-    {
-      title: 'Paste',
-      active: () => !properties.file.readonly,
-      action: async () => {
-        const clipboard = await store.dispatch('clipboard/text')
-        selection_replace(clipboard)
-      },
-    },
-  ]
-})
-
 async function contextmenu (event) {
   const position = {
     x: event.clientX,
     y: event.clientY,
   }
 
-  await store.dispatch('context/open', { items: context.value, position })
+  const selection = selection_fetch()
+  const context = ComposerViewportContextMenu(store, selection, selection_replace)
+
+  await store.dispatch('context/open', { items: context, position })
 }
 
 onMounted(() => {
