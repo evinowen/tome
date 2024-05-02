@@ -16,7 +16,9 @@ export const Schema = z.object({
   default_remote: z.string().optional(),
   auto_push: z.boolean().optional(),
 
-  format_titles: z.boolean().optional(),
+  format_explorer_titles: z.boolean().optional(),
+  format_interaction_titles: z.boolean().optional(),
+
   system_objects: z.boolean().optional(),
   draggable_objects: z.boolean().optional(),
   dark_mode: z.boolean().optional(),
@@ -40,7 +42,8 @@ export interface State {
   default_remote: string
   auto_push: boolean
 
-  format_titles: boolean
+  format_explorer_titles: boolean
+  format_interaction_titles: boolean
   system_objects: boolean
   draggable_objects: boolean
   dark_mode: boolean
@@ -64,7 +67,8 @@ export const StateDefaults = (): State => ({
   default_remote: 'origin',
   auto_push: false,
 
-  format_titles: true,
+  format_explorer_titles: true,
+  format_interaction_titles: true,
   system_objects: false,
   draggable_objects: true,
   dark_mode: false,
@@ -146,8 +150,10 @@ export default {
           return context.state.public_key
         case 'passphrase':
           return context.state.passphrase
-        case 'format_titles':
-          return context.state.format_titles
+        case 'format_explorer_titles':
+          return context.state.format_explorer_titles
+        case 'format_interaction_titles':
+          return context.state.format_interaction_titles
         case 'dark_mode':
           return context.state.dark_mode
         case 'auto_push':

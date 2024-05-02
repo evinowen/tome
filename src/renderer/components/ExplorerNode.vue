@@ -79,12 +79,9 @@
         :key="child.uuid"
         :uuid="child.uuid"
 
-        :format="format"
         :active="active"
         :edit="edit"
         :enabled="enabled"
-        :title="title"
-
         :depth="depth + 1"
 
         @blur="$emit('blur', $event)"
@@ -130,14 +127,13 @@ export default {
 import { computed, ref } from 'vue'
 import { fetchStore } from '@/store'
 import ExplorerNodeContextMenu from '@/context/ExplorerNodeContextMenu'
+import { format } from '@/modules/Titles'
 
 export interface Properties {
   uuid: string
   enabled?: boolean
-  title?: boolean
   active: string
   edit?: boolean
-  format?: any
   root?: boolean
   depth?: number
 }
@@ -145,10 +141,8 @@ export interface Properties {
 const properties = withDefaults(defineProps<Properties>(), {
   uuid: '',
   enabled: false,
-  title: false,
   active: '',
   edit: false,
-  format: undefined,
   root: false,
   depth: 0,
 })
@@ -221,10 +215,12 @@ const system = computed(() => {
   return relationships.has(relationship.value)
 })
 
+const title_formatted = computed(() => store.state.configuration.format_explorer_titles)
+
 const display = computed(() => {
-  if (properties.title && !system.value) {
+  if (title_formatted.value && !system.value) {
     try {
-      return properties.format(name.value, directory.value)
+      return format(name.value, directory.value)
     } catch {
       return (ephemeral.value || name.value) ? name.value : ' - '
     }
@@ -238,7 +234,7 @@ const visible = computed(() => {
     return false
   }
 
-  return properties.root || ephemeral.value || !properties.title || (properties.title && (display.value !== ''))
+  return properties.root || ephemeral.value || !title_formatted.value || (title_formatted.value && (display.value !== ''))
 })
 
 const rules = computed((): ((value: string) => boolean | string)[] => {
@@ -248,7 +244,7 @@ const rules = computed((): ((value: string) => boolean | string)[] => {
     (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.',
   ]
 
-  if (properties.title) {
+  if (title_formatted.value) {
     rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
   } else if (!directory.value) {
     rules.push(
@@ -270,7 +266,7 @@ const alert = computed(() => {
   }
 
   try {
-    properties.format(name.value, directory.value)
+    format(name.value, directory.value)
   } catch {
     return true
   }
@@ -333,7 +329,7 @@ function submit () {
     return
   }
 
-  emit('submit', { input: input.value, title: properties.title })
+  emit('submit', { input: input.value, title: title_formatted.value })
 }
 
 defineExpose({

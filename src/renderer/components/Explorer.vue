@@ -11,8 +11,6 @@
       :active="active"
       :edit="editing"
       :enabled="enabled"
-      :title="configuration.format_titles"
-      :format="format"
 
       @blur="blur"
       @drag="drag"
@@ -52,8 +50,6 @@ const store = fetchStore()
 
 const hold = ref<{ path: string }>(undefined)
 
-const configuration = computed(() => store.state.configuration)
-
 async function contextmenu (event) {
   const position = {
     x: event.clientX,
@@ -87,24 +83,6 @@ const root = computed((): File => {
   return store.state.files.directory[store.state.files.base] || File.Empty
 })
 
-function format (name, directory = false) {
-  if (!name) {
-    throw new Error('Name provided is falsey')
-  }
-
-  if (/[^\d.a-z-]/.test(name)) {
-    throw new Error('Name contains invalid characters')
-  }
-
-  const words = String(name).split('.')
-
-  if (words.length > 0 && !directory) {
-    words.pop()
-  }
-
-  return words.map((item) => `${String(item).slice(0, 1).toUpperCase()}${item.slice(1)}`).join(' ').trim()
-}
-
 async function blur () {
   await store.dispatch('files/blur')
 }
@@ -134,7 +112,6 @@ async function toggle (state) {
 defineExpose({
   active,
   blur,
-  format,
   hold,
   open,
   select,

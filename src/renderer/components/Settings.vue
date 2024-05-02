@@ -86,9 +86,14 @@
         index="dark_mode"
       />
       <boolean-input
-        label="Format Titles"
-        detail="Display entry titles as formatted, with underscores replaced with spaces and each word capitalized"
-        index="format_titles"
+        label="Format Explorer Titles"
+        detail="Display file and directory titles as formatted, with dots replaced with spaces and each word capitalized"
+        index="format_explorer_titles"
+      />
+      <boolean-input
+        label="Format Interaction Titles"
+        detail="Display action and template titles as formatted, with dots replaced with spaces and each word capitalized"
+        index="format_interaction_titles"
       />
       <boolean-input
         label="System Objects"
