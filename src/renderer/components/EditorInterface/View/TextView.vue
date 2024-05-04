@@ -1,16 +1,21 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <rendered-viewport
-    id="mark-js-root"
-    ref="root"
+  <context
+    dynamic
+    :load="context_load"
     class="root"
-    :content="content"
-    @contextmenu="contextmenu"
-  />
+  >
+    <rendered-viewport
+      id="mark-js-root"
+      ref="root"
+      :content="content"
+    />
+  </context>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import Context from '@/components/Context.vue'
 import RenderedViewport from '@/components/RenderedViewport.vue'
 import Mark from 'mark.js'
 import { fetchStore, File } from '@/store'
@@ -61,17 +66,9 @@ const content = computed((): string => {
   return properties.file.document.content || ''
 })
 
-async function contextmenu (event) {
-  const position = {
-    x: event.clientX,
-    y: event.clientY,
-  }
-
+function context_load () {
   const selection = document.getSelection().toString()
-
-  const context = RenderedViewportContextMenu(store, selection)
-
-  await store.dispatch('context/open', { items: context, position })
+  return RenderedViewportContextMenu(store, selection)
 }
 
 watch(search_state, async () => {
@@ -131,12 +128,5 @@ async function search_navigate () {
 .root {
   width: 100%;
   height: 100%;
-  padding: 12px;
-  overflow: scroll;
-}
-
-.root :deep(*) {
-  padding: revert;
-  margin: revert;
 }
 </style>

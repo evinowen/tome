@@ -37,6 +37,7 @@ export const StateDefaults = (): State => ({
   ghost: '',
   base: '',
   selected: '',
+  held: '',
   editing: false,
 })
 
@@ -124,6 +125,12 @@ export default {
     blur: function (state) {
       state.active = ''
       state.selected = ''
+    },
+    hold: function (state, path) {
+      state.held = path
+    },
+    drop: function (state) {
+      state.held = ''
     },
   },
   actions: <ActionTree<State, unknown>>{
@@ -345,14 +352,17 @@ export default {
       let name = input.toLowerCase().replaceAll(/[ .-]+/g, '.').replaceAll(/[^\d.a-z-]/g, '')
 
       if (title && !directory) {
-        name = `${name}.md`
+        if (ephemeral) {
+          name = `${name}.md`
+        } else {
+          const { extension } = selected
+          name = `${name}${extension || ''}`
+        }
       }
 
-      let item
-
-      ephemeral
-        ? item = await context.dispatch('create', { item: parent, name, directory })
-        : item = await context.dispatch('rename', { item: selected, name })
+      const item = ephemeral
+        ? await context.dispatch('create', { item: parent, name, directory })
+        : await context.dispatch('rename', { item: selected, name })
 
       if (item === undefined) {
         throw new FileSubmitFailureError()
@@ -369,14 +379,16 @@ export default {
     edit: async function (context, criteria) {
       const item = await context.dispatch('select', criteria)
       context.commit('edit', { edit: true })
-
       return item
     },
-    blur: async function (context) {
+    blur: async function (context, uuid) {
       const selected = context.state.directory[context.state.selected]
 
+      if (selected.uuid !== uuid) {
+        return
+      }
+
       context.commit('edit', { edit: false })
-      context.commit('blur')
 
       return selected
     },
@@ -433,6 +445,13 @@ export default {
 
       context.commit('unload', item.parent)
       await context.dispatch('load', { item: item.parent })
+    },
+    drag: async function (context, path) {
+      context.commit('hold', path)
+    },
+    drop: async function (context, path) {
+      await context.dispatch('move', { path: context.state.held, proposed: path })
+      context.commit('drop')
     },
   },
 }

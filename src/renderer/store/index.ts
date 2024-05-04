@@ -14,6 +14,7 @@ import configuration, { State as ConfigurationState } from './modules/configurat
 import context, { State as ContextState } from './modules/context'
 import clipboard, { State as CliboardState } from './modules/clipboard'
 import search, { State as SearchState } from './modules/search'
+import validation, { State as ValidationState } from './modules/validation'
 
 import reporter from './plugins/reporter'
 import mediator from './plugins/mediator'
@@ -38,6 +39,7 @@ export interface State {
   context?: ContextState
   clipboard?: CliboardState
   search?: SearchState
+  validation?: ValidationState
 }
 
 export const StateDefaults = (): State => ({
@@ -115,6 +117,7 @@ export function build_store () {
       clipboard,
       search,
       system,
+      validation,
     },
     plugins: [
       reporter,

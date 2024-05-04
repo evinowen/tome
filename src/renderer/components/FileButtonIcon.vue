@@ -1,92 +1,59 @@
 <template>
-  <v-btn
-    ref="button"
-    rounded="0"
-    variant="text"
-    size="x-small"
-    :class="[ `file-icon-${size}`, `file-icon-button`, disabled ? 'file-icon-disabled' : '' ]"
-    @click.stop="$emit('click')"
-  >
-    <v-icon
-      :class="[ `file-icon-icon`, expanded ? 'file-icon-expanded' : '', badge ? `file-icon-icon-badged` : '' ]"
-    >
-      {{ icon }}
-    </v-icon>
-    <v-icon
-      v-if="badge"
-      :key="path"
-      :class="[ `file-icon-badge`, expanded ? 'file-icon-expanded' : '', modifier ]"
-      :color="alert ? 'red' : ''"
-    >
-      {{ badge }}
-    </v-icon>
-  </v-btn>
+  <button-icon
+    :alert="alert"
+    :badge="badge"
+    :icon="icon"
+    :size="size"
+    :disabled="disabled"
+    :expanded="file.expanded"
+  />
 </template>
 
 <script lang="ts">
-import {
-  VBtn,
-  VIcon,
-} from 'vuetify/components'
+import ButtonIcon from './ButtonIcon.vue'
 
 export default {
   components: {
-    VBtn,
-    VIcon,
+    ButtonIcon,
   },
-  emits: [
-    'click',
-  ],
 }
 </script>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { File } from '@/store/modules/files'
 
 export interface Properties {
   alert?: boolean
-  directory?: boolean
   disabled?: boolean
-  expanded?: boolean
-  extension?: string
-  image?: boolean
-  path?: string
-  relationship?: string
-  selected?: boolean
   size?: string
+  file: File
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
   alert: false,
-  directory: false,
   disabled: false,
-  expanded: false,
-  extension: '',
-  image: false,
-  path: '',
-  relationship: '',
-  selected: false,
   size: 'small',
 })
 
 const system = computed(() => {
-  return [ 'git', 'tome', 'tome-templates', 'tome-actions' ].includes(properties.relationship)
+  return [ 'git', 'tome', 'tome-templates', 'tome-actions' ].includes(properties.file.relationship)
 })
 
 const icon = computed(() => {
-  if (properties.directory) {
-    if (properties.relationship === 'root') {
-      return properties.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
+  if (properties.file.directory) {
+    if (properties.file.relationship === 'root') {
+      return properties.file.expanded ? 'mdi-book-open-page-variant' : 'mdi-book'
     }
 
-    return properties.expanded ? 'mdi-folder-open' : 'mdi-folder'
+    return properties.file.expanded ? 'mdi-folder-open' : 'mdi-folder'
   }
 
-  if (properties.image) {
+  if (properties.file.image) {
     return 'mdi-image'
   }
 
-  if (properties.relationship === 'tome-file') {
+  if (properties.file.relationship === 'tome-file') {
     return 'mdi-file'
   }
 
@@ -96,7 +63,7 @@ const icon = computed(() => {
 const badge = computed(() => {
   const base = properties.alert ? 'mdi-alert-circle' : ''
 
-  switch (properties.relationship) {
+  switch (properties.file.relationship) {
     case 'root':
       return ''
 
@@ -104,7 +71,7 @@ const badge = computed(() => {
       return 'mdi-lock'
 
     case 'tome':
-      return properties.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
+      return properties.file.expanded ? 'mdi-eye-circle' : 'mdi-minus-circle'
 
     case 'tome-feature-actions':
     case 'tome-feature-templates':
@@ -117,8 +84,8 @@ const badge = computed(() => {
       return 'mdi-lightning-bolt-circle'
   }
 
-  if (properties.relationship === 'tome-file') {
-    switch (properties.extension) {
+  if (properties.file.relationship === 'tome-file') {
+    switch (properties.file.extension) {
       case '.md':
         return 'mdi-arrow-down-bold-circle'
 
@@ -131,27 +98,6 @@ const badge = computed(() => {
   }
 
   return base
-})
-
-const modifier = computed(() => {
-  switch (badge.value) {
-    case 'mdi-cog':
-      return 'modify-cog'
-
-    case 'mdi-eye-circle':
-      return 'modify-eye'
-
-    case 'mdi-language-javascript':
-      return 'modify-js'
-
-    case 'mdi-lock':
-      return 'modify-lock'
-
-    case 'mdi-code-json':
-      return 'modify-json'
-  }
-
-  return ''
 })
 
 defineExpose({

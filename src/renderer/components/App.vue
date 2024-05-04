@@ -32,6 +32,7 @@
         <empty-pane v-show="!repository.path" />
 
         <context-menu-service />
+        <validation-box />
 
         <search-service v-show="system.search" />
         <shortcut-service />
@@ -55,6 +56,7 @@ import Settings from '@/components/Settings.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
 import SystemBar from '@/components/SystemBar.vue'
 import ThemeEditor from '@/components/ThemeEditor.vue'
+import ValidationBox from '@/components/ValidationBox.vue'
 import {
   VApp,
   VMain,
@@ -76,6 +78,7 @@ export default {
     ShortcutService,
     SystemBar,
     ThemeEditor,
+    ValidationBox,
     VApp,
     VMain,
   },

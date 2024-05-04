@@ -6,6 +6,7 @@ export interface State {
   position: { x: number, y: number }
   title: string
   items: ContextItem[]
+  menu?: ContextMenu
 }
 
 export const StateDefaults = (): State => ({
@@ -17,10 +18,12 @@ export const StateDefaults = (): State => ({
   },
   title: '',
   items: [],
+  menu: undefined,
 })
 
 export class ContextMenu {
   items: ContextItem[] = []
+  shortcuts: Map<string, ContextItem[]> = new Map<string, ContextItem[]>()
 
   static define (schema: (ContextMenu) => ContextItem[][]) {
     const menu = new ContextMenu()
@@ -34,7 +37,25 @@ export class ContextMenu {
       menu.items.push(...section)
     }
 
-    return menu.items
+    const recurse = (items) => {
+      for (const item of items) {
+        if (item.command) {
+          if (menu.shortcuts.has(item.command.key)) {
+            menu.shortcuts.get(item.command.key).push(item)
+          } else {
+            menu.shortcuts.set(item.command.key, [ item ])
+          }
+        }
+
+        if (item.items) {
+          recurse(item.items)
+        }
+      }
+    }
+
+    recurse(menu.items)
+
+    return menu
   }
 
   static if (condition: boolean): ContextItem[] | undefined {
@@ -58,7 +79,7 @@ export class ContextSection {
 
 export class ContextItem {
   title?: string
-  key?: ContextKey
+  command?: ContextCommand
   divider?: boolean = false
   active?: () => Promise<boolean>
   action?: (target: string) => Promise<void>
@@ -66,11 +87,11 @@ export class ContextItem {
 
   items?: ContextItem[] = undefined
 
-  static action (title: string, action: (target: string) => Promise<void>, key?: ContextKey): ContextItem {
+  static action (title: string, action: (target: string) => Promise<void>, command?: ContextCommand): ContextItem {
     const item = new ContextItem()
     item.title = title
     item.action = action
-    item.key = key
+    item.command = command
 
     return item
   }
@@ -102,87 +123,114 @@ export class ContextItem {
   }
 
   shortcut () {
-    return this.key ? this.key.print() : ''
+    return this.command ? this.command.print() : ''
   }
 }
 
-export class ContextKey {
-  modifiers: {
-    key: string
-    control: boolean
-    option: boolean
-    shift: boolean
-  }
-
-  constructor () {
-    this.modifiers = {
-      key: '',
-      control: false,
-      option: false,
-      shift: false,
-    }
-  }
-
-  static make () {
-    return new ContextKey()
-  }
+export class ContextCommandFactory {
+  command: ContextCommand = new ContextCommand()
 
   control () {
-    this.modifiers.control = true
+    this.command.control = true
     return this
   }
 
-  option () {
-    this.modifiers.option = true
+  alt () {
+    this.command.alt = true
     return this
   }
 
   shift () {
-    this.modifiers.shift = true
+    this.command.shift = true
     return this
   }
 
   key (key: string) {
-    this.modifiers.key = key
-    return this
+    this.command.key = key
+    return this.command
+  }
+}
+
+export class ContextCommand {
+  control: boolean
+  alt: boolean
+  shift: boolean
+  key: string
+
+  constructor () {
+    this.control = false
+    this.alt = false
+    this.shift = false
+    this.key = ''
   }
 
   print () {
     const parts = []
 
-    if (this.modifiers.control) {
+    if (this.control) {
       parts.push('Ctrl')
     }
 
-    if (this.modifiers.shift) {
+    if (this.shift) {
       parts.push('Shift')
     }
 
-    if (this.modifiers.option) {
+    if (this.alt) {
       parts.push('Alt')
     }
 
-    if (this.modifiers.key) {
-      parts.push(this.modifiers.key)
+    if (this.key) {
+      parts.push(this.key)
     }
 
     return parts.join('+')
   }
+
+  static control () {
+    return (new ContextCommandFactory()).control()
+  }
+
+  static alt () {
+    return (new ContextCommandFactory()).alt()
+  }
+
+  static shift () {
+    return (new ContextCommandFactory()).shift()
+  }
+
+  static key (key: string) {
+    return (new ContextCommandFactory()).key(key)
+  }
+}
+
+enum ContextTargetType {
+  Explorer,
+  ExplorerNode,
+  RenderedViewport,
+  ComposeViewport,
+}
+
+export interface ContextTarget {
+  type: ContextTargetType
+  path: string
 }
 
 export default {
   namespaced: true,
   state: StateDefaults,
   mutations: <MutationTree<State>>{
-    fill: function (state, items) {
-      state.items = items
-    },
-    clear: function (state) {
-      Object.assign(state, StateDefaults())
-    },
-    show: function (state, { target, title, position }) {
+    fill: function (state, { target, menu }) {
       state.target = target
-      state.title = title
+      state.menu = menu
+      state.visible = false
+    },
+    clear: function (state, { target }) {
+      if (state.target === target) {
+        state.menu = undefined
+        state.visible = false
+      }
+    },
+    show: function (state, { position }) {
       state.position.x = position?.x || 0
       state.position.y = position?.y || 0
       state.visible = true
@@ -192,15 +240,23 @@ export default {
     },
   },
   actions: <ActionTree<State, unknown>>{
-    open: async function (context, state) {
-      const { target, title = 'Content', items = [], position } = state || {}
+    set: async function (context, state) {
+      const { target, menu } = state || {}
 
-      context.commit('fill', items)
-      context.commit('show', { target, title, position })
+      context.commit('fill', { target, menu })
+    },
+    open: async function (context, state) {
+      const { position } = state || {}
+
+      context.commit('show', { position })
+    },
+    clear: async function (context, state) {
+      const { target } = state || {}
+
+      context.commit('clear', { target })
     },
     close: async function (context) {
       context.commit('hide')
-      context.commit('clear')
     },
   },
 }

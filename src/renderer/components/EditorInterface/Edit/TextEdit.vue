@@ -6,7 +6,8 @@
       '--font-family': theme.font_family_compose || 'monospace',
       '--font-size': `${theme.font_size_compose || 1}em`,
     }"
-    @contextmenu="contextmenu"
+    tabindex="0"
+    @click.right.stop="context_menu"
   />
 </template>
 
@@ -100,16 +101,20 @@ function configure_line_numbers () {
 
 watch(() => properties.file, load)
 
-async function contextmenu (event) {
+async function context_commands () {
+  const selection = selection_fetch()
+  const menu = ComposerViewportContextMenu(store, selection, selection_replace)
+
+  await store.dispatch('context/set', { menu })
+}
+
+async function context_menu (event) {
   const position = {
     x: event.clientX,
     y: event.clientY,
   }
 
-  const selection = selection_fetch()
-  const context = ComposerViewportContextMenu(store, selection, selection_replace)
-
-  await store.dispatch('context/open', { items: context, position })
+  await store.dispatch('context/open', { position })
 }
 
 onMounted(() => {
@@ -125,9 +130,20 @@ onMounted(() => {
     }),
   )
 
+  const detect_focus = ViewPlugin.define(
+    (view) => ({
+      update: (update) => {
+        if (update.focusChanged && view.hasFocus) {
+          context_commands()
+        }
+      },
+    }),
+  )
+
   view = new EditorView({
     extensions: [
       detect_update,
+      detect_focus,
       history(),
       keymap.of([
         ...defaultKeymap,

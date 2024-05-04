@@ -3,10 +3,10 @@
     ref="preview"
     :class="[ 'image-preview', zoom ? 'image-preview-zoom' : '' ]"
   >
-    <file-icon
+    <button-icon
       v-if="hide"
       size="large"
-      image
+      icon="mdi-image"
       alert
       disabled
     />
@@ -22,12 +22,12 @@
 </template>
 
 <script lang="ts">
-import FileIcon from '@/components/FileIcon.vue'
+import ButtonIcon from '@/components/ButtonIcon.vue'
 import { nextTick } from 'vue'
 
 export default {
   components: {
-    FileIcon,
+    ButtonIcon,
   },
 }
 </script>

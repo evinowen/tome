@@ -41,8 +41,16 @@ const rendered = computed((): string => {
 
 <style scoped>
 .rendered {
+  height: 100%;
+  width: 100%;
+  padding: 12px;
   overflow-y: scroll;
   background-color: rgb(var(--v-theme-rendered-background)) !important;
+}
+
+.rendered :deep(*) {
+  padding: revert;
+  margin: revert;
 }
 
 .rendered :deep(p) {

@@ -13,6 +13,26 @@ onMounted(() => window.addEventListener('keyup', keyup))
 onUnmounted(() => window.removeEventListener('keyup', keyup))
 
 async function keyup (event: KeyboardEvent) {
+  if (store.state.context.menu && store.state.context.menu.shortcuts.has(event.key)) {
+    const items = store.state.context.menu.shortcuts.get(event.key)
+    for (const item of items) {
+      if (event.ctrlKey !== item.command.control) {
+        continue
+      }
+
+      if (event.shiftKey !== item.command.shift) {
+        continue
+      }
+
+      if (event.altKey !== item.command.alt) {
+        continue
+      }
+
+      await item.action(store.state.context.target)
+      return
+    }
+  }
+
   switch (event.key) {
     case 'Escape':
       await ShortcutOperator.escape()

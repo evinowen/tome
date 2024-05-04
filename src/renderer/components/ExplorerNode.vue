@@ -1,131 +1,90 @@
 <template>
-  <v-container
+  <div
     v-show="visible"
     class="root"
   >
-    <div
-      ref="draggable"
-      class="explorer-node-drop"
-      droppable
-      :draggable="!(root || system)"
-      @dragstart.stop="drag_start"
-      @dragend.stop="drag_end"
-      @dragenter.stop="drag_enter"
-      @dragover.prevent.stop
-      @dragleave.stop="drag_leave"
-      @drop.stop="drop"
+    <explorer-node-pickup
+      :path="file.path"
+      :enabled="draggable"
     >
-      <div
-        :class="['explorer-node', {'explorer-node-enabled': enabled && !system}, {'explorer-node-selected': selected}]"
-        @click.left.stop="$emit('select', { path })"
-        @click.right.stop="contextmenu"
+      <context
+        ref="context"
+        :load="(store) => ExplorerNodeContextMenu(store, file)"
+        :target="file.path"
+        :class="[
+          'explorer-node',
+          {'explorer-node-visible': visible},
+          {'explorer-node-selected': selected},
+        ]"
+        @click.left.stop="select"
+        @keydown="keydown"
       >
         <div
-          class="explorer-node-indent flex-shrink-1"
+          class="flex-shrink-0"
           :style="{ width: `${depth * 6}px`}"
         />
-        <file-icon
+        <file-button-icon
           class="mr-1"
-          :path="path"
-          :directory="directory"
-          :extension="extension"
-          :image="image"
-          :relationship="relationship"
-          :expanded="expanded"
+          tabindex="-1"
+          :file="file"
           :alert="alert"
-          @click="locked || (directory ? $emit('toggle', { path }) : $emit('select', { path }))"
+          @click.stop="button"
         />
-        <div class="flex-grow-1">
-          <v-form
-            ref="form"
-            v-model="valid"
-            class="explorer-input"
-          >
-            <v-text-field
-              v-show="(selected && edit)"
-              v-model="input"
-              density="compact"
-              variant="plain"
-              rounded="0"
-              autofocus
-              :rules="rules"
-              @blur="$emit('blur')"
-              @focus="focus"
-              @update:model-value="error = undefined"
-              @keyup.enter="valid ? submit() : undefined"
-            />
-            <v-text-field
-              v-show="!(selected && edit)"
-              :model-value="display"
-              readonly
-              density="compact"
-              variant="plain"
-              rounded="0"
-              class="pa-0"
-              @click.left.stop="$emit('select', { path })"
-            />
-          </v-form>
+        <explorer-node-edit-label
+          :uuid="file.uuid"
+          :active="edit"
+          :value="display"
+          :directory="file.directory"
+          @exit="select"
+        />
+        <div
+          v-show="!edit"
+          class="explorer-display"
+        >
+          <p>{{ display }}</p>
         </div>
-      </div>
-    </div>
-    <div style="height: 2px;" />
+      </context>
+    </explorer-node-pickup>
     <div
-      v-if="directory"
-      v-show="expanded"
+      v-if="file.directory"
+      v-show="file.expanded"
       class="explorer-node-container"
     >
+      <div style="height: 2px;" />
       <explorer-node
-        v-for="child in children"
+        v-for="child in file.children"
         :key="child.uuid"
         :uuid="child.uuid"
 
         :active="active"
-        :edit="edit"
         :enabled="enabled"
         :depth="depth + 1"
-
-        @blur="$emit('blur', $event)"
-        @drag="$emit('drag', $event)"
-        @drop="$emit('drop', $event)"
-        @select="$emit('select', $event)"
-        @submit="$emit('submit', $event)"
-        @toggle="$emit('toggle', $event)"
       />
     </div>
-    <div class="explorer-node-break" />
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts">
-import File from '@/store/modules/files/file'
-import FileIcon from '@/components/FileIcon.vue'
-import {
-  VContainer,
-  VForm,
-  VTextField,
-} from 'vuetify/components'
-
-export const ExplorerNodeGhostType = {
-  FILE: 'file',
-  DIRECTORY: 'directory',
-  TEMPLATE: 'template',
-  ACTION: 'action',
-}
+import Context from './Context.vue'
+import ExplorerNodeEditLabel from './ExplorerNodeEditLabel.vue'
+import ExplorerNodePickup from './ExplorerNodePickup.vue'
+import FileButtonIcon from '@/components/FileButtonIcon.vue'
 
 export default {
   name: 'ExplorerNode',
   components: {
-    FileIcon,
-    VContainer,
-    VForm,
-    VTextField,
+    Context,
+    FileButtonIcon,
+    ExplorerNodePickup,
+    ExplorerNodeEditLabel,
   },
 }
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { fetchStore } from '@/store'
+import File from '@/store/modules/files/file'
 import ExplorerNodeContextMenu from '@/context/ExplorerNodeContextMenu'
 import { format } from '@/modules/Titles'
 
@@ -133,7 +92,6 @@ export interface Properties {
   uuid: string
   enabled?: boolean
   active: string
-  edit?: boolean
   root?: boolean
   depth?: number
 }
@@ -142,77 +100,53 @@ const properties = withDefaults(defineProps<Properties>(), {
   uuid: '',
   enabled: false,
   active: '',
-  edit: false,
   root: false,
   depth: 0,
 })
 
-const emit = defineEmits([
-  'blur',
-  'drag',
-  'drop',
-  'select',
-  'submit',
-  'toggle',
-])
-
 const store = fetchStore()
-
-const input = ref<string>('')
-const valid = ref<boolean>(false)
-const error = ref<string>('')
+const context = ref<typeof Context>()
 
 const file = computed((): File => {
   return store.state.files.directory[properties.uuid] || File.Empty
 })
 
-const ephemeral = computed(() => {
-  return file.value.ephemeral
+const draggable = computed(() => {
+  return ![
+    properties.root,
+    system.value,
+    store.state.files.editing,
+    !store.state.configuration.draggable_objects,
+  ].includes(true)
 })
 
-const name = computed(() => {
-  return file.value.name
-})
-
-const path = computed(() => {
-  return file.value.path
-})
-
-const extension = computed(() => {
-  return file.value.extension
-})
-
-const image = computed(() => {
-  return file.value.image
-})
-
-const relationship = computed(() => {
-  return file.value.relationship || ''
-})
-
-const children = computed(() => {
-  return file.value.children
-})
-
-const directory = computed(() => {
-  return file.value.directory
-})
-
-const expanded = computed(() => {
-  return file.value.expanded
+const edit = computed(() => {
+  return selected.value && store.state.files.editing
 })
 
 const selected = computed(() => {
   return properties.uuid === properties.active
 })
 
+watch(selected, () => {
+  if (selected.value) {
+    context.value.element.focus()
+  }
+})
+
+watch(edit, () => {
+  if (!edit.value && selected.value) {
+    context.value.element.focus()
+  }
+})
+
 const locked = computed(() => {
-  return relationship.value === 'git'
+  return file.value.relationship === 'git'
 })
 
 const system = computed(() => {
   const relationships = new Set([ 'root', 'git', 'tome', 'tome-templates', 'tome-actions' ])
-  return relationships.has(relationship.value)
+  return relationships.has(file.value.relationship)
 })
 
 const title_formatted = computed(() => store.state.configuration.format_explorer_titles)
@@ -220,13 +154,13 @@ const title_formatted = computed(() => store.state.configuration.format_explorer
 const display = computed(() => {
   if (title_formatted.value && !system.value) {
     try {
-      return format(name.value, directory.value)
+      return format(file.value.name, file.value.directory)
     } catch {
-      return (ephemeral.value || name.value) ? name.value : ' - '
+      return (file.value.ephemeral || file.value.name) ? file.value.name : ' - '
     }
   }
 
-  return name.value
+  return file.value.name
 })
 
 const visible = computed(() => {
@@ -234,39 +168,20 @@ const visible = computed(() => {
     return false
   }
 
-  return properties.root || ephemeral.value || !title_formatted.value || (title_formatted.value && (display.value !== ''))
-})
-
-const rules = computed((): ((value: string) => boolean | string)[] => {
-  const rules: ((value: string) => boolean | string)[] = [
-    () => !error.value || error.value,
-    (value) => String(value).search(/[^\s\w.-]/g) === -1 || 'special characters are not allowed.',
-    (value) => String(value).search(/[.-]{2,}/g) === -1 || 'adjacent divider characters are not allowed.',
-  ]
-
-  if (title_formatted.value) {
-    rules.push((value) => String(value).search(/[^\w- ]/g) === -1 || 'special characters are not allowed.')
-  } else if (!directory.value) {
-    rules.push(
-      (value) => String(value).search(/\.\w+$/g) !== -1 || 'file extension is required.',
-      (value) => String(value).search(/^.+\.\w+/g) !== -1 || 'file name is required.',
-    )
-  }
-
-  return rules
+  return properties.root || file.value.ephemeral || !title_formatted.value || (title_formatted.value && (display.value !== ''))
 })
 
 const alert = computed(() => {
-  if (system.value || ephemeral.value) {
+  if (system.value || file.value.ephemeral) {
     return false
   }
 
-  if (relationship.value === 'tome-file') {
+  if (file.value.relationship === 'tome-file') {
     return false
   }
 
   try {
-    format(name.value, directory.value)
+    format(file.value.name, file.value.directory)
   } catch {
     return true
   }
@@ -274,74 +189,56 @@ const alert = computed(() => {
   return false
 })
 
-async function contextmenu (event) {
+async function keydown (event: KeyboardEvent) {
+  if ([ 'Enter', ' ' ].includes(event.key)) {
+    if (event.repeat) {
+      return
+    }
+
+    await button()
+  }
+
+  if (event.key === 'ArrowUp') {
+    const nodes = [ ...document.querySelectorAll('.explorer-node-visible') ] as HTMLElement[]
+
+    const index = nodes.indexOf(context.value.element)
+
+    if (index > 0) {
+      nodes[index - 1].focus()
+    }
+  }
+
+  if (event.key === 'ArrowDown') {
+    const nodes = [ ...document.querySelectorAll('.explorer-node-visible') ] as HTMLElement[]
+
+    const index = nodes.indexOf(context.value.element)
+
+    if (index + 1 < nodes.length) {
+      nodes[index + 1].focus()
+    }
+  }
+}
+
+async function button () {
   if (locked.value) {
     return
   }
 
-  const position = {
-    x: event.clientX,
-    y: event.clientY,
-  }
-
-  const context = ExplorerNodeContextMenu(store, file.value)
-
-  await store.dispatch('context/open', { target: path.value, title: path.value, items: context, position })
+  file.value.directory
+    ? await toggle()
+    : await select()
 }
 
-function drag_start (event) {
-  if (system.value || !store.state.configuration.draggable_objects) {
-    event.preventDefault()
-    return
-  }
-
-  event.dataTransfer.dropEffect = 'move'
-  event.target.style.opacity = 0.2
-
-  emit('drag', { path: path.value })
+async function toggle () {
+  await store.dispatch('files/toggle', { path: file.value.path })
 }
 
-function drag_end (event) {
-  event.target.style.opacity = 1
-}
-
-function drag_enter (event) {
-  const container = event.target.closest('[droppable]')
-  container.classList.add('drop')
-}
-
-function drag_leave (event) {
-  const container = event.target.closest('[droppable]')
-  container.classList.remove('drop')
-}
-
-function drop (event) {
-  drag_leave(event)
-  emit('drop', { path: path.value })
-}
-
-function focus () {
-  input.value = display.value
-}
-
-function submit () {
-  if (!valid.value) {
-    return
-  }
-
-  emit('submit', { input: input.value, title: title_formatted.value })
+async function select () {
+  await store.dispatch('files/select', { path: file.value.path })
 }
 
 defineExpose({
   display,
-  drag_end,
-  drag_enter,
-  drag_leave,
-  drag_start,
-  drop,
-  focus,
-  input,
-  submit,
   system,
 })
 </script>
@@ -357,8 +254,10 @@ defineExpose({
 
 .explorer-node {
   display: flex;
+  align-items: stretch;
   white-space: nowrap;
-  overflow: visible;
+  overflow-y: visible;
+  overflow-x: hidden;
 }
 
 .explorer-node,
@@ -376,42 +275,33 @@ defineExpose({
 
 .explorer-node-selected,
 .explorer-node-selected:hover {
-  background: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.8);
   color: rgb(var(--v-theme-on-primary));
   transition:
     background-color 300ms linear,
     color 300ms linear;
 }
 
-.explorer-input,
-.explorer-input :deep(*) {
-  height: 100%;
+.explorer-node:focus {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: -2px;
+}
+
+.explorer-display {
+  align-items: center;
   display: flex;
   flex-grow: 1;
+  flex-shrink: 1;
+  font-size: 0.8em;
+  padding: 0;
+  user-select: none;
+  min-width: 0px;
 }
 
-.explorer-input :deep(.v-field__input) {
+.explorer-display p {
   text-overflow: ellipsis;
-  font-size: 0.6em;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-inline-start: 2px;
-  padding-inline-end: 2px;
-  min-height: 0;
-  border: none;
-  background: none;
-  vertical-align: text-bottom;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.explorer-input :deep(.v-field__outline:before) {
-  border-bottom: 0;
-}
-
-.explorer-input :deep(.v-field__outline:after) {
-  border-bottom: 0;
-}
-
-.explorer-input :deep(.v-input__details) {
-  display: none;
-}
 </style>
