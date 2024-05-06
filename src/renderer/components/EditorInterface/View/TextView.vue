@@ -19,7 +19,7 @@ import Context from '@/components/Context.vue'
 import RenderedViewport from '@/components/RenderedViewport.vue'
 import Mark from 'mark.js'
 import { fetchStore, File } from '@/store'
-import RenderedViewportContextMenu from '@/context/RenderedViewportContextMenu'
+import RenderedViewportContextMenu from '@/objects/context/menus/RenderedViewportContextMenu'
 
 const store = fetchStore()
 

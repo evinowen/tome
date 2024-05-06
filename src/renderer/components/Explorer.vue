@@ -30,7 +30,7 @@ export default {
 import { computed } from 'vue'
 import { fetchStore } from '@/store'
 import File from '@/store/modules/files/file'
-import ExplorerContextMenu from '@/context/ExplorerContextMenu'
+import ExplorerContextMenu from '@/objects/context/menus/ExplorerContextMenu'
 
 export interface Properties {
   enabled: boolean

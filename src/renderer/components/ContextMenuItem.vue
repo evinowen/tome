@@ -7,7 +7,7 @@
     v-else
     :disabled="item.active ? !(item.active()) : false"
     :inactive="item.action ? false : true"
-    @click.stop="emit('execute', item)"
+    @click.stop="execute(item)"
     @mouseover="promote"
   >
     <v-list-item-title
@@ -69,7 +69,7 @@ export default {
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ContextItem } from '@/store/modules/context'
+import ContextItem from '@/objects/context/ContextItem'
 
 export interface Properties {
   item: ContextItem
@@ -93,14 +93,14 @@ async function promote () {
   emit('promote')
 }
 
-async function execute (action) {
-  if (action === undefined) {
+async function execute (item: ContextItem) {
+  if (item.action === undefined) {
     return
   }
 
   emit('close')
 
-  await action()
+  await item.execute()
 }
 </script>
 

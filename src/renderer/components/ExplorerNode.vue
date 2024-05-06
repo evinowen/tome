@@ -86,7 +86,7 @@ export default {
 import { computed, ref, watch } from 'vue'
 import { fetchStore } from '@/store'
 import File from '@/store/modules/files/file'
-import ExplorerNodeContextMenu from '@/context/ExplorerNodeContextMenu'
+import ExplorerNodeContextMenu from '@/objects/context/menus/ExplorerNodeContextMenu'
 import { format } from '@/modules/Titles'
 
 export interface Properties {

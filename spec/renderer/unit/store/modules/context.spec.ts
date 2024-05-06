@@ -1,6 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-import _context, { State as ContextState, ContextMenu } from '@/store/modules/context'
+import _context, { State as ContextState } from '@/store/modules/context'
+import ContextMenu from '@/objects/context/ContextMenu'
 import { cloneDeep } from 'lodash'
 
 interface State {

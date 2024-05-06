@@ -28,7 +28,10 @@ async function keyup (event: KeyboardEvent) {
         continue
       }
 
-      await item.action(store.state.context.target)
+      if (item.action !== undefined) {
+        await item.execute()
+      }
+
       return
     }
   }

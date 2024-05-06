@@ -29,7 +29,7 @@ import { javascript } from '@codemirror/lang-javascript'
 import { debounce } from 'lodash'
 import EditorTheme from '@/composer/EditorTheme'
 import HighlightStyleDefinition from '@/composer/HighlightStyleDefinition'
-import ComposerViewportContextMenu from '@/context/ComposerViewportContextMenu'
+import ComposerViewportContextMenu from '@/objects/context/menus/ComposerViewportContextMenu'
 
 const store = fetchStore()
 

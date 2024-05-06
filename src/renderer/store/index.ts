@@ -1,5 +1,6 @@
 import { InjectionKey } from 'vue'
 import { createStore, useStore, Store, MutationTree, ActionTree } from 'vuex'
+export { Store } from 'vuex'
 
 import { DateTime } from 'luxon'
 

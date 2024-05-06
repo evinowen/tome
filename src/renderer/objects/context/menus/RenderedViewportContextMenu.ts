@@ -1,10 +1,12 @@
-import { Store } from '@/store'
-import { ContextMenu, ContextItem, ContextCommand } from '@/store/modules/context'
+import { Store, State } from '@/store'
+import ContextMenu from '@/objects/context/ContextMenu'
+import ContextItem from '@/objects/context/ContextItem'
+import ContextCommand from '@/objects/context/ContextCommand'
 import { format } from '@/modules/Titles'
 
-export default function RenderedViewportContextMenu (store: Store, selection: string) {
+export default function RenderedViewportContextMenu (store: Store<State>, selection: string) {
   const format_interaction_titles = store.state.configuration.format_interaction_titles
-  return ContextMenu.define(() => [
+  return ContextMenu.define(undefined, () => [
     [
       ContextItem.menu(
         'Action',
@@ -22,7 +24,7 @@ export default function RenderedViewportContextMenu (store: Store, selection: st
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         async () => {},
         ContextCommand.control().key('F'),
-      ).when(() => selection !== ''),
+      ).when(async () => selection !== ''),
     ],
     [
       ContextItem.action(
@@ -31,7 +33,7 @@ export default function RenderedViewportContextMenu (store: Store, selection: st
           await store.dispatch('clipboard/text', selection)
         },
         ContextCommand.control().key('C'),
-      ).when(() => selection !== ''),
+      ).when(async () => selection !== ''),
     ],
   ])
 }

@@ -1,14 +1,22 @@
-import { Store } from '@/store'
-import { ContextMenu, ContextItem, ContextSection, ContextCommand } from '@/store/modules/context'
-import { File } from '@/store/modules/files'
+import { Store, State } from '@/store'
+import ContextMenu from '@/objects/context/ContextMenu'
+import ContextItem from '@/objects/context/ContextItem'
+import ContextSection from '@/objects/context/ContextSection'
+import ContextCommand from '@/objects/context/ContextCommand'
+import File, { FileRelationshipType } from '@/store/modules/files/file'
 import { format } from '@/modules/Titles'
 
-export default function ExplorerNodeContextMenu (store: Store, file: File) {
+export default function ExplorerNodeContextMenu (store: Store<State>, file: File) {
   const format_interaction_titles = store.state.configuration.format_interaction_titles
-  const relationships = new Set([ 'root', 'git', 'tome', 'tome-templates', 'tome-actions' ])
-  const system = relationships.has(file.relationship)
+  const system = new Set([
+    FileRelationshipType.Root,
+    FileRelationshipType.Git,
+    FileRelationshipType.Tome,
+    FileRelationshipType.TomeFeatureActions,
+    FileRelationshipType.TomeFeatureTemplates,
+  ]).has(file.relationship)
 
-  return ContextMenu.define(() => [
+  return ContextMenu.define(file.path, () => [
     ContextMenu.if(file.directory) || [
       file.expanded
         ? ContextItem.action(
@@ -20,23 +28,31 @@ export default function ExplorerNodeContextMenu (store: Store, file: File) {
           async () => await store.dispatch('files/toggle', { path: file.path }),
         ),
     ],
-    ContextMenu.if(system.value) || new ContextSection()
+    ContextMenu.if(system) || new ContextSection()
       .add(
-        [ 'root', 'tome', 'tome-feature-templates' ].includes(file.relationship),
-        special.push(ContextItem.action(
+        [
+          FileRelationshipType.Root,
+          FileRelationshipType.Tome,
+          FileRelationshipType.TomeFeatureTemplates,
+        ].includes(file.relationship),
+        ContextItem.action(
           'New Template',
           async () => await store.dispatch('templates/ghost'),
-        )),
+        ),
       )
       .add(
-        [ 'root', 'tome', 'tome-feature-actions' ].includes(file.relationship),
-        special.push(ContextItem.action(
+        [
+          FileRelationshipType.Root,
+          FileRelationshipType.Tome,
+          FileRelationshipType.TomeFeatureActions,
+        ].includes(file.relationship),
+        ContextItem.action(
           'New Action',
           async () => await store.dispatch('actions/ghost'),
-        )),
+        ),
       )
       .items,
-    ContextMenu.if(!system.value || properties.root) || [
+    ContextMenu.if(!system || file.relationship === FileRelationshipType.Root) || [
       ContextItem.menu(
         'Template',
         async () => store.state.templates.options.map((name) => {
@@ -81,7 +97,7 @@ export default function ExplorerNodeContextMenu (store: Store, file: File) {
         'Cut',
         async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
         ContextCommand.control().key('X'),
-      ).when(() => !system),
+      ).when(async () => !system),
       ContextItem.action(
         'Copy',
         async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path }),
@@ -91,19 +107,19 @@ export default function ExplorerNodeContextMenu (store: Store, file: File) {
         'Paste',
         async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path }),
         ContextCommand.control().key('V'),
-      ).when(() => Boolean(store.state.clipboard.content)),
+      ).when(async () => Boolean(store.state.clipboard.content)),
     ],
     [
       ContextItem.action(
         'Rename',
         async (path) => await store.dispatch('files/edit', { path }),
         ContextCommand.key('F2'),
-      ).when(() => !system),
+      ).when(async () => !system),
       ContextItem.action(
         'Delete',
         async (path) => await store.dispatch('files/delete', { path }),
         ContextCommand.key('Delete'),
-      ).when(() => !system),
+      ).when(async () => !system),
     ],
   ])
 }
