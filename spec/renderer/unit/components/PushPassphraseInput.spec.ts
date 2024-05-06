@@ -2,6 +2,7 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
 import PushPassphraseInput from '@/components/PushPassphraseInput.vue'
+import BasicComponentStub from '?/stubs/BasicComponent.vue'
 
 describe('components/PushPassphraseInput', () => {
   let vuetify
@@ -10,6 +11,12 @@ describe('components/PushPassphraseInput', () => {
     .context(() => ({
       global: {
         plugins: [ vuetify ],
+        stubs: {
+          VBtn: BasicComponentStub,
+          VCol: BasicComponentStub,
+          VIcon: BasicComponentStub,
+          VLayout: BasicComponentStub,
+        },
       },
     }))
 
@@ -32,8 +39,7 @@ describe('components/PushPassphraseInput', () => {
     const clear_button = wrapper.findComponent({ ref: 'clear' })
     expect(clear_button.exists()).toBe(true)
 
-    clear_button.trigger('click')
-    await wrapper.vm.$nextTick()
+    await clear_button.vm.$emit('click', { stopPropagation: vi.fn() })
 
     expect(wrapper.emitted().input).toBeTruthy()
     expect(wrapper.emitted().input[0]).toEqual([ '' ])
@@ -46,8 +52,7 @@ describe('components/PushPassphraseInput', () => {
     const load_button = wrapper.findComponent({ ref: 'load' })
     expect(load_button.exists()).toBe(true)
 
-    load_button.trigger('click')
-    await wrapper.vm.$nextTick()
+    await load_button.vm.$emit('click', { stopPropagation: vi.fn() })
 
     expect(wrapper.emitted().input).toBeTruthy()
     expect(wrapper.emitted().input[0]).toEqual([ stored ])
@@ -61,8 +66,7 @@ describe('components/PushPassphraseInput', () => {
     const display_button = wrapper.findComponent({ ref: 'display' })
     expect(display_button.exists()).toBe(true)
 
-    display_button.trigger('click')
-    await wrapper.vm.$nextTick()
+    await display_button.vm.$emit('click', { stopPropagation: vi.fn() })
 
     expect(wrapper.vm.obscured).toEqual(!obscured)
   })

@@ -21,7 +21,7 @@ export default {
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { File } from '@/store/modules/files'
+import File, { FileRelationshipType } from '@/store/modules/files/file'
 
 export interface Properties {
   alert?: boolean
@@ -37,7 +37,14 @@ const properties = withDefaults(defineProps<Properties>(), {
 })
 
 const system = computed(() => {
-  return [ 'git', 'tome', 'tome-templates', 'tome-actions' ].includes(properties.file.relationship)
+  return [
+    FileRelationshipType.Git,
+    FileRelationshipType.Tome,
+    FileRelationshipType.TomeFeatureActions,
+    FileRelationshipType.TomeFeatureTemplates,
+    FileRelationshipType.TomeAction,
+    FileRelationshipType.TomeTemplate,
+  ].includes(properties.file.relationship)
 })
 
 const icon = computed(() => {

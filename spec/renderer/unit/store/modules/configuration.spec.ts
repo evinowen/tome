@@ -25,7 +25,7 @@ describe('store/modules/configuration', () => {
     email: 'testuser@example.com',
     private_key: 'id_rsa',
     passphrase: 'password',
-    format_titles: false,
+    format_explorer_titles: false,
     dark_mode: true,
   }))
 
@@ -48,7 +48,7 @@ describe('store/modules/configuration', () => {
     expect(store.state.configuration.email).toBe('')
     expect(store.state.configuration.private_key).toBe('')
     expect(store.state.configuration.passphrase).toBe('')
-    expect(store.state.configuration.format_titles).toBe(true)
+    expect(store.state.configuration.format_explorer_titles).toBe(true)
 
     expect(store.state.configuration.undefined).toBeUndefined()
   })
@@ -62,7 +62,7 @@ describe('store/modules/configuration', () => {
     expect(store.state.configuration.email).toBe('testuser@example.com')
     expect(store.state.configuration.private_key).toBe('id_rsa')
     expect(store.state.configuration.passphrase).toBe('password')
-    expect(store.state.configuration.format_titles).toBe(false)
+    expect(store.state.configuration.format_explorer_titles).toBe(false)
   })
 
   it('should load when input file is not able to be parsed when load is dispatched', async () => {
@@ -76,7 +76,7 @@ describe('store/modules/configuration', () => {
     expect(store.state.configuration.email).toBe('')
     expect(store.state.configuration.private_key).toBe('')
     expect(store.state.configuration.passphrase).toBe('')
-    expect(store.state.configuration.format_titles).toBe(true)
+    expect(store.state.configuration.format_explorer_titles).toBe(true)
   })
 
   it('should set values from object when update is dispatched', async () => {
@@ -121,7 +121,7 @@ describe('store/modules/configuration', () => {
     }
 
     const boolean_keys = [
-      'format_titles',
+      'format_explorer_titles',
       'dark_mode',
       'auto_push',
     ]

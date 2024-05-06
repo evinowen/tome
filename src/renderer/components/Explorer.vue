@@ -62,6 +62,7 @@ const file = computed((): File => {
 
 defineExpose({
   active,
+  file,
 })
 </script>
 

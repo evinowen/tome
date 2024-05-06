@@ -15,7 +15,7 @@ describe('components/EditorInterface/DirectoryView', () => {
         plugins: [ vuetify ],
         stubs: {
           EmptyPane: BasicComponentStub,
-          FileIcon: true,
+          FileButtonIcon: true,
           VDivider: true,
         },
       },

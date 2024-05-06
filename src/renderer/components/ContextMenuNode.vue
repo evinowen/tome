@@ -16,7 +16,7 @@
         <context-menu-item
           :item="item"
           :point="local_flip_x ? 'left' : 'right'"
-          @execute="execute(item.action)"
+          @close="$emit('close')"
           @promote="promote(index)"
         />
         <context-menu-node
@@ -32,9 +32,9 @@
           :target="target"
           :items="item.items"
           :layer="layer + 1"
+          @close="$emit('close')"
           @mouseover="activate(index)"
           @mouseleave="deactivate(index)"
-          @close="$emit('close')"
         />
       </div>
     </v-list>
@@ -195,20 +195,10 @@ async function promote (index) {
   promoted.value = index
 }
 
-async function execute (action) {
-  if (action === undefined) {
-    return
-  }
-
-  emit('close')
-  await action(properties.target)
-}
-
 defineExpose({
   active,
   activate,
   deactivate,
-  execute,
   promoted,
   promote,
   local_position_x,

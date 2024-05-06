@@ -2,6 +2,7 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
 import ContextMenuNode from '@/components/ContextMenuNode.vue'
+import BasicComponentStub from '?/stubs/BasicComponent.vue'
 
 vi.mock('resize-observer-polyfill', () => ({
   default: class {
@@ -50,6 +51,9 @@ describe('components/ContextMenuNode', () => {
   }).context(() => ({
     global: {
       plugins: [ vuetify ],
+      stubs: {
+        VList: BasicComponentStub,
+      },
     },
   }))
 
@@ -71,65 +75,63 @@ describe('components/ContextMenuNode', () => {
     vi.clearAllMocks()
   })
 
-  it('should promote the item index of the item that emits a mouseover event', async () => {
+  it('should promote the item index of the item that emits a promote event', async () => {
     const wrapper = factory.wrap()
 
     expect(wrapper.vm.promoted).toEqual(-1)
 
-    const options = wrapper.findAllComponents({ name: 'v-list-item' })
+    const options = wrapper.findAllComponents({ name: 'context-menu-item' })
     expect(options).toHaveLength(3)
 
     {
       const index = 0
-      await options[index].trigger('mouseover')
+      await options[index].vm.$emit('promote')
 
       expect(wrapper.vm.promoted).toEqual(index)
     }
 
     {
       const index = 1
-      await options[index].trigger('mouseover')
+      await options[index].vm.$emit('promote')
 
       expect(wrapper.vm.promoted).toEqual(index)
     }
 
     {
       const index = 2
-      await options[index].trigger('mouseover')
-      await options[index].trigger('mouseover')
+      await options[index].vm.$emit('promote')
 
       expect(wrapper.vm.promoted).toEqual(index)
     }
   })
 
-  it('should execute the item action of the item that emits a click event', async () => {
+  it('should emit close when an item emits a close event', async () => {
     const wrapper = factory.wrap()
 
-    const options = wrapper.findAllComponents({ name: 'v-list-item' })
+    const options = wrapper.findAllComponents({ name: 'context-menu-item' })
     expect(options).toHaveLength(3)
 
     expect(wrapper.emitted().close).toBeFalsy()
 
     {
       const index = 0
-      await options[index].trigger('click')
+      await options[index].vm.$emit('close')
 
-      expect(wrapper.emitted().close).toBeFalsy()
+      expect(wrapper.emitted().close).toHaveLength(1)
     }
 
     {
       const index = 1
-      await options[index].trigger('click')
+      await options[index].vm.$emit('close')
 
-      expect(wrapper.emitted().close).toBeFalsy()
+      expect(wrapper.emitted().close).toHaveLength(2)
     }
 
     {
       const index = 2
-      await options[index].trigger('click')
+      await options[index].vm.$emit('close')
 
-      expect(wrapper.emitted().close).toHaveLength(1)
-      expect(item_action.action).toHaveBeenCalledOnce()
+      expect(wrapper.emitted().close).toHaveLength(3)
     }
   })
 
@@ -190,37 +192,6 @@ describe('components/ContextMenuNode', () => {
     await wrapper.vm.deactivate(index)
 
     expect(wrapper.vm.active).toBe(-1)
-  })
-
-  it('should return when execute is called and no action is provded', async () => {
-    const wrapper = factory.wrap()
-
-    // eslint-disable-next-line unicorn/no-useless-undefined
-    await wrapper.vm.execute(undefined)
-  })
-
-  it('should call action when execute is called and action is provded', async () => {
-    const wrapper = factory.wrap()
-
-    const action = vi.fn()
-
-    expect(action).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.execute(action)
-
-    expect(action).toHaveBeenCalledTimes(1)
-  })
-
-  it('should emit close when execute is called and action is provded', async () => {
-    const wrapper = factory.wrap()
-
-    const action = vi.fn()
-
-    expect(wrapper.emitted('close') || []).toHaveLength(0)
-
-    await wrapper.vm.execute(action)
-
-    expect(wrapper.emitted('close')).toHaveLength(1)
   })
 
   it('should recalculate local_position_x when position_x property is updated', async () => {

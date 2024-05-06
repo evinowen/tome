@@ -4,12 +4,12 @@
     class="explorer-node-pickup"
     droppable
     :draggable="enabled"
-    @dragstart.stop="Drag.start"
-    @dragend.stop="Drag.end"
-    @dragenter.stop="Drag.enter"
+    @dragstart.stop="start"
+    @dragend.stop="end"
+    @dragenter.stop="enter"
     @dragover.prevent.stop
-    @dragleave.stop="Drag.leave"
-    @drop.stop="Drag.drop"
+    @dragleave.stop="leave"
+    @drop.stop="drop"
   >
     <slot />
   </div>
@@ -29,41 +29,43 @@ const properties = withDefaults(defineProps<Properties>(), {
 
 const store = fetchStore()
 
-class Drag {
-  static async start (event) {
-    if (!properties.enabled) {
-      event.preventDefault()
-      return
-    }
-
-    event.dataTransfer.dropEffect = 'move'
-    event.target.style.opacity = 0.2
-
-    await store.dispatch('files/drag', properties.path)
+async function start (event) {
+  if (!properties.enabled) {
+    event.preventDefault()
+    return
   }
 
-  static end (event) {
-    event.target.style.opacity = 1
-  }
+  event.dataTransfer.dropEffect = 'move'
+  event.target.style.opacity = 0.2
 
-  static enter (event) {
-    const container = event.target.closest('[droppable]')
-    container.classList.add('explorer-node-drop')
-  }
+  await store.dispatch('files/drag', properties.path)
+}
 
-  static leave (event) {
-    const container = event.target.closest('[droppable]')
-    container.classList.remove('explorer-node-drop')
-  }
+function end (event) {
+  event.target.style.opacity = 1
+}
 
-  static async drop (event) {
-    Drag.leave(event)
-    await store.dispatch('files/drop', properties.path)
-  }
+function enter (event) {
+  const container = event.target.closest('[droppable]')
+  container.classList.add('explorer-node-drop')
+}
+
+function leave (event) {
+  const container = event.target.closest('[droppable]')
+  container.classList.remove('explorer-node-drop')
+}
+
+async function drop (event) {
+  leave(event)
+  await store.dispatch('files/drop', properties.path)
 }
 
 defineExpose({
-  Drag,
+  start,
+  end,
+  enter,
+  leave,
+  drop,
 })
 </script>
 

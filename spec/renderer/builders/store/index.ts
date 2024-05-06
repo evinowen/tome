@@ -13,7 +13,7 @@ export default function () {
         path: '/project',
       },
       configuration: {
-        format_titles: false,
+        format_explorer_titles: false,
       },
     },
     modules: {

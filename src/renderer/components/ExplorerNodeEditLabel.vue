@@ -43,7 +43,7 @@ import { ref, watch, nextTick } from 'vue'
 import { fetchStore } from '@/store'
 
 export interface Properties {
-  uuid: string
+  path: string
   active?: boolean
   directory?: boolean
   value: string
@@ -82,7 +82,7 @@ async function blur () {
     element: input.value,
   })
 
-  await store.dispatch('files/blur', properties.uuid)
+  await store.dispatch('files/blur', { path: properties.path })
 }
 
 async function update () {
@@ -170,6 +170,7 @@ async function submit () {
 defineExpose({
   input,
   submit,
+  validate,
 })
 </script>
 

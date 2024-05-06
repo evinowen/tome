@@ -4,7 +4,6 @@ export interface State {
   visible: boolean
   target?: string
   position: { x: number, y: number }
-  title: string
   items: ContextItem[]
   menu?: ContextMenu
 }
@@ -16,7 +15,6 @@ export const StateDefaults = (): State => ({
     x: 0,
     y: 0,
   },
-  title: '',
   items: [],
   menu: undefined,
 })
@@ -31,7 +29,7 @@ export class ContextMenu {
 
     for (const section of sections) {
       if (menu.items.length > 0 && !menu.items.at(-1).divider) {
-        menu.items.push({ divider: true })
+        menu.items.push(ContextItem.divider())
       }
 
       menu.items.push(...section)
@@ -70,7 +68,7 @@ export class ContextSection {
 
   add (condition, item: ContextItem) {
     if (condition) {
-      items.push(item)
+      this.items.push(item)
     }
 
     return this
@@ -224,12 +222,6 @@ export default {
       state.menu = menu
       state.visible = false
     },
-    clear: function (state, { target }) {
-      if (state.target === target) {
-        state.menu = undefined
-        state.visible = false
-      }
-    },
     show: function (state, { position }) {
       state.position.x = position?.x || 0
       state.position.y = position?.y || 0
@@ -249,11 +241,6 @@ export default {
       const { position } = state || {}
 
       context.commit('show', { position })
-    },
-    clear: async function (context, state) {
-      const { target } = state || {}
-
-      context.commit('clear', { target })
     },
     close: async function (context) {
       context.commit('hide')

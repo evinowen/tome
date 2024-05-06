@@ -82,7 +82,7 @@ const properties = withDefaults(defineProps<Properties>(), {
 })
 
 const emit = defineEmits([
-  'execute',
+  'close',
   'promote',
 ])
 
@@ -91,6 +91,16 @@ const parent = computed(() => Boolean(properties.item.items || properties.item.l
 async function promote () {
   await properties.item.display()
   emit('promote')
+}
+
+async function execute (action) {
+  if (action === undefined) {
+    return
+  }
+
+  emit('close')
+
+  await action()
 }
 </script>
 

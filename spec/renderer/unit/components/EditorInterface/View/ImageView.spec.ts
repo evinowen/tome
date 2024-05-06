@@ -16,7 +16,7 @@ describe('components/EditorInterface/View/ImageView', async () => {
       global: {
         plugins: [ vuetify ],
         stubs: {
-          FileIcon: BasicComponent,
+          FileButtonIcon: BasicComponent,
         },
       },
     }))

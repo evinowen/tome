@@ -24,6 +24,7 @@
           :style="{ width: `${depth * 6}px`}"
         />
         <file-button-icon
+          ref="button"
           class="mr-1"
           tabindex="-1"
           :file="file"
@@ -31,7 +32,7 @@
           @click.stop="button"
         />
         <explorer-node-edit-label
-          :uuid="file.uuid"
+          :path="file.path"
           :active="edit"
           :value="display"
           :directory="file.directory"
@@ -155,12 +156,10 @@ const display = computed(() => {
   if (title_formatted.value && !system.value) {
     try {
       return format(file.value.name, file.value.directory)
-    } catch {
-      return (file.value.ephemeral || file.value.name) ? file.value.name : ' - '
-    }
+    } catch { /* empty */ }
   }
 
-  return file.value.name
+  return file.value.name || ' - '
 })
 
 const visible = computed(() => {
@@ -238,7 +237,15 @@ async function select () {
 }
 
 defineExpose({
+  alert,
+  button,
   display,
+  draggable,
+  edit,
+  locked,
+  toggle,
+  select,
+  selected,
   system,
 })
 </script>

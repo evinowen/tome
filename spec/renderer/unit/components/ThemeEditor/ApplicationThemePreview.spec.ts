@@ -16,6 +16,7 @@ describe('components/ThemeEditor/Sections/ApplicationThemePreview', () => {
           VCard: BasicComponent,
           VCardText: BasicComponent,
           VListItem: BasicComponent,
+          VSheet: BasicComponent,
           VSwitch: BooleanComponent,
         },
       },

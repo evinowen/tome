@@ -29,6 +29,7 @@ describe('components/RepositoryButton', () => {
           VCard: BasicComponentStub,
           VCardTitle: BasicComponentStub,
           VCardSubtitle: BasicComponentStub,
+          VCardActions: BasicComponentStub,
           VMenu,
         },
       },

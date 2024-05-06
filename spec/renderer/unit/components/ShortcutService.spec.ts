@@ -3,6 +3,8 @@ import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
 import { State, key } from '@/store'
+import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { StateDefaults as ContextStateDefaults } from '@/store/modules/context'
 import ShortcutService from '@/components/ShortcutService.vue'
 import { operate as operate_shortcuts } from '@/modules/Shortcuts'
 import { shortcuts } from '@/shortcuts'
@@ -40,7 +42,12 @@ describe('components/ShortcutService', () => {
 
   beforeEach(() => {
     vuetify = createVuetify()
-    store = createStore<State>({})
+    store = createStore<State>({
+      state: {
+        system: SystemStateDefaults(),
+        context: ContextStateDefaults(),
+      },
+    })
   })
 
   afterEach(() => {

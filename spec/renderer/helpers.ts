@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { shallowMount } from '@vue/test-utils'
 
 const respond = (routable) => {
   const _routable = routable || []
@@ -65,7 +65,7 @@ class Factory<T> {
       this.component.hook(this)
     }
 
-    return mount<T>(
+    return shallowMount<T>(
       this.base.component,
       {
         ...this.generated.context,

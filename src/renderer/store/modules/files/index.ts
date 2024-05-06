@@ -24,6 +24,7 @@ export class State {
   ghost: string
   base: string
   selected: string
+  held: string
   editing: boolean
   tree?: FileTree
   post?: (path: string) => void
@@ -381,10 +382,11 @@ export default {
       context.commit('edit', { edit: true })
       return item
     },
-    blur: async function (context, uuid) {
+    blur: async function (context, criteria) {
+      const { path } = criteria
       const selected = context.state.directory[context.state.selected]
 
-      if (selected.uuid !== uuid) {
+      if (selected.path !== path) {
         return
       }
 
