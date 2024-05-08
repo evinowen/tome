@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
-
 <template>
   <div
+    ref="element"
     class="rendered"
     :style="{
       '--font-family-header': theme.font_family_header,
@@ -14,11 +14,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import Mark from 'mark.js'
 import MarkdownParser from '@/MarkdownParser'
 import { fetchStore } from '@/store'
 
 const store = fetchStore()
+const element = ref<HTMLElement>()
+
+let mark: Mark
 
 interface Properties {
   content: string
@@ -26,6 +30,10 @@ interface Properties {
 
 const properties = withDefaults(defineProps<Properties>(), {
   content: '',
+})
+
+onMounted(() => {
+  mark = new Mark(element.value)
 })
 
 const theme = computed(() => {
@@ -36,6 +44,56 @@ const theme = computed(() => {
 
 const rendered = computed((): string => {
   return MarkdownParser.parse(properties.content)
+})
+
+const selection = {
+  results: [] as Element[],
+  target: undefined as Element,
+
+  class: {
+    result: 'highlight-rendered',
+    target: 'highlight-rendered-target',
+  },
+
+  clear: () => new Promise((resolve) => {
+    mark.unmark({ done: resolve })
+  }),
+
+  highlight: async (regex: RegExp) => {
+    const total = new Promise((resolve) => {
+      mark.markRegExp(
+        regex,
+        {
+          className: selection.class.result,
+          acrossElements: false,
+          done: (total) => {
+            resolve(total)
+          },
+        },
+      )
+    })
+
+    selection.results = [ ...element.value.querySelectorAll(`.${selection.class.result}`) ]
+
+    return total
+  },
+
+  focus: async (index) => {
+    if (selection.target) {
+      selection.target.classList.remove(selection.class.target)
+    }
+
+    selection.target = selection.results[index]
+
+    if (selection.target) {
+      selection.target.classList.add(selection.class.target)
+      selection.target.scrollIntoView()
+    }
+  },
+}
+
+defineExpose({
+  selection,
 })
 </script>
 

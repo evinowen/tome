@@ -1,23 +1,21 @@
-<!-- eslint-disable vue/no-v-html -->
 <template>
   <context
     dynamic
     :load="context_load"
-    class="root"
+    class="viewport-root"
   >
     <rendered-viewport
       id="mark-js-root"
-      ref="root"
+      ref="viewport"
       :content="content"
     />
   </context>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import Context from '@/components/Context.vue'
 import RenderedViewport from '@/components/RenderedViewport.vue'
-import Mark from 'mark.js'
 import { fetchStore, File } from '@/store'
 import RenderedViewportContextMenu from '@/objects/context/menus/RenderedViewportContextMenu'
 
@@ -31,15 +29,7 @@ const properties = withDefaults(defineProps<Properties>(), {
   file: undefined,
 })
 
-const root = ref<HTMLElement>(undefined)
-
-let mark: Mark
-let target: any
-let results: Element[]
-
-onMounted(() => {
-  mark = new Mark('#mark-js-root')
-})
+const viewport = ref<InstanceType<typeof RenderedViewport>>()
 
 const search = computed(() => {
   return store.state.search
@@ -71,9 +61,7 @@ async function context_load () {
 }
 
 watch(search_state, async () => {
-  await new Promise((resolve) => {
-    mark.unmark({ done: resolve })
-  })
+  await viewport.value.selection.clear()
 
   let regex: RegExp
   try {
@@ -86,45 +74,15 @@ watch(search_state, async () => {
     return
   }
 
-  const total = await new Promise((resolve) => {
-    mark.markRegExp(
-      regex,
-      {
-        className: 'highlight-rendered',
-        acrossElements: false,
-        done: (total) => {
-          store.dispatch('search/navigate', { total, target: undefined })
-          resolve(total)
-        },
-      },
-    )
-  })
+  const total = await viewport.value.selection.highlight(regex)
+  store.dispatch('search/navigate', { total, target: undefined })
 
-  results = [ ...root.value.querySelectorAll('mark > mark') ]
-
-  if (results.length !== total) {
-    results = [ ...root.value.querySelectorAll('mark') ]
-  }
-
-  await search_navigate()
+  await viewport.value.selection.focus(search.value.navigation.target - 1)
 })
-
-async function search_navigate () {
-  if (target) {
-    target.classList.remove('highlight-rendered-target')
-  }
-
-  target = results[search.value.navigation.target - 1]
-
-  if (target) {
-    target.classList.add('highlight-rendered-target')
-    target.scrollIntoView()
-  }
-}
 </script>
 
 <style scoped>
-.root {
+.viewport-root {
   width: 100%;
   height: 100%;
 }
