@@ -15,7 +15,9 @@
       ref="image"
       :src="file.path"
       :class="[ 'preview', zoom ? 'preview-zoom' : '' ]"
-      @click="click"
+      draggable
+      @mouseup="mouseup"
+      @mousedown="mousedown"
       @error="error"
     >
   </div>
@@ -33,7 +35,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { File } from '@/store'
 
 export interface Properties {
@@ -58,7 +60,33 @@ function error () {
   hide.value = true
 }
 
-async function click (event) {
+let dragable = false
+let dragging = false
+const mouseposition = {
+  x: 0,
+  y: 0,
+}
+
+onMounted(() => {
+  window.addEventListener('mousemove', mousemove)
+  window.addEventListener('mouseup', mousedragdone)
+  window.addEventListener('mouseleave', mousedragdone)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', mousemove)
+  window.removeEventListener('mouseup', mousedragdone)
+  window.removeEventListener('mouseleave', mousedragdone)
+})
+
+async function mouseup (event) {
+  dragable = false
+
+  if (dragging) {
+    mousedragdone(event)
+    return
+  }
+
   const scroll_x = event.offsetX / event.target.offsetWidth
   const scroll_y = event.offsetY / event.target.offsetHeight
 
@@ -71,6 +99,29 @@ async function click (event) {
   const behavior = 'auto'
 
   preview.value.scrollTo({ top, left, behavior })
+}
+
+async function mousemove (event: MouseEvent) {
+  if (dragable && event.buttons == 1) {
+    dragging = true
+    event.preventDefault()
+
+    preview.value.scrollTop += mouseposition.y - event.screenY
+    preview.value.scrollLeft += mouseposition.x - event.screenX
+
+    mouseposition.x = event.screenX
+    mouseposition.y = event.screenY
+  }
+}
+
+async function mousedown (event: MouseEvent) {
+  dragable = true
+  mouseposition.x = event.screenX
+  mouseposition.y = event.screenY
+}
+
+async function mousedragdone (event: MouseEvent) {
+  dragging = false
 }
 
 defineExpose({
