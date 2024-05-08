@@ -66,9 +66,8 @@ const content = computed((): string => {
   return properties.file.document.content || ''
 })
 
-function context_load () {
-  const selection = document.getSelection().toString()
-  return RenderedViewportContextMenu(store, selection)
+async function context_load () {
+  return RenderedViewportContextMenu(store, document.getSelection().toString())
 }
 
 watch(search_state, async () => {

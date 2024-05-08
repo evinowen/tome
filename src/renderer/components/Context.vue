@@ -13,26 +13,19 @@
 import { ref } from 'vue'
 import { Store } from 'vuex'
 import { fetchStore, State } from '@/store'
-import { ContextMenu } from '@/store/modules/context'
+import ContextMenu from '@/objects/context/ContextMenu'
 
 export interface Properties {
-  dynamic?: boolean
-  load: (store: Store<State>) => ContextMenu
-  target?: string
+  load: (store: Store<State>) => Promise<ContextMenu>
 }
 
-const properties = withDefaults(defineProps<Properties>(), {
-  dynamic: false,
-  target: '',
-})
+const properties = defineProps<Properties>()
 
 const store = fetchStore()
 const element = ref<HTMLElement>()
 
 async function context_commands () {
-  const menu = properties.load(store)
-
-  await store.dispatch('context/set', { target: properties.target, menu })
+  await store.dispatch('context/set', async () => await properties.load(store))
 }
 
 async function context_menu (event) {
@@ -41,15 +34,12 @@ async function context_menu (event) {
     y: event.clientY,
   }
 
-  if (properties.dynamic) {
-    const menu = properties.load(store)
-    await store.dispatch('context/set', { target: properties.target, menu })
-  }
-
   await store.dispatch('context/open', { position })
 }
 
 defineExpose({
+  context_commands,
+  context_menu,
   element,
 })
 </script>

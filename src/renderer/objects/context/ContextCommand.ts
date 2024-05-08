@@ -23,17 +23,10 @@ export class ContextCommandFactory {
 }
 
 export default class ContextCommand {
-  control: boolean
-  alt: boolean
-  shift: boolean
-  key: string
-
-  constructor () {
-    this.control = false
-    this.alt = false
-    this.shift = false
-    this.key = ''
-  }
+  control = false
+  alt = false
+  shift = false
+  key = ''
 
   print () {
     const parts = []

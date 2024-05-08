@@ -27,18 +27,33 @@ describe('store/modules/context', () => {
     vi.clearAllMocks()
   })
 
-  it('should populate context on set dispatch', async () => {
+  it('should assign load callback on set dispatch', async () => {
     const store = factory.wrap()
 
-    expect(store.state.context.target).toEqual('')
     expect(store.state.context.menu).toEqual(undefined)
 
-    const target = '/path'
     const menu = new ContextMenu()
+    const load = async () => menu
 
-    await store.dispatch('context/set', { target, menu })
+    await store.dispatch('context/set', load)
 
-    expect(store.state.context.target).toEqual(target)
+    expect(store.state.context.load).toEqual(load)
+  })
+
+  it('should load menu on open dispatch', async () => {
+    const store = factory.wrap()
+
+    expect(store.state.context.visible).toEqual(false)
+
+    const menu = new ContextMenu()
+    const load = async () => menu
+
+    await store.dispatch('context/set', load)
+
+    const position = { x: 100, y: 200 }
+
+    await store.dispatch('context/open', { position })
+
     expect(store.state.context.menu).toEqual(menu)
   })
 
@@ -47,10 +62,10 @@ describe('store/modules/context', () => {
 
     expect(store.state.context.visible).toEqual(false)
 
-    const target = '/path'
     const menu = new ContextMenu()
+    const load = async () => menu
 
-    await store.dispatch('context/set', { target, menu })
+    await store.dispatch('context/set', load)
 
     const position = { x: 100, y: 200 }
 
@@ -65,10 +80,10 @@ describe('store/modules/context', () => {
     expect(store.state.context.position.x).toEqual(0)
     expect(store.state.context.position.y).toEqual(0)
 
-    const target = '/path'
     const menu = new ContextMenu()
+    const load = async () => menu
 
-    await store.dispatch('context/set', { target, menu })
+    await store.dispatch('context/set', load)
 
     const position = { x: 100, y: 200 }
 
@@ -83,14 +98,14 @@ describe('store/modules/context', () => {
 
     expect(store.state.context.visible).toEqual(false)
 
-    const target = '/path'
     const menu = new ContextMenu()
+    const load = async () => menu
 
-    await store.dispatch('context/set', { target, menu })
+    await store.dispatch('context/set', load)
 
     const position = { x: 100, y: 200 }
 
-    await store.dispatch('context/open', { target, menu, position })
+    await store.dispatch('context/open', { position })
 
     await store.dispatch('context/close')
 

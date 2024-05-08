@@ -1,7 +1,5 @@
 import ContextCommand from './ContextCommand'
 
-class ContextItemNoActionError extends Error {}
-
 export default class ContextItem {
   target?: string
   title?: string
@@ -53,10 +51,8 @@ export default class ContextItem {
   }
 
   async execute () {
-    if (this.action === undefined) {
-      throw new ContextItemNoActionError()
+    if (this.action !== undefined) {
+      await this.action(this.target)
     }
-
-    await this.action(this.target)
   }
 }

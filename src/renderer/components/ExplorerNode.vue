@@ -9,7 +9,7 @@
     >
       <context
         ref="context"
-        :load="(store) => ExplorerNodeContextMenu(store, file)"
+        :load="async (store) => ExplorerNodeContextMenu(store, file)"
         :target="file.path"
         :class="[
           'explorer-node',

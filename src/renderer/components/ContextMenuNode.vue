@@ -1,7 +1,7 @@
 <template>
   <div
     ref="node"
-    v-click-outside.prevent="{ handler: () => $emit('close'), closeConditional: () => root, include }"
+    v-click-outside.prevent="{ handler: () => emit('close'), closeConditional: () => root, include }"
     class="context-menu"
   >
     <v-list
@@ -15,8 +15,8 @@
       >
         <context-menu-item
           :item="item"
-          :point="local_flip_x ? 'left' : 'right'"
-          @close="$emit('close')"
+          :direction="local_flip_x ? 'left' : 'right'"
+          @close="emit('close')"
           @promote="promote(index)"
         />
         <context-menu-node
@@ -29,10 +29,9 @@
           :flip_x="local_flip_x"
           :flip_y="local_flip_y"
           :title="item.title"
-          :target="target"
           :items="item.items"
           :layer="layer + 1"
-          @close="$emit('close')"
+          @close="emit('close')"
           @mouseover="activate(index)"
           @mouseleave="deactivate(index)"
         />
@@ -69,7 +68,6 @@ import ResizeObserver from 'resize-observer-polyfill'
 export interface Properties {
   title?: string
   root?: boolean
-  target?: string
   items: any[]
   position_x: number
   position_y: number
@@ -83,7 +81,6 @@ export interface Properties {
 const properties = withDefaults(defineProps<Properties>(), {
   title: undefined,
   root: false,
-  target: undefined,
   items: () => [],
   position_x: 0,
   position_y: 0,

@@ -7,8 +7,6 @@
     :window_y="window_y"
     :position_x="context.position.x"
     :position_y="context.position.y"
-    :title="context.title"
-    :target="context.target"
     :items="context.menu?.items"
     :layer="10000"
     root

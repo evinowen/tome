@@ -102,10 +102,9 @@ function configure_line_numbers () {
 watch(() => properties.file, load)
 
 async function context_commands () {
-  const selection = selection_fetch()
-  const menu = ComposerViewportContextMenu(store, selection, selection_replace)
+  const load = async () => ComposerViewportContextMenu(store, selection_fetch(), selection_replace)
 
-  await store.dispatch('context/set', { menu })
+  await store.dispatch('context/set', load)
 }
 
 async function context_menu (event) {

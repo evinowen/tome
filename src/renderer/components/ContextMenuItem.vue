@@ -17,7 +17,7 @@
       <div class="menu-item">
         <div class="menu-arrow">
           <v-icon
-            v-show="parent && (point === 'left')"
+            v-show="parent && (direction === 'left')"
             size="small"
           >
             mdi-menu-left
@@ -31,7 +31,7 @@
         </div>
         <div class="menu-arrow">
           <v-icon
-            v-show="parent && (point === 'right')"
+            v-show="parent && (direction === 'right')"
             size="small"
           >
             mdi-menu-right
@@ -73,12 +73,12 @@ import ContextItem from '@/objects/context/ContextItem'
 
 export interface Properties {
   item: ContextItem
-  point: 'left' | 'right'
+  direction: 'left' | 'right'
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
   item: undefined,
-  point: undefined,
+  direction: undefined,
 })
 
 const emit = defineEmits([
@@ -102,6 +102,12 @@ async function execute (item: ContextItem) {
 
   await item.execute()
 }
+
+defineExpose({
+  execute,
+  parent,
+  promote,
+})
 </script>
 
 <style scoped>

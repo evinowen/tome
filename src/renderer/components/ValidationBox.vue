@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch, ref } from 'vue'
+import { onUnmounted, watch, ref } from 'vue'
 import { VIcon } from 'vuetify/components'
 import { fetchStore } from '@/store'
 
@@ -28,27 +28,25 @@ withDefaults(defineProps<Properties>(), {
 })
 
 const store = fetchStore()
-let ticker = 0
+const ticker = ref<ReturnType<typeof setTimeout>>()
 
 const visible = ref<boolean>(false)
 const position_x = ref<number>(0)
 const position_y = ref<number>(0)
 
-onMounted(() => {
-  clearInterval(ticker)
-})
-
 onUnmounted(() => {
-  clearInterval(ticker)
+  if (ticker.value) {
+    clearInterval(ticker.value)
+  }
 })
 
 watch(() => store.state.validation.visible, (value) => {
-  if (ticker > 0) {
-    clearInterval(ticker)
+  if (ticker.value) {
+    clearInterval(ticker.value)
   }
 
   if (value) {
-    ticker = setInterval(() => tick(), 50)
+    ticker.value = setInterval(() => tick(), 50)
   } else {
     visible.value = false
   }
@@ -60,6 +58,11 @@ function tick () {
   position_x.value = rect.x
   position_y.value = rect.y
 }
+
+defineExpose({
+  ticker,
+  visible,
+})
 </script>
 
 <style scoped>

@@ -1,32 +1,31 @@
 import { MutationTree, ActionTree } from 'vuex'
-import ContextItem from '@/objects/context/ContextItem'
 import ContextMenu from '@/objects/context/ContextMenu'
 
 export interface State {
   visible: boolean
-  target?: string
-  position: { x: number, y: number }
-  items: ContextItem[]
+  load?: () => Promise<ContextMenu>
   menu?: ContextMenu
+  position: { x: number, y: number }
 }
 
 export const StateDefaults = (): State => ({
   visible: false,
-  target: '',
+  load: undefined,
+  menu: undefined,
   position: {
     x: 0,
     y: 0,
   },
-  items: [],
-  menu: undefined,
 })
 
 export default {
   namespaced: true,
   state: StateDefaults,
   mutations: <MutationTree<State>>{
-    fill: function (state, { target, menu }) {
-      state.target = target
+    set: function (state, load) {
+      state.load = load
+    },
+    fill: function (state, menu) {
       state.menu = menu
       state.visible = false
     },
@@ -40,14 +39,19 @@ export default {
     },
   },
   actions: <ActionTree<State, unknown>>{
-    set: async function (context, state) {
-      const { target, menu } = state || {}
-
-      context.commit('fill', { target, menu })
+    set: async function (context, load) {
+      context.commit('set', load)
+    },
+    load: async function (context) {
+      if (context.state.load !== undefined) {
+        const menu = await context.state.load()
+        context.commit('fill', menu)
+      }
     },
     open: async function (context, state) {
       const { position } = state || {}
 
+      await context.dispatch('load')
       context.commit('show', { position })
     },
     close: async function (context) {

@@ -28,10 +28,11 @@ export default class ContextMenu {
     const recurse = (items) => {
       for (const item of items) {
         if (item.command) {
-          if (menu.shortcuts.has(item.command.key)) {
-            menu.shortcuts.get(item.command.key).push(item)
+          const key = item.command.key.toLowerCase()
+          if (menu.shortcuts.has(key)) {
+            menu.shortcuts.get(key).push(item)
           } else {
-            menu.shortcuts.set(item.command.key, [ item ])
+            menu.shortcuts.set(key, [ item ])
           }
         }
 

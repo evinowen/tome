@@ -6,6 +6,7 @@ import { format } from '@/modules/Titles'
 
 export default function RenderedViewportContextMenu (store: Store<State>, selection: string) {
   const format_interaction_titles = store.state.configuration.format_interaction_titles
+
   return ContextMenu.define(undefined, () => [
     [
       ContextItem.menu(
@@ -21,8 +22,10 @@ export default function RenderedViewportContextMenu (store: Store<State>, select
     [
       ContextItem.action(
         'Find',
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        async () => {},
+        async (path) => {
+          await store.dispatch('search/query', { path, query: selection })
+          await store.dispatch('system/search', true)
+        },
         ContextCommand.control().key('F'),
       ).when(async () => selection !== ''),
     ],

@@ -14,8 +14,8 @@ export default function ComposerViewportContextMenu (store: Store<State>, select
         async () => store.state.actions.options.map((name) => {
           return ContextItem.action(
             format_interaction_titles ? format(name, true) : name,
-            async (path) => {
-              const output = await store.dispatch('actions/execute', { name, target: path, selection })
+            async (target) => {
+              const output = await store.dispatch('actions/execute', { name, target, selection })
 
               replace(output || selection)
             },
@@ -26,8 +26,10 @@ export default function ComposerViewportContextMenu (store: Store<State>, select
     [
       ContextItem.action(
         'Find',
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        async () => {},
+        async (path) => {
+          await store.dispatch('search/query', { path, query: selection })
+          await store.dispatch('system/search', true)
+        },
         ContextCommand.control().key('F'),
       ).when(async () => selection !== ''),
     ],
@@ -49,8 +51,8 @@ export default function ComposerViewportContextMenu (store: Store<State>, select
       ).when(async () => selection !== ''),
       ContextItem.action(
         'Paste',
-        async () => {
-          await store.dispatch('clipboard/text', selection)
+        async (target) => {
+          await store.dispatch('clipboard/paste', { target })
         },
         ContextCommand.control().key('V'),
       ).when(async () => Boolean(store.state.clipboard.content)),

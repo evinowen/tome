@@ -3,17 +3,29 @@
     ref="button"
     rounded="0"
     variant="text"
-    :class="[ `file-icon-${size}`, `file-icon-button`, disabled ? 'file-icon-disabled' : '' ]"
+    :class="[
+      'button-icon-button',
+      { [`button-icon-${size}`]: size },
+      { 'button-icon-disabled': disabled },
+    ]"
     @click.stop="$emit('click', $event)"
   >
     <v-icon
-      :class="[ `file-icon-icon`, expanded ? 'file-icon-expanded' : '', badge || alert ? `file-icon-icon-badged` : '' ]"
+      :class="[
+        'button-icon-icon',
+        { 'button-icon-expanded': expanded },
+        { 'button-icon-icon-badged': badge || alert },
+      ]"
     >
       {{ icon }}
     </v-icon>
     <v-icon
       v-if="badge || alert"
-      :class="[ `file-icon-badge`, expanded ? 'file-icon-expanded' : '', modifier ]"
+      :class="[
+        'button-icon-badge',
+        { 'button-icon-expanded': expanded },
+        { [`button-icon-${modifier}`]: modifier },
+      ]"
       :color="alert ? 'red' : ''"
     >
       {{ badge || (alert ? 'mdi-alert-circle' : '' ) }}
@@ -79,98 +91,102 @@ const modifier = computed(() => {
 
   return ''
 })
+
+defineExpose({
+  modifier,
+})
 </script>
 
 <style scoped>
-.file-icon-disabled,
-.file-icon-disabled :deep(*) {
+.button-icon-disabled,
+.button-icon-disabled :deep(*) {
   pointer-events: none !important;
 }
 
 * {
-  --tome-file-icon-small: 1;
-  --tome-file-icon-large: 8;
+  --tome-button-icon-small: 1;
+  --tome-button-icon-large: 8;
 }
 
-.file-icon-small {
-  --tome-file-icon-factor: var(--tome-file-icon-small);
+.button-icon-small {
+  --tome-button-icon-factor: var(--tome-button-icon-small);
 }
 
-.file-icon-large {
-  --tome-file-icon-factor: var(--tome-file-icon-large);
+.button-icon-large {
+  --tome-button-icon-factor: var(--tome-button-icon-large);
 }
 
-.file-icon-button {
-  --tome-file-icon-button: calc(var(--tome-file-icon-factor) * 20px);
+.button-icon-button {
+  --tome-button-icon-button: calc(var(--tome-button-icon-factor) * 20px);
 
-  width: var(--tome-file-icon-button) !important;
-  min-width: var(--tome-file-icon-button) !important;
-  height: var(--tome-file-icon-button) !important;
-  min-height: var(--tome-file-icon-button) !important;
+  width: var(--tome-button-icon-button) !important;
+  min-width: var(--tome-button-icon-button) !important;
+  height: var(--tome-button-icon-button) !important;
+  min-height: var(--tome-button-icon-button) !important;
   padding: 0 !important;
 }
 
-.file-icon-icon {
-  --tome-file-icon-icon: calc(var(--tome-file-icon-factor) * 14px);
+.button-icon-icon {
+  --tome-button-icon-icon: calc(var(--tome-button-icon-factor) * 14px);
 
-  font-size: var(--tome-file-icon-icon) !important;
+  font-size: var(--tome-button-icon-icon) !important;
 }
 
-.file-icon-icon-badged {
-  --tome-file-icon-icon-badged-circle-x: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 10px));
-  --tome-file-icon-icon-badged-circle-y: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 7px));
-  --tome-file-icon-icon-badged-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 9px);
-  --tome-file-icon-icon-badged-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 9px) + 1px);
+.button-icon-icon-badged {
+  --tome-button-icon-icon-badged-circle-x: calc(100% - (var(--tome-button-icon-factor) * 0.5 * 10px));
+  --tome-button-icon-icon-badged-circle-y: calc(100% - (var(--tome-button-icon-factor) * 0.5 * 7px));
+  --tome-button-icon-icon-badged-gradient: calc(var(--tome-button-icon-factor) * 0.5 * 9px);
+  --tome-button-icon-icon-badged-gradient-edge: calc((var(--tome-button-icon-factor) * 0.5 * 9px) + 1px);
 
   -webkit-mask-image:
     radial-gradient(
-      circle at var(--tome-file-icon-icon-badged-circle-x) var(--tome-file-icon-icon-badged-circle-y),
-      rgba(0, 0, 0, 0) var(--tome-file-icon-icon-badged-gradient),
-      rgba(0, 0, 0, 1) var(--tome-file-icon-icon-badged-gradient-edge)
+      circle at var(--tome-button-icon-icon-badged-circle-x) var(--tome-button-icon-icon-badged-circle-y),
+      rgba(0, 0, 0, 0) var(--tome-button-icon-icon-badged-gradient),
+      rgba(0, 0, 0, 1) var(--tome-button-icon-icon-badged-gradient-edge)
     );
   mask-image:
     radial-gradient(
-      circle at var(--tome-file-icon-icon-badged-circle-x) var(--tome-file-icon-icon-badged-circle-y),
-      rgba(0, 0, 0, 0) var(--tome-file-icon-icon-badged-gradient),
-      rgba(0, 0, 0, 1) var(--tome-file-icon-icon-badged-gradient-edge)
+      circle at var(--tome-button-icon-icon-badged-circle-x) var(--tome-button-icon-icon-badged-circle-y),
+      rgba(0, 0, 0, 0) var(--tome-button-icon-icon-badged-gradient),
+      rgba(0, 0, 0, 1) var(--tome-button-icon-icon-badged-gradient-edge)
     );
 }
 
-.file-icon-icon-badged.file-icon-expanded {
-  --tome-file-icon-icon-badged-circle-y: calc(100% - (var(--tome-file-icon-factor) * 0.5 * 5px));
+.button-icon-icon-badged.button-icon-expanded {
+  --tome-button-icon-icon-badged-circle-y: calc(100% - (var(--tome-button-icon-factor) * 0.5 * 5px));
 }
 
-.file-icon-badge {
-  --tome-file-icon-badge: calc(var(--tome-file-icon-factor) * 10px);
-  --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 9px);
-  --tome-file-icon-badge-gradient: calc(var(--tome-file-icon-factor) * 0.5 * 7px);
-  --tome-file-icon-badge-gradient-edge: calc((var(--tome-file-icon-factor) * 0.5 * 7px) + 1px);
-  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * 0.5 * 3px);
-  --tome-file-icon-badge-right: calc(var(--tome-file-icon-factor) * 0.5 * 6px);
+.button-icon-badge {
+  --tome-button-icon-badge: calc(var(--tome-button-icon-factor) * 10px);
+  --tome-button-icon-badge-font: calc(var(--tome-button-icon-factor) * 9px);
+  --tome-button-icon-badge-gradient: calc(var(--tome-button-icon-factor) * 0.5 * 7px);
+  --tome-button-icon-badge-gradient-edge: calc((var(--tome-button-icon-factor) * 0.5 * 7px) + 1px);
+  --tome-button-icon-badge-bottom: calc(var(--tome-button-icon-factor) * 0.5 * 3px);
+  --tome-button-icon-badge-right: calc(var(--tome-button-icon-factor) * 0.5 * 6px);
 
   position: absolute;
-  width: var(--tome-file-icon-badge) !important;
-  min-width: var(--tome-file-icon-badge) !important;
-  height: var(--tome-file-icon-badge) !important;
-  min-height: var(--tome-file-icon-badge) !important;
+  width: var(--tome-button-icon-badge) !important;
+  min-width: var(--tome-button-icon-badge) !important;
+  height: var(--tome-button-icon-badge) !important;
+  min-height: var(--tome-button-icon-badge) !important;
 
   -webkit-mask-image:
     radial-gradient(
-      rgba(0, 0, 0, 1) var(--tome-file-icon-badge-gradient),
-      rgba(0, 0, 0, 0) var(--tome-file-icon-badge-gradient-edge)
+      rgba(0, 0, 0, 1) var(--tome-button-icon-badge-gradient),
+      rgba(0, 0, 0, 0) var(--tome-button-icon-badge-gradient-edge)
     );
   mask-image:
     radial-gradient(
-      rgba(0, 0, 0, 1) var(--tome-file-icon-badge-gradient),
-      rgba(0, 0, 0, 0) var(--tome-file-icon-badge-gradient-edge)
+      rgba(0, 0, 0, 1) var(--tome-button-icon-badge-gradient),
+      rgba(0, 0, 0, 0) var(--tome-button-icon-badge-gradient-edge)
     );
-  font-size: var(--tome-file-icon-badge-font) !important;
-  bottom: var(--tome-file-icon-badge-bottom);
-  right: var(--tome-file-icon-badge-right);
+  font-size: var(--tome-button-icon-badge-font) !important;
+  bottom: var(--tome-button-icon-badge-bottom);
+  right: var(--tome-button-icon-badge-right);
 }
 
-.file-icon-badge.file-icon-expanded {
-  --tome-file-icon-badge-bottom: calc(var(--tome-file-icon-factor) * 0.5px);
+.button-icon-badge.button-icon-expanded {
+  --tome-button-icon-badge-bottom: calc(var(--tome-button-icon-factor) * 0.5px);
 }
 
 @keyframes rotating {
@@ -178,29 +194,29 @@ const modifier = computed(() => {
   to{ transform: rotate(360deg); }
 }
 
-.file-icon-large .modify-cog {
+.button-icon-large .button-icon-modify-cog {
   animation: rotating 2s linear infinite;
 }
 
-.modify-book {
-  --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 12px) !important;
+.button-icon-modify-book {
+  --tome-button-icon-badge-font: calc(var(--tome-button-icon-factor) * 12px) !important;
 }
 
-.modify-eye {
-  --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 10px) !important;
+.button-icon-modify-eye {
+  --tome-button-icon-badge-font: calc(var(--tome-button-icon-factor) * 10px) !important;
 }
 
-.modify-js {
-  --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 11.25px) !important;
+.button-icon-modify-js {
+  --tome-button-icon-badge-font: calc(var(--tome-button-icon-factor) * 11.25px) !important;
 }
 
-.modify-lock,
-.modify-json {
-  --tome-file-icon-badge-font: calc(var(--tome-file-icon-factor) * 7.5px) !important;
+.button-icon-modify-lock,
+.button-icon-modify-json {
+  --tome-button-icon-badge-font: calc(var(--tome-button-icon-factor) * 7.5px) !important;
 }
 
-.file-icon-button:active .modify-lock,
-.modify-lock:active {
+.button-icon-button:active .button-icon-modify-lock,
+.button-icon-modify-lock:active {
   color: darkorange !important;
 }
 </style>

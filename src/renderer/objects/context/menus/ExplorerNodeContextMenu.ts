@@ -102,7 +102,7 @@ export default function ExplorerNodeContextMenu (store: Store<State>, file: File
         'Copy',
         async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path }),
         ContextCommand.control().key('C'),
-      ),
+      ).when(async () => !system),
       ContextItem.action(
         'Paste',
         async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path }),
