@@ -32,8 +32,6 @@ export default {
 import { computed } from 'vue'
 import { fetchStore } from '@/store'
 
-const store = fetchStore()
-
 export interface Properties {
   status?: string
   message?: string
@@ -43,6 +41,8 @@ withDefaults(defineProps<Properties>(), {
   status: '',
   message: '',
 })
+
+const store = fetchStore()
 
 const open = computed(() => {
   return store.state.system.console

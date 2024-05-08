@@ -67,14 +67,6 @@ import { DateTime } from 'luxon'
 
 const store = fetchStore()
 
-interface Properties {
-  open?: boolean
-}
-
-withDefaults(defineProps<Properties>(), {
-  open: false,
-})
-
 const detail = ref(false)
 const stack = ref('')
 
