@@ -5,9 +5,6 @@
       resizing ? 'resizing' : undefined
     ]"
     :style="{ 'flex-direction': docked === 'left' ? 'row' : 'row-reverse' }"
-    @mousemove="debounce_resize_move"
-    @mouseup="resize_end"
-    @mouseleave="resize_end"
   >
     <div
       ref="resized"
@@ -17,10 +14,15 @@
       <slot name="docked" />
     </div>
     <div
+      ref="resizer"
       class="pane-control"
       :style="{ width: `${resize_width}px` }"
-      @mousedown="resize_start"
-    />
+      @pointerdown="resize_start"
+      @pointermove="throttle_resize_move"
+      @pointerup="resize_end"
+    >
+      <div class="pane-control-fill" />
+    </div>
 
     <div
       class="pane-dynamic"
@@ -32,7 +34,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { debounce } from 'lodash'
+import { throttle } from 'lodash'
 
 interface Properties {
   docked?: string
@@ -53,16 +55,20 @@ const emit = defineEmits([
 const resized = ref<HTMLElement>(undefined)
 
 const resizing = ref(false)
+const resizer = ref<HTMLElement>()
 const origin = ref(0)
+const offset = ref(0)
 const width = ref(properties.docked_width)
 
-function resize_start (event) {
+function resize_start (event: PointerEvent) {
+  resizer.value.setPointerCapture(event.pointerId)
   resizing.value = true
   width.value = resized.value.offsetWidth
-  origin.value = event.pageX
+  origin.value = width.value
+  offset.value = event.pageX
 }
 
-const debounce_resize_move = debounce(resize_move, 2)
+const throttle_resize_move = throttle(resize_move, 25)
 
 function resize_move (event) {
   if (!resizing.value) {
@@ -71,24 +77,25 @@ function resize_move (event) {
 
   switch (properties.docked) {
     case 'left':
-      width.value += event.pageX - origin.value
+      width.value = origin.value - offset.value + event.pageX
       break
 
     case 'right':
-      width.value -= event.pageX - origin.value
+      width.value = origin.value + offset.value - event.pageX
       break
   }
-  origin.value = event.pageX
 }
 
-function resize_end () {
+function resize_end (event: PointerEvent) {
   resizing.value = false
+  resizer.value.releasePointerCapture(event.pointerId)
   emit('resize', width.value)
 }
 
 watch(() => properties.docked_width, () => width.value = properties.docked_width)
 
 defineExpose({
+  offset,
   origin,
   resize_end,
   resize_move,
@@ -116,6 +123,12 @@ defineExpose({
   flex-shrink: 0;
   min-width: 0;
   min-height: 0;
+  transition: width 0.25s ease-in;
+  background: rgb(var(--v-theme-background))
+}
+
+.root.resizing .pane-docked {
+  transition: none;
 }
 
 .pane-dynamic {
@@ -132,6 +145,17 @@ defineExpose({
   flex-shrink: 0;
   width: 2px;
   cursor: ew-resize;
+  background: rgb(var(--v-theme-background));
+  transition: width 0.25s ease-out;
+}
+
+.pane-control-fill {
+  width: 100%;
+  height: 100%;
   background: rgba(var(--v-theme-on-background), 0.3);
+}
+
+.root.resizing .pane-control {
+  transition: none;
 }
 </style>
