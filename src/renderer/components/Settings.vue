@@ -110,6 +110,7 @@
         detail="Display line numbers in the composition view while editing documents"
         index="line_numbers"
       />
+      <v-divider class="my-2" />
       <option-input
         label="Explorer Position"
         detail="Dock the file explorer on the left or the right"
@@ -122,9 +123,27 @@
         index="explorer_width"
       />
       <number-input
-        label="Resize Control Width"
+        label="Explorer Resize Control Width"
         detail="Specify the width of the control bar that resizes file explorer and viewport"
-        index="resize_width"
+        index="explorer_resize_width"
+      />
+      <v-divider class="my-2" />
+      <number-input
+        label="Search Opacity"
+        detail="Specify the opacity/transparency of the search result interface"
+        index="search_opacity"
+        suffix="%"
+        :slider="[0, 100, 5]"
+      />
+      <number-input
+        label="Search Height"
+        detail="Specify the height of the search result interface"
+        index="search_height"
+      />
+      <number-input
+        label="Search Resize Control Height"
+        detail="Specify the height of the control bar that resizes search result interface"
+        index="search_resize_height"
       />
     </v-card>
     <template #footer>

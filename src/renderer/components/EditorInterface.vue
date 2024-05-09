@@ -2,7 +2,7 @@
   <split-pane
     :docked="explorer_position"
     :docked_width="explorer_width"
-    :resize_width="resize_width"
+    :resize_width="explorer_resize_width"
     @resize="update_explorer_width"
   >
     <template #docked>
@@ -80,8 +80,8 @@ const explorer_width = computed(() => {
   return store.state.configuration.explorer_width
 })
 
-const resize_width = computed(() => {
-  return store.state.configuration.resize_width
+const explorer_resize_width = computed(() => {
+  return store.state.configuration.explorer_resize_width
 })
 
 async function update_explorer_width (value) {

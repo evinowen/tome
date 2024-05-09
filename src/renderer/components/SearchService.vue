@@ -3,6 +3,7 @@
     <v-toolbar
       class="search-box"
       color="surface"
+      :style="{ opacity: search_opacity / 100.0 }"
     >
       <v-item-group
         dense
@@ -85,8 +86,24 @@
       </div>
     </v-toolbar>
     <v-expand-transition>
-      <div v-show="multifile">
-        <div class="search-results">
+      <div
+        v-show="multifile"
+        class="search-results-box"
+        :style="{ opacity: search_opacity / 100.0 }"
+      >
+        <div
+          ref="resizer"
+          class="search-size-control"
+          :style="{ height: `${search_resize_height}px` }"
+          @pointerdown="resize_start"
+          @pointermove="throttle_resize_move"
+          @pointerup="resize_end"
+        />
+        <div
+          ref="resized"
+          class="search-results"
+          :style="{ height: `${height}px` }"
+        >
           <div
             v-for="result in results"
             :key="result.path.relative"
@@ -150,8 +167,8 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
-import { debounce } from 'lodash'
+import { computed, ref, watch } from 'vue'
+import { debounce, throttle } from 'lodash'
 import { fetchStore } from '@/store'
 
 const store = fetchStore()
@@ -223,6 +240,42 @@ async function debounce_clear () {
   return await debounce_update('')
 }
 
+const search_height = computed(() => store.state.configuration.search_height)
+const search_resize_height = computed(() => store.state.configuration.search_resize_height)
+const search_opacity = computed(() => store.state.configuration.search_opacity)
+
+const resized = ref<HTMLElement>()
+const resizer = ref<HTMLElement>()
+const resizing = ref<Boolean>(false)
+const height = ref<number>(search_height.value)
+const origin = ref<number>(0)
+
+watch(search_height, (value) => height.value = value)
+
+async function resize_start (event: PointerEvent) {
+  resizer.value.setPointerCapture(event.pointerId)
+  event.preventDefault()
+  resizing.value = true
+  height.value = resized.value.offsetHeight
+  origin.value = event.pageY + height.value
+}
+
+const throttle_resize_move = throttle(resize_move, 25)
+function resize_move (event) {
+  if (!resizing.value) {
+    return
+  }
+
+  height.value = origin.value - event.pageY
+}
+
+function resize_end (event: PointerEvent) {
+  resizing.value = false
+  resizer.value.releasePointerCapture(event.pointerId)
+
+  store.dispatch('configuration/update', { search_height: height.value })
+}
+
 defineExpose({
   next,
   previous,
@@ -248,12 +301,18 @@ defineExpose({
   text-align: center;
 }
 
+.search-results-box {
+  transition: all 0.5s ease-out allow-discrete;
+  background: rgba(var(--v-theme-surface), 0.9);
+  border-top: 1px dotted rgba(0, 0, 0, 0.2);
+  box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
 .search-results {
   height: 120px;
   overflow-x: hidden;
   overflow-y: overlay;
-  border-top: 1px dotted rgba(0, 0, 0, 0.2);
-  box-shadow: 3px 2px 6px 3px rgba(0, 0, 0, 0.2);
   color: rgb(var(--v-theme-on-surface));
   background: rgba(var(--v-theme-surface), 0.9);
 }
@@ -325,5 +384,10 @@ defineExpose({
   text-indent: 4px;
   padding-top: 0px;
   padding-bottom: 0px;
+}
+
+.search-size-control {
+  cursor: ns-resize;
+  background: rgba(var(--v-theme-on-surface), 0.3);
 }
 </style>
