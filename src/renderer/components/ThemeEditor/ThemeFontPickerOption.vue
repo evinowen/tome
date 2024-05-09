@@ -72,10 +72,10 @@ const target = computed(() => {
 })
 
 async function update_family (value) {
-  await store.dispatch(target.value.store, { [`font_family_${properties.index}`]: value })
+  await store.dispatch(target.value.store, { [`font_family_${properties.index}`]: value ?? '' })
 }
 
 async function update_size (value) {
-  await store.dispatch(target.value.store, { [`font_size_${properties.index}`]: value })
+  await store.dispatch(target.value.store, { [`font_size_${properties.index}`]: value ?? '' })
 }
 </script>

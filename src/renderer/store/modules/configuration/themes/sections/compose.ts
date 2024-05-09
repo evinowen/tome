@@ -30,7 +30,7 @@ export const Schema = z.object({
 
 export interface State {
   font_family_compose: string
-  font_size_compose: string
+  font_size_compose: number
   background: string
   gutters: string
   line_numbers: string
