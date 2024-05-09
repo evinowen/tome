@@ -2,7 +2,10 @@
 <template>
   <div
     ref="element"
-    class="rendered"
+    :class="[
+      'rendered',
+      `rendered-${type}`,
+    ]"
     :style="{
       '--font-family-header': theme.font_family_header,
       '--font-size-header': `${theme.font_size_header}em`,
@@ -14,9 +17,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watchEffect } from 'vue'
 import Mark from 'mark.js'
-import MarkdownParser from '@/MarkdownParser'
+import MarkdownParser from '@/objects/parsers/MarkdownParser'
+import PlainTextParser from '@/objects/parsers/PlainTextParser'
+import CSVParser from '@/objects/parsers/CSVParser'
 import { fetchStore } from '@/store'
 
 const store = fetchStore()
@@ -25,10 +30,16 @@ const element = ref<HTMLElement>()
 let mark: Mark
 
 interface Properties {
+  directory?: string
+  path?: string
+  type: string
   content: string
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
+  directory: '',
+  path: '',
+  type: '',
   content: '',
 })
 
@@ -42,8 +53,21 @@ const theme = computed(() => {
     : store.state.configuration.themes.light.rendered
 })
 
-const rendered = computed((): string => {
-  return MarkdownParser.parse(properties.content)
+const rendered = ref<string>()
+watchEffect(async () => {
+  switch (properties.type) {
+    case 'markdown':
+      return rendered.value = await MarkdownParser.parse(properties.content, properties.directory)
+
+    case 'csv':
+      return rendered.value = CSVParser.parse(properties.content)
+
+    case 'html':
+      return rendered.value = `<iframe style="border: none; width: 100%; min-height: 100%;" src="${properties.path}"></iframe>`
+
+    default:
+      return rendered.value = PlainTextParser.parse(properties.content)
+  }
 })
 
 const selection = {
@@ -104,6 +128,11 @@ defineExpose({
   padding: 12px;
   overflow-y: scroll;
   background-color: rgb(var(--v-theme-rendered-background)) !important;
+}
+
+.rendered-html {
+  overflow-y: hidden;
+  padding: 0px;
 }
 
 .rendered :deep(*) {

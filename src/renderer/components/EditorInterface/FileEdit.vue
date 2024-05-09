@@ -8,6 +8,10 @@
     :file="file"
   />
   <text-edit
+    v-else-if="file.text"
+    :file="file"
+  />
+  <simple-view
     v-else
     :file="file"
   />
@@ -17,12 +21,14 @@
 import DirectoryView from './View/DirectoryView.vue'
 import ImageView from './View/ImageView.vue'
 import TextEdit from './Edit/TextEdit.vue'
+import SimpleView from './View/SimpleView.vue'
 
 export default {
   components: {
     DirectoryView,
     ImageView,
     TextEdit,
+    SimpleView,
   },
 }
 </script>

@@ -7,6 +7,9 @@
     <rendered-viewport
       id="mark-js-root"
       ref="viewport"
+      :directory="file.parent.path"
+      :path="file.path"
+      :type="file.subtype"
       :content="content"
     />
   </context>
@@ -46,10 +49,6 @@ const search_state = computed(() => {
 
 const content = computed((): string => {
   if (properties.file === undefined || properties.file.directory || !properties.file.document) {
-    return ''
-  }
-
-  if (![ '.md' ].includes(properties.file.extension)) {
     return ''
   }
 
