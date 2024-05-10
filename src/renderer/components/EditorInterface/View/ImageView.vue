@@ -95,7 +95,11 @@ async function mouseup (event: PointerEvent) {
   zoom_offset_x.value = event.offsetX / image.value.offsetWidth
   zoom_offset_y.value = event.offsetY / image.value.offsetHeight
 
-  zoom.value = zoom.value > 0 ? 0 : 100
+  if (image.value.naturalWidth > (preview.value.offsetWidth * 0.95) || image.value.naturalHeight > (preview.value.offsetHeight * 0.95)) {
+    zoom.value = zoom.value > 0 ? 0 : 100
+  } else {
+    zoom.value = zoom.value > 0 ? 0 : 200
+  }
 }
 
 function mousemove (event: PointerEvent) {
@@ -136,10 +140,18 @@ function mousewheel (event: WheelEvent) {
 
   let value = zoom.value - event.deltaY / (zoom_fast ? 10 : 50)
 
-  const zoom_width_percent = ((value * image.value.naturalWidth) / preview.value.offsetWidth)
-  const zoom_height_percent = ((value * image.value.naturalHeight) / preview.value.offsetHeight)
-  if ((zoom_width_percent <= 95) && (zoom_height_percent <= 95)) {
-    value = 0
+  if (image.value.naturalWidth > (preview.value.offsetWidth * 0.95) || image.value.naturalHeight > (preview.value.offsetHeight * 0.95)) {
+    const zoom_width_percent = ((value * image.value.naturalWidth) / preview.value.offsetWidth)
+    const zoom_height_percent = ((value * image.value.naturalHeight) / preview.value.offsetHeight)
+    if ((zoom_width_percent <= 95) && (zoom_height_percent <= 95)) {
+      value = 0
+    }
+  } else {
+    const zoom_width_percent = ((value * image.value.naturalWidth) / image.value.naturalWidth)
+    const zoom_height_percent = ((value * image.value.naturalHeight) / image.value.naturalHeight)
+    if ((zoom_width_percent <= 100) && (zoom_height_percent <= 100)) {
+      value = 0
+    }
   }
 
   zoom.value = value < 0 ? 0 : value
