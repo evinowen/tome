@@ -28,8 +28,7 @@
           <patch />
         </template>
 
-        <editor-interface v-show="repository.path" />
-        <empty-pane v-show="!repository.path" />
+        <editor-interface />
 
         <context-menu-service />
         <validation-box />
@@ -48,7 +47,6 @@ import Commit from '@/components/Commit.vue'
 import Console from '@/components/Console.vue'
 import ContextMenuService from '@/components/ContextMenuService.vue'
 import EditorInterface from '@/components/EditorInterface.vue'
-import EmptyPane from '@/components/EmptyPane.vue'
 import Patch from '@/components/Patch.vue'
 import Push from '@/components/Push.vue'
 import SearchService from '@/components/SearchService.vue'
@@ -70,7 +68,6 @@ export default {
     Console,
     ContextMenuService,
     EditorInterface,
-    EmptyPane,
     Patch,
     Push,
     SearchService,
@@ -119,6 +116,14 @@ defineExpose({
   left: 0;
   right: 0;
   font-family: 'Montserrat';
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(var(--v-theme-on-background), 0.075),
+      rgba(var(--v-theme-on-background), 0.075) 3px,
+      rgba(var(--v-theme-on-background), 0.025) 3px,
+      rgba(var(--v-theme-on-background), 0.025) 7.25px
+    );
 }
 
 .app-root {
