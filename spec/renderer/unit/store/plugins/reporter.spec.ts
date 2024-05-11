@@ -6,12 +6,17 @@ describe('store/plugins/reporter', () => {
   let store
   let object
 
+  let error: Error
+
   beforeEach(() => {
+    error = new Error('Error Message')
+    error.stack = 'Error: Example Stack Message\n\tat Example (example/example.js:0:0)'
+
     const module = {
       namespaced: true,
       actions: {
         test: async function () {
-          throw new Error('Error!')
+          throw error
         },
       },
     }
@@ -23,7 +28,7 @@ describe('store/plugins/reporter', () => {
         },
       },
       actions: {
-        error: vi.fn(),
+        log: vi.fn(),
       },
       modules: {
         module,
@@ -40,9 +45,9 @@ describe('store/plugins/reporter', () => {
     vi.clearAllMocks()
   })
 
-  it('should catch errors and dispatch message to "error" action on exception', async () => {
+  it('should catch errors and dispatch log as "error" level on exception', async () => {
     await store.dispatch('module/test')
 
-    expect(object.actions.error).toHaveBeenCalledTimes(1)
+    expect(object.actions.log).toHaveBeenCalledTimes(1)
   })
 })

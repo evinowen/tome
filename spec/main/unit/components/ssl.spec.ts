@@ -57,6 +57,8 @@ mocked_temporary.file.mockImplementation(() => Promise.resolve({ path: random_st
 
 describe('components/ssl', () => {
   let component
+  let win
+  let log
   const disk = new Disk()
 
   beforeEach(() => {
@@ -65,8 +67,25 @@ describe('components/ssl', () => {
     fs_meta.set_disk(disk)
     disk.reset_disk()
 
+    win = {
+      isMaximized: jest.fn(() => true),
+      minimize: jest.fn(),
+      maximize: jest.fn(),
+      restore: jest.fn(),
+      close: jest.fn(),
+    }
+
+    log = {
+      trace: jest.fn(),
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      fatal: jest.fn(),
+    }
+
     component = cloneDeep(_component)
-    component.register()
+    component.register(win, log)
   })
 
   afterEach(() => {

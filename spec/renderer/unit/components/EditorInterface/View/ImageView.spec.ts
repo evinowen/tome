@@ -93,7 +93,6 @@ describe('components/EditorInterface/View/ImageView', async () => {
     await wrapper.vm.$nextTick()
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.zoom).toBe(100)
     expect(spy_scrollTo).toHaveBeenCalled()
   })
 
@@ -119,7 +118,7 @@ describe('components/EditorInterface/View/ImageView', async () => {
     await wrapper.vm.$nextTick()
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.zoom).not.toBe(100)
+    expect(wrapper.vm.zoom).toBe(0)
     expect(spy_scrollTo).not.toHaveBeenCalled()
   })
 

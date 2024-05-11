@@ -136,7 +136,7 @@ export default {
   },
   actions: <ActionTree<State, unknown>>{
     initialize: async function (context, { path }) {
-      await context.dispatch('message', `Initialize file tree at ${path} ... `, { root: true })
+      await context.dispatch('log', { level: 'info', message: `Initialize file tree at ${path} ... ` }, { root: true })
       const tree = await FileTree.make(path)
 
       context.commit('initialize', tree)
@@ -161,13 +161,14 @@ export default {
           case ChokidarEvent.ADD_DIR:
           case ChokidarEvent.DELETE:
           case ChokidarEvent.DELETE_DIR:
-            await context.dispatch('message', `Refresh ${target.path}`, { root: true })
+            await context.dispatch('log', { level: 'debug', message: `Refresh ${target.path}` }, { root: true })
             context.commit('unload', target)
             await context.dispatch('load', { item: target })
             break
         }
       })
 
+      await context.dispatch('log', { level: 'info', message: `File tree at ${path} ready` }, { root: true })
       await context.dispatch('toggle', { item: context.state.tree.base })
     },
     clear: async function (context) {
@@ -206,18 +207,18 @@ export default {
             async (object) => {
               switch (object.type) {
                 case 'read':
-                  await context.dispatch('message', `Read (identity) ${object.bytes} bytes @ ${object.path}`, { root: true })
+                  await context.dispatch('log', { level: 'debug', message: `Read (identity) ${object.bytes} bytes @ ${object.path}` }, { root: true })
                   break
 
                 case 'populated':
-                  await context.dispatch('message', `Populate (identity) ${object.path}`, { root: true })
+                  await context.dispatch('log', { level: 'debug', message: `Populate (identity) ${object.path}` }, { root: true })
                   break
               }
             },
           )
 
           context.commit('load', contract)
-          await context.dispatch('message', `Item directory @ ${Object.keys(context.state.directory).length})`, { root: true })
+          await context.dispatch('log', { level: 'debug', message: `Item directory @ ${Object.keys(context.state.directory).length})` }, { root: true })
 
           identity = await FileTree.search(identity.item, identity.queue)
         } else {
@@ -248,7 +249,7 @@ export default {
     },
     load: async function (context, criteria) {
       const item: File = await context.dispatch('identify', criteria)
-      await context.dispatch('message', `Load ${item.path}`, { root: true })
+      await context.dispatch('log', { level: 'trace', message: `Access (load) ${item.path}` }, { root: true })
 
       if (!(item.ephemeral || item.image)) {
         const contract = await item.load(
@@ -256,20 +257,20 @@ export default {
           async (object) => {
             switch (object.type) {
               case 'read':
-                await context.dispatch('message', `Read (load) ${object.bytes} bytes @ ${object.path}`, { root: true })
+                await context.dispatch('log', { level: 'trace', message: `Read (load) ${object.bytes} bytes @ ${object.path}` }, { root: true })
                 break
 
               case 'populated':
-                await context.dispatch('message', `Populate (load) ${object.path}`, { root: true })
+                await context.dispatch('log', { level: 'trace', message: `Populate (load) ${object.path}` }, { root: true })
                 break
             }
           },
         )
 
         context.commit('load', contract)
-        await context.dispatch('message', `Item directory @ ${Object.keys(context.state.directory).length})`, { root: true })
+        await context.dispatch('log', { level: 'trace', message: `Item directory @ ${Object.keys(context.state.directory).length})` }, { root: true })
 
-        await context.dispatch('message', `Load ${item.path} complete`, { root: true })
+        await context.dispatch('log', { level: 'debug', message: `Load ${item.path}` }, { root: true })
       }
 
       return item

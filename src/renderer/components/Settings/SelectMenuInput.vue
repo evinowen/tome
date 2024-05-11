@@ -46,7 +46,7 @@ interface Properties {
   label: string
   detail: string
   index: string
-  disabled: boolean
+  disabled?: boolean
   options: Option[]
 }
 

@@ -1,5 +1,4 @@
 import component from '../factory'
-import log from 'electron-log/main'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { cloneDeep } from 'lodash'
@@ -275,7 +274,7 @@ class Template {
 class TemplateLeaf extends Template {}
 
 export default component('template')(
-  ({ handle }) => {
+  ({ handle, log }) => {
     handle('invoke', async (source, target) => {
       const name = path.basename(source)
 

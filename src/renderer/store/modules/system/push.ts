@@ -2,7 +2,7 @@ import { delay } from 'lodash'
 
 export default class Push {
   static async perform (dispatch: (action: string, data?: unknown) => Promise<boolean>) {
-    await dispatch('message', 'Perform Push')
+    await dispatch('log', { level: 'info', message: 'Perform Push' })
 
     await dispatch('repository/push')
 

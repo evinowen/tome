@@ -20,8 +20,7 @@ describe('store/modules/actions', () => {
   let files
   let post
 
-  const message = vi.fn()
-  const error = vi.fn()
+  const log = vi.fn()
 
   const disk = new Disk()
   set_disk(disk)
@@ -55,7 +54,7 @@ describe('store/modules/actions', () => {
     }
 
     store = new Vuex.Store<State>(cloneDeep({
-      actions: { message, error },
+      actions: { log },
       modules: {
         actions,
         files,
@@ -115,50 +114,47 @@ describe('store/modules/actions', () => {
     await store.dispatch('actions/load', { path: project })
     await store.dispatch('actions/execute', { name: action, target })
 
-    expect(message).toHaveBeenCalledTimes(1)
-    expect(error).toHaveBeenCalledTimes(0)
+    expect(mocked_api.action.invoke).toHaveBeenCalledWith(`${project}/.tome/actions/${action}`, target, undefined)
   })
 
-  it('should execute actions with specific message provided when execute is dispatched', async () => {
-    mocked_api.action.invoke.mockImplementationOnce(() => Promise.resolve({ success: true, message: 'specific message', selection: '' }))
+  it('should execute actions with specific input provided when execute is dispatched', async () => {
+    mocked_api.action.invoke.mockImplementationOnce(() => Promise.resolve({ success: true, message: 'specific message', input: '' }))
 
     const project = '/project'
     const action = 'example.action.a'
     const target = '/project/first'
+    const input = 'Example Input'
 
     await store.dispatch('actions/load', { path: project })
-    await store.dispatch('actions/execute', { name: action, target })
+    await store.dispatch('actions/execute', { name: action, target, input })
 
-    expect(message).toHaveBeenCalledTimes(1)
-    expect(error).toHaveBeenCalledTimes(0)
+    expect(mocked_api.action.invoke).toHaveBeenCalledWith(`${project}/.tome/actions/${action}`, target, input)
   })
 
   it('should provide error if executed action failed when execute is dispatched', async () => {
-    mocked_api.action.invoke.mockImplementation(() => Promise.resolve({ success: false, message: 'Error Message', selection: '' }))
+    mocked_api.action.invoke.mockImplementation(() => Promise.resolve({ success: false, message: 'Error Message', input: '' }))
 
     const project = '/project'
     const action = 'example.action.a'
     const target = '/project/first'
 
     await store.dispatch('actions/load', { path: project })
-    await store.dispatch('actions/execute', { name: action, target })
+    const { error } = await store.dispatch('actions/execute', { name: action, target })
 
-    expect(message).toHaveBeenCalledTimes(0)
-    expect(error).toHaveBeenCalledTimes(1)
+    expect(error).not.toBeUndefined()
   })
 
   it('should provide error with default message if executed action failed and no message provided when execute is dispatched', async () => {
-    mocked_api.action.invoke.mockImplementation(() => Promise.resolve({ success: false, message: '', selection: '' }))
+    mocked_api.action.invoke.mockImplementation(() => Promise.resolve({ success: false, message: '', input: '' }))
 
     const project = '/project'
     const action = 'example.action.a'
     const target = '/project/first'
 
     await store.dispatch('actions/load', { path: project })
-    await store.dispatch('actions/execute', { name: action, target })
+    const { error } = await store.dispatch('actions/execute', { name: action, target })
 
-    expect(message).toHaveBeenCalledTimes(0)
-    expect(error).toHaveBeenCalledTimes(1)
+    expect(error).not.toBeUndefined()
   })
 
   it('should fail gracefully when invalid action name is provided when execute is dispatched', async () => {

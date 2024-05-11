@@ -2,7 +2,7 @@ import { delay } from 'lodash'
 
 export default class QuickCommit {
   static async perform (dispatch: (action: string, data?: unknown) => Promise<boolean>) {
-    await dispatch('message', 'Perform Quick Commit')
+    await dispatch('log', { level: 'info', message: 'Perform Quick Commit' })
 
     try {
       await dispatch('system/edit', true)
@@ -17,7 +17,7 @@ export default class QuickCommit {
       await dispatch('repository/stage', '*')
       await dispatch('system/perform', 'commit')
     } catch {
-      await dispatch('error', 'Quick Commit failed')
+      await dispatch('log', { level: 'error', message: 'Quick Commit failed' })
       return
     }
 

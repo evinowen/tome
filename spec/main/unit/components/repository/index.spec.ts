@@ -11,12 +11,31 @@ jest.mock('@/components/repository/Repository', () => require('../../../mocks/co
 
 describe('components/repository', () => {
   let component
+  let win
+  let log
 
   beforeEach(() => {
     electron_meta.ipc_reset()
 
+    win = {
+      isMaximized: jest.fn(() => true),
+      minimize: jest.fn(),
+      maximize: jest.fn(),
+      restore: jest.fn(),
+      close: jest.fn(),
+    }
+
+    log = {
+      trace: jest.fn(),
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      fatal: jest.fn(),
+    }
+
     component = cloneDeep(_component)
-    component.register()
+    component.register(win, log)
   })
 
   afterEach(() => {

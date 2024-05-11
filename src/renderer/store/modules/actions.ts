@@ -21,18 +21,20 @@ const create = (context: ActionContext<State, unknown>) => async (path: string) 
 }
 
 const execute = (context: ActionContext<State, unknown>) => async (data: FeatureExecuteInput) => {
-  const { source, target, selection } = data
-  const result = await api.action.invoke(source, target, selection)
+  const { source, target, input } = data
+  const result = await api.action.invoke(source, target, input)
 
+  let error: Error
   if (result.success) {
     const message = `Action ${name} complete${result.message ? `: ${result.message}` : ''}`
-    await context.dispatch('message', message, { root: true })
+    await context.dispatch('log', { level: 'info', message: message }, { root: true })
   } else {
     const message = `Action ${name} failed${result.message ? `: ${result.message}` : ''}`
-    await context.dispatch('error', message, { root: true })
+    error = new Error(message)
+    await context.dispatch('log', { level: 'error', message }, { root: true })
   }
 
-  return result.selection
+  return { output: result.selection, error }
 }
 
-export default factory<string>('actions', create, execute)
+export default factory<{ output: string, error: Error }>('actions', create, execute)

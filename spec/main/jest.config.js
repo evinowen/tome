@@ -26,6 +26,7 @@ module.exports = {
     '^electron-log/main$': '<rootDir>/spec/main/mocks/electron-log/main',
     '^nodegit$': '<rootDir>/spec/main/mocks/nodegit',
     '^node:(fs|path|os|vm)$': '<rootDir>/spec/main/mocks/node/$1',
+    '^pino$': '<rootDir>/spec/main/mocks/pino',
     '^support:(disk)$': '<rootDir>/spec/main/mocks/support/$1',
   },
   moduleFileExtensions: [ 'ts', 'js' ],

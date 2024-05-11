@@ -10,6 +10,7 @@ jest.doMock('electron', () => electron_mock)
 describe('components/window', () => {
   let component
   let win
+  let log
 
   beforeEach(() => {
     electron_meta.ipc_reset()
@@ -22,8 +23,17 @@ describe('components/window', () => {
       close: jest.fn(),
     }
 
+    log = {
+      trace: jest.fn(),
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      fatal: jest.fn(),
+    }
+
     component = cloneDeep(_component)
-    component.register(win)
+    component.register(win, log)
   })
 
   afterEach(() => {

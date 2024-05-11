@@ -3,9 +3,7 @@ import { IpcListener, IpcMainInvokeEvent, ipcMainListenerMap, ipcRendererListene
 
 const AppListeners = new Map<{ app: App, event: string }, () => void>()
 export function ExecAppEvent (app, event) {
-  console.log('test')
   const listener = AppListeners.get({ app, event })
-  console.log('test', listener)
   listener()
 }
 
@@ -82,9 +80,7 @@ export const ipcRenderer = {
   invoke: jest.fn((channel: string, ...args: any[]) => ipcMainListenerMap.get(channel)({} as IpcMainInvokeEvent, ...args)),
   on: jest.fn((channel: string, listener: IpcListener) => ipcRendererListenerMap.set(channel, listener)),
   // eslint-disable-next-line unicorn/prevent-abbreviations, @typescript-eslint/no-explicit-any
-  send: jest.fn((channel: string, ...args: any[]) => {
-    ipcMainListenerMap.get(channel)({} as IpcMainInvokeEvent, ...args)
-  }),
+  send: jest.fn((channel: string, ...args: any[]) => ipcMainListenerMap.get(channel)({} as IpcMainInvokeEvent, ...args)),
 }
 
 export const contextBridge = {

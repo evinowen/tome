@@ -67,7 +67,7 @@ export default function ExplorerNodeContextMenu (store: Store<State>, file: File
         async () => store.state.actions.options.map((name) => {
           return ContextItem.action(
             format_interaction_titles ? format(name, true) : name,
-            async (path) => await store.dispatch('actions/execute', { name, target: path, selection: undefined }),
+            async (path) => await store.dispatch('actions/execute', { name, target: path }),
           )
         }),
       ),

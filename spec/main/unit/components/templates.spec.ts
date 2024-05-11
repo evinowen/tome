@@ -20,6 +20,8 @@ mocked_Mustache.render.mockImplementation(() => 'Mock Rendered')
 
 describe('components/templates', () => {
   let component
+  let win
+  let log
   const disk = new Disk()
 
   beforeEach(() => {
@@ -28,8 +30,25 @@ describe('components/templates', () => {
     fs_meta.set_disk(disk)
     disk.reset_disk()
 
+    win = {
+      isMaximized: jest.fn(() => true),
+      minimize: jest.fn(),
+      maximize: jest.fn(),
+      restore: jest.fn(),
+      close: jest.fn(),
+    }
+
+    log = {
+      trace: jest.fn(),
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      fatal: jest.fn(),
+    }
+
     component = cloneDeep(_component)
-    component.register()
+    component.register(win, log)
   })
 
   afterEach(() => {

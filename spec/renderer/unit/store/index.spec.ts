@@ -16,7 +16,6 @@ vi.mock('@/store/modules/system')
 vi.mock('@/store/plugins/mediator')
 
 const mocked_api = builders.api()
-// eslint-disable-next-line no-import-assign
 Object.assign(api_module, { default: mocked_api })
 
 describe('store', () => {
@@ -41,27 +40,47 @@ describe('store', () => {
     await store.dispatch('hydrate')
   })
 
-  it('should store message event on dispatch of error action', async () => {
+  it('should store event on dispatch of log action', async () => {
     expect(store.state.events).toHaveLength(0)
 
-    await store.dispatch('message', 'Message!')
+    const level = 'info'
+    const message = 'Example Message'
+    await store.dispatch('log', { level, message })
 
     expect(store.state.events).toHaveLength(1)
   })
 
-  it('should store error event on dispatch of error action with string', async () => {
+  it('should store event on dispatch of log action with correct log level', async () => {
     expect(store.state.events).toHaveLength(0)
 
-    await store.dispatch('error', 'Error!')
+    const level = 'info'
+    const message = 'Example Message'
+    await store.dispatch('log', { level, message })
 
     expect(store.state.events).toHaveLength(1)
+    expect(store.state.events[0].level).toEqual(level)
   })
 
-  it('should store error event on dispatch of error action with Error object', async () => {
+  it('should store event on dispatch of log action with correct message', async () => {
     expect(store.state.events).toHaveLength(0)
 
-    await store.dispatch('error', new Error('Error!'))
+    const level = 'info'
+    const message = 'Example Message'
+    await store.dispatch('log', { level, message })
 
     expect(store.state.events).toHaveLength(1)
+    expect(store.state.events[0].message).toEqual(message)
+  })
+
+  it('should store event on dispatch of log action with correct stack', async () => {
+    expect(store.state.events).toHaveLength(0)
+
+    const level = 'info'
+    const message = 'Example Message'
+    const stack = 'Error: Example Stack Message\n\tat Example (example/example.js:0:0)'
+    await store.dispatch('log', { level, message, stack })
+
+    expect(store.state.events).toHaveLength(1)
+    expect(store.state.events[0].stack).toEqual(stack)
   })
 })

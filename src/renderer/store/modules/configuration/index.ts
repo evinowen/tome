@@ -32,6 +32,8 @@ export const Schema = z.object({
   search_height: z.number().optional(),
   search_resize_height: z.number().optional(),
 
+  log_level: z.string().optional(),
+
   themes: ThemesSchema.optional(),
 })
 
@@ -61,6 +63,8 @@ export interface State {
   search_height: number
   search_resize_height: number
 
+  log_level: string
+
   themes?: ThemesState
 }
 
@@ -89,6 +93,8 @@ export const StateDefaults = (): State => ({
   search_opacity: 1,
   search_height: 240,
   search_resize_height: 3,
+
+  log_level: 'info',
 })
 
 export default {
@@ -106,10 +112,9 @@ export default {
       const application_path = await api.app.getPath('userData')
       const configuration_path = await api.path.join(application_path, 'config.json')
 
-      await context.dispatch('message', `Configuration established at ${configuration_path}`, { root: true })
+      await context.dispatch('log', { level: 'info', message: `Configuration established at ${configuration_path}` }, { root: true })
 
       let data = {}
-
       const exists = await api.file.exists(configuration_path)
 
       if (exists) {
@@ -120,19 +125,19 @@ export default {
         try {
           parsed = JSON.parse(raw)
         } catch {
-          await context.dispatch('error', 'Parsing error in config.json configuration file', { root: true })
+          await context.dispatch('log', { level: 'error', message: 'Parsing error in config.json configuration file' }, { root: true })
         }
 
         try {
           data = Schema.parse(parsed)
         } catch {
-          await context.dispatch('error', 'Schema error in config.json configuration file', { root: true })
+          await context.dispatch('log', { level: 'error', message: 'Schema error in config.json configuration file' }, { root: true })
         }
 
-        await context.dispatch('message', `Loaded existing config.json configuration file at ${configuration_path}`, { root: true })
+        await context.dispatch('log', { level: 'info', message: `Loaded existing config.json configuration file at ${configuration_path}` }, { root: true })
       } else {
         await context.dispatch('write')
-        await context.dispatch('message', `Created new config.json configuration file at ${configuration_path}`, { root: true })
+        await context.dispatch('log', { level: 'info', message: `Created new config.json configuration file at ${configuration_path}` }, { root: true })
       }
 
       if (!(data instanceof Object)) {

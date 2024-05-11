@@ -14,7 +14,7 @@ export default function RenderedViewportContextMenu (store: Store<State>, select
         async () => store.state.actions.options.map((name) => {
           return ContextItem.action(
             format_interaction_titles ? format(name, true) : name,
-            async (path) => await store.dispatch('actions/execute', { name, target: path, selection }),
+            async (path) => await store.dispatch('actions/execute', { name, target: path, input: selection }),
           )
         }),
       ),

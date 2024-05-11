@@ -1,5 +1,4 @@
 import component from '../factory'
-import log from 'electron-log/main'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Script } from 'node:vm'
@@ -9,16 +8,16 @@ const environment = {
   require,
   resolve: require.resolve,
   cache: require.cache,
-  console: {
-    log: (...parameters) => log.info(...parameters),
-    error: (...parameters) => log.error(...parameters),
-  },
+  // console: {
+  //   log: (...parameters) => log.info(...parameters),
+  //   error: (...parameters) => log.error(...parameters),
+  // },
 }
 
 const timeout = 30_000
 
 export default component('action')(
-  ({ handle }) => {
+  ({ handle, log }) => {
     handle('invoke', async (source, target, selection) => {
       const stats = await promise_with_reject<fs.Dirent>(fs.lstat)(source)
 

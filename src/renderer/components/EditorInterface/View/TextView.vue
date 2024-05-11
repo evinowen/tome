@@ -69,7 +69,7 @@ watch(search_state, async () => {
       String('g').concat(search.value.case_sensitive ? '' : 'i'),
     )
   } catch (error) {
-    await store.dispatch('error', error)
+    await store.dispatch('log', { level: 'error', message: error.message, stack: error.stack })
     return
   }
 

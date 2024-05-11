@@ -26,19 +26,24 @@ export default function () {
 export function scafold (config) {
   return cloneDeep({
     actions: {
-      message: vi.fn(),
-      error: vi.fn(),
+      log: vi.fn(),
     },
     ...config,
   })
 }
 
-export function stub_actions (list: string[]) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function stub_actions (list: (string | Record<string, any>)[]) {
   const result = {}
 
-  for (const action of list) {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    result[action] = () => {}
+  for (const item of list) {
+    if (typeof item === 'string') {
+      result[item] = vi.fn(() => { /* Empty */ })
+    } else if (typeof item === 'object') {
+      for (const key of Object.keys(item)) {
+        result[key] = vi.fn(item[key])
+      }
+    }
   }
 
   return result

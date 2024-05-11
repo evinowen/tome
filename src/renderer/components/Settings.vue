@@ -111,7 +111,7 @@
         index="line_numbers"
       />
       <v-divider class="my-2" />
-      <option-input
+      <select-button-input
         label="Explorer Position"
         detail="Dock the file explorer on the left or the right"
         index="explorer_position"
@@ -144,6 +144,13 @@
         label="Search Resize Control Height"
         detail="Specify the height of the control bar that resizes search result interface"
         index="search_resize_height"
+      />
+      <v-divider class="my-2" />
+      <select-menu-input
+        label="Log Message Level"
+        detail="What log messages should be logged and reported to the console"
+        index="log_level"
+        :options="log_level_options"
       />
     </v-card>
     <template #footer>
@@ -192,7 +199,8 @@
 <script lang="ts">
 import BooleanInput from './Settings/BooleanInput.vue'
 import NumberInput from './Settings/NumberInput.vue'
-import OptionInput, { Option } from './Settings/OptionInput.vue'
+import SelectMenuInput, { Option as SelectMenuOption } from './Settings/SelectMenuInput.vue'
+import SelectButtonInput, { Option as SelectButtonOption } from './Settings/SelectButtonInput.vue'
 import KeyfileInput from './Settings/KeyfileInput.vue'
 import KeyfileOutput from './KeyfileOutput.vue'
 import TextInput from './Settings/TextInput.vue'
@@ -206,17 +214,27 @@ import {
   VRow,
 } from 'vuetify/components'
 
+const log_level_options = [
+  { value: 'trace', label: 'Trace' },
+  { value: 'debug', label: 'Debug' },
+  { value: 'info', label: 'Info' },
+  { value: 'warn', label: 'Warn' },
+  { value: 'error', label: 'Error' },
+  { value: 'fatal', label: 'Fatal' },
+] as SelectMenuOption[]
+
 const explorer_position_options = [
   { value: 'left', icon: 'mdi-dock-left' },
   { value: 'right', icon: 'mdi-dock-right' },
-] as Option[]
+] as SelectButtonOption[]
 
 export default {
   components: {
     BooleanInput,
-    OptionInput,
     KeyfileInput,
     KeyfileOutput,
+    SelectButtonInput,
+    SelectMenuInput,
     SeaGame,
     TextInput,
     UtilityPage,

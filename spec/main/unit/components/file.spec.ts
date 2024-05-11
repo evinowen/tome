@@ -36,7 +36,7 @@ const chokidar_exec_event = (event: string, ...parameters: any) => {
 const chokidar_watcher = {
   close: jest.fn(() => chokidar_listeners.clear()),
   on: function (channel, listener) {
-    chokidar_listeners.set(channel, listener)
+    chokidar_listeners.set(channel, () => listener())
     return this
   },
 } as unknown as chokidar.FSWatcher
@@ -47,6 +47,7 @@ mocked_chokidar.watch.mockImplementation(() => chokidar_watcher)
 describe('components/file', () => {
   let component
   let win
+  let log
 
   const disk = new Disk()
 
@@ -58,8 +59,17 @@ describe('components/file', () => {
 
     win = new electron.BrowserWindow({})
 
+    log = {
+      trace: jest.fn(),
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      fatal: jest.fn(),
+    }
+
     component = cloneDeep(_component)
-    component.register(win)
+    component.register(win, log)
   })
 
   afterEach(() => {
@@ -67,7 +77,7 @@ describe('components/file', () => {
   })
 
   it('should create a watcher upon call to subscribe', async () => {
-    const target = '/project'
+    const target = '/project/example/test'
     const listener = jest.fn()
     await preload.subscribe(target, listener)
 

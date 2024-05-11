@@ -26,7 +26,7 @@ describe('objects/context/menus/ComposerViewportContextMenu', () => {
         actions: ActionsStateDefaults(),
       },
       actions: stub_actions([
-        'actions/execute',
+        { 'actions/execute': () => ({ output: '' }) },
         'clipboard/text',
         'clipboard/paste',
         'search/query',
@@ -131,7 +131,7 @@ describe('objects/context/menus/ComposerViewportContextMenu', () => {
     expect(store_dispatch).toHaveBeenCalledWith('actions/execute', {
       name: store.state.actions.options[0],
       target: menu.target,
-      selection,
+      input: selection,
     })
   })
 

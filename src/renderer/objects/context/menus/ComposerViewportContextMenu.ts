@@ -15,7 +15,7 @@ export default function ComposerViewportContextMenu (store: Store<State>, select
           return ContextItem.action(
             format_interaction_titles ? format(name, true) : name,
             async (target) => {
-              const output = await store.dispatch('actions/execute', { name, target, selection })
+              const { output } = await store.dispatch('actions/execute', { name, target, input: selection })
 
               replace(output || selection)
             },

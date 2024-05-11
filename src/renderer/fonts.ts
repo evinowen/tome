@@ -5,7 +5,7 @@ interface FontFamily {
 export const library = new Map<string, FontFamily>()
 
 export async function hydrate () {
-  library.length = 0
+  library.clear()
 
   const fonts = await window.queryLocalFonts()
 

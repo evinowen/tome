@@ -124,7 +124,7 @@ describe('objects/context/menus/RenderedViewportContextMenu', () => {
     expect(store_dispatch).toHaveBeenCalledWith('actions/execute', {
       name: store.state.actions.options[0],
       target: menu.target,
-      selection,
+      input: selection,
     })
   })
 

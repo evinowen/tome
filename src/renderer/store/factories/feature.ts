@@ -9,7 +9,7 @@ interface FeatureTarget {
 
 export type FeatureCreateFunction = (context: ActionContext<State, unknown>) => (path: string) => Promise<void>
 export type FeatureExecuteFunction<T> = (context: ActionContext<State, unknown>) => (data: FeatureExecuteInput) => Promise<T>
-export type FeatureExecuteInput = { name: string, source: string, target: string, selection?: string }
+export type FeatureExecuteInput = { name: string, source: string, target: string, input?: string }
 
 export interface State {
   target: FeatureTarget

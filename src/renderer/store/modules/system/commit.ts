@@ -2,15 +2,15 @@ import { delay } from 'lodash'
 
 export default class Commit {
   static async perform (dispatch: (action: string, data?: unknown) => Promise<boolean>) {
-    await dispatch('message', 'Perform Commit')
+    await dispatch('log', { level: 'info', message: 'Perform Commit' })
 
     try {
       await dispatch('repository/commit')
       await dispatch('repository/signature/message')
 
-      await dispatch('message', 'Commit done')
+      await dispatch('log', { level: 'info', message: 'Commit done' })
     } catch {
-      await dispatch('error', 'Commit failed')
+      await dispatch('log', { level: 'error', message: 'Commit failed' })
       return
     } finally {
       await dispatch('system/commit_confirm', false)

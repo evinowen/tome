@@ -1,12 +1,11 @@
 import component from '../factory'
 import { clipboard } from 'electron'
-import log from 'electron-log/main'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { promise_with_reject, promise_with_boolean } from '../../promise'
 
 export default component('clipboard')(
-  ({ handle }) => {
+  ({ handle, log }) => {
     handle('writetext', async (text) => {
       clipboard.writeText(text)
     })
