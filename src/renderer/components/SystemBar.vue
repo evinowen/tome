@@ -6,6 +6,10 @@
     style="user-select: none;"
     color="surface"
   >
+    <span
+      class="system-bar-title"
+      :style="{ opacity: (title ? 1 : 0.6)}"
+    >{{ title || 'tome' }}</span>
     <v-btn
       rounded="0"
       variant="flat"
@@ -52,10 +56,6 @@
       </svg>
     </v-btn>
     <v-spacer />
-    <span
-      system-bar-title
-      :style="{ opacity: (title ? 1 : 0.6)}"
-    >{{ title || 'tome' }}</span>
     <v-spacer />
     <v-btn
       rounded="0"
@@ -163,7 +163,14 @@ defineExpose({
   -webkit-app-region: no-drag;
 }
 
+.system-bar-title {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+}
+
 .system-bar-button {
+  position: relative;
   background: transparent;
   font-size: 1.2em;
   padding: 0px;
