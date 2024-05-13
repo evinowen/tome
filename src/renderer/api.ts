@@ -1,4 +1,9 @@
 export interface API {
+  initalize: {
+    load: () => void
+    ready: () => void
+  }
+
   log: {
     configure: (log_level: string) => void
 

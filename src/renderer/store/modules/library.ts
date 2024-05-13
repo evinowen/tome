@@ -85,7 +85,7 @@ export default {
       await context.dispatch('record')
     },
     record: async function (context) {
-      await api.file.write_library(context.state.path, context.state.history)
+      await api.file.write_library(context.state.path, [ ...context.state.history ])
     },
   },
 }

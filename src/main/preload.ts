@@ -12,6 +12,7 @@ const subscriber = (namespace) => (channel) => (...parameters) => (listener) => 
 }
 
 const alert = {
+  initalize: alerter('initalize'),
   log: alerter('log'),
 }
 
@@ -29,6 +30,11 @@ const invoke = {
 
 const subscribe = {
   file: subscriber('file'),
+}
+
+export const initalize = {
+  load: alert.initalize('load'),
+  ready: alert.initalize('ready'),
 }
 
 export const log = {
@@ -122,6 +128,7 @@ export const window = {
 }
 
 contextBridge.exposeInMainWorld('api', {
+  initalize,
   log,
   action,
   clipboard,

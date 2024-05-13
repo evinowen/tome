@@ -70,7 +70,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { fetchStore } from '@/store'
 
 const store = fetchStore()
@@ -78,6 +78,12 @@ const store = fetchStore()
 const tab = ref<string>('interface')
 
 const system = computed(() => store.state.system)
+
+watch(() => store.state.system.theme_editor, async (value) => {
+  if (value) {
+    await store.dispatch('fonts/hydrate')
+  }
+})
 
 async function close () {
   await store.dispatch('system/theme_editor', false)

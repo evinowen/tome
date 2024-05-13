@@ -17,8 +17,8 @@
     "lint-renderer-print-config": "eslint --print-config src/renderer/main.ts",
     "pack-electron": "electron-builder --dir",
     "rebuild-electron": "electron-rebuild",
-    "serve-main": "cross-env-shell NODE_ENV=development electron dist/main/main.js",
-    "serve-main-framed": "cross-env-shell NODE_ENV=development FRAME_WINDOW=1 electron dist/main/main.js",
+    "serve-main": "cross-env-shell NODE_ENV=development DISABLE_HARDWARE_ACCELERATION=1 electron dist/main/main.js",
+    "serve-main-framed": "cross-env-shell NODE_ENV=development DISABLE_HARDWARE_ACCELERATION=1 FRAME_WINDOW=1 electron dist/main/main.js",
     "serve-renderer": "vite --config src/renderer/vite.config.js",
     "test-main": "jest --config spec/main/jest.config.js",
     "test-renderer": "vitest run --config spec/renderer/vitest.config.js --dir spec/renderer",
@@ -151,5 +151,6 @@
     },
     "afterSign": "./build/notarize.js"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "productName": "Tome"
 }

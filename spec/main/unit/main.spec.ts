@@ -10,13 +10,13 @@ describe('main', () => {
     jest.clearAllMocks()
   })
 
-  it('should create and execute the Application', async () => {
+  it('should create and start the Application', async () => {
     expect(mocked_Application).not.toHaveBeenCalled()
 
     const promise = await import('@/main')
     await promise
 
     expect(mocked_Application).toHaveBeenCalledTimes(1)
-    expect(mocked_Application.mock.instances[0].execute).toHaveBeenCalledTimes(1)
+    expect(mocked_Application.mock.instances[0].start).toHaveBeenCalledTimes(1)
   })
 })

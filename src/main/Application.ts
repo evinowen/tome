@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import LogFactory, { Logger } from './LogFactory'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
@@ -15,7 +15,11 @@ import TemplatesComponent from './components/templates'
 import WindowComponent from './components/window'
 
 if (process.env.NODE_ENV === 'development') {
-  app.setName('tome-development')
+  app.setName('Tome Development')
+}
+
+if (process.env.DISABLE_HARDWARE_ACCELERATION) {
+  app.disableHardwareAcceleration()
 }
 
 export const Events = {
@@ -90,9 +94,11 @@ class Application {
       app.on('window-all-closed', () => {
         this.log.info('Process event: application window-all-closed', process.platform)
         if (process.platform !== 'darwin') {
-          this.emitter.emit(Events.EXIT_APPLICATION)
+          this.emitter.emit(Events.SHUTDOWN)
         }
       })
+
+      app.on('will-quit', () => this.emitter.emit(Events.SHUTDOWN))
     } catch (error) {
       this.emitter.emit(Events.ERROR, error)
     }
@@ -104,21 +110,26 @@ class Application {
       .on(Events.CREATE_APPLICATION, async () => {
         this.log.info('Application Present')
         await this.create_window()
-        this.emitter.emit(Events.READY)
+      })
+      .on(Events.READY, async () => {
+        this.log.info('Application Ready')
+        this.window.show()
+
+        if (process.env.NODE_ENV === 'development') {
+          this.window.webContents.openDevTools()
+        }
       })
       .on(Events.ERROR, (error) => {
         this.log.error(error)
+        this.emitter.emit(Events.SHUTDOWN)
+      })
+      .on(Events.SHUTDOWN, async () => {
+        this.log.info('Application Shutdown')
+        this.log.flush()
         this.emitter.emit(Events.EXIT_APPLICATION)
       })
       .on(Events.EXIT_APPLICATION, () => {
         app.quit()
-        this.emitter.emit(Events.SHUTDOWN)
-      })
-      .on(Events.READY, async () => {
-        this.log.info('Application Ready')
-      })
-      .on(Events.SHUTDOWN, async () => {
-        this.log.info('Application Shutdown')
       })
   }
 
@@ -147,6 +158,14 @@ class Application {
       },
     })
 
+    ipcMain.on('initalize-load', () => {
+      this.window.hide()
+    })
+
+    ipcMain.on('initalize-ready', () => {
+      this.emitter.emit(Events.READY)
+    })
+
     this.log.info('Window build complete')
 
     this.log.info('Registering components with built window')
@@ -156,9 +175,6 @@ class Application {
     development
       ? await this.window.loadURL('http://localhost:8080/')
       : await this.window.loadFile('index.html')
-
-    this.log.info('Showing the window')
-    this.window.show()
   }
 
   register () {

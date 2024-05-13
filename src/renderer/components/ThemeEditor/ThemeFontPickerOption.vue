@@ -38,11 +38,10 @@ export default {
 <script setup lang="ts">
 import { computed } from 'vue'
 import { fetchStore } from '@/store'
-import { library as font_library } from '@/fonts'
 
 const store = fetchStore()
 
-const fonts = computed(() => [ ...font_library.keys() ])
+const fonts = computed(() => store.state.fonts.families)
 const ticks = [ '0.25', '0.50', '0.75', '1.00', '1.25', '1.50', '1.75', '2.00' ]
 
 interface Properties {

@@ -8,7 +8,7 @@
       { [`button-icon-${size}`]: size },
       { 'button-icon-disabled': disabled },
     ]"
-    @click.stop="$emit('click', $event)"
+    @click.stop="emit('click', $event)"
   >
     <v-icon
       :class="[
@@ -44,9 +44,6 @@ export default {
     VBtn,
     VIcon,
   },
-  emits: [
-    'click',
-  ],
 }
 </script>
 
@@ -91,6 +88,10 @@ const modifier = computed(() => {
 
   return ''
 })
+
+const emit = defineEmits([
+  'click',
+])
 
 defineExpose({
   modifier,

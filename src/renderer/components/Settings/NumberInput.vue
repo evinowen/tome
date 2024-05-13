@@ -15,13 +15,13 @@
     </setting-frame>
     <v-slider
       v-if="slider"
+      v-model="slider_model"
       :min="slider[0]"
       :max="slider[1]"
       show-ticks="always"
       :step="slider[2]"
       tick-size="4"
       hide-details
-      v-model="slider_model"
       @update:model-value="debounce_update"
     />
   </div>

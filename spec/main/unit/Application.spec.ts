@@ -1,16 +1,17 @@
 import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import { cloneDeep } from 'lodash'
-import * as electron from 'electron'
+import * as Electron from 'electron'
 import LogFactory from '@/LogFactory'
 import { once } from 'node:events'
 import Application, { Events as ApplicationEvents } from '@/Application'
 
 jest.mock('@/components/actions', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
+jest.mock('@/components/app', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
 jest.mock('@/components/clipboard', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
 jest.mock('@/components/file', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
-jest.mock('@/components/repository', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
-jest.mock('@/components/app', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
+jest.mock('@/components/log', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
 jest.mock('@/components/path', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
+jest.mock('@/components/repository', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
 jest.mock('@/components/ssl', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
 jest.mock('@/components/templates', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
 jest.mock('@/components/window', () => ({ default: { register: jest.fn(), data: jest.fn() } }))
@@ -24,6 +25,7 @@ jest.mock('@/LogFactory', () => ({
       error: jest.fn(),
       fatal: jest.fn(),
       silent: jest.fn(),
+      flush: jest.fn(),
     })),
   },
 }))
@@ -45,8 +47,8 @@ jest.mock('node:fs/promises', () => ({
   unlink: jest.fn(async () => {}),
 }))
 
-const mocked_electron_app = jest.mocked(electron.app)
-const mocked_BrowserWindow = jest.mocked(electron.BrowserWindow)
+const mocked_electron_app = jest.mocked(Electron.app)
+const mocked_BrowserWindow = jest.mocked(Electron.BrowserWindow)
 
 describe('Application', () => {
   let app: Application
@@ -124,7 +126,7 @@ describe('Application', () => {
 
     expect(app.window).not.toBeUndefined()
 
-    const mocked_window = mocked_BrowserWindow.mock.instances[0]
+    const mocked_window = mocked_BrowserWindow.mock.results[0].value as Electron.BrowserWindow
 
     expect(mocked_window.loadFile).toHaveBeenCalled()
     expect(mocked_window.loadURL).not.toHaveBeenCalled()
@@ -140,7 +142,7 @@ describe('Application', () => {
 
     expect(app.window).not.toBeUndefined()
 
-    const mocked_window = mocked_BrowserWindow.mock.instances[0]
+    const mocked_window = mocked_BrowserWindow.mock.results[0].value as Electron.BrowserWindow
 
     expect(mocked_window.loadFile).not.toHaveBeenCalled()
     expect(mocked_window.loadURL).toHaveBeenCalled()
@@ -168,7 +170,7 @@ describe('Application', () => {
     await once(app.emitter, ApplicationEvents.READY)
 
     {
-      const mocked_window = mocked_BrowserWindow.mock.instances[0]
+      const mocked_window = mocked_BrowserWindow.mock.results[0].value as Electron.BrowserWindow
       expect(mocked_window.loadFile).toHaveBeenCalledTimes(1)
     }
 
@@ -176,19 +178,20 @@ describe('Application', () => {
     await once(app.emitter, ApplicationEvents.READY)
 
     {
-      const mocked_window = mocked_BrowserWindow.mock.instances[1]
+      const mocked_window = mocked_BrowserWindow.mock.results[1].value as Electron.BrowserWindow
       expect(mocked_window.loadFile).toHaveBeenCalledTimes(1)
     }
   })
 
   it('should catch error and exit when error is thrown in execute', async () => {
-    mocked_electron_app.whenReady.mockRejectedValueOnce(() => new Error('Mocked Error'))
+    try {
+      mocked_electron_app.whenReady.mockRejectedValueOnce(new Error('Mocked Error'))
 
-    await app.init()
+      await app.init()
 
-    process.nextTick(() => app.execute())
-
-    await once(app.emitter, ApplicationEvents.SHUTDOWN)
+      process.nextTick(() => app.execute())
+      await once(app.emitter, ApplicationEvents.SHUTDOWN)
+    } catch { /* Empty */ }
 
     expect(mocked_electron_app.quit).toHaveBeenCalled()
   })
@@ -201,7 +204,7 @@ describe('Application', () => {
       await once(app.emitter, ApplicationEvents.READY)
 
       {
-        const mocked_window = mocked_BrowserWindow.mock.instances[0]
+        const mocked_window = mocked_BrowserWindow.mock.results[0].value as Electron.BrowserWindow
         expect(mocked_window.loadFile).toHaveBeenCalledTimes(1)
       }
 

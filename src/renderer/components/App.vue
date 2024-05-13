@@ -83,7 +83,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onMounted, ref, watchEffect } from 'vue'
 import { fetchStore } from '@/store'
 
 const store = fetchStore()
@@ -101,6 +101,18 @@ const theme = computed(() => {
 const scroll = (event) => {
   event.target.scrollTop = 0
 }
+
+const ready = ref(false)
+onMounted(async () => {
+  await nextTick()
+  ready.value = true
+})
+
+watchEffect(async () => {
+  if (ready.value) {
+    await store.dispatch('present', 'application')
+  }
+})
 
 defineExpose({
   scroll,

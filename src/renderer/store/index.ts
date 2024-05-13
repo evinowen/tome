@@ -7,6 +7,7 @@ import { DateTime } from 'luxon'
 import api from '@/api'
 import repository, { State as RepositoryState } from './modules/repository'
 import library, { State as LibraryState } from './modules/library'
+import fonts, { State as FontsState } from './modules/fonts'
 import files, { State as FilesState } from './modules/files'
 import system, { State as SystemState } from './modules/system'
 import templates, { State as TemplatesState } from './modules/templates'
@@ -24,6 +25,7 @@ export { File } from './modules/files'
 
 export interface State {
   events?: { level: string, message: string, stack: string, datetime: DateTime }[]
+  stages?: string[]
   status?: string
   message?: string
   application_path?: string
@@ -32,6 +34,7 @@ export interface State {
 
   repository?: RepositoryState
   library?: LibraryState
+  fonts?: FontsState
   files?: FilesState
   system?: SystemState
   templates?: TemplatesState
@@ -45,6 +48,7 @@ export interface State {
 
 export const StateDefaults = (): State => ({
   events: [],
+  stages: [],
   status: '',
   message: '',
   application_path: '',
@@ -79,6 +83,9 @@ export function build_store () {
       hydrate: function (state, data) {
         Object.assign(state, data)
       },
+      stage: function (state, stage) {
+        state.stages.push(stage)
+      },
       log: function (state, data) {
         const { level, message, stack } = data
         state.status = level
@@ -97,18 +104,38 @@ export function build_store () {
         const configuration_path = await api.path.join(application_path, 'config.json')
         const library_path = await api.path.join(application_path, 'library.json')
 
-        await context.dispatch('log', { level: 'info', message: 'Loading...' })
+        await context.dispatch('log', { level: 'trace', message: 'Loading...' })
 
         context.commit('hydrate', { application_path, configuration_path, library_path })
 
         await context.dispatch('system/load')
+
+        await context.dispatch('log', { level: 'debug', message: `Configuration established at ${context.state.configuration_path}` })
         await context.dispatch('configuration/load', context.state.configuration_path)
 
-        await context.dispatch('log', { level: 'info', message: `Configuration established at ${context.state.configuration_path}` })
-
+        await context.dispatch('log', { level: 'debug', message: `Library established at ${context.state.library_path}` })
         await context.dispatch('library/load', context.state.library_path)
 
+        await context.dispatch('log', { level: 'debug', message: 'Loading all Fonts' })
+        for (const fontface of document.fonts) {
+          await fontface.load()
+        }
+        await context.dispatch('present', 'fonts')
+
         await context.dispatch('log', { level: 'info', message: 'Welcome to Tome' })
+      },
+      present: async function (context, stage) {
+        context.commit('stage', stage)
+
+        if (!context.state.stages.includes('application')) {
+          return
+        }
+
+        if (!context.state.stages.includes('fonts')) {
+          return
+        }
+
+        api.initalize.ready()
       },
       log: function (context, detail) {
         const { level, message, stack } = detail
@@ -152,6 +179,7 @@ export function build_store () {
     modules: {
       repository,
       library,
+      fonts,
       files,
       templates,
       actions,
