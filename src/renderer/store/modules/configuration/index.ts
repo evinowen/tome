@@ -90,7 +90,7 @@ export const StateDefaults = (): State => ({
   explorer_width: 320,
   explorer_resize_width: 3,
 
-  search_opacity: 1,
+  search_opacity: 100,
   search_height: 240,
   search_resize_height: 3,
 

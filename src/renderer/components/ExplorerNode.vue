@@ -29,7 +29,7 @@
           tabindex="-1"
           :file="file"
           :alert="alert"
-          @click.stop="button"
+          @click.stop="activate"
         />
         <explorer-node-edit-label
           :path="file.path"
@@ -51,7 +51,6 @@
       v-show="file.expanded"
       class="explorer-node-container"
     >
-      <div style="height: 2px;" />
       <explorer-node
         v-for="child in file.children"
         :key="child.uuid"
@@ -85,7 +84,7 @@ export default {
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { fetchStore } from '@/store'
-import File from '@/store/modules/files/file'
+import File, { FileRelationshipType } from '@/store/modules/files/file'
 import ExplorerNodeContextMenu from '@/objects/context/menus/ExplorerNodeContextMenu'
 import { format } from '@/modules/Titles'
 
@@ -153,13 +152,18 @@ const system = computed(() => {
 const title_formatted = computed(() => store.state.configuration.format_explorer_titles)
 
 const display = computed(() => {
-  if (title_formatted.value && !system.value) {
+  let name = file.value.name
+  if (file.value.relationship === FileRelationshipType.Root) {
+    name = store.state.repository.name
+  }
+
+  if (title_formatted.value && (!system.value || (file.value.relationship === FileRelationshipType.Root))) {
     try {
-      return format(file.value.name, file.value.directory)
+      return format(name, file.value.directory)
     } catch { /* empty */ }
   }
 
-  return file.value.name || ' - '
+  return name || ' - '
 })
 
 const visible = computed(() => {
@@ -194,7 +198,7 @@ async function keydown (event: KeyboardEvent) {
       return
     }
 
-    await button()
+    await activate()
   }
 
   if (event.key === 'ArrowUp') {
@@ -218,7 +222,7 @@ async function keydown (event: KeyboardEvent) {
   }
 }
 
-async function button () {
+async function activate () {
   if (locked.value) {
     return
   }
@@ -238,7 +242,7 @@ async function select () {
 
 defineExpose({
   alert,
-  button,
+  activate,
   display,
   draggable,
   edit,

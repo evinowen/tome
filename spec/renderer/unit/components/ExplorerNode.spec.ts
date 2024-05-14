@@ -4,6 +4,7 @@ import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
 import { State, key } from '@/store'
+import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
 import { StateDefaults as FilesStateDefaults, File } from '@/store/modules/files'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import ExplorerNode from '@/components/ExplorerNode.vue'
@@ -38,6 +39,10 @@ describe('components/ExplorerNode', () => {
               directory: false,
             }),
           },
+        },
+        repository: {
+          ...RepositoryStateDefaults(),
+          name: 'example.repository',
         },
         configuration: {
           ...ConfigurationStateDefaults(),
