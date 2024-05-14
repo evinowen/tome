@@ -1,45 +1,35 @@
 import { MutationTree, ActionTree } from 'vuex'
+import ContextMenu from '@/objects/context/ContextMenu'
 
 export interface State {
   visible: boolean
-  target?: string
+  load?: () => Promise<ContextMenu>
+  menu?: ContextMenu
   position: { x: number, y: number }
-  title: string
-  items: ContextItem[]
 }
 
 export const StateDefaults = (): State => ({
   visible: false,
-  target: '',
+  load: undefined,
+  menu: undefined,
   position: {
     x: 0,
     y: 0,
   },
-  title: '',
-  items: [],
 })
-
-interface ContextItem {
-  divider?: boolean
-  title?: string
-  active?: () => boolean
-  action?: () => Promise<void>
-  load?: () => Promise<ContextItem[]>
-}
 
 export default {
   namespaced: true,
   state: StateDefaults,
   mutations: <MutationTree<State>>{
-    fill: function (state, items) {
-      state.items = items
+    set: function (state, load) {
+      state.load = load
     },
-    clear: function (state) {
-      Object.assign(state, StateDefaults())
+    fill: function (state, menu) {
+      state.menu = menu
+      state.visible = false
     },
-    show: function (state, { target, title, position }) {
-      state.target = target
-      state.title = title
+    show: function (state, { position }) {
       state.position.x = position?.x || 0
       state.position.y = position?.y || 0
       state.visible = true
@@ -49,15 +39,23 @@ export default {
     },
   },
   actions: <ActionTree<State, unknown>>{
+    set: async function (context, load) {
+      context.commit('set', load)
+    },
+    load: async function (context) {
+      if (context.state.load !== undefined) {
+        const menu = await context.state.load()
+        context.commit('fill', menu)
+      }
+    },
     open: async function (context, state) {
-      const { target, title = 'Content', items = [], position } = state || {}
+      const { position } = state || {}
 
-      context.commit('fill', items)
-      context.commit('show', { target, title, position })
+      await context.dispatch('load')
+      context.commit('show', { position })
     },
     close: async function (context) {
       context.commit('hide')
-      context.commit('clear')
     },
   },
 }

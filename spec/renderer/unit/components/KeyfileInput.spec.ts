@@ -3,6 +3,7 @@ import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
 import { DOMWrapper } from '@vue/test-utils'
 import KeyfileInput from '@/components/KeyfileInput.vue'
+import BasicComponentStub from '?/stubs/BasicComponent.vue'
 
 describe('components/KeyfileInput', () => {
   let vuetify
@@ -11,6 +12,12 @@ describe('components/KeyfileInput', () => {
     .context(() => ({
       global: {
         plugins: [ vuetify ],
+        stubs: {
+          VBtn: BasicComponentStub,
+          VCol: BasicComponentStub,
+          VIcon: BasicComponentStub,
+          VLayout: BasicComponentStub,
+        },
       },
     }))
 
@@ -64,7 +71,7 @@ describe('components/KeyfileInput', () => {
     const recall_button = wrapper.findComponent({ ref: 'recall' })
     expect(recall_button.exists()).toBe(true)
 
-    await recall_button.trigger('click')
+    await recall_button.vm.$emit('click', { stopPropagation: vi.fn() })
 
     expect(wrapper.emitted().input).toHaveLength(1)
     expect(wrapper.emitted().input[0]).toEqual([ path ])
@@ -78,7 +85,7 @@ describe('components/KeyfileInput', () => {
     const clear_button = wrapper.findComponent({ ref: 'clear' })
     expect(clear_button.exists()).toBe(true)
 
-    await clear_button.trigger('click')
+    await clear_button.vm.$emit('click', { stopPropagation: vi.fn() })
 
     expect(wrapper.emitted().input).toHaveLength(1)
     expect(wrapper.emitted().input[0]).toEqual([ '' ])

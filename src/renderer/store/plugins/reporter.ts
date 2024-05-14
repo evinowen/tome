@@ -3,7 +3,7 @@ export default (store) => {
   store.dispatch = async (...parameters) => {
     return new Promise((resolve) => resolve(dispatch(...parameters)))
       .catch((error) => {
-        dispatch('error', error)
+        dispatch('log', { level: 'error', message: error.message, stack: error.stack })
       })
   }
 }

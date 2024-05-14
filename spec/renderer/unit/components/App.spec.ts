@@ -5,6 +5,8 @@ import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import { StateDefaults as ApplicationStateDefaults } from '@/store/modules/configuration/themes/sections/application'
+import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 
 import App from '@/components/App.vue'
 
@@ -42,24 +44,22 @@ describe('components/App', () => {
         configuration: {
           ...ConfigurationStateDefaults(),
           themes: {
+            dark: {},
             light: {
               application: ApplicationStateDefaults(),
             },
           },
         },
         repository: {
+          ...RepositoryStateDefaults(),
           loaded: false,
           path: '',
         },
-        system: {
-          branch: false,
-          console: false,
-          loaded: false,
-          patch: false,
-          search: false,
-          settings: false,
-        },
-      } as unknown as State,
+        system: SystemStateDefaults(),
+      },
+      actions: {
+        'present': vi.fn(),
+      },
     })
 
     vuetify = createVuetify()

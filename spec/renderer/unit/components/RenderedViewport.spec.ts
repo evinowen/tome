@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/consistent-function-scoping */
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createStore } from 'vuex'
@@ -15,13 +14,14 @@ vi.mock('marked', () => ({
 }))
 
 describe('components/RenderedViewport', () => {
+  const type = 'markdown'
   const content = `
     # Header
     Example content.
   `
   let store
 
-  const factory = assemble(TextView, { content })
+  const factory = assemble(TextView, { content, type })
     .context(() => ({
       global: {
         plugins: [ [ store, key ] ],
@@ -34,6 +34,7 @@ describe('components/RenderedViewport', () => {
         configuration: {
           ...ConfigurationStateDefaults(),
           themes: {
+            dark: {},
             light: {
               rendered: RenderedStateDefaults(),
             },

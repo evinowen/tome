@@ -5,6 +5,7 @@ import BasicComponent from '?/stubs/BasicComponent.vue'
 import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
 import { State, key } from '@/store'
+import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
 import { StateDefaults as SearchStateDefaults } from '@/store/modules/search'
 import SearchService from '@/components/SearchService.vue'
@@ -35,6 +36,7 @@ describe('components/SearchService', () => {
 
     store = createStore<State>({
       state: {
+        configuration: ConfigurationStateDefaults(),
         repository: RepositoryStateDefaults(),
         search: SearchStateDefaults(),
       },

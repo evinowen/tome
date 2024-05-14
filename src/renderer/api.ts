@@ -1,12 +1,18 @@
 export interface API {
+  initalize: {
+    load: () => void
+    ready: () => void
+  }
+
   log: {
-    error: (...parameters: any[]) => void
-    warn: (...parameters: any[]) => void
-    info: (...parameters: any[]) => void
-    verbose: (...parameters: any[]) => void
-    debug: (...parameters: any[]) => void
-    silly: (...parameters: any[]) => void
-    log: (...parameters: any[]) => void
+    configure: (log_level: string) => void
+
+    trace: (message: string) => void
+    debug: (message: string) => void
+    info: (message: string) => void
+    warn: (message: string) => void
+    error: (message: string) => void
+    fatal: (message: string) => void
   }
   action: {
     invoke: (source: string, target: string, selection: string)

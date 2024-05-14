@@ -1,19 +1,26 @@
-<!-- eslint-disable vue/no-v-html -->
 <template>
-  <rendered-viewport
-    id="mark-js-root"
-    ref="root"
-    class="root"
-    :content="content"
-    @contextmenu="contextmenu"
-  />
+  <context
+    dynamic
+    :load="context_load"
+    class="viewport-root"
+  >
+    <rendered-viewport
+      id="mark-js-root"
+      ref="viewport"
+      :directory="file.parent.path"
+      :path="file.path"
+      :type="file.subtype"
+      :content="content"
+    />
+  </context>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import Context from '@/components/Context.vue'
 import RenderedViewport from '@/components/RenderedViewport.vue'
-import Mark from 'mark.js'
 import { fetchStore, File } from '@/store'
+import RenderedViewportContextMenu from '@/objects/context/menus/RenderedViewportContextMenu'
 
 const store = fetchStore()
 
@@ -25,15 +32,7 @@ const properties = withDefaults(defineProps<Properties>(), {
   file: undefined,
 })
 
-const root = ref<HTMLElement>(undefined)
-
-let mark: Mark
-let target: any
-let results: Element[]
-
-onMounted(() => {
-  mark = new Mark('#mark-js-root')
-})
+const viewport = ref<InstanceType<typeof RenderedViewport>>()
 
 const search = computed(() => {
   return store.state.search
@@ -48,66 +47,20 @@ const search_state = computed(() => {
   ]
 })
 
-const actions = computed(() => {
-  return store.state.actions.options.map((name) => ({
-    title: name,
-    action: async () => {
-      const selection = document.getSelection().toString()
-      await store.dispatch('actions/execute', { name, target: properties.file.path, selection })
-    },
-  }))
-})
-
-const context = computed(() => {
-  return [
-    {
-      title: 'Action',
-      load: () => actions.value,
-    },
-    { divider: true },
-    {
-      title: 'Cut',
-      active: () => false,
-    },
-    {
-      title: 'Copy',
-      action: async () => {
-        const selection = document.getSelection().toString()
-        await store.dispatch('clipboard/text', selection)
-      },
-    },
-    {
-      title: 'Paste',
-      active: () => false,
-    },
-  ]
-})
-
 const content = computed((): string => {
   if (properties.file === undefined || properties.file.directory || !properties.file.document) {
-    return ''
-  }
-
-  if (![ '.md' ].includes(properties.file.extension)) {
     return ''
   }
 
   return properties.file.document.content || ''
 })
 
-async function contextmenu (event) {
-  const position = {
-    x: event.clientX,
-    y: event.clientY,
-  }
-
-  await store.dispatch('context/open', { items: context.value, position })
+async function context_load () {
+  return RenderedViewportContextMenu(store, document.getSelection().toString())
 }
 
 watch(search_state, async () => {
-  await new Promise((resolve) => {
-    mark.unmark({ done: resolve })
-  })
+  await viewport.value.selection.clear()
 
   let regex: RegExp
   try {
@@ -116,57 +69,20 @@ watch(search_state, async () => {
       String('g').concat(search.value.case_sensitive ? '' : 'i'),
     )
   } catch (error) {
-    await store.dispatch('error', error)
+    await store.dispatch('log', { level: 'error', message: error.message, stack: error.stack })
     return
   }
 
-  const total = await new Promise((resolve) => {
-    mark.markRegExp(
-      regex,
-      {
-        className: 'highlight-rendered',
-        acrossElements: false,
-        done: (total) => {
-          store.dispatch('search/navigate', { total, target: undefined })
-          resolve(total)
-        },
-      },
-    )
-  })
+  const total = await viewport.value.selection.highlight(regex)
+  store.dispatch('search/navigate', { total, target: undefined })
 
-  results = [ ...root.value.querySelectorAll('mark > mark') ]
-
-  if (results.length !== total) {
-    results = [ ...root.value.querySelectorAll('mark') ]
-  }
-
-  await search_navigate()
+  await viewport.value.selection.focus(search.value.navigation.target - 1)
 })
-
-async function search_navigate () {
-  if (target) {
-    target.classList.remove('highlight-rendered-target')
-  }
-
-  target = results[search.value.navigation.target - 1]
-
-  if (target) {
-    target.classList.add('highlight-rendered-target')
-    target.scrollIntoView()
-  }
-}
 </script>
 
 <style scoped>
-.root {
+.viewport-root {
   width: 100%;
   height: 100%;
-  padding: 12px;
-  overflow: scroll;
-}
-
-.root :deep(*) {
-  padding: revert;
-  margin: revert;
 }
 </style>

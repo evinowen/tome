@@ -23,8 +23,7 @@ describe('store/modules/templates', () => {
   const disk = new Disk()
   set_disk(disk)
 
-  const message = vi.fn()
-  const error = vi.fn()
+  const log = vi.fn()
 
   beforeEach(() => {
     disk.reset_disk()
@@ -57,7 +56,7 @@ describe('store/modules/templates', () => {
     }
 
     store = new Vuex.Store<State>(cloneDeep({
-      actions: { message, error },
+      actions: { log },
       modules: {
         files,
         templates,
@@ -117,8 +116,7 @@ describe('store/modules/templates', () => {
     await store.dispatch('templates/load', { path: project })
     await store.dispatch('templates/execute', { name: template, target })
 
-    expect(message).toHaveBeenCalledTimes(1)
-    expect(error).toHaveBeenCalledTimes(0)
+    expect(mocked_api.template.invoke).toHaveBeenCalledWith(`${project}/.tome/templates/${template}`, target)
   })
 
   it('should dispatch load and select if result is returned from template when execute is dispatched', async () => {
@@ -131,24 +129,8 @@ describe('store/modules/templates', () => {
     await store.dispatch('templates/load', { path: project })
     await store.dispatch('templates/execute', { name: template, target })
 
-    expect(message).toHaveBeenCalledTimes(1)
-    expect(error).toHaveBeenCalledTimes(0)
     expect(files.actions.load).toHaveBeenCalledTimes(1)
     expect(files.actions.select).toHaveBeenCalledTimes(1)
-  })
-
-  it('should provide error if executed template failed when execute is dispatched', async () => {
-    mocked_api.template.invoke.mockImplementation(() => Promise.resolve({ success: false, result: 'Error Message' }))
-
-    const project = '/project'
-    const template = 'example.template.a'
-    const target = '/project/first'
-
-    await store.dispatch('templates/load', { path: project })
-    await store.dispatch('templates/execute', { name: template, target })
-
-    expect(message).toHaveBeenCalledTimes(0)
-    expect(error).toHaveBeenCalledTimes(1)
   })
 
   it('should fail gracefully when invalid template name is provided when execute is dispatched', async () => {
@@ -158,6 +140,8 @@ describe('store/modules/templates', () => {
 
     await store.dispatch('templates/load', { path: project })
     await store.dispatch('templates/execute', { name: template, target })
+
+    expect(mocked_api.template.invoke).not.toHaveBeenCalled()
   })
 
   it('should trigger a file ghost and post processing when ghost is dispatched', async () => {

@@ -86,9 +86,14 @@
         index="dark_mode"
       />
       <boolean-input
-        label="Format Titles"
-        detail="Display entry titles as formatted, with underscores replaced with spaces and each word capitalized"
-        index="format_titles"
+        label="Format Explorer Titles"
+        detail="Display file and directory titles as formatted, with dots replaced with spaces and each word capitalized"
+        index="format_explorer_titles"
+      />
+      <boolean-input
+        label="Format Interaction Titles"
+        detail="Display action and template titles as formatted, with dots replaced with spaces and each word capitalized"
+        index="format_interaction_titles"
       />
       <boolean-input
         label="System Objects"
@@ -105,7 +110,8 @@
         detail="Display line numbers in the composition view while editing documents"
         index="line_numbers"
       />
-      <option-input
+      <v-divider class="my-2" />
+      <select-button-input
         label="Explorer Position"
         detail="Dock the file explorer on the left or the right"
         index="explorer_position"
@@ -117,9 +123,34 @@
         index="explorer_width"
       />
       <number-input
-        label="Resize Control Width"
+        label="Explorer Resize Control Width"
         detail="Specify the width of the control bar that resizes file explorer and viewport"
-        index="resize_width"
+        index="explorer_resize_width"
+      />
+      <v-divider class="my-2" />
+      <number-input
+        label="Search Opacity"
+        detail="Specify the opacity/transparency of the search result interface"
+        index="search_opacity"
+        suffix="%"
+        :slider="[0, 100, 5]"
+      />
+      <number-input
+        label="Search Height"
+        detail="Specify the height of the search result interface"
+        index="search_height"
+      />
+      <number-input
+        label="Search Resize Control Height"
+        detail="Specify the height of the control bar that resizes search result interface"
+        index="search_resize_height"
+      />
+      <v-divider class="my-2" />
+      <select-menu-input
+        label="Log Message Level"
+        detail="What log messages should be logged and reported to the console"
+        index="log_level"
+        :options="log_level_options"
       />
     </v-card>
     <template #footer>
@@ -168,7 +199,8 @@
 <script lang="ts">
 import BooleanInput from './Settings/BooleanInput.vue'
 import NumberInput from './Settings/NumberInput.vue'
-import OptionInput, { Option } from './Settings/OptionInput.vue'
+import SelectMenuInput, { Option as SelectMenuOption } from './Settings/SelectMenuInput.vue'
+import SelectButtonInput, { Option as SelectButtonOption } from './Settings/SelectButtonInput.vue'
 import KeyfileInput from './Settings/KeyfileInput.vue'
 import KeyfileOutput from './KeyfileOutput.vue'
 import TextInput from './Settings/TextInput.vue'
@@ -182,17 +214,27 @@ import {
   VRow,
 } from 'vuetify/components'
 
+const log_level_options = [
+  { value: 'trace', label: 'Trace' },
+  { value: 'debug', label: 'Debug' },
+  { value: 'info', label: 'Info' },
+  { value: 'warn', label: 'Warn' },
+  { value: 'error', label: 'Error' },
+  { value: 'fatal', label: 'Fatal' },
+] as SelectMenuOption[]
+
 const explorer_position_options = [
   { value: 'left', icon: 'mdi-dock-left' },
   { value: 'right', icon: 'mdi-dock-right' },
-] as Option[]
+] as SelectButtonOption[]
 
 export default {
   components: {
     BooleanInput,
-    OptionInput,
     KeyfileInput,
     KeyfileOutput,
+    SelectButtonInput,
+    SelectMenuInput,
     SeaGame,
     TextInput,
     UtilityPage,

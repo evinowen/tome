@@ -28,10 +28,10 @@
           <patch />
         </template>
 
-        <editor-interface v-show="repository.path" />
-        <empty-pane v-show="!repository.path" />
+        <editor-interface />
 
         <context-menu-service />
+        <validation-box />
 
         <search-service v-show="system.search" />
         <shortcut-service />
@@ -47,7 +47,6 @@ import Commit from '@/components/Commit.vue'
 import Console from '@/components/Console.vue'
 import ContextMenuService from '@/components/ContextMenuService.vue'
 import EditorInterface from '@/components/EditorInterface.vue'
-import EmptyPane from '@/components/EmptyPane.vue'
 import Patch from '@/components/Patch.vue'
 import Push from '@/components/Push.vue'
 import SearchService from '@/components/SearchService.vue'
@@ -55,6 +54,7 @@ import Settings from '@/components/Settings.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
 import SystemBar from '@/components/SystemBar.vue'
 import ThemeEditor from '@/components/ThemeEditor.vue'
+import ValidationBox from '@/components/ValidationBox.vue'
 import {
   VApp,
   VMain,
@@ -68,7 +68,6 @@ export default {
     Console,
     ContextMenuService,
     EditorInterface,
-    EmptyPane,
     Patch,
     Push,
     SearchService,
@@ -76,6 +75,7 @@ export default {
     ShortcutService,
     SystemBar,
     ThemeEditor,
+    ValidationBox,
     VApp,
     VMain,
   },
@@ -83,7 +83,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onMounted, ref, watchEffect } from 'vue'
 import { fetchStore } from '@/store'
 
 const store = fetchStore()
@@ -102,6 +102,18 @@ const scroll = (event) => {
   event.target.scrollTop = 0
 }
 
+const ready = ref(false)
+onMounted(async () => {
+  await nextTick()
+  ready.value = true
+})
+
+watchEffect(async () => {
+  if (ready.value) {
+    await store.dispatch('present', 'application')
+  }
+})
+
 defineExpose({
   scroll,
 })
@@ -116,6 +128,14 @@ defineExpose({
   left: 0;
   right: 0;
   font-family: 'Montserrat';
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(var(--v-theme-on-background), 0.075),
+      rgba(var(--v-theme-on-background), 0.075) 3px,
+      rgba(var(--v-theme-on-background), 0.025) 3px,
+      rgba(var(--v-theme-on-background), 0.025) 7.25px
+    );
 }
 
 .app-root {

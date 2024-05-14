@@ -99,6 +99,8 @@ export default class File {
   name: string
   extension = ''
   mime = ''
+  type = ''
+  subtype = ''
   path = ''
   relative: string
   relationship = FileRelationshipType.None
@@ -170,8 +172,28 @@ export default class File {
 
   constructor (data: FileConstructor) {
     Object.assign(this, data)
-    this.image = this.mime.startsWith('image')
-    this.text = !(this.image || this.directory)
+
+    const [ type, subtype ] = this.mime.split('/')
+    this.type = type
+    this.subtype = subtype
+
+    if (!this.directory) {
+      switch (type) {
+        case 'application':
+          if (this.subtype === 'javascript') {
+            this.text = true
+          }
+          break
+
+        case 'text':
+          this.text = true
+          break
+
+        case 'image':
+          this.image = true
+          break
+      }
+    }
   }
 
   async load (base: File, listener?: CallableFunction) {

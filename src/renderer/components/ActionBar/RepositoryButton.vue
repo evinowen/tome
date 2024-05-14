@@ -95,8 +95,6 @@ export default {
 import { ref } from 'vue'
 import { fetchStore } from '@/store'
 
-const store = fetchStore()
-
 export interface Properties {
   name?: string
   path?: string
@@ -117,6 +115,7 @@ withDefaults(defineProps<Properties>(), {
   disabled: false,
 })
 
+const store = fetchStore()
 const open = ref(false)
 
 async function select (path) {

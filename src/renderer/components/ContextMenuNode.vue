@@ -1,61 +1,24 @@
 <template>
   <div
     ref="node"
-    v-click-outside.prevent="{ handler: () => $emit('close'), closeConditional: () => root, include }"
+    v-click-outside.prevent="{ handler: () => emit('close'), closeConditional: () => root, include }"
     class="context-menu"
   >
     <v-list
       density="compact"
       class="context-menu-list"
     >
-      <v-list-subheader class="menu-title">
-        {{ title || '&nbsp;' }}
-      </v-list-subheader>
-      <v-divider />
       <div
         v-for="(item, index) in items"
         :key="index"
         class="context-menu-item"
       >
-        <v-divider v-if="item.divider" />
-        <v-list-item
-          v-else
-          :disabled="item.active ? !item.active() : false"
-          :inactive="item.action ? false : true"
-          @click="execute(item.action)"
-          @mouseover="promote(index)"
-        >
-          <v-list-item-title
-            class="item"
-            style="line-height: 16px !important;"
-          >
-            <v-layout>
-              <v-col
-                class="menu-arrow"
-              >
-                <v-icon
-                  v-show="local_flip_x && (item.items || item.load)"
-                  size="small"
-                >
-                  {{ local_flip_x && (item.items || item.load) ? "mdi-menu-left" : "" }}
-                </v-icon>
-              </v-col>
-              <v-col class="menu-text">
-                {{ item.title }}
-              </v-col>
-              <v-col
-                class="menu-arrow"
-              >
-                <v-icon
-                  v-show="!local_flip_x && (item.items || item.load)"
-                  size="small"
-                >
-                  {{ !local_flip_x && (item.items || item.load) ? "mdi-menu-right" : "" }}
-                </v-icon>
-              </v-col>
-            </v-layout>
-          </v-list-item-title>
-        </v-list-item>
+        <context-menu-item
+          :item="item"
+          :direction="local_flip_x ? 'left' : 'right'"
+          @close="emit('close')"
+          @promote="promote(index)"
+        />
         <context-menu-node
           v-if="item.items || item.load"
           v-show="(index > -1) && (((promoted === index) || (active === index)))"
@@ -66,12 +29,11 @@
           :flip_x="local_flip_x"
           :flip_y="local_flip_y"
           :title="item.title"
-          :target="target"
           :items="item.items"
           :layer="layer + 1"
+          @close="emit('close')"
           @mouseover="activate(index)"
           @mouseleave="deactivate(index)"
-          @close="$emit('close')"
         />
       </div>
     </v-list>
@@ -79,15 +41,9 @@
 </template>
 
 <script lang="ts">
+import ContextMenuItem from './ContextMenuItem.vue'
 import {
-  VCol,
-  VDivider,
-  VIcon,
-  VLayout,
   VList,
-  VListItem,
-  VListItemTitle,
-  VListSubheader,
 } from 'vuetify/components'
 import {
   ClickOutside,
@@ -96,14 +52,8 @@ import {
 export default {
   name: 'ContextMenuNode',
   components: {
-    VCol,
-    VDivider,
-    VIcon,
-    VLayout,
+    ContextMenuItem,
     VList,
-    VListItem,
-    VListItemTitle,
-    VListSubheader,
   },
   directives: {
     ClickOutside,
@@ -118,7 +68,6 @@ import ResizeObserver from 'resize-observer-polyfill'
 export interface Properties {
   title?: string
   root?: boolean
-  target?: string
   items: any[]
   position_x: number
   position_y: number
@@ -132,12 +81,11 @@ export interface Properties {
 const properties = withDefaults(defineProps<Properties>(), {
   title: undefined,
   root: false,
-  target: undefined,
   items: () => [],
   position_x: 0,
   position_y: 0,
-  flip_x: false,
-  flip_y: false,
+  flip_x: undefined,
+  flip_y: undefined,
   window_x: 0,
   window_y: 0,
   layer: 0,
@@ -244,20 +192,10 @@ async function promote (index) {
   promoted.value = index
 }
 
-async function execute (action) {
-  if (action === undefined) {
-    return
-  }
-
-  emit('close')
-  await action(properties.target)
-}
-
 defineExpose({
   active,
   activate,
   deactivate,
-  execute,
   promoted,
   promote,
   local_position_x,
@@ -270,20 +208,34 @@ defineExpose({
   background: inherit;
 }
 
-.v-list-item:hover,
-.v-list-item:hover .item {
+.v-list-item:hover {
   color: rgb(var(--v-theme-on-primary));
   background: rgb(var(--v-theme-primary));
 }
 
 .context-menu {
   position: fixed;
+  user-select: none;
+}
+
+.context-menu :deep(*) {
+  user-select: none;
 }
 
 .context-menu-list {
-  border-radius: 0;
-  padding: 0;
+  border-radius: 6px;
+  outline: 1px solid rgba(var(--v-theme-on-surface), 0.25);
+  min-width: 160px;
+  padding: 2px;
   min-height: 20px;
+}
+
+.context-menu-list :first-child.context-menu-item .v-list-item {
+  border-radius: 5px 5px 0 0;
+}
+
+.context-menu-list :last-child.context-menu-item .v-list-item {
+  border-radius: 0 0 5px 5px;
 }
 
 .context-menu-list :deep(.v-list-subheader) {
@@ -296,23 +248,5 @@ defineExpose({
   min-height: 0;
   padding: 1px;
   font-weight: normal;
-}
-
-.menu-title {
-  padding: 2px;
-  padding-inline-start: 2px !important;
-  padding-inline-end: 2px;
-}
-
-.menu-arrow {
-  flex-grow: 0;
-  flex-shrink: 1;
-  min-width: 14px;
-  padding: 1px;
-}
-
-.menu-text {
-  text-align: left;
-  padding: 1px;
 }
 </style>

@@ -40,9 +40,9 @@ const execute = (context: ActionContext<State, unknown>) => async (data: Feature
       await context.dispatch('files/select', { path: result }, { root: true })
     }
 
-    await context.dispatch('message', `Template ${name} complete`, { root: true })
+    await context.dispatch('log', { level: 'info', message: `Template ${name} complete` }, { root: true })
   } else {
-    await context.dispatch('error', `Template ${name} failed: ${result}`, { root: true })
+    await context.dispatch('log', { level: 'error', message: `Template ${name} failed: ${result}` }, { root: true })
   }
 }
 

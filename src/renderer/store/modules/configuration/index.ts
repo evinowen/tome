@@ -16,7 +16,9 @@ export const Schema = z.object({
   default_remote: z.string().optional(),
   auto_push: z.boolean().optional(),
 
-  format_titles: z.boolean().optional(),
+  format_explorer_titles: z.boolean().optional(),
+  format_interaction_titles: z.boolean().optional(),
+
   system_objects: z.boolean().optional(),
   draggable_objects: z.boolean().optional(),
   dark_mode: z.boolean().optional(),
@@ -24,7 +26,13 @@ export const Schema = z.object({
 
   explorer_position: z.string().optional(),
   explorer_width: z.number().optional(),
-  resize_width: z.number().optional(),
+  explorer_resize_width: z.number().optional(),
+
+  search_opacity: z.number().optional(),
+  search_height: z.number().optional(),
+  search_resize_height: z.number().optional(),
+
+  log_level: z.string().optional(),
 
   themes: ThemesSchema.optional(),
 })
@@ -40,7 +48,8 @@ export interface State {
   default_remote: string
   auto_push: boolean
 
-  format_titles: boolean
+  format_explorer_titles: boolean
+  format_interaction_titles: boolean
   system_objects: boolean
   draggable_objects: boolean
   dark_mode: boolean
@@ -48,7 +57,13 @@ export interface State {
 
   explorer_position: string
   explorer_width: number
-  resize_width: number
+  explorer_resize_width: number
+
+  search_opacity: number
+  search_height: number
+  search_resize_height: number
+
+  log_level: string
 
   themes?: ThemesState
 }
@@ -64,7 +79,8 @@ export const StateDefaults = (): State => ({
   default_remote: 'origin',
   auto_push: false,
 
-  format_titles: true,
+  format_explorer_titles: true,
+  format_interaction_titles: true,
   system_objects: false,
   draggable_objects: true,
   dark_mode: false,
@@ -72,7 +88,13 @@ export const StateDefaults = (): State => ({
 
   explorer_position: 'left',
   explorer_width: 320,
-  resize_width: 3,
+  explorer_resize_width: 3,
+
+  search_opacity: 100,
+  search_height: 240,
+  search_resize_height: 3,
+
+  log_level: 'info',
 })
 
 export default {
@@ -90,10 +112,9 @@ export default {
       const application_path = await api.app.getPath('userData')
       const configuration_path = await api.path.join(application_path, 'config.json')
 
-      await context.dispatch('message', `Configuration established at ${configuration_path}`, { root: true })
+      await context.dispatch('log', { level: 'info', message: `Configuration established at ${configuration_path}` }, { root: true })
 
       let data = {}
-
       const exists = await api.file.exists(configuration_path)
 
       if (exists) {
@@ -104,19 +125,19 @@ export default {
         try {
           parsed = JSON.parse(raw)
         } catch {
-          await context.dispatch('error', 'Parsing error in config.json configuration file', { root: true })
+          await context.dispatch('log', { level: 'error', message: 'Parsing error in config.json configuration file' }, { root: true })
         }
 
         try {
           data = Schema.parse(parsed)
         } catch {
-          await context.dispatch('error', 'Schema error in config.json configuration file', { root: true })
+          await context.dispatch('log', { level: 'error', message: 'Schema error in config.json configuration file' }, { root: true })
         }
 
-        await context.dispatch('message', `Loaded existing config.json configuration file at ${configuration_path}`, { root: true })
+        await context.dispatch('log', { level: 'info', message: `Loaded existing config.json configuration file at ${configuration_path}` }, { root: true })
       } else {
         await context.dispatch('write')
-        await context.dispatch('message', `Created new config.json configuration file at ${configuration_path}`, { root: true })
+        await context.dispatch('log', { level: 'info', message: `Created new config.json configuration file at ${configuration_path}` }, { root: true })
       }
 
       if (!(data instanceof Object)) {
@@ -146,8 +167,10 @@ export default {
           return context.state.public_key
         case 'passphrase':
           return context.state.passphrase
-        case 'format_titles':
-          return context.state.format_titles
+        case 'format_explorer_titles':
+          return context.state.format_explorer_titles
+        case 'format_interaction_titles':
+          return context.state.format_interaction_titles
         case 'dark_mode':
           return context.state.dark_mode
         case 'auto_push':

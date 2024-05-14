@@ -27,11 +27,11 @@
       <div
         v-for="(event, index) in events.slice().reverse()"
         :key="index"
-        :class="['log', `event-${event.type}`]"
-        @click.stop="() => { show_stack(event.stack || event.message) }"
+        :class="['log', `event-${event.level}`]"
+        @click.stop="() => show_stack(event.stack || event.message)"
       >
         <pre class="pre datetime">{{ format_date(event.datetime) }}</pre>
-        <pre :class="['pre', `event-${event.type}`, 'px-2']">{{ event.type.padEnd(6) }}</pre>
+        <pre :class="['pre', `event-${event.level}`, 'px-2']">{{ (event.level || 'unknown').padEnd(6) }}</pre>
         <pre class="pre message">{{ format_message(event.message) }}</pre>
       </div>
     </div>
@@ -67,14 +67,6 @@ import { DateTime } from 'luxon'
 
 const store = fetchStore()
 
-interface Properties {
-  open?: boolean
-}
-
-withDefaults(defineProps<Properties>(), {
-  open: false,
-})
-
 const detail = ref(false)
 const stack = ref('')
 
@@ -86,7 +78,7 @@ async function close () {
 }
 
 function show_stack (input: string) {
-  stack.value = input.trim()
+  stack.value = String(input).trim()
 
   if (stack.value) {
     detail.value = true

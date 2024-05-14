@@ -1,11 +1,10 @@
 import component from '../factory'
 import Repository from './Repository'
-import log from 'electron-log/main'
 
 let repository: Repository
 
 export default component('repository')(
-  ({ handle }) => {
+  ({ handle, log }) => {
     handle('load', async (path) => {
       repository = new Repository(path)
 

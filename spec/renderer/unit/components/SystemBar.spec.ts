@@ -41,6 +41,7 @@ describe('components/SystemBar', () => {
         'system/minimize',
         'system/restore',
         'system/settings',
+        'system/theme_editor',
       ]),
     })
 

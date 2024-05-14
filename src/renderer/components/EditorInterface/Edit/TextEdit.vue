@@ -6,7 +6,8 @@
       '--font-family': theme.font_family_compose || 'monospace',
       '--font-size': `${theme.font_size_compose || 1}em`,
     }"
-    @contextmenu="contextmenu"
+    tabindex="0"
+    @click.right.stop="context_menu"
   />
 </template>
 
@@ -28,6 +29,7 @@ import { javascript } from '@codemirror/lang-javascript'
 import { debounce } from 'lodash'
 import EditorTheme from '@/composer/EditorTheme'
 import HighlightStyleDefinition from '@/composer/HighlightStyleDefinition'
+import ComposerViewportContextMenu from '@/objects/context/menus/ComposerViewportContextMenu'
 
 const store = fetchStore()
 
@@ -99,63 +101,19 @@ function configure_line_numbers () {
 
 watch(() => properties.file, load)
 
-const actions = computed(() => {
-  return store.state.actions.options.map((name) => ({
-    title: name,
-    action: async () => {
-      const selection = selection_fetch()
-      const output = await store.dispatch('actions/execute', { name, target: properties.file.path, selection })
+async function context_commands () {
+  const load = async () => ComposerViewportContextMenu(store, selection_fetch(), selection_replace)
 
-      selection_replace(output || selection)
+  await store.dispatch('context/set', load)
+}
 
-      await input()
-    },
-  }))
-})
-
-const context = computed(() => {
-  return [
-    {
-      title: 'Action',
-      load: () => actions.value,
-    },
-    { divider: true },
-    {
-      title: 'Cut',
-      active: () => !properties.file.readonly,
-      action: async () => {
-        const selection = selection_fetch()
-
-        await store.dispatch('clipboard/text', selection)
-        selection_replace('')
-      },
-    },
-    {
-      title: 'Copy',
-      action: async () => {
-        const selection = selection_fetch()
-
-        await store.dispatch('clipboard/text', selection)
-      },
-    },
-    {
-      title: 'Paste',
-      active: () => !properties.file.readonly,
-      action: async () => {
-        const clipboard = await store.dispatch('clipboard/text')
-        selection_replace(clipboard)
-      },
-    },
-  ]
-})
-
-async function contextmenu (event) {
+async function context_menu (event) {
   const position = {
     x: event.clientX,
     y: event.clientY,
   }
 
-  await store.dispatch('context/open', { items: context.value, position })
+  await store.dispatch('context/open', { position })
 }
 
 onMounted(() => {
@@ -171,9 +129,20 @@ onMounted(() => {
     }),
   )
 
+  const detect_focus = ViewPlugin.define(
+    (view) => ({
+      update: (update) => {
+        if (update.focusChanged && view.hasFocus) {
+          context_commands()
+        }
+      },
+    }),
+  )
+
   view = new EditorView({
     extensions: [
       detect_update,
+      detect_focus,
       history(),
       keymap.of([
         ...defaultKeymap,

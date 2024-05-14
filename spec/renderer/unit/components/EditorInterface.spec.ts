@@ -6,6 +6,7 @@ import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
 import { StateDefaults as FilesStateDefaults, File } from '@/store/modules/files'
 import EditorInterface from '@/components/EditorInterface.vue'
 
@@ -22,6 +23,7 @@ describe('components/EditorInterface', () => {
       state: {
         configuration: ConfigurationStateDefaults(),
         system: SystemStateDefaults(),
+        repository: RepositoryStateDefaults(),
         files: {
           ...FilesStateDefaults(),
           directory: {
@@ -65,6 +67,7 @@ describe('components/EditorInterface', () => {
   it('should assign selected file from files directory when active key is set', async () => {
     const wrapper = factory.wrap()
 
+    store.state.repository.path = '/path'
     store.state.files.active = file_uuid
 
     await wrapper.vm.$nextTick()
@@ -75,6 +78,7 @@ describe('components/EditorInterface', () => {
   it('should clear selected file from files directory when active key is unset', async () => {
     const wrapper = factory.wrap()
 
+    store.state.repository.path = '/path'
     store.state.files.active = file_uuid
 
     await wrapper.vm.$nextTick()

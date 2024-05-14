@@ -1,12 +1,14 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
-import FileIcon from '@/components/FileIcon.vue'
+import File, { FileRelationshipType } from '@/store/modules/files/file'
+import FileButtonIcon from '@/components/FileButtonIcon.vue'
 
-describe('components/FileIcon', () => {
+describe('components/FileButtonIcon', () => {
   let vuetify
+  let file: File
 
-  const factory = assemble(FileIcon)
+  const factory = assemble(FileButtonIcon)
     .context(() => ({
       global: {
         plugins: [ vuetify ],
@@ -15,6 +17,13 @@ describe('components/FileIcon', () => {
 
   beforeEach(() => {
     vuetify = createVuetify()
+    file = new File({
+      name: 'Name',
+      path: '/pa/th/to/fi/le.txt',
+      extension: 'txt',
+      children: [],
+      directory: false,
+    })
   })
 
   afterEach(() => {
@@ -22,157 +31,205 @@ describe('components/FileIcon', () => {
   })
 
   it('should mount into test scafolding without error', async () => {
-    const wrapper = factory.wrap()
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper).toBeDefined()
   })
 
-  it('should emit "click" event when button emits "click" event', async () => {
-    const wrapper = factory.wrap()
+  it('should enable system flag when relationship is FileRelationshipType.Git', async () => {
+    file.relationship = FileRelationshipType.Git
 
-    const button = wrapper.findComponent({ ref: 'button' })
-    expect(button.exists()).toBe(true)
-
-    button.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    expect(wrapper.emitted().click).toBeTruthy()
-  })
-
-  it('should enable system flag when relationship has value "git"', async () => {
-    const wrapper = factory.wrap({ relationship: 'git' })
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.system).toEqual(true)
   })
 
-  it('should enable system flag when relationship has value "tome"', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome' })
+  it('should enable system flag when relationship if FileRelationshipType.Tome', async () => {
+    file.relationship = FileRelationshipType.Tome
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.system).toEqual(true)
   })
 
-  it('should enable system flag when relationship has value "tome-templates"', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-templates' })
+  it('should enable system flag when relationship is FileRelationshipType.TomeFeatureTemplates', async () => {
+    file.relationship = FileRelationshipType.TomeFeatureTemplates
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.system).toEqual(true)
   })
 
-  it('should enable system flag when relationship has value "tome-actions"', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-actions' })
+  it('should enable system flag when relationship is FileRelationshipType.TomeFeatureActions', async () => {
+    file.relationship = FileRelationshipType.TomeFeatureActions
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.system).toEqual(true)
   })
 
-  it('should enable system flag when relationship has value "tome-actions"', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-actions' })
+  it('should enable system flag when relationship is FileRelationshipType.TomeTemplate', async () => {
+    file.relationship = FileRelationshipType.TomeTemplate
+
+    const wrapper = factory.wrap({ file })
+
+    expect(wrapper.vm.system).toEqual(true)
+  })
+
+  it('should enable system flag when relationship is FileRelationshipType.TomeAction', async () => {
+    file.relationship = FileRelationshipType.TomeAction
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.system).toEqual(true)
   })
 
   it('should set icon as closed directory when flagged as directory and relationship does not have value "root"', async () => {
-    const wrapper = factory.wrap({ directory: true })
+    file.directory = true
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.icon).toEqual('mdi-folder')
   })
 
   it('should set icon as open directory when flagged as expanded directory and relationship does not have value "root"', async () => {
-    const wrapper = factory.wrap({ directory: true, expanded: true })
+    file.directory = true
+    file.expanded = true
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.icon).toEqual('mdi-folder-open')
   })
 
   it('should set icon as closed book when flagged as directory and relationship has value "root"', async () => {
-    const wrapper = factory.wrap({ directory: true, relationship: 'root' })
+    file.directory = true
+    file.relationship = FileRelationshipType.Root
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.icon).toEqual('mdi-book')
   })
 
   it('should set icon as open book when flagged as expanded directory and relationship has value "root"', async () => {
-    const wrapper = factory.wrap({ directory: true, expanded: true, relationship: 'root' })
+    file.directory = true
+    file.expanded = true
+    file.relationship = FileRelationshipType.Root
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.icon).toEqual('mdi-book-open-page-variant')
   })
 
   it('should set icon as image when flagged as an image', async () => {
-    const wrapper = factory.wrap({ image: true })
+    file.image = true
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.icon).toEqual('mdi-image')
   })
 
   it('should clear badge when relationship has value "root"', async () => {
-    const wrapper = factory.wrap({ relationship: 'root' })
+    file.relationship = FileRelationshipType.Root
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('')
   })
 
   it('should set badge to lock when relationship has value "git"', async () => {
-    const wrapper = factory.wrap({ relationship: 'git' })
+    file.relationship = FileRelationshipType.Git
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-lock')
   })
 
   it('should set badge to closed eye when relationship has value "tome"', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome' })
+    file.relationship = FileRelationshipType.Tome
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-minus-circle')
   })
 
   it('should set badge to open eye when expanded and relationship has value "tome"', async () => {
-    const wrapper = factory.wrap({ expanded: true, relationship: 'tome' })
+    file.relationship = FileRelationshipType.Tome
+    file.expanded = true
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-eye-circle')
   })
 
   it('should set badge to alert when flagged as alert', async () => {
-    const wrapper = factory.wrap({ alert: true })
+    const wrapper = factory.wrap({ file, alert: true })
 
     expect(wrapper.vm.badge).toEqual('mdi-alert-circle')
   })
 
   it('should set badge to cog when relationship has value "tome-feature-actions"', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-feature-actions' })
+    file.relationship = FileRelationshipType.TomeFeatureActions
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-cog')
   })
 
   it('should set badge to cog when relationship has value "tome-feature-templates"', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-feature-templates' })
+    file.relationship = FileRelationshipType.TomeFeatureTemplates
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-cog')
   })
 
   it('should set badge to play arrow when relationship has value "tome-action"', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-action' })
+    file.relationship = FileRelationshipType.TomeAction
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-play-circle')
   })
 
   it('should set badge to lightning when relationship has value "tome-template"', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-template' })
+    file.relationship = FileRelationshipType.TomeTemplate
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-lightning-bolt-circle')
   })
 
   it('should set badge to cog when relationship has value "tome-feature-actions"', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-feature-actions' })
+    file.relationship = FileRelationshipType.TomeFeatureActions
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-cog')
   })
 
   it('should set badge to markdown when relationship has value "tome-file" and markdown extension', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-file', extension: '.md' })
+    file.relationship = FileRelationshipType.TomeFile
+    file.extension = '.md'
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-arrow-down-bold-circle')
   })
 
   it('should set badge to javascript when relationship has value "tome-file" and javascript extension', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-file', extension: '.js' })
+    file.relationship = FileRelationshipType.TomeFile
+    file.extension = '.js'
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-language-javascript')
   })
 
   it('should set badge to json when relationship has value "tome-file" and son extension', async () => {
-    const wrapper = factory.wrap({ relationship: 'tome-file', extension: '.json' })
+    file.relationship = FileRelationshipType.TomeFile
+    file.extension = '.json'
+
+    const wrapper = factory.wrap({ file })
 
     expect(wrapper.vm.badge).toEqual('mdi-code-json')
   })

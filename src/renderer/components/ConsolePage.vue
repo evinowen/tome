@@ -18,7 +18,10 @@
         mdi-chevron-down
       </v-icon>
     </v-btn>
-    <div class="content">
+    <div
+      ref="container"
+      class="content"
+    >
       <slot />
     </div>
   </div>
@@ -42,14 +45,24 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
+
 export interface Properties {
   open: boolean
   layer?: number
 }
 
-withDefaults(defineProps<Properties>(), {
+const properties = withDefaults(defineProps<Properties>(), {
   open: false,
   layer: 0,
+})
+
+const container = ref<HTMLElement>()
+
+watch(() => properties.open, (value) => {
+  if (value) {
+    container.value.scrollTop = container.value.scrollHeight
+  }
 })
 </script>
 

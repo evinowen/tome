@@ -3,9 +3,7 @@ import { IpcListener, IpcMainInvokeEvent, ipcMainListenerMap, ipcRendererListene
 
 const AppListeners = new Map<{ app: App, event: string }, () => void>()
 export function ExecAppEvent (app, event) {
-  console.log('test')
   const listener = AppListeners.get({ app, event })
-  console.log('test', listener)
   listener()
 }
 
@@ -45,7 +43,7 @@ export class WebContents {
   }
 }
 
-export class BrowserWindow {
+export class BrowserWindowMock {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: { [key: string]: any }
   webContents: WebContents
@@ -55,21 +53,20 @@ export class BrowserWindow {
     this.webContents = new WebContents()
   }
 
-  static getAllWindows () {}
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  loadFile = jest.fn(async () => {
+    ipcRenderer.send('initalize-ready')
+  })
 
-  async loadFile () {}
-  async loadURL () {}
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  loadURL = jest.fn(async () => {
+    ipcRenderer.send('initalize-ready')
+  })
+
   show () {}
-
-  async on (type, callback) {
-    const skip = new Set([ 'closed' ])
-    if (skip.has(type)) {
-      return
-    }
-
-    await callback()
-  }
 }
+
+export const BrowserWindow = jest.fn((options) => new BrowserWindowMock(options))
 
 export const ipcMain = {
   handle: jest.fn((channel: string, listener: IpcListener) => ipcMainListenerMap.set(channel, listener)),
@@ -82,9 +79,7 @@ export const ipcRenderer = {
   invoke: jest.fn((channel: string, ...args: any[]) => ipcMainListenerMap.get(channel)({} as IpcMainInvokeEvent, ...args)),
   on: jest.fn((channel: string, listener: IpcListener) => ipcRendererListenerMap.set(channel, listener)),
   // eslint-disable-next-line unicorn/prevent-abbreviations, @typescript-eslint/no-explicit-any
-  send: jest.fn((channel: string, ...args: any[]) => {
-    ipcMainListenerMap.get(channel)({} as IpcMainInvokeEvent, ...args)
-  }),
+  send: jest.fn((channel: string, ...args: any[]) => ipcMainListenerMap.get(channel)({} as IpcMainInvokeEvent, ...args)),
 }
 
 export const contextBridge = {
@@ -105,3 +100,8 @@ export const clipboard = {
 }
 
 export const app = new App()
+
+export const CrossProcessExports = {
+  app,
+  BrowserWindow,
+}

@@ -22,9 +22,9 @@ export const Schema = z.object({
 
 export interface State {
   font_family_header: string
-  font_size_header: string
   font_family_content: string
-  font_size_content: string
+  font_size_header: number
+  font_size_content: number
   background: string
   header_1: string
   header_2: string

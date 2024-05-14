@@ -2,7 +2,7 @@
   <split-pane
     :docked="explorer_position"
     :docked_width="explorer_width"
-    :resize_width="resize_width"
+    :resize_width="explorer_resize_width"
     @resize="update_explorer_width"
   >
     <template #docked>
@@ -19,15 +19,15 @@
 
     <template #dynamic>
       <div
-        v-show="active"
+        v-if="active"
         class="pane"
       >
         <file-edit
-          v-if="system.edit"
+          v-if="active && selected && system.edit"
           :file="selected"
         />
         <file-view
-          v-else
+          v-if="active && selected && !system.edit"
           :file="selected"
         />
       </div>
@@ -61,7 +61,7 @@ const store = fetchStore()
 const selected = ref(File.Empty)
 
 const active = computed(() => {
-  return store.state.files.active
+  return store.state.repository.path && store.state.files.active
 })
 
 const system = computed(() => {
@@ -77,11 +77,11 @@ const explorer_position = computed(() => {
 })
 
 const explorer_width = computed(() => {
-  return store.state.configuration.explorer_width
+  return store.state.repository.path ? store.state.configuration.explorer_width : 0
 })
 
-const resize_width = computed(() => {
-  return store.state.configuration.resize_width
+const explorer_resize_width = computed(() => {
+  return store.state.repository.path ? store.state.configuration.explorer_resize_width : 0
 })
 
 async function update_explorer_width (value) {

@@ -5,7 +5,7 @@ import { State } from '@/store'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 import { operate as operate_shortcuts } from '@/modules/Shortcuts'
 
-describe('modules/OperateShortcuts', () => {
+describe('modules/Shortcuts', () => {
   let store
   let store_dispatch
 

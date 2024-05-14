@@ -8,7 +8,7 @@
         hide-details
         density="compact"
         label="passphrase"
-        @update:model-value="$emit('input', $event)"
+        @input="input"
       />
     </v-col>
     <v-btn
@@ -18,7 +18,7 @@
       size="small"
       style="height: auto;"
       :disabled="value === ''"
-      @click.stop="$emit('input', '')"
+      @click.stop="emit('input', '')"
     >
       <v-icon size="small">
         mdi-close
@@ -44,7 +44,7 @@
       size="small"
       style="height: auto;"
       :disabled="stored === ''"
-      @click.stop="$emit('input', stored)"
+      @click.stop="emit('input', stored)"
     >
       <v-icon size="small">
         mdi-cog
@@ -89,6 +89,16 @@ withDefaults(defineProps<Properties>(), {
 })
 
 const obscured = ref(true)
+
+const input = function (event: InputEvent) {
+  if (event.target instanceof HTMLInputElement) {
+    emit('input', event.target.value)
+  }
+}
+
+const emit = defineEmits([
+  'input',
+])
 
 defineExpose({
   obscured,

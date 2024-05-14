@@ -4,7 +4,7 @@ import BasicComponentStub from '?/stubs/BasicComponentStub'
 import { createVuetify } from 'vuetify'
 import ConsolePage from '@/components/ConsolePage.vue'
 
-describe('components/FileIcon', () => {
+describe('components/ConsolePage', () => {
   let vuetify
 
   const factory = assemble(ConsolePage, { open: true })

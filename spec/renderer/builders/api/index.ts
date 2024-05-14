@@ -1,6 +1,7 @@
 import actions from './actions'
 import clipboard from './clipboard'
 import file from './file'
+import initalize from './initalize'
 import log from './log'
 import metadata from './metadata'
 import path from './path'
@@ -14,6 +15,7 @@ export default function () {
     ...actions,
     ...clipboard,
     ...file,
+    ...initalize,
     ...log,
     ...metadata,
     ...path,

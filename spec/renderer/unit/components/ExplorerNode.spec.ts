@@ -4,14 +4,16 @@ import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
 import { State, key } from '@/store'
-import { StateDefaults as ActionsStateDefaults } from '@/store/modules/actions'
-import { StateDefaults as ClipboardStateDefaults } from '@/store/modules/clipboard'
-import { StateDefaults as FilesStateDefaults, File } from '@/store/modules/files'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as FilesStateDefaults, File } from '@/store/modules/files'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
-import { StateDefaults as TemplatesStateDefaults } from '@/store/modules/templates'
 import ExplorerNode from '@/components/ExplorerNode.vue'
+import BasicComponentStub from '?/stubs/BasicComponent.vue'
+import ElementComponentStub from '?/stubs/ElementComponent.vue'
 import { FileRelationshipType } from '@/store/modules/files/file'
+import { format } from '@/modules/Titles'
+
+vi.mock('@/modules/Titles', () => ({ format: vi.fn() }))
 
 describe('components/ExplorerNode', () => {
   let vuetify
@@ -30,39 +32,27 @@ describe('components/ExplorerNode', () => {
           ...FilesStateDefaults(),
           directory: {
             [file_uuid]: new File({
-              name: 'Name',
-              path: '/pa/th/to/fi/le.txt',
-              extension: 'txt',
+              name: 'example.file.md',
+              path: '/folder/example.file.md',
+              extension: '.md',
               children: [],
               directory: false,
             }),
           },
         },
-        clipboard: {
-          ...ClipboardStateDefaults(),
-          content: { type: 'file', target: '/path' },
+        repository: {
+          ...RepositoryStateDefaults(),
+          name: 'example.repository',
         },
         configuration: {
           ...ConfigurationStateDefaults(),
           draggable_objects: true,
-        },
-        repository: {
-          ...RepositoryStateDefaults(),
-          path: '/project',
-        },
-        templates: {
-          ...TemplatesStateDefaults(),
-          options: [ 'one', 'two', 'three' ],
-        },
-        actions: {
-          ...ActionsStateDefaults(),
-          options: [ 'one', 'two', 'three' ],
+          format_explorer_titles: false,
         },
       },
       actions: stub_actions([
-        'clipboard/copy',
-        'clipboard/cut',
-        'clipboard/paste',
+        'files/toggle',
+        'files/select',
       ]),
     })
 
@@ -76,20 +66,21 @@ describe('components/ExplorerNode', () => {
     vi.clearAllMocks()
   })
 
-  const format = vi.fn((name) => name)
-
   const factory = assemble(ExplorerNode, {
     uuid: file_uuid,
-    active: 'Active',
-    format,
+    active: '',
   })
     .context(() => ({
       global: {
         plugins: [ vuetify, [ store, key ] ],
+        stubs: {
+          ExplorerNodePickup: BasicComponentStub,
+          Context: ElementComponentStub,
+        },
       },
     }))
 
-  it('should be flagged as system if the relationship equals root', async () => {
+  it('should be flagged as system if file relationship equals FileRelationshipType.Root', async () => {
     file.relationship = FileRelationshipType.Root
 
     const wrapper = factory.wrap()
@@ -99,7 +90,17 @@ describe('components/ExplorerNode', () => {
     expect(wrapper.vm.system).toEqual(true)
   })
 
-  it('should be flagged as system if the relationship equals git', async () => {
+  it('should set draggable false if file relationship equals FileRelationshipType.Root', async () => {
+    file.relationship = FileRelationshipType.Root
+
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.draggable).toEqual(false)
+  })
+
+  it('should be flagged as system if file relationship equals FileRelationshipType.Git', async () => {
     file.relationship = FileRelationshipType.Git
 
     const wrapper = factory.wrap()
@@ -109,7 +110,27 @@ describe('components/ExplorerNode', () => {
     expect(wrapper.vm.system).toEqual(true)
   })
 
-  it('should be flagged as system if the relationship equals tome', async () => {
+  it('should set draggable false if file relationship equals FileRelationshipType.Git', async () => {
+    file.relationship = FileRelationshipType.Git
+
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.draggable).toEqual(false)
+  })
+
+  it('should set locked true if the file relationship equals FileRelationshipType.Git', async () => {
+    file.relationship = FileRelationshipType.Git
+
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.locked).toEqual(true)
+  })
+
+  it('should be flagged as system if file relationship equals FileRelationshipType.Tome', async () => {
     file.relationship = FileRelationshipType.Tome
 
     const wrapper = factory.wrap()
@@ -119,334 +140,299 @@ describe('components/ExplorerNode', () => {
     expect(wrapper.vm.system).toEqual(true)
   })
 
-  it('should emit a drag event when a drag starts with this component', async () => {
+  it('should set draggable false if file relationship equals FileRelationshipType.Tome', async () => {
+    file.relationship = FileRelationshipType.Tome
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.emitted('drag')).not.toBeDefined()
+    expect(wrapper.vm.draggable).toEqual(false)
+  })
 
-    await wrapper.vm.drag_start({
-      dataTransfer: {},
-      target: {
-        style: {},
-      },
+  it('should set selected true if file File.uuid equals the active File.uuid', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.$nextTick()
+
+    await wrapper.setProps({ active: file_uuid })
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.selected).toEqual(true)
+  })
+
+  it('should set alert flag to false if the file File.ephemeral equals true', async () => {
+    file.ephemeral = true
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.system).toEqual(false)
+    expect(wrapper.vm.alert).toEqual(false)
+  })
+
+  it('should set alert flag to false if the system flag equals true', async () => {
+    file.relationship = FileRelationshipType.Root
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.system).toEqual(true)
+    expect(wrapper.vm.alert).toEqual(false)
+  })
+
+  it('should set alert flag to false if the file relationship equals FileRelationshipType.TomeFile', async () => {
+    file.relationship = FileRelationshipType.TomeFile
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.system).toEqual(false)
+    expect(file.ephemeral).toEqual(false)
+    expect(wrapper.vm.alert).toEqual(false)
+  })
+
+  it('should set alert flag to false if the file relationship equals FileRelationshipType.TomeFile', async () => {
+    file.relationship = FileRelationshipType.None
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.system).toEqual(false)
+    expect(file.ephemeral).toEqual(false)
+    expect(wrapper.vm.alert).toEqual(false)
+  })
+
+  it('should set alert flag to false if the file name can be formatted without error', async () => {
+    file.relationship = FileRelationshipType.None
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.system).toEqual(false)
+    expect(file.ephemeral).toEqual(false)
+    expect(format).toHaveBeenCalledOnce()
+    expect(wrapper.vm.alert).toEqual(false)
+  })
+
+  it('should set alert flag to true if the file name cannot be formatted without error', async () => {
+    vi.mocked(format).mockImplementation(() => {
+      throw new Error('Error')
     })
 
-    expect(wrapper.emitted('drag')).toHaveLength(1)
+    file.relationship = FileRelationshipType.None
+
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.system).toEqual(false)
+    expect(file.ephemeral).toEqual(false)
+    expect(format).toHaveBeenCalledOnce()
+    expect(wrapper.vm.alert).toEqual(true)
   })
 
-  it('should emit a drop event when a drop starts with this component', async () => {
+  it('should call focus on the context element selected updates to true', async () => {
     const wrapper = factory.wrap()
+
+    const context = wrapper.findComponent({ ref: 'context' })
+    const context_element = context.find<HTMLElement>({ ref: 'element' })
+    const context_element_focus = vi.spyOn(context_element.element, 'focus')
+
+    expect(wrapper.vm.selected).toEqual(false)
+    expect(context_element_focus).not.toHaveBeenCalled()
+
+    await wrapper.setProps({ active: file_uuid })
 
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.emitted('drop')).not.toBeDefined()
-
-    const elm = {
-      classList: { add: vi.fn(), remove: vi.fn() },
-    }
-
-    await wrapper.vm.drop({
-      target: {
-        hasAttribute: vi.fn(() => true),
-        classList: { remove: vi.fn() },
-        closest: vi.fn(() => elm),
-        parentElement: undefined,
-      },
-    })
-
-    expect(wrapper.emitted('drop')).toHaveLength(1)
+    expect(wrapper.vm.selected).toEqual(true)
+    expect(context_element_focus).toHaveBeenCalled()
   })
 
-  it('should reset opacity when dragging ends', async () => {
+  it('should call focus on the context element edit updates to false while selected is true', async () => {
+    store.state.files.editing = true
+
     const wrapper = factory.wrap()
 
+    const context = wrapper.findComponent({ ref: 'context' })
+    const context_element = context.find<HTMLElement>({ ref: 'element' })
+    const context_element_focus = vi.spyOn(context_element.element, 'focus')
+
+    expect(wrapper.vm.selected).toEqual(false)
+    expect(wrapper.vm.edit).toEqual(false)
+    expect(context_element_focus).not.toHaveBeenCalled()
+
+    await wrapper.setProps({ active: file_uuid })
     await wrapper.vm.$nextTick()
 
-    const event = {
-      dataTransfer: {},
-      target: {
-        style: { opacity: 1 },
-      },
-    }
+    expect(wrapper.vm.selected).toEqual(true)
+    expect(wrapper.vm.edit).toEqual(true)
+    expect(context_element_focus).toHaveBeenCalled()
 
-    const opacity = event.target.style.opacity
-
-    await wrapper.vm.drag_start(event)
-
-    expect(event.target.style.opacity).not.toBe(opacity)
-
-    await wrapper.vm.drag_end(event)
-
-    expect(event.target.style.opacity).toBe(opacity)
+    context_element_focus.mockReset()
+    store.state.files.editing = false
+    await wrapper.vm.$nextTick()
+    expect(context_element_focus).toHaveBeenCalled()
   })
 
-  it('should determine the correct parent container when a drag begins', async () => {
+  it('should dispatch files/select with file path when button emits click and file directory is false', async () => {
+    file.directory = false
     const wrapper = factory.wrap()
 
-    await wrapper.vm.$nextTick()
+    const button = wrapper.findComponent({ ref: 'button' })
+    button.trigger('click')
 
-    const elm = {
-      classList: { add: vi.fn(), remove: vi.fn() },
-    }
-
-    const event = {
-      dataTransfer: {},
-      target: {
-        hasAttribute: vi.fn(() => false),
-        style: { opacity: 1 },
-        closest: vi.fn(() => elm),
-        parentElement: {
-          hasAttribute: vi.fn(() => true),
-          classList: { add: vi.fn() },
-        },
-      },
-    }
-
-    await wrapper.vm.drag_start(event)
-
-    expect(elm.classList.add).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.drag_enter(event)
-
-    expect(elm.classList.add).toHaveBeenCalledTimes(1)
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: file.path })
   })
 
-  it('should determine the correct parent container when a drag ends', async () => {
+  it('should not dispatch files/select with file path when button emits click and file directory is false while locked is true', async () => {
+    file.directory = false
+    file.relationship = FileRelationshipType.Git
     const wrapper = factory.wrap()
 
-    await wrapper.vm.$nextTick()
+    const button = wrapper.findComponent({ ref: 'button' })
+    button.trigger('click')
 
-    const elm = {
-      classList: { add: vi.fn(), remove: vi.fn() },
-    }
-
-    const event = {
-      dataTransfer: {},
-      target: {
-        hasAttribute: vi.fn(() => false),
-        style: { opacity: 1 },
-        closest: vi.fn(() => elm),
-        parentElement: {
-          hasAttribute: vi.fn(() => true),
-          classList: {
-            add: vi.fn(),
-            remove: vi.fn(),
-          },
-        },
-      },
-    }
-
-    await wrapper.vm.drag_start(event)
-
-    expect(elm.classList.add).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.drag_enter(event)
-
-    expect(elm.classList.add).toHaveBeenCalledTimes(1)
-    expect(elm.classList.remove).toHaveBeenCalledTimes(0)
-
-    await wrapper.vm.drag_leave(event)
-
-    expect(elm.classList.remove).toHaveBeenCalledTimes(1)
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
   })
 
-  it('should refresh input field value when focus is called', async () => {
+  it('should dispatch files/select with file path when context emits keydown for enter key and file directory is false', async () => {
+    file.directory = false
     const wrapper = factory.wrap()
 
-    wrapper.vm.input = 'test'
+    const context = wrapper.findComponent({ ref: 'context' })
+    context.trigger('keydown', { key: 'Enter' })
 
-    await wrapper.vm.$nextTick()
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: file.path })
+  })
 
-    expect(wrapper.vm.input).not.toBe(wrapper.vm.display)
+  it('should not dispatch files/select with file path when context emits keydown for enter key and file directory is false if repeat is true', async () => {
+    file.directory = false
+    const wrapper = factory.wrap()
 
-    await wrapper.vm.focus()
+    const context = wrapper.findComponent({ ref: 'context' })
+    context.trigger('keydown', { key: 'Enter', repeat: true })
 
-    expect(wrapper.vm.input).toBe(wrapper.vm.display)
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+  })
+
+  it('should dispatch files/select with file path when context emits keydown for spacebar key and file directory is false', async () => {
+    file.directory = false
+    const wrapper = factory.wrap()
+
+    const context = wrapper.findComponent({ ref: 'context' })
+    context.trigger('keydown', { key: ' ' })
+
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: file.path })
+  })
+
+  it('should not dispatch files/select with file path when context emits keydown for spacebar key and file directory is false if repeat is true', async () => {
+    file.directory = false
+    const wrapper = factory.wrap()
+
+    const context = wrapper.findComponent({ ref: 'context' })
+    context.trigger('keydown', { key: ' ', repeat: true })
+
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+  })
+
+  it('should dispatch files/toggle with file path when button emits click and file directory is true', async () => {
+    file.directory = true
+    const wrapper = factory.wrap()
+
+    const button = wrapper.findComponent({ ref: 'button' })
+    button.trigger('click')
+
+    expect(store_dispatch).toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+  })
+
+  it('should not dispatch files/toggle with file path when button emits click and file directory is true while locked is true', async () => {
+    file.directory = true
+    file.relationship = FileRelationshipType.Git
+    const wrapper = factory.wrap()
+
+    const button = wrapper.findComponent({ ref: 'button' })
+    button.trigger('click')
+
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+  })
+
+  it('should dispatch files/toggle with file path when context emits keydown for enter key and file directory is true', async () => {
+    file.directory = true
+    const wrapper = factory.wrap()
+
+    const context = wrapper.findComponent({ ref: 'context' })
+    context.trigger('keydown', { key: 'Enter' })
+
+    expect(store_dispatch).toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+  })
+
+  it('should not dispatch files/toggle with file path when context emits keydown for enter key and file directory is true if repeat is true', async () => {
+    file.directory = true
+    const wrapper = factory.wrap()
+
+    const context = wrapper.findComponent({ ref: 'context' })
+    context.trigger('keydown', { key: 'Enter', repeat: true })
+
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+  })
+
+  it('should dispatch files/toggle with file path when context emits keydown for spacebar key and file directory is true', async () => {
+    file.directory = true
+    const wrapper = factory.wrap()
+
+    const context = wrapper.findComponent({ ref: 'context' })
+    context.trigger('keydown', { key: ' ' })
+
+    expect(store_dispatch).toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+  })
+
+  it('should not dispatch files/select with file path when context emits keydown for spacebar key and file directory is true if repeat is true', async () => {
+    file.directory = true
+    const wrapper = factory.wrap()
+
+    const context = wrapper.findComponent({ ref: 'context' })
+    context.trigger('keydown', { key: ' ', repeat: true })
+
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
   })
 
   it('should format the display name if title is set and instance is non-system', async () => {
-    const format = vi.fn()
-    const wrapper = factory.wrap({ title: true, format })
+    store.state.configuration.format_explorer_titles = true
+    vi.mocked(format).mockImplementation(() => 'Example File')
+
+    const wrapper = factory.wrap()
     await wrapper.vm.$nextTick()
 
-    expect(format).toHaveBeenCalledTimes(2)
+    expect(wrapper.vm.display).not.toEqual(file.name)
+    expect(wrapper.vm.display).toEqual('Example File')
   })
 
   it('should find a placeholder display name if title is set and format fails', async () => {
-    format.mockImplementationOnce(() => {
-      throw new Error('Mock Error')
+    store.state.configuration.format_explorer_titles = true
+    vi.mocked(format).mockImplementationOnce(() => {
+      throw new Error('Error')
     })
-    const wrapper = factory.wrap({ title: true, format })
-    await wrapper.vm.$nextTick()
 
-    expect(format).toHaveBeenCalledTimes(2)
-  })
-
-  it('should emit open event when Open context menu action is called', async () => {
     const wrapper = factory.wrap()
     await wrapper.vm.$nextTick()
 
-    let action
-    for (const item of wrapper.vm.context) {
-      if (item.title === 'Open') {
-        action = item.action
-      }
-    }
-
-    expect(wrapper.emitted('open')).not.toBeDefined()
-
-    await action()
-
-    expect(wrapper.emitted('open')).toHaveLength(1)
+    expect(wrapper.vm.display).toEqual(file.name)
   })
 
-  it('should emit open event when Open Folder context menu action is called', async () => {
+  it('should find a placeholder display name if title is set and format fails when file name is blank', async () => {
+    store.state.configuration.format_explorer_titles = true
+    file.name = ''
+    vi.mocked(format).mockImplementationOnce(() => {
+      throw new Error('Error')
+    })
+
     const wrapper = factory.wrap()
     await wrapper.vm.$nextTick()
 
-    let action
-    for (const item of wrapper.vm.context) {
-      if (item.title === 'Open Folder') {
-        action = item.action
-      }
-    }
-
-    expect(wrapper.emitted('open')).not.toBeDefined()
-
-    await action()
-
-    expect(wrapper.emitted('open')).toHaveLength(1)
-  })
-
-  it('should emit open event when New File context menu action is called', async () => {
-    const wrapper = factory.wrap()
-    await wrapper.vm.$nextTick()
-
-    let action
-
-    for (const item of wrapper.vm.context) {
-      if (item.title === 'New File') {
-        action = item.action
-      }
-    }
-
-    expect(wrapper.emitted('create')).not.toBeDefined()
-
-    await action()
-
-    expect(wrapper.emitted('create')).toHaveLength(1)
-  })
-
-  it('should emit create event when New Folder context menu action is called', async () => {
-    const wrapper = factory.wrap()
-    await wrapper.vm.$nextTick()
-
-    let action
-    for (const item of wrapper.vm.context) {
-      if (item.title === 'New Folder') {
-        action = item.action
-      }
-    }
-
-    expect(wrapper.emitted('create')).not.toBeDefined()
-
-    await action()
-
-    expect(wrapper.emitted('create')).toHaveLength(1)
-  })
-
-  it('should dispatch the cut store action when Cut context menu action is called', async () => {
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.$nextTick()
-
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
-
-    const target = './index.md'
-
-    await wrapper.vm.context.find((item) => item.title === 'Cut').action(target)
-
-    expect(store_dispatch).toHaveBeenCalledWith('clipboard/cut', { target, type: 'file' })
-  })
-
-  it('should emit open event when Copy context menu action is called', async () => {
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.$nextTick()
-
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
-
-    const target = './index.md'
-
-    await wrapper.vm.context.find((item) => item.title === 'Copy').action(target)
-
-    expect(store_dispatch).toHaveBeenCalledWith('clipboard/copy', { target, type: 'file' })
-  })
-
-  it('should dispatch paste action when Paste context menu action is called', async () => {
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.$nextTick()
-
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
-
-    const target = './index.md'
-
-    await wrapper.vm.context.find((item) => item.title === 'Paste').action(target)
-
-    expect(store_dispatch).toHaveBeenCalledWith('clipboard/paste', { target, type: 'file' })
-  })
-
-  it('should return true for paste active state when store has paste value', async () => {
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.$nextTick()
-
-    let active
-    for (const item of wrapper.vm.context) {
-      if (item.title === 'Paste') {
-        active = item.active
-      }
-    }
-
-    expect(active()).toBeTruthy()
-  })
-
-  it('should emit edit event when Rename context menu action is called', async () => {
-    const wrapper = factory.wrap()
-    await wrapper.vm.$nextTick()
-
-    let action
-    for (const item of wrapper.vm.context) {
-      if (item.title === 'Rename') {
-        action = item.action
-      }
-    }
-
-    expect(wrapper.emitted('edit')).not.toBeDefined()
-
-    await action()
-
-    expect(wrapper.emitted('edit')).toHaveLength(1)
-  })
-
-  it('should emit delete event when Delete context menu action is called', async () => {
-    const wrapper = factory.wrap()
-    await wrapper.vm.$nextTick()
-
-    let action
-    for (const item of wrapper.vm.context) {
-      if (item.title === 'Delete') {
-        action = item.action
-      }
-    }
-
-    expect(wrapper.emitted('delete')).not.toBeDefined()
-
-    await action()
-
-    expect(wrapper.emitted('delete')).toHaveLength(1)
+    expect(wrapper.vm.display).not.toEqual(file.name)
+    expect(wrapper.vm.display).toEqual(' - ')
   })
 })

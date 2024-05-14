@@ -175,7 +175,7 @@ export default {
       context.commit('clear')
     },
     load: async function (context, path) {
-      await context.dispatch('message', `Loading repository at ${path} ... `, { root: true })
+      await context.dispatch('log', { level: 'info', message: `Loading repository at ${path} ... ` }, { root: true })
 
       const repository = await api.repository.load(path)
 
@@ -197,19 +197,19 @@ export default {
       const remote = await context.dispatch('configuration/read', 'default_remote', { root: true })
       await context.dispatch('remote', remote)
 
-      await context.dispatch('message', `Repository ${repository.name} ready`, { root: true })
+      await context.dispatch('log', { level: 'info', message: `Repository ${repository.name} ready` }, { root: true })
     },
     stage: async function (context, query) {
       context.commit('staging', true)
 
       try {
-        await context.dispatch('message', `Staging query ${query}`, { root: true })
+        await context.dispatch('log', { level: 'info', message: `Staging query ${query}` }, { root: true })
         await api.repository.stage(query)
 
         await context.dispatch('inspect')
-        await context.dispatch('message', 'Stage complete', { root: true })
+        await context.dispatch('log', { level: 'info', message: 'Stage complete' }, { root: true })
       } catch (error) {
-        await context.dispatch('error', 'Stage failed', { root: true })
+        await context.dispatch('log', { level: 'error', message: 'Stage failed' }, { root: true })
         throw error
       } finally {
         context.commit('staging', false)
@@ -219,13 +219,13 @@ export default {
       context.commit('staging', true)
 
       try {
-        await context.dispatch('message', `Reseting query ${query}`, { root: true })
+        await context.dispatch('log', { level: 'info', message: `Reseting query ${query}` }, { root: true })
         await api.repository.reset(query)
 
         await context.dispatch('inspect')
-        await context.dispatch('message', 'Reset complete', { root: true })
+        await context.dispatch('log', { level: 'info', message: 'Reset complete' }, { root: true })
       } catch (error) {
-        await context.dispatch('error', 'Reset failed', { root: true })
+        await context.dispatch('log', { level: 'error', message: 'Reset failed' }, { root: true })
         throw error
       } finally {
         context.commit('staging', false)
@@ -274,11 +274,11 @@ export default {
 
       const { name, email, message } = context.state.signature
 
-      await context.dispatch('message', `Creating commit "${message}" ...`, { root: true })
+      await context.dispatch('log', { level: 'info', message: `Creating commit "${message}" ...` }, { root: true })
 
       const oid = await api.repository.commit(name, email, message)
 
-      await context.dispatch('message', `Commit "${message}" ${oid} created`, { root: true })
+      await context.dispatch('log', { level: 'info', message: `Commit "${message}" ${oid} created` }, { root: true })
 
       await context.dispatch('inspect')
 
@@ -331,11 +331,11 @@ export default {
 
       context.commit('push', true)
 
-      await context.dispatch('message', `Pushing to remote ${context.state.remote.name} ...`, { root: true })
+      await context.dispatch('log', { level: 'info', message: `Pushing to remote ${context.state.remote.name} ...` }, { root: true })
 
       await api.repository.push()
 
-      await context.dispatch('message', `Push to remote ${context.state.remote.name} complete`, { root: true })
+      await context.dispatch('log', { level: 'info', message: `Push to remote ${context.state.remote.name} complete` }, { root: true })
 
       context.commit('push', false)
     },

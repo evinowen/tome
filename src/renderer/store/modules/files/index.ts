@@ -24,6 +24,7 @@ export class State {
   ghost: string
   base: string
   selected: string
+  held: string
   editing: boolean
   tree?: FileTree
   post?: (path: string) => void
@@ -37,6 +38,7 @@ export const StateDefaults = (): State => ({
   ghost: '',
   base: '',
   selected: '',
+  held: '',
   editing: false,
 })
 
@@ -125,10 +127,16 @@ export default {
       state.active = ''
       state.selected = ''
     },
+    hold: function (state, path) {
+      state.held = path
+    },
+    drop: function (state) {
+      state.held = ''
+    },
   },
   actions: <ActionTree<State, unknown>>{
     initialize: async function (context, { path }) {
-      await context.dispatch('message', `Initialize file tree at ${path} ... `, { root: true })
+      await context.dispatch('log', { level: 'info', message: `Initialize file tree at ${path} ... ` }, { root: true })
       const tree = await FileTree.make(path)
 
       context.commit('initialize', tree)
@@ -153,13 +161,14 @@ export default {
           case ChokidarEvent.ADD_DIR:
           case ChokidarEvent.DELETE:
           case ChokidarEvent.DELETE_DIR:
-            await context.dispatch('message', `Refresh ${target.path}`, { root: true })
+            await context.dispatch('log', { level: 'debug', message: `Refresh ${target.path}` }, { root: true })
             context.commit('unload', target)
             await context.dispatch('load', { item: target })
             break
         }
       })
 
+      await context.dispatch('log', { level: 'info', message: `File tree at ${path} ready` }, { root: true })
       await context.dispatch('toggle', { item: context.state.tree.base })
     },
     clear: async function (context) {
@@ -198,18 +207,18 @@ export default {
             async (object) => {
               switch (object.type) {
                 case 'read':
-                  await context.dispatch('message', `Read (identity) ${object.bytes} bytes @ ${object.path}`, { root: true })
+                  await context.dispatch('log', { level: 'debug', message: `Read (identity) ${object.bytes} bytes @ ${object.path}` }, { root: true })
                   break
 
                 case 'populated':
-                  await context.dispatch('message', `Populate (identity) ${object.path}`, { root: true })
+                  await context.dispatch('log', { level: 'debug', message: `Populate (identity) ${object.path}` }, { root: true })
                   break
               }
             },
           )
 
           context.commit('load', contract)
-          await context.dispatch('message', `Item directory @ ${Object.keys(context.state.directory).length})`, { root: true })
+          await context.dispatch('log', { level: 'debug', message: `Item directory @ ${Object.keys(context.state.directory).length})` }, { root: true })
 
           identity = await FileTree.search(identity.item, identity.queue)
         } else {
@@ -240,7 +249,7 @@ export default {
     },
     load: async function (context, criteria) {
       const item: File = await context.dispatch('identify', criteria)
-      await context.dispatch('message', `Load ${item.path}`, { root: true })
+      await context.dispatch('log', { level: 'trace', message: `Access (load) ${item.path}` }, { root: true })
 
       if (!(item.ephemeral || item.image)) {
         const contract = await item.load(
@@ -248,20 +257,20 @@ export default {
           async (object) => {
             switch (object.type) {
               case 'read':
-                await context.dispatch('message', `Read (load) ${object.bytes} bytes @ ${object.path}`, { root: true })
+                await context.dispatch('log', { level: 'trace', message: `Read (load) ${object.bytes} bytes @ ${object.path}` }, { root: true })
                 break
 
               case 'populated':
-                await context.dispatch('message', `Populate (load) ${object.path}`, { root: true })
+                await context.dispatch('log', { level: 'trace', message: `Populate (load) ${object.path}` }, { root: true })
                 break
             }
           },
         )
 
         context.commit('load', contract)
-        await context.dispatch('message', `Item directory @ ${Object.keys(context.state.directory).length})`, { root: true })
+        await context.dispatch('log', { level: 'trace', message: `Item directory @ ${Object.keys(context.state.directory).length})` }, { root: true })
 
-        await context.dispatch('message', `Load ${item.path} complete`, { root: true })
+        await context.dispatch('log', { level: 'debug', message: `Load ${item.path}` }, { root: true })
       }
 
       return item
@@ -345,14 +354,17 @@ export default {
       let name = input.toLowerCase().replaceAll(/[ .-]+/g, '.').replaceAll(/[^\d.a-z-]/g, '')
 
       if (title && !directory) {
-        name = `${name}.md`
+        if (ephemeral) {
+          name = `${name}.md`
+        } else {
+          const { extension } = selected
+          name = `${name}${extension || ''}`
+        }
       }
 
-      let item
-
-      ephemeral
-        ? item = await context.dispatch('create', { item: parent, name, directory })
-        : item = await context.dispatch('rename', { item: selected, name })
+      const item = ephemeral
+        ? await context.dispatch('create', { item: parent, name, directory })
+        : await context.dispatch('rename', { item: selected, name })
 
       if (item === undefined) {
         throw new FileSubmitFailureError()
@@ -369,14 +381,17 @@ export default {
     edit: async function (context, criteria) {
       const item = await context.dispatch('select', criteria)
       context.commit('edit', { edit: true })
-
       return item
     },
-    blur: async function (context) {
+    blur: async function (context, criteria) {
+      const { path } = criteria
       const selected = context.state.directory[context.state.selected]
 
+      if (selected.path !== path) {
+        return
+      }
+
       context.commit('edit', { edit: false })
-      context.commit('blur')
 
       return selected
     },
@@ -433,6 +448,13 @@ export default {
 
       context.commit('unload', item.parent)
       await context.dispatch('load', { item: item.parent })
+    },
+    drag: async function (context, path) {
+      context.commit('hold', path)
+    },
+    drop: async function (context, path) {
+      await context.dispatch('move', { path: context.state.held, proposed: path })
+      context.commit('drop')
     },
   },
 }

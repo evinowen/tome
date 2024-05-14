@@ -24,14 +24,6 @@ withDefaults(defineProps<Properties>(), {
   justify-content: center;
   align-items: center;
   text-align: center;
-  background-image:
-    repeating-linear-gradient(
-      45deg,
-      rgba(128,128,128,.1),
-      rgba(128,128,128,.075) 3.5px,
-      rgba(64,64,64,.075) 3.5px,
-      rgba(64,64,64,.1) 7px
-    );
 }
 
 .content {

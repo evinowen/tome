@@ -1,12 +1,7 @@
 <template>
   <empty-pane>
-    <file-icon
-      :path="file.path"
-      :directory="file.directory"
-      :extension="file.extension"
-      :image="file.image"
-      :relationship="''.concat(file.relationship)"
-      :expanded="file.expanded"
+    <file-button-icon
+      :file="file"
       size="large"
       disabled
     />
@@ -25,7 +20,7 @@
 
 <script lang="ts">
 import EmptyPane from '@/components/EmptyPane.vue'
-import FileIcon from '@/components/FileIcon.vue'
+import FileButtonIcon from '@/components/FileButtonIcon.vue'
 import {
   VDivider,
 } from 'vuetify/components'
@@ -33,7 +28,7 @@ import {
 export default {
   components: {
     EmptyPane,
-    FileIcon,
+    FileButtonIcon,
     VDivider,
   },
 }

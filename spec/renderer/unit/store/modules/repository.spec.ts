@@ -15,15 +15,11 @@ interface State {
 describe('store/modules/repository', () => {
   let store
 
-  let root_actions
   let configuration
 
-  beforeEach(() => {
-    root_actions = {
-      message: vi.fn(),
-      error: vi.fn(),
-    }
+  const log = vi.fn()
 
+  beforeEach(() => {
     configuration = {
       namespaced: true,
       actions: {
@@ -32,7 +28,7 @@ describe('store/modules/repository', () => {
     }
 
     store = new Vuex.Store<State>(cloneDeep({
-      actions: root_actions,
+      actions: { log },
       modules: { repository, configuration },
     }))
   })
@@ -67,44 +63,12 @@ describe('store/modules/repository', () => {
     expect(mocked_api.repository.stage).toHaveBeenCalledTimes(1)
   })
 
-  it('should dispatch error when file fails to stage on dispatch of stage action', async () => {
-    mocked_api.repository.stage.mockImplementationOnce(() => {
-      throw new Error('Error!')
-    })
-
-    await store.dispatch('repository/load', '/path/to/repository')
-
-    try {
-      await store.dispatch('repository/stage', './path.md')
-    } catch {
-      // do nothing
-    }
-
-    expect(root_actions.error).toHaveBeenCalledTimes(1)
-  })
-
   it('should instruct the repository to reset the query on dispatch of reset action', async () => {
     await store.dispatch('repository/load', '/path/to/repository')
 
     await store.dispatch('repository/reset', './path.md')
 
     expect(mocked_api.repository.reset).toHaveBeenCalledTimes(1)
-  })
-
-  it('should dispatch error when file fails to reset on dispatch of reset action', async () => {
-    mocked_api.repository.reset.mockImplementationOnce(() => {
-      throw new Error('Error!')
-    })
-
-    await store.dispatch('repository/load', '/path/to/repository')
-
-    try {
-      await store.dispatch('repository/reset', './path.md')
-    } catch {
-      // do nothing
-    }
-
-    expect(root_actions.error).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the repository to run inspect cycle on dispatch of inspect action', async () => {

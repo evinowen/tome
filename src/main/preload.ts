@@ -1,11 +1,19 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
+const alerter = (namespace) => (channel) => (...parameters) => {
+  ipcRenderer.send([ namespace, channel ].join('-'), ...parameters)
+}
 const invoker = (namespace) => (channel) => (...parameters) => ipcRenderer.invoke([ namespace, channel ].join('-'), ...parameters)
 const subscriber = (namespace) => (channel) => (...parameters) => (listener) => {
   const named_channel = [ namespace, channel ].join('-')
   const named_channel_return = [ named_channel, 'return' ].join('-')
   ipcRenderer.send(named_channel, named_channel_return, ...parameters)
   ipcRenderer.on(named_channel_return, listener)
+}
+
+const alert = {
+  initalize: alerter('initalize'),
+  log: alerter('log'),
 }
 
 const invoke = {
@@ -24,19 +32,20 @@ const subscribe = {
   file: subscriber('file'),
 }
 
+export const initalize = {
+  load: alert.initalize('load'),
+  ready: alert.initalize('ready'),
+}
+
 export const log = {
-  info: (message) => {
-    ipcRenderer.send('__ELECTRON_LOG__', {
-      data: [ message ],
-      level: 'info',
-    })
-  },
-  error: (message) => {
-    ipcRenderer.send('__ELECTRON_LOG__', {
-      data: [ message ],
-      level: 'error',
-    })
-  },
+  configure: alert.log('configure'),
+
+  trace: alert.log('trace'),
+  debug: alert.log('debug'),
+  info: alert.log('info'),
+  warn: alert.log('warn'),
+  error: alert.log('error'),
+  fatal: alert.log('fatal'),
 }
 
 export const action = {
@@ -119,6 +128,7 @@ export const window = {
 }
 
 contextBridge.exposeInMainWorld('api', {
+  initalize,
   log,
   action,
   clipboard,
