@@ -1,7 +1,18 @@
 import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import LogFactory from '@/LogFactory'
 
-jest.mock('pino')
+jest.mock('node:fs', () => ({
+  WriteStream: class {},
+  promises: {
+    access: jest.fn(() => Promise.resolve()),
+    mkdir: jest.fn(() => Promise.resolve()),
+  },
+  createWriteStream: jest.fn(),
+}))
+
+jest.mock('node:path', () => ({
+  dirname: jest.fn(() => '/path'),
+}))
 
 describe('LogFactory', () => {
   beforeEach(() => {})
