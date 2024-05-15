@@ -1,8 +1,8 @@
 import * as node_path from 'node:path'
 import * as node_fs from 'node:fs'
 
-class CreateDirectoryFailure extends Error {}
-class CreateLogFileFailure extends Error {}
+export class CreateDirectoryFailure extends Error {}
+export class CreateLogFileFailure extends Error {}
 
 const LoggerLevels = {
   trace: 0,
@@ -122,7 +122,7 @@ export default class LogFactory {
     }
 
     try {
-      const stream = await node_fs.createWriteStream(path)
+      const stream = node_fs.createWriteStream(path)
 
       const logger = new Logger()
       logger.level = 'info'
