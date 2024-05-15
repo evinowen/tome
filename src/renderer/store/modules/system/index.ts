@@ -12,6 +12,16 @@ export const SystemPerformances = {
   QuickPush: 'quick-push',
 }
 
+export enum SystemTimeout {
+  Minute = 'minute',
+  QuarterHour = 'quarter-hour',
+  HalfHour = 'half-hour',
+  Hour = 'hour',
+  QuarterDay = 'quarter-day',
+  HalfDay = 'half-day',
+  Day = 'day',
+}
+
 export interface State {
   version?: string
   process?: {
@@ -89,6 +99,11 @@ export default {
       await api.window.close()
     },
     perform: async function (context, performance) {
+      const ready = await context.dispatch('repository/loaded', undefined, { root: true })
+      if (!ready) {
+        return
+      }
+
       const dispatch: (action: string, data?: unknown) => Promise<boolean>
        = async (action: string, data?: unknown) => await context.dispatch(action, data, { root: true }) === true
 
@@ -167,6 +182,18 @@ export default {
     theme_editor: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { theme_editor: value })
       return context.state.theme_editor
+    },
+    timer: async function (context, timeout: SystemTimeout) {
+      context.dispatch('log', { level: 'trace', message: `System Timer [${timeout}] Triggered` }, { root: true })
+      const auto_commit = await context.dispatch('configuration/read', 'auto_commit', { root: true })
+
+      if (auto_commit) {
+        const auto_commit_interval = await context.dispatch('configuration/read', 'auto_commit_interval', { root: true })
+        if (auto_commit_interval === timeout) {
+          context.dispatch('log', { level: 'debug', message: `Auto-Commit Triggered for timer [${timeout}]` }, { root: true })
+          context.dispatch('perform', SystemPerformances.QuickCommit)
+        }
+      }
     },
   },
   modules: {

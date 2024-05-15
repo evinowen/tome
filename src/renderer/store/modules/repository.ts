@@ -199,6 +199,9 @@ export default {
 
       await context.dispatch('log', { level: 'info', message: `Repository ${repository.name} ready` }, { root: true })
     },
+    loaded: async function (context) {
+      return context.state.loaded
+    },
     stage: async function (context, query) {
       context.commit('staging', true)
 

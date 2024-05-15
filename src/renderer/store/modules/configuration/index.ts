@@ -14,6 +14,8 @@ export const Schema = z.object({
   passphrase: z.string().optional(),
 
   default_remote: z.string().optional(),
+  auto_commit: z.boolean().optional(),
+  auto_commit_interval: z.string().optional(),
   auto_push: z.boolean().optional(),
 
   format_explorer_titles: z.boolean().optional(),
@@ -46,6 +48,8 @@ export interface State {
   passphrase: string
 
   default_remote: string
+  auto_commit: boolean
+  auto_commit_interval: string
   auto_push: boolean
 
   format_explorer_titles: boolean
@@ -77,6 +81,8 @@ export const StateDefaults = (): State => ({
   passphrase: '',
 
   default_remote: 'origin',
+  auto_commit: false,
+  auto_commit_interval: 'hourly',
   auto_push: false,
 
   format_explorer_titles: true,
@@ -156,30 +162,18 @@ export default {
       context.dispatch('present')
     },
     read: async function (context, key) {
-      switch (key) {
-        case 'name':
-          return context.state.name
-        case 'email':
-          return context.state.email
-        case 'private_key':
-          return context.state.private_key
-        case 'public_key':
-          return context.state.public_key
-        case 'passphrase':
-          return context.state.passphrase
-        case 'format_explorer_titles':
-          return context.state.format_explorer_titles
-        case 'format_interaction_titles':
-          return context.state.format_interaction_titles
-        case 'dark_mode':
-          return context.state.dark_mode
-        case 'auto_push':
-          return context.state.auto_push
-        case 'default_remote':
-          return context.state.default_remote
+      const recurse_state = (object: Object, indices: string[]) => {
+        const index = indices[0]
+        let value = object[index]
+
+        if (indices.length > 1) {
+          value = recurse_state(value, indices.slice(1, indices.length))
+        }
+
+        return value
       }
 
-      return
+      return recurse_state(context.state, key.split('.'))
     },
     generate: async function (context, passphrase) {
       const { path: private_key } = await api.ssl.generate_private_key(passphrase)

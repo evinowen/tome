@@ -41,6 +41,7 @@ describe('store/modules/system', () => {
           actions: {
             commit: vi.fn(),
             push: vi.fn(),
+            loaded: vi.fn(() => true),
             stage: vi.fn(),
           },
           modules: {

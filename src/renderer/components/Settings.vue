@@ -57,6 +57,18 @@
       subtitle="Options for how Tome should handle or react to Commit operations"
     >
       <boolean-input
+        label="Automatic Commit"
+        detail="Create a commit on the current branch automatically when a change has been made at a configured time internal"
+        index="auto_commit"
+      />
+      <select-menu-input
+        label="Automatic Commit Interval"
+        detail="How often to create automated commits"
+        index="auto_commit_interval"
+        :disabled="!configuration.auto_commit"
+        :options="auto_commit_interval_options"
+      />
+      <boolean-input
         label="Automatic Push"
         detail="Push commits to the defined default remote once a commit is created"
         index="auto_push"
@@ -213,6 +225,15 @@ import {
   VDivider,
   VRow,
 } from 'vuetify/components'
+
+const auto_commit_interval_options = [
+  { value: 'quarter-hourly', label: 'Quarter Hourly' },
+  { value: 'half-hourly', label: 'Half Hourly' },
+  { value: 'hourly', label: 'Hourly' },
+  { value: 'quarter-daily', label: 'Quarter Daily' },
+  { value: 'half-daily', label: 'Half Daily' },
+  { value: 'daily', label: 'Daily' },
+] as SelectMenuOption[]
 
 const log_level_options = [
   { value: 'trace', label: 'Trace' },

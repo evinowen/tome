@@ -35,6 +35,7 @@
 
         <search-service v-show="system.search" />
         <shortcut-service />
+        <timer-service />
       </div>
     </v-main>
   </v-app>
@@ -54,6 +55,7 @@ import Settings from '@/components/Settings.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
 import SystemBar from '@/components/SystemBar.vue'
 import ThemeEditor from '@/components/ThemeEditor.vue'
+import TimerService from '@/components/TimerService.vue'
 import ValidationBox from '@/components/ValidationBox.vue'
 import {
   VApp,
@@ -75,6 +77,7 @@ export default {
     ShortcutService,
     SystemBar,
     ThemeEditor,
+    TimerService,
     ValidationBox,
     VApp,
     VMain,
