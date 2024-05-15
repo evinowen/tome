@@ -1,6 +1,6 @@
 {
   "name": "tome",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "git integrated cross-platform markdown editor",
   "author": "Evin Owen <git@evinowen.net>",
   "repository": {
@@ -55,8 +55,6 @@
     "node-forge": "^1.3.1",
     "nodegit": "^0.28.0-alpha.21",
     "papaparse": "^5.4.1",
-    "pino": "^9.0.0",
-    "pino-pretty": "^11.0.0",
     "resize-observer-polyfill": "^1.5.1",
     "sass": "^1.69.0",
     "tmp": "^0.2.1",

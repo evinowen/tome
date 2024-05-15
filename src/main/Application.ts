@@ -125,7 +125,7 @@ class Application {
       })
       .on(Events.SHUTDOWN, async () => {
         this.log.info('Application Shutdown')
-        this.log.flush()
+        await this.log.flush()
         this.emitter.emit(Events.EXIT_APPLICATION)
       })
       .on(Events.EXIT_APPLICATION, () => {
