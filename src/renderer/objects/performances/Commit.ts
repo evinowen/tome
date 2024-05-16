@@ -5,6 +5,11 @@ export default class Commit {
     await dispatch('log', { level: 'info', message: 'Perform Commit' })
 
     try {
+      if (!await dispatch('repository/staged')) {
+        await dispatch('log', { level: 'info', message: 'Commit has no changes staged' })
+        return
+      }
+
       await dispatch('repository/commit')
       await dispatch('repository/signature/message')
 

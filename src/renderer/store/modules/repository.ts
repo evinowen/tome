@@ -222,6 +222,9 @@ export default {
         context.commit('staging', false)
       }
     },
+    staged: async function (context) {
+      return context.state.status.staged.length > 0
+    },
     reset: async function (context, query) {
       context.commit('staging', true)
 
@@ -389,7 +392,19 @@ export default {
           context.commit('set', { email })
         },
         message: function (context, value) {
-          const message = value || `Update for ${DateTime.now().toISODate()}`
+          // eslint-disable-next-line unicorn/consistent-function-scoping
+          const date = () => {
+            return DateTime.now().toLocaleString({
+              weekday: 'short',
+              month: 'long',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZoneName: 'short',
+            })
+          }
+
+          const message = value || `Update for ${date()}`
           context.commit('set', { message })
         },
         uncheck: function (context) {

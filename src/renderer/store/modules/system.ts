@@ -2,14 +2,16 @@ import { MutationTree, ActionTree } from 'vuex'
 import api from '@/api'
 import Commit from '@/objects/performances/Commit'
 import QuickCommit from '@/objects/performances/QuickCommit'
+import AutoCommit from '@/objects/performances/AutoCommit'
 import Push from '@/objects/performances/Push'
 import QuickPush from '@/objects/performances/QuickPush'
 
-export const SystemPerformances = {
-  Commit: 'commit',
-  QuickCommit: 'quick-commit',
-  Push: 'push',
-  QuickPush: 'quick-push',
+export enum SystemPerformance {
+  Commit = 'commit',
+  QuickCommit = 'quick-commit',
+  AutoCommit = 'auto-commit',
+  Push = 'push',
+  QuickPush = 'quick-push',
 }
 
 export enum SystemTimeout {
@@ -98,7 +100,7 @@ export default {
     exit: async function () {
       await api.window.close()
     },
-    perform: async function (context, performance) {
+    perform: async function (context, performance: SystemPerformance) {
       const ready = await context.dispatch('repository/loaded', undefined, { root: true })
       if (!ready) {
         return
@@ -108,19 +110,23 @@ export default {
        = async (action: string, data?: unknown) => await context.dispatch(action, data, { root: true }) === true
 
       switch (performance) {
-        case SystemPerformances.Commit:
+        case SystemPerformance.Commit:
           await Commit.perform(dispatch)
           break
 
-        case SystemPerformances.QuickCommit:
+        case SystemPerformance.QuickCommit:
           await QuickCommit.perform(dispatch)
           break
 
-        case SystemPerformances.Push:
+        case SystemPerformance.AutoCommit:
+          await AutoCommit.perform(dispatch)
+          break
+
+        case SystemPerformance.Push:
           await Push.perform(dispatch)
           break
 
-        case SystemPerformances.QuickPush:
+        case SystemPerformance.QuickPush:
           await QuickPush.perform(dispatch)
           break
       }
@@ -135,7 +141,7 @@ export default {
         await context.dispatch('repository/signature/uncheck', undefined, { root: true })
       }
 
-      context.commit('set', { commit: value })
+      typeof value !== 'boolean' || context.commit('set', { commit: value })
       return context.state.commit
     },
     commit_confirm: async function (context, value) {
@@ -200,7 +206,7 @@ export default {
         const auto_commit_interval = await context.dispatch('configuration/read', 'auto_commit_interval', { root: true })
         if (auto_commit_interval === timeout) {
           context.dispatch('log', { level: 'debug', message: `Auto-Commit Triggered for timer [${timeout}]` }, { root: true })
-          context.dispatch('perform', SystemPerformances.QuickCommit)
+          context.dispatch('perform', SystemPerformance.AutoCommit)
         }
       }
     },

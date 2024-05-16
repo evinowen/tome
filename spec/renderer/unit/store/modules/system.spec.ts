@@ -1,10 +1,11 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import Vuex from 'vuex'
-import system, { State as SystemState } from '@/store/modules/system'
-import Commit from '@/store/modules/system/commit'
-import QuickCommit from '@/store/modules/system/quick_commit'
-import Push from '@/store/modules/system/push'
-import QuickPush from '@/store/modules/system/quick_push'
+import system, { State as SystemState, SystemPerformance } from '@/store/modules/system'
+import Commit from '@/objects/performances/Commit'
+import QuickCommit from '@/objects/performances/QuickCommit'
+import AutoCommit from '@/objects/performances/AutoCommit'
+import Push from '@/objects/performances/Push'
+import QuickPush from '@/objects/performances/QuickPush'
 import * as api_module from '@/api'
 import builders from '?/builders'
 import { scafold as store_scafold } from '?/builders/store'
@@ -18,6 +19,7 @@ interface State {
 
 describe('store/modules/system', () => {
   let store
+  const store_action_repository_signature_check = vi.fn()
 
   beforeEach(() => {
     store = new Vuex.Store<State>(store_scafold({
@@ -40,15 +42,21 @@ describe('store/modules/system', () => {
           namespaced: true,
           actions: {
             commit: vi.fn(),
+            inspect: vi.fn(),
             push: vi.fn(),
             loaded: vi.fn(() => true),
             stage: vi.fn(),
+            staged: vi.fn(),
           },
           modules: {
             signature: {
               namespaced: true,
               actions: {
+                name: vi.fn(),
+                email: vi.fn(),
                 message: vi.fn(),
+                uncheck: vi.fn(),
+                check: store_action_repository_signature_check,
               },
             },
           },
@@ -105,7 +113,6 @@ describe('store/modules/system', () => {
   const flags = [
     'branch',
     'commit',
-    'commit_confirm',
     'commit_push',
     'console',
     'edit',
@@ -117,13 +124,13 @@ describe('store/modules/system', () => {
   ]
 
   for (const flag of flags) {
-    it(`should set ${flag} flag on ${flag} dispatch with non-undefined value`, async () => {
+    it(`should set ${flag} flag on ${flag} dispatch with defined value`, async () => {
       expect(store.state.system[flag]).toBe(false)
       await store.dispatch(`system/${flag}`, true)
       expect(store.state.system[flag]).toBe(true)
     })
 
-    it(`should not set ${flag} flag on ${flag} dispatch with no value`, async () => {
+    it(`should not set ${flag} flag on ${flag} dispatch with undefined value`, async () => {
       expect(store.state.system[flag]).toBe(false)
       await store.dispatch(`system/${flag}`, true)
       expect(store.state.system[flag]).toBe(true)
@@ -131,6 +138,43 @@ describe('store/modules/system', () => {
       expect(store.state.system[flag]).toBe(true)
     })
   }
+
+  it('should not set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/signature/check returns false', async () => {
+    store_action_repository_signature_check.mockImplementation(() => false)
+
+    expect(store.state.system.commit_confirm).toBe(false)
+    await store.dispatch('system/commit_confirm', true)
+    expect(store.state.system.commit_confirm).toBe(false)
+  })
+
+  it('should set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/signature/check returns true', async () => {
+    store_action_repository_signature_check.mockImplementation(() => true)
+
+    expect(store.state.system.commit_confirm).toBe(false)
+    await store.dispatch('system/commit_confirm', true)
+    expect(store.state.system.commit_confirm).toBe(true)
+  })
+
+  it('should set commit_confirm flag to false on commit_confirm dispatch with falsey value', async () => {
+    store_action_repository_signature_check.mockImplementation(() => true)
+
+    expect(store.state.system.commit_confirm).toBe(false)
+    await store.dispatch('system/commit_confirm', true)
+    expect(store.state.system.commit_confirm).toBe(true)
+
+    await store.dispatch('system/commit_confirm', false)
+    expect(store.state.system.commit_confirm).toBe(false)
+  })
+
+  it('should not set commit_confirm flag on commit_confirm dispatch with undefined value', async () => {
+    store_action_repository_signature_check.mockImplementation(() => true)
+
+    expect(store.state.system.commit_confirm).toBe(false)
+    await store.dispatch('system/commit_confirm', true)
+    expect(store.state.system.commit_confirm).toBe(true)
+    await store.dispatch('system/commit_confirm')
+    expect(store.state.system.commit_confirm).toBe(true)
+  })
 
   // const signature = [
   //   'name',
@@ -165,7 +209,7 @@ describe('store/modules/system', () => {
     expect(spy).not.toHaveBeenCalled()
 
     await store.dispatch('system/commit_push', true)
-    await store.dispatch('system/perform', 'commit')
+    await store.dispatch('system/perform', SystemPerformance.Commit)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -175,7 +219,17 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/perform', 'quick-commit')
+    await store.dispatch('system/perform', SystemPerformance.QuickCommit)
+
+    expect(spy).toHaveBeenCalled()
+  })
+
+  it('should call AutoCommit performance on perform dispatch', async () => {
+    const spy = vi.spyOn(AutoCommit, 'perform')
+
+    expect(spy).not.toHaveBeenCalled()
+
+    await store.dispatch('system/perform', SystemPerformance.AutoCommit)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -185,7 +239,7 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/perform', 'push')
+    await store.dispatch('system/perform', SystemPerformance.Push)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -195,7 +249,7 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/perform', 'quick-push')
+    await store.dispatch('system/perform', SystemPerformance.QuickPush)
 
     expect(spy).toHaveBeenCalled()
   })
