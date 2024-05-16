@@ -1,9 +1,9 @@
 import { MutationTree, ActionTree } from 'vuex'
 import api from '@/api'
-import Commit from './commit'
-import QuickCommit from './quick_commit'
-import Push from './push'
-import QuickPush from './quick_push'
+import Commit from '@/objects/performances/Commit'
+import QuickCommit from '@/objects/performances/QuickCommit'
+import Push from '@/objects/performances/Push'
+import QuickPush from '@/objects/performances/QuickPush'
 
 export const SystemPerformances = {
   Commit: 'commit',
@@ -129,8 +129,12 @@ export default {
       typeof value !== 'boolean' || context.commit('set', { branch: value })
       return context.state.branch
     },
-    commit: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { commit: value })
+    commit: async function (context, value: boolean) {
+      if (value) {
+        await context.dispatch('repository/inspect', undefined, { root: true })
+      }
+
+      context.commit('set', { commit: value })
       return context.state.commit
     },
     commit_confirm: async function (context, value) {
