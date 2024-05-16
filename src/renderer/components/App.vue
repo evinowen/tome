@@ -30,9 +30,10 @@
 
         <editor-interface />
 
-        <context-menu-service />
+        <error-box />
         <validation-box />
 
+        <context-menu-service />
         <search-service v-show="system.search" />
         <shortcut-service />
         <timer-service />
@@ -41,13 +42,14 @@
   </v-app>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ActionBar from '@/components/ActionBar.vue'
 import Branch from '@/components/Branch.vue'
 import Commit from '@/components/Commit.vue'
 import Console from '@/components/Console.vue'
 import ContextMenuService from '@/components/ContextMenuService.vue'
 import EditorInterface from '@/components/EditorInterface.vue'
+import ErrorBox from '@/components/ErrorBox.vue'
 import Patch from '@/components/Patch.vue'
 import Push from '@/components/Push.vue'
 import SearchService from '@/components/SearchService.vue'
@@ -62,30 +64,6 @@ import {
   VMain,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    ActionBar,
-    Branch,
-    Commit,
-    Console,
-    ContextMenuService,
-    EditorInterface,
-    Patch,
-    Push,
-    SearchService,
-    Settings,
-    ShortcutService,
-    SystemBar,
-    ThemeEditor,
-    TimerService,
-    ValidationBox,
-    VApp,
-    VMain,
-  },
-}
-</script>
-
-<script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watchEffect } from 'vue'
 import { fetchStore } from '@/store'
 

@@ -7,6 +7,7 @@ import { DateTime } from 'luxon'
 import api from '@/api'
 import repository, { State as RepositoryState } from './modules/repository'
 import library, { State as LibraryState } from './modules/library'
+import error, { State as ErrorState } from './modules/error'
 import fonts, { State as FontsState } from './modules/fonts'
 import files, { State as FilesState } from './modules/files'
 import system, { State as SystemState } from './modules/system'
@@ -34,6 +35,7 @@ export interface State {
 
   repository?: RepositoryState
   library?: LibraryState
+  error?: ErrorState
   fonts?: FontsState
   files?: FilesState
   system?: SystemState
@@ -179,6 +181,7 @@ export function build_store () {
     modules: {
       repository,
       library,
+      error,
       fonts,
       files,
       templates,

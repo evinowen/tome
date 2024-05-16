@@ -13,6 +13,10 @@ onMounted(() => window.addEventListener('keyup', keyup))
 onUnmounted(() => window.removeEventListener('keyup', keyup))
 
 async function keyup (event: KeyboardEvent) {
+  if (store.state.error.visible) {
+    return
+  }
+
   await store.dispatch('context/load')
 
   const key = event.key.toLowerCase()
