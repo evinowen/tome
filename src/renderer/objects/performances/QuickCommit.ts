@@ -7,7 +7,16 @@ export default class QuickCommit {
     try {
       await dispatch('system/edit', true)
       await dispatch('system/commit', true)
-      await dispatch('system/commit_confirm', true)
+
+      await dispatch('repository/stage', '*')
+      if (!await dispatch('system/commit_confirm', true)) {
+        await dispatch('error/show', {
+          title: 'Quick Commit Error: Signature',
+          message: 'Incomplete commit signature, missing valid Name or E-Mail address.',
+          help: 'quick-commit-error-signature',
+        })
+        return
+      }
 
       const push = await dispatch('configuration/read', 'auto_push')
       await dispatch('system/commit_push', push)

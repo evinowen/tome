@@ -132,6 +132,7 @@ export default {
     commit: async function (context, value: boolean) {
       if (value) {
         await context.dispatch('repository/inspect', undefined, { root: true })
+        await context.dispatch('repository/signature/uncheck', undefined, { root: true })
       }
 
       context.commit('set', { commit: value })
@@ -139,6 +140,10 @@ export default {
     },
     commit_confirm: async function (context, value) {
       if (value) {
+        if (!await context.dispatch('repository/signature/check', undefined, { root: true })) {
+          return false
+        }
+
         const auto_push = await context.dispatch('configuration/read', 'auto_push', { root: true })
         await context.dispatch('commit_push', auto_push)
       }

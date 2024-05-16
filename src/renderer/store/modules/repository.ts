@@ -69,7 +69,9 @@ export interface CredentialState {
 
 export interface SignatureState {
   name?: string
+  name_error?: boolean
   email?: string
+  email_error?: boolean
   message?: string
 }
 
@@ -106,7 +108,9 @@ export const CredentialStateDefaults = (): CredentialState => ({
 
 export const SignatureStateDefaults = (): SignatureState => ({
   name: undefined,
+  name_error: false,
   email: undefined,
+  email_error: false,
   message: undefined,
 })
 
@@ -387,6 +391,23 @@ export default {
         message: function (context, value) {
           const message = value || `Update for ${DateTime.now().toISODate()}`
           context.commit('set', { message })
+        },
+        uncheck: function (context) {
+          context.commit('set', { name_error: false })
+          context.commit('set', { email_error: false })
+        },
+        check: function (context) {
+          if (context.state.name.length === 0) {
+            context.commit('set', { name_error: true })
+            return false
+          }
+
+          if (context.state.email.length === 0) {
+            context.commit('set', { email_error: true })
+            return false
+          }
+
+          return true
         },
       },
     },

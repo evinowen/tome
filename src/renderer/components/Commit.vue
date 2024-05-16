@@ -11,6 +11,7 @@
         <v-text-field
           :model-value="repository.signature.name"
           :placeholder="configuration.name"
+          :error="repository.signature.name_error"
           label="Name"
           required
           density="compact"
@@ -20,6 +21,7 @@
         <v-text-field
           :model-value="repository.signature.email"
           :placeholder="configuration.email"
+          :error="repository.signature.email_error"
           label="E-mail"
           required
           density="compact"
