@@ -69,6 +69,8 @@ describe('components/ErrorBox', () => {
   })
 
   it('should dispatch error/help when help button is clicked', async () => {
+    store.state.error.help = 'help-topic'
+
     const wrapper = factory.wrap()
 
     const help_button = wrapper.findComponent({ ref: 'help-button' })
