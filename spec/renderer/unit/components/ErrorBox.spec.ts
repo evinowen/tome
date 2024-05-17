@@ -18,13 +18,14 @@ describe('components/ErrorBox', () => {
       global: {
         plugins: [ vuetify, [ store, key ] ],
         stubs: {
+          OverlayBox: BasicComponentStub,
           VAvatar: BasicComponentStub,
           VBtn: BasicComponentStub,
           VCard: BasicComponentStub,
-          VCardItem: BasicComponentStub,
-          VCardTitle: BasicComponentStub,
-          VCardText: BasicComponentStub,
           VCardActions: BasicComponentStub,
+          VCardItem: BasicComponentStub,
+          VCardText: BasicComponentStub,
+          VCardTitle: BasicComponentStub,
           VIcon: BasicComponentStub,
         },
       },
@@ -80,34 +81,5 @@ describe('components/ErrorBox', () => {
     await wrapper.vm.$nextTick()
 
     expect(store_dispatch).toHaveBeenCalledWith('error/help')
-  })
-
-  it('should set enlarge flag when overlay is clicked', async () => {
-    vi.useFakeTimers()
-
-    const wrapper = factory.wrap()
-
-    const overlay = wrapper.find({ ref: 'overlay' })
-    expect(overlay.exists()).toBe(true)
-
-    overlay.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    expect(wrapper.vm.enlarge).toEqual(true)
-  })
-
-  it('should set enlarge flag back to false 50ms after overlay is clicked', async () => {
-    vi.useFakeTimers()
-
-    const wrapper = factory.wrap()
-
-    const overlay = wrapper.find({ ref: 'overlay' })
-    expect(overlay.exists()).toBe(true)
-
-    overlay.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    vi.advanceTimersByTime(50)
-    expect(wrapper.vm.enlarge).toEqual(false)
   })
 })

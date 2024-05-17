@@ -38,11 +38,11 @@ describe('components/Console', () => {
       state: {
         ...StateDefaults,
         events: [
-          { type: 'info', message: 'Message 1', datetime: DateTime.now().minus({ minutes: 120 }), stack: '' },
-          { type: 'error', message: 'Message 2', datetime: DateTime.now().minus({ minutes: 60 }), stack: '' },
-          { type: 'info', message: 'Message 3', datetime: DateTime.now().minus({ minutes: 45 }), stack: '' },
-          { type: 'error', message: 'Message 4', datetime: DateTime.now().minus({ minutes: 30 }), stack: '' },
-          { type: 'error', message: 'Message 5', datetime: DateTime.now().minus({ minutes: 15 }), stack: '' },
+          { level: 'info', message: 'Message 1', datetime: DateTime.now().minus({ minutes: 120 }), stack: '' },
+          { level: 'error', message: 'Message 2', datetime: DateTime.now().minus({ minutes: 60 }), stack: '' },
+          { level: 'info', message: 'Message 3', datetime: DateTime.now().minus({ minutes: 45 }), stack: '' },
+          { level: 'error', message: 'Message 4', datetime: DateTime.now().minus({ minutes: 30 }), stack: '' },
+          { level: 'error', message: 'Message 5', datetime: DateTime.now().minus({ minutes: 15 }), stack: '' },
         ],
         system: SystemStateDefaults(),
       },
@@ -70,40 +70,67 @@ describe('components/Console', () => {
     expect(store_dispatch).toHaveBeenCalledWith('system/console', false)
   })
 
-  it('should trim the value and set the stack value when show_stack is called without a value', async () => {
+  it('should set detail to true when show_detail is called with a message value', async () => {
     const wrapper = factory.wrap()
 
     expect(wrapper.vm.detail).toEqual(false)
 
-    const stack = ' Test Message '
-    await wrapper.vm.show_stack(stack)
+    const event = {
+      message: ' Test Message ',
+      stack: '  ',
+    }
 
-    expect(stack.trim()).toBe('Test Message')
-    expect(wrapper.vm.stack).toBe('Test Message')
-  })
+    await wrapper.vm.show_detail(event)
 
-  it('should trim the value and not set detail to true when show_stack is called without a value', async () => {
-    const wrapper = factory.wrap()
-
-    expect(wrapper.vm.detail).toEqual(false)
-
-    const stack = '  '
-    await wrapper.vm.show_stack(stack)
-
-    expect(stack.trim()).toBe('')
-    expect(wrapper.vm.detail).toEqual(false)
-  })
-
-  it('should trim the value and set detail to true when show_stack is called with a value', async () => {
-    const wrapper = factory.wrap()
-
-    expect(wrapper.vm.detail).toEqual(false)
-
-    const stack = ' Test Message '
-    await wrapper.vm.show_stack(stack)
-
-    expect(stack.trim()).not.toBe('')
     expect(wrapper.vm.detail).toEqual(true)
+  })
+
+  it('should trim the event message value and set the message variable when show_detail is called with a message value', async () => {
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.detail).toEqual(false)
+
+    const event = {
+      level: 'info',
+      message: ' Test Message ',
+      stack: ' Test Stack ',
+    }
+
+    await wrapper.vm.show_detail(event)
+
+    expect(wrapper.vm.message).toBe('Test Message')
+  })
+
+  it('should trim the event stack value and set the stack variable when show_detail is called with a stack value', async () => {
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.detail).toEqual(false)
+
+    const event = {
+      level: 'info',
+      message: ' Test Message ',
+      stack: ' Test Stack ',
+    }
+
+    await wrapper.vm.show_detail(event)
+
+    expect(wrapper.vm.stack).toBe('Test Stack')
+  })
+
+  it('should trim the event level value and set the stack variable when show_detail is called with a level value', async () => {
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.detail).toEqual(false)
+
+    const event = {
+      level: ' info ',
+      message: ' Test Message ',
+      stack: ' Test Stack ',
+    }
+
+    await wrapper.vm.show_detail(event)
+
+    expect(wrapper.vm.level).toBe('info')
   })
 
   it('should output formatted date when format_date is called with a DateTime value', async () => {

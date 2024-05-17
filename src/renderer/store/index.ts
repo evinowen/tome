@@ -89,7 +89,7 @@ export function build_store () {
         state.stages.push(stage)
       },
       log: function (state, data) {
-        const { level, message, stack } = data
+        const { level, message, stack = '' } = data
         state.status = level
         state.message = message
         state.events.push({
