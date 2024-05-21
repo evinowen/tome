@@ -5,6 +5,7 @@
       'overlay',
       { 'visible': visible },
     ]"
+    style="margin-top: 25px; height: calc(100vh - 25px);"
     @click.stop="(event) => secure ? bounce() : emit('click', event)"
   >
     <div

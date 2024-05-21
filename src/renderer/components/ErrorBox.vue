@@ -1,7 +1,6 @@
 <template>
   <overlay-box
     :visible="visible"
-    style="margin-top: 25px; height: calc(100vh - 25px);"
   >
     <v-card>
       <v-card-item>

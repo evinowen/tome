@@ -9,6 +9,9 @@ export const Schema = z.object({
   name: z.string().optional(),
   email: z.string().optional(),
 
+  credential_type: z.string().optional(),
+  username: z.string().optional(),
+  password: z.string().optional(),
   private_key: z.string().optional(),
   public_key: z.string().optional(),
   passphrase: z.string().optional(),
@@ -43,6 +46,9 @@ export interface State {
   name: string
   email: string
 
+  credential_type: string
+  username: string
+  password: string
   private_key: string
   public_key: string
   passphrase: string
@@ -76,6 +82,9 @@ export const StateDefaults = (): State => ({
   name: '',
   email: '',
 
+  credential_type: 'key',
+  username: '',
+  password: '',
   private_key: '',
   public_key: '',
   passphrase: '',

@@ -21,7 +21,7 @@ describe('components/PushStatus', () => {
           VList: BasicComponentStub,
           VListItem: BasicComponentStub,
           VListItemTitle: BasicComponentStub,
-          VListItemSubitle: BasicComponentStub,
+          VListItemSubtitle: BasicComponentStub,
           VDataTable,
         },
       },

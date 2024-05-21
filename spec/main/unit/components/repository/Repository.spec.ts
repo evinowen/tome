@@ -58,25 +58,42 @@ describe('components/repository/Repository', () => {
     expect(repository.available).toEqual([])
     expect(repository.staged).toEqual([])
 
-    expect(repository.private_key).toBeUndefined()
-    expect(repository.public_key).toBeUndefined()
-    expect(repository.passphrase).toBeUndefined()
+    expect(repository.credentials.type).toBeUndefined()
+    expect(repository.credentials.username).toBeUndefined()
+    expect(repository.credentials.password).toBeUndefined()
+    expect(repository.credentials.private_key).toBeUndefined()
+    expect(repository.credentials.public_key).toBeUndefined()
+    expect(repository.credentials.passphrase).toBeUndefined()
 
     expect(repository.patches).toEqual([])
   })
 
-  it('should remember credentials set by storeCredentials', async () => {
+  it('should remember credentials set by storePasswordCredentials', async () => {
+    const target = './test_path'
+    const username = 'username'
+    const password = 'password'
+
+    const repository = new Repository(target)
+    repository.storePasswordCredentials(username, password)
+
+    expect(repository.credentials.type).toEqual('password')
+    expect(repository.credentials.username).toEqual(username)
+    expect(repository.credentials.password).toEqual(password)
+  })
+
+  it('should remember credentials set by storeKeyCredentials', async () => {
     const target = './test_path'
     const private_key = './test_rsa'
     const public_key = './test_rsa.pub'
     const passphrase = '1234'
 
     const repository = new Repository(target)
-    repository.storeCredentials(private_key, public_key, passphrase)
+    repository.storeKeyCredentials(private_key, public_key, passphrase)
 
-    expect(repository.private_key).toEqual('./test_rsa')
-    expect(repository.public_key).toEqual('./test_rsa.pub')
-    expect(repository.passphrase).toEqual('1234')
+    expect(repository.credentials.type).toEqual('key')
+    expect(repository.credentials.private_key).toEqual(private_key)
+    expect(repository.credentials.public_key).toEqual(public_key)
+    expect(repository.credentials.passphrase).toEqual(passphrase)
   })
 
   it('should return callbacks object for NodeGit on call to generateConnectionHooks ', async () => {
@@ -88,7 +105,7 @@ describe('components/repository/Repository', () => {
     const username = 'git'
 
     const repository = new Repository(target)
-    repository.storeCredentials(private_key, public_key, passphrase)
+    repository.storeKeyCredentials(private_key, public_key, passphrase)
     const hooks = await repository.generateConnectionHooks()
 
     const credentials = await hooks.credentials(url, username)
@@ -131,7 +148,7 @@ describe('components/repository/Repository', () => {
     const passphrase = '1234'
 
     const repository = new Repository(target)
-    repository.storeCredentials(private_key, public_key, passphrase)
+    repository.storeKeyCredentials(private_key, public_key, passphrase)
 
     await repository.load()
 
@@ -231,7 +248,7 @@ describe('components/repository/Repository', () => {
     const url = 'git@git.example.com:remote.git'
 
     const repository = new Repository(target)
-    repository.storeCredentials(private_key, public_key, passphrase)
+    repository.storeKeyCredentials(private_key, public_key, passphrase)
 
     await repository.load()
     await repository.loadRemoteBranch(url)
@@ -441,7 +458,7 @@ describe('components/repository/Repository', () => {
     const passphrase = '1234'
 
     const repository = new Repository(target)
-    repository.storeCredentials(private_key, public_key, passphrase)
+    repository.storeKeyCredentials(private_key, public_key, passphrase)
 
     await repository.load()
     await expect(repository.push()).rejects.toThrow()
@@ -455,7 +472,7 @@ describe('components/repository/Repository', () => {
     const url = 'git@git.example.com:remote.git'
 
     const repository = new Repository(target)
-    repository.storeCredentials(private_key, public_key, passphrase)
+    repository.storeKeyCredentials(private_key, public_key, passphrase)
 
     await repository.load()
     await repository.loadRemoteBranch(url)

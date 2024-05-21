@@ -5,18 +5,19 @@ export { Store } from 'vuex'
 import { DateTime } from 'luxon'
 
 import api from '@/api'
-import repository, { State as RepositoryState } from './modules/repository'
-import library, { State as LibraryState } from './modules/library'
-import error, { State as ErrorState } from './modules/error'
-import fonts, { State as FontsState } from './modules/fonts'
-import files, { State as FilesState } from './modules/files'
-import system, { State as SystemState } from './modules/system'
-import templates, { State as TemplatesState } from './modules/templates'
 import actions, { State as ActionsState } from './modules/actions'
+import clipboard, { State as CliboardState } from './modules/clipboard'
 import configuration, { State as ConfigurationState } from './modules/configuration'
 import context, { State as ContextState } from './modules/context'
-import clipboard, { State as CliboardState } from './modules/clipboard'
+import error, { State as ErrorState } from './modules/error'
+import files, { State as FilesState } from './modules/files'
+import fonts, { State as FontsState } from './modules/fonts'
+import input, { State as InputState } from './modules/input'
+import library, { State as LibraryState } from './modules/library'
+import repository, { State as RepositoryState } from './modules/repository'
 import search, { State as SearchState } from './modules/search'
+import system, { State as SystemState } from './modules/system'
+import templates, { State as TemplatesState } from './modules/templates'
 import validation, { State as ValidationState } from './modules/validation'
 
 import reporter from './plugins/reporter'
@@ -33,18 +34,19 @@ export interface State {
   configuration_path?: string
   library_path?: string
 
-  repository?: RepositoryState
-  library?: LibraryState
-  error?: ErrorState
-  fonts?: FontsState
-  files?: FilesState
-  system?: SystemState
-  templates?: TemplatesState
   actions?: ActionsState
+  clipboard?: CliboardState
   configuration?: ConfigurationState
   context?: ContextState
-  clipboard?: CliboardState
+  error?: ErrorState
+  files?: FilesState
+  fonts?: FontsState
+  input?: InputState
+  library?: LibraryState
+  repository?: RepositoryState
   search?: SearchState
+  system?: SystemState
+  templates?: TemplatesState
   validation?: ValidationState
 }
 
@@ -179,18 +181,19 @@ export function build_store () {
       },
     }),
     modules: {
-      repository,
-      library,
-      error,
-      fonts,
-      files,
-      templates,
       actions,
+      clipboard,
       configuration,
       context,
-      clipboard,
+      error,
+      files,
+      fonts,
+      input,
+      library,
+      repository,
       search,
       system,
+      templates,
       validation,
     },
     plugins: [

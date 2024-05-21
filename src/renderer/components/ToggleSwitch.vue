@@ -40,6 +40,7 @@
         }"
       >
         <div
+          tabindex="0"
           class="thumb"
           :style="{
             'border-radius': `${button_size / 2}px`,

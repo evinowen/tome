@@ -1,24 +1,10 @@
 <template>
-  <v-dialog
-    :model-value="value"
-    persistent
-    max-width="600px"
-    @update:model-value="$emit('input', $event)"
+  <overlay-box
+    :visible="visible"
+    :secure="false"
+    @click="emit('close')"
   >
-    <template #activator="{ props }">
-      <v-btn
-        class="mr-4"
-        :disabled="disabled"
-        v-bind="props"
-      >
-        <v-icon class="mr-2">
-          mdi-content-save
-        </v-icon>
-        Save
-      </v-btn>
-    </template>
-
-    <v-card>
+    <v-card style="min-width: 480px">
       <v-list-item class="my-2">
         <template #prepend>
           <v-progress-circular
@@ -36,32 +22,21 @@
             <v-icon>mdi-hammer-wrench</v-icon>
           </v-avatar>
         </template>
-        <v-list-item-title class="text-h5">
+        <v-list-item-title class="text-h5 title">
           Commit
         </v-list-item-title>
         <v-list-item-subtitle>{{ status }}</v-list-item-subtitle>
       </v-list-item>
 
-      <v-divider />
-
-      <v-card-text class="commit">
-        <v-textarea
-          ref="message-input"
-          class="pa-0 ma-0"
-          counter="50"
-          :model-value="message"
-          no-resize
-          @update:model-value="$emit('message', $event)"
+      <v-card-text class="pa-0">
+        <message-input
+          class="my-1"
+          :value="message"
+          :signature_name="name"
+          :signature_email="email"
+          @update="(value) => emit('message', value)"
         />
       </v-card-text>
-
-      <v-container class="py-0 px-4">
-        <v-row>
-          <v-col class="author text-right">
-            {{ name }} &lt;{{ email }}&gt;
-          </v-col>
-        </v-row>
-      </v-container>
 
       <v-card-actions>
         <v-btn
@@ -69,7 +44,7 @@
           color="warning"
           variant="text"
           :disabled="staging || waiting"
-          @click="$emit('commit')"
+          @click="emit('commit')"
         >
           <v-progress-circular
             :indeterminate="waiting"
@@ -85,7 +60,7 @@
           ref="push-button"
           :color="push ? 'warning' : ''"
           variant="text"
-          @click="$emit('push', !push)"
+          @click="emit('push', !push)"
         >
           <v-icon class="mr-2">
             {{ push ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
@@ -97,7 +72,7 @@
           color="darken-1"
           variant="text"
           :disabled="waiting"
-          @click="$emit('input', false)"
+          @click="emit('close', false)"
         >
           <v-icon class="mr-2">
             mdi-exit-to-app
@@ -106,58 +81,10 @@
         </v-btn>
       </v-card-actions>
     </v-card>
-  </v-dialog>
+  </overlay-box>
 </template>
 
 <script lang="ts">
-import {
-  VAvatar,
-  VBtn,
-  VCard,
-  VCardActions,
-  VCardText,
-  VCol,
-  VContainer,
-  VDialog,
-  VDivider,
-  VIcon,
-  VListItem,
-  VListItemSubtitle,
-  VListItemTitle,
-  VProgressCircular,
-  VRow,
-  VSpacer,
-  VTextarea,
-} from 'vuetify/components'
-
-export default {
-  components: {
-    VAvatar,
-    VBtn,
-    VCard,
-    VCardActions,
-    VCardText,
-    VCol,
-    VContainer,
-    VDialog,
-    VDivider,
-    VIcon,
-    VListItem,
-    VListItemSubtitle,
-    VListItemTitle,
-    VProgressCircular,
-    VRow,
-    VSpacer,
-    VTextarea,
-  },
-  emits: [
-    'commit',
-    'input',
-    'message',
-    'push',
-  ],
-}
-
 export const CommitConfirmMessages = {
   Staging: 'Commit details are being staged ... ',
   Ready: 'Commit is prepared and ready to publish',
@@ -166,9 +93,24 @@ export const CommitConfirmMessages = {
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import OverlayBox from '@/components/OverlayBox.vue'
+import MessageInput from '@/components/Input/MessageInput.vue'
+import {
+  VAvatar,
+  VBtn,
+  VCard,
+  VCardActions,
+  VCardText,
+  VIcon,
+  VListItem,
+  VListItemSubtitle,
+  VListItemTitle,
+  VProgressCircular,
+  VSpacer,
+} from 'vuetify/components'
 
 export interface Properties {
-  value?: boolean
+  visible?: boolean
   name?: string
   email?: string
   message?: string
@@ -179,7 +121,7 @@ export interface Properties {
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
-  value: false,
+  visible: false,
   name: '',
   email: '',
   message: '',
@@ -188,6 +130,13 @@ const properties = withDefaults(defineProps<Properties>(), {
   waiting: false,
   push: false,
 })
+
+const emit = defineEmits([
+  'commit',
+  'close',
+  'message',
+  'push',
+])
 
 const status = computed(() => {
   return properties.staging
@@ -201,23 +150,6 @@ defineExpose({
 </script>
 
 <style scoped>
-.commit {
-  font-family: var(--font-monospace), monospace !important;
-  min-height: 120px;
-  padding: 0 !important;
-  font-size: 18px;
-  line-height: 1.0em !important;
-}
-
-.commit :deep(v-field__input) {
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-
-.commit .v-textarea textarea {
-  padding: 4px;
-}
-
 .author {
   font-family: var(--font-monospace), monospace !important;
   font-size: 1.2em;

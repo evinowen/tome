@@ -1,6 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
+import UtilityPage from '?/stubs/UtilityPage.vue'
 import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
@@ -27,8 +28,10 @@ describe('components/Commit', () => {
         stubs: {
           CommitList: true,
           CommitConfirm: true,
+          UtilityPage,
           VDataTable: true,
           VBtn: BasicComponentStub,
+          VCard: BasicComponentStub,
           VCol: BasicComponentStub,
           VContainer: BasicComponentStub,
           VIcon: BasicComponentStub,
@@ -57,15 +60,15 @@ describe('components/Commit', () => {
         'repository/diff',
         'repository/message',
         'repository/reset',
+        'repository/signature/email',
+        'repository/signature/message',
+        'repository/signature/name',
         'repository/stage',
         'system/commit_confirm',
         'system/commit_push',
         'system/commit',
         'system/patch',
         'system/perform',
-        'system/signature/email',
-        'system/signature/message',
-        'system/signature/name',
       ]),
     })
 
@@ -76,31 +79,31 @@ describe('components/Commit', () => {
     vi.clearAllMocks()
   })
 
-  it('should dispatch system/signature/name with new value when sign_name is called with a value', async () => {
+  it('should dispatch repository/signature/name with new value when sign_name is called with a value', async () => {
     const wrapper = factory.wrap()
 
     const name = 'John Doe'
     await wrapper.vm.sign_name(name)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/signature/name', name)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/signature/name', name)
   })
 
-  it('should dispatch system/signature/email with new value when sign_email is called with a value', async () => {
+  it('should dispatch repository/signature/email with new value when sign_email is called with a value', async () => {
     const wrapper = factory.wrap()
 
     const email = 'test@example.com'
     await wrapper.vm.sign_email(email)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/signature/email', email)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/signature/email', email)
   })
 
-  it('should dispatch system/signature/message with new value when sign_message is called with a value', async () => {
+  it('should dispatch repository/signature/message with new value when sign_message is called with a value', async () => {
     const wrapper = factory.wrap()
 
     const message = 'Test Message'
     await wrapper.vm.sign_message(message)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/signature/message', message)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/signature/message', message)
   })
 
   it('should dispatch system/commit with false when close is called', async () => {

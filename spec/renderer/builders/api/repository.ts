@@ -1,12 +1,14 @@
 import { vi } from 'vitest'
 
+const remotes = [ {
+  name: 'origin',
+  url: 'git@git.example.com:remote.git',
+} ]
+
 const repository = (path) => ({
   path,
   history: [],
-  remotes: [ {
-    name: 'origin',
-    url: 'git@git.example.com:remote.git',
-  } ],
+  remotes,
 })
 
 export default {
@@ -25,5 +27,8 @@ export default {
     diff_commit: vi.fn(),
     commit: vi.fn(),
     push: vi.fn(),
+    remote_list: vi.fn(() => remotes),
+    remote_add: vi.fn(),
+    remote_remove: vi.fn(),
   },
 }

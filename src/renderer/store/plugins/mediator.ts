@@ -1,13 +1,13 @@
 import action from './mediations/action'
 import metadata from './mediations/metadata'
 import template from './mediations/template'
-import identity from './mediations/identity'
+import system from './mediations/system'
 
 const mediations = [
   action,
-  identity,
   metadata,
   template,
+  system,
 ]
 
 export default (store) => {

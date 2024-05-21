@@ -11,7 +11,6 @@ import ConsoleDetailBox from '@/components/ConsoleDetailBox.vue'
 describe('components/ConsoleDetailBox', () => {
   let vuetify
   let store
-  let store_dispatch
 
   const factory = assemble(ConsoleDetailBox, { message: 'Example Message', level: 'trace' })
     .context(() => ({
@@ -43,8 +42,6 @@ describe('components/ConsoleDetailBox', () => {
         'error/hide',
       ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {

@@ -2,7 +2,6 @@
   <div
     :style="{ 'z-index': 100 + layer }"
     :class="[
-      'pa-2',
       'pb-0',
       'page',
       location,
@@ -10,7 +9,7 @@
       scroll ? 'scroll' : undefined,
     ]"
   >
-    <div class="title-box mb-2">
+    <div class="title-box ma-2">
       <div class="title">
         <div class="text-h6 text-sm-h5 text-md-h4">
           <span class="title">{{ title }}</span>
@@ -28,12 +27,12 @@
         <v-icon>mdi-window-close</v-icon>
       </v-btn>
     </div>
-    <div :class="['mb-2', 'content', fixed ? 'fixed' : undefined ]">
+    <div :class="['mx-2', 'content', fixed ? 'fixed' : undefined ]">
       <div
         class="d-flex flex-column"
         style="min-height: 100%"
       >
-        <div class="flex-grow-1 flex-shrink-0">
+        <div class="flex-grow-1 flex-shrink-0 d-flex flex-column">
           <slot />
         </div>
         <div class="flex-grow-0 flex-shrink-0">
@@ -41,18 +40,20 @@
         </div>
       </div>
     </div>
-    <div class="pb-2 actions">
-      <v-divider class="mt-0 mb-2" />
-      <slot name="actions">
-        <v-btn
-          ref="close-action-button"
-          size="small"
-          color="primary"
-          @click.stop="$emit('close')"
-        >
-          Done
-        </v-btn>
-      </slot>
+    <div class="mt-2 actions">
+      <v-divider class="ma-0" />
+      <div class="pa-2">
+        <slot name="actions">
+          <v-btn
+            ref="close-action-button"
+            size="small"
+            color="primary"
+            @click.stop="$emit('close')"
+          >
+            Done
+          </v-btn>
+        </slot>
+      </div>
     </div>
   </div>
 </template>

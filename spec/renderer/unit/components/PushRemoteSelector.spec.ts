@@ -1,35 +1,46 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import VTextField from '?/stubs/VTextField.vue'
-import VSelect from '?/stubs/VSelect.vue'
+import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
+import { createStore } from 'vuex'
+import { State, key } from '@/store'
+import { RepositoryRemote } from '@/store/modules/repository'
 import PushRemoteSelector from '@/components/PushRemoteSelector.vue'
 
 describe('components/PushRemoteSelector', () => {
   let vuetify
+  let store
+  let store_dispatch
+  let items: RepositoryRemote[]
 
   const factory = assemble(PushRemoteSelector)
     .context(() => ({
       global: {
-        plugins: [ vuetify ],
+        plugins: [ vuetify, [ store, key ] ],
         stubs: {
+          SelectMenu: BasicComponentStub,
           VBtn: BasicComponentStub,
-          VCard: BasicComponentStub,
-          VCardActions: BasicComponentStub,
-          VCardTitle: BasicComponentStub,
-          VCol: BasicComponentStub,
-          VExpandTransition: BasicComponentStub,
-          VIcon: BasicComponentStub,
-          VRow: BasicComponentStub,
-          VTextField,
-          VSelect,
         },
       },
     }))
 
   beforeEach(() => {
     vuetify = createVuetify()
+
+    store = createStore<State>({
+      state: {},
+      actions: stub_actions([
+        'system/remotes',
+      ]),
+    })
+
+    store_dispatch = vi.spyOn(store, 'dispatch')
+
+    items = [ {
+      name: 'repository',
+      url: 'git@localhost:/username/example.git',
+    } ]
   })
 
   afterEach(() => {
@@ -37,80 +48,34 @@ describe('components/PushRemoteSelector', () => {
   })
 
   it('should mount into test scafolding without error', async () => {
-    const wrapper = factory.wrap()
-    wrapper.vm.edit = true
+    const wrapper = factory.wrap({ items })
 
     expect(wrapper).toBeDefined()
   })
 
-  it('should emit a "create" event when the create method is called', async () => {
-    const wrapper = factory.wrap()
-    wrapper.vm.edit = true
+  it('should emit "update" event when select input emits "update" event', async () => {
+    const wrapper = factory.wrap({ items })
 
-    expect(wrapper.emitted('create')).not.toBeDefined()
+    const input = wrapper.findComponent({ ref: 'input' })
+    expect(input.exists()).toBe(true)
 
-    await wrapper.vm.create()
-
-    expect(wrapper.emitted('create')).toHaveLength(1)
-  })
-
-  it('should emit a "input" event when the create method is called', async () => {
-    const wrapper = factory.wrap()
-    wrapper.vm.edit = true
-
-    expect(wrapper.emitted('input')).not.toBeDefined()
-
-    const remote = {}
-    await wrapper.vm.input(remote)
-
-    expect(wrapper.emitted('input')).toHaveLength(1)
-  })
-
-  it('should invert edit flag value when edit button is clicked', async () => {
-    const wrapper = factory.wrap()
-    const edit = wrapper.vm.edit
-
-    const edit_button = wrapper.findComponent({ ref: 'edit-button' })
-    expect(edit_button.exists()).toBe(true)
-
-    edit_button.trigger('click')
+    input.vm.$emit('update')
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.edit).toBe(!edit)
+    expect(wrapper.emitted().update).toBeTruthy()
+  })
 
-    edit_button.trigger('click')
+  it('should dispatch "system/remotes" when remote-button is clicked', async () => {
+    items = []
+
+    const wrapper = factory.wrap({ items })
+
+    const remote_button = wrapper.findComponent({ ref: 'remote-button' })
+    expect(remote_button.exists()).toBe(true)
+
+    remote_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.edit).toBe(edit)
-  })
-
-  it('should set form name value when form name component emits model update', async () => {
-    const wrapper = factory.wrap()
-    wrapper.vm.edit = true
-    wrapper.vm.form.name = 'initial name'
-
-    const form_name_input = wrapper.findComponent({ ref: 'form-name' })
-    expect(form_name_input.exists()).toBe(true)
-
-    const value = 'updated name'
-
-    await form_name_input.vm.$emit('update:model-value', value)
-
-    expect(wrapper.vm.form.name).toBe(value)
-  })
-
-  it('should set form url value when form url component emits model update', async () => {
-    const wrapper = factory.wrap()
-    wrapper.vm.edit = true
-    wrapper.vm.form.url = 'initial url'
-
-    const form_url_input = wrapper.findComponent({ ref: 'form-url' })
-    expect(form_url_input.exists()).toBe(true)
-
-    const value = 'updated url'
-
-    await form_url_input.vm.$emit('update:model-value', value)
-
-    expect(wrapper.vm.form.url).toBe(value)
+    expect(store_dispatch).toHaveBeenCalledWith('system/remotes', true)
   })
 })

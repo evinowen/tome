@@ -31,6 +31,7 @@ import {
 export interface Option {
   value: string
   icon: string
+  label?: string
 }
 
 export default {

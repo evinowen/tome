@@ -13,8 +13,19 @@ class RepositoryBranchNotSelectedError extends Error {}
 class RepositoryRemoteNotLoadedError extends Error {}
 class RepositoryRemoteNotFoundError extends Error {}
 
-class RepositoryPublicKeyNotSetError extends Error {}
-class RepositoryPrivateKeyNotSetError extends Error {}
+enum RepositoryCredentialType {
+  Password = 'password',
+  Key = 'key',
+}
+
+interface RepositoryCredentials {
+  type?: RepositoryCredentialType
+  username?: string
+  password?: string
+  private_key?: string
+  public_key?: string
+  passphrase?: string
+}
 
 export default class Repository {
   path: string
@@ -23,9 +34,14 @@ export default class Repository {
 
   repository: NodeGit.Repository | undefined = undefined
 
-  private_key: string | undefined = undefined
-  public_key: string | undefined = undefined
-  passphrase: string | undefined = undefined
+  credentials: RepositoryCredentials = {
+    type: undefined,
+    username: undefined,
+    password: undefined,
+    private_key: undefined,
+    public_key: undefined,
+    passphrase: undefined,
+  }
 
   ahead = false
   remote: { name: string, url: string } | undefined = undefined
@@ -49,10 +65,17 @@ export default class Repository {
     this.clearRemoteBranch()
   }
 
-  storeCredentials (private_key, public_key, passphrase) {
-    this.private_key = private_key
-    this.public_key = public_key
-    this.passphrase = passphrase
+  storePasswordCredentials (username, password) {
+    this.credentials.type = RepositoryCredentialType.Password
+    this.credentials.username = username
+    this.credentials.password = password
+  }
+
+  storeKeyCredentials (private_key, public_key, passphrase) {
+    this.credentials.type = RepositoryCredentialType.Key
+    this.credentials.private_key = private_key
+    this.credentials.public_key = public_key
+    this.credentials.passphrase = passphrase
   }
 
   generateConnectionHooks (): NodeGit.RemoteCallbacks {
@@ -60,28 +83,30 @@ export default class Repository {
       certificateCheck: () => 0,
     }
 
-    if (this.private_key === undefined) {
-      throw new RepositoryPrivateKeyNotSetError()
-    }
-
-    if (this.public_key === undefined) {
-      throw new RepositoryPublicKeyNotSetError()
-    }
-
-    const credentials = {
-      private_key: this.private_key,
-      public_key: this.public_key,
-      passphrase: this.passphrase || '',
-    }
-
     let attempts = 10
-    hooks.credentials = function (url, username) {
-      if (credentials.private_key) {
+    hooks.credentials = (url, username) => {
+      if (this.credentials.type === RepositoryCredentialType.Password) {
         if (!attempts--) {
           throw new Error('hook.certificateCheck_break exceeded')
         }
 
-        return NodeGit.Cred.sshKeyNew(username, credentials.public_key, credentials.private_key, credentials.passphrase)
+        return NodeGit.Cred.userpassPlaintextNew (
+          this.credentials.username,
+          this.credentials.password,
+        )
+      }
+
+      if (this.credentials.type === RepositoryCredentialType.Key) {
+        if (!attempts--) {
+          throw new Error('hook.certificateCheck_break exceeded')
+        }
+
+        return NodeGit.Cred.sshKeyNew(
+          username,
+          this.credentials.public_key,
+          this.credentials.private_key,
+          this.credentials.passphrase ?? '',
+        )
       }
     }
 
@@ -515,5 +540,13 @@ export default class Repository {
     }
 
     await this.remote_object.push([ refspec ], options)
+  }
+
+  async addRemote (name, url) {
+    await NodeGit.Remote.create(this.repository, name, url)
+  }
+
+  async removeRemote (name) {
+    await NodeGit.Remote.delete (this.repository, name)
   }
 }

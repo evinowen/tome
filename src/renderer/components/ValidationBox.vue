@@ -19,14 +19,6 @@ import { onUnmounted, watch, ref } from 'vue'
 import { VIcon } from 'vuetify/components'
 import { fetchStore } from '@/store'
 
-export interface Properties {
-  error?: string
-}
-
-withDefaults(defineProps<Properties>(), {
-  error: 'TEST',
-})
-
 const store = fetchStore()
 const ticker = ref<ReturnType<typeof setTimeout>>()
 

@@ -135,14 +135,6 @@ describe('store/modules/repository', () => {
   it('should instruct the repository to load remote by url on dispatch of remote action', async () => {
     await store.dispatch('repository/load', '/path/to/repository')
 
-    const credentials = {
-      key: './test_rsa',
-      passphrase: '1234',
-    }
-
-    await store.dispatch('repository/credentials/key', credentials.key)
-    await store.dispatch('repository/credentials/passphrase', credentials.passphrase)
-
     const name = 'origin'
 
     await store.dispatch('repository/remote', name)
@@ -152,14 +144,6 @@ describe('store/modules/repository', () => {
 
   it('should instruct the repository to push to loaded remote on dispatch of push action', async () => {
     await store.dispatch('repository/load', '/path/to/repository')
-
-    const credentials = {
-      key: './test_rsa',
-      passphrase: '1234',
-    }
-
-    await store.dispatch('repository/credentials/key', credentials.key)
-    await store.dispatch('repository/credentials/passphrase', credentials.passphrase)
 
     const name = 'origin'
 

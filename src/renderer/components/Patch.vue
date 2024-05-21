@@ -153,10 +153,24 @@ pre {
 
 .patch-content {
   clear: both;
+  color: rgb(var(--v-theme-on-background));
+  background: rgb(var(--v-theme-background));
   font-size: 1.15em;
   font-family: var(--font-monospace), monospace !important;
   font-size: var(--font-monospace-size);
   margin-bottom: 6px;
+}
+
+.patch-content :deep(.blue--text) {
+  color: rgb(var(--v-theme-info));
+}
+
+.patch-content :deep(.red--text) {
+  color: rgb(var(--v-theme-error));
+}
+
+.patch-content :deep(.green--text) {
+  color: rgb(var(--v-theme-success));
 }
 
 .patch-message {

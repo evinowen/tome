@@ -56,20 +56,24 @@ export interface API {
     sep: () => Promise<string>
   }
   repository: {
-    load: (path: string) => Promise<{ name: string, path: string, history: string, branch: string, remotes: string, available: string, staged: string }>
-    refresh: () => Promise<void>
-    refresh_patches: () => Promise<{ patches: { name: string, path: string, lines: { type: number, line: string }[] }[] }>
-    remote: () => Promise<{ remote: { name: string, url: string }, branch: { name: string, short: string }, pending: { oid: string, date: Date, message: string }[] }>
-    inspect: () => Promise<void>
-    diff_path: (path: string) => Promise<void>
-    diff_commit: (commit: string) => Promise<void>
-    credential: (private_key: string, public_key: string, passphrase: string) => Promise<void>
-    stage: (query: string) => Promise<void>
-    reset: (query: string) => Promise<void>
-    push: () => Promise<void>
     clear_remote: () => Promise<void>
-    load_remote_url: (url: string) => Promise<void>
     commit: (name: string, email: string, message: string) => Promise<void>
+    credential_password: (username: string, password: string) => Promise<void>
+    credential_key: (private_key: string, public_key: string, passphrase: string) => Promise<void>
+    diff_commit: (commit: string) => Promise<void>
+    diff_path: (path: string) => Promise<void>
+    inspect: () => Promise<void>
+    load_remote_url: (url: string) => Promise<void>
+    load: (path: string) => Promise<{ name: string, path: string, history: string, branch: string, remotes: string, available: string, staged: string }>
+    push: () => Promise<void>
+    refresh_patches: () => Promise<{ patches: { name: string, path: string, lines: { type: number, line: string }[] }[] }>
+    refresh: () => Promise<void>
+    remote: () => Promise<{ remote: { name: string, url: string }, branch: { name: string, short: string }, pending: { oid: string, date: Date, message: string }[] }>
+    reset: (query: string) => Promise<void>
+    stage: (query: string) => Promise<void>
+    remote_list: () => Promise<{ name: string, url: string }[]>
+    remote_add: (name: string, url: string) => Promise<void>
+    remote_remove: (name: string) => Promise<void>
   }
   ssl: {
     generate_public_key: (target: string, passphrase?: string) => Promise<{ path: string, data: string }>

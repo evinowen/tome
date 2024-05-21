@@ -1,166 +1,179 @@
 <template>
-  <utility-page
-    right
-    title="Commit"
-    :layer="1"
-    :open="system.commit"
-    @close="close"
-  >
-    <div style="display: flex; flex-direction: column; height: 100%;">
-      <div class="flex-grow-0">
-        <v-text-field
-          :model-value="repository.signature.name"
-          :placeholder="configuration.name"
-          :error="repository.signature.name_error"
-          label="Name"
-          required
-          density="compact"
-          persistent-placeholder
-          @update:model-value="sign_name"
-        />
-        <v-text-field
-          :model-value="repository.signature.email"
-          :placeholder="configuration.email"
-          :error="repository.signature.email_error"
-          label="E-mail"
-          required
-          density="compact"
-          persistent-placeholder
-          @update:model-value="sign_email"
-        />
-        <v-textarea
-          persistent-placeholder
-          :model-value="repository.signature.message"
-          :counter="50"
-          label="Message"
-          required
-          clearable
-          auto-grow
-          rows="3"
-          class="message"
-          @update:model-value="sign_message"
-        />
-      </div>
-
-      <commit-list-container class="mb-2">
-        <template #left>
-          Available
-        </template>
-        <template #right>
-          Staged
-        </template>
-      </commit-list-container>
-
-      <commit-list-container
-        grow
-        :height="320"
+  <div>
+    <utility-page
+      right
+      title="Commit"
+      :layer="1"
+      :open="system.commit"
+      @close="close"
+    >
+      <v-card
+        class="mb-3"
+        color="surface"
+        title="Commit Message"
+        subtitle="Set the message that will be used for the new commit, this can be anything that describes what updates have been made since the last commit."
       >
-        <template #left>
-          <commit-list
-            style="flex-grow: 1;"
-            title="Available"
-            :items="available"
-            icon="mdi-plus-thick"
-            :height="320"
-            @input="stage"
-            @click="diff"
-          />
-        </template>
-        <template #right>
-          <commit-list
-            style="flex-grow: 1;"
-            title="Staged"
-            :items="staged"
-            icon="mdi-cancel"
-            :height="320"
-            @input="reset"
-            @click="diff"
-          />
-        </template>
-      </commit-list-container>
-
-      <commit-list-container>
-        <template #left>
-          <v-btn
-            ref="stage-button"
-            class="ma-2"
-            rounded="0"
-            :disabled="available.length === 0"
-            @click.stop="stage('*')"
-          >
-            Stage All
-          </v-btn>
-        </template>
-        <template #right>
-          <v-btn
-            ref="reset-button"
-            class="ma-2"
-            rounded="0"
-            :disabled="staged.length === 0"
-            @click.stop="reset('*')"
-          >
-            Reset All
-          </v-btn>
-        </template>
-      </commit-list-container>
-    </div>
-    <template #actions>
-      <commit-confirm
-        :value="system.commit_confirm"
-        :name="repository.signature.name"
-        :email="repository.signature.email"
-        :message="repository.signature.message"
-        :disabled="staged.length === 0"
-        :staging="staging"
-        :waiting="working"
-        :push="system.commit_push"
-        @input="confirm"
-        @commit="commit"
-        @push="push"
-        @message="sign_message"
-      />
-      <v-btn
-        color="warning"
-        @click.stop="close"
+        <message-input
+          class="my-1"
+          :value="repository.signature.message"
+          :signature_name="configuration.name"
+          :signature_email="configuration.email"
+          @update="sign_message"
+        />
+      </v-card>
+      <v-card
+        class="mb-3"
+        color="surface"
+        title="Commit Signature"
+        subtitle="Set the Name and E-Mail address for the commit message &mdash; changes here will also be updated in the global settings."
       >
-        <v-icon class="mr-2">
-          mdi-cancel
-        </v-icon>
-        Cancel
-      </v-btn>
-    </template>
-  </utility-page>
+        <v-row
+          dense
+          no-gutters
+          class="mt-0"
+        >
+          <v-col
+            class="xs"
+            cols="12"
+            sm="6"
+          >
+            <text-input
+              label="name"
+              index="name"
+            />
+          </v-col>
+          <v-col
+            class="xs"
+            cols="12"
+            sm="6"
+          >
+            <text-input
+              label="e-mail"
+              index="email"
+            />
+          </v-col>
+        </v-row>
+      </v-card>
+      <v-card
+        color="surface"
+        title="Commit Changes"
+        subtitle="Select from the available updates what changes should be added to this commit."
+        class="d-flex flex-grow-1 flex-column"
+      >
+        <v-row
+          dense
+          class="d-flex flex-grow-1 flex-shrink-1 px-2"
+          style="min-height: 320px; "
+        >
+          <v-col
+            class="d-flex flex-column"
+            cols="12"
+            sm="6"
+          >
+            <div class="text-h6 text-center pt-3">
+              Available
+            </div>
+            <commit-list
+              style="flex-grow: 1;"
+              title="Available"
+              :items="available"
+              icon="mdi-plus-thick"
+              :height="320"
+              @input="stage"
+              @click="diff"
+            />
+            <v-btn
+              ref="stage-button"
+              class="ma-2"
+              rounded="0"
+              :disabled="available.length === 0"
+              @click.stop="stage('*')"
+            >
+              Stage All
+            </v-btn>
+          </v-col>
+          <v-col
+            class="d-flex flex-column"
+            cols="12"
+            sm="6"
+          >
+            <div class="text-h6 text-center pt-3">
+              Staged
+            </div>
+            <commit-list
+              style="flex-grow: 1;"
+              title="Staged"
+              :items="staged"
+              icon="mdi-cancel"
+              :height="320"
+              @input="reset"
+              @click="diff"
+            />
+            <v-btn
+              ref="reset-button"
+              class="ma-2"
+              rounded="0"
+              :disabled="staged.length === 0"
+              @click.stop="reset('*')"
+            >
+              Reset All
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card>
+      <template #actions>
+        <v-btn
+          class="mr-4"
+          :disabled="staged.length === 0"
+          @click.stop="confirm(true)"
+        >
+          <v-icon class="mr-2">
+            mdi-content-save
+          </v-icon>
+          Save
+        </v-btn>
+        <v-btn
+          color="warning"
+          @click.stop="close"
+        >
+          <v-icon class="mr-2">
+            mdi-cancel
+          </v-icon>
+          Cancel
+        </v-btn>
+      </template>
+    </utility-page>
+    <commit-confirm
+      :visible="system.commit_confirm"
+      :name="configuration.name"
+      :email="configuration.email"
+      :message="repository.signature.message"
+      :staging="staging"
+      :waiting="working"
+      :push="system.commit_push"
+      @close="confirm(false)"
+      @commit="commit"
+      @push="push"
+      @message="sign_message"
+    />
+  </div>
 </template>
-
-<script lang="ts">
-import CommitConfirm from '@/components/CommitConfirm.vue'
-import CommitList from '@/components/CommitList.vue'
-import CommitListContainer from '@/components/CommitListContainer.vue'
-import UtilityPage from '@/components/UtilityPage.vue'
-import {
-  VIcon,
-  VBtn,
-  VTextField,
-  VTextarea,
-} from 'vuetify/components'
-
-export default {
-  components: {
-    CommitConfirm,
-    CommitList,
-    CommitListContainer,
-    UtilityPage,
-    VBtn,
-    VIcon,
-    VTextarea,
-    VTextField,
-  },
-}
-</script>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { fetchStore } from '@/store'
+import CommitConfirm from '@/components/CommitConfirm.vue'
+import CommitList from '@/components/CommitList.vue'
+import UtilityPage from '@/components/UtilityPage.vue'
+import MessageInput from '@/components/Input/MessageInput.vue'
+import TextInput from '@/components/Settings/TextInput.vue'
+import {
+  VIcon,
+  VCard,
+  VCol,
+  VBtn,
+  VRow,
+} from 'vuetify/components'
 
 const store = fetchStore()
 
@@ -173,15 +186,15 @@ const configuration = computed(() => store.state.configuration)
 const working = computed(() => store.state.repository.commit_working)
 
 async function sign_name (value) {
-  await store.dispatch('system/signature/name', value)
+  await store.dispatch('repository/signature/name', value)
 }
 
 async function sign_email (value) {
-  await store.dispatch('system/signature/email', value)
+  await store.dispatch('repository/signature/email', value)
 }
 
 async function sign_message (value) {
-  await store.dispatch('system/signature/message', value)
+  await store.dispatch('repository/signature/message', value)
 }
 
 async function close () {

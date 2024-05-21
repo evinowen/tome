@@ -59,20 +59,24 @@ export const clipboard = {
 }
 
 export const repository = {
-  load: invoke.repository('load'),
-  refresh: invoke.repository('refresh'),
-  refresh_patches: invoke.repository('refresh-patches'),
-  remote: invoke.repository('remote'),
-  inspect: invoke.repository('inspect'),
-  diff_path: invoke.repository('diff-path'),
-  diff_commit: invoke.repository('diff-commit'),
-  credential: invoke.repository('credential'),
-  stage: invoke.repository('stage'),
-  reset: invoke.repository('reset'),
-  push: invoke.repository('push'),
   clear_remote: invoke.repository('clear-remote'),
-  load_remote_url: invoke.repository('load-remote-url'),
   commit: invoke.repository('commit'),
+  credential_password: invoke.repository('credential-password'),
+  credential_key: invoke.repository('credential-key'),
+  diff_commit: invoke.repository('diff-commit'),
+  diff_path: invoke.repository('diff-path'),
+  inspect: invoke.repository('inspect'),
+  load_remote_url: invoke.repository('load-remote-url'),
+  load: invoke.repository('load'),
+  push: invoke.repository('push'),
+  refresh_patches: invoke.repository('refresh-patches'),
+  refresh: invoke.repository('refresh'),
+  remote: invoke.repository('remote'),
+  remote_list: invoke.repository('remote-list'),
+  remote_add: invoke.repository('remote-add'),
+  remote_remove: invoke.repository('remote-remove'),
+  reset: invoke.repository('reset'),
+  stage: invoke.repository('stage'),
 }
 
 export const file = {

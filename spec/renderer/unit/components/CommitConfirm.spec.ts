@@ -13,11 +13,14 @@ describe('components/CommitConfirm', () => {
       global: {
         plugins: [ vuetify ],
         stubs: {
+          OverlayBox: BasicComponentStub,
+          MessageInput: BasicComponentStub,
+          VAvatar: BasicComponentStub,
+          VBtn: BasicComponentStub,
           VCard: BasicComponentStub,
           VCardActions: BasicComponentStub,
-          VDialog: DialogComponentStub,
           VIcon: BasicComponentStub,
-          VListItemItem: BasicComponentStub,
+          VListItem: BasicComponentStub,
           VListItemSubtitle: BasicComponentStub,
           VListItemTitle: BasicComponentStub,
           VProgressCircular: BasicComponentStub,
@@ -85,7 +88,7 @@ describe('components/CommitConfirm', () => {
     expect(wrapper.emitted().push).toBeTruthy()
   })
 
-  it('should emit "input" event when return button emits "click" event', async () => {
+  it('should emit "close" event when return button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
     const return_button = wrapper.findComponent({ ref: 'return-button' })
@@ -94,6 +97,6 @@ describe('components/CommitConfirm', () => {
     return_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.emitted().input).toBeTruthy()
+    expect(wrapper.emitted().close).toBeTruthy()
   })
 })

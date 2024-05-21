@@ -23,9 +23,10 @@
 
         <template v-if="repository.loaded">
           <branch />
-          <push />
           <commit />
           <patch />
+          <push />
+          <remotes />
         </template>
 
         <editor-interface />
@@ -37,6 +38,8 @@
         <search-service v-show="system.search" />
         <shortcut-service />
         <timer-service />
+
+        <select-input-overlay />
       </div>
     </v-main>
   </v-app>
@@ -50,8 +53,10 @@ import Console from '@/components/Console.vue'
 import ContextMenuService from '@/components/ContextMenuService.vue'
 import EditorInterface from '@/components/EditorInterface.vue'
 import ErrorBox from '@/components/ErrorBox.vue'
+import SelectInputOverlay from '@/components/SelectInputOverlay.vue'
 import Patch from '@/components/Patch.vue'
 import Push from '@/components/Push.vue'
+import Remotes from '@/components/Remotes.vue'
 import SearchService from '@/components/SearchService.vue'
 import Settings from '@/components/Settings.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
@@ -126,7 +131,7 @@ defineExpose({
 
 .app-root :deep(.title) {
   font-family: var(--font-title) !important;
-  font-size: var(--font-title-size) !important;
+  font-size: var(--font-title-size);
 }
 
 .app-root :deep(pre) {

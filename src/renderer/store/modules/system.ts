@@ -40,6 +40,7 @@ export interface State {
   patch: boolean
   push: boolean
   push_confirm: boolean
+  remotes: boolean
   search: boolean
   settings: boolean
   theme_editor: boolean
@@ -56,6 +57,7 @@ export const StateDefaults = (): State => ({
   patch: false,
   push: false,
   push_confirm: false,
+  remotes: false,
   search: false,
   settings: false,
   theme_editor: false,
@@ -186,6 +188,10 @@ export default {
       typeof value !== 'boolean' || context.commit('set', { push_confirm: value })
       return context.state.push_confirm
     },
+    remotes: async function (context, value) {
+      typeof value !== 'boolean' || context.commit('set', { remotes: value })
+      return context.state.remotes
+    },
     search: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { search: value })
       return context.state.search
@@ -209,52 +215,6 @@ export default {
           context.dispatch('perform', SystemPerformance.AutoCommit)
         }
       }
-    },
-  },
-  modules: {
-    credentials: {
-      namespaced: true,
-      state: {
-        key: undefined,
-        passphrase: undefined,
-      },
-      mutations: <MutationTree<State>>{
-        set: function (state, data) {
-          Object.assign(state, data)
-        },
-      },
-      actions: <ActionTree<State, unknown>>{
-        key: async function (context, value) {
-          typeof value === undefined || context.commit('set', { key: value })
-        },
-        passphrase: async function (context, value) {
-          typeof value === undefined || context.commit('set', { passphrase: value })
-        },
-      },
-    },
-    signature: {
-      namespaced: true,
-      state: {
-        name: undefined,
-        email: undefined,
-        message: undefined,
-      },
-      mutations: <MutationTree<State>>{
-        set: function (state, data) {
-          Object.assign(state, data)
-        },
-      },
-      actions: <ActionTree<State, unknown>>{
-        name: async function (context, value) {
-          typeof value === undefined || context.commit('set', { name: value })
-        },
-        email: async function (context, value) {
-          typeof value === undefined || context.commit('set', { email: value })
-        },
-        message: function (context, value) {
-          typeof value === undefined || context.commit('set', { message: value })
-        },
-      },
     },
   },
 }

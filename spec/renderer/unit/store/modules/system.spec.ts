@@ -176,33 +176,6 @@ describe('store/modules/system', () => {
     expect(store.state.system.commit_confirm).toBe(true)
   })
 
-  // const signature = [
-  //   'name',
-  //   'email',
-  //   'message'
-  // ]
-
-  // for (const item of signature) {
-  //   it(`should set ${item} flag on ${item} signature dispatch with non-undefined value`, async () => {
-  //     expect(store.state.system.signature[item]).toBe(undefined)
-  //     await store.dispatch(`system/signature/${item}`, item)
-  //     expect(store.state.system.signature[item]).toBe(item)
-  //   })
-  // }
-
-  // const credentials = [
-  //   'key',
-  //   'passphrase'
-  // ]
-
-  // for (const item of credentials) {
-  //   it(`should set ${item} flag on ${item} credentials dispatch with non-undefined value`, async () => {
-  //     expect(store.state.system.credentials[item]).toBe(undefined)
-  //     await store.dispatch(`system/credentials/${item}`, item)
-  //     expect(store.state.system.credentials[item]).toBe(item)
-  //   })
-  // }
-
   it('should call Commit performance on perform dispatch', async () => {
     const spy = vi.spyOn(Commit, 'perform')
 

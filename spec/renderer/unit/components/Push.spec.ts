@@ -1,6 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
+import UtilityPage from '?/stubs/UtilityPage.vue'
 import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
@@ -8,6 +9,7 @@ import { State, key } from '@/store'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
 import { CredentialStateDefaults as RepositoryCredentialStateDefaults } from '@/store/modules/repository'
+import { RemotesStateDefaults as RepositoryRemotesStateDefaults } from '@/store/modules/repository'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import Push from '@/components/Push.vue'
 
@@ -21,9 +23,18 @@ describe('components/Push', () => {
       global: {
         plugins: [ vuetify, [ store, key ] ],
         stubs: {
+          UtilityPage,
+          CredentialSelector: BasicComponentStub,
           StatusButton: BasicComponentStub,
           PushBranch: BasicComponentStub,
+          PushRemoteSelector: BasicComponentStub,
           PushConfirm: BasicComponentStub,
+          VBtn: BasicComponentStub,
+          VIcon: BasicComponentStub,
+          VCol: BasicComponentStub,
+          VCard: BasicComponentStub,
+          VContainer: BasicComponentStub,
+          VRow: BasicComponentStub,
         },
       },
     }))
@@ -37,6 +48,7 @@ describe('components/Push', () => {
         repository: {
           ...RepositoryStateDefaults(),
           credentials: RepositoryCredentialStateDefaults(),
+          remotes: RepositoryRemotesStateDefaults(),
           name: 'Name',
           branch: 'master',
         },
@@ -52,6 +64,9 @@ describe('components/Push', () => {
         'repository/remote',
         'system/patch',
         'system/perform',
+        'system/push',
+        'system/push_confirm',
+        'system/remotes',
       ]),
     })
 
@@ -77,7 +92,27 @@ describe('components/Push', () => {
     expect(store_dispatch).toHaveBeenCalledWith('repository/diff', { commit: 1 })
   })
 
-  it('should dispatch system/perform for push when push is called', async () => {
+  it('should dispatch "system/push" upon call to close method', async () => {
+    const wrapper = factory.wrap()
+
+    expect(store.dispatch).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.close()
+
+    expect(store_dispatch).toHaveBeenCalledWith('system/push', false)
+  })
+
+  it('should dispatch "system/push_confirm" upon call to confirm method', async () => {
+    const wrapper = factory.wrap()
+
+    expect(store.dispatch).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.confirm(false)
+
+    expect(store_dispatch).toHaveBeenCalledWith('system/push_confirm', false)
+  })
+
+  it('should dispatch "system/perform" upon call to push method', async () => {
     const wrapper = factory.wrap()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
@@ -87,7 +122,17 @@ describe('components/Push', () => {
     expect(store_dispatch).toHaveBeenCalledWith('system/perform', 'push')
   })
 
-  it('should dispatch repository/remote with name when select_remote is called', async () => {
+  it('should dispatch "system/remotes" upon call to remotes method', async () => {
+    const wrapper = factory.wrap()
+
+    expect(store.dispatch).toHaveBeenCalledTimes(0)
+
+    await wrapper.vm.remotes()
+
+    expect(store_dispatch).toHaveBeenCalledWith('system/remotes', true)
+  })
+
+  it('should dispatch "repository/remote" with name upon call to select_remote method', async () => {
     const wrapper = factory.wrap()
 
     expect(store.dispatch).toHaveBeenCalledTimes(0)
@@ -97,20 +142,5 @@ describe('components/Push', () => {
     await wrapper.vm.select_remote(remote)
 
     expect(store_dispatch).toHaveBeenCalledWith('repository/remote', remote)
-  })
-
-  it('should call store to create remote when add_remote is called', async () => {
-    const wrapper = factory.wrap()
-
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
-
-    const name = 'new'
-    const url = 'git@git.example.com:remote.git'
-
-    await wrapper.vm.add_remote(name, url)
-
-    expect(store_dispatch).toHaveBeenCalledTimes(1)
-    expect(store_dispatch.mock.calls[0][0]).toEqual('repository/create-remote')
-    expect(store_dispatch.mock.calls[0][1]).toEqual({ name, url })
   })
 })

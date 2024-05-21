@@ -1,63 +1,70 @@
 <template>
-  <v-data-table
-    class="root"
-    density="compact"
-    fixed-header
-    mobile-breakpoint="0"
-    :height="height"
-    :headers="headers"
-    :items="items"
-    :sort-by="[{ key: 'file'}]"
-    :items-per-page="items.length"
-  >
-    <template #item.path="{ item }">
-      <v-btn
-        rounded="0"
-        variant="text"
-        class="path-button"
-        @click.stop="$emit('click', item.path)"
+  <div class="d-flex flex-column">
+    <div class="flex-grow-0 d-flex pt-3 table-headers">
+      <div class="column-file">
+        File
+      </div>
+      <div class="column-type">
+        Type
+      </div>
+      <div class="column-action" />
+    </div>
+    <div
+      class="flex-grow-1 flex-shrink-1 table-body"
+      :style="{ 'min-height': `${height}px`, 'height': 0 }"
+    >
+      <div
+        v-for="item in items"
+        :key="item.path"
+        class="table-row"
       >
-        {{ item.path }}
-      </v-btn>
-    </template>
-
-    <template #item.type="{ item }">
-      <v-btn
-        rounded="0"
-        variant="text"
-        class="type-button"
-        :color="file_color(item.type)"
-      >
-        <v-icon
-          size="small"
-          class="mr-1"
-        >
-          {{ file_icon(item.type) }}
-        </v-icon>
-        {{ file_type(item.type) }}
-      </v-btn>
-    </template>
-
-    <template #item.action="{ item }">
-      <v-btn
-        class="action-button"
-        rounded="0"
-        variant="text"
-        icon
-        @click.stop="$emit('input', item.path)"
-      >
-        <v-icon>{{ icon }}</v-icon>
-      </v-btn>
-    </template>
-
-    <template #bottom />
-  </v-data-table>
+        <div class="d-flex table-row-content">
+          <div class="column-file">
+            <v-btn
+              rounded="0"
+              variant="text"
+              class="path-button"
+              @click.stop="$emit('click', item.path)"
+            >
+              {{ item.path }}
+            </v-btn>
+          </div>
+          <div class="column-type">
+            <v-btn
+              rounded="0"
+              variant="text"
+              class="type-button"
+              :color="file_color(item.type)"
+            >
+              <v-icon
+                size="small"
+                class="mr-1"
+              >
+                {{ file_icon(item.type) }}
+              </v-icon>
+              {{ file_type(item.type) }}
+            </v-btn>
+          </div>
+          <div class="column-action">
+            <v-btn
+              class="action-button"
+              rounded="0"
+              variant="text"
+              icon
+              @click.stop="$emit('input', item.path)"
+            >
+              <v-icon>{{ icon }}</v-icon>
+            </v-btn>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import {
   VBtn,
-  VDataTable,
   VIcon,
 } from 'vuetify/components'
 import { Resize } from 'vuetify/directives'
@@ -65,7 +72,6 @@ import { Resize } from 'vuetify/directives'
 export default {
   components: {
     VBtn,
-    VDataTable,
     VIcon,
   },
   directives: {
@@ -102,12 +108,6 @@ withDefaults(defineProps<Properties>(), {
   icon: '',
   height: 320,
 })
-
-const headers = [
-  { title: 'File', value: 'path', width: 'auto' },
-  { title: 'Type', value: 'type', width: '96px' },
-  { title: '', value: 'action', width: '32px', sortable: false },
-]
 
 function file_type (type) {
   switch (type) {
@@ -164,22 +164,64 @@ defineExpose({
   background: rgb(var(--v-theme-background));
 }
 
-.root :deep(table) {
-  table-layout: fixed;
-}
-
-.root :deep(.v-table__wrapper) {
+.table-headers {
   overflow-y: scroll;
-  overflow-x: none;
 }
 
-.root :deep(table > tbody > tr > td),
-.root :deep(th) {
-  font-size: 10px;
-  padding: 0;
-  white-space: nowrap;
+.table-headers::-webkit-scrollbar,
+.table-headers::-webkit-scrollbar-corner,
+.table-headers::-webkit-scrollbar-track,
+.table-headers::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.table-headers .column-file {
+  padding: 0 4px;
+}
+
+.table-headers .column-type {
+  padding: 0 8px;
+}
+
+.column-file {
+  flex-grow: 12;
+  flex-shrink: 20;
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
+  width: 60%;
+}
+
+.column-type {
+  flex-grow: 6;
+  flex-shrink: 0;
+  overflow: hidden;
+  width: 30%;
+}
+
+.column-action {
+  flex-grow: 2;
+  flex-shrink: 0;
+  width: 2.5em;
+}
+
+.table-body {
+  outline: 1px solid rgba(var(--v-theme-on-surface), 0.1);
+  background: rgb(var(--v-theme-background));
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.table-row {
+  background: rgb(var(--v-theme-surface));
+  box-shadow: 0 -1px 0 rgba(var(--v-theme-on-surface), 0.05) inset;
+}
+
+.table-row-content {
+  transition: all 0.15s ease-in-out;
+}
+.table-row-content:hover {
+  background: rgba(var(--v-theme-on-surface), 0.05);
 }
 
 .path-button,
@@ -190,28 +232,33 @@ defineExpose({
   padding: 8px;
   color: rgb(var(--v-theme-on-surface));
 }
+
 .path-button {
   padding-left: 4px;
   text-transform: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .path-button,
 .type-button {
   text-align: left;
   justify-content: left;
-  font-size: 8px;
+  font-size: 0.65em;
 }
 
 .type-button :deep(.v-icon) {
-  font-size: 12px;
+  font-size: 2em;
 }
 
 .action-button {
+  font-size: 1em;
   text-align: center;
   justify-content: center;
 }
 
 .action-button :deep(.v-icon) {
-  font-size: 14px;
+  font-size: 1.3em;
 }
 </style>

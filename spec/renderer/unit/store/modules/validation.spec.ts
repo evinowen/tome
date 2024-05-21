@@ -7,7 +7,7 @@ interface State {
   validation: ValidationState
 }
 
-describe('store/modules/context', () => {
+describe('store/modules/validation', () => {
   let validation
 
   const factory = {

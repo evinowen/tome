@@ -103,7 +103,22 @@ describe('components/repository', () => {
     expect(repository.diffCommit).toHaveBeenCalled()
   })
 
-  it('should call storeCredentials upon call to credential', async () => {
+  it('should call storePasswordCredentials upon call to credential_password', async () => {
+    const path = '/project'
+    const result = await preload.load(path)
+
+    expect(result.path).toBe(path)
+
+    const username = 'username'
+    const password = 'password'
+
+    await preload.credential_key(username, password)
+
+    const { repository } = component.data()
+    expect(repository.storeKeyCredentials).toHaveBeenCalled()
+  })
+
+  it('should call storeKeyCredentials upon call to credential_key', async () => {
     const path = '/project'
     const result = await preload.load(path)
 
@@ -111,12 +126,12 @@ describe('components/repository', () => {
 
     const private_key = 'private-key'
     const public_key = 'public-key'
-    const passphrase = 'password'
+    const passphrase = 'passphrase'
 
-    await preload.credential(private_key, public_key, passphrase)
+    await preload.credential_key(private_key, public_key, passphrase)
 
     const { repository } = component.data()
-    expect(repository.storeCredentials).toHaveBeenCalled()
+    expect(repository.storeKeyCredentials).toHaveBeenCalled()
   })
 
   it('should execute file stage with query upon call to stage with add', async () => {

@@ -1,23 +1,10 @@
 <template>
-  <v-dialog
-    :model-value="value"
-    persistent
-    max-width="600px"
-    @update:model-value="$emit('input', $event)"
+  <overlay-box
+    :visible="visible"
+    :secure="false"
+    @click="emit('close')"
   >
-    <template #activator="{ props }">
-      <v-btn
-        class="mr-4"
-        :disabled="disabled"
-        v-bind="props"
-      >
-        <v-icon class="mr-2">
-          mdi-upload-multiple
-        </v-icon>
-        Push
-      </v-btn>
-    </template>
-    <v-card>
+    <v-card style="min-width: 480px">
       <v-list-item class="my-2">
         <template #prepend>
           <v-avatar color="warning">
@@ -50,7 +37,7 @@
               rounded="0"
               variant="text"
               color="warning"
-              @click.stop="$emit('commit', item)"
+              @click.stop="emit('inspect', item)"
             >
               {{ item.oid.substring(0, 7) }}
             </v-btn>
@@ -65,7 +52,7 @@
           color="warning"
           variant="text"
           :disabled="waiting"
-          @click="$emit('push')"
+          @click="emit('push')"
         >
           <v-progress-circular
             :indeterminate="waiting"
@@ -82,7 +69,7 @@
           color="darken-1"
           variant="text"
           :disabled="waiting"
-          @click="$emit('input', false)"
+          @click="emit('close')"
         >
           <v-icon class="mr-2">
             mdi-exit-to-app
@@ -91,10 +78,11 @@
         </v-btn>
       </v-card-actions>
     </v-card>
-  </v-dialog>
+  </overlay-box>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import OverlayBox from '@/components/OverlayBox.vue'
 import {
   VAvatar,
   VBtn,
@@ -102,7 +90,6 @@ import {
   VCardActions,
   VContainer,
   VDataTable,
-  VDialog,
   VIcon,
   VListItem,
   VListItemSubtitle,
@@ -111,44 +98,25 @@ import {
   VSpacer,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    VAvatar,
-    VBtn,
-    VCard,
-    VCardActions,
-    VContainer,
-    VDataTable,
-    VDialog,
-    VIcon,
-    VListItem,
-    VListItemSubtitle,
-    VListItemTitle,
-    VProgressCircular,
-    VSpacer,
-  },
-  emits: [
-    'commit',
-    'input',
-    'push',
-  ],
-}
-</script>
-
-<script setup lang="ts">
 export interface Properties {
-  value?: boolean
+  visible?: boolean
   disabled?: boolean
   waiting?: boolean
   history?: any[]
 }
 
 withDefaults(defineProps<Properties>(), {
-  value: false,
+  visible: false,
   disabled: false,
   waiting: false,
   history: () => [],
 })
+
+const emit = defineEmits([
+  'inspect',
+  'close',
+  'push',
+])
 
 const headers = [
   { title: '', value: 'oid', width: '60px' },

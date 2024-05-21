@@ -49,7 +49,6 @@ export interface State {
   patches_type: string
   patches_reference: string
   patches_message: string
-  remotes: RepositoryRemote[]
   loaded: boolean
   staging: number
   status: RepositoryStatus
@@ -59,12 +58,20 @@ export interface State {
   commit_working: boolean
   push_working: boolean
   credentials?: CredentialState
+  remotes?: RemotesState
   signature?: SignatureState
 }
 
 export interface CredentialState {
+  type?: string
+  username?: string
+  password?: string
   key?: string
   passphrase?: string
+}
+
+export interface RemotesState {
+  list: RepositoryRemote[]
 }
 
 export interface SignatureState {
@@ -85,7 +92,6 @@ export const StateDefaults = (): State => ({
   patches_type: '',
   patches_reference: '',
   patches_message: '',
-  remotes: [],
   loaded: false,
   staging: 0,
   status: { available: [], staged: [] },
@@ -102,16 +108,23 @@ export const StateDefaults = (): State => ({
 })
 
 export const CredentialStateDefaults = (): CredentialState => ({
+  type: '',
+  username: undefined,
+  password: undefined,
   key: undefined,
   passphrase: undefined,
 })
 
+export const RemotesStateDefaults = (): RemotesState => ({
+  list: [],
+})
+
 export const SignatureStateDefaults = (): SignatureState => ({
-  name: undefined,
+  name: '',
   name_error: false,
-  email: undefined,
+  email: '',
   email_error: false,
-  message: undefined,
+  message: '',
 })
 
 export default {
@@ -133,7 +146,6 @@ export default {
       state.path = state.repository.path
       state.history = state.repository.history
       state.branch = state.repository.branch
-      state.remotes = state.repository.remotes
 
       state.loaded = true
     },
@@ -185,18 +197,14 @@ export default {
 
       context.commit('initialize', repository)
       context.commit('load')
+      await context.dispatch('remotes/load')
+      await context.dispatch('credentials/load')
 
       await context.dispatch('inspect')
 
       await context.dispatch('signature/name')
       await context.dispatch('signature/email')
       await context.dispatch('signature/message')
-
-      const passphrase = await context.dispatch('configuration/read', 'passphrase', { root: true })
-      await context.dispatch('credentials/passphrase', passphrase)
-
-      const key = await context.dispatch('configuration/read', 'private_key', { root: true })
-      await context.dispatch('credentials/key', key)
 
       const remote = await context.dispatch('configuration/read', 'default_remote', { root: true })
       await context.dispatch('remote', remote)
@@ -306,17 +314,9 @@ export default {
         return
       }
 
-      const { key: private_key, passphrase } = context.state.credentials
+      await context.dispatch('credentials/load')
 
-      if (!private_key) {
-        return
-      }
-
-      const { path: public_key } = await api.ssl.generate_public_key(private_key, passphrase)
-
-      await api.repository.credential(private_key, public_key, passphrase)
-
-      const remote = context.state.remotes.find((remote) => remote.name === name)
+      const remote = context.state.remotes.list.find((remote) => remote.name === name)
 
       if (!remote) {
         throw new RepositoryRemoteNotFoundError()
@@ -333,11 +333,7 @@ export default {
         throw new RepositoryRemoteNotLoadedError()
       }
 
-      const { key: private_key, passphrase } = context.state.credentials
-
-      const { path: public_key } = await api.ssl.generate_public_key(private_key, passphrase)
-
-      await api.repository.credential(private_key, public_key, passphrase)
+      await context.dispatch('credentials/load')
 
       context.commit('push', true)
 
@@ -366,11 +362,66 @@ export default {
         },
       },
       actions: <ActionTree<CredentialState, unknown>>{
+        load: async function (context) {
+          const type = await context.dispatch('configuration/read', 'credential_type', { root: true })
+          const username = await context.dispatch('configuration/read', 'username', { root: true })
+          const password = await context.dispatch('configuration/read', 'password', { root: true })
+          const key = await context.dispatch('configuration/read', 'private_key', { root: true })
+          const passphrase = await context.dispatch('configuration/read', 'passphrase', { root: true })
+
+          context.commit('set', {
+            type,
+            username,
+            password,
+            key,
+            passphrase,
+          })
+
+          switch (context.state.type) {
+            case 'password': {
+              const { username, password } = context.state
+              await api.repository.credential_password(username, password)
+              break
+            }
+
+            case 'key': {
+              const { key: private_key, passphrase } = context.state
+              const { path: public_key } = await api.ssl.generate_public_key(private_key, passphrase)
+              await api.repository.credential_key(private_key, public_key, passphrase)
+              break
+            }
+          }
+        },
         key: async function (context, value) {
           context.commit('set', { key: value })
         },
         passphrase: async function (context, value) {
           context.commit('set', { passphrase: value })
+        },
+      },
+    },
+    remotes: {
+      namespaced: true,
+      state: RemotesStateDefaults,
+      mutations: <MutationTree<RemotesState>>{
+        load: function (state, list) {
+          state.list = list
+        },
+      },
+      actions: <ActionTree<RemotesState, unknown>>{
+        load: async function (context) {
+          const list = await api.repository.remote_list()
+          context.commit('load', list)
+        },
+        add: async function (context, state) {
+          const { name, url } = state
+          await api.repository.remote_add(name, url)
+          await context.dispatch('load')
+        },
+        remove: async function (context, state) {
+          const { name } = state
+          await api.repository.remote_remove(name)
+          await context.dispatch('load')
         },
       },
     },

@@ -7,6 +7,7 @@
     @close="close"
   >
     <v-card
+      class="mb-3"
       color="surface"
       title="User Credentials"
       subtitle="Credentials provided here are used for Commits and for Pushing content to your remote repository"
@@ -37,22 +38,10 @@
           />
         </v-col>
       </v-row>
-      <keyfile-input
-        label="private key"
-        index="private_key"
-      />
-      <text-input
-        label="passphrase"
-        index="passphrase"
-        obscureable
-      />
-      <keyfile-output
-        label="public key"
-        :value="configuration.public_key"
-      />
+      <credential-selector />
     </v-card>
-    <v-divider class="py-2" />
     <v-card
+      class="mb-3"
       title="Commit Options"
       subtitle="Options for how Tome should handle or react to Commit operations"
     >
@@ -78,7 +67,6 @@
         index="default_remote"
       />
     </v-card>
-    <v-divider class="py-2" />
     <v-card
       color="surface"
       title="Interface Options"
@@ -208,13 +196,15 @@
   </utility-page>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { computed } from 'vue'
+import { fetchStore } from '@/store'
+import logo from './logo.png'
+import CredentialSelector from '@/components/Settings/Credentials/CredentialSelector.vue'
 import BooleanInput from './Settings/BooleanInput.vue'
 import NumberInput from './Settings/NumberInput.vue'
 import SelectMenuInput, { Option as SelectMenuOption } from './Settings/SelectMenuInput.vue'
 import SelectButtonInput, { Option as SelectButtonOption } from './Settings/SelectButtonInput.vue'
-import KeyfileInput from './Settings/KeyfileInput.vue'
-import KeyfileOutput from './KeyfileOutput.vue'
 import TextInput from './Settings/TextInput.vue'
 import UtilityPage from './UtilityPage.vue'
 import SeaGame from './SeaGame.vue'
@@ -225,6 +215,8 @@ import {
   VDivider,
   VRow,
 } from 'vuetify/components'
+
+const store = fetchStore()
 
 const auto_commit_interval_options = [
   { value: 'quarter-hourly', label: 'Quarter Hourly' },
@@ -248,32 +240,6 @@ const explorer_position_options = [
   { value: 'left', icon: 'mdi-dock-left' },
   { value: 'right', icon: 'mdi-dock-right' },
 ] as SelectButtonOption[]
-
-export default {
-  components: {
-    BooleanInput,
-    KeyfileInput,
-    KeyfileOutput,
-    SelectButtonInput,
-    SelectMenuInput,
-    SeaGame,
-    TextInput,
-    UtilityPage,
-    VBtn,
-    VCard,
-    VCol,
-    VDivider,
-    VRow,
-  },
-}
-</script>
-
-<script setup lang="ts">
-import { computed } from 'vue'
-import { fetchStore } from '@/store'
-import logo from './logo.png'
-
-const store = fetchStore()
 
 const configuration = computed(() => store.state.configuration)
 const system = computed(() => store.state.system)

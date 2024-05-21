@@ -20,7 +20,8 @@ const mock = jest.fn().mockImplementation((path) => ({
   inspect: jest.fn(),
   diffPath: jest.fn(),
   diffCommit: jest.fn(),
-  storeCredentials: jest.fn(),
+  storePasswordCredentials: jest.fn(),
+  storeKeyCredentials: jest.fn(),
   stage: jest.fn((query: string, listener: (channel: string, query: string) => void) => {
     listener('add', query)
     listener('remove', query)

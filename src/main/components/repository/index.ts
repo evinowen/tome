@@ -32,7 +32,13 @@ export default component('repository')(
 
     handle('diff-commit', async (commit) => repository.diffCommit(commit))
 
-    handle('credential', async (private_key, public_key, passphrase) => repository.storeCredentials(private_key, public_key, passphrase))
+    handle('credential-password', async (username, password) => {
+      repository.storePasswordCredentials(username, password)
+    })
+
+    handle('credential-key', async (private_key, public_key, passphrase) => {
+      repository.storeKeyCredentials(private_key, public_key, passphrase)
+    })
 
     handle('stage', async (query) => {
       await repository.stage(query, async (type, path) => {
@@ -78,6 +84,19 @@ export default component('repository')(
       const oid = await repository.commit(name, email, message)
 
       return oid.tostrS()
+    })
+
+    handle('remote-list', async () => {
+      await repository.loadRemotes()
+      return repository.remotes
+    })
+
+    handle('remote-add', async (name, url) => {
+      await repository.addRemote(name, url)
+    })
+
+    handle('remote-remove', async (name) => {
+      await repository.removeRemote(name)
     })
   },
   () => ({ repository }),
