@@ -63,9 +63,9 @@
               <v-col>
                 <push-branch
                   :loading="remote_loading"
-                  :disabled="repository.remote.branch.name === ''"
-                  :url="repository.remote.branch.name === '' ? undefined : repository.remote.branch.name"
-                  :name="repository.remote.branch.name === '' ? undefined : repository.remote.branch.short"
+                  :disabled="repository.remote.branch?.name === ''"
+                  :url="repository.remote.branch?.name === '' ? undefined : repository.remote.branch?.name"
+                  :name="repository.remote.branch?.name === '' ? undefined : repository.remote.branch?.short"
                 />
               </v-col>
             </v-row>

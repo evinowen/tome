@@ -66,15 +66,17 @@ export default component('repository')(
     handle('load-remote-url', async (url) => await repository.loadRemoteBranch(url))
 
     handle('remote', async () => {
-      const branch = {
-        name: repository.remote_branch.name,
-        short: repository.remote_branch.short,
-      }
-
       const result = {
         remote: repository.remote,
-        branch,
         pending: repository.pending,
+        branch: undefined,
+      }
+
+      if (repository.remote_branch) {
+        result.branch = {
+          name: repository.remote_branch.name,
+          short: repository.remote_branch.short,
+        }
       }
 
       return result

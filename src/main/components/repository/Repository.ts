@@ -283,15 +283,16 @@ export default class Repository {
 
     const references = await this.remote_object.referenceList()
 
+    let remote_commit
     this.remote_branch = this.matchRemoteBranchReference(references)
-
-    let local_commit = await this.repository.getReferenceCommit(this.branch)
-    const remote_commit = await this.repository.getCommit(this.remote_branch.object.oid())
+    if (this.remote_branch) {
+      remote_commit = await this.repository.getCommit(this.remote_branch.object.oid())
+    }
 
     this.ahead = false
-
+    let local_commit = await this.repository.getReferenceCommit(this.branch)
     do {
-      if (remote_commit.id().cmp(local_commit.id()) === 0) {
+      if (remote_commit && remote_commit.id().cmp(local_commit.id()) === 0) {
         break
       }
 
@@ -303,7 +304,11 @@ export default class Repository {
 
       this.ahead = true
 
-      local_commit = await local_commit.parent(0)
+      try {
+        local_commit = await local_commit.parent(0)
+      } catch {
+        break
+      }
     } while (local_commit)
   }
 
