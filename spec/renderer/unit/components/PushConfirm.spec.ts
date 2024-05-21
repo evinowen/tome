@@ -2,7 +2,6 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import DialogComponentStub from '?/stubs/DialogComponentStub'
-import VDataTable from '?/stubs/VDataTable.vue'
 import { createVuetify } from 'vuetify'
 import PushConfirm from '@/components/PushConfirm.vue'
 
@@ -26,7 +25,6 @@ describe('components/PushConfirm', () => {
           VListItemTitle: BasicComponentStub,
           VProgressCircular: BasicComponentStub,
           VTextarea: BasicComponentStub,
-          VDataTable,
         },
       },
     }))

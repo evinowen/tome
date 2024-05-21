@@ -4,7 +4,7 @@
     :secure="false"
     @click="emit('close')"
   >
-    <v-card style="min-width: 480px">
+    <v-card style="max-width: calc(100vw - 50px); max-height: calc(100vh - 50px)">
       <v-list-item class="my-2">
         <template #prepend>
           <v-avatar color="warning">
@@ -16,37 +16,34 @@
         </v-list-item-title>
         <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
       </v-list-item>
-      <v-container
-        fluid
-        class="pa-0 ma-0"
-        style="min-height: 120px"
-      >
-        <v-data-table
-          :headers="headers"
-          :items="history"
-          :items-per-page="history.length"
-          hide-default-footer
-          density="compact"
-          disable-sort
-          class="my-0 commit-history"
+      <div class="text-h5 text-center pb-2">
+        <strong>{{ history.length }}</strong> commits to be pushed
+      </div>
+      <div class="commit-list">
+        <div
+          v-for="item in history"
+          :key="item.oid"
+          class="commit-list-row"
         >
-          <template #headers />
-
-          <template #item.oid="{ item }">
+          <div class="column-oid">
             <v-btn
               rounded="0"
               variant="text"
               color="warning"
+              style="width: 100%;"
               @click.stop="emit('inspect', item)"
             >
               {{ item.oid.substring(0, 7) }}
             </v-btn>
-          </template>
-
-          <template #bottom />
-        </v-data-table>
-      </v-container>
-      <v-card-actions>
+          </div>
+          <div class="column-message px-2">
+            <div class="column-message-text">
+              {{ item.message }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <v-card-actions class="confirm-actions">
         <v-btn
           ref="push-button"
           color="warning"
@@ -82,14 +79,13 @@
 </template>
 
 <script setup lang="ts">
+import { RepositoryCommit } from '@/store/modules/repository'
 import OverlayBox from '@/components/OverlayBox.vue'
 import {
   VAvatar,
   VBtn,
   VCard,
   VCardActions,
-  VContainer,
-  VDataTable,
   VIcon,
   VListItem,
   VListItemSubtitle,
@@ -102,7 +98,7 @@ export interface Properties {
   visible?: boolean
   disabled?: boolean
   waiting?: boolean
-  history?: any[]
+  history?: RepositoryCommit[]
 }
 
 withDefaults(defineProps<Properties>(), {
@@ -117,22 +113,51 @@ const emit = defineEmits([
   'close',
   'push',
 ])
-
-const headers = [
-  { title: '', value: 'oid', width: '60px' },
-  { title: '', value: 'message', width: '' },
-]
 </script>
 
 <style scoped>
-.v-data-table.commit-history :deep(td) {
+.commit-list {
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.2);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0px;
+  max-height: 50vh;
+  overflow: hidden;
+  overflow-y: scroll;
+}
+
+.commit-list-row {
+  display: contents;
+}
+
+.commit-list-cell {
+  display: grid;
+  grid-column: span 1;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
+}
+
+.column-oid {
+  overflow: hidden;
+}
+
+.column-message {
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.column-message-text {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  padding: 0 8px !important;
 }
 
-.v-data-table.commit-history :deep(td:first-child) {
-  padding: 0px !important;
+.confirm-actions {
+  background: rgb(var(--v-theme-surface));
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.2);
+  bottom: 0;
+  position: sticky;
 }
 </style>

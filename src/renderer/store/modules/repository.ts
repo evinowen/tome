@@ -6,10 +6,16 @@ class RepositoryNotLoadedError extends Error {}
 class RepositoryRemoteNotLoadedError extends Error {}
 class RepositoryRemoteNotFoundError extends Error {}
 
+export interface RepositoryCommit {
+  oid: string
+  date: Date
+  message: string
+}
+
 interface RepositoryPayload {
   name: string
   path: string
-  history: { oid: string, date: Date, message: string }[]
+  history: RepositoryCommit[]
   branch?: string
   remotes: { name: string, url: string }[]
   available: { path: string, type: number }[]
@@ -43,8 +49,8 @@ export interface State {
   name: string
   path: string
   branch?: string
-  history: { oid: string, date: Date, message: string }[]
-  pending: { oid: string, date: Date, message: string }[]
+  history: RepositoryCommit[]
+  pending: RepositoryCommit[]
   patches: RepositoryPatches[]
   patches_type: string
   patches_reference: string

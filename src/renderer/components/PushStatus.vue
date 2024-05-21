@@ -1,5 +1,5 @@
 <template>
-  <v-card style="height: 100%">
+  <v-card style="height: 100%" class="d-flex flex-column">
     <template v-if="active">
       <template v-if="loading">
         <v-list-item ref="loading-view">
@@ -72,38 +72,32 @@
           </v-list-item-title>
           <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
         </v-list-item>
-        <v-container
-          fluid
-          class="pa-0 ma-0"
-          style="min-height: 120px"
-        >
-          <v-data-table
-            density="compact"
-            hide-header
-            disable-sort
-            class="mt-2 mb-0 commit-history"
-            :height="320"
-            :headers="headers"
-            :items="history"
-            :hide-default-footer="true"
-            :items-per-page="history.length"
-          >
-            <template #headers />
-
-            <template #item.oid="{ item }">
-              <v-btn
-                rounded="0"
-                variant="text"
-                color="success"
-                @click.stop="$emit('commit', item)"
-              >
-                {{ item.oid.substring(0, 7) }}
-              </v-btn>
-            </template>
-
-            <template #bottom />
-          </v-data-table>
-        </v-container>
+        <div class="commit-box">
+          <div class="commit-list">
+            <div
+              v-for="item in history"
+              :key="item.oid"
+              class="commit-list-row"
+            >
+              <div class="column-oid">
+                <v-btn
+                  rounded="0"
+                  variant="text"
+                  color="success"
+                  style="width: 100%;"
+                  @click.stop="emit('commit', item)"
+                >
+                  {{ item.oid.substring(0, 7) }}
+                </v-btn>
+              </div>
+              <div class="column-message px-2">
+                <div class="column-message-text">
+                  {{ item.message }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </template>
     </template>
 
@@ -127,14 +121,12 @@
   </v-card>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import {
   VAvatar,
   VBtn,
   VCard,
   VCardText,
-  VContainer,
-  VDataTable,
   VDivider,
   VIcon,
   VListItem,
@@ -142,28 +134,6 @@ import {
   VListItemTitle,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    VAvatar,
-    VBtn,
-    VCard,
-    VCardText,
-    VContainer,
-    VDataTable,
-    VDivider,
-    VIcon,
-    VListItem,
-    VListItemSubtitle,
-    VListItemTitle,
-  },
-  emits: [
-    'commit',
-    'reload',
-  ],
-}
-</script>
-
-<script setup lang="ts">
 export interface Properties {
   active?: boolean
   loading?: boolean
@@ -180,26 +150,51 @@ withDefaults(defineProps<Properties>(), {
   history: () => [],
 })
 
-const headers = [
-  { title: '', value: 'oid', width: '60px' },
-  { title: '', value: 'message', width: '' },
-]
+const emit = defineEmits([
+  'commit',
+  'reload',
+])
 </script>
 
 <style scoped>
-.v-data-table.commit-history {
-  border-radius: 0;
+.commit-box {
+  height: 180px;
   flex-grow: 1;
+  overflow-y: scroll;
 }
 
-.v-data-table.commit-history :deep(td) {
+.commit-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0px;
+  overflow: hidden;
+}
+
+.commit-list-row {
+  display: contents;
+}
+
+.commit-list-cell {
+  display: grid;
+  grid-column: span 1;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
+}
+
+.column-oid {
+  overflow: hidden;
+}
+
+.column-message {
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.column-message-text {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  padding: 0 8px !important;
-}
-
-.v-data-table.commit-history :deep(td:first-child) {
-  padding: 0px !important;
 }
 </style>

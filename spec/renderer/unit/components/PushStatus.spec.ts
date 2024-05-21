@@ -1,7 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import VDataTable from '?/stubs/VDataTable.vue'
 import { createVuetify } from 'vuetify'
 import PushStatus from '@/components/PushStatus.vue'
 
@@ -22,7 +21,6 @@ describe('components/PushStatus', () => {
           VListItem: BasicComponentStub,
           VListItemTitle: BasicComponentStub,
           VListItemSubtitle: BasicComponentStub,
-          VDataTable,
         },
       },
     }))
