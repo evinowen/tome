@@ -1,7 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import VDataTable from '?/stubs/VDataTable.vue'
 import { createVuetify } from 'vuetify'
 import CommitList, { RepositoryFile } from '@/components/CommitList.vue'
 
@@ -20,7 +19,6 @@ describe('components/CommitList', async () => {
         stubs: {
           VBtn: BasicComponentStub,
           VIcon: BasicComponentStub,
-          VDataTable,
         },
       },
     }))

@@ -29,7 +29,6 @@ describe('components/Commit', () => {
           CommitList: true,
           CommitConfirm: true,
           UtilityPage,
-          VDataTable: true,
           VBtn: BasicComponentStub,
           VCard: BasicComponentStub,
           VCol: BasicComponentStub,

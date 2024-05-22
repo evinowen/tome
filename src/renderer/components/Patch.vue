@@ -48,40 +48,28 @@
 </template>
 
 <script lang="ts">
-import UtilityPage from '@/components/UtilityPage.vue'
-import {
-  VCard,
-  VCardText,
-  VCardTitle,
-} from 'vuetify/components'
-
-export default {
-  components: {
-    UtilityPage,
-    VCard,
-    VCardText,
-    VCardTitle,
-  },
+export enum RepositoryPatchLineType {
+  CONTEXT = 32,
+  ADDITION = 43,
+  DELETION = 45,
+  CONTEXT_EOFNL = 61,
+  ADD_EOFNL = 62,
+  DEL_EOFNL = 60,
+  FILE_HDR = 70,
+  HUNK_HDR = 72,
+  BINARY = 66,
 }
 </script>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { fetchStore } from '@/store'
-
-class RepositoryPatch {
-  static LineType = {
-    CONTEXT: 32,
-    ADDITION: 43,
-    DELETION: 45,
-    CONTEXT_EOFNL: 61,
-    ADD_EOFNL: 62,
-    DEL_EOFNL: 60,
-    FILE_HDR: 70,
-    HUNK_HDR: 72,
-    BINARY: 66,
-  }
-}
+import UtilityPage from '@/components/UtilityPage.vue'
+import {
+  VCard,
+  VCardText,
+  VCardTitle,
+} from 'vuetify/components'
 
 const store = fetchStore()
 
@@ -95,11 +83,11 @@ async function close () {
 
 function line_color (type) {
   switch (type) {
-    case RepositoryPatch.LineType.HUNK_HDR:
+    case RepositoryPatchLineType.HUNK_HDR:
       return 'blue--text'
-    case RepositoryPatch.LineType.ADDITION:
+    case RepositoryPatchLineType.ADDITION:
       return 'green--text'
-    case RepositoryPatch.LineType.DELETION:
+    case RepositoryPatchLineType.DELETION:
       return 'red--text'
     default:
       return ''
@@ -108,11 +96,11 @@ function line_color (type) {
 
 function line_prefix (type) {
   switch (type) {
-    case RepositoryPatch.LineType.HUNK_HDR:
+    case RepositoryPatchLineType.HUNK_HDR:
       return ''
-    case RepositoryPatch.LineType.ADDITION:
+    case RepositoryPatchLineType.ADDITION:
       return '+ '
-    case RepositoryPatch.LineType.DELETION:
+    case RepositoryPatchLineType.DELETION:
       return '- '
     default:
       return '  '
@@ -122,6 +110,7 @@ function line_prefix (type) {
 defineExpose({
   line_color,
   line_prefix,
+  close,
 })
 </script>
 
