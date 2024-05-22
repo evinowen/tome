@@ -1,4 +1,4 @@
-import component from '../objects/ComponentFactory'
+import component from '@/objects/ComponentFactory'
 
 export default component('window')(
   ({ handle }, win) => {

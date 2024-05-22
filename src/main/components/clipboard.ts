@@ -1,8 +1,8 @@
-import component from '../objects/ComponentFactory'
+import component from '@/objects/ComponentFactory'
 import { clipboard } from 'electron'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { promise_with_reject, promise_with_boolean } from '../promise'
+import { promise_with_reject, promise_with_boolean } from '@/promise'
 
 export default component('clipboard')(
   ({ handle, log }) => {

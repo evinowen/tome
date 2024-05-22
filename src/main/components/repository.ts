@@ -1,5 +1,5 @@
-import component from '../objects/ComponentFactory'
-import Repository from '../objects/Repository'
+import component from '@/objects/ComponentFactory'
+import Repository from '@/objects/Repository'
 
 let repository: Repository
 

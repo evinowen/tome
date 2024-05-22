@@ -1,10 +1,10 @@
-import component from '../objects/ComponentFactory'
+import component from '@/objects/ComponentFactory'
 import { dialog, shell } from 'electron'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
 import * as chokidar from 'chokidar'
-import { promise_with_reject, promise_access } from '../promise'
+import { promise_with_reject, promise_access } from '@/promise'
 import * as mime from 'mime-types'
 
 const search: {

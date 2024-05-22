@@ -1,3 +1,3 @@
-import Application from './Application'
+import Application from '@/Application'
 
 export default (new Application()).start()

@@ -1,4 +1,4 @@
-import component from '../objects/ComponentFactory'
+import component from '@/objects/ComponentFactory'
 import { app } from 'electron'
 
 export default component('app')(

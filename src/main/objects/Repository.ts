@@ -1,8 +1,8 @@
 import * as NodeGit from 'nodegit'
 import * as _path from 'node:path'
 import * as _fs from 'node:fs'
-import RepositoryFile from './RepositoryFile'
-import RepositoryPatch from './RepositoryPatch'
+import RepositoryFile from '@/objects/RepositoryFile'
+import RepositoryPatch from '@/objects/RepositoryPatch'
 
 interface NodeGitRemoteHead {
   oid(): NodeGit.Oid
