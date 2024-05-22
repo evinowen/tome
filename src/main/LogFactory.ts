@@ -97,6 +97,7 @@ export class Logger {
       '\u001B[2m', JSON.stringify(context),
       '\u001B[0m',
     ]
+
     console.log(data.join(''))
   }
 

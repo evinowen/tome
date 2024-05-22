@@ -7,7 +7,7 @@ import * as electron_mock from '?/mocks/electron'
 
 jest.doMock('electron', () => electron_mock)
 
-jest.mock('@/components/repository/Repository', () => require('../../../mocks/components/repository/Repository'))
+jest.mock('@/objects/Repository', () => require('../../mocks/components/repository/Repository'))
 
 describe('components/repository', () => {
   let component

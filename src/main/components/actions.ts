@@ -1,8 +1,8 @@
-import component from '../factory'
+import component from '../objects/ComponentFactory'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Script } from 'node:vm'
-import { promise_with_reject } from '../../promise'
+import { promise_with_reject } from '../promise'
 
 const environment = {
   require,

@@ -1,10 +1,10 @@
-import component from '../factory'
+import component from '../objects/ComponentFactory'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { cloneDeep } from 'lodash'
 import * as Mustache from 'mustache'
 import * as mime from 'mime-types'
-import { promise_with_reject } from '../../promise'
+import { promise_with_reject } from '../promise'
 
 const TemplateFileType = {
   INACCESSABLE: -1,

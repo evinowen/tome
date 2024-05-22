@@ -1,5 +1,5 @@
 import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
-import RepositoryPatch from '@/components/repository/RepositoryPatch'
+import RepositoryPatch from '@/objects/RepositoryPatch'
 import * as NodeGit from 'nodegit'
 
 jest.mock('nodegit')

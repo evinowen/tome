@@ -1,9 +1,9 @@
 import { jest, describe, it, expect } from '@jest/globals'
-import RepositoryFile from '@/components/repository/RepositoryFile'
+import RepositoryFile from '@/objects/RepositoryFile'
 
 jest.mock('nodegit')
 
-describe('components/repository/RepositoryFile', () => {
+describe('objects/RepositoryFile', () => {
   it('should store constructor input values', async () => {
     const path = './test_file.txt'
     const type = RepositoryFile.Type.NEW

@@ -1,4 +1,4 @@
-import component from '../factory'
+import component from '../objects/ComponentFactory'
 import * as path from 'node:path'
 
 export default component('path')(

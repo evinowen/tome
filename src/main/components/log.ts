@@ -1,4 +1,4 @@
-import component from '../factory'
+import component from '../objects/ComponentFactory'
 
 export default component('log')(
   ({ on, log }) => {

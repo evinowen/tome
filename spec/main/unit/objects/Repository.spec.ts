@@ -1,12 +1,12 @@
 import { jest, describe, afterEach, it, expect } from '@jest/globals'
-import Repository from '@/components/repository/Repository'
-import RepositoryFile from '@/components/repository/RepositoryFile'
+import Repository from '@/objects/Repository'
+import RepositoryFile from '@/objects/RepositoryFile'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as NodeGit from 'nodegit'
-import { mocked_commit, mocked_commit_id, mocked_diff, mocked_repository, mocked_repository_index } from '../../../mocks/nodegit'
+import { mocked_commit, mocked_commit_id, mocked_diff, mocked_repository, mocked_repository_index } from '../../mocks/nodegit'
 
-jest.mock('@/components/repository/RepositoryPatch')
+jest.mock('@/objects/RepositoryPatch')
 
 jest.mock('electron', () => ({
   remote: {

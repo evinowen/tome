@@ -1,10 +1,10 @@
-import component from '../factory'
+import component from '../objects/ComponentFactory'
 import { app } from 'electron'
 import * as forge from 'node-forge'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as tmp from 'tmp-promise'
-import { promise_with_reject } from '../../promise'
+import { promise_with_reject } from '../promise'
 
 export default component('ssl')(
   ({ handle }) => {
