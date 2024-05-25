@@ -57,5 +57,6 @@ export default {
     remote_status: vi.fn(() => ({ remote: {}, pending: {} })),
     reset: vi.fn(reset),
     stage: vi.fn(stage),
+    history_list: vi.fn(() => []),
   },
 }

@@ -62,7 +62,7 @@ export interface API {
     diff_commit: (commit: string) => Promise<{ patches: RepositoryPatch[], message: string }>
     diff_path: (path: string) => Promise<{ patches: RepositoryPatch[] }>
     inspect: () => Promise<{ available: RepositoryFile[], staged: RepositoryFile[] }>
-    load: (path: string) => Promise<{ name: string, path: string, history: string, branch: string, remotes: string, available: string, staged: string }>
+    load: (path: string) => Promise<{ name: string, path: string, branch: string }>
     push: () => Promise<void>
     refresh: () => Promise<void>
     remote_add: (name: string, url: string) => Promise<void>
@@ -73,6 +73,7 @@ export interface API {
     remote_status: () => Promise<{ remote: { name: string, url: string }, branch: { name: string, short: string }, pending: { oid: string, date: Date, message: string }[] }>
     reset: (query: string) => Promise<void>
     stage: (query: string) => Promise<void>
+    history_list: (page: number) => Promise<RepositoryHistoricalCommit[]>
   }
   ssl: {
     generate_public_key: (target: string, passphrase?: string) => Promise<{ path: string, data: string }>
@@ -131,6 +132,13 @@ export interface RepositoryPatch {
 export interface RepositoryPatchLine {
   type: number
   line: string
+}
+
+export interface RepositoryHistoricalCommit {
+  oid: string
+  date: Date
+  message: string
+  root: boolean
 }
 
 const api = window.api as API

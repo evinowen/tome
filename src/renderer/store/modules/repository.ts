@@ -2,6 +2,7 @@ import { MutationTree, ActionTree } from 'vuex'
 import committer, { State as CommitterState } from './repository/committer'
 import comparator, { State as ComparatorState } from './repository/comparator'
 import credentials, { State as CredentialsState } from './repository/credentials'
+import history, { State as HistoryState } from './repository/history'
 import remotes, { State as RemotesState } from './repository/remotes'
 import api from '@/api'
 
@@ -36,7 +37,6 @@ export interface State {
   name: string
   path: string
   branch?: string
-  history: RepositoryCommit[]
   pending: RepositoryCommit[]
   loaded: boolean
   remote: { name: string, url: string, branch: { name: string, short: string, error: string } }
@@ -47,6 +47,7 @@ export interface State {
   committer?: CommitterState
   comparator?: ComparatorState
   credentials?: CredentialsState
+  history?: HistoryState
   remotes?: RemotesState
 }
 
@@ -54,7 +55,6 @@ export const StateDefaults = (): State => ({
   name: '',
   path: '',
   branch: undefined,
-  history: [],
   pending: [],
   loaded: false,
   remote: { name: '', url: '', branch: { name: '', short: '', error: '' } },
@@ -85,7 +85,6 @@ export default {
 
       state.name = state.repository.name
       state.path = state.repository.path
-      state.history = state.repository.history
       state.branch = state.repository.branch
 
       state.loaded = true
@@ -185,6 +184,7 @@ export default {
     committer,
     comparator,
     credentials,
+    history,
     remotes,
   },
 }

@@ -76,6 +76,7 @@ export const repository = {
   remote_status: invoke.repository('remote-status'),
   reset: invoke.repository('reset'),
   stage: invoke.repository('stage'),
+  history_list: invoke.repository('history-list'),
 }
 
 export const file = {

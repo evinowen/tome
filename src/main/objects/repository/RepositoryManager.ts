@@ -40,7 +40,6 @@ export default class RepositoryManager {
     instance.validate()
 
     instance.history = new RepositoryHistoryDelegate(instance.repository)
-    await instance.history.load()
 
     instance.remotes = new RepositoryRemoteDelegate(instance.repository)
     instance.remotes.credential = () => instance.credentials

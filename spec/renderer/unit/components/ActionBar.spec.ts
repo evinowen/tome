@@ -55,7 +55,7 @@ describe('components/ActionBar', () => {
         'system/open',
         'system/close',
         'system/edit',
-        'system/branch',
+        'system/history',
         'system/commit',
         'system/push',
         'system/search',
@@ -106,12 +106,12 @@ describe('components/ActionBar', () => {
     expect(store_dispatch).toHaveBeenCalledWith('system/edit', true)
   })
 
-  it('should dispatch system/branch with inverse of current system branch when branch is called', async () => {
+  it('should dispatch system/history with inverse of current system branch when branch is called', async () => {
     const wrapper = factory.wrap()
 
-    await wrapper.vm.branch()
+    await wrapper.vm.history()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/branch', true)
+    expect(store_dispatch).toHaveBeenCalledWith('system/history', true)
   })
 
   it('should dispatch system/commit with inverse of current system commit when commit is called', async () => {

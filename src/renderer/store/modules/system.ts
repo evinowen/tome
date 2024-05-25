@@ -134,6 +134,10 @@ export default {
       }
     },
     history: async function (context, value) {
+      if (value) {
+        await context.dispatch('repository/history/load', undefined, { root: true })
+      }
+
       typeof value !== 'boolean' || context.commit('set', { history: value })
       return context.state.history
     },

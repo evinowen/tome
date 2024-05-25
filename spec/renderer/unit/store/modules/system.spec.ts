@@ -121,11 +121,11 @@ describe('store/modules/system', () => {
   })
 
   const flags = [
-    'branch',
     'commit',
     'commit_push',
     'console',
     'edit',
+    'history',
     'patch',
     'push',
     'push_confirm',

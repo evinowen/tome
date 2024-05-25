@@ -2,12 +2,12 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import { createVuetify } from 'vuetify'
-import BranchButton from '@/components/ActionBar/BranchButton.vue'
+import HistoryButton from '@/components/ActionBar/HistoryButton.vue'
 
-describe('components/ActionBar/BranchButton', () => {
+describe('components/ActionBar/HistoryButton', () => {
   let vuetify
 
-  const factory = assemble(BranchButton)
+  const factory = assemble(HistoryButton)
     .context(() => ({
       global: {
         plugins: [ vuetify ],

@@ -1,41 +1,66 @@
+import * as NodeGit from 'nodegit'
 import RepositoryDelegate from '@/objects/repository/RepositoryDelegate'
 
-export interface RepositoryHistoryItem {
+export interface RepositoryHistoricalCommit {
   oid: string
   date: Date
   message: string
+  root: boolean
 }
 
+export class RepositoryHistoryHeadNotFoundError extends Error {}
+export class RepositoryHistoryCommitNotFoundError extends Error {}
+
 export default class RepositoryHistoryDelegate extends RepositoryDelegate {
-  static ItemLimit = 20
+  static ItemLimit = 10
 
-  items: RepositoryHistoryItem[] = []
+  items: RepositoryHistoricalCommit[] = []
 
-  async load () {
-    let commit
+  pages = new Map<number, NodeGit.Commit>()
 
-    try {
-      const head = await this.repository.head()
+  async load (page = 1) {
+    let commit: NodeGit.Commit
 
-      commit = await this.repository.getBranchCommit(head)
-    } catch {
-      return
+    if (this.pages.has(page)) {
+      commit = this.pages.get(page)
+    } else if (page === 1) {
+      try {
+        const reference = await this.repository.head()
+        commit = await this.repository.getReferenceCommit(reference)
+        this.pages.set(page, commit)
+      } catch {
+        throw new RepositoryHistoryHeadNotFoundError()
+      }
+    } else {
+      throw new RepositoryHistoryCommitNotFoundError()
     }
 
     this.items = []
 
     for (let limit = RepositoryHistoryDelegate.ItemLimit; commit && limit > 0; limit--) {
-      this.items.push({
+      const item = {
         oid: commit.id().tostrS(),
         date: commit.date(),
         message: commit.message(),
-      })
+        root: commit.parentcount() < 1,
+      }
 
-      if (commit.parentcount()) {
-        commit = await commit.parent(0)
-      } else {
+      this.items.push(item)
+
+      if (item.root) {
+        commit = undefined
         break
+      } else {
+        commit = await commit.parent(0)
       }
     }
+
+    if (commit) {
+      this.pages.set(page + 1, commit)
+    }
+  }
+
+  clear () {
+    this.pages.clear()
   }
 }

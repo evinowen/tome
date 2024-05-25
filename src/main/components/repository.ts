@@ -11,9 +11,7 @@ export default component('repository')(
       return {
         name: repository.name,
         path: repository.path,
-        history: repository.history.items,
         branch: repository.branch.name,
-        remotes: repository.remotes.list,
       }
     })
 
@@ -95,6 +93,11 @@ export default component('repository')(
     handle('remote-load', async (name) => await repository.remotes.select(name, repository.branch.name))
 
     handle('remote-clear', async () => repository.remotes.close())
+
+    handle('history-list', async (page: number) => {
+      await repository.history.load(page)
+      return repository.history.items
+    })
   },
   () => ({ repository }),
 )

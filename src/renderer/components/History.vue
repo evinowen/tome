@@ -10,101 +10,108 @@
     @close="close"
   >
     <div
-      class="mb-3"
-      style="height: 100%; display: flex"
+      ref="list"
+      class="commit-box"
     >
-      <v-data-table
-        style="flex-grow: 1;"
-        density="compact"
-        disable-sort
-        class="my-0 commit-history"
-        :height="0"
-        :headers="headers"
-        :items="repository.history"
-        :hide-default-footer="true"
-        :items-per-page="repository.history.length"
-      >
-        <template #headers />
-
-        <template #item="{ item, index }">
-          <div
-            class="commit-row px-2"
-            @click.stop="diff(item)"
-          >
+      <div class="commit-list">
+        <div
+          v-for="(item, index) in repository.history.items"
+          :key="item.oid"
+          class="commit-list-row"
+        >
+          <div style="overflow: none;">
             <div class="commit-icon">
-              <v-icon class="branch-icon-dot">
-                mdi-circle
-              </v-icon>
-              <v-icon class="branch-icon">
-                mdi-source-commit{{ index > 0 ? ( index === repository.history.length - 1 ? '-end' : '') : '-start' }}
+              <v-icon style="height: 32px; font-size: 48px; line-height: 36px;">
+                mdi-source-commit{{ index > 0 ? ( item.root ? '-end' : '') : '-start' }}
               </v-icon>
             </div>
-            <div class="commit-oid mx-2">
-              <v-btn
-                variant="text"
-                color="success"
-                style="width: 100%; text-align: center; text-transform: lowercase;"
-              >
-                <div style="width: 100%; text-align: center; font-weight: bold;">
-                  {{ item.oid.substring(0, 7) }}
-                </div>
-              </v-btn>
-            </div>
-            <div class="commit-date px-2">
-              <div style="margin: 2px 0 -4px">
-                {{ format_date_relative(item.date) }}
-              </div>
-              <small style="opacity: 0.5;">{{ format_date(item.date) }}</small>
-            </div>
-            <div class="commit-message px-2">
+          </div>
+          <div class="column-oid">
+            <v-btn
+              rounded="0"
+              variant="text"
+              color="success"
+              style="width: 100%; font-family: monospace;"
+              @click.stop="diff(item)"
+            >
+              {{ item.oid.substring(0, 7) }}
+            </v-btn>
+          </div>
+          <div class="column-message px-2">
+            <div class="column-message-text">
               {{ item.message }}
             </div>
           </div>
-        </template>
-
-        <template #bottom />
-      </v-data-table>
+          <div class="commit-date px-2">
+            <div style="margin: 2px 0 -4px">
+              {{ format_date_relative(item.date) }}
+            </div>
+            <small style="opacity: 0.5;">{{ format_date(item.date) }}</small>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-center align-center">
+        <v-btn
+          v-if="!repository.history.rooted"
+          class="ma-3"
+          :loading="repository.history.paging"
+          @click="page"
+        >
+          Load More
+        </v-btn>
+      </div>
     </div>
   </utility-page>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { onMounted, onUnmounted, computed, ref } from 'vue'
+import { fetchStore } from '@/store'
+import { DateTime } from 'luxon'
 import UtilityPage from '@/components/UtilityPage.vue'
 import {
   VBtn,
-  VDataTable,
   VIcon,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    UtilityPage,
-    VBtn,
-    VDataTable,
-    VIcon,
-  },
-}
-</script>
-
-<script setup lang="ts">
-import { computed } from 'vue'
-import { fetchStore } from '@/store'
-import { DateTime } from 'luxon'
-
 const store = fetchStore()
 
-const headers = [
-  { title: '', value: 'icon', width: '30px' },
-  { title: '', value: 'oid', width: '60px' },
-  { title: '', value: 'date', width: '120px' },
-  { title: 'message', value: 'message', width: '' },
-]
+const list = ref<HTMLElement>()
+const ticker = ref<ReturnType<typeof setTimeout>>()
 
 const system = computed(() => store.state.system)
 const repository = computed(() => store.state.repository)
 
+onMounted(() => {
+  ticker.value = setTimeout(scroll, 500)
+})
+
+onUnmounted(() => {
+  if (ticker.value) {
+    clearTimeout(ticker.value)
+  }
+})
+
 async function close () {
   await store.dispatch('system/history', false)
+}
+
+async function scroll (event?: Event) {
+  if (store.state.repository.history.loaded) {
+    if (store.state.repository.history.rooted) {
+      return
+    }
+
+    if (list.value.scrollHeight - list.value.scrollTop - list.value.clientHeight < 1) {
+      await page()
+    }
+  }
+
+  ticker.value = setTimeout(scroll, 500)
+}
+
+async function page () {
+  await store.dispatch('repository/history/page')
 }
 
 async function diff (commit) {
@@ -127,87 +134,54 @@ defineExpose({
   diff,
   format_date,
   format_date_relative,
+  page,
+  scroll,
+  ticker,
 })
 </script>
 
 <style scoped>
-.commit-row {
-  display: flex;
-  height: 35px;
-  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.1);
-  margin-top: -1px;
-  cursor: pointer;
+.commit-box {
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.2);
+  height: 0px;
+  flex-grow: 1;
+  overflow-y: scroll;
+}
+
+.commit-list {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 0px;
+}
+
+.commit-list-row {
+  display: contents;
+}
+
+.commit-load-more {
+  display: grid;
+  grid-column: span 3;
+  grid-row: span 2;
 }
 
 .commit-icon {
-  flex-grow: 0;
-  width: 30px;
-  position: relative;
+  color: rgba(var(--v-theme-on-surface), 0.7);
 }
 
-.commit-oid {
-  flex-grow: 0;
-  width: 60px;
+.column-oid {
+  overflow: hidden;
 }
 
-.commit-date {
-  flex-grow: 0;
-  width: 120px;
+.column-message {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-content: center;
+  flex-wrap: wrap;
+  overflow: hidden;
 }
 
-.commit-message {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.branch-icon,
-.branch-icon-dot {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  color: rgb(var(--v-theme-on-surface));
-}
-
-.branch-icon-dot {
-  opacity: 0;
-  font-size: 14px;
-}
-
-.commit-row:hover {
-  background: rgba(var(--v-theme-primary), 0.2)
-}
-
-.commit-row:hover .branch-icon-dot {
-  opacity: 0.5;
-}
-
-.branch-icon {
-  margin: 0 -8px;
-  font-size: 46px;
-}
-
-.line {
-  width: 100%;
-  overflow: wrap;
-}
-
-pre {
-  display: inline-block;
-}
-
-.header-pre {
-  display: inline-block;
-  vertical-align: bottom;
-  color: black;
-  line-height: 30px;
-  font-size: 0.7em;
-  padding-right: 8px;
+.column-message-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>
