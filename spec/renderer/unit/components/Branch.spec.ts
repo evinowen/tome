@@ -46,7 +46,7 @@ describe('components/Branch', () => {
         },
       },
       actions: stub_actions([
-        'repository/diff',
+        'repository/comparator/diff',
         'system/branch',
         'system/patch',
       ]),
@@ -78,7 +78,7 @@ describe('components/Branch', () => {
 
     await wrapper.vm.diff({ oid: 1 })
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/diff', { commit: 1 })
+    expect(store_dispatch).toHaveBeenCalledWith('repository/comparator/diff', { commit: 1 })
   })
 
   it('should dispatch system/patch with true when diff is called', async () => {

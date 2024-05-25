@@ -83,14 +83,12 @@ export default {
   ],
 }
 
-export class RepositoryFile {
-  static Type = {
-    NEW: 1,
-    MODIFIED: 2,
-    RENAMED: 3,
-    DELETED: 4,
-    UNKNOWN: 0,
-  }
+export enum RepositoryFileType {
+  New = 'new',
+  Modified = 'modified',
+  Renamed = 'renamed',
+  Deleted = 'deleted',
+  Unknown = 'unknown',
 }
 </script>
 
@@ -111,13 +109,13 @@ withDefaults(defineProps<Properties>(), {
 
 function file_type (type) {
   switch (type) {
-    case RepositoryFile.Type.NEW:
+    case RepositoryFileType.New:
       return 'New'
-    case RepositoryFile.Type.MODIFIED:
+    case RepositoryFileType.Modified:
       return 'Modified'
-    case RepositoryFile.Type.RENAMED:
+    case RepositoryFileType.Renamed:
       return 'Renamed'
-    case RepositoryFile.Type.DELETED:
+    case RepositoryFileType.Deleted:
       return 'Deleted'
   }
 
@@ -126,11 +124,11 @@ function file_type (type) {
 
 function file_color (type) {
   switch (type) {
-    case RepositoryFile.Type.NEW:
-    case RepositoryFile.Type.MODIFIED:
-    case RepositoryFile.Type.RENAMED:
+    case RepositoryFileType.New:
+    case RepositoryFileType.Modified:
+    case RepositoryFileType.Renamed:
       return 'green'
-    case RepositoryFile.Type.DELETED:
+    case RepositoryFileType.Deleted:
       return 'red'
   }
 
@@ -139,13 +137,13 @@ function file_color (type) {
 
 function file_icon (type) {
   switch (type) {
-    case RepositoryFile.Type.NEW:
+    case RepositoryFileType.New:
       return 'mdi-file-star'
-    case RepositoryFile.Type.MODIFIED:
+    case RepositoryFileType.Modified:
       return 'mdi-file-edit'
-    case RepositoryFile.Type.RENAMED:
+    case RepositoryFileType.Renamed:
       return 'mdi-file-swap'
-    case RepositoryFile.Type.DELETED:
+    case RepositoryFileType.Deleted:
       return 'mdi-file-remove'
   }
 

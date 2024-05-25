@@ -1,4 +1,4 @@
-export default (store) => {
+export default async (store) => {
   store.watch((state) => state.system.commit, async () => {
     if (!store.state.system.commit) {
       await store.dispatch('system/commit_confirm', false)
@@ -18,7 +18,7 @@ export default (store) => {
     }
   })
 
-  store.watch((state) => state.repository.path || '', async () => {
+  store.watch((state) => state.repository.path, async () => {
     if (store.state.repository.path === '') {
       await store.dispatch('system/edit', false)
       await store.dispatch('system/commit', false)

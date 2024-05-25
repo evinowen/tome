@@ -70,7 +70,7 @@ export default {
 
       await context.dispatch('repository/load', path, { root: true })
       await context.dispatch('files/initialize', { path: path }, { root: true })
-      await context.dispatch('repository/inspect', undefined, { root: true })
+      await context.dispatch('repository/committer/inspect', undefined, { root: true })
     },
     close: async function (context) {
       await context.dispatch('repository/clear', undefined, { root: true })

@@ -5,6 +5,10 @@ export default class QuickCommit {
     await dispatch('log', { level: 'info', message: 'Perform Quick Commit' })
 
     try {
+      await dispatch('system/console', false)
+      await dispatch('system/push', false)
+      await dispatch('system/settings', false)
+
       await dispatch('system/edit', true)
       await dispatch('system/commit', true)
 

@@ -8,8 +8,9 @@ import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { CredentialStateDefaults as RepositoryCredentialStateDefaults } from '@/store/modules/repository'
-import { SignatureStateDefaults as RepositorySignatureStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as RepositoryCommitterStateDefaults } from '@/store/modules/repository/committer'
+import { StateDefaults as RepositoryCommitterSignatureStateDefaults } from '@/store/modules/repository/committer/signature'
+import { StateDefaults as RepositoryCredentialStateDefaults } from '@/store/modules/repository/credentials'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import Commit from '@/components/Commit.vue'
 
@@ -50,19 +51,22 @@ describe('components/Commit', () => {
         configuration: ConfigurationStateDefaults(),
         repository: {
           ...RepositoryStateDefaults(),
+          committer: {
+            ...RepositoryCommitterStateDefaults(),
+            signature: RepositoryCommitterSignatureStateDefaults(),
+          },
           credentials: RepositoryCredentialStateDefaults(),
-          signature: RepositorySignatureStateDefaults(),
         },
         system: SystemStateDefaults(),
       },
       actions: stub_actions([
-        'repository/diff',
+        'repository/comparator/diff',
         'repository/message',
-        'repository/reset',
-        'repository/signature/email',
-        'repository/signature/message',
-        'repository/signature/name',
-        'repository/stage',
+        'repository/committer/reset',
+        'repository/committer/signature/email',
+        'repository/committer/signature/message',
+        'repository/committer/signature/name',
+        'repository/committer/stage',
         'system/commit_confirm',
         'system/commit_push',
         'system/commit',
@@ -78,31 +82,31 @@ describe('components/Commit', () => {
     vi.clearAllMocks()
   })
 
-  it('should dispatch repository/signature/name with new value when sign_name is called with a value', async () => {
+  it('should dispatch repository/committer/signature/name with new value when sign_name is called with a value', async () => {
     const wrapper = factory.wrap()
 
     const name = 'John Doe'
     await wrapper.vm.sign_name(name)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/signature/name', name)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/committer/signature/name', name)
   })
 
-  it('should dispatch repository/signature/email with new value when sign_email is called with a value', async () => {
+  it('should dispatch repository/committer/signature/email with new value when sign_email is called with a value', async () => {
     const wrapper = factory.wrap()
 
     const email = 'test@example.com'
     await wrapper.vm.sign_email(email)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/signature/email', email)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/committer/signature/email', email)
   })
 
-  it('should dispatch repository/signature/message with new value when sign_message is called with a value', async () => {
+  it('should dispatch repository/committer/signature/message with new value when sign_message is called with a value', async () => {
     const wrapper = factory.wrap()
 
     const message = 'Test Message'
     await wrapper.vm.sign_message(message)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/signature/message', message)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/committer/signature/message', message)
   })
 
   it('should dispatch system/commit with false when close is called', async () => {
@@ -138,14 +142,14 @@ describe('components/Commit', () => {
     expect(store_dispatch).toHaveBeenCalledWith('repository/message', message)
   })
 
-  it('should dispatch repository/diff with path when diff is called with file', async () => {
+  it('should dispatch repository/comparator/diff with path when diff is called with file', async () => {
     const wrapper = factory.wrap()
 
     const path = './file.md'
 
     await wrapper.vm.diff(path)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/diff', { path })
+    expect(store_dispatch).toHaveBeenCalledWith('repository/comparator/diff', { path })
   })
 
   it('should dispatch system/patch with true when diff is called with file', async () => {
@@ -160,22 +164,22 @@ describe('components/Commit', () => {
     expect(store_dispatch).toHaveBeenCalledWith('system/patch', true)
   })
 
-  it('should dispatch repository/stage with path when stage is called with path', async () => {
+  it('should dispatch repository/committer/stage with path when stage is called with path', async () => {
     const wrapper = factory.wrap()
 
     const path = './file.md'
     await wrapper.vm.stage(path)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/stage', path)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/committer/stage', path)
   })
 
-  it('should dispatch repository/reset with path when reset is called with path', async () => {
+  it('should dispatch repository/committer/reset with path when reset is called with path', async () => {
     const wrapper = factory.wrap()
 
     const path = './file.md'
     await wrapper.vm.reset(path)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/reset', path)
+    expect(store_dispatch).toHaveBeenCalledWith('repository/committer/reset', path)
   })
 
   it('should dispatch system/perform for commit when commit is called', async () => {

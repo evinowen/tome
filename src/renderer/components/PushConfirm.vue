@@ -17,7 +17,7 @@
         <v-list-item-subtitle>Push completed commits up to remote repository</v-list-item-subtitle>
       </v-list-item>
       <div class="text-h5 text-center pb-2">
-        <strong>{{ history.length }}</strong> commits to be pushed
+        <strong>{{ history.length }}</strong> commit{{ history.length === 1 ? '' : 's' }} to be pushed
       </div>
       <div class="commit-list">
         <div
@@ -48,7 +48,7 @@
           ref="push-button"
           color="warning"
           variant="text"
-          :disabled="waiting"
+          :disabled="waiting || history.length === 0"
           @click="emit('push')"
         >
           <v-progress-circular

@@ -1,27 +1,27 @@
 <template>
   <utility-page
     right
-    :title="repository.patches_reference"
-    :subtitle="repository.patches_type"
+    :title="repository.comparator.reference"
+    :subtitle="repository.comparator.type"
     :layer="2"
     :open="system.patch"
     @close="close"
   >
     <div class="flex-grow-0">
       <div class="patch-message">
-        {{ repository.patches_message }}
+        {{ repository.comparator.message }}
       </div>
     </div>
 
     <div class="flex-grow-1 mb-3">
       <div
-        v-if="patches.length === 0"
+        v-if="repository.comparator.patches.length === 0"
         class="patches-empty"
       >
         No Content
       </div>
       <div
-        v-for="(file, file_index) in patches"
+        v-for="(file, file_index) in repository.comparator.patches"
         :key="file_index"
         :class="[ file_index ? 'mt-4' : '']"
       >
@@ -48,17 +48,8 @@
 </template>
 
 <script lang="ts">
-export enum RepositoryPatchLineType {
-  CONTEXT = 32,
-  ADDITION = 43,
-  DELETION = 45,
-  CONTEXT_EOFNL = 61,
-  ADD_EOFNL = 62,
-  DEL_EOFNL = 60,
-  FILE_HDR = 70,
-  HUNK_HDR = 72,
-  BINARY = 66,
-}
+import { RepositoryPatchLineType } from '@/store/modules/repository/comparator'
+export { RepositoryPatchLineType } from '@/store/modules/repository/comparator'
 </script>
 
 <script setup lang="ts">
@@ -75,7 +66,6 @@ const store = fetchStore()
 
 const system = computed(() => store.state.system)
 const repository = computed(() => store.state.repository)
-const patches = computed(() => store.state.repository.patches)
 
 async function close () {
   await store.dispatch('system/patch', false)

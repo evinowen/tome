@@ -8,14 +8,14 @@ export default class AutoCommit {
       const push = await dispatch('configuration/read', 'auto_push')
       await dispatch('system/commit_push', push)
 
-      await dispatch('repository/inspect')
-      await dispatch('repository/stage', '*')
+      await dispatch('repository/committer/inspect')
+      await dispatch('repository/committer/stage', '*')
 
-      await dispatch('repository/signature/name')
-      await dispatch('repository/signature/email')
-      await dispatch('repository/signature/message')
+      await dispatch('repository/committer/signature/name')
+      await dispatch('repository/committer/signature/email')
+      await dispatch('repository/committer/signature/message')
 
-      if (!await dispatch('repository/signature/check')) {
+      if (!await dispatch('repository/committer/signature/check')) {
         await dispatch('log', { level: 'error', message: 'Auto Commit cannot complete without valid signature' })
         return
       }

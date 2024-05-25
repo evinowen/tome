@@ -10,9 +10,19 @@ export default (namespace) => {
         ipcMain.removeHandler(channel_absolute)
         ipcMain.handle(channel_absolute, async (...parameters) => {
           const { processId, frameId } = parameters.shift()
-          log.trace(`Handle ${namespace} ${channel}`, { processId, frameId })
+          log.trace(`Action ${namespace} ${channel} triggered`, { processId, frameId })
 
-          return await listener(...parameters)
+          let payload
+
+          try {
+            payload = await listener(...parameters)
+          } catch (error) {
+            log.error(`Action ${namespace} ${channel} error`, error)
+            throw error
+          }
+
+          log.trace(`Action ${namespace} ${channel} resolved`, payload)
+          return payload
         })
       }
 

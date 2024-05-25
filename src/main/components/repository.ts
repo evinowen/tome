@@ -1,47 +1,40 @@
 import component from '@/objects/ComponentFactory'
-import Repository from '@/objects/Repository'
+import RepositoryManager from '@/objects/repository/RepositoryManager'
 
-let repository: Repository
+let repository: RepositoryManager
 
 export default component('repository')(
   ({ handle, log }) => {
     handle('load', async (path) => {
-      repository = new Repository(path)
-
-      log.info('Load Repository', path)
-      await repository.load()
+      repository = await RepositoryManager.create(path)
 
       return {
         name: repository.name,
         path: repository.path,
-        history: repository.history,
-        branch: repository.branch,
-        remotes: repository.remotes,
-        available: repository.available,
-        staged: repository.staged,
+        history: repository.history.items,
+        branch: repository.branch.name,
+        remotes: repository.remotes.list,
       }
     })
 
-    handle('inspect', async () => await repository.inspect())
+    handle('inspect', async () => await repository.inspector.inspect_all())
 
-    handle('refresh', async () => ({ available: repository.available, staged: repository.staged }))
+    handle('diff-path', async (path) => await repository.comparator.diff_path(path))
 
-    handle('refresh-patches', async () => ({ patches: repository.patches }))
+    handle('diff-commit', async (commit) => await repository.comparator.diff_commit(commit))
 
-    handle('diff-path', async (path) => await repository.diffPath(path))
+    handle(
+      'credential-password',
+      async (username, password) => repository.credentials.configure_password(username, password),
+    )
 
-    handle('diff-commit', async (commit) => repository.diffCommit(commit))
-
-    handle('credential-password', async (username, password) => {
-      repository.storePasswordCredentials(username, password)
-    })
-
-    handle('credential-key', async (private_key, public_key, passphrase) => {
-      repository.storeKeyCredentials(private_key, public_key, passphrase)
-    })
+    handle(
+      'credential-key',
+      async (private_key, public_key, passphrase) => repository.credentials.configure_key(private_key, public_key, passphrase),
+    )
 
     handle('stage', async (query) => {
-      await repository.stage(query, async (type, path) => {
+      await repository.committer.stage(query, async (type, path) => {
         let wording
         if (type === 'add') {
           wording = 'as addition'
@@ -54,52 +47,54 @@ export default component('repository')(
     })
 
     handle('reset', async (query) => {
-      await repository.reset(query, async (type, path) => {
+      await repository.committer.reset(query, async (type, path) => {
         log.info(`Reseting path ${path}`)
       })
     })
 
-    handle('push', async () => await repository.push())
+    handle('commit', async (name, email, message) => {
+      const oid = await repository.committer.commit(name, email, message)
 
-    handle('clear-remote', async () => repository.clearRemoteBranch())
+      return oid.tostrS()
+    })
 
-    handle('load-remote-url', async (url) => await repository.loadRemoteBranch(url))
+    handle('push', async () => await repository.remotes.active.push())
 
-    handle('remote', async () => {
+    handle('remote-status', async () => {
       const result = {
-        remote: repository.remote,
-        pending: repository.pending,
+        remote: repository.remotes.active?.simple,
+        pending: repository.remotes.active?.pending,
         branch: undefined,
       }
 
-      if (repository.remote_branch) {
+      if (repository.remotes.active?.branch) {
         result.branch = {
-          name: repository.remote_branch.name,
-          short: repository.remote_branch.short,
+          name: repository.remotes.active.branch.name,
+          short: repository.remotes.active.branch.short,
         }
       }
 
       return result
     })
 
-    handle('commit', async (name, email, message) => {
-      const oid = await repository.commit(name, email, message)
-
-      return oid.tostrS()
-    })
-
     handle('remote-list', async () => {
-      await repository.loadRemotes()
-      return repository.remotes
+      await repository.remotes.load()
+      return repository.remotes.list
     })
 
     handle('remote-add', async (name, url) => {
-      await repository.addRemote(name, url)
+      await repository.remotes.add(name, url)
+      return repository.remotes.list
     })
 
     handle('remote-remove', async (name) => {
-      await repository.removeRemote(name)
+      await repository.remotes.remove(name)
+      return repository.remotes.list
     })
+
+    handle('remote-load', async (name) => await repository.remotes.select(name, repository.branch.name))
+
+    handle('remote-clear', async () => repository.remotes.close())
   },
   () => ({ repository }),
 )

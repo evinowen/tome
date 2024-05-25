@@ -49,14 +49,24 @@ describe('store/modules/system', () => {
             staged: vi.fn(),
           },
           modules: {
-            signature: {
+            committer: {
               namespaced: true,
               actions: {
-                name: vi.fn(),
-                email: vi.fn(),
-                message: vi.fn(),
-                uncheck: vi.fn(),
-                check: store_action_repository_signature_check,
+                inspect: vi.fn(),
+                stage: vi.fn(),
+                staged: vi.fn(),
+              },
+              modules: {
+                signature: {
+                  namespaced: true,
+                  actions: {
+                    name: vi.fn(),
+                    email: vi.fn(),
+                    message: vi.fn(),
+                    uncheck: vi.fn(),
+                    check: store_action_repository_signature_check,
+                  },
+                },
               },
             },
           },
@@ -139,7 +149,7 @@ describe('store/modules/system', () => {
     })
   }
 
-  it('should not set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/signature/check returns false', async () => {
+  it('should not set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/committer/signature/check returns false', async () => {
     store_action_repository_signature_check.mockImplementation(() => false)
 
     expect(store.state.system.commit_confirm).toBe(false)
@@ -147,7 +157,7 @@ describe('store/modules/system', () => {
     expect(store.state.system.commit_confirm).toBe(false)
   })
 
-  it('should set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/signature/check returns true', async () => {
+  it('should set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/committer/signature/check returns true', async () => {
     store_action_repository_signature_check.mockImplementation(() => true)
 
     expect(store.state.system.commit_confirm).toBe(false)

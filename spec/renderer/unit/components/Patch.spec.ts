@@ -8,6 +8,7 @@ import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as RepositoryComparatorStateDefaults } from '@/store/modules/repository/comparator'
 import Patch, { RepositoryPatchLineType } from '@/components/Patch.vue'
 
 describe('components/Patch', () => {
@@ -38,17 +39,20 @@ describe('components/Patch', () => {
         repository: {
           ...RepositoryStateDefaults(),
           path: './tome_path',
-          patches: [
-            {
-              name: 'Example.md',
-              path: '/project/example.md',
-              lines: [
-                { type: RepositoryPatchLineType.HUNK_HDR, line: 'ABCabc123' },
-                { type: RepositoryPatchLineType.ADDITION, line: 'ABCabc123' },
-                { type: RepositoryPatchLineType.DELETION, line: 'ABCabc123' },
-              ],
-            },
-          ],
+          comparator: {
+            ...RepositoryComparatorStateDefaults(),
+            patches: [
+              {
+                name: 'Example.md',
+                path: '/project/example.md',
+                lines: [
+                  { type: RepositoryPatchLineType.HUNK_HDR, line: 'ABCabc123' },
+                  { type: RepositoryPatchLineType.ADDITION, line: 'ABCabc123' },
+                  { type: RepositoryPatchLineType.DELETION, line: 'ABCabc123' },
+                ],
+              },
+            ]
+          },
         },
       },
       actions: stub_actions([

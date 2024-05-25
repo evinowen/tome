@@ -59,22 +59,21 @@ export const clipboard = {
 }
 
 export const repository = {
-  clear_remote: invoke.repository('clear-remote'),
   commit: invoke.repository('commit'),
-  credential_password: invoke.repository('credential-password'),
   credential_key: invoke.repository('credential-key'),
+  credential_password: invoke.repository('credential-password'),
   diff_commit: invoke.repository('diff-commit'),
   diff_path: invoke.repository('diff-path'),
   inspect: invoke.repository('inspect'),
-  load_remote_url: invoke.repository('load-remote-url'),
   load: invoke.repository('load'),
   push: invoke.repository('push'),
-  refresh_patches: invoke.repository('refresh-patches'),
   refresh: invoke.repository('refresh'),
-  remote: invoke.repository('remote'),
-  remote_list: invoke.repository('remote-list'),
   remote_add: invoke.repository('remote-add'),
+  remote_clear: invoke.repository('remote-clear'),
+  remote_list: invoke.repository('remote-list'),
+  remote_load: invoke.repository('remote-load'),
   remote_remove: invoke.repository('remote-remove'),
+  remote_status: invoke.repository('remote-status'),
   reset: invoke.repository('reset'),
   stage: invoke.repository('stage'),
 }

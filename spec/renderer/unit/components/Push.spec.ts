@@ -8,8 +8,8 @@ import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { CredentialStateDefaults as RepositoryCredentialStateDefaults } from '@/store/modules/repository'
-import { RemotesStateDefaults as RepositoryRemotesStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as RepositoryCredentialStateDefaults } from '@/store/modules/repository/credentials'
+import { StateDefaults as RepositoryRemotesStateDefaults } from '@/store/modules/repository/remotes'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import Push from '@/components/Push.vue'
 
@@ -59,8 +59,8 @@ describe('components/Push', () => {
         },
       },
       actions: stub_actions([
-        'repository/create-remote',
-        'repository/diff',
+        'repository/remotes/add',
+        'repository/comparator/diff',
         'repository/remote',
         'system/patch',
         'system/perform',
@@ -89,7 +89,7 @@ describe('components/Push', () => {
 
     await wrapper.vm.diff({ oid: 1 })
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/diff', { commit: 1 })
+    expect(store_dispatch).toHaveBeenCalledWith('repository/comparator/diff', { commit: 1 })
   })
 
   it('should dispatch "system/push" upon call to close method', async () => {

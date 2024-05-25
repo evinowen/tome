@@ -5,13 +5,13 @@ export default class Commit {
     await dispatch('log', { level: 'info', message: 'Perform Commit' })
 
     try {
-      if (!await dispatch('repository/staged')) {
+      if (!await dispatch('repository/committer/staged')) {
         await dispatch('log', { level: 'info', message: 'Commit has no changes staged' })
         return
       }
 
-      await dispatch('repository/commit')
-      await dispatch('repository/signature/message')
+      await dispatch('repository/committer/commit')
+      await dispatch('repository/committer/signature/message')
 
       await dispatch('log', { level: 'info', message: 'Commit done' })
     } catch {

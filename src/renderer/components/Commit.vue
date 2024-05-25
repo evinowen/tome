@@ -15,7 +15,7 @@
       >
         <message-input
           class="my-1"
-          :value="repository.signature.message"
+          :value="repository.committer.signature.message"
           :signature_name="configuration.name"
           :signature_email="configuration.email"
           @update="sign_message"
@@ -147,7 +147,7 @@
       :visible="system.commit_confirm"
       :name="configuration.name"
       :email="configuration.email"
-      :message="repository.signature.message"
+      :message="repository.committer.signature.message"
       :staging="staging"
       :waiting="working"
       :push="system.commit_push"
@@ -179,22 +179,22 @@ const store = fetchStore()
 
 const system = computed(() => store.state.system)
 const repository = computed(() => store.state.repository)
-const staging = computed(() => store.state.repository.staging > 0)
-const staged = computed(() => store.state.repository.status.staged)
-const available = computed(() => store.state.repository.status.available)
+const staging = computed(() => store.state.repository.committer.staging > 0)
+const staged = computed(() => store.state.repository.committer.status.staged)
+const available = computed(() => store.state.repository.committer.status.available)
 const configuration = computed(() => store.state.configuration)
-const working = computed(() => store.state.repository.commit_working)
+const working = computed(() => store.state.repository.committer.working)
 
 async function sign_name (value) {
-  await store.dispatch('repository/signature/name', value)
+  await store.dispatch('repository/committer/signature/name', value)
 }
 
 async function sign_email (value) {
-  await store.dispatch('repository/signature/email', value)
+  await store.dispatch('repository/committer/signature/email', value)
 }
 
 async function sign_message (value) {
-  await store.dispatch('repository/signature/message', value)
+  await store.dispatch('repository/committer/signature/message', value)
 }
 
 async function close () {
@@ -214,16 +214,16 @@ async function message (message) {
 }
 
 async function diff (path) {
-  await store.dispatch('repository/diff', { path })
+  await store.dispatch('repository/comparator/diff', { path })
   await store.dispatch('system/patch', true)
 }
 
 async function stage (path) {
-  await store.dispatch('repository/stage', path)
+  await store.dispatch('repository/committer/stage', path)
 }
 
 async function reset (path) {
-  await store.dispatch('repository/reset', path)
+  await store.dispatch('repository/committer/reset', path)
 }
 
 async function commit () {

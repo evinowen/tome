@@ -139,8 +139,8 @@ export default {
     },
     commit: async function (context, value: boolean) {
       if (value) {
-        await context.dispatch('repository/inspect', undefined, { root: true })
-        await context.dispatch('repository/signature/uncheck', undefined, { root: true })
+        await context.dispatch('repository/committer/inspect', undefined, { root: true })
+        await context.dispatch('repository/committer/signature/uncheck', undefined, { root: true })
       }
 
       typeof value !== 'boolean' || context.commit('set', { commit: value })
@@ -148,7 +148,7 @@ export default {
     },
     commit_confirm: async function (context, value) {
       if (value) {
-        if (!await context.dispatch('repository/signature/check', undefined, { root: true })) {
+        if (!await context.dispatch('repository/committer/signature/check', undefined, { root: true })) {
           return false
         }
 

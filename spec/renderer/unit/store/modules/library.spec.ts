@@ -45,8 +45,15 @@ describe('store/modules/library', () => {
       namespaced: true,
       actions: {
         load: vi.fn(),
-        inspect: vi.fn(),
         clear: vi.fn(),
+      },
+      modules: {
+        committer: {
+          namespaced: true,
+          actions: {
+            inspect: vi.fn(),
+          },
+        },
       },
     }
 

@@ -8,7 +8,7 @@ import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { RemotesStateDefaults as RepositoryRemotesStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as RepositoryRemotesStateDefaults } from '@/store/modules/repository/remotes'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
 import Remotes, { RemoteUrlPlaceholderInterval, RemoteUrlPlaceholderValues } from '@/components/Remotes.vue'
 

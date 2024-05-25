@@ -56,24 +56,23 @@ export interface API {
     sep: () => Promise<string>
   }
   repository: {
-    clear_remote: () => Promise<void>
     commit: (name: string, email: string, message: string) => Promise<void>
-    credential_password: (username: string, password: string) => Promise<void>
     credential_key: (private_key: string, public_key: string, passphrase: string) => Promise<void>
-    diff_commit: (commit: string) => Promise<void>
-    diff_path: (path: string) => Promise<void>
-    inspect: () => Promise<void>
-    load_remote_url: (url: string) => Promise<void>
+    credential_password: (username: string, password: string) => Promise<void>
+    diff_commit: (commit: string) => Promise<{ patches: RepositoryPatch[], message: string }>
+    diff_path: (path: string) => Promise<{ patches: RepositoryPatch[] }>
+    inspect: () => Promise<{ available: RepositoryFile[], staged: RepositoryFile[] }>
     load: (path: string) => Promise<{ name: string, path: string, history: string, branch: string, remotes: string, available: string, staged: string }>
     push: () => Promise<void>
-    refresh_patches: () => Promise<{ patches: { name: string, path: string, lines: { type: number, line: string }[] }[] }>
     refresh: () => Promise<void>
-    remote: () => Promise<{ remote: { name: string, url: string }, branch: { name: string, short: string }, pending: { oid: string, date: Date, message: string }[] }>
+    remote_add: (name: string, url: string) => Promise<void>
+    remote_clear: () => Promise<void>
+    remote_list: () => Promise<{ name: string, url: string }[]>
+    remote_load: (name: string) => Promise<void>
+    remote_remove: (name: string) => Promise<void>
+    remote_status: () => Promise<{ remote: { name: string, url: string }, branch: { name: string, short: string }, pending: { oid: string, date: Date, message: string }[] }>
     reset: (query: string) => Promise<void>
     stage: (query: string) => Promise<void>
-    remote_list: () => Promise<{ name: string, url: string }[]>
-    remote_add: (name: string, url: string) => Promise<void>
-    remote_remove: (name: string) => Promise<void>
   }
   ssl: {
     generate_public_key: (target: string, passphrase?: string) => Promise<{ path: string, data: string }>
@@ -108,14 +107,30 @@ export interface SearchResult {
   matches: { index: number, line: string }[]
 }
 
+export interface RepositoryFile {
+  path: string
+  type: number
+}
+
 export interface RepositoryMetadata {
   name: string
   path: string
   history: { oid: string, date: Date, message: string }[]
   branch?: string
   remotes: { name: string, url: string }[]
-  available: { path: string, type: number }[]
-  staged: { path: string, type: number }[]
+  available: RepositoryFile[]
+  staged: RepositoryFile[]
+}
+
+export interface RepositoryPatch {
+  name: string
+  path: string
+  lines: RepositoryPatchLine[]
+}
+
+export interface RepositoryPatchLine {
+  type: number
+  line: string
 }
 
 const api = window.api as API

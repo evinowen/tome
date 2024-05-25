@@ -1,18 +1,23 @@
 import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
-import RepositoryPatch from '@/objects/RepositoryPatch'
+import RepositoryPatch from '@/objects/repository/RepositoryPatch'
 import * as NodeGit from 'nodegit'
 
 jest.mock('nodegit')
 
 describe('components/repository/RepositoryPatch', () => {
   let patch
-  let file
+  let file_new
+  let file_old
   let hunks
   let hunk
   let lines
 
   beforeEach(() => {
-    file = {
+    file_new = {
+      path: jest.fn(() => './file.path'),
+    }
+
+    file_old = {
       path: jest.fn(() => './file.path'),
     }
 
@@ -39,8 +44,8 @@ describe('components/repository/RepositoryPatch', () => {
     hunks = [ hunk ]
 
     patch = {
-      oldFile: jest.fn(() => file),
-      newFile: jest.fn(() => file),
+      oldFile: jest.fn(() => file_old),
+      newFile: jest.fn(() => file_new),
       hunks: jest.fn(() => hunks),
     }
   })
@@ -50,9 +55,7 @@ describe('components/repository/RepositoryPatch', () => {
   })
 
   it('should unwrap the NodeGit Patch data when passed into the build method', async () => {
-    const repository_patch = new RepositoryPatch()
-
-    await repository_patch.build(patch)
+    const repository_patch = await RepositoryPatch.build(patch)
 
     expect(repository_patch.lines).toHaveLength(4)
 
@@ -71,11 +74,10 @@ describe('components/repository/RepositoryPatch', () => {
 
   it('should have a path equal to the patch path after successful build method when path is not changing', async () => {
     const path = './test_path'
-    file.path.mockReturnValue(path)
+    file_old.path.mockReturnValue(path)
+    file_new.path.mockReturnValue(path)
 
-    const repository_patch = new RepositoryPatch()
-
-    await repository_patch.build(patch)
+    const repository_patch = await RepositoryPatch.build(patch)
 
     expect(repository_patch.path).toEqual(path)
   })
@@ -84,13 +86,33 @@ describe('components/repository/RepositoryPatch', () => {
     const old_path = './test_path'
     const new_path = './new_test_path'
 
-    file.path.mockReturnValueOnce(old_path)
-    file.path.mockReturnValueOnce(new_path)
+    file_old.path.mockReturnValue(old_path)
+    file_new.path.mockReturnValue(new_path)
 
-    const repository_patch = new RepositoryPatch()
-
-    await repository_patch.build(patch)
+    const repository_patch = await RepositoryPatch.build(patch)
 
     expect(repository_patch.path).toEqual(`${old_path} => ${new_path}`)
+  })
+
+  it('should iterate over patches within provided NodeGit.Diff upon call to compile', async () => {
+    const diff: any = {
+      patches: () => [
+        patch,
+        patch,
+        patch,
+      ],
+    }
+
+    const old_path = './test_path'
+    const new_path = './new_test_path'
+
+    file_old.path.mockReturnValue(old_path)
+    file_new.path.mockReturnValue(new_path)
+
+    const iterator = await RepositoryPatch.compile(diff)
+
+    for await (const file of iterator) {
+      expect(file.path).toEqual(`${old_path} => ${new_path}`)
+    }
   })
 })

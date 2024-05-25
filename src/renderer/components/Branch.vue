@@ -108,7 +108,7 @@ async function close () {
 }
 
 async function diff (commit) {
-  await store.dispatch('repository/diff', { commit: commit.oid })
+  await store.dispatch('repository/comparator/diff', { commit: commit.oid })
   await store.dispatch('system/patch', true)
 }
 

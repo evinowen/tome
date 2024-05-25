@@ -92,6 +92,7 @@ export const mocked_repository = {
   getReferenceCommit: jest.fn(() => mocked_commit),
   getRemotes: jest.fn(() => mocked_remotes),
   getStatus: jest.fn(() => Promise.resolve(mocked_repository_status)),
+  path: jest.fn(() => '/repository/.git'),
   refreshIndex: jest.fn(() => mocked_repository_index),
 }
 
@@ -104,6 +105,9 @@ export const mocked_diff = {
 export const Cred = {
   sshKeyNew: jest.fn((username, public_key, private_key, passphrase) => ({
     username, public_key, private_key, passphrase,
+  })),
+  userpassPlaintextNew: jest.fn((username, password) => ({
+    username, password,
   })),
 }
 
@@ -129,6 +133,11 @@ export const Enums = {
   DIRECTION: {
     FETCH: 0,
   },
+}
+
+export const Remote = {
+  create: jest.fn(),
+  delete: jest.fn(),
 }
 
 export const Reset = {
@@ -173,5 +182,7 @@ export const Status = {
     INCLUDE_UNREADABLE_AS_UNTRACKED: 32_768,
   },
 }
+
+export const StatusFile = {}
 
 export const StatusOptions = {}
