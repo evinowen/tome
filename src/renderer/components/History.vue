@@ -3,9 +3,9 @@
     bottom
     fixed
     :title="repository.branch"
-    subtitle="branch"
+    subtitle="History"
     :layer="1"
-    :open="system.branch"
+    :open="system.history"
     :scroll="false"
     @close="close"
   >
@@ -104,7 +104,7 @@ const system = computed(() => store.state.system)
 const repository = computed(() => store.state.repository)
 
 async function close () {
-  await store.dispatch('system/branch', false)
+  await store.dispatch('system/history', false)
 }
 
 async function diff (commit) {

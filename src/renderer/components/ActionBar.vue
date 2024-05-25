@@ -26,11 +26,11 @@
 
       <divider />
 
-      <branch-button
+      <history-button
         :branch="repository.branch"
         :error="!repository.branch ? 'error' : ''"
-        :disabled="disabled_unless(system.branch)"
-        @click.stop="branch"
+        :disabled="disabled_unless(system.history)"
+        @click.stop="history"
       />
 
       <divider />
@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import BranchButton from './ActionBar/BranchButton.vue'
+import HistoryButton from './ActionBar/HistoryButton.vue'
 import ConsoleButton from './ActionBar/ConsoleButton.vue'
 import Divider from './ActionBar/Divider.vue'
 import EditSwitch from './ActionBar/EditSwitch.vue'
@@ -107,7 +107,7 @@ import {
 
 export default {
   components: {
-    BranchButton,
+    HistoryButton,
     ConsoleButton,
     Divider,
     EditSwitch,
@@ -140,7 +140,7 @@ function disabled_unless (enabled = false) {
 
   const flags = [
     system.value.settings,
-    system.value.branch,
+    system.value.history,
     system.value.commit,
     system.value.push,
     system.value.console,
@@ -162,8 +162,8 @@ async function edit () {
   await store.dispatch('system/edit', !system.value.edit)
 }
 
-async function branch () {
-  await store.dispatch('system/branch', !system.value.branch)
+async function history () {
+  await store.dispatch('system/history', !system.value.history)
 }
 
 async function commit () {
@@ -185,7 +185,7 @@ defineExpose({
   open,
   close,
   edit,
-  branch,
+  history,
   commit,
   push,
   search,

@@ -31,12 +31,12 @@ export interface State {
     sandboxed: boolean
   }
   maximized: boolean
-  branch: boolean
   commit: boolean
   commit_confirm: boolean
   commit_push: boolean
   console: boolean
   edit: boolean
+  history: boolean
   patch: boolean
   push: boolean
   push_confirm: boolean
@@ -48,12 +48,12 @@ export interface State {
 
 export const StateDefaults = (): State => ({
   maximized: false,
-  branch: false,
   commit: false,
   commit_confirm: false,
   commit_push: false,
   console: false,
   edit: false,
+  history: false,
   patch: false,
   push: false,
   push_confirm: false,
@@ -133,9 +133,9 @@ export default {
           break
       }
     },
-    branch: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { branch: value })
-      return context.state.branch
+    history: async function (context, value) {
+      typeof value !== 'boolean' || context.commit('set', { history: value })
+      return context.state.history
     },
     commit: async function (context, value: boolean) {
       if (value) {

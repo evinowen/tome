@@ -22,7 +22,7 @@
         <console />
 
         <template v-if="repository.loaded">
-          <branch />
+          <history />
           <commit />
           <patch />
           <push />
@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import ActionBar from '@/components/ActionBar.vue'
-import Branch from '@/components/Branch.vue'
+import History from '@/components/History.vue'
 import Commit from '@/components/Commit.vue'
 import Console from '@/components/Console.vue'
 import ContextMenuService from '@/components/ContextMenuService.vue'
