@@ -45,7 +45,7 @@
               justify="center"
             >
               <v-col>
-                <push-branch :name="repository.branch" />
+                <push-branch :name="repository.branches.active" />
               </v-col>
 
               <v-col

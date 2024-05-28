@@ -8,6 +8,7 @@ import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as RepositoryBranchesStateDefaults } from '@/store/modules/repository/branches'
 import { StateDefaults as HistoryStateDefaults } from '@/store/modules/repository/history'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 import History from '@/components/History.vue'
@@ -38,6 +39,10 @@ describe('components/History', () => {
       state: {
         repository: {
           ...RepositoryStateDefaults(),
+          branches: {
+            ...RepositoryBranchesStateDefaults(),
+            active: 'master',
+          },
           history: {
             ...HistoryStateDefaults(),
             items: [

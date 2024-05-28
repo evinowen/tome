@@ -11,7 +11,6 @@ export default component('repository')(
       return {
         name: repository.name,
         path: repository.path,
-        branch: repository.branch.name,
       }
     })
 
@@ -75,6 +74,12 @@ export default component('repository')(
       return result
     })
 
+    handle('branch-status', async () => await repository.branch.status())
+    handle('branch-create', async (name) => await repository.branch.create(name))
+    handle('branch-select', async (name) => await repository.branch.select(name))
+    handle('branch-rename', async (name, value) => await repository.branch.rename(name, value))
+    handle('branch-remove', async (name) => await repository.branch.remove(name))
+
     handle('remote-list', async () => {
       await repository.remotes.load()
       return repository.remotes.list
@@ -90,7 +95,7 @@ export default component('repository')(
       return repository.remotes.list
     })
 
-    handle('remote-load', async (name) => await repository.remotes.select(name, repository.branch.name))
+    handle('remote-load', async (name) => await repository.remotes.select(name, repository.branch.active))
 
     handle('remote-clear', async () => repository.remotes.close())
 

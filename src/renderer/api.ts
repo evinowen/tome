@@ -62,9 +62,14 @@ export interface API {
     diff_commit: (commit: string) => Promise<{ patches: RepositoryPatch[], message: string }>
     diff_path: (path: string) => Promise<{ patches: RepositoryPatch[] }>
     inspect: () => Promise<{ available: RepositoryFile[], staged: RepositoryFile[] }>
-    load: (path: string) => Promise<{ name: string, path: string, branch: string }>
+    load: (path: string) => Promise<{ name: string, path: string }>
     push: () => Promise<void>
     refresh: () => Promise<void>
+    branch_status: () => Promise<{ active: string, list: RepositoryBranch[] }>
+    branch_create: (name: string) => Promise<void>
+    branch_select: (name: string) => Promise<void>
+    branch_rename: (name: string, value: string) => Promise<void>
+    branch_remove: (name: string) => Promise<void>
     remote_add: (name: string, url: string) => Promise<void>
     remote_clear: () => Promise<void>
     remote_list: () => Promise<{ name: string, url: string }[]>
@@ -111,6 +116,12 @@ export interface SearchResult {
 export interface RepositoryFile {
   path: string
   type: number
+}
+
+export interface RepositoryBranch {
+  reference: string
+  name: string
+  updated: Date
 }
 
 export interface RepositoryMetadata {

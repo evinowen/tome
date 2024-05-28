@@ -31,6 +31,8 @@ export interface State {
     sandboxed: boolean
   }
   maximized: boolean
+  branches: boolean
+  branches_remove_confirm: boolean
   commit: boolean
   commit_confirm: boolean
   commit_push: boolean
@@ -48,6 +50,8 @@ export interface State {
 
 export const StateDefaults = (): State => ({
   maximized: false,
+  branches: false,
+  branches_remove_confirm: false,
   commit: false,
   commit_confirm: false,
   commit_push: false,
@@ -132,6 +136,14 @@ export default {
           await QuickPush.perform(dispatch)
           break
       }
+    },
+    branches: async function (context, value) {
+      typeof value !== 'boolean' || context.commit('set', { branches: value })
+      return context.state.branches
+    },
+    branches_remove_confirm: async function (context, value) {
+      typeof value !== 'boolean' || context.commit('set', { branches_remove_confirm: value })
+      return context.state.branches_remove_confirm
     },
     history: async function (context, value) {
       if (value) {

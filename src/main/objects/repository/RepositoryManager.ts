@@ -46,8 +46,6 @@ export default class RepositoryManager {
     await instance.remotes.load()
 
     instance.branch = new RepositoryBranchDelegate(instance.repository)
-    await instance.branch.load()
-
     instance.inspector = new RepositoryInspectorDelegate(instance.repository)
     instance.comparator = new RepositoryComparatorDelegate(instance.repository)
 

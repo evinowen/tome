@@ -69,6 +69,12 @@ describe('store/modules/system', () => {
                 },
               },
             },
+            history: {
+              namespaced: true,
+              actions: {
+                load: vi.fn(),
+              },
+            },
           },
         },
       },
@@ -121,6 +127,8 @@ describe('store/modules/system', () => {
   })
 
   const flags = [
+    'branches',
+    'branches_remove_confirm',
     'commit',
     'commit_push',
     'console',

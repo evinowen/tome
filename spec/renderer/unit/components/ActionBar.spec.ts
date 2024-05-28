@@ -6,6 +6,7 @@ import { createVuetify } from 'vuetify'
 import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { StateDefaults as RepositoryBranchesStateDefaults } from '@/store/modules/repository/branches'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
 import ActionBar from '@/components/ActionBar.vue'
 
@@ -42,7 +43,10 @@ describe('components/ActionBar', () => {
           ...RepositoryStateDefaults(),
           path: './tome_path',
           name: 'Name',
-          branch: 'master',
+          branches: {
+            ...RepositoryBranchesStateDefaults(),
+            active: 'master',
+          },
           metadata: {
             readme: undefined,
             license: undefined,

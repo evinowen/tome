@@ -1,4 +1,5 @@
 import { MutationTree, ActionTree } from 'vuex'
+import branches, { State as BranchesState } from './repository/branches'
 import committer, { State as CommitterState } from './repository/committer'
 import comparator, { State as ComparatorState } from './repository/comparator'
 import credentials, { State as CredentialsState } from './repository/credentials'
@@ -20,7 +21,6 @@ interface RepositoryPayload {
   name: string
   path: string
   history: RepositoryCommit[]
-  branch?: string
   remotes: { name: string, url: string }[]
   available: { path: string, type: number }[]
   staged: { path: string, type: number }[]
@@ -36,7 +36,6 @@ interface RepositoryMetadata {
 export interface State {
   name: string
   path: string
-  branch?: string
   pending: RepositoryCommit[]
   loaded: boolean
   remote: { name: string, url: string, branch: { name: string, short: string, error: string } }
@@ -44,6 +43,7 @@ export interface State {
   metadata: RepositoryMetadata
   push_working: boolean
 
+  branches?: BranchesState
   committer?: CommitterState
   comparator?: ComparatorState
   credentials?: CredentialsState
@@ -54,7 +54,6 @@ export interface State {
 export const StateDefaults = (): State => ({
   name: '',
   path: '',
-  branch: undefined,
   pending: [],
   loaded: false,
   remote: { name: '', url: '', branch: { name: '', short: '', error: '' } },
@@ -85,7 +84,6 @@ export default {
 
       state.name = state.repository.name
       state.path = state.repository.path
-      state.branch = state.repository.branch
 
       state.loaded = true
     },
@@ -111,6 +109,8 @@ export default {
       await context.dispatch('log', { level: 'info', message: `Loading repository at ${path} ... ` }, { root: true })
 
       const repository = await api.repository.load(path)
+
+      await context.dispatch('branches/load')
 
       context.commit('initialize', repository)
       context.commit('load')
@@ -181,6 +181,7 @@ export default {
     },
   },
   modules: {
+    branches,
     committer,
     comparator,
     credentials,

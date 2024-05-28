@@ -8,6 +8,7 @@ import { createStore } from 'vuex'
 import { State, key } from '@/store'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
 import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
+import { StateDefaults as RepositoryBranchesStateDefaults } from '@/store/modules/repository/branches'
 import { StateDefaults as RepositoryCredentialStateDefaults } from '@/store/modules/repository/credentials'
 import { StateDefaults as RepositoryRemotesStateDefaults } from '@/store/modules/repository/remotes'
 import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
@@ -50,7 +51,10 @@ describe('components/Push', () => {
           credentials: RepositoryCredentialStateDefaults(),
           remotes: RepositoryRemotesStateDefaults(),
           name: 'Name',
-          branch: 'master',
+          branches: {
+            ...RepositoryBranchesStateDefaults(),
+            active: 'master',
+          },
         },
         system: {
           ...SystemStateDefaults(),

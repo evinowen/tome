@@ -27,8 +27,8 @@
       <divider />
 
       <history-button
-        :branch="repository.branch"
-        :error="!repository.branch ? 'error' : ''"
+        :branch="repository.branches.active"
+        :error="!repository.branches.active ? 'error' : ''"
         :disabled="disabled_unless(system.history)"
         @click.stop="history"
       />

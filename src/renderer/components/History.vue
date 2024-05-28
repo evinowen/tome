@@ -2,7 +2,7 @@
   <utility-page
     bottom
     fixed
-    :title="repository.branch"
+    :title="repository.branches.active"
     subtitle="History"
     :layer="1"
     :open="system.history"
@@ -61,6 +61,29 @@
         </v-btn>
       </div>
     </div>
+    <template #actions>
+      <div class="d-flex">
+        <div class="flex-grow-1">
+          <v-btn
+            color="primary"
+            size="small"
+            @click="close"
+          >
+            Done
+          </v-btn>
+        </div>
+        <v-btn
+          color="secondary"
+          size="small"
+          @click="branches"
+        >
+          <v-icon class="mr-2">
+            mdi-source-branch
+          </v-icon>
+          Branches
+        </v-btn>
+      </div>
+    </template>
   </utility-page>
 </template>
 
@@ -91,6 +114,10 @@ onUnmounted(() => {
     clearTimeout(ticker.value)
   }
 })
+
+async function branches () {
+  await store.dispatch('system/branches', true)
+}
 
 async function close () {
   await store.dispatch('system/history', false)

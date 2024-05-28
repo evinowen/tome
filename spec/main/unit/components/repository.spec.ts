@@ -44,9 +44,14 @@ jest.mock('@/objects/repository/RepositoryManager', () => ({
       },
       history: {
         items: [],
+        load: jest.fn(),
       },
       branch: {
-        name: 'master',
+        status: jest.fn(),
+        create: jest.fn(),
+        select: jest.fn(),
+        rename: jest.fn(),
+        remove: jest.fn(),
       },
     })),
   },
@@ -217,6 +222,75 @@ describe('components/repository', () => {
     expect(repository.committer.commit).toHaveBeenCalled()
   })
 
+  it('should call RepositoryManager.branch.status upon call to branch_status', async () => {
+    const path = '/project'
+    const result = await preload.load(path)
+
+    expect(result.path).toBe(path)
+
+    await preload.branch_status()
+
+    const { repository } = component.data()
+    expect(repository.branch.status).toHaveBeenCalled()
+  })
+
+  it('should call RepositoryManager.branch.create upon call to branch_create', async () => {
+    const path = '/project'
+    const result = await preload.load(path)
+
+    expect(result.path).toBe(path)
+
+    const name = 'master'
+
+    await preload.branch_create(name)
+
+    const { repository } = component.data()
+    expect(repository.branch.create).toHaveBeenCalled()
+  })
+
+  it('should call RepositoryManager.branch.select upon call to branch_select', async () => {
+    const path = '/project'
+    const result = await preload.load(path)
+
+    expect(result.path).toBe(path)
+
+    const name = 'master'
+
+    await preload.branch_select(name)
+
+    const { repository } = component.data()
+    expect(repository.branch.select).toHaveBeenCalled()
+  })
+
+  it('should call RepositoryManager.branch.rename upon call to branch_rename', async () => {
+    const path = '/project'
+    const result = await preload.load(path)
+
+    expect(result.path).toBe(path)
+
+    const name = 'master'
+    const value = 'main'
+
+    await preload.branch_rename(name, value)
+
+    const { repository } = component.data()
+    expect(repository.branch.rename).toHaveBeenCalled()
+  })
+
+  it('should call RepositoryManager.branch.remove upon call to branch_remove', async () => {
+    const path = '/project'
+    const result = await preload.load(path)
+
+    expect(result.path).toBe(path)
+
+    const name = 'master'
+
+    await preload.branch_remove(name)
+
+    const { repository } = component.data()
+    expect(repository.branch.remove).toHaveBeenCalled()
+  })
+
   it('should call RepositoryManager.remotes.load upon call to remote_list', async () => {
     const path = '/project'
     const result = await preload.load(path)
@@ -306,5 +380,19 @@ describe('components/repository', () => {
     await preload.remote_status()
 
     expect(result).toBeDefined()
+  })
+
+  it('should call RepositoryManager.history.load upon call to history_list', async () => {
+    const path = '/project'
+    const result = await preload.load(path)
+
+    expect(result.path).toBe(path)
+
+    const page = 1
+
+    await preload.history_list(page)
+
+    const { repository } = component.data()
+    expect(repository.history.load).toHaveBeenCalled()
   })
 })
