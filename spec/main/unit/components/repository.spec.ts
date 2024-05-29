@@ -55,6 +55,7 @@ jest.mock('@/objects/repository/RepositoryManager', () => ({
       },
       tags: {
         fetch: jest.fn(),
+        create: jest.fn(),
         remove: jest.fn(),
       },
     })),
@@ -410,6 +411,22 @@ describe('components/repository', () => {
 
     const { repository } = component.data()
     expect(repository.tags.fetch).toHaveBeenCalled()
+  })
+
+  it('should call RepositoryManager.tags.create upon call to tag_create', async () => {
+    const path = '/project'
+    const result = await preload.load(path)
+
+    expect(result.path).toBe(path)
+
+    const tag = 'v1.0.0'
+    const oid = '1234'
+
+    await preload.tag_create(tag, oid)
+
+    const { repository } = component.data()
+    expect(repository.tags.create).toHaveBeenCalled()
+    expect(repository.tags.create).toHaveBeenCalledWith(tag, oid)
   })
 
   it('should call RepositoryManager.tags.remove upon call to tag_remove', async () => {

@@ -80,6 +80,7 @@ export interface API {
     stage: (query: string) => Promise<void>
     history_list: (page: number) => Promise<RepositoryHistoricalCommit[]>
     tag_list: () => Promise<{ list: RepositoryTag[] }>
+    tag_create: (name: string, oid: string) => Promise<void>
     tag_remove: (name: string) => Promise<void>
   }
   ssl: {

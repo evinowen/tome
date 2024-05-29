@@ -22,6 +22,10 @@ export default {
       const { list } = await api.repository.tag_list()
       context.commit('load', { list })
     },
+    create: async function (context, { name, oid }) {
+      await api.repository.tag_create(name, oid)
+      await context.dispatch('load')
+    },
     remove: async function (context, name) {
       await api.repository.tag_remove(name)
       await context.dispatch('load')

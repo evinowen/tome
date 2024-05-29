@@ -31,6 +31,12 @@ export default class RepositoryTagsDelegate extends RepositoryDelegate {
     return { list: this.list }
   }
 
+  async create (name: string, oid: string) {
+    const commit = await this.repository.getCommit(oid)
+    const object = await NodeGit.Object.lookup(this.repository, commit.id(), NodeGit.Object.TYPE.COMMIT)
+    await NodeGit.Tag.createLightweight(this.repository, name, object, 0)
+  }
+
   async remove (name: string) {
     await NodeGit.Tag.delete(this.repository, name)
   }

@@ -105,6 +105,7 @@ export default component('repository')(
     })
 
     handle('tag-list', async () => await repository.tags.fetch())
+    handle('tag-create', async (name, oid) => await repository.tags.create(name, oid))
     handle('tag-remove', async (name) => await repository.tags.remove(name))
   },
   () => ({ repository }),

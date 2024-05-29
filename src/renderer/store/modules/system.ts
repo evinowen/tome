@@ -39,6 +39,7 @@ export interface State {
   console: boolean
   edit: boolean
   history: boolean
+  history_tag: boolean
   patch: boolean
   push: boolean
   push_confirm: boolean
@@ -60,6 +61,7 @@ export const StateDefaults = (): State => ({
   console: false,
   edit: false,
   history: false,
+  history_tag: false,
   patch: false,
   push: false,
   push_confirm: false,
@@ -156,6 +158,10 @@ export default {
 
       typeof value !== 'boolean' || context.commit('set', { history: value })
       return context.state.history
+    },
+    history_tag: async function (context, value) {
+      typeof value !== 'boolean' || context.commit('set', { history_tag: value })
+      return context.state.history_tag
     },
     commit: async function (context, value: boolean) {
       if (value) {

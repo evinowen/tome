@@ -14,7 +14,11 @@ jest.mock('node:fs', () => ({
 }))
 
 jest.mock('nodegit', () => ({
+  Object: {
+    lookup: jest.fn(),
+  },
   Tag: {
+    createLightweight: jest.fn(),
     delete: jest.fn(),
     list: jest.fn(() => [
       'v1.0.0',
@@ -28,13 +32,16 @@ describe('objects/repository/delegates/RepositoryTagsDelegate', () => {
   let repository: any
 
   beforeEach(() => {
-    repository = {
-      getReferenceCommit: jest.fn(() => ({
-        date: jest.fn(() => new Date()),
-        id: jest.fn(() => ({
-          tostrS: jest.fn(() => '1234'),
-        })),
+    const commit = {
+      date: jest.fn(() => new Date()),
+      id: jest.fn(() => ({
+        tostrS: jest.fn(() => '1234'),
       })),
+    }
+
+    repository = {
+      getCommit: jest.fn(() => commit),
+      getReferenceCommit: jest.fn(() => commit),
     }
   })
 
@@ -48,6 +55,16 @@ describe('objects/repository/delegates/RepositoryTagsDelegate', () => {
     await repository_tags_delegate.fetch()
 
     expect(repository_tags_delegate.list).toHaveLength(3)
+  })
+
+  it('should should call to NodeGit.Tag.createLightweight upon call to create', async () => {
+    const tag = 'v1.0.0'
+    const oid = '1234'
+
+    const repository_tags_delegate = new RepositoryTagsDelegate(repository)
+    await repository_tags_delegate.create(tag, oid)
+
+    expect(NodeGit.Tag.createLightweight).toHaveBeenCalled()
   })
 
   it('should should call to NodeGit.Tag.delete upon call to remove', async () => {

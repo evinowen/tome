@@ -64,6 +64,7 @@ export default {
     stage: vi.fn(stage),
     history_list: vi.fn(() => []),
     tag_list: vi.fn(() => []),
+    tag_create: vi.fn(),
     tag_remove: vi.fn(),
   },
 }

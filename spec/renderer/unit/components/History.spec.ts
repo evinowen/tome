@@ -11,7 +11,9 @@ import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/reposi
 import { StateDefaults as RepositoryBranchesStateDefaults } from '@/store/modules/repository/branches'
 import { StateDefaults as HistoryStateDefaults } from '@/store/modules/repository/history'
 import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { StateDefaults as TagsStateDefaults } from '@/store/modules/repository/tags'
 import History from '@/components/History.vue'
+import { wrap } from 'module'
 
 describe('components/History', () => {
   let vuetify
@@ -52,6 +54,14 @@ describe('components/History', () => {
             ],
             loaded: true,
           },
+          tags: {
+            ...TagsStateDefaults(),
+            list: [
+              { name: 'tag-example-a', oid: '1', date: new Date() },
+              { name: 'tag-example-b', oid: '2', date: new Date() },
+              { name: 'tag-example-c', oid: '3', date: new Date() },
+            ],
+          },
         },
         system: {
           ...SystemStateDefaults(),
@@ -61,7 +71,11 @@ describe('components/History', () => {
       actions: stub_actions([
         'repository/comparator/diff',
         'repository/history/page',
+        'repository/tags/create',
+        'system/branches',
+        'system/tags',
         'system/history',
+        'system/history_tag',
         'system/patch',
       ]),
     })
@@ -127,12 +141,79 @@ describe('components/History', () => {
     expect(store_dispatch).toHaveBeenCalledWith('repository/comparator/diff', { commit: 1 })
   })
 
-  it('should dispatch system/patch with true upon call to diff', async () => {
+  it('should dispatch "system/patch" with true upon call to diff', async () => {
     const wrapper = factory.wrap()
 
     await wrapper.vm.diff({ oid: 1 })
 
     expect(store_dispatch).toHaveBeenCalledWith('system/patch', true)
+  })
+
+  it('should dispatch "system/branches" with true upon call to branches', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.branches()
+
+    expect(store_dispatch).toHaveBeenCalledWith('system/branches', true)
+  })
+
+  it('should dispatch "system/tags" with true upon call to tags', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.tags()
+
+    expect(store_dispatch).toHaveBeenCalledWith('system/tags', true)
+  })
+
+  it('should dispatch "system/history_tag" with false upon call to tag_prompt with false', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.tag_prompt(false)
+
+    expect(store_dispatch).toHaveBeenCalledWith('system/history_tag', false)
+  })
+
+  it('should not set history_tag_target upon call to tag_prompt with false', async () => {
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.history_tag_target).toEqual('')
+
+    const target = '1234'
+
+    await wrapper.vm.tag_prompt(false, target)
+
+    expect(wrapper.vm.history_tag_target).toEqual('')
+  })
+
+  it('should dispatch "system/history_tag" with true upon call to tag_prompt with true', async () => {
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.tag_prompt(true)
+
+    expect(store_dispatch).toHaveBeenCalledWith('system/history_tag', true)
+  })
+
+  it('should set history_tag_target upon call to tag_prompt with true', async () => {
+    const wrapper = factory.wrap()
+
+    expect(wrapper.vm.history_tag_target).toEqual('')
+
+    const target = '1234'
+
+    await wrapper.vm.tag_prompt(true, target)
+
+    expect(wrapper.vm.history_tag_target).toEqual(target)
+  })
+
+  it('should dispatch "repository/tags/create" with true upon call to tag_create', async () => {
+    const wrapper = factory.wrap()
+
+    const name = 'v1.0.0'
+    const oid = '1234'
+
+    await wrapper.vm.tag_create(name, oid)
+
+    expect(store_dispatch).toHaveBeenCalledWith('repository/tags/create', { name, oid })
   })
 
   it('should format date string upon call to format_date', async () => {
