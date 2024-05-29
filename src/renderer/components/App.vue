@@ -28,6 +28,7 @@
           <patch />
           <push />
           <remotes />
+          <tags />
         </template>
 
         <editor-interface />
@@ -59,6 +60,7 @@ import SelectInputOverlay from '@/components/SelectInputOverlay.vue'
 import Patch from '@/components/Patch.vue'
 import Push from '@/components/Push.vue'
 import Remotes from '@/components/Remotes.vue'
+import Tags from '@/components/Tags.vue'
 import SearchService from '@/components/SearchService.vue'
 import Settings from '@/components/Settings.vue'
 import ShortcutService from '@/components/ShortcutService.vue'

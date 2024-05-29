@@ -45,6 +45,8 @@ export interface State {
   remotes: boolean
   search: boolean
   settings: boolean
+  tags: boolean
+  tags_remove_confirm: boolean
   theme_editor: boolean
 }
 
@@ -64,6 +66,8 @@ export const StateDefaults = (): State => ({
   remotes: false,
   search: false,
   settings: false,
+  tags: false,
+  tags_remove_confirm: false,
   theme_editor: false,
 })
 
@@ -215,6 +219,14 @@ export default {
     settings: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { settings: value })
       return context.state.settings
+    },
+    tags: async function (context, value) {
+      typeof value !== 'boolean' || context.commit('set', { tags: value })
+      return context.state.tags
+    },
+    tags_remove_confirm: async function (context, value) {
+      typeof value !== 'boolean' || context.commit('set', { tags_remove_confirm: value })
+      return context.state.tags_remove_confirm
     },
     theme_editor: async function (context, value) {
       typeof value !== 'boolean' || context.commit('set', { theme_editor: value })

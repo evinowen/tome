@@ -73,6 +73,7 @@
           </v-btn>
         </div>
         <v-btn
+          class="mr-2"
           color="secondary"
           size="small"
           @click="branches"
@@ -81,6 +82,16 @@
             mdi-source-branch
           </v-icon>
           Branches
+        </v-btn>
+        <v-btn
+          color="secondary"
+          size="small"
+          @click="tags"
+        >
+          <v-icon class="mr-2">
+            mdi-tag
+          </v-icon>
+          Tags
         </v-btn>
       </div>
     </template>
@@ -117,6 +128,10 @@ onUnmounted(() => {
 
 async function branches () {
   await store.dispatch('system/branches', true)
+}
+
+async function tags () {
+  await store.dispatch('system/tags', true)
 }
 
 async function close () {

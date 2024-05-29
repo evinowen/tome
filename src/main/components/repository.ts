@@ -103,6 +103,9 @@ export default component('repository')(
       await repository.history.load(page)
       return repository.history.items
     })
+
+    handle('tag-list', async () => await repository.tags.fetch())
+    handle('tag-remove', async (name) => await repository.tags.remove(name))
   },
   () => ({ repository }),
 )

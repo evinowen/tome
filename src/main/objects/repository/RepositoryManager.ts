@@ -8,6 +8,7 @@ import RepositoryComparatorDelegate from '@/objects/repository/delegates/Reposit
 import RepositoryHistoryDelegate from '@/objects/repository/delegates/RepositoryHistoryDelegate'
 import RepositoryInspectorDelegate from '@/objects/repository/delegates/RepositoryInspectorDelegate'
 import RepositoryRemoteDelegate from '@/objects/repository/delegates/RepositoryRemoteDelegate'
+import RepositoryTagsDelegate from '@/objects/repository/delegates/RepositoryTagsDelegate'
 
 import {
   RepositoryInaccessableError,
@@ -30,6 +31,7 @@ export default class RepositoryManager {
   history: RepositoryHistoryDelegate
   inspector: RepositoryInspectorDelegate
   remotes: RepositoryRemoteDelegate
+  tags: RepositoryTagsDelegate
 
   static async create (path) {
     const instance = new RepositoryManager()
@@ -46,6 +48,7 @@ export default class RepositoryManager {
     await instance.remotes.load()
 
     instance.branch = new RepositoryBranchDelegate(instance.repository)
+    instance.tags = new RepositoryTagsDelegate(instance.repository)
     instance.inspector = new RepositoryInspectorDelegate(instance.repository)
     instance.comparator = new RepositoryComparatorDelegate(instance.repository)
 

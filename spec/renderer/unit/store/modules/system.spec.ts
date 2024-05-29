@@ -139,6 +139,8 @@ describe('store/modules/system', () => {
     'push_confirm',
     'search',
     'settings',
+    'tags',
+    'tags_remove_confirm',
   ]
 
   for (const flag of flags) {

@@ -79,6 +79,8 @@ export interface API {
     reset: (query: string) => Promise<void>
     stage: (query: string) => Promise<void>
     history_list: (page: number) => Promise<RepositoryHistoricalCommit[]>
+    tag_list: () => Promise<{ list: RepositoryTag[] }>
+    tag_remove: (name: string) => Promise<void>
   }
   ssl: {
     generate_public_key: (target: string, passphrase?: string) => Promise<{ path: string, data: string }>
@@ -122,6 +124,12 @@ export interface RepositoryBranch {
   reference: string
   name: string
   updated: Date
+}
+
+export interface RepositoryTag {
+  name: string
+  oid: string
+  date: Date
 }
 
 export interface RepositoryMetadata {

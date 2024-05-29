@@ -53,7 +53,7 @@ export default {
     branch_create: vi.fn(),
     branch_select: vi.fn(),
     branch_rename: vi.fn(),
-    branch_remove: vi.fn(() => remotes),
+    branch_remove: vi.fn(),
     remote_add: vi.fn(),
     remote_clear: vi.fn(),
     remote_list: vi.fn(() => remotes),
@@ -63,5 +63,7 @@ export default {
     reset: vi.fn(reset),
     stage: vi.fn(stage),
     history_list: vi.fn(() => []),
+    tag_list: vi.fn(() => []),
+    tag_remove: vi.fn(),
   },
 }

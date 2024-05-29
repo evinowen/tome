@@ -5,6 +5,7 @@ import comparator, { State as ComparatorState } from './repository/comparator'
 import credentials, { State as CredentialsState } from './repository/credentials'
 import history, { State as HistoryState } from './repository/history'
 import remotes, { State as RemotesState } from './repository/remotes'
+import tags, { State as TagsState } from './repository/tags'
 import api from '@/api'
 
 class RepositoryNotLoadedError extends Error {}
@@ -49,6 +50,7 @@ export interface State {
   credentials?: CredentialsState
   history?: HistoryState
   remotes?: RemotesState
+  tags?: TagsState
 }
 
 export const StateDefaults = (): State => ({
@@ -111,6 +113,7 @@ export default {
       const repository = await api.repository.load(path)
 
       await context.dispatch('branches/load')
+      await context.dispatch('tags/load')
 
       context.commit('initialize', repository)
       context.commit('load')
@@ -187,5 +190,6 @@ export default {
     credentials,
     history,
     remotes,
+    tags,
   },
 }

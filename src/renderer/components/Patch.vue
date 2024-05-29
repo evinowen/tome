@@ -3,7 +3,7 @@
     right
     :title="repository.comparator.reference"
     :subtitle="repository.comparator.type"
-    :layer="2"
+    :layer="5"
     :open="system.patch"
     @close="close"
   >
