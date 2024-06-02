@@ -1,4 +1,4 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
 import { DateTime } from 'luxon'
 
 export interface State {
@@ -27,45 +27,36 @@ const SignatureMessageDateString = () =>
     timeZoneName: 'short',
   })
 
-export default {
-  namespaced: true,
+export const fetch_repository_committer_signature_store = defineStore('repository-committer-signature', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    set: function (state, data) {
-      Object.assign(state, data)
+  actions: {
+    sign_name: async function (value?) {
+      this.name = value || ''
     },
-  },
-  actions: <ActionTree<State, unknown>>{
-    name: async function (context, value) {
-      const name = value
-      context.commit('set', { name })
+    sign_email: async function (value?) {
+      this.email = value || ''
     },
-    email: async function (context, value) {
-      const email = value
-      context.commit('set', { email })
+    sign_message: function (value?) {
+      this.message = value || `Update for ${SignatureMessageDateString()}`
     },
-    message: function (context, value) {
-      const message = value || `Update for ${SignatureMessageDateString()}`
-      context.commit('set', { message })
+    uncheck: function () {
+      this.name_error = false
+      this.email_error = false
     },
-    uncheck: function (context) {
-      context.commit('set', { name_error: false })
-      context.commit('set', { email_error: false })
-    },
-    check: function (context) {
-      if (context.state.name.length === 0) {
-        context.commit('set', { name_error: true })
+    check: function () {
+      if (this.name.length === 0) {
+        this.name_error = true
       }
 
-      if (context.state.email.length === 0) {
-        context.commit('set', { email_error: true })
+      if (this.email.length === 0) {
+        this.email_error = true
       }
 
-      if (context.state.name_error || context.state.email_error) {
+      if (this.name_error || this.email_error) {
         return false
       }
 
       return true
     },
   },
-}
+})

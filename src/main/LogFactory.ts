@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as node_path from 'node:path'
 import * as node_fs from 'node:fs'
 

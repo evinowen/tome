@@ -2,14 +2,12 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { createTestingPinia } from '@pinia/testing'
 import CredentialSelector from '@/components/Settings/Credentials/CredentialSelector.vue'
 
 describe('components/Settings/Credentials/CredentialSelector', () => {
   let vuetify
-  let store
+  let pinia
 
   const value = 'value'
   const label = 'label'
@@ -17,7 +15,7 @@ describe('components/Settings/Credentials/CredentialSelector', () => {
   const factory = assemble(CredentialSelector, { value, label })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           CredentialTypeInput: BasicComponentStub,
           CredentialTypePasswordInput: BasicComponentStub,
@@ -29,10 +27,9 @@ describe('components/Settings/Credentials/CredentialSelector', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration: ConfigurationStateDefaults(),
-      },
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
   })
 

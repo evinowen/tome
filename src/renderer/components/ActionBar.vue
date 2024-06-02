@@ -5,11 +5,7 @@
     order="-1"
     height="18"
   >
-    <library-button
-      :disabled="disabled_unless()"
-      @open="open"
-      @close="close"
-    />
+    <library-button :disabled="disabled_unless()" />
 
     <divider />
 
@@ -17,18 +13,18 @@
       <repository-button
         :name="repository.name"
         :path="repository.path"
-        :readme="repository.metadata.readme"
-        :authors="repository.metadata.authors"
-        :contributors="repository.metadata.contributors"
-        :license="repository.metadata.license"
+        :readme="repository_metadata.readme"
+        :authors="repository_metadata.authors"
+        :contributors="repository_metadata.contributors"
+        :license="repository_metadata.license"
         :disabled="disabled_unless()"
       />
 
       <divider />
 
       <history-button
-        :branch="repository.branches.active"
-        :error="!repository.branches.active ? 'error' : ''"
+        :branch="repository_branches.active"
+        :error="!repository_branches.active ? 'error' : ''"
         :disabled="disabled_unless(system.history)"
         @click.stop="history"
       />
@@ -37,8 +33,8 @@
     </template>
 
     <console-button
-      :status="status"
-      :message="message"
+      :status="log.status"
+      :message="log.message"
       :disabled="disabled_unless(system.console || system.commit || system.push)"
     />
 
@@ -121,69 +117,61 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { fetchStore } from '@/store'
+import { ref } from 'vue'
+import { fetch_log_store } from '@/store/log'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_store } from '@/store/modules/repository'
+import { fetch_repository_branches_store } from '@/store/modules/repository/branches'
+import { fetch_repository_metadata_store } from '@/store/modules/repository/metadata'
 
 const library = ref(false)
 
-const store = fetchStore()
-
-const repository = computed(() => store.state.repository)
-const system = computed(() => store.state.system)
-const status = computed(() => store.state.status)
-const message = computed(() => store.state.message)
+const log = fetch_log_store()
+const system = fetch_system_store()
+const repository = fetch_repository_store()
+const repository_branches = fetch_repository_branches_store()
+const repository_metadata = fetch_repository_metadata_store()
 
 function disabled_unless (enabled = false) {
   if (enabled) {
-    return system.value.settings
+    return system.settings
   }
 
   const flags = [
-    system.value.settings,
-    system.value.history,
-    system.value.commit,
-    system.value.push,
-    system.value.console,
+    system.settings,
+    system.history,
+    system.commit,
+    system.push,
+    system.console,
   ]
 
   return flags.includes(true)
 }
 
-async function open (path) {
-  library.value = false
-  await store.dispatch('system/open', path)
-}
-
-async function close () {
-  await store.dispatch('system/close')
-}
-
 async function edit () {
-  await store.dispatch('system/edit', !system.value.edit)
+  await system.page({ edit: !system.edit })
 }
 
 async function history () {
-  await store.dispatch('system/history', !system.value.history)
+  await system.page({ history: !system.history })
 }
 
 async function commit () {
-  await store.dispatch('system/commit', !system.value.commit)
+  await system.page({ commit: !system.commit })
 }
 
 async function push () {
-  await store.dispatch('system/push', !system.value.push)
+  await system.page({ push: !system.push })
 }
 
 async function search () {
-  await store.dispatch('system/search', !system.value.search)
+  await system.page({ search: !system.search })
 }
 
 defineExpose({
   library,
   repository,
   system,
-  open,
-  close,
   edit,
   history,
   commit,

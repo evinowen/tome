@@ -2,23 +2,20 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import VMenu from '?/stubs/VMenu.vue'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as LibraryStateDefaults } from '@/store/modules/library'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
+import { createTestingPinia } from '@pinia/testing'
 import LibraryButton from '@/components/ActionBar/LibraryButton.vue'
+import { fetch_library_store } from '@/store/modules/library'
+import { fetch_repository_store } from '@/store/modules/repository'
 
 describe('components/ActionBar/LibraryButton', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(LibraryButton)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VBtn: BasicComponentStub,
           VIcon: BasicComponentStub,
@@ -33,27 +30,19 @@ describe('components/ActionBar/LibraryButton', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        library: {
-          ...LibraryStateDefaults(),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'library': {
           history: [
             '/path',
           ],
         },
-        repository: {
-          ...RepositoryStateDefaults(),
+        'repository': {
           path: './tome_path',
         },
       },
-      actions: stub_actions([
-        'library/select',
-        'library/open',
-        'library/close',
-      ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -61,7 +50,8 @@ describe('components/ActionBar/LibraryButton', () => {
   })
 
   it('should show bookshelf button when no repository path has been identified', async () => {
-    store.state.repository.path = ''
+    const repository = fetch_repository_store()
+    repository.path = ''
 
     const wrapper = factory.wrap()
     wrapper.vm.show = true
@@ -75,7 +65,8 @@ describe('components/ActionBar/LibraryButton', () => {
   })
 
   it('should show close button when a repository path has been identified', async () => {
-    store.state.repository.path = './tome_path'
+    const repository = fetch_repository_store()
+    repository.path = './tome_path'
 
     const wrapper = factory.wrap()
     wrapper.vm.show = true
@@ -89,16 +80,20 @@ describe('components/ActionBar/LibraryButton', () => {
   })
 
   it('should dispatch library/select when select is called', async () => {
+    const library = fetch_library_store()
+
     const wrapper = factory.wrap()
     wrapper.vm.show = true
     await wrapper.vm.$nextTick()
 
     await wrapper.vm.select()
 
-    expect(store_dispatch).toHaveBeenCalledWith('library/select')
+    expect(library.select).toHaveBeenCalledWith()
   })
 
   it('should dispatch library/open with path when open is called with a path', async () => {
+    const library = fetch_library_store()
+
     const path = '/project'
 
     const wrapper = factory.wrap()
@@ -107,16 +102,18 @@ describe('components/ActionBar/LibraryButton', () => {
 
     await wrapper.vm.open(path)
 
-    expect(store_dispatch).toHaveBeenCalledWith('library/open', path)
+    expect(library.open).toHaveBeenCalledWith(path)
   })
 
   it('should dispatch library/close when close is called', async () => {
+    const library = fetch_library_store()
+
     const wrapper = factory.wrap()
     wrapper.vm.show = true
     await wrapper.vm.$nextTick()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('library/close')
+    expect(library.close).toHaveBeenCalledWith()
   })
 })

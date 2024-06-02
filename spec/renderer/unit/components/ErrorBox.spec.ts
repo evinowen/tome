@@ -2,21 +2,18 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { stub_actions } from '?/builders/store'
-import { StateDefaults as ErrorStateDefaults } from '@/store/modules/error'
+import { createTestingPinia } from '@pinia/testing'
 import ErrorBox from '@/components/ErrorBox.vue'
+import { fetch_error_store } from '@/store/modules/error'
 
 describe('components/ErrorBox', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(ErrorBox)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           OverlayBox: BasicComponentStub,
           VAvatar: BasicComponentStub,
@@ -34,17 +31,10 @@ describe('components/ErrorBox', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        error: ErrorStateDefaults(),
-      },
-      actions: stub_actions([
-        'error/help',
-        'error/hide',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -58,6 +48,8 @@ describe('components/ErrorBox', () => {
   })
 
   it('should dispatch error/hide when confirm button is clicked', async () => {
+    const error = fetch_error_store()
+
     const wrapper = factory.wrap()
 
     const confirm_button = wrapper.findComponent({ ref: 'confirm-button' })
@@ -66,11 +58,13 @@ describe('components/ErrorBox', () => {
     confirm_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('error/hide')
+    expect(error.hide).toHaveBeenCalledWith()
   })
 
   it('should dispatch error/help when help button is clicked', async () => {
-    store.state.error.help = 'help-topic'
+    const error = fetch_error_store()
+
+    error.help_tag = 'help-topic'
 
     const wrapper = factory.wrap()
 
@@ -80,6 +74,6 @@ describe('components/ErrorBox', () => {
     help_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('error/help')
+    expect(error.help).toHaveBeenCalledWith()
   })
 })

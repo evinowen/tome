@@ -1,4 +1,4 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
 import api from '@/api'
 
 interface SearchResult {
@@ -33,82 +33,52 @@ export const StateDefaults = (): State => ({
   navigation: { target: 1, total: 0 },
 })
 
-export default {
-  namespaced: true,
+export const fetch_search_store = defineStore('search', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    clear: function (state) {
-      state.query = undefined
-      state.results = []
-    },
-    multifile: function (state, value) {
-      state.multifile = value
-    },
-    regex_query: function (state, value) {
-      state.regex_query = value
-    },
-    case_sensitive: function (state, value) {
-      state.case_sensitive = value
-    },
-    query: function (state, { path, query }) {
-      state.path = path
-      state.query = query
-    },
-    reset: function (state) {
-      state.results.length = 0
-    },
-    result: function (state, result) {
-      state.results.push(result)
-    },
-    navigate: function (state, { target, total }) {
-      state.navigation.target = Number.isInteger(target) ? target : state.navigation.target
-      state.navigation.total = Number.isInteger(total) ? total : state.navigation.total
+  actions: {
+    flags: async function (flags) {
+      const { multifile, regex_query, case_sensitive } = flags
 
-      if (state.navigation.target < 1) {
-        state.navigation.target = state.navigation.total
-      } else if (state.navigation.target > state.navigation.total) {
-        state.navigation.target = 1
+      if (typeof multifile === 'boolean') {
+        this.multifile = multifile
+      }
+
+      if (typeof regex_query === 'boolean') {
+        this.regex_query = regex_query
+      }
+
+      if (typeof case_sensitive === 'boolean') {
+        this.case_sensitive = case_sensitive
       }
     },
-  },
-  actions: <ActionTree<State, unknown>>{
-    multifile: async function (context, value) {
-      context.commit('multifile', value)
+    clear: async function () {
+      this.query = undefined
+      this.results = []
     },
-    regex_query: async function (context, value) {
-      context.commit('regex_query', value)
-    },
-    case_sensitive: async function (context, value) {
-      context.commit('case_sensitive', value)
-    },
-    query: async function (context, { path, query }) {
-      context.commit('query', { path, query })
-      await context.dispatch('execute')
-    },
-    clear: async function (context) {
-      context.commit('clear')
-    },
-    execute: async function (context) {
-      if (!context.state.path) {
+    execute: async function ({ path = '', query = '' } = {}) {
+      this.path = path
+      this.query = query
+
+      if (!this.path) {
         return
       }
 
-      if (!context.state.multifile) {
+      if (!this.multifile) {
         return
       }
 
-      context.commit('reset')
+      this.results.length = 0
 
-      if (!context.state.query) {
+      if (!this.query) {
         return
       }
 
-      const target = context.state.path
+      const target = this.path
       const criteria = {
-        query: context.state.query,
-        multifile: context.state.multifile,
-        regex_query: context.state.regex_query,
-        case_sensitive: context.state.case_sensitive,
+        query: this.query,
+        multifile: this.multifile,
+        regex_query: this.regex_query,
+        case_sensitive: this.case_sensitive,
       }
 
       await api.file.search_path(target, criteria)
@@ -120,43 +90,50 @@ export default {
           break
         }
 
-        if (!context.state.multifile) {
+        if (!this.multifile) {
           break
         }
 
-        if (target !== context.state.path) {
+        if (target !== this.path) {
           break
         }
 
-        if ('query' in criteria && criteria.query !== context.state.query) {
+        if ('query' in criteria && criteria.query !== this.query) {
           break
         }
 
-        if ('multifile' in criteria && criteria.multifile !== context.state.multifile) {
+        if ('multifile' in criteria && criteria.multifile !== this.multifile) {
           break
         }
 
-        if ('regex_query' in criteria && criteria.regex_query !== context.state.regex_query) {
+        if ('regex_query' in criteria && criteria.regex_query !== this.regex_query) {
           break
         }
 
-        if ('case_sensitive' in criteria && criteria.case_sensitive !== context.state.case_sensitive) {
+        if ('case_sensitive' in criteria && criteria.case_sensitive !== this.case_sensitive) {
           break
         }
 
         if (result.path.matched > -1 || result.matches.length > 0) {
-          context.commit('result', result)
+          this.results.push(result)
         }
       }
     },
-    navigate: async function (context, { total, target }) {
-      context.commit('navigate', { total, target })
+    navigate: async function ({ total, target }) {
+      this.navigation.target = Number.isInteger(target) ? target : this.navigation.target
+      this.navigation.total = Number.isInteger(total) ? total : this.navigation.total
+
+      if (this.navigation.target < 1) {
+        this.navigation.target = this.navigation.total
+      } else if (this.navigation.target > this.navigation.total) {
+        this.navigation.target = 1
+      }
     },
-    next: async function (context) {
-      context.commit('navigate', { target: context.state.navigation.target + 1, total: undefined })
+    next: async function () {
+      this.navigate({ target: this.navigation.target + 1, total: undefined })
     },
-    previous: async function (context) {
-      context.commit('navigate', { target: context.state.navigation.target - 1, total: undefined })
+    previous: async function () {
+      this.navigate({ target: this.navigation.target - 1, total: undefined })
     },
   },
-}
+})

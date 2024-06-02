@@ -1,0 +1,28 @@
+import { z } from 'zod'
+
+export default z.object({
+  font_family_compose: z.coerce.string(),
+  font_size_compose: z.coerce.number(),
+  background: z.coerce.string(),
+  gutters: z.coerce.string(),
+  line_numbers: z.coerce.string(),
+  content: z.coerce.string(),
+  comments: z.coerce.string(),
+  anchor: z.coerce.string(),
+  header_1: z.coerce.string(),
+  header_2: z.coerce.string(),
+  header_3: z.coerce.string(),
+  header_4: z.coerce.string(),
+  header_5: z.coerce.string(),
+  header_6: z.coerce.string(),
+  keywords: z.coerce.string(),
+  operators: z.coerce.string(),
+  types: z.coerce.string(),
+  brackets: z.coerce.string(),
+  strings: z.coerce.string(),
+  numbers: z.coerce.string(),
+  booleans: z.coerce.string(),
+  selection: z.coerce.string(),
+  highlight: z.coerce.string(),
+  highlight_focus: z.coerce.string(),
+})

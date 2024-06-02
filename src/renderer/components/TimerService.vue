@@ -2,10 +2,11 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import { fetchStore } from '@/store'
-import { SystemTimeout } from '@/store/modules/system'
+import { fetch_log_store } from '@/store/log'
+import { fetch_system_store, SystemTimeout } from '@/store/modules/system'
 
-const store = fetchStore()
+const log = fetch_log_store()
+const system = fetch_system_store()
 
 const sleep_last = ref(0)
 const sleep_tolerance = 5000
@@ -91,44 +92,44 @@ function timeout_sleep () {
   sleep_last.value = Date.now()
 
   if (delta > sleep_tolerance) {
-    store.dispatch('log', { level: 'trace', message: `Sleep interval timeout delta (${delta}) above tolerance (${sleep_tolerance}), reseting timers.` })
+    log.trace(`Sleep interval timeout delta (${delta}) above tolerance (${sleep_tolerance}), reseting timers.`)
     clear()
     reset()
   }
 }
 
 function timeout_minute () {
-  store.dispatch('system/timer', SystemTimeout.Minute)
+  system.timer(SystemTimeout.Minute)
   resets.minute()
 }
 
 function timeout_quarter_hour () {
-  store.dispatch('system/timer', SystemTimeout.QuarterHour)
+  system.timer(SystemTimeout.QuarterHour)
   resets.quarter_hour()
 }
 
 function timeout_half_hour () {
-  store.dispatch('system/timer', SystemTimeout.HalfHour)
+  system.timer(SystemTimeout.HalfHour)
   resets.half_hour()
 }
 
 function timeout_hour () {
-  store.dispatch('system/timer', SystemTimeout.Hour)
+  system.timer(SystemTimeout.Hour)
   resets.hour()
 }
 
 function timeout_quarter_day () {
-  store.dispatch('system/timer', SystemTimeout.QuarterDay)
+  system.timer(SystemTimeout.QuarterDay)
   resets.quarter_day()
 }
 
 function timeout_half_day () {
-  store.dispatch('system/timer', SystemTimeout.HalfDay)
+  system.timer(SystemTimeout.HalfDay)
   resets.half_day()
 }
 
 function timeout_day () {
-  store.dispatch('system/timer', SystemTimeout.Day)
+  system.timer(SystemTimeout.Day)
   resets.day()
 }
 

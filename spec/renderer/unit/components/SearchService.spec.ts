@@ -1,24 +1,20 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { StateDefaults as SearchStateDefaults } from '@/store/modules/search'
+import { createTestingPinia } from '@pinia/testing'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_repository_store } from '@/store/modules/repository'
+import { fetch_search_store } from '@/store/modules/search'
 import SearchService from '@/components/SearchService.vue'
 
 describe('components/SearchService', () => {
   let vuetify
-  let store
-  let store_dispatch
-
+  let pinia
   const factory = assemble(SearchService)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VBtn: BasicComponent,
           VExpandTransition: BasicComponent,
@@ -34,25 +30,10 @@ describe('components/SearchService', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration: ConfigurationStateDefaults(),
-        repository: RepositoryStateDefaults(),
-        search: SearchStateDefaults(),
-      },
-      actions: stub_actions([
-        'files/select',
-        'search/navigate',
-        'search/next',
-        'search/previous',
-        'search/query',
-        'search/multifile',
-        'search/case_sensitive',
-        'search/regex_query',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -64,41 +45,52 @@ describe('components/SearchService', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should dispatch search/query with query when update is called with a query', async () => {
+  it('should dispatch search/execute with query when update is called with a query', async () => {
+    const search = fetch_search_store()
+    const repository = fetch_repository_store()
+
     const wrapper = factory.wrap()
 
     const query = '/project'
     await wrapper.vm.update(query)
 
-    expect(store_dispatch).toHaveBeenCalledWith('search/query', { path: store.state.repository.path, query })
+    expect(search.execute).toHaveBeenCalledWith({ path: repository.path, query })
   })
 
   it('should dispatch search/next when next is called', async () => {
+    const search = fetch_search_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.next()
 
-    expect(store_dispatch).toHaveBeenCalledWith('search/next')
+    expect(search.next).toHaveBeenCalledWith()
   })
 
   it('should dispatch search/previous when previous is called', async () => {
+    const search = fetch_search_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.previous()
 
-    expect(store_dispatch).toHaveBeenCalledWith('search/previous')
+    expect(search.previous).toHaveBeenCalledWith()
   })
 
   it('should dispatch files/select with path when select is called with path', async () => {
+    const files = fetch_files_store()
+
     const wrapper = factory.wrap()
 
     const path = '/project/file.md'
     await wrapper.vm.select(path)
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path })
+    expect(files.select).toHaveBeenCalledWith({ path })
   })
 
   it('should dispatch search/navigate with target when select is called with a positive target', async () => {
+    const search = fetch_search_store()
+
     const wrapper = factory.wrap()
 
     const path = '/project/file.md'
@@ -106,45 +98,51 @@ describe('components/SearchService', () => {
     const total = 1
     await wrapper.vm.select(path, target, total)
 
-    expect(store_dispatch).toHaveBeenCalledWith('search/navigate', { target, total })
+    expect(search.navigate).toHaveBeenCalledWith({ target, total })
   })
 
   it('should dispatch "search/multifile" when multifile button emits click event', async () => {
+    const search = fetch_search_store()
+
     const wrapper = factory.wrap()
 
-    const value = store.state.search.case_sensitive
+    const value = search.case_sensitive
 
     const multifile_button = wrapper.findComponent({ ref: 'multifile-button' })
     expect(multifile_button.exists()).toBe(true)
 
     await multifile_button.vm.$emit('click', !value)
 
-    expect(store.dispatch).toHaveBeenCalledWith('search/multifile', !value)
+    expect(search.flags).toHaveBeenCalledWith({ multifile: !value })
   })
 
   it('should dispatch "search/case_sensitive" when case sensitive button emits click event', async () => {
+    const search = fetch_search_store()
+
     const wrapper = factory.wrap()
 
-    const value = store.state.search.case_sensitive
+    const value = search.case_sensitive
 
     const case_sensitive_button = wrapper.findComponent({ ref: 'case-sensitive-button' })
     expect(case_sensitive_button.exists()).toBe(true)
 
     await case_sensitive_button.vm.$emit('click', !value)
 
-    expect(store.dispatch).toHaveBeenCalledWith('search/case_sensitive', !value)
+    expect(search.flags).toHaveBeenCalledWith({ case_sensitive: !value })
   })
 
   it('should dispatch "search/regex_query" when regex query button emits click event', async () => {
+    const search = fetch_search_store()
+
     const wrapper = factory.wrap()
 
-    const value = store.state.search.case_sensitive
+    const value = search.case_sensitive
 
     const regex_query_button = wrapper.findComponent({ ref: 'regex-query-button' })
     expect(regex_query_button.exists()).toBe(true)
 
     await regex_query_button.vm.$emit('click', !value)
 
-    expect(store.dispatch).toHaveBeenCalledWith('search/regex_query', !value)
+    expect(search.flags).toHaveBeenCalledWith({ regex_query: !value })
   })
 })

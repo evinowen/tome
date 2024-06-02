@@ -1,4 +1,7 @@
 import { describe, beforeEach, it, expect, vi } from 'vitest'
+import { setActivePinia } from 'pinia'
+import { createTestingPinia } from '@pinia/testing'
+import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 import Push from '@/objects/performances/Push'
 
 vi.mock('lodash', () => ({
@@ -6,15 +9,20 @@ vi.mock('lodash', () => ({
 }))
 
 describe('objects/performances/Push', () => {
-  let dispatch
-
   beforeEach(() => {
-    dispatch = vi.fn(async () => false)
+    const pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
+    })
+
+    setActivePinia(pinia)
   })
 
   it('should complete Push performance upon call to Push.perform', async () => {
-    await Push.perform(dispatch)
+    const repository_remotes = fetch_repository_remotes_store()
 
-    expect(dispatch).toHaveBeenCalledWith('repository/push')
+    await Push.perform()
+
+    expect(repository_remotes.push).toHaveBeenCalledWith()
   })
 })

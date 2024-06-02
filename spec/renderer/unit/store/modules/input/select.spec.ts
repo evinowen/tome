@@ -1,12 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import _select, { State as SelectState } from '@/store/modules/input/select'
-import { cloneDeep } from 'lodash'
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_input_select_store } from '@/store/modules/input/select'
 import { v4 as uuidv4 } from 'uuid'
-
-interface State {
-  select: SelectState
-}
 
 class MockHTMLElement {
   getBoundingClientRect () {
@@ -20,22 +15,15 @@ class MockHTMLElement {
 }
 
 describe('store/modules/input/select', () => {
-  let select
+  let input_select
 
   let element
   let set
   let options
 
-  const factory = {
-    wrap: () => new Vuex.Store<State>({
-      modules: {
-        select,
-      },
-    }),
-  }
-
   beforeEach(() => {
-    select = cloneDeep(_select)
+    setActivePinia(createPinia())
+    input_select = fetch_input_select_store()
 
     element = (new MockHTMLElement()) as HTMLElement
     set = vi.fn()
@@ -50,188 +38,157 @@ describe('store/modules/input/select', () => {
     vi.clearAllMocks()
   })
 
-  it('should mount into test scafolding without error', async () => {
-    const store = factory.wrap()
-    expect(store).toBeDefined()
-  })
-
   it('should populate state upon dispatch of show', async () => {
-    const store = factory.wrap()
+    const identifier = await input_select.show({ element, set, options })
 
-    const identifier = await store.dispatch('select/show', { element, set, options })
-
-    expect(store.state.select.identifier).toEqual(identifier)
-    expect(store.state.select.element).toEqual(element)
-    expect(store.state.select.set).toEqual(set)
-    expect(store.state.select.options).toEqual(options)
-    expect(store.state.select.active).toEqual(options)
+    expect(input_select.identifier).toEqual(identifier)
+    expect(input_select.element).toEqual(element)
+    expect(input_select.set).toEqual(set)
+    expect(input_select.options).toEqual(options)
+    expect(input_select.active).toEqual(options)
   })
 
   it('should set visible state upon dispatch of show', async () => {
-    const store = factory.wrap()
+    await input_select.show({ element, set, options })
 
-    await store.dispatch('select/show', { element, set, options })
-
-    expect(store.state.select.visible).toEqual(true)
+    expect(input_select.visible).toEqual(true)
   })
 
   it('should reduce active options state including value matches upon dispatch of filter with valid identifier', async () => {
-    const store = factory.wrap()
+    const identifier = await input_select.show({ element, set, options })
 
-    const identifier = await store.dispatch('select/show', { element, set, options })
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(3)
 
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(3)
+    await input_select.filter({ identifier, value: 'value-a' })
 
-    await store.dispatch('select/filter', { identifier, value: 'value-a' })
-
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(1)
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(1)
   })
 
   it('should not reduce active options including value matches state upon dispatch of filter with invalid identifier', async () => {
-    const store = factory.wrap()
+    await input_select.show({ element, set, options })
 
-    await store.dispatch('select/show', { element, set, options })
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(3)
 
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(3)
+    await input_select.filter({ identifier: uuidv4().toString(), value: 'value-a' })
 
-    await store.dispatch('select/filter', { identifier: uuidv4().toString(), value: 'value-a' })
-
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(3)
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(3)
   })
 
   it('should reduce active options state including label matches upon dispatch of filter with valid identifier', async () => {
-    const store = factory.wrap()
+    const identifier = await input_select.show({ element, set, options })
 
-    const identifier = await store.dispatch('select/show', { element, set, options })
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(3)
 
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(3)
+    await input_select.filter({ identifier, value: 'label-a' })
 
-    await store.dispatch('select/filter', { identifier, value: 'label-a' })
-
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(1)
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(1)
   })
 
   it('should not reduce active options including label matches state upon dispatch of filter with invalid identifier', async () => {
-    const store = factory.wrap()
+    await input_select.show({ element, set, options })
 
-    await store.dispatch('select/show', { element, set, options })
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(3)
 
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(3)
+    await input_select.filter({ identifier: uuidv4().toString(), value: 'label-a' })
 
-    await store.dispatch('select/filter', { identifier: uuidv4().toString(), value: 'label-a' })
-
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(3)
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(3)
   })
 
   it('should restore active options state upon dispatch of filter with blank value and valid identifier', async () => {
-    const store = factory.wrap()
+    const identifier = await input_select.show({ element, set, options })
 
-    const identifier = await store.dispatch('select/show', { element, set, options })
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(3)
 
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(3)
+    await input_select.filter({ identifier, value: 'value-a' })
 
-    await store.dispatch('select/filter', { identifier, value: 'value-a' })
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(1)
 
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(1)
+    await input_select.filter({ identifier, value: '' })
 
-    await store.dispatch('select/filter', { identifier, value: '' })
-
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(3)
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(3)
   })
 
   it('should not restore active options state upon dispatch of filter with blank value and valid identifier', async () => {
-    const store = factory.wrap()
+    const identifier = await input_select.show({ element, set, options })
 
-    const identifier = await store.dispatch('select/show', { element, set, options })
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(3)
 
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(3)
+    await input_select.filter({ identifier, value: 'value-a' })
 
-    await store.dispatch('select/filter', { identifier, value: 'value-a' })
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(1)
 
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(1)
+    await input_select.filter({ identifier: uuidv4().toString(), value: '' })
 
-    await store.dispatch('select/filter', { identifier: uuidv4().toString(), value: '' })
-
-    expect(store.state.select.options).toHaveLength(3)
-    expect(store.state.select.active).toHaveLength(1)
+    expect(input_select.options).toHaveLength(3)
+    expect(input_select.active).toHaveLength(1)
   })
 
-  it('should call set state function upon dispatch of set with valid identifier', async () => {
-    const store = factory.wrap()
+  it('should call set state function upon dispatch of select with valid identifier', async () => {
+    const identifier = await input_select.show({ element, set, options })
 
-    const identifier = await store.dispatch('select/show', { element, set, options })
-
-    expect(store.state.select.element).toEqual(element)
-    expect(store.state.select.visible).toEqual(true)
+    expect(input_select.element).toEqual(element)
+    expect(input_select.visible).toEqual(true)
 
     const option = options[0]
-    await store.dispatch('select/set', { identifier, option })
+    await input_select.select({ identifier, option })
 
     expect(set).toHaveBeenCalledWith(option)
   })
 
-  it('should not call set state function upon dispatch of set with invalid identifier', async () => {
-    const store = factory.wrap()
+  it('should not call set state function upon dispatch of select with invalid identifier', async () => {
+    await input_select.show({ element, set, options })
 
-    await store.dispatch('select/show', { element, set, options })
-
-    expect(store.state.select.element).toEqual(element)
-    expect(store.state.select.visible).toEqual(true)
+    expect(input_select.element).toEqual(element)
+    expect(input_select.visible).toEqual(true)
 
     const option = options[0]
-    await store.dispatch('select/set', { identifier: uuidv4().toString(), option })
+    await input_select.select({ identifier: uuidv4().toString(), option })
 
     expect(set).not.toHaveBeenCalled()
   })
 
   it('should set false visible state upon dispatch of hide with valid identifier', async () => {
-    const store = factory.wrap()
+    const identifier = await input_select.show({ element, set, options })
 
-    const identifier = await store.dispatch('select/show', { element, set, options })
+    expect(input_select.visible).toEqual(true)
 
-    expect(store.state.select.visible).toEqual(true)
+    await input_select.hide({ identifier })
 
-    await store.dispatch('select/hide', { identifier })
-
-    expect(store.state.select.visible).toEqual(false)
+    expect(input_select.visible).toEqual(false)
   })
 
   it('should not set false visible state upon dispatch of hide with invalid identifier', async () => {
-    const store = factory.wrap()
+    await input_select.show({ element, set, options })
 
-    await store.dispatch('select/show', { element, set, options })
+    expect(input_select.visible).toEqual(true)
 
-    expect(store.state.select.visible).toEqual(true)
+    await input_select.hide({ identifier: uuidv4().toString() })
 
-    await store.dispatch('select/hide', { identifier: uuidv4().toString() })
-
-    expect(store.state.select.visible).toEqual(true)
+    expect(input_select.visible).toEqual(true)
   })
 
   it('should set false visible state upon dispatch of close', async () => {
-    const store = factory.wrap()
+    const identifier = await input_select.show({ element, set, options })
 
-    const identifier = await store.dispatch('select/show', { element, set, options })
+    expect(input_select.identifier).toEqual(identifier)
+    expect(input_select.visible).toEqual(true)
 
-    expect(store.state.select.identifier).toEqual(identifier)
-    expect(store.state.select.visible).toEqual(true)
+    await input_select.close({ identifier })
 
-    await store.dispatch('select/close', { identifier })
-
-    expect(store.state.select.identifier).toEqual('')
-    expect(store.state.select.visible).toEqual(false)
+    expect(input_select.identifier).toEqual('')
+    expect(input_select.visible).toEqual(false)
   })
 })

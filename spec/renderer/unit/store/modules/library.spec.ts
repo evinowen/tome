@@ -1,69 +1,60 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import _library, { State as LibraryState } from '@/store/modules/library'
-import { cloneDeep } from 'lodash'
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_library_store } from '@/store/modules/library'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_repository_store } from '@/store/modules/repository'
 import Disk from '../../../mocks/support/disk'
 import dialog from '../../../mocks/support/dialog'
 import { set_disk } from '?/builders/api/file'
 import * as api_module from '@/api'
 import builders from '?/builders'
 
+vi.mock('@/store/modules/files', () => ({
+  fetch_files_store: vi.fn(),
+}))
+
+vi.mock('@/store/modules/repository', () => ({
+  fetch_repository_store: vi.fn(),
+}))
+
 const mocked_api = builders.api()
 Object.assign(api_module, { default: mocked_api })
 
-interface State {
-  library: LibraryState
-}
-
 describe('store/modules/library', () => {
   let library
-  let repository
+
   let files
+  let repository
+
+  const mock_fetch_files_store = vi.mocked(fetch_files_store)
+  const mock_fetch_repository_store = vi.mocked(fetch_repository_store)
 
   const disk = new Disk()
   set_disk(disk)
 
-  const factory = {
-    wrap: () => new Vuex.Store<State>({
-      modules: {
-        library,
-        repository,
-        files,
-      },
-    }),
-  }
-
   beforeEach(() => {
+    setActivePinia(createPinia())
+
     disk.reset_disk()
     disk.set_content('./library.json', [ './first_path', './second_path', './third_path' ].join('\n'))
 
     dialog.reset_dialog()
 
-    library = cloneDeep(_library)
+    files = {
+      clear: vi.fn(),
+      initialize: vi.fn(),
+    }
+
+    mock_fetch_files_store.mockReturnValue(files)
 
     repository = {
-      namespaced: true,
-      actions: {
-        load: vi.fn(),
-        clear: vi.fn(),
-      },
-      modules: {
-        committer: {
-          namespaced: true,
-          actions: {
-            inspect: vi.fn(),
-          },
-        },
-      },
+      open: vi.fn(),
+      clear: vi.fn(),
     }
 
-    files = {
-      namespaced: true,
-      actions: {
-        clear: vi.fn(),
-        initialize: vi.fn(),
-      },
-    }
+    mock_fetch_repository_store.mockReturnValue(repository)
+
+    library = fetch_library_store()
   })
 
   afterEach(() => {
@@ -71,167 +62,142 @@ describe('store/modules/library', () => {
   })
 
   it('should populate empty values when initalized', async () => {
-    const store = factory.wrap()
-
-    expect(store.state.library.path).toEqual('')
-    expect(store.state.library.history).toEqual([])
+    expect(library.path).toEqual('')
+    expect(library.history).toEqual([])
   })
 
   it('should load without records file on load dispatch', async () => {
     await mocked_api.file.delete('./library.json')
-    const store = factory.wrap()
-
-    expect(store.state.library.path).toEqual('')
-    expect(store.state.library.history).toEqual([])
+    expect(library.path).toEqual('')
+    expect(library.history).toEqual([])
 
     const path = './library.json'
     const paths = []
-    await store.dispatch('library/load', path)
+    await library.load(path)
 
-    expect(store.state.library.path).toEqual(path)
-    expect(store.state.library.history).toEqual(paths)
+    expect(library.path).toEqual(path)
+    expect(library.history).toEqual(paths)
   })
 
   it('should load if file history fails on load dispatch', async () => {
     disk.set_content('./library.json', '')
 
-    const store = factory.wrap()
-
-    expect(store.state.library.path).toEqual('')
-    expect(store.state.library.history).toEqual([])
+    expect(library.path).toEqual('')
+    expect(library.history).toEqual([])
 
     const path = './library.json'
     const paths = []
-    await store.dispatch('library/load', path)
+    await library.load(path)
 
-    expect(store.state.library.path).toEqual(path)
-    expect(store.state.library.history).toEqual(paths)
+    expect(library.path).toEqual(path)
+    expect(library.history).toEqual(paths)
   })
 
   it('should load even without records on load dispatch', async () => {
     disk.set_content('./library.json', '\n\n\n\n\n\n')
-    const store = factory.wrap()
-
-    expect(store.state.library.path).toEqual('')
-    expect(store.state.library.history).toEqual([])
+    expect(library.path).toEqual('')
+    expect(library.history).toEqual([])
 
     const path = './library.json'
     const paths = []
-    await store.dispatch('library/load', path)
+    await library.load(path)
 
-    expect(store.state.library.path).toEqual(path)
-    expect(store.state.library.history).toEqual(paths)
+    expect(library.path).toEqual(path)
+    expect(library.history).toEqual(paths)
   })
 
   it('should load history from records on load dispatch', async () => {
-    const store = factory.wrap()
-
-    expect(store.state.library.path).toEqual('')
-    expect(store.state.library.history).toEqual([])
+    expect(library.path).toEqual('')
+    expect(library.history).toEqual([])
 
     const path = './library.json'
     const paths = [ './first_path', './second_path', './third_path' ]
-    await store.dispatch('library/load', path)
+    await library.load(path)
 
-    expect(store.state.library.path).toEqual(path)
-    expect(store.state.library.history).toEqual(paths)
+    expect(library.path).toEqual(path)
+    expect(library.history).toEqual(paths)
   })
 
   it('should add record to history on add dispatch', async () => {
-    const store = factory.wrap()
-
-    expect(store.state.library.path).toEqual('')
-    expect(store.state.library.history).toEqual([])
+    expect(library.path).toEqual('')
+    expect(library.history).toEqual([])
 
     const path = './library.json'
     const paths = [ './first_path', './second_path', './third_path', './fourth_path' ]
 
-    await store.dispatch('library/load', path)
-    await store.dispatch('library/add', './fourth_path')
+    await library.load(path)
+    await library.add('./fourth_path')
 
-    expect(store.state.library.path).toEqual(path)
-    expect(store.state.library.history).toEqual(paths)
+    expect(library.path).toEqual(path)
+    expect(library.history).toEqual(paths)
   })
 
   it('should not add record to history when it already exists on add dispatch', async () => {
-    const store = factory.wrap()
-
-    expect(store.state.library.path).toEqual('')
-    expect(store.state.library.history).toEqual([])
+    expect(library.path).toEqual('')
+    expect(library.history).toEqual([])
 
     const path = './library.json'
     const paths = [ './first_path', './second_path', './third_path' ]
 
-    await store.dispatch('library/load', path)
-    await store.dispatch('library/add', './third_path')
+    await library.load(path)
+    await library.add('./third_path')
 
-    expect(store.state.library.path).toEqual(path)
-    expect(store.state.library.history).toEqual(paths)
+    expect(library.path).toEqual(path)
+    expect(library.history).toEqual(paths)
   })
 
   it('should remove record from history on remove dispatch', async () => {
-    const store = factory.wrap()
-
-    expect(store.state.library.path).toEqual('')
-    expect(store.state.library.history).toEqual([])
+    expect(library.path).toEqual('')
+    expect(library.history).toEqual([])
 
     const path = './library.json'
     const paths = [ './first_path', './second_path', './third_path' ]
 
-    await store.dispatch('library/load', path)
-    await store.dispatch('library/remove', paths.pop())
+    await library.load(path)
+    await library.remove(paths.pop())
 
-    expect(store.state.library.path).toEqual(path)
-    expect(store.state.library.history).toEqual(paths)
+    expect(library.path).toEqual(path)
+    expect(library.history).toEqual(paths)
   })
 
   it('should not remove record from history when path does not exist on remove dispatch', async () => {
-    const store = factory.wrap()
-
-    expect(store.state.library.path).toEqual('')
-    expect(store.state.library.history).toEqual([])
+    expect(library.path).toEqual('')
+    expect(library.history).toEqual([])
 
     const path = './library.json'
     const paths = [ './first_path', './second_path', './third_path' ]
 
-    await store.dispatch('library/load', path)
-    await store.dispatch('library/remove', './forth_path')
+    await library.load(path)
+    await library.remove('./forth_path')
 
-    expect(store.state.library.path).toEqual(path)
-    expect(store.state.library.history).toEqual(paths)
+    expect(library.path).toEqual(path)
+    expect(library.history).toEqual(paths)
   })
 
   it('should call to select_directory on select dispatch', async () => {
-    const store = factory.wrap()
-
-    await store.dispatch('library/select')
+    await library.select()
     expect(mocked_api.file.select_directory).toHaveBeenCalled()
   })
 
   it('should return quickly when select cancelled with undefined result on select dispatch', async () => {
     dialog.trip_canceled_dialog()
 
-    const store = factory.wrap()
-
-    const result = await store.dispatch('library/select')
+    const result = await library.select()
     expect(result).toBeUndefined()
   })
 
   it('should call to open on successful select after select dispatch', async () => {
-    library.actions.open = vi.fn()
+    library.open = vi.fn()
 
-    const store = factory.wrap()
+    await library.select()
 
-    await store.dispatch('library/select')
-
-    expect(library.actions.open).toHaveBeenCalled()
+    expect(library.open).toHaveBeenCalled()
   })
 
   it('should cascade clears on close dispatch', async () => {
-    const store = factory.wrap()
-    await store.dispatch('library/close')
+    await library.close()
 
-    expect(repository.actions.clear).toHaveBeenCalled()
-    expect(files.actions.clear).toHaveBeenCalled()
+    expect(repository.clear).toHaveBeenCalled()
+    expect(files.clear).toHaveBeenCalled()
   })
 })

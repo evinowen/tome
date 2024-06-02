@@ -29,8 +29,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_system_store } from '@/store/modules/system'
 
 export interface Properties {
   status?: string
@@ -42,18 +41,13 @@ withDefaults(defineProps<Properties>(), {
   message: '',
 })
 
-const store = fetchStore()
-
-const open = computed(() => {
-  return store.state.system.console
-})
+const system = fetch_system_store()
 
 async function click () {
-  await store.dispatch('system/console', !open.value)
+  await system.page({ console: !system.console })
 }
 
 defineExpose({
-  open,
   click,
 })
 </script>

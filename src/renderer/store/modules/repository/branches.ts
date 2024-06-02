@@ -1,4 +1,4 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
 import api, { RepositoryBranch } from '@/api'
 
 export interface State {
@@ -11,35 +11,29 @@ export const StateDefaults = (): State => ({
   active: '',
 })
 
-export default {
-  namespaced: true,
+export const fetch_repository_branches_store = defineStore('repository-branches', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    load: function (state, { active, list }) {
-      state.list = list
-      state.active = active
-    },
-  },
-  actions: <ActionTree<State, unknown>>{
-    load: async function (context) {
+  actions: {
+    load: async function () {
       const { active, list } = await api.repository.branch_status()
-      context.commit('load', { active, list })
+      this.list = list
+      this.active = active
     },
-    create: async function (context, name) {
+    create: async function (name) {
       await api.repository.branch_create(name)
-      await context.dispatch('load')
+      await this.load()
     },
-    select: async function (context, name) {
+    select: async function (name) {
       await api.repository.branch_select(name)
-      await context.dispatch('load')
+      await this.load()
     },
-    rename: async function (context, { name, value }) {
+    rename: async function ({ name, value }) {
       await api.repository.branch_rename(name, value)
-      await context.dispatch('load')
+      await this.load()
     },
-    remove: async function (context, name) {
+    remove: async function (name) {
       await api.repository.branch_remove(name)
-      await context.dispatch('load')
+      await this.load()
     },
   },
-}
+})

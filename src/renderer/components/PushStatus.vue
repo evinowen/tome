@@ -1,5 +1,8 @@
 <template>
-  <v-card style="height: 100%" class="d-flex flex-column">
+  <v-card
+    class="d-flex flex-column"
+    style="height: 100%"
+  >
     <template v-if="active">
       <template v-if="loading">
         <v-list-item ref="loading-view">

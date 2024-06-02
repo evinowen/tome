@@ -1,27 +1,27 @@
 <template>
   <utility-page
     right
-    :title="repository.comparator.reference"
-    :subtitle="repository.comparator.type"
+    :title="repository_comparator.reference"
+    :subtitle="repository_comparator.type"
     :layer="5"
     :open="system.patch"
     @close="close"
   >
     <div class="flex-grow-0">
       <div class="patch-message">
-        {{ repository.comparator.message }}
+        {{ repository_comparator.message }}
       </div>
     </div>
 
     <div class="flex-grow-1 mb-3">
       <div
-        v-if="repository.comparator.patches.length === 0"
+        v-if="repository_comparator.patches.length === 0"
         class="patches-empty"
       >
         No Content
       </div>
       <div
-        v-for="(file, file_index) in repository.comparator.patches"
+        v-for="(file, file_index) in repository_comparator.patches"
         :key="file_index"
         :class="[ file_index ? 'mt-4' : '']"
       >
@@ -53,8 +53,8 @@ export { RepositoryPatchLineType } from '@/store/modules/repository/comparator'
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 import UtilityPage from '@/components/UtilityPage.vue'
 import {
   VCard,
@@ -62,13 +62,11 @@ import {
   VCardTitle,
 } from 'vuetify/components'
 
-const store = fetchStore()
-
-const system = computed(() => store.state.system)
-const repository = computed(() => store.state.repository)
+const system = fetch_system_store()
+const repository_comparator = fetch_repository_comparator_store()
 
 async function close () {
-  await store.dispatch('system/patch', false)
+  await system.page({ patch: false })
 }
 
 function line_color (type) {

@@ -40,7 +40,7 @@ export default {
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import { syntaxHighlighting } from '@codemirror/language'
 import { Compartment, Extension } from '@codemirror/state'
 import { EditorView, lineNumbers } from '@codemirror/view'
@@ -54,13 +54,13 @@ import ExampleMarkdown from './Content/Example.md?raw'
 import ExampleJavaScript from './Content/Example.js?raw'
 import ExampleHTML from './Content/Example.html?raw'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
 const language = ref('markdown')
 
 const theme = computed(() => {
-  return store.state.configuration.dark_mode
-    ? store.state.configuration.themes.dark.compose
-    : store.state.configuration.themes.light.compose
+  return configuration.dark_mode
+    ? configuration.themes.dark.compose
+    : configuration.themes.light.compose
 })
 
 const content = computed(() => {
@@ -111,7 +111,7 @@ onMounted(() => {
 })
 
 const line_numbers = computed((): boolean => {
-  return store.state.configuration.line_numbers
+  return configuration.line_numbers
 })
 
 watch(line_numbers, configure_line_numbers)

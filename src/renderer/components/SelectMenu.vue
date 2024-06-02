@@ -30,7 +30,7 @@ export type Option = SelectOption
 
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_input_select_store } from '@/store/modules/input/select'
 import { VTextField } from 'vuetify/components'
 import { ClickOutside as vClickOutside } from 'vuetify/directives'
 
@@ -53,7 +53,7 @@ const emit = defineEmits([
   'update',
 ])
 
-const store = fetchStore()
+const input_select = fetch_input_select_store()
 
 const base = ref<HTMLElement>()
 const input = ref<HTMLElement>()
@@ -62,7 +62,7 @@ const model = ref('')
 
 watchEffect(() => update(properties.value))
 
-const open = computed(() => store.state.input.select.identifier === identifier.value)
+const open = computed(() => input_select.identifier === identifier.value)
 
 function include () {
   return [ ...base.value.querySelectorAll('*') ]
@@ -70,13 +70,13 @@ function include () {
 
 async function focus (value) {
   if (value) {
-    identifier.value = await store.dispatch('input/select/show', { element: base.value, set, options: properties.options })
+    identifier.value = await input_select.show({ element: base.value, set, options: properties.options })
   }
 }
 
 async function update (value) {
   model.value = value
-  await store.dispatch('input/select/filter', { identifier: identifier.value, value })
+  await input_select.filter({ identifier: identifier.value, value })
 }
 
 function set (option: Option) {

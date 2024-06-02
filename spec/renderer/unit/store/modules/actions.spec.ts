@@ -1,65 +1,61 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import actions, { State as ActionState } from '@/store/modules/actions'
-import { cloneDeep } from 'lodash'
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_actions_store } from '@/store/modules/actions'
+import { fetch_files_store } from '@/store/modules/files'
 import Disk from '../../../mocks/support/disk'
 import { set_disk } from '?/builders/api/file'
 import * as api_module from '@/api'
 import builders from '?/builders'
 
+vi.mock('@/store/log', () => ({
+  fetch_log_store: vi.fn(() => ({
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  })),
+}))
+
+vi.mock('@/store/modules/files', () => ({
+  fetch_files_store: vi.fn(),
+}))
+
 const mocked_api = builders.api()
 Object.assign(api_module, { default: mocked_api })
 
-interface State {
-  actions: ActionState
-}
-
 describe('store/modules/actions', () => {
-  let store
+  let actions
 
   let files
   let post
 
-  const log = vi.fn()
-
   const disk = new Disk()
   set_disk(disk)
 
+  const mock_fetch_files_store = vi.mocked(fetch_files_store)
+
   beforeEach(() => {
+    setActivePinia(createPinia())
+
     disk.reset_disk()
 
     post = undefined
     files = {
-      namespaced: true,
-      state: {
-        active: undefined,
-        content: undefined,
-        error: undefined,
-        tree: undefined,
-        ghost: undefined,
-        selected: undefined,
-        editing: false,
-        post: undefined,
-        watcher: undefined,
-      },
-      actions: {
-        create: vi.fn(),
-        identify: vi.fn(() => ({})),
-        ghost: vi.fn((context, criteria) => {
-          post = criteria.post
-        }),
-        select: vi.fn(),
-        save: vi.fn(),
-      },
+      create: vi.fn(),
+      identify: vi.fn(async () => ({})),
+      haunt: vi.fn(async (criteria) => {
+        post = criteria.post
+      }),
+      load: vi.fn(),
+      select: vi.fn(),
+      save: vi.fn(),
     }
 
-    store = new Vuex.Store<State>(cloneDeep({
-      actions: { log },
-      modules: {
-        actions,
-        files,
-      },
-    }))
+    mock_fetch_files_store.mockReturnValue(files)
+
+    actions = fetch_actions_store()
   })
 
   afterEach(() => {
@@ -67,19 +63,19 @@ describe('store/modules/actions', () => {
   })
 
   it('should populate empty values when initalized', async () => {
-    expect(store.state.actions.target).toEqual({ base: '', absolute: '', relative: '' })
-    expect(store.state.actions.options).toEqual([])
+    expect(actions.target).toEqual({ base: '', absolute: '', relative: '' })
+    expect(actions.options).toEqual([])
   })
 
   it('should set path and base then load action list when load is dispatched', async () => {
     const project = '/project'
 
-    await store.dispatch('actions/load', { path: project })
+    await actions.load({ path: project })
 
-    expect(store.state.actions.target).not.toBeUndefined()
-    expect(store.state.actions.target.base).toEqual(project)
-    expect(store.state.actions.target.absolute).toEqual('/project/.tome/actions')
-    expect(store.state.actions.options.length).toBeGreaterThan(0)
+    expect(actions.target).not.toBeUndefined()
+    expect(actions.target.base).toEqual(project)
+    expect(actions.target.absolute).toEqual('/project/.tome/actions')
+    expect(actions.options.length).toBeGreaterThan(0)
   })
 
   it('should fail gracefully if path does not contain actions when load is dispatched', async () => {
@@ -87,11 +83,11 @@ describe('store/modules/actions', () => {
 
     disk.unset_disk('/project/.tome/actions')
 
-    await store.dispatch('actions/load', { path: project })
+    await actions.load({ path: project })
 
-    expect(store.state.actions.target).not.toBeUndefined()
-    expect(store.state.actions.target.base).toEqual(project)
-    expect(store.state.actions.options).toEqual([])
+    expect(actions.target).not.toBeUndefined()
+    expect(actions.target.base).toEqual(project)
+    expect(actions.options).toEqual([])
   })
 
   it('should fail gracefully if actions in path is a file when load is dispatched', async () => {
@@ -99,11 +95,11 @@ describe('store/modules/actions', () => {
 
     disk.unset_disk('/project/.tome/actions')
 
-    await store.dispatch('actions/load', { path: project })
+    await actions.load({ path: project })
 
-    expect(store.state.actions.target).not.toBeUndefined()
-    expect(store.state.actions.target.base).toEqual(project)
-    expect(store.state.actions.options).toEqual([])
+    expect(actions.target).not.toBeUndefined()
+    expect(actions.target.base).toEqual(project)
+    expect(actions.options).toEqual([])
   })
 
   it('should execute actions against the target path when execute is dispatched', async () => {
@@ -111,8 +107,8 @@ describe('store/modules/actions', () => {
     const action = 'example.action.a'
     const target = '/project/first'
 
-    await store.dispatch('actions/load', { path: project })
-    await store.dispatch('actions/execute', { name: action, target })
+    await actions.load({ path: project })
+    await actions.execute({ name: action, target })
 
     expect(mocked_api.action.invoke).toHaveBeenCalledWith(`${project}/.tome/actions/${action}`, target, undefined)
   })
@@ -125,8 +121,8 @@ describe('store/modules/actions', () => {
     const target = '/project/first'
     const input = 'Example Input'
 
-    await store.dispatch('actions/load', { path: project })
-    await store.dispatch('actions/execute', { name: action, target, input })
+    await actions.load({ path: project })
+    await actions.execute({ name: action, target, input })
 
     expect(mocked_api.action.invoke).toHaveBeenCalledWith(`${project}/.tome/actions/${action}`, target, input)
   })
@@ -138,8 +134,8 @@ describe('store/modules/actions', () => {
     const action = 'example.action.a'
     const target = '/project/first'
 
-    await store.dispatch('actions/load', { path: project })
-    const { error } = await store.dispatch('actions/execute', { name: action, target })
+    await actions.load({ path: project })
+    const { error } = await actions.execute({ name: action, target })
 
     expect(error).not.toBeUndefined()
   })
@@ -151,8 +147,8 @@ describe('store/modules/actions', () => {
     const action = 'example.action.a'
     const target = '/project/first'
 
-    await store.dispatch('actions/load', { path: project })
-    const { error } = await store.dispatch('actions/execute', { name: action, target })
+    await actions.load({ path: project })
+    const { error } = await actions.execute({ name: action, target })
 
     expect(error).not.toBeUndefined()
   })
@@ -162,27 +158,27 @@ describe('store/modules/actions', () => {
     const action = 'example.action.z'
     const target = '/project/first'
 
-    await store.dispatch('actions/load', { path: project })
-    await store.dispatch('actions/execute', { name: action, target })
+    await actions.load({ path: project })
+    await actions.execute({ name: action, target })
   })
 
   it('should trigger a file ghost and post processing when ghost is dispatched', async () => {
     const project = '/project'
 
-    await store.dispatch('actions/load', { path: project })
+    await actions.load({ path: project })
 
     expect(post).toBeUndefined()
-    expect(files.actions.ghost).toHaveBeenCalledTimes(0)
+    expect(files.haunt).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('actions/ghost')
+    await actions.ghost()
 
     expect(post).not.toBeUndefined()
-    expect(files.actions.ghost).toHaveBeenCalledTimes(1)
+    expect(files.haunt).toHaveBeenCalledTimes(1)
 
     await post(project)
 
-    expect(files.actions.create).toHaveBeenCalledTimes(1)
-    expect(files.actions.save).toHaveBeenCalledTimes(1)
-    expect(files.actions.select).toHaveBeenCalledTimes(1)
+    expect(files.create).toHaveBeenCalledTimes(1)
+    expect(files.save).toHaveBeenCalledTimes(1)
+    expect(files.select).toHaveBeenCalledTimes(1)
   })
 })

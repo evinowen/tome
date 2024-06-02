@@ -3,7 +3,7 @@
     <utility-page
       bottom
       fixed
-      :title="repository.branches.active"
+      :title="repository_branches.active"
       subtitle="History"
       :layer="1"
       :open="system.history"
@@ -16,7 +16,7 @@
       >
         <div class="history-list">
           <div
-            v-for="item, in repository.history.items"
+            v-for="item, in repository_history.items"
             :key="item.oid"
             class="history-list-row"
           >
@@ -60,9 +60,11 @@
               <div
                 v-for="tag_item in tag_list(item.oid)"
                 :key="tag_item.name"
-                class="history-tag pa-1"
+                class="history-tag py-1 px-2"
               >
-                <v-icon>mdi-tag</v-icon>
+                <v-icon class="mr-1">
+                  mdi-tag
+                </v-icon>
                 {{ tag_item.name }}
               </div>
             </div>
@@ -72,9 +74,9 @@
         </div>
         <div class="d-flex justify-center align-center">
           <v-btn
-            v-if="!repository.history.rooted"
+            v-if="!repository_history.rooted"
             class="ma-3"
-            :loading="repository.history.paging"
+            :loading="repository_history.paging"
             @click="page"
           >
             Load More
@@ -117,7 +119,7 @@
       </template>
     </utility-page>
     <history-tag-commit
-      :visible="store.state.system.history_tag"
+      :visible="system.history_tag"
       :oid="history_tag_target"
       @close="tag_prompt(false)"
       @create="(name) => tag_create(name, history_tag_target)"
@@ -126,8 +128,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, ref } from 'vue'
-import { fetchStore } from '@/store'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_history_store } from '@/store/modules/repository/history'
+import { fetch_repository_tags_store } from '@/store/modules/repository/tags'
+import { fetch_repository_branches_store } from '@/store/modules/repository/branches'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 import { DateTime } from 'luxon'
 import UtilityPage from '@/components/UtilityPage.vue'
 import HistoryTagCommit from '@/components/HistoryTagCommit.vue'
@@ -136,13 +142,14 @@ import {
   VIcon,
 } from 'vuetify/components'
 
-const store = fetchStore()
+const system = fetch_system_store()
+const repository_history = fetch_repository_history_store()
+const repository_tags = fetch_repository_tags_store()
+const repository_branches = fetch_repository_branches_store()
+const repository_comparator = fetch_repository_comparator_store()
 
 const list = ref<HTMLElement>()
 const ticker = ref<ReturnType<typeof setTimeout>>()
-
-const system = computed(() => store.state.system)
-const repository = computed(() => store.state.repository)
 
 const history_tag_target = ref('')
 
@@ -157,15 +164,15 @@ onUnmounted(() => {
 })
 
 async function branches () {
-  await store.dispatch('system/branches', true)
+  await system.page({ branches: true })
 }
 
 async function tags () {
-  await store.dispatch('system/tags', true)
+  await system.page({ tags: true })
 }
 
 function tag_list (oid) {
-  return store.state.repository.tags.list.filter((tag) => tag.oid === oid)
+  return repository_tags.list.filter((tag) => tag.oid === oid)
 }
 
 async function tag_prompt (value, oid = '') {
@@ -173,20 +180,20 @@ async function tag_prompt (value, oid = '') {
     history_tag_target.value = oid
   }
 
-  await store.dispatch('system/history_tag', value)
+  await system.page({ history_tag: value })
 }
 
 async function tag_create (name, oid) {
-  await store.dispatch('repository/tags/create', { name, oid })
+  await repository_tags.create({ name, oid })
 }
 
 async function close () {
-  await store.dispatch('system/history', false)
+  await system.page({ history: false })
 }
 
-async function scroll (event?: Event) {
-  if (store.state.repository.history.loaded) {
-    if (store.state.repository.history.rooted) {
+async function scroll () {
+  if (repository_history.loaded) {
+    if (repository_history.rooted) {
       return
     }
 
@@ -199,12 +206,12 @@ async function scroll (event?: Event) {
 }
 
 async function page () {
-  await store.dispatch('repository/history/page')
+  await repository_history.page()
 }
 
 async function diff (commit) {
-  await store.dispatch('repository/comparator/diff', { commit: commit.oid })
-  await store.dispatch('system/patch', true)
+  await repository_comparator.diff({ commit: commit.oid })
+  await system.page({ patch: true })
 }
 
 function format_date (date) {
@@ -288,6 +295,7 @@ defineExpose({
 
 .history-tag-box {
   margin-left: 24px;
+  display: flex
 }
 
 .history-tag:hover {

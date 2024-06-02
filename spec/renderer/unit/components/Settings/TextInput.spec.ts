@@ -1,12 +1,10 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { createTestingPinia } from '@pinia/testing'
 import TextInput from '@/components/Settings/TextInput.vue'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 
 vi.mock('lodash', () => ({
   debounce: (callback) => {
@@ -19,8 +17,7 @@ vi.mock('lodash', () => ({
 
 describe('components/Settings/TextInput', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const label = 'name'
   const index = 'name'
@@ -28,7 +25,7 @@ describe('components/Settings/TextInput', () => {
   const factory = assemble(TextInput, { label, index })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           TextInput: BasicComponentStub,
         },
@@ -38,16 +35,10 @@ describe('components/Settings/TextInput', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration: ConfigurationStateDefaults(),
-      },
-      actions: stub_actions([
-        'configuration/update',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -61,6 +52,8 @@ describe('components/Settings/TextInput', () => {
   })
 
   it('should dispatch configuration/update with new value when input emits model update', async () => {
+    const configuration = fetch_configuration_store()
+
     const wrapper = factory.wrap()
 
     const input_field = wrapper.findComponent({ ref: 'input-field' })
@@ -70,6 +63,6 @@ describe('components/Settings/TextInput', () => {
     input_field.vm.$emit('update', value)
 
     const data = { [index]: value }
-    expect(store_dispatch).toHaveBeenCalledWith('configuration/update', data)
+    expect(configuration.update).toHaveBeenCalledWith(data)
   })
 })

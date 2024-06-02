@@ -15,7 +15,7 @@
       >
         <div class="tags-list">
           <div
-            v-for="tag in repository.tags.list"
+            v-for="tag in repository_tags.list"
             :key="tag.name"
             class="tags-list-row"
           >
@@ -67,7 +67,7 @@
       </div>
     </utility-page>
     <tags-remove-confirm
-      :visible="store.state.system.tags_remove_confirm"
+      :visible="system.tags_remove_confirm"
       :tag="tag_remove_target"
       @close="remove_confirm(false)"
       @remove="remove(tag_remove_target)"
@@ -76,8 +76,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { fetchStore } from '@/store'
+import { ref } from 'vue'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_tags_store } from '@/store/modules/repository/tags'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 import { DateTime } from 'luxon'
 import UtilityPage from '@/components/UtilityPage.vue'
 import TagsRemoveConfirm from '@/components/TagsRemoveConfirm.vue'
@@ -86,15 +88,14 @@ import {
   VIcon,
 } from 'vuetify/components'
 
-const store = fetchStore()
-
-const system = computed(() => store.state.system)
-const repository = computed(() => store.state.repository)
+const system = fetch_system_store()
+const repository_tags = fetch_repository_tags_store()
+const repository_comparator = fetch_repository_comparator_store()
 
 const tag_remove_target = ref('')
 
 async function close () {
-  await store.dispatch('system/tags', false)
+  await system.page({ tags: false })
 }
 
 async function remove_confirm (value, name = '') {
@@ -102,16 +103,16 @@ async function remove_confirm (value, name = '') {
     tag_remove_target.value = name
   }
 
-  await store.dispatch('system/tags_remove_confirm', value)
+  await system.page({ tags_remove_confirm: value })
 }
 
 async function diff (oid) {
-  await store.dispatch('repository/comparator/diff', { commit: oid })
-  await store.dispatch('system/patch', true)
+  await repository_comparator.diff({ commit: oid })
+  await system.page({ patch: true })
 }
 
 async function remove (name) {
-  await store.dispatch('repository/tags/remove', name)
+  await repository_tags.remove(name)
 }
 
 function format_date (date) {

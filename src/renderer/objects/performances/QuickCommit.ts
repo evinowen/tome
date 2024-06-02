@@ -1,36 +1,53 @@
 import { delay } from 'lodash'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_log_store } from '@/store/log'
+import { fetch_error_store } from '@/store/modules/error'
+import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
+import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
 
 export default class QuickCommit {
-  static async perform (dispatch: (action: string, data?: unknown) => Promise<boolean>) {
-    await dispatch('log', { level: 'info', message: 'Perform Quick Commit' })
+  static async perform () {
+    const configuration = fetch_configuration_store()
+    const log = fetch_log_store()
+    const error = fetch_error_store()
+    const system = fetch_system_store()
+    const repository_committer = fetch_repository_committer_store()
+    const repository_committer_signature = fetch_repository_committer_signature_store()
+
+    await log.info('Perform Quick Commit')
 
     try {
-      await dispatch('system/console', false)
-      await dispatch('system/push', false)
-      await dispatch('system/settings', false)
+      await system.page({
+        console: false,
+        push: false,
+        settings: false,
+      })
 
-      await dispatch('system/edit', true)
-      await dispatch('system/commit', true)
+      await system.page({
+        edit: true,
+        commit: true,
+      })
 
-      await dispatch('repository/stage', '*')
-      if (!await dispatch('system/commit_confirm', true)) {
-        await dispatch('error/show', {
-          title: 'Quick Commit Error: Signature',
-          message: 'Incomplete commit signature, missing valid Name or E-Mail address.',
-          help: 'quick-commit-error-signature',
-        })
+      if (!await repository_committer_signature.check()) {
+        await error.show(
+          'Quick Commit Error: Signature',
+          'Incomplete commit signature, missing valid Name or E-Mail address.',
+          'quick-commit-error-signature',
+        )
         return
       }
 
-      const push = await dispatch('configuration/read', 'auto_push')
-      await dispatch('system/commit_push', push)
+      await repository_committer.stage('*')
+      await system.page({ commit_confirm: true })
+
+      await system.page({ commit_push: configuration.auto_push })
 
       await new Promise((resolve) => delay(resolve, 500))
 
-      await dispatch('repository/stage', '*')
-      await dispatch('system/perform', 'commit')
+      await system.perform(SystemPerformance.Commit)
     } catch {
-      await dispatch('log', { level: 'error', message: 'Quick Commit failed' })
+      await log.error('Quick Commit failed')
       return
     }
 

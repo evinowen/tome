@@ -69,10 +69,10 @@ export default {
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import { debounce } from 'lodash'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
 
 interface Properties {
   label: string
@@ -87,8 +87,8 @@ const properties = withDefaults(defineProps<Properties>(), {
 defineEmits([ 'input', 'forge' ])
 
 const input = ref<HTMLInputElement>(undefined)
-const value = computed<string>(() => store.state.configuration[properties.index])
-const passphrase = computed<string>(() => store.state.configuration.passphrase)
+const value = computed<string>(() => configuration[properties.index])
+const passphrase = computed<string>(() => configuration.passphrase)
 
 async function select (event) {
   const files = event.target.files || event.dataTransfer.files
@@ -107,13 +107,13 @@ async function clear () {
 }
 
 async function update (path) {
-  await store.dispatch('configuration/update', { [properties.index]: path })
+  await configuration.update({ [properties.index]: path })
 }
 
 const debounce_update = debounce(update, 300)
 
 async function generate () {
-  await store.dispatch('configuration/generate', passphrase.value)
+  await configuration.generate(passphrase.value)
 }
 
 defineExpose({

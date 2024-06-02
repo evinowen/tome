@@ -1,31 +1,40 @@
 import { delay } from 'lodash'
+import { fetch_log_store } from '@/store/log'
+import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
+import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
 
 export default class Commit {
-  static async perform (dispatch: (action: string, data?: unknown) => Promise<boolean>) {
-    await dispatch('log', { level: 'info', message: 'Perform Commit' })
+  static async perform () {
+    const log = fetch_log_store()
+    const system = fetch_system_store()
+    const repository_committer = fetch_repository_committer_store()
+    const repository_committer_signature = fetch_repository_committer_signature_store()
+
+    await log.info('Perform Commit')
 
     try {
-      if (!await dispatch('repository/committer/staged')) {
-        await dispatch('log', { level: 'info', message: 'Commit has no changes staged' })
+      if (!await repository_committer.staged()) {
+        await log.info('Commit has no changes staged')
         return
       }
 
-      await dispatch('repository/committer/commit')
-      await dispatch('repository/committer/signature/message')
+      await repository_committer.commit()
+      await repository_committer_signature.sign_message()
 
-      await dispatch('log', { level: 'info', message: 'Commit done' })
+      await log.info('Commit done')
     } catch {
-      await dispatch('log', { level: 'error', message: 'Commit failed' })
+      await log.error('Commit failed')
       return
     } finally {
-      await dispatch('system/commit_confirm', false)
-      await dispatch('system/commit', false)
+      await system.page({ commit_confirm: false })
+      await system.page({ commit: false })
     }
 
-    if (await dispatch('system/commit_push')) {
+    if (system.commit_push) {
       await new Promise((resolve) => delay(resolve, 100))
 
-      await dispatch('system/perform', 'quick-push')
+      await system.perform(SystemPerformance.QuickPush)
     }
 
     await new Promise((resolve) => delay(resolve, 200))

@@ -2,26 +2,22 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 import UtilityPage from '?/stubs/UtilityPage.vue'
-import { stub_actions } from '?/builders/store'
 import { Settings as LuxonSettings } from 'luxon'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { StateDefaults as TagsStateDefaults } from '@/store/modules/repository/tags'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { createTestingPinia } from '@pinia/testing'
 import Tags from '@/components/Tags.vue'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
+import { fetch_repository_tags_store } from '@/store/modules/repository/tags'
 
 describe('components/Branches', () => {
   let vuetify
-  let store
-  let store_dispatch
-
+  let pinia
   const factory = assemble(Tags)
     .context(() => ({
       vuetify,
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           UtilityPage,
           VBtn: BasicComponent,
@@ -33,46 +29,33 @@ describe('components/Branches', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        repository: {
-          ...RepositoryStateDefaults(),
-          tags: {
-            ...TagsStateDefaults(),
-            list: [
-              {
-                name: 'v1.0.0',
-                oid: '123',
-                date: new Date(),
-              },
-              {
-                name: 'v2.0.0',
-                oid: '456',
-                date: new Date(),
-              },
-              {
-                name: 'v3.0.0',
-                oid: '789',
-                date: new Date(),
-              },
-            ],
-          },
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'repository-tags': {
+          list: [
+            {
+              name: 'v1.0.0',
+              oid: '123',
+              date: new Date(),
+            },
+            {
+              name: 'v2.0.0',
+              oid: '456',
+              date: new Date(),
+            },
+            {
+              name: 'v3.0.0',
+              oid: '789',
+              date: new Date(),
+            },
+          ],
         },
-        system: {
-          ...SystemStateDefaults(),
+        'system': {
           history: true,
         },
       },
-      actions: stub_actions([
-        'repository/tags/list',
-        'repository/tags/remove',
-        'system/tags',
-        'system/tags_remove_confirm',
-        'system/patch',
-      ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -80,39 +63,47 @@ describe('components/Branches', () => {
   })
 
   it('should dispatch "system/tags" with false upon call to close', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/tags', false)
+    expect(system.page).toHaveBeenCalledWith({ tags: false })
   })
 
   it('should dispatch "repository/comparator/diff" with commit oid upon call to diff', async () => {
+    const repository_comparator = fetch_repository_comparator_store()
+
     const wrapper = factory.wrap()
 
     const oid = '123'
 
     await wrapper.vm.diff(oid)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/comparator/diff', { commit: oid })
+    expect(repository_comparator.diff).toHaveBeenCalledWith({ commit: oid })
   })
 
   it('should dispatch "system/patch" with true upon call to diff', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     const oid = '123'
 
     await wrapper.vm.diff(oid)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/patch', true)
+    expect(system.page).toHaveBeenCalledWith({ patch: true })
   })
 
   it('should dispatch "system/tags_remove_confirm" with false upon call to remove_confirm with false', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.remove_confirm(false)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/tags_remove_confirm', false)
+    expect(system.page).toHaveBeenCalledWith({ tags_remove_confirm: false })
   })
 
   it('should set tag_remove_target upon call to remove_confirm with true', async () => {
@@ -128,23 +119,27 @@ describe('components/Branches', () => {
   })
 
   it('should dispatch "system/tags_remove_confirm" with false upon call to remove_confirm with true', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     const name = 'v1.0.0'
 
     await wrapper.vm.remove_confirm(true, name)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/tags_remove_confirm', true)
+    expect(system.page).toHaveBeenCalledWith({ tags_remove_confirm: true })
   })
 
   it('should dispatch "repository/tags/remove" with branch name upon call to remove', async () => {
+    const repository_tags = fetch_repository_tags_store()
+
     const wrapper = factory.wrap()
 
     const name = 'v1.0.0'
 
     await wrapper.vm.remove(name)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/tags/remove', name)
+    expect(repository_tags.remove).toHaveBeenCalledWith(name)
   })
 
   it('should format date string upon call to format_date', async () => {

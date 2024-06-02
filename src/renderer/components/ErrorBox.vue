@@ -1,6 +1,6 @@
 <template>
   <overlay-box
-    :visible="visible"
+    :visible="error.visible"
   >
     <v-card>
       <v-card-item>
@@ -10,11 +10,11 @@
           </v-avatar>
         </template>
         <v-card-title>
-          {{ title }}
+          {{ error.title }}
         </v-card-title>
       </v-card-item>
       <v-card-text class="commit">
-        {{ message }}
+        {{ error.message }}
       </v-card-text>
       <v-card-actions>
         <v-btn
@@ -28,7 +28,7 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          v-if="store.state.error.help"
+          v-if="error.help"
           ref="help-button"
           @click="help"
         >
@@ -43,7 +43,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import OverlayBox from '@/components/OverlayBox.vue'
 import {
   VAvatar,
@@ -56,24 +55,20 @@ import {
   VIcon,
   VSpacer,
 } from 'vuetify/components'
-import { fetchStore } from '@/store'
+import { fetch_error_store } from '@/store/modules/error'
 
-const store = fetchStore()
-const visible = computed(() => store.state.error.visible)
-const title = computed(() => store.state.error.title)
-const message = computed(() => store.state.error.message)
+const error = fetch_error_store()
 
 async function confirm () {
-  await store.dispatch('error/hide')
+  await error.hide()
 }
 
 async function help () {
-  await store.dispatch('error/help')
+  await error.help()
 }
 
 defineExpose({
   confirm,
   help,
-  visible,
 })
 </script>

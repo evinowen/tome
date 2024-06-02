@@ -1,12 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ContextStateDefaults } from '@/store/modules/context'
-import { StateDefaults as ErrorStateDefaults } from '@/store/modules/error'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
-import { stub_actions } from '?/builders/store'
+import { createTestingPinia } from '@pinia/testing'
 import ShortcutService from '@/components/ShortcutService.vue'
 import { operate as operate_shortcuts } from '@/modules/Shortcuts'
 import { shortcuts } from '@/shortcuts'
@@ -84,29 +79,25 @@ vi.mocked(shortcuts, true).mockImplementation((key) => (shortcut_map[key] ?? und
 
 describe('components/ShortcutService', () => {
   let vuetify
-  let store
+  let pinia
 
   const factory = assemble(ShortcutService)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
       },
     }))
 
   beforeEach(() => {
     vuetify = createVuetify()
-    store = createStore<State>({
-      state: {
-        context: {
-          ...ContextStateDefaults(),
+
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'context': {
           menu: new ContextMenu(),
         },
-        error: ErrorStateDefaults(),
-        system: SystemStateDefaults(),
       },
-      actions: stub_actions([
-        'context/load',
-      ]),
     })
   })
 

@@ -70,23 +70,23 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { fetchStore } from '@/store'
+import { ref, watch } from 'vue'
+import { fetch_fonts_store } from '@/store/modules/fonts'
+import { fetch_system_store } from '@/store/modules/system'
 
-const store = fetchStore()
+const fonts = fetch_fonts_store()
+const system = fetch_system_store()
 
 const tab = ref<string>('interface')
 
-const system = computed(() => store.state.system)
-
-watch(() => store.state.system.theme_editor, async (value) => {
+watch(() => system.theme_editor, async (value) => {
   if (value) {
-    await store.dispatch('fonts/hydrate')
+    await fonts.hydrate()
   }
 })
 
 async function close () {
-  await store.dispatch('system/theme_editor', false)
+  await system.page({ theme_editor: false })
 }
 
 defineExpose({

@@ -3,7 +3,7 @@
     ref="overlay"
     :class="[
       'overlay',
-      { 'active': store.state.input.select.visible },
+      { 'active': input_select.visible },
     ]"
     @click.stop="close"
   >
@@ -21,10 +21,10 @@
       <div class="options">
         <v-list class="ma-0 pa-0">
           <v-list-item
-            v-for="option in store.state.input.select.active"
+            v-for="option in input_select.active"
             :key="option.value"
             class="option"
-            @click.stop="select(store.state.input.select.identifier, option)"
+            @click.stop="select(input_select.identifier, option)"
           >
             <v-list-item-title>
               {{ option.label }}
@@ -41,24 +41,21 @@
 
 <script lang="ts">
 // Unable to use 'export { Option }' without error in this case
-import { Option as SelectOption } from '@/store/modules/input/select'
+import { fetch_input_select_store, Option as SelectOption } from '@/store/modules/input/select'
 export type Option = SelectOption
 
 </script>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue'
 import {
   VList,
   VListItem,
   VListItemTitle,
   VListItemSubtitle,
 } from 'vuetify/components'
-import { fetchStore } from '@/store'
 
-const store = fetchStore()
-
-const element = computed(() => store.state.input.select.element)
+const input_select = fetch_input_select_store()
 
 const overlay = ref<HTMLElement>()
 const input = ref<HTMLElement>()
@@ -69,13 +66,13 @@ const height = ref(120)
 const width = ref(0)
 
 watchEffect(() => {
-  if (element.value && overlay.value) {
+  if (input_select.element && overlay.value) {
     const overlay_viewport = overlay.value.getBoundingClientRect()
-    const element_viewport = element.value.getBoundingClientRect()
+    const element_viewport = input_select.element.getBoundingClientRect()
 
     const middle = overlay.value.offsetHeight / 2
 
-    if ((element_viewport.bottom - overlay_viewport.top) - (element.value.offsetHeight / 2) > middle) {
+    if ((element_viewport.bottom - overlay_viewport.top) - (input_select.element.offsetHeight / 2) > middle) {
       height.value = (element_viewport.top - overlay_viewport.top)
       top.value = 0
       input.value.classList.remove('input-bottom')
@@ -88,16 +85,16 @@ watchEffect(() => {
     }
 
     left.value = element_viewport.left
-    width.value = element.value.offsetWidth
+    width.value = input_select.element.offsetWidth
   }
 })
 
 async function select (identifier: string, option: Option) {
-  store.dispatch('input/select/set', { identifier, option })
+  input_select.select({ identifier, option })
 }
 
 async function close () {
-  store.dispatch('input/select/close')
+  input_select.close()
 }
 
 defineExpose({

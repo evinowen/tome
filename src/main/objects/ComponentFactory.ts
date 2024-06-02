@@ -17,7 +17,7 @@ export default (namespace) => {
           try {
             payload = await listener(...parameters)
           } catch (error) {
-            log.error(`Action ${namespace} ${channel} error`, error)
+            log.error(`Action ${namespace} ${channel} error`, error, { stack: error.stack })
             throw error
           }
 

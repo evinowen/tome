@@ -24,10 +24,10 @@ export default {
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import { debounce } from 'lodash'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
 
 interface Properties {
   label: string
@@ -41,10 +41,10 @@ const properties = withDefaults(defineProps<Properties>(), {
   index: '',
 })
 
-const value = computed<boolean>(() => store.state.configuration[properties.index])
+const value = computed<boolean>(() => configuration[properties.index])
 
 async function update (value: boolean) {
-  await store.dispatch('configuration/update', { [properties.index]: value })
+  await configuration.update({ [properties.index]: value })
 }
 
 const debounce_update = debounce(update, 100)

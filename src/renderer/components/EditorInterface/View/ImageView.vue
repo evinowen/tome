@@ -48,7 +48,7 @@ export default {
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { File } from '@/store'
+import File from '@/objects/File'
 
 export interface Properties {
   file?: File

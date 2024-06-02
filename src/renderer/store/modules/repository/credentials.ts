@@ -1,4 +1,5 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import api from '@/api'
 
 export interface State {
@@ -17,44 +18,41 @@ export const StateDefaults = (): State => ({
   passphrase: undefined,
 })
 
-export default {
-  namespaced: true,
+export const fetch_repository_credentials_store = defineStore('repository-credentials', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    set: function (state, data) {
-      Object.assign(state, data)
-    },
-  },
-  actions: <ActionTree<State, unknown>>{
-    load: async function (context) {
-      const type = await context.dispatch('configuration/read', 'credential_type', { root: true })
-      const username = await context.dispatch('configuration/read', 'username', { root: true })
-      const password = await context.dispatch('configuration/read', 'password', { root: true })
-      const key = await context.dispatch('configuration/read', 'private_key', { root: true })
-      const passphrase = await context.dispatch('configuration/read', 'passphrase', { root: true })
+  actions: {
+    load: async function () {
+      const configuration = fetch_configuration_store()
 
-      context.commit('set', {
-        type,
-        username,
-        password,
-        key,
-        passphrase,
-      })
+      this.type = configuration.credential_type
+      this.username = configuration.username
+      this.password = configuration.password
+      this.key = configuration.private_key
+      this.passphrase = configuration.passphrase
 
-      switch (context.state.type) {
+      switch (this.type) {
         case 'password': {
-          const { username, password } = context.state
-          await api.repository.credential_password(username, password)
+          await api.repository.credential_password(
+            this.username,
+            this.password,
+          )
           break
         }
 
         case 'key': {
-          const { key: private_key, passphrase } = context.state
-          const { path: public_key } = await api.ssl.generate_public_key(private_key, passphrase)
-          await api.repository.credential_key(private_key, public_key, passphrase)
+          const { path: public_key } = await api.ssl.generate_public_key(
+            this.key,
+            this.passphrase,
+          )
+
+          await api.repository.credential_key(
+            this.key,
+            public_key,
+            this.passphrase,
+          )
           break
         }
       }
     },
   },
-}
+})

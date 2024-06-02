@@ -12,10 +12,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { debounce } from 'lodash'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import TextInput from '@/components/Input/TextInput.vue'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
 
 interface Properties {
   label: string
@@ -31,10 +31,10 @@ const properties = withDefaults(defineProps<Properties>(), {
   placeholder: '',
 })
 
-const value = computed<string>(() => store.state.configuration[properties.index])
+const value = computed<string>(() => configuration[properties.index])
 
 async function update (value: string) {
-  await store.dispatch('configuration/update', { [properties.index]: value })
+  await configuration.update({ [properties.index]: value })
 }
 
 const debounce_update = debounce(update, 500)

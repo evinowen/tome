@@ -1,5 +1,7 @@
-export function operate (store) {
-  const system = store.state.system
+import { fetch_system_store } from '@/store/modules/system'
+
+export function operate () {
+  const system = fetch_system_store()
 
   return class ShortcutOperator {
     static async escape () {
@@ -16,23 +18,19 @@ export function operate (store) {
 
       for (const layer of layers) {
         if (system[layer]) {
-          return await store.dispatch(`system/${layer}`, false)
+          return await system.page({ [layer]: false })
         }
       }
 
-      return await store.dispatch('system/settings', true)
+      return await system.page({ settings: true })
     }
 
     static async layer (layer) {
-      return await store.dispatch(`system/${layer}`, !system[layer])
+      return await system.page({ [layer]: !system[layer] })
     }
 
     static async perform (performance) {
-      await store.dispatch('system/perform', performance)
-    }
-
-    static async dispatch (action) {
-      await store.dispatch(action)
+      await system.perform(performance)
     }
   }
 }

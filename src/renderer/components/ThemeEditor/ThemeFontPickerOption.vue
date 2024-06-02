@@ -4,8 +4,8 @@
       :label="label"
       clearable
       density="compact"
-      :items="fonts"
-      :model-value="target.family"
+      :items="fonts.families"
+      :model-value="family_value"
       @update:model-value="update_family"
     />
     <v-slider
@@ -15,7 +15,7 @@
       show-ticks="always"
       :step="0.25"
       tick-size="4"
-      :model-value="target.size"
+      :model-value="size_value"
       @update:model-value="update_size"
     />
   </div>
@@ -37,11 +37,12 @@ export default {
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_fonts_store } from '@/store/modules/fonts'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
+const fonts = fetch_fonts_store()
 
-const fonts = computed(() => store.state.fonts.families)
 const ticks = [ '0.25', '0.50', '0.75', '1.00', '1.25', '1.50', '1.75', '2.00' ]
 
 interface Properties {
@@ -56,25 +57,15 @@ const properties = withDefaults(defineProps<Properties>(), {
   index: '',
 })
 
-const target = computed(() => {
-  const assemble = (name, data) => {
-    return {
-      store: `configuration/themes/${name}/${properties.section}/update`,
-      family: data[`font_family_${properties.index}`],
-      size: data[`font_size_${properties.index}`],
-    }
-  }
-
-  return store.state.configuration.dark_mode
-    ? assemble('dark', store.state.configuration.themes.dark[properties.section])
-    : assemble('light', store.state.configuration.themes.light[properties.section])
-})
+const theme = computed(() => configuration.dark_mode ? 'dark' : 'light')
+const family_value = computed(() => configuration.themes[theme.value][properties.section][`font_family_${properties.index}`] ?? '')
+const size_value = computed(() => configuration.themes[theme.value][properties.section][`font_size_${properties.index}`] ?? '')
 
 async function update_family (value) {
-  await store.dispatch(target.value.store, { [`font_family_${properties.index}`]: value ?? '' })
+  await configuration.update({ themes: { [theme.value]: { [properties.section]: { [`font_family_${properties.index}`]: value ?? '' } } } })
 }
 
 async function update_size (value) {
-  await store.dispatch(target.value.store, { [`font_size_${properties.index}`]: value ?? '' })
+  await configuration.update({ themes: { [theme.value]: { [properties.section]: { [`font_size_${properties.index}`]: value ?? '' } } } })
 }
 </script>

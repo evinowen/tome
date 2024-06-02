@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, beforeEach, it, expect } from '@jest/globals'
 import RepositoryDelegate from '@/objects/repository/RepositoryDelegate'
 import { RepositoryNotLoadedError } from '@/objects/repository/RepositoryErrors'

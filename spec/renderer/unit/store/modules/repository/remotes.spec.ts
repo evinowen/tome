@@ -1,27 +1,35 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import remotes, { State as RemotesState } from '@/store/modules/repository/remotes'
-import { cloneDeep } from 'lodash'
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 import * as api_module from '@/api'
 import builders from '?/builders'
+
+vi.mock('@/store/log', () => ({
+  fetch_log_store: vi.fn(() => ({
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  })),
+}))
+
+vi.mock('@/store/modules/repository/credentials', () => ({
+  fetch_repository_credentials_store: vi.fn(() => ({
+    load: vi.fn(),
+  })),
+}))
 
 const mocked_api = builders.api()
 Object.assign(api_module, { default: mocked_api })
 
-interface State {
-  remotes: RemotesState
-}
-
 describe('store/modules/repository/remotes', () => {
-  let store
-
-  const log = vi.fn()
+  let repository_remotes
 
   beforeEach(() => {
-    store = new Vuex.Store<State>(cloneDeep({
-      actions: { log },
-      modules: { remotes },
-    }))
+    setActivePinia(createPinia())
+    repository_remotes = fetch_repository_remotes_store()
   })
 
   afterEach(() => {
@@ -29,7 +37,7 @@ describe('store/modules/repository/remotes', () => {
   })
 
   it('should trigger api.repository.remote_list upon load action dispatch', async () => {
-    await store.dispatch('remotes/load')
+    await repository_remotes.load()
 
     expect(mocked_api.repository.remote_list).toHaveBeenCalledTimes(1)
   })
@@ -40,16 +48,16 @@ describe('store/modules/repository/remotes', () => {
     ]
 
     mocked_api.repository.remote_list.mockReturnValueOnce(list)
-    await store.dispatch('remotes/load')
+    await repository_remotes.load()
 
-    expect(store.state.remotes.list).toEqual(list)
+    expect(repository_remotes.list).toEqual(list)
   })
 
   it('should call api.repository.remote_add upon add action dispatch', async () => {
     const name = 'origin'
     const url = 'git@127.0.0.1:username/example.git'
 
-    await store.dispatch('remotes/add', { name, url })
+    await repository_remotes.add({ name, url })
 
     expect(mocked_api.repository.remote_add).toHaveBeenCalledTimes(1)
     expect(mocked_api.repository.remote_add).toHaveBeenCalledWith(name, url)
@@ -58,7 +66,7 @@ describe('store/modules/repository/remotes', () => {
   it('should call api.repository.remote_remove upon remove action dispatch', async () => {
     const name = 'origin'
 
-    await store.dispatch('remotes/remove', { name })
+    await repository_remotes.remove({ name })
 
     expect(mocked_api.repository.remote_remove).toHaveBeenCalledTimes(1)
     expect(mocked_api.repository.remote_remove).toHaveBeenCalledWith(name)

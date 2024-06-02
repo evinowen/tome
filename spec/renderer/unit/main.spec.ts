@@ -1,4 +1,11 @@
 import { describe, afterEach, it, expect, vi } from 'vitest'
+import { createTestingPinia } from '@pinia/testing'
+import { fetch_application_store } from '@/store/application'
+import * as api_module from '@/api'
+import builders from '?/builders'
+
+const mocked_api = builders.api()
+Object.assign(api_module, { default: mocked_api })
 
 const mocked_app = {
   use: vi.fn(),
@@ -17,9 +24,17 @@ vi.doMock('vue', async () => {
   }
 })
 
-const store = { state: {}, dispatch: vi.fn() }
-const key = '1234'
-vi.doMock('@/store', () => ({ store, key }))
+vi.doMock('pinia', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const actual = await vi.importActual('pinia') as any
+  return {
+    ...actual,
+    createPinia: () => createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
+    }),
+  }
+})
 
 const vuetify = {}
 vi.doMock('@/vuetify', () => ({ default: vuetify }))
@@ -37,20 +52,10 @@ describe('main', () => {
   })
 
   it('calls store hydrate action to prepare state', async () => {
-    expect(store.dispatch).not.toHaveBeenCalled()
-
     await import('@/main')
 
-    expect(store.dispatch).toHaveBeenCalled()
-    expect(store.dispatch).toHaveBeenCalledWith('hydrate')
-  })
-
-  it('loads the store plugin with the identified key', async () => {
-    expect(mocked_app.use).not.toHaveBeenCalled()
-
-    await import('@/main')
-
-    expect(mocked_app.use).toHaveBeenCalledWith(store, key)
+    const application = fetch_application_store()
+    expect(application.hydrate).toHaveBeenCalledWith()
   })
 
   it('loads the vuetify plugin', async () => {

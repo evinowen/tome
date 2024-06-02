@@ -1,36 +1,26 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { createTestingPinia } from '@pinia/testing'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import ExplorerNodeEditLabel from '@/components/ExplorerNodeEditLabel.vue'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_validation_store } from '@/store/modules/validation'
 
 describe('components/ExplorerNodeEditLabel', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const path = '/path'
 
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration: ConfigurationStateDefaults(),
-      },
-      actions: stub_actions([
-        'files/blur',
-        'files/submit',
-        'validation/hide',
-        'validation/show',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -40,7 +30,7 @@ describe('components/ExplorerNodeEditLabel', () => {
   const factory = assemble(ExplorerNodeEditLabel, { path, value: '' })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VIcon: BasicComponentStub,
         },
@@ -99,6 +89,8 @@ describe('components/ExplorerNodeEditLabel', () => {
   })
 
   it('should dispatch validation/hide when input element emits blur event', async () => {
+    const validation = fetch_validation_store()
+
     const wrapper = factory.wrap()
 
     const input = wrapper.find<HTMLInputElement>({ ref: 'input' })
@@ -106,10 +98,13 @@ describe('components/ExplorerNodeEditLabel', () => {
     await input.trigger('blur')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('validation/hide', { element: input.element })
+    const element = input.element
+    expect(validation.hide).toHaveBeenCalledWith(element)
   })
 
   it('should dispatch files/blur when input element emits blur event', async () => {
+    const files = fetch_files_store()
+
     const wrapper = factory.wrap()
 
     const input = wrapper.find<HTMLInputElement>({ ref: 'input' })
@@ -117,10 +112,12 @@ describe('components/ExplorerNodeEditLabel', () => {
     await input.trigger('blur')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/blur', { path })
+    expect(files.blur).toHaveBeenCalledWith({ path })
   })
 
   it('should dispatch validation/show with error when input element emits input and value is set to value with special characters', async () => {
+    const validation = fetch_validation_store()
+
     const wrapper = factory.wrap()
 
     const input = wrapper.find<HTMLInputElement>({ ref: 'input' })
@@ -129,15 +126,14 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     await wrapper.vm.$nextTick()
 
-    const context = {
-      element: input.element,
-      message: 'Special characters are not allowed',
-    }
-
-    expect(store_dispatch).toHaveBeenCalledWith('validation/show', context)
+    const element = input.element
+    const message = 'Special characters are not allowed'
+    expect(validation.show).toHaveBeenCalledWith(message, element)
   })
 
   it('should dispatch validation/show with error when input element emits input and value is set to value with adjacent divider characters', async () => {
+    const validation = fetch_validation_store()
+
     const wrapper = factory.wrap()
 
     const input = wrapper.find<HTMLInputElement>({ ref: 'input' })
@@ -146,16 +142,16 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     await wrapper.vm.$nextTick()
 
-    const context = {
-      element: input.element,
-      message: 'Adjacent divider characters are not allowed',
-    }
-
-    expect(store_dispatch).toHaveBeenCalledWith('validation/show', context)
+    const element = input.element
+    const message = 'Adjacent divider characters are not allowed'
+    expect(validation.show).toHaveBeenCalledWith(message, element)
   })
 
   it('should dispatch validation/show with error when input element emits input and value is set to value with spaces when titles are not formatted', async () => {
-    store.state.configuration.format_explorer_titles = false
+    const validation = fetch_validation_store()
+
+    const configuration = fetch_configuration_store()
+    configuration.format_explorer_titles = false
 
     const wrapper = factory.wrap()
 
@@ -165,16 +161,16 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     await wrapper.vm.$nextTick()
 
-    const context = {
-      element: input.element,
-      message: 'Whitespace is not allowed.',
-    }
-
-    expect(store_dispatch).toHaveBeenCalledWith('validation/show', context)
+    const element = input.element
+    const message = 'Whitespace is not allowed.'
+    expect(validation.show).toHaveBeenCalledWith(message, element)
   })
 
   it('should dispatch validation/show with error when input element emits input and value is set to value with dots when titles are formatted', async () => {
-    store.state.configuration.format_explorer_titles = true
+    const validation = fetch_validation_store()
+
+    const configuration = fetch_configuration_store()
+    configuration.format_explorer_titles = true
 
     const wrapper = factory.wrap()
 
@@ -184,16 +180,16 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     await wrapper.vm.$nextTick()
 
-    const context = {
-      element: input.element,
-      message: 'Special characters are not allowed.',
-    }
-
-    expect(store_dispatch).toHaveBeenCalledWith('validation/show', context)
+    const element = input.element
+    const message = 'Special characters are not allowed.'
+    expect(validation.show).toHaveBeenCalledWith(message, element)
   })
 
   it('should dispatch validation/show with error when input element emits input and value is set to value without file extension when titles are not formatted', async () => {
-    store.state.configuration.format_explorer_titles = false
+    const validation = fetch_validation_store()
+
+    const configuration = fetch_configuration_store()
+    configuration.format_explorer_titles = false
 
     const wrapper = factory.wrap()
 
@@ -203,16 +199,16 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     await wrapper.vm.$nextTick()
 
-    const context = {
-      element: input.element,
-      message: 'File extension is required.',
-    }
-
-    expect(store_dispatch).toHaveBeenCalledWith('validation/show', context)
+    const element = input.element
+    const message = 'File extension is required.'
+    expect(validation.show).toHaveBeenCalledWith(message, element)
   })
 
   it('should dispatch validation/show with error when input element emits input and value is set to value without file name when titles are not formatted', async () => {
-    store.state.configuration.format_explorer_titles = false
+    const validation = fetch_validation_store()
+
+    const configuration = fetch_configuration_store()
+    configuration.format_explorer_titles = false
 
     const wrapper = factory.wrap()
 
@@ -222,16 +218,16 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     await wrapper.vm.$nextTick()
 
-    const context = {
-      element: input.element,
-      message: 'File name is required.',
-    }
-
-    expect(store_dispatch).toHaveBeenCalledWith('validation/show', context)
+    const element = input.element
+    const message = 'File name is required.'
+    expect(validation.show).toHaveBeenCalledWith(message, element)
   })
 
   it('should dispatch validation/hide when input element emits input with a valid value set and titles are not formatted', async () => {
-    store.state.configuration.format_explorer_titles = false
+    const validation = fetch_validation_store()
+
+    const configuration = fetch_configuration_store()
+    configuration.format_explorer_titles = false
 
     const wrapper = factory.wrap()
 
@@ -241,15 +237,15 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     await wrapper.vm.$nextTick()
 
-    const context = {
-      element: input.element,
-    }
-
-    expect(store_dispatch).toHaveBeenCalledWith('validation/hide', context)
+    const element = input.element
+    expect(validation.hide).toHaveBeenCalledWith(element)
   })
 
   it('should dispatch validation/hide when input element emits input with a valid value set and titles are formatted', async () => {
-    store.state.configuration.format_explorer_titles = true
+    const validation = fetch_validation_store()
+
+    const configuration = fetch_configuration_store()
+    configuration.format_explorer_titles = true
 
     const wrapper = factory.wrap()
 
@@ -259,15 +255,15 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     await wrapper.vm.$nextTick()
 
-    const context = {
-      element: input.element,
-    }
-
-    expect(store_dispatch).toHaveBeenCalledWith('validation/hide', context)
+    const element = input.element
+    expect(validation.hide).toHaveBeenCalledWith(element)
   })
 
   it('should dispatch files/submit when input element emits input with a valid value set and titles are not formatted', async () => {
-    store.state.configuration.format_explorer_titles = false
+    const files = fetch_files_store()
+
+    const configuration = fetch_configuration_store()
+    configuration.format_explorer_titles = false
 
     const wrapper = factory.wrap()
 
@@ -280,14 +276,17 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     const context = {
       input: input.element.value,
-      title: store.state.configuration.format_explorer_titles,
+      title: configuration.format_explorer_titles,
     }
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/submit', context)
+    expect(files.submit).toHaveBeenCalledWith(context)
   })
 
   it('should not dispatch files/submit when input element emits input with an invalid value set and titles are not formatted', async () => {
-    store.state.configuration.format_explorer_titles = false
+    const files = fetch_files_store()
+
+    const configuration = fetch_configuration_store()
+    configuration.format_explorer_titles = false
 
     const wrapper = factory.wrap()
 
@@ -300,14 +299,17 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     const context = {
       input: input.element.value,
-      title: store.state.configuration.format_explorer_titles,
+      title: configuration.format_explorer_titles,
     }
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/submit', context)
+    expect(files.submit).not.toHaveBeenCalledWith(context)
   })
 
   it('should dispatch files/submit when input element emits input with a valid value set and titles are formatted', async () => {
-    store.state.configuration.format_explorer_titles = true
+    const files = fetch_files_store()
+
+    const configuration = fetch_configuration_store()
+    configuration.format_explorer_titles = true
 
     const wrapper = factory.wrap()
 
@@ -320,14 +322,17 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     const context = {
       input: input.element.value,
-      title: store.state.configuration.format_explorer_titles,
+      title: configuration.format_explorer_titles,
     }
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/submit', context)
+    expect(files.submit).toHaveBeenCalledWith(context)
   })
 
   it('should not dispatch files/submit when input element emits input with an invalid value set and titles are formatted', async () => {
-    store.state.configuration.format_explorer_titles = true
+    const files = fetch_files_store()
+
+    const configuration = fetch_configuration_store()
+    configuration.format_explorer_titles = true
 
     const wrapper = factory.wrap()
 
@@ -340,9 +345,9 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     const context = {
       input: input.element.value,
-      title: store.state.configuration.format_explorer_titles,
+      title: configuration.format_explorer_titles,
     }
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/submit', context)
+    expect(files.submit).not.toHaveBeenCalledWith(context)
   })
 })

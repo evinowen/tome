@@ -1,10 +1,10 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
 import api, { RepositoryHistoricalCommit } from '@/api'
 
 export interface State {
   items: RepositoryHistoricalCommit[]
   loaded: boolean
-  page: number
+  index: number
   paging: boolean
   rooted: boolean
 }
@@ -12,58 +12,42 @@ export interface State {
 export const StateDefaults = (): State => ({
   items: [],
   loaded: false,
-  page: 0,
+  index: 0,
   paging: false,
   rooted: false,
 })
 
-export default {
-  namespaced: true,
+export const fetch_repository_history_store = defineStore('repository-history', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    load: function (state, items: RepositoryHistoricalCommit[]) {
-      state.page = 1
-      state.items = items
-      state.loaded = true
+  actions: {
+    load: async function () {
+      this.index = 1
+      this.items = await api.repository.history_list(1)
+      this.loaded = true
 
-      if (items.some((item) => item.root)) {
-        state.rooted = true
+      if (this.items.some((item) => item.root)) {
+        this.rooted = true
       }
     },
-    page: function (state, items: RepositoryHistoricalCommit[]) {
-      state.page = state.page + 1
-      state.items.push(...items)
-
-      if (items.some((item) => item.root)) {
-        state.rooted = true
+    page: async function () {
+      if (!this.loaded) {
+        return
       }
-    },
-    paging: function (state, value: boolean) {
-      state.paging = value
+
+      if (this.rooted) {
+        return
+      }
+
+      this.paging = true
+
+      this.index = this.index + 1
+      this.items.push(...await api.repository.history_list(this.index))
+
+      if (this.items.some((item) => item.root)) {
+        this.rooted = true
+      }
+
+      this.paging = false
     },
   },
-  actions: <ActionTree<State, unknown>>{
-    load: async function (context) {
-      if (context.state.loaded) {
-        return
-      }
-
-      const list = await api.repository.history_list(1)
-      context.commit('load', list)
-    },
-    page: async function (context) {
-      if (!context.state.loaded) {
-        return
-      }
-
-      if (context.state.rooted) {
-        return
-      }
-
-      context.commit('paging', true)
-      const list = await api.repository.history_list(context.state.page + 1)
-      context.commit('page', list)
-      context.commit('paging', false)
-    },
-  },
-}
+})

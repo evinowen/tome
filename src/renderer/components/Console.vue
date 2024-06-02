@@ -30,23 +30,24 @@
 
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue'
-import { fetchStore } from '@/store'
 import { DateTime } from 'luxon'
+import { fetch_log_store } from '@/store/log'
+import { fetch_system_store } from '@/store/modules/system'
 import ConsolePage from './ConsolePage.vue'
 import ConsoleDetailBox from './ConsoleDetailBox.vue'
 
-const store = fetchStore()
+const log = fetch_log_store()
+const system = fetch_system_store()
 
 const detail = ref(false)
 const level = ref('')
 const message = ref('')
 const stack = ref('')
 
-const system = computed(() => store.state.system)
-const events = computed(() => store.state.events)
+const events = computed(() => log.events)
 
 async function close () {
-  await store.dispatch('system/console', false)
+  await system.page({ console: false })
 }
 
 function show_detail (event) {
@@ -68,7 +69,7 @@ function format_message (message) {
 }
 
 watchEffect(() => {
-  if (!store.state.system.console) {
+  if (!system.console) {
     detail.value = false
   }
 })

@@ -1,34 +1,42 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import files, { State as FileState, ChokidarEvent } from '@/store/modules/files'
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_files_store, ChokidarEvent } from '@/store/modules/files'
 import Disk from '../../../mocks/support/disk'
 import { set_disk } from '?/builders/api/file'
 import * as api_module from '@/api'
 import builders from '?/builders'
-import { scafold as store_scafold } from '?/builders/store'
+
+vi.mock('@/store/log', () => ({
+  fetch_log_store: vi.fn(() => ({
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  })),
+}))
 
 const mocked_api = builders.api()
 Object.assign(api_module, { default: mocked_api })
 
-interface State {
-  files: FileState
-}
-
 describe('store/modules/files', () => {
-  let store
+  let files
 
   const disk = new Disk()
   set_disk(disk)
 
   const identify = async (path) => {
-    const relative = await store.state.files.tree.relative(path)
-    return store.state.files.tree.identify(relative)
+    const relative = await files.tree.relative(path)
+    return files.tree.identify(relative)
   }
 
   beforeEach(() => {
+    setActivePinia(createPinia())
+
     disk.reset_disk()
 
-    store = new Vuex.Store<State>(store_scafold({ modules: { files } }))
+    files = fetch_files_store()
   })
 
   afterEach(() => {
@@ -38,39 +46,39 @@ describe('store/modules/files', () => {
   it('should construct the file tree on initialize', async () => {
     const path = '/project'
 
-    expect(store.state.files.tree).toBeUndefined()
+    expect(files.tree).toBeUndefined()
 
-    await store.dispatch('files/initialize', { path })
+    await files.initialize({ path })
 
-    expect(store.state.files.tree).not.toBeUndefined()
+    expect(files.tree).not.toBeUndefined()
   })
 
   it('should remove the file tree on clear', async () => {
     const path = '/project'
 
-    expect(store.state.files.tree).toBeUndefined()
+    expect(files.tree).toBeUndefined()
 
-    await store.dispatch('files/initialize', { path })
+    await files.initialize({ path })
 
-    expect(store.state.files.tree).not.toBeUndefined()
+    expect(files.tree).not.toBeUndefined()
 
-    await store.dispatch('files/clear')
+    await files.clear()
 
-    expect(store.state.files.tree).toBeUndefined()
+    expect(files.tree).toBeUndefined()
   })
 
   it('should configure event listener for updates to tree path on initialize', async () => {
     const path = '/project'
 
-    expect(store.state.files.tree).toBeUndefined()
+    expect(files.tree).toBeUndefined()
 
     mocked_api.file.subscribe.mockImplementationOnce(async (target, listener) => {
       listener({ event: ChokidarEvent.ADD, path })
     })
 
-    await store.dispatch('files/initialize', { path })
+    await files.initialize({ path })
 
-    expect(store.state.files.tree).not.toBeUndefined()
+    expect(files.tree).not.toBeUndefined()
 
     expect(mocked_api.file.clear_subscriptions).toHaveBeenCalledTimes(1)
     expect(mocked_api.file.subscribe).toHaveBeenCalledTimes(1)
@@ -79,32 +87,32 @@ describe('store/modules/files', () => {
   it('should reconstruct the file tree on reinitialize', async () => {
     const path = '/project'
 
-    expect(store.state.files.tree).toBeUndefined()
+    expect(files.tree).toBeUndefined()
 
-    await store.dispatch('files/initialize', { path })
+    await files.initialize({ path })
 
-    expect(store.state.files.tree).not.toBeUndefined()
+    expect(files.tree).not.toBeUndefined()
 
-    const first = store.state.files.tree
+    const first = files.tree
 
-    await store.dispatch('files/initialize', { path })
+    await files.initialize({ path })
 
-    expect(store.state.files.tree).not.toBe(first)
+    expect(files.tree).not.toBe(first)
   })
 
   it('should expand a collapsed item on toggle', async () => {
     const path = '/project'
     const target = '/project/first'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: target })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: target })
 
     const { item } = await identify(target)
 
     expect(item.expanded).toBeFalsy()
 
-    await store.dispatch('files/toggle', { path: target })
+    await files.toggle({ path: target })
 
     expect(item.expanded).toBeTruthy()
   })
@@ -115,9 +123,9 @@ describe('store/modules/files', () => {
 
     expect(mocked_api.file.open).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/open', { path: target })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.open({ path: target })
 
     expect(mocked_api.file.open).toHaveBeenCalledTimes(1)
   })
@@ -126,16 +134,16 @@ describe('store/modules/files', () => {
     const path = '/project'
     const target = '/project/first'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: target })
-    await store.dispatch('files/toggle', { path: target })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: target })
+    await files.toggle({ path: target })
 
     const { item } = await identify(target)
 
     expect(item.expanded).toBeTruthy()
 
-    await store.dispatch('files/toggle', { path: target })
+    await files.toggle({ path: target })
 
     expect(item.expanded).toBeFalsy()
   })
@@ -144,15 +152,15 @@ describe('store/modules/files', () => {
     const path = '/project'
     const directory = '/project/first'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
 
-    expect(store.state.files.active).toBe('')
+    expect(files.active).toBe('')
 
-    await store.dispatch('files/select', { path: directory })
+    await files.select({ path: directory })
 
-    expect(store.state.files.active).not.toBe('')
+    expect(files.active).not.toBe('')
   })
 
   it('should load the content from targed item on select when the item is a file', async () => {
@@ -160,16 +168,16 @@ describe('store/modules/files', () => {
     const directory = '/project/first'
     const target = '/project/first/a.md'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
-    await store.dispatch('files/load', { path: target })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
+    await files.load({ path: target })
 
-    expect(store.state.files.content).toBe('')
+    expect(files.content).toBe('')
 
-    await store.dispatch('files/select', { path: target })
+    await files.select({ path: target })
 
-    expect(store.state.files.content).not.toBe('')
+    expect(files.content).not.toBe('')
   })
 
   it('should store the content of the selected item on save', async () => {
@@ -177,17 +185,17 @@ describe('store/modules/files', () => {
     const directory = '/project/first'
     const target = '/project/first/a.md'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
-    await store.dispatch('files/load', { path: target })
-    await store.dispatch('files/select', { path: target })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
+    await files.load({ path: target })
+    await files.select({ path: target })
 
     const content = 'Test Content'
 
-    expect(store.state.files.content).not.toBe(content)
+    expect(files.content).not.toBe(content)
 
-    await store.dispatch('files/save', { path: target, content })
+    await files.save({ path: target, content })
 
     expect(mocked_api.file.write).toHaveBeenCalledTimes(1)
   })
@@ -197,14 +205,14 @@ describe('store/modules/files', () => {
     const directory = '/project/first'
     const target = '/project/first/a.md'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
-    await store.dispatch('files/load', { path: target })
-    await store.dispatch('files/ghost', { path: target, directory: true })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
+    await files.load({ path: target })
+    await files.haunt({ path: target, directory: true })
 
-    expect(store.state.files.ghost).toBeDefined()
-    const ghost = store.state.files.directory[store.state.files.ghost]
+    expect(files.ghost).toBeDefined()
+    const ghost = files.directory[files.ghost]
     expect(ghost.parent.path).toBe(directory)
   })
 
@@ -212,13 +220,13 @@ describe('store/modules/files', () => {
     const path = '/project'
     const directory = '/project/first'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
-    await store.dispatch('files/ghost', { path: directory, target: 'a.md', directory: true })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
+    await files.haunt({ path: directory, target: 'a.md', directory: true })
 
-    expect(store.state.files.ghost).toBeDefined()
-    const ghost = store.state.files.directory[store.state.files.ghost]
+    expect(files.ghost).toBeDefined()
+    const ghost = files.directory[files.ghost]
     expect(ghost.parent.path).toBe(directory)
   })
 
@@ -227,20 +235,20 @@ describe('store/modules/files', () => {
     const first = '/project/first'
     const second = '/project/second'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: first })
-    await store.dispatch('files/load', { path: second })
-    await store.dispatch('files/ghost', { path: first, directory: true })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: first })
+    await files.load({ path: second })
+    await files.haunt({ path: first, directory: true })
 
-    expect(store.state.files.ghost).toBeDefined()
-    const ghost_first = store.state.files.directory[store.state.files.ghost]
+    expect(files.ghost).toBeDefined()
+    const ghost_first = files.directory[files.ghost]
     expect(ghost_first.parent.path).toBe(first)
 
-    await store.dispatch('files/ghost', { path: second, directory: true })
+    await files.haunt({ path: second, directory: true })
 
-    expect(store.state.files.ghost).toBeDefined()
-    const ghost_second = store.state.files.directory[store.state.files.ghost]
+    expect(files.ghost).toBeDefined()
+    const ghost_second = files.directory[files.ghost]
     expect(ghost_second.parent.path).toBe(second)
   })
 
@@ -249,17 +257,17 @@ describe('store/modules/files', () => {
     const directory = '/project/first'
     const input = 'new'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
-    await store.dispatch('files/ghost', { path: directory, directory: true })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
+    await files.haunt({ path: directory, directory: true })
 
     const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
     expect(mocked_api.file.create_directory).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('files/submit', { path: directory, input, title: false })
+    await files.submit({ path: directory, input, title: false })
 
     expect(mocked_api.file.create_directory).toHaveBeenCalledTimes(1)
   })
@@ -269,17 +277,17 @@ describe('store/modules/files', () => {
     const directory = '/project/first'
     const input = 'a.md'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
-    await store.dispatch('files/ghost', { path: directory, directory: true })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
+    await files.haunt({ path: directory, directory: true })
 
     const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
     expect(mocked_api.file.create_directory).toHaveBeenCalledTimes(0)
 
-    await expect(store.dispatch('files/submit', { path: directory, input, title: false })).rejects.toBeDefined()
+    await expect(files.submit({ path: directory, input, title: false })).rejects.toBeDefined()
   })
 
   it('should create a new file item on submit when file item is ephemeral', async () => {
@@ -287,17 +295,17 @@ describe('store/modules/files', () => {
     const directory = '/project/first'
     const input = 'new'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
-    await store.dispatch('files/ghost', { path: directory, directory: false })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
+    await files.haunt({ path: directory, directory: false })
 
     const { item } = await identify(directory)
 
     expect(item.directory).toBeTruthy()
     expect(mocked_api.file.create).toHaveBeenCalledTimes(0)
 
-    await store.dispatch('files/submit', { path: directory, input, title: false })
+    await files.submit({ path: directory, input, title: false })
 
     expect(mocked_api.file.create).toHaveBeenCalledTimes(1)
   })
@@ -307,14 +315,14 @@ describe('store/modules/files', () => {
     const directory = '/project/first'
     const input = 'new'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
-    await store.dispatch('files/edit', { path: directory })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
+    await files.edit({ path: directory })
 
     const { item: item_before } = await identify(directory)
 
-    await store.dispatch('files/submit', { input, title: false })
+    await files.submit({ input, title: false })
 
     const { item: item_after } = await identify(path)
 
@@ -328,16 +336,16 @@ describe('store/modules/files', () => {
     const result = '/project/first/new.file.name.md'
     const input = 'New File Name'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
-    await store.dispatch('files/load', { path: target })
-    await store.dispatch('files/edit', { path: target })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
+    await files.load({ path: target })
+    await files.edit({ path: target })
 
     const { item: item_before } = await identify(target)
 
-    await store.dispatch('files/submit', { path: target, input, title: true })
-    await store.dispatch('files/load', { path: directory })
+    await files.submit({ path: target, input, title: true })
+    await files.load({ path: directory })
 
     const { item: item_after } = await identify(result)
 
@@ -352,17 +360,17 @@ describe('store/modules/files', () => {
     const directory = '/project/first'
     const target = '/project/first/a.md'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: directory })
-    await store.dispatch('files/load', { path: target })
-    await store.dispatch('files/edit', { path: target })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: directory })
+    await files.load({ path: target })
+    await files.edit({ path: target })
 
-    expect(store.state.files.editing).toBeTruthy()
+    expect(files.editing).toBeTruthy()
 
-    await store.dispatch('files/blur', { path: target })
+    await files.blur({ path: target })
 
-    expect(store.state.files.editing).toBeFalsy()
+    expect(files.editing).toBeFalsy()
   })
 
   it('should relocate item on move', async () => {
@@ -372,15 +380,15 @@ describe('store/modules/files', () => {
     const proposed_directory = '/project/second'
     const proposed = '/project/second/a.md'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: target_directory })
-    await store.dispatch('files/load', { path: proposed_directory })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: target_directory })
+    await files.load({ path: proposed_directory })
 
     const { item: item_before } = await identify(target)
     expect(item_before).toBeDefined()
 
-    await store.dispatch('files/move', { path: target, proposed: proposed_directory })
+    await files.move({ path: target, proposed: proposed_directory })
 
     const { item: item_previous } = await identify(target)
     const { item: item_current } = await identify(proposed)
@@ -395,18 +403,18 @@ describe('store/modules/files', () => {
     const proposed_directory = '/project/second'
     const proposed = '/project/second/a.md'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: target_directory })
-    await store.dispatch('files/load', { path: proposed_directory })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: target_directory })
+    await files.load({ path: proposed_directory })
 
     const { item: item_before } = await identify(target)
     expect(item_before).toBeDefined()
 
-    await store.dispatch('files/move', { path: target, proposed: proposed_directory })
+    await files.move({ path: target, proposed: proposed_directory })
 
-    await store.dispatch('files/load', { path: target_directory })
-    await store.dispatch('files/load', { path: proposed_directory })
+    await files.load({ path: target_directory })
+    await files.load({ path: proposed_directory })
 
     const { item: item_previous } = await identify(target)
     const { item: item_current } = await identify(proposed)
@@ -421,15 +429,15 @@ describe('store/modules/files', () => {
     const proposed_directory = '/project/first'
     const proposed = '/project/first/a.md'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
-    await store.dispatch('files/load', { path: target_directory })
-    await store.dispatch('files/load', { path: proposed_directory })
+    await files.initialize({ path })
+    await files.load({ path })
+    await files.load({ path: target_directory })
+    await files.load({ path: proposed_directory })
 
     const { item: item_before } = await identify(target)
     expect(item_before).toBeDefined()
 
-    await store.dispatch('files/move', { path: target, proposed: proposed_directory })
+    await files.move({ path: target, proposed: proposed_directory })
 
     const { item: item_previous } = await identify(target)
     const { item: item_current } = await identify(proposed)
@@ -441,14 +449,14 @@ describe('store/modules/files', () => {
     const path = '/project'
     const directory = '/project/third'
 
-    await store.dispatch('files/initialize', { path })
-    await store.dispatch('files/load', { path })
+    await files.initialize({ path })
+    await files.load({ path })
 
     const { item: item_before } = await identify(directory)
 
     expect(item_before).not.toBeUndefined()
 
-    await store.dispatch('files/delete', { path: directory })
+    await files.delete({ path: directory })
 
     const { item: item_after } = await identify(directory)
 

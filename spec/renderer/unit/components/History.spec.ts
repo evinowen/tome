@@ -2,30 +2,25 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 import UtilityPage from '?/stubs/UtilityPage.vue'
-import { stub_actions } from '?/builders/store'
 import { Settings as LuxonSettings } from 'luxon'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { StateDefaults as RepositoryBranchesStateDefaults } from '@/store/modules/repository/branches'
-import { StateDefaults as HistoryStateDefaults } from '@/store/modules/repository/history'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
-import { StateDefaults as TagsStateDefaults } from '@/store/modules/repository/tags'
+import { createTestingPinia } from '@pinia/testing'
 import History from '@/components/History.vue'
-import { wrap } from 'module'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
+import { fetch_repository_history_store } from '@/store/modules/repository/history'
+import { fetch_repository_tags_store } from '@/store/modules/repository/tags'
 
 describe('components/History', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
   let value
 
   const factory = assemble(History, { value })
     .context(() => ({
       vuetify,
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           UtilityPage,
           VBtn: BasicComponent,
@@ -37,50 +32,32 @@ describe('components/History', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        repository: {
-          ...RepositoryStateDefaults(),
-          branches: {
-            ...RepositoryBranchesStateDefaults(),
-            active: 'master',
-          },
-          history: {
-            ...HistoryStateDefaults(),
-            items: [
-              { oid: '1', date: new Date(), message: 'message 1', root: false },
-              { oid: '2', date: new Date(), message: 'message 2', root: false },
-              { oid: '3', date: new Date(), message: 'message 3', root: false },
-            ],
-            loaded: true,
-          },
-          tags: {
-            ...TagsStateDefaults(),
-            list: [
-              { name: 'tag-example-a', oid: '1', date: new Date() },
-              { name: 'tag-example-b', oid: '2', date: new Date() },
-              { name: 'tag-example-c', oid: '3', date: new Date() },
-            ],
-          },
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'repository-branches': {
+          active: 'master',
         },
-        system: {
-          ...SystemStateDefaults(),
+        'repository-history': {
+          items: [
+            { oid: '1', date: new Date(), message: 'message 1', root: false },
+            { oid: '2', date: new Date(), message: 'message 2', root: false },
+            { oid: '3', date: new Date(), message: 'message 3', root: false },
+          ],
+          loaded: true,
+        },
+        'repository-tags': {
+          list: [
+            { name: 'tag-example-a', oid: '1', date: new Date() },
+            { name: 'tag-example-b', oid: '2', date: new Date() },
+            { name: 'tag-example-c', oid: '3', date: new Date() },
+          ],
+        },
+        'system': {
           history: true,
         },
       },
-      actions: stub_actions([
-        'repository/comparator/diff',
-        'repository/history/page',
-        'repository/tags/create',
-        'system/branches',
-        'system/tags',
-        'system/history',
-        'system/history_tag',
-        'system/patch',
-      ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
 
     value = true
   })
@@ -100,77 +77,95 @@ describe('components/History', () => {
   })
 
   it('should dispatch system/history with false upon call to close', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/history', false)
+    expect(system.page).toHaveBeenCalledWith({ history: false })
   })
 
   it('should dispatch repository/history/page upon call to page', async () => {
+    const repository_history = fetch_repository_history_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.page()
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/history/page')
+    expect(repository_history.page).toHaveBeenCalledWith()
   })
 
   it('should dispatch repository/history/page when history rooted flag false upon call to scroll', async () => {
+    const repository_history = fetch_repository_history_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.scroll()
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/history/page')
+    expect(repository_history.page).toHaveBeenCalledWith()
   })
 
   it('should not dispatch repository/history/page when history rooted flag true upon call to scroll', async () => {
-    store.state.repository.history.rooted = true
+    const repository_history = fetch_repository_history_store()
+
+    repository_history.rooted = true
 
     const wrapper = factory.wrap()
 
     await wrapper.vm.scroll()
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('repository/history/page')
+    expect(repository_history.page).not.toHaveBeenCalledWith()
   })
 
   it('should call store to load commit OID into patch upon call to diff', async () => {
+    const repository_comparator = fetch_repository_comparator_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.diff({ oid: 1 })
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/comparator/diff', { commit: 1 })
+    expect(repository_comparator.diff).toHaveBeenCalledWith({ commit: 1 })
   })
 
   it('should dispatch "system/patch" with true upon call to diff', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.diff({ oid: 1 })
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/patch', true)
+    expect(system.page).toHaveBeenCalledWith({ patch: true })
   })
 
   it('should dispatch "system/branches" with true upon call to branches', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.branches()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/branches', true)
+    expect(system.page).toHaveBeenCalledWith({ branches: true })
   })
 
   it('should dispatch "system/tags" with true upon call to tags', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.tags()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/tags', true)
+    expect(system.page).toHaveBeenCalledWith({ tags: true })
   })
 
   it('should dispatch "system/history_tag" with false upon call to tag_prompt with false', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.tag_prompt(false)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/history_tag', false)
+    expect(system.page).toHaveBeenCalledWith({ history_tag: false })
   })
 
   it('should not set history_tag_target upon call to tag_prompt with false', async () => {
@@ -186,11 +181,13 @@ describe('components/History', () => {
   })
 
   it('should dispatch "system/history_tag" with true upon call to tag_prompt with true', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.tag_prompt(true)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/history_tag', true)
+    expect(system.page).toHaveBeenCalledWith({ history_tag: true })
   })
 
   it('should set history_tag_target upon call to tag_prompt with true', async () => {
@@ -206,6 +203,8 @@ describe('components/History', () => {
   })
 
   it('should dispatch "repository/tags/create" with true upon call to tag_create', async () => {
+    const repository_tags = fetch_repository_tags_store()
+
     const wrapper = factory.wrap()
 
     const name = 'v1.0.0'
@@ -213,7 +212,7 @@ describe('components/History', () => {
 
     await wrapper.vm.tag_create(name, oid)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/tags/create', { name, oid })
+    expect(repository_tags.create).toHaveBeenCalledWith({ name, oid })
   })
 
   it('should format date string upon call to format_date', async () => {

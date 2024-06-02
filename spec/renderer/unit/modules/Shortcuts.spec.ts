@@ -1,29 +1,19 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import { stub_actions } from '?/builders/store'
-import { createStore } from 'vuex'
-import { State } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { setActivePinia } from 'pinia'
+import { createTestingPinia } from '@pinia/testing'
 import { operate as operate_shortcuts } from '@/modules/Shortcuts'
+import { fetch_system_store } from '@/store/modules/system'
 
 describe('modules/Shortcuts', () => {
-  let store
-  let store_dispatch
+  let pinia
 
   beforeEach(() => {
-    store = createStore<State>({
-      state: {
-        system: SystemStateDefaults(),
-      },
-      actions: stub_actions([
-        'library/select',
-        'system/commit',
-        'system/edit',
-        'system/perform',
-        'system/settings',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
 
-    store_dispatch = vi.spyOn(store, 'dispatch')
+    setActivePinia(pinia)
   })
 
   afterEach(() => {
@@ -31,55 +21,52 @@ describe('modules/Shortcuts', () => {
   })
 
   it('should mount into test scafolding without error', async () => {
-    const ShortcutOperator = operate_shortcuts(store)
+    const ShortcutOperator = operate_shortcuts()
 
     expect(ShortcutOperator).toBeDefined()
   })
 
   it('should dispatch system/settings with true when escape is called and no flags are set', async () => {
-    const ShortcutOperator = operate_shortcuts(store)
+    const system = fetch_system_store()
+
+    const ShortcutOperator = operate_shortcuts()
 
     await ShortcutOperator.escape()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/settings', true)
+    expect(system.page).toHaveBeenCalledWith({ settings: true })
   })
 
   it('should dispatch system flag for layer name with false when escape is called and layer flag is set', async () => {
-    store.state.system.edit = true
+    const system = fetch_system_store()
+    system.edit = true
 
-    const ShortcutOperator = operate_shortcuts(store)
+    const ShortcutOperator = operate_shortcuts()
 
     await ShortcutOperator.escape()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/edit', false)
+    expect(system.page).toHaveBeenCalledWith({ edit: false })
   })
 
   it('should dispatch system flag for layer name with inverse value when layer is called with a layer name', async () => {
-    const value = store.state.system.commit
-    const ShortcutOperator = operate_shortcuts(store)
+    const system = fetch_system_store()
+
+    const value = system.commit
+    const ShortcutOperator = operate_shortcuts()
 
     const layer = 'commit'
     await ShortcutOperator.layer(layer)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/commit', !value)
+    expect(system.page).toHaveBeenCalledWith({ commit: !value })
   })
 
   it('should dispatch system/perform with perform name when perform is called with a name', async () => {
-    const ShortcutOperator = operate_shortcuts(store)
+    const system = fetch_system_store()
+
+    const ShortcutOperator = operate_shortcuts()
 
     const performance = 'example-performance'
     await ShortcutOperator.perform(performance)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/perform', performance)
-  })
-
-  it('should dispatch specified action when dispatch is called', async () => {
-    const ShortcutOperator = operate_shortcuts(store)
-
-    const dispatch = 'library/select'
-
-    await ShortcutOperator.dispatch(dispatch)
-
-    expect(store_dispatch).toHaveBeenCalledWith(dispatch)
+    expect(system.perform).toHaveBeenCalledWith(performance)
   })
 })

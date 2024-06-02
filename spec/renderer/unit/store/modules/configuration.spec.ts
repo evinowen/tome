@@ -1,21 +1,27 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import configuration, { State as ConfigurationState } from '@/store/modules/configuration'
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import Disk from '../../../mocks/support/disk'
 import { set_disk } from '?/builders/api/file'
 import * as api_module from '@/api'
 import builders from '?/builders'
-import { scafold as store_scafold } from '?/builders/store'
+
+vi.mock('@/store/log', () => ({
+  fetch_log_store: vi.fn(() => ({
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  })),
+}))
 
 const mocked_api = builders.api()
 Object.assign(api_module, { default: mocked_api })
 
-interface State {
-  configuration: ConfigurationState
-}
-
 describe('store/modules/configuration', () => {
-  let store
+  let configuration
 
   const disk = new Disk()
   set_disk(disk)
@@ -30,13 +36,11 @@ describe('store/modules/configuration', () => {
   }))
 
   beforeEach(() => {
+    setActivePinia(createPinia())
+
     disk.reset_disk()
 
-    store = new Vuex.Store<State>(store_scafold({
-      modules: {
-        configuration,
-      },
-    }))
+    configuration = fetch_configuration_store()
   })
 
   afterEach(() => {
@@ -44,39 +48,49 @@ describe('store/modules/configuration', () => {
   })
 
   it('should populate empty values when initalized', async () => {
-    expect(store.state.configuration.name).toBe('')
-    expect(store.state.configuration.email).toBe('')
-    expect(store.state.configuration.private_key).toBe('')
-    expect(store.state.configuration.passphrase).toBe('')
-    expect(store.state.configuration.format_explorer_titles).toBe(true)
+    expect(configuration.name).toBe('')
+    expect(configuration.email).toBe('')
+    expect(configuration.private_key).toBe('')
+    expect(configuration.passphrase).toBe('')
+    expect(configuration.format_explorer_titles).toBe(true)
 
-    expect(store.state.configuration.undefined).toBeUndefined()
+    expect(configuration.undefined).toBeUndefined()
   })
 
   it('should load json from provided file when load is dispatched', async () => {
-    await store.dispatch('configuration/load', 'config.json')
+    mocked_api.file.exists.mockReturnValue(Promise.resolve(true))
+    mocked_api.file.contents.mockReturnValue(Promise.resolve(JSON.stringify({
+      name: 'Test User',
+      email: 'testuser@example.com',
+      private_key: 'id_rsa',
+      passphrase: 'password',
+      format_explorer_titles: false,
+      dark_mode: true,
+    })))
+
+    await configuration.load()
 
     expect(mocked_api.file.contents).toHaveBeenCalledTimes(1)
 
-    expect(store.state.configuration.name).toBe('Test User')
-    expect(store.state.configuration.email).toBe('testuser@example.com')
-    expect(store.state.configuration.private_key).toBe('id_rsa')
-    expect(store.state.configuration.passphrase).toBe('password')
-    expect(store.state.configuration.format_explorer_titles).toBe(false)
+    expect(configuration.name).toBe('Test User')
+    expect(configuration.email).toBe('testuser@example.com')
+    expect(configuration.private_key).toBe('id_rsa')
+    expect(configuration.passphrase).toBe('password')
+    expect(configuration.format_explorer_titles).toBe(false)
   })
 
   it('should load when input file is not able to be parsed when load is dispatched', async () => {
     mocked_api.file.contents.mockImplementationOnce(() => Promise.resolve(''))
 
-    await store.dispatch('configuration/load', 'config.json')
+    await configuration.load()
 
     expect(mocked_api.file.contents).toHaveBeenCalledTimes(1)
 
-    expect(store.state.configuration.name).toBe('')
-    expect(store.state.configuration.email).toBe('')
-    expect(store.state.configuration.private_key).toBe('')
-    expect(store.state.configuration.passphrase).toBe('')
-    expect(store.state.configuration.format_explorer_titles).toBe(true)
+    expect(configuration.name).toBe('')
+    expect(configuration.email).toBe('')
+    expect(configuration.private_key).toBe('')
+    expect(configuration.passphrase).toBe('')
+    expect(configuration.format_explorer_titles).toBe(true)
   })
 
   it('should set values from object when update is dispatched', async () => {
@@ -85,16 +99,16 @@ describe('store/modules/configuration', () => {
       passphrase: 'q1h7$u*3~y:}l$:akiKUa&z%:VhDP|',
     }
 
-    await store.dispatch('configuration/update', update)
+    await configuration.update(update)
 
-    expect(store.state.configuration.name).toBe('New Name')
-    expect(store.state.configuration.email).toBe('')
-    expect(store.state.configuration.private_key).toBe('')
-    expect(store.state.configuration.passphrase).toBe('q1h7$u*3~y:}l$:akiKUa&z%:VhDP|')
+    expect(configuration.name).toBe('New Name')
+    expect(configuration.email).toBe('')
+    expect(configuration.private_key).toBe('')
+    expect(configuration.passphrase).toBe('q1h7$u*3~y:}l$:akiKUa&z%:VhDP|')
   })
 
   it('should save json from provided file when configuration write is dispatched', async () => {
-    await store.dispatch('configuration/write', 'config.json')
+    await configuration.write('config.json')
 
     expect(mocked_api.file.write).toHaveBeenCalledTimes(1)
   })
@@ -110,8 +124,8 @@ describe('store/modules/configuration', () => {
     ]
 
     for (const key of string_keys) {
-      await store.dispatch('configuration/update', { [key]: 'value' })
-      const read = await store.dispatch('configuration/read', key)
+      await configuration.update({ [key]: 'value' })
+      const read = await configuration.read(key)
 
       if (key === 'public_key') {
         expect(read).toBe('ssh-rsa 1234')
@@ -127,21 +141,21 @@ describe('store/modules/configuration', () => {
     ]
 
     for (const key of boolean_keys) {
-      await store.dispatch('configuration/update', { [key]: true })
-      const read_true = await store.dispatch('configuration/read', key)
+      await configuration.update({ [key]: true })
+      const read_true = await configuration.read(key)
       expect(read_true).toBe(true)
 
-      await store.dispatch('configuration/update', { [key]: false })
-      const read_false = await store.dispatch('configuration/read', key)
+      await configuration.update({ [key]: false })
+      const read_false = await configuration.read(key)
       expect(read_false).toBe(false)
     }
 
-    const read_undefined = await store.dispatch('configuration/read', 'not_real_key')
+    const read_undefined = await configuration.read('not_real_key')
     expect(read_undefined).toBeUndefined()
   })
 
   it('should request new ssl key when configuration generate is dispatched', async () => {
-    await store.dispatch('configuration/generate', 'passphrase')
+    await configuration.generate('passphrase')
 
     expect(mocked_api.ssl.generate_private_key).toHaveBeenCalledTimes(1)
   })
@@ -149,20 +163,20 @@ describe('store/modules/configuration', () => {
   it('should present with light mode colors when update is dispatched and dark_mode is false', async () => {
     const update = { dark_mode: false, light_primary_enabled: true, light_primary: '#FFFFFF' }
 
-    await store.dispatch('configuration/update', update)
+    await configuration.update(update)
 
-    expect(store.state.configuration.dark_mode).toBe(false)
-    expect(store.state.configuration.light_primary_enabled).toBe(true)
-    expect(store.state.configuration.light_primary).toBe('#FFFFFF')
+    expect(configuration.dark_mode).toBe(false)
+    expect(configuration.light_primary_enabled).toBe(true)
+    expect(configuration.light_primary).toBe('#FFFFFF')
   })
 
   it('should present with dark mode colors when update is dispatched and dark_mode is true', async () => {
     const update = { dark_mode: true, dark_primary_enabled: true, dark_primary: '#000000' }
 
-    await store.dispatch('configuration/update', update)
+    await configuration.update(update)
 
-    expect(store.state.configuration.dark_mode).toBe(true)
-    expect(store.state.configuration.dark_primary_enabled).toBe(true)
-    expect(store.state.configuration.dark_primary).toBe('#000000')
+    expect(configuration.dark_mode).toBe(true)
+    expect(configuration.dark_primary_enabled).toBe(true)
+    expect(configuration.dark_primary).toBe('#000000')
   })
 })

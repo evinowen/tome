@@ -1,4 +1,8 @@
 import { describe, beforeEach, it, expect, vi } from 'vitest'
+import { setActivePinia } from 'pinia'
+import { createTestingPinia } from '@pinia/testing'
+import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 import Commit from '@/objects/performances/Commit'
 
 vi.mock('lodash', () => ({
@@ -6,75 +10,70 @@ vi.mock('lodash', () => ({
 }))
 
 describe('objects/performances/Commit', () => {
-  let dispatch
-  let repository_committer_staged = vi.fn(() => false)
-  let repository_committer_commit = vi.fn(() => false)
-  let system_commit_push = vi.fn(() => false)
-
   beforeEach(() => {
-    dispatch = vi.fn(async (action) => {
-      switch (action) {
-        case 'repository/committer/staged':
-          return repository_committer_staged()
-
-        case 'repository/committer/commit':
-          return repository_committer_commit()
-
-        case 'system/commit_push':
-          return system_commit_push()
-
-        default:
-          return false
-      }
+    const pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
 
-    repository_committer_staged = vi.fn(() => false)
-    repository_committer_commit = vi.fn(() => false)
-    system_commit_push = vi.fn(() => false)
+    setActivePinia(pinia)
   })
 
   it('should exit Commit performance when "repository/committer/staged" returns false upon call to Commit.perform', async () => {
-    await Commit.perform(dispatch)
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.staged = vi.fn(async () => false)
 
-    expect(dispatch).not.toHaveBeenCalledWith('repository/committer/commit')
+    await Commit.perform()
+
+    expect(repository_committer.commit).not.toHaveBeenCalledWith()
   })
 
   it('should complete Commit performance when "repository/committer/staged" returns true upon call to Commit.perform', async () => {
-    repository_committer_staged.mockReturnValueOnce(true)
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.staged = vi.fn(async () => true)
 
-    await Commit.perform(dispatch)
+    await Commit.perform()
 
-    expect(dispatch).toHaveBeenCalledWith('repository/committer/commit')
+    expect(repository_committer.commit).toHaveBeenCalledWith()
   })
 
   it('should not trigger QuickPush performance when "system/commit_push" returns false upon call to Commit.perform', async () => {
-    repository_committer_staged.mockReturnValueOnce(true)
-    system_commit_push.mockReturnValueOnce(false)
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.staged = vi.fn(async () => true)
 
-    await Commit.perform(dispatch)
+    const system = fetch_system_store()
+    system.commit_push = false
 
-    expect(dispatch).not.toHaveBeenCalledWith('system/perform', 'quick-push')
+    await Commit.perform()
+
+    expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.QuickPush)
   })
 
   it('should trigger QuickPush performance when "system/commit_push" returns true upon call to Commit.perform', async () => {
-    repository_committer_staged.mockReturnValueOnce(true)
-    system_commit_push.mockReturnValueOnce(true)
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.staged = vi.fn(async () => true)
 
-    await Commit.perform(dispatch)
+    const system = fetch_system_store()
+    system.commit_push = true
 
-    expect(dispatch).toHaveBeenCalledWith('system/perform', 'quick-push')
+    await Commit.perform()
+
+    expect(system.perform).toHaveBeenCalledWith(SystemPerformance.QuickPush)
   })
 
   it('should not trigger QuickPush performance when "system/commit_push" returns true if commit fails upon call to Commit.perform', async () => {
-    repository_committer_staged.mockReturnValueOnce(true)
-    system_commit_push.mockReturnValueOnce(true)
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.staged = vi.fn(async () => true)
 
-    repository_committer_commit.mockImplementation(() => {
+    const system = fetch_system_store()
+    system.commit_push = true
+
+    repository_committer.commit = vi.fn(() => {
       throw new Error('Error')
     })
 
-    await Commit.perform(dispatch)
+    await Commit.perform()
 
-    expect(dispatch).not.toHaveBeenCalledWith('system/perform', 'quick-push')
+    expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.QuickPush)
   })
 })

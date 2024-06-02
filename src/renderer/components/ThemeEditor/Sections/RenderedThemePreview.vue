@@ -4,6 +4,7 @@
   <rendered-viewport
     class="pa-4"
     style="height: 320px"
+    type="markdown"
     :content="ExampleMarkdown"
   />
 </template>

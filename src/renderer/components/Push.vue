@@ -33,8 +33,8 @@
               </v-btn>
             </template>
             <push-remote-selector
-              :value="repository.remote.name !== '' ? repository.remote.name : undefined"
-              :items="repository.remotes.list"
+              :value="repository_remotes.active.name !== '' ? repository_remotes.active.name : undefined"
+              :items="repository_remotes.list"
               @update="select_remote"
             />
           </v-card>
@@ -45,7 +45,7 @@
               justify="center"
             >
               <v-col>
-                <push-branch :name="repository.branches.active" />
+                <push-branch :name="repository_branches.active" />
               </v-col>
 
               <v-col
@@ -63,9 +63,9 @@
               <v-col>
                 <push-branch
                   :loading="remote_loading"
-                  :disabled="repository.remote.branch?.name === ''"
-                  :url="repository.remote.branch?.name === '' ? undefined : repository.remote.branch?.name"
-                  :name="repository.remote.branch?.name === '' ? undefined : repository.remote.branch?.short"
+                  :disabled="repository_remotes.active.branch?.name === ''"
+                  :url="repository_remotes.active.branch?.name === '' ? undefined : repository_remotes.active.branch?.name"
+                  :name="repository_remotes.active.branch?.name === '' ? undefined : repository_remotes.active.branch?.short"
                 />
               </v-col>
             </v-row>
@@ -74,11 +74,11 @@
 
         <push-status
           class="flex-grow-1 mb-3"
-          :active="remote_loading || repository.remote.name !== ''"
+          :active="remote_loading || repository_remotes.active.name !== ''"
           :loading="remote_loading"
           error=""
-          :match="repository.pending && repository.pending.length <= 0"
-          :history="repository.pending"
+          :match="repository_remotes.active.pending && repository_remotes.active.pending.length <= 0"
+          :history="repository_remotes.active.pending"
           @commit="diff"
         />
       </div>
@@ -86,7 +86,7 @@
       <template #actions>
         <v-btn
           class="mr-4"
-          :disabled="repository.pending.length === 0"
+          :disabled="repository_remotes.active.pending.length === 0"
           @click.stop="confirm(true)"
         >
           <v-icon class="mr-2">
@@ -107,8 +107,8 @@
     </utility-page>
     <push-confirm
       :visible="system.push_confirm"
-      :waiting="repository.push_working"
-      :history="repository.pending"
+      :waiting="repository_remotes.push.working"
+      :history="repository_remotes.active.pending"
       @close="confirm(false)"
       @inspect="(item) => { confirm(false); diff(item); }"
       @push="push"
@@ -117,8 +117,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { fetchStore } from '@/store'
+import { ref } from 'vue'
+import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
+import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
+import { fetch_repository_branches_store } from '@/store/modules/repository/branches'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 import PushBranch from './PushBranch.vue'
 import PushConfirm from './PushConfirm.vue'
 import PushRemoteSelector from './PushRemoteSelector.vue'
@@ -134,38 +137,38 @@ import {
   VRow,
 } from 'vuetify/components'
 
-const store = fetchStore()
+const system = fetch_system_store()
+const repository_remotes = fetch_repository_remotes_store()
+const repository_branches = fetch_repository_branches_store()
+const repository_comparator = fetch_repository_comparator_store()
 
 const remote_loading = ref<boolean>(false)
 
-const system = computed(() => store.state.system)
-const repository = computed(() => store.state.repository)
-
 async function close () {
-  await store.dispatch('system/push', false)
+  await system.page({ push: false })
 }
 
 async function confirm (value) {
-  await store.dispatch('system/push_confirm', value)
+  await system.page({ push_confirm: value })
 }
 
 async function select_remote (name) {
   remote_loading.value = true
-  await store.dispatch('repository/remote', name)
+  await repository_remotes.select(name)
   remote_loading.value = false
 }
 
 async function diff (commit) {
-  await store.dispatch('repository/comparator/diff', { commit: commit.oid })
-  await store.dispatch('system/patch', true)
+  await repository_comparator.diff({ commit: commit.oid })
+  await system.page({ patch: true })
 }
 
 async function push () {
-  await store.dispatch('system/perform', 'push')
+  await system.perform(SystemPerformance.Push)
 }
 
 async function remotes () {
-  await store.dispatch('system/remotes', true)
+  await system.page({ remotes: true })
 }
 
 defineExpose({

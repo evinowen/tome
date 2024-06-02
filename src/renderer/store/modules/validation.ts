@@ -1,4 +1,4 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
 
 export interface State {
   visible: boolean
@@ -12,33 +12,20 @@ export const StateDefaults = (): State => ({
   element: undefined,
 })
 
-export default {
-  namespaced: true,
+export const fetch_validation_store = defineStore('validation', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    show: function (state, { message, element }) {
-      state.message = message
-      state.element = element
-      state.visible = true
+  actions: {
+    show: async function (message, element) {
+      this.message = message
+      this.element = element
+      this.visible = true
     },
-    hide: function (state, { element }) {
-      if (state.element === element) {
-        state.message = ''
-        state.element = undefined
-        state.visible = false
+    hide: async function (element) {
+      if (this.element === element) {
+        this.message = ''
+        this.element = undefined
+        this.visible = false
       }
     },
   },
-  actions: <ActionTree<State, unknown>>{
-    show: async function (context, state) {
-      const { message, element } = state || {}
-
-      context.commit('show', { message, element })
-    },
-    hide: async function (context, state) {
-      const { element } = state || {}
-
-      context.commit('hide', { element })
-    },
-  },
-}
+})

@@ -84,12 +84,12 @@ export default {
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import { debounce } from 'lodash'
 import { presets } from '@/vuetify'
 import palette from '@/palette'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
 const index = ref('')
 
 interface Properties {
@@ -101,13 +101,13 @@ const properties = withDefaults(defineProps<Properties>(), {
   colors: () => [] as Color[],
 })
 
-const theme = computed(() => store.state.configuration.dark_mode ? 'dark' : 'light')
+const theme = computed(() => configuration.dark_mode ? 'dark' : 'light')
 const preset = computed(() => presets[theme.value][palette[properties.section][index.value]])
-const value = computed(() => store.state.configuration.themes[theme.value][properties.section][index.value] || preset.value)
+const value = computed(() => configuration.themes[theme.value][properties.section][index.value] || preset.value)
 
 async function change (value) {
   if (index.value !== '') {
-    await store.dispatch(`configuration/themes/${theme.value}/${properties.section}/update`, { [index.value]: value })
+    await configuration.update({ themes: { [theme.value]: { [properties.section]: { [index.value]: value } } } })
   }
 }
 

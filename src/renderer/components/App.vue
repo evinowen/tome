@@ -21,7 +21,7 @@
         <theme-editor />
         <console />
 
-        <template v-if="repository.loaded">
+        <template v-if="repository.ready">
           <branches />
           <commit />
           <history />
@@ -74,18 +74,20 @@ import {
 } from 'vuetify/components'
 
 import { computed, nextTick, onMounted, ref, watchEffect } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_application_store, ApplicationStage } from '@/store/application'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_repository_store } from '@/store/modules/repository'
+import { fetch_system_store } from '@/store/modules/system'
 
-const store = fetchStore()
-
-const repository = computed(() => store.state.repository)
-
-const system = computed(() => store.state.system)
+const application = fetch_application_store()
+const configuration = fetch_configuration_store()
+const repository = fetch_repository_store()
+const system = fetch_system_store()
 
 const theme = computed(() => {
-  return store.state.configuration.dark_mode
-    ? { name: 'dark', ...store.state.configuration.themes.dark }
-    : { name: 'light', ...store.state.configuration.themes.light }
+  return configuration.dark_mode
+    ? { name: 'dark', ...configuration.themes.dark }
+    : { name: 'light', ...configuration.themes.light }
 })
 
 const scroll = (event) => {
@@ -100,7 +102,7 @@ onMounted(async () => {
 
 watchEffect(async () => {
   if (ready.value) {
-    await store.dispatch('present', 'application')
+    await application.present(ApplicationStage.Application)
   }
 })
 

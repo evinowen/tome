@@ -1,37 +1,28 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
-import { createStore } from 'vuex'
 import { createVuetify } from 'vuetify'
-import { State, key } from '@/store'
-import { StateDefaults as ContextStateDefaults } from '@/store/modules/context'
+import { createTestingPinia } from '@pinia/testing'
 import ContextMenuService from '@/components/ContextMenuService.vue'
+import { fetch_context_store } from '@/store/modules/context'
 
 describe('components/ContextMenuService', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(ContextMenuService)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
       },
     }))
 
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        context: ContextStateDefaults(),
-      },
-      actions: stub_actions([
-        'context/close',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -45,10 +36,12 @@ describe('components/ContextMenuService', () => {
   })
 
   it('should dispatch context/close with path when close is called', async () => {
+    const context = fetch_context_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('context/close')
+    expect(context.close).toHaveBeenCalledWith()
   })
 })

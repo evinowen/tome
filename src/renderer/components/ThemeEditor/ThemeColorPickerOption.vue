@@ -54,11 +54,11 @@ export default {
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import { presets } from '@/vuetify'
 import palette from '@/palette'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
 
 interface Properties {
   section: string
@@ -72,22 +72,22 @@ const properties = withDefaults(defineProps<Properties>(), {
   index: '',
 })
 
-const theme = computed(() => store.state.configuration.dark_mode ? 'dark' : 'light')
+const theme = computed(() => configuration.dark_mode ? 'dark' : 'light')
 
-const value = computed(() => store.state.configuration.themes[theme.value][properties.section][properties.index])
+const value = computed(() => configuration.themes[theme.value][properties.section][properties.index])
 const enabled = computed(() => value.value !== '')
 const preset = computed(() => presets[theme.value][palette[properties.section][properties.index]])
 
 async function toggle () {
   // eslint-disable-next-line unicorn/prefer-ternary
   if (enabled.value) {
-    await store.dispatch(`configuration/themes/${theme.value}/${properties.section}/update`, { [properties.index]: '' })
+    await configuration.update({ themes: { [theme.value]: { [properties.section]: { [properties.index]: '' } } } })
   } else {
     await reset()
   }
 }
 
 async function reset () {
-  await store.dispatch(`configuration/themes/${theme.value}/${properties.section}/update`, { [properties.index]: preset.value })
+  await configuration.update({ themes: { [theme.value]: { [properties.section]: { [properties.index]: preset.value } } } })
 }
 </script>

@@ -1,6 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import system, { State as SystemState, SystemPerformance } from '@/store/modules/system'
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
 import Commit from '@/objects/performances/Commit'
 import QuickCommit from '@/objects/performances/QuickCommit'
 import AutoCommit from '@/objects/performances/AutoCommit'
@@ -8,77 +8,35 @@ import Push from '@/objects/performances/Push'
 import QuickPush from '@/objects/performances/QuickPush'
 import * as api_module from '@/api'
 import builders from '?/builders'
-import { scafold as store_scafold } from '?/builders/store'
+
+vi.mock('@/store/log', () => ({
+  fetch_log_store: vi.fn(() => ({
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  })),
+}))
+
+vi.mock('@/store/modules/repository', () => ({
+  fetch_repository_store: vi.fn(() => ({
+    ready: true,
+  })),
+}))
 
 const mocked_api = builders.api()
 Object.assign(api_module, { default: mocked_api })
 
-interface State {
-  system: SystemState
-}
-
 describe('store/modules/system', () => {
-  let store
+  let system
+
   const store_action_repository_signature_check = vi.fn()
 
   beforeEach(() => {
-    store = new Vuex.Store<State>(store_scafold({
-      modules: {
-        system,
-        configuration: {
-          namespaced: true,
-          actions: {
-            read: vi.fn(),
-          },
-        },
-        files: {
-          namespaced: true,
-          actions: {
-            debounce_flush: vi.fn(),
-            reselect: vi.fn(),
-          },
-        },
-        repository: {
-          namespaced: true,
-          actions: {
-            commit: vi.fn(),
-            inspect: vi.fn(),
-            push: vi.fn(),
-            loaded: vi.fn(() => true),
-            stage: vi.fn(),
-            staged: vi.fn(),
-          },
-          modules: {
-            committer: {
-              namespaced: true,
-              actions: {
-                inspect: vi.fn(),
-                stage: vi.fn(),
-                staged: vi.fn(),
-              },
-              modules: {
-                signature: {
-                  namespaced: true,
-                  actions: {
-                    name: vi.fn(),
-                    email: vi.fn(),
-                    message: vi.fn(),
-                    uncheck: vi.fn(),
-                    check: store_action_repository_signature_check,
-                  },
-                },
-              },
-            },
-            history: {
-              namespaced: true,
-              actions: {
-                load: vi.fn(),
-              },
-            },
-          },
-        },
-      },
-    }))
+    setActivePinia(createPinia())
+    system = fetch_system_store()
   })
 
   afterEach(() => {
@@ -86,7 +44,7 @@ describe('store/modules/system', () => {
   })
 
   it('should load system metadata on load dispatch', async () => {
-    await store.dispatch('system/load')
+    await system.load()
 
     expect(mocked_api.app.getVersion).toHaveBeenCalled()
     expect(mocked_api.app.getProcess).toHaveBeenCalled()
@@ -94,34 +52,34 @@ describe('store/modules/system', () => {
   })
 
   it('should return current state for key on read dispatch', async () => {
-    const result = await store.dispatch('system/read', 'settings')
+    const result = await system.read('settings')
 
     expect(result).toBe(false)
   })
 
   it('should call for minimize and set maximize flag on minimize dispatch', async () => {
-    await store.dispatch('system/minimize')
+    await system.minimize()
 
     expect(mocked_api.window.minimize).toHaveBeenCalled()
-    expect(store.state.system.maximized).toBe(false)
+    expect(system.maximized).toBe(false)
   })
 
   it('should call for restore and set maximize flag on minimize dispatch', async () => {
-    await store.dispatch('system/restore')
+    await system.restore()
 
     expect(mocked_api.window.restore).toHaveBeenCalled()
-    expect(store.state.system.maximized).toBe(false)
+    expect(system.maximized).toBe(false)
   })
 
   it('should call for maximize and set maximize flag on maximize dispatch', async () => {
-    await store.dispatch('system/maximize')
+    await system.maximize()
 
     expect(mocked_api.window.maximize).toHaveBeenCalled()
-    expect(store.state.system.maximized).toBe(true)
+    expect(system.maximized).toBe(true)
   })
 
   it('should call to exit on exit dispatch', async () => {
-    await store.dispatch('system/exit')
+    await system.exit()
 
     expect(mocked_api.window.close).toHaveBeenCalled()
   })
@@ -144,56 +102,38 @@ describe('store/modules/system', () => {
   ]
 
   for (const flag of flags) {
-    it(`should set ${flag} flag on ${flag} dispatch with defined value`, async () => {
-      expect(store.state.system[flag]).toBe(false)
-      await store.dispatch(`system/${flag}`, true)
-      expect(store.state.system[flag]).toBe(true)
+    it(`should set ${flag} flag on ${flag} dispatch with truthy value`, async () => {
+      expect(system[flag]).toBe(false)
+      await system.page({ [flag]: true })
+      expect(system[flag]).toBe(true)
     })
 
-    it(`should not set ${flag} flag on ${flag} dispatch with undefined value`, async () => {
-      expect(store.state.system[flag]).toBe(false)
-      await store.dispatch(`system/${flag}`, true)
-      expect(store.state.system[flag]).toBe(true)
-      await store.dispatch(`system/${flag}`)
-      expect(store.state.system[flag]).toBe(true)
+    it(`should set ${flag} flag on ${flag} dispatch with falsey value`, async () => {
+      expect(system[flag]).toBe(false)
+      await system.page({ [flag]: true })
+      expect(system[flag]).toBe(true)
+      await system.page({ [flag]: false })
+      expect(system[flag]).toBe(false)
     })
   }
-
-  it('should not set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/committer/signature/check returns false', async () => {
-    store_action_repository_signature_check.mockImplementation(() => false)
-
-    expect(store.state.system.commit_confirm).toBe(false)
-    await store.dispatch('system/commit_confirm', true)
-    expect(store.state.system.commit_confirm).toBe(false)
-  })
 
   it('should set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/committer/signature/check returns true', async () => {
     store_action_repository_signature_check.mockImplementation(() => true)
 
-    expect(store.state.system.commit_confirm).toBe(false)
-    await store.dispatch('system/commit_confirm', true)
-    expect(store.state.system.commit_confirm).toBe(true)
+    expect(system.commit_confirm).toBe(false)
+    await system.page({ commit_confirm: true })
+    expect(system.commit_confirm).toBe(true)
   })
 
   it('should set commit_confirm flag to false on commit_confirm dispatch with falsey value', async () => {
     store_action_repository_signature_check.mockImplementation(() => true)
 
-    expect(store.state.system.commit_confirm).toBe(false)
-    await store.dispatch('system/commit_confirm', true)
-    expect(store.state.system.commit_confirm).toBe(true)
+    expect(system.commit_confirm).toBe(false)
+    await system.page({ commit_confirm: true })
+    expect(system.commit_confirm).toBe(true)
 
-    await store.dispatch('system/commit_confirm', false)
-    expect(store.state.system.commit_confirm).toBe(false)
-  })
-
-  it('should not set commit_confirm flag on commit_confirm dispatch with undefined value', async () => {
-    store_action_repository_signature_check.mockImplementation(() => true)
-
-    expect(store.state.system.commit_confirm).toBe(false)
-    await store.dispatch('system/commit_confirm', true)
-    expect(store.state.system.commit_confirm).toBe(true)
-    await store.dispatch('system/commit_confirm')
-    expect(store.state.system.commit_confirm).toBe(true)
+    await system.page({ commit_confirm: false })
+    expect(system.commit_confirm).toBe(false)
   })
 
   it('should call Commit performance on perform dispatch', async () => {
@@ -201,8 +141,8 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/commit_push', true)
-    await store.dispatch('system/perform', SystemPerformance.Commit)
+    await system.page({ commit_push: true })
+    await system.perform(SystemPerformance.Commit)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -212,7 +152,7 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/perform', SystemPerformance.QuickCommit)
+    await system.perform(SystemPerformance.QuickCommit)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -222,7 +162,7 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/perform', SystemPerformance.AutoCommit)
+    await system.perform(SystemPerformance.AutoCommit)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -232,7 +172,7 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/perform', SystemPerformance.Push)
+    await system.perform(SystemPerformance.Push)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -242,7 +182,7 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/perform', SystemPerformance.QuickPush)
+    await system.perform(SystemPerformance.QuickPush)
 
     expect(spy).toHaveBeenCalled()
   })

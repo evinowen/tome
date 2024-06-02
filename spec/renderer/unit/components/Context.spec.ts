@@ -1,11 +1,10 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { Store, State, key } from '@/store'
-import { stub_actions } from '?/builders/store'
+import { createTestingPinia } from '@pinia/testing'
 import Context from '@/components/Context.vue'
 import ContextMenu from '@/objects/context/ContextMenu'
+import { fetch_context_store } from '@/store/modules/context'
 
 vi.mock('@/objects/context/ContextMenu', () => ({
   default: class {},
@@ -13,16 +12,15 @@ vi.mock('@/objects/context/ContextMenu', () => ({
 
 describe('components/Context', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const menu = new ContextMenu()
 
-  let load: (store: Store<State>) => Promise<ContextMenu>
+  let load: () => Promise<ContextMenu>
 
   const factory = assemble(Context).context(() => ({
     global: {
-      plugins: [ vuetify, [ store, key ] ],
+      plugins: [ vuetify, pinia ],
     },
   }))
 
@@ -31,15 +29,10 @@ describe('components/Context', () => {
 
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {},
-      actions: stub_actions([
-        'context/set',
-        'context/open',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -47,17 +40,21 @@ describe('components/Context', () => {
   })
 
   it('should dispatch context/set on call to context_commands method', async () => {
+    const context = fetch_context_store()
+
     const wrapper = factory.wrap({ load })
     wrapper.vm.context_commands()
 
-    expect(store_dispatch).toHaveBeenCalled()
+    expect(context.set).toHaveBeenCalledWith(load)
   })
 
   it('should dispatch context/open on call to context_menu method', async () => {
+    const context = fetch_context_store()
+
     const wrapper = factory.wrap({ load })
     wrapper.vm.context_menu(new MouseEvent('mousedown'))
 
     const position = { x: 0, y: 0 }
-    expect(store_dispatch).toHaveBeenCalledWith('context/open', { position })
+    expect(context.open).toHaveBeenCalledWith({ position })
   })
 })

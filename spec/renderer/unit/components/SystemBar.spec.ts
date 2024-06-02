@@ -1,24 +1,21 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { createTestingPinia } from '@pinia/testing'
 import SystemBar from '@/components/SystemBar.vue'
+import { fetch_system_store } from '@/store/modules/system'
 
 describe('components/SystemBar', () => {
   const title = 'Test Title'
 
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(SystemBar, { title })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VBtn: BasicComponentStub,
           VIcon: BasicComponentStub,
@@ -31,21 +28,10 @@ describe('components/SystemBar', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        system: SystemStateDefaults(),
-      },
-      actions: stub_actions([
-        'system/exit',
-        'system/maximize',
-        'system/minimize',
-        'system/restore',
-        'system/settings',
-        'system/theme_editor',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(async () => {
@@ -58,45 +44,55 @@ describe('components/SystemBar', () => {
   })
 
   it('should dispatch system/settings with inverted settings value when settings is called', async () => {
-    const value = store.state.system.settings
+    const system = fetch_system_store()
+
+    const value = system.settings
     const wrapper = factory.wrap()
 
     await wrapper.vm.settings()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/settings', !value)
+    expect(system.page).toHaveBeenCalledWith({ settings: !value })
   })
 
   it('should dispatch system/minimize when minimize is called', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.minimize()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/minimize')
+    expect(system.minimize).toHaveBeenCalledWith()
   })
 
   it('should dispatch system/maximize when maximize is called and window is not maximized', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.maximize()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/maximize')
+    expect(system.maximize).toHaveBeenCalledWith()
   })
 
   it('should dispatch system/restore when maximize is called and window is maximized', async () => {
-    store.state.system.maximized = true
+    const system = fetch_system_store()
+
+    system.maximized = true
 
     const wrapper = factory.wrap()
 
     await wrapper.vm.maximize()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/restore')
+    expect(system.restore).toHaveBeenCalledWith()
   })
 
   it('should dispatch system/exit when exit is called', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.exit()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/exit')
+    expect(system.exit).toHaveBeenCalledWith()
   })
 })

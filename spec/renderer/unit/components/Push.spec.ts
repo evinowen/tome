@@ -2,27 +2,21 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import UtilityPage from '?/stubs/UtilityPage.vue'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { StateDefaults as RepositoryBranchesStateDefaults } from '@/store/modules/repository/branches'
-import { StateDefaults as RepositoryCredentialStateDefaults } from '@/store/modules/repository/credentials'
-import { StateDefaults as RepositoryRemotesStateDefaults } from '@/store/modules/repository/remotes'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { createTestingPinia } from '@pinia/testing'
 import Push from '@/components/Push.vue'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 
 describe('components/Push', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(Push)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           UtilityPage,
           CredentialSelector: BasicComponentStub,
@@ -43,38 +37,21 @@ describe('components/Push', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration: ConfigurationStateDefaults(),
-        repository: {
-          ...RepositoryStateDefaults(),
-          credentials: RepositoryCredentialStateDefaults(),
-          remotes: RepositoryRemotesStateDefaults(),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'repository': {
           name: 'Name',
-          branches: {
-            ...RepositoryBranchesStateDefaults(),
-            active: 'master',
-          },
         },
-        system: {
-          ...SystemStateDefaults(),
+        'repository-branches': {
+          active: 'master',
+        },
+        'system': {
           push: true,
           push_confirm: false,
         },
       },
-      actions: stub_actions([
-        'repository/remotes/add',
-        'repository/comparator/diff',
-        'repository/remote',
-        'system/patch',
-        'system/perform',
-        'system/push',
-        'system/push_confirm',
-        'system/remotes',
-      ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -87,64 +64,64 @@ describe('components/Push', () => {
   })
 
   it('should call store to load commit OID into patch when diff is called', async () => {
-    const wrapper = factory.wrap()
+    const repository_comparator = fetch_repository_comparator_store()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
+    const wrapper = factory.wrap()
 
     await wrapper.vm.diff({ oid: 1 })
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/comparator/diff', { commit: 1 })
+    expect(repository_comparator.diff).toHaveBeenCalledWith({ commit: 1 })
   })
 
   it('should dispatch "system/push" upon call to close method', async () => {
-    const wrapper = factory.wrap()
+    const system = fetch_system_store()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
+    const wrapper = factory.wrap()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/push', false)
+    expect(system.page).toHaveBeenCalledWith({ push: false })
   })
 
   it('should dispatch "system/push_confirm" upon call to confirm method', async () => {
-    const wrapper = factory.wrap()
+    const system = fetch_system_store()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
+    const wrapper = factory.wrap()
 
     await wrapper.vm.confirm(false)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/push_confirm', false)
+    expect(system.page).toHaveBeenCalledWith({ push_confirm: false })
   })
 
   it('should dispatch "system/perform" upon call to push method', async () => {
-    const wrapper = factory.wrap()
+    const system = fetch_system_store()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
+    const wrapper = factory.wrap()
 
     await wrapper.vm.push()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/perform', 'push')
+    expect(system.perform).toHaveBeenCalledWith('push')
   })
 
   it('should dispatch "system/remotes" upon call to remotes method', async () => {
-    const wrapper = factory.wrap()
+    const system = fetch_system_store()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
+    const wrapper = factory.wrap()
 
     await wrapper.vm.remotes()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/remotes', true)
+    expect(system.page).toHaveBeenCalledWith({ remotes: true })
   })
 
   it('should dispatch "repository/remote" with name upon call to select_remote method', async () => {
-    const wrapper = factory.wrap()
+    const repository_remotes = fetch_repository_remotes_store()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
+    const wrapper = factory.wrap()
 
     const remote = 'origin'
 
     await wrapper.vm.select_remote(remote)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/remote', remote)
+    expect(repository_remotes.select).toHaveBeenCalledWith(remote)
   })
 })

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, beforeEach, it, expect, jest } from '@jest/globals'
 import * as NodeGit from 'nodegit'
 import RepositoryTagsDelegate from '@/objects/repository/delegates/RepositoryTagsDelegate'

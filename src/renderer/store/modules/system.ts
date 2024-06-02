@@ -1,4 +1,7 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_log_store } from '@/store/log'
+import { fetch_repository_store } from '@/store/modules/repository'
 import api from '@/api'
 import Commit from '@/objects/performances/Commit'
 import QuickCommit from '@/objects/performances/QuickCommit'
@@ -51,6 +54,27 @@ export interface State {
   theme_editor: boolean
 }
 
+export const SystemPages = new Set([
+  'branches',
+  'branches_remove_confirm',
+  'commit',
+  'commit_confirm',
+  'commit_push',
+  'console',
+  'edit',
+  'history',
+  'history_tag',
+  'patch',
+  'push',
+  'push_confirm',
+  'remotes',
+  'search',
+  'settings',
+  'tags',
+  'tags_remove_confirm',
+  'theme_editor',
+])
+
 export const StateDefaults = (): State => ({
   maximized: false,
   branches: false,
@@ -73,182 +97,82 @@ export const StateDefaults = (): State => ({
   theme_editor: false,
 })
 
-export default {
-  namespaced: true,
+export const fetch_system_store = defineStore('system', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    load: function (state, { version, process }) {
-      state.version = version
-      state.process = process
-    },
-    set: function (state, data) {
-      Object.assign(state, data)
-    },
-  },
-  actions: <ActionTree<State, unknown>>{
-    load: async function (context) {
-      const version = await api.app.getVersion()
-      const process = await api.app.getProcess()
-      context.commit('load', { version, process })
+  actions: {
+    load: async function () {
+      this.version = await api.app.getVersion()
+      this.process = await api.app.getProcess()
 
-      const maximized = await api.window.is_maximized()
-      context.commit('set', { maximized })
+      this.maximized = await api.window.is_maximized()
     },
-    read: async function (context, key) {
-      return context.state[key] ?? undefined
+    read: async function (key) {
+      return this[key] ?? undefined
     },
-    minimize: async function (context) {
+    minimize: async function () {
       await api.window.minimize()
-      context.commit('set', { maximized: false })
+      this.maximized = false
     },
-    restore: async function (context) {
+    restore: async function () {
       await api.window.restore()
-      context.commit('set', { maximized: false })
+      this.maximized = false
     },
-    maximize: async function (context) {
+    maximize: async function () {
       await api.window.maximize()
-      context.commit('set', { maximized: true })
+      this.maximized = true
     },
     exit: async function () {
       await api.window.close()
     },
-    perform: async function (context, performance: SystemPerformance) {
-      const ready = await context.dispatch('repository/loaded', undefined, { root: true })
-      if (!ready) {
+    perform: async function (performance: SystemPerformance) {
+      const repository = fetch_repository_store()
+      if (!repository.ready) {
         return
       }
 
-      const dispatch: (action: string, data?: unknown) => Promise<boolean>
-       = async (action: string, data?: unknown) => await context.dispatch(action, data, { root: true }) === true
-
       switch (performance) {
         case SystemPerformance.Commit:
-          await Commit.perform(dispatch)
+          await Commit.perform()
           break
 
         case SystemPerformance.QuickCommit:
-          await QuickCommit.perform(dispatch)
+          await QuickCommit.perform()
           break
 
         case SystemPerformance.AutoCommit:
-          await AutoCommit.perform(dispatch)
+          await AutoCommit.perform()
           break
 
         case SystemPerformance.Push:
-          await Push.perform(dispatch)
+          await Push.perform()
           break
 
         case SystemPerformance.QuickPush:
-          await QuickPush.perform(dispatch)
+          await QuickPush.perform()
           break
       }
     },
-    branches: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { branches: value })
-      return context.state.branches
-    },
-    branches_remove_confirm: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { branches_remove_confirm: value })
-      return context.state.branches_remove_confirm
-    },
-    history: async function (context, value) {
-      if (value) {
-        await context.dispatch('repository/history/load', undefined, { root: true })
-      }
-
-      typeof value !== 'boolean' || context.commit('set', { history: value })
-      return context.state.history
-    },
-    history_tag: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { history_tag: value })
-      return context.state.history_tag
-    },
-    commit: async function (context, value: boolean) {
-      if (value) {
-        await context.dispatch('repository/committer/inspect', undefined, { root: true })
-        await context.dispatch('repository/committer/signature/uncheck', undefined, { root: true })
-      }
-
-      typeof value !== 'boolean' || context.commit('set', { commit: value })
-      return context.state.commit
-    },
-    commit_confirm: async function (context, value) {
-      if (value) {
-        if (!await context.dispatch('repository/committer/signature/check', undefined, { root: true })) {
-          return false
+    page: async function (flags) {
+      for (const page in flags) {
+        if (!SystemPages.has(page)) {
+          continue
         }
 
-        const auto_push = await context.dispatch('configuration/read', 'auto_push', { root: true })
-        await context.dispatch('commit_push', auto_push)
-      }
-
-      typeof value !== 'boolean' || context.commit('set', { commit_confirm: value })
-      return context.state.commit_confirm
-    },
-    commit_push: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { commit_push: value })
-      return context.state.commit_push
-    },
-    console: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { console: value })
-      return context.state.console
-    },
-    edit: async function (context, value) {
-      if (!value) {
-        await context.dispatch('files/debounce_flush', undefined, { root: true })
-        await context.dispatch('files/reselect', undefined, { root: true })
-      }
-
-      typeof value !== 'boolean' || context.commit('set', { edit: value })
-      return context.state.edit
-    },
-    patch: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { patch: value })
-      return context.state.patch
-    },
-    push: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { push: value })
-      return context.state.push
-    },
-    push_confirm: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { push_confirm: value })
-      return context.state.push_confirm
-    },
-    remotes: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { remotes: value })
-      return context.state.remotes
-    },
-    search: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { search: value })
-      return context.state.search
-    },
-    settings: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { settings: value })
-      return context.state.settings
-    },
-    tags: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { tags: value })
-      return context.state.tags
-    },
-    tags_remove_confirm: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { tags_remove_confirm: value })
-      return context.state.tags_remove_confirm
-    },
-    theme_editor: async function (context, value) {
-      typeof value !== 'boolean' || context.commit('set', { theme_editor: value })
-      return context.state.theme_editor
-    },
-    timer: async function (context, timeout: SystemTimeout) {
-      context.dispatch('log', { level: 'trace', message: `System Timer [${timeout}] Triggered` }, { root: true })
-      const auto_commit = await context.dispatch('configuration/read', 'auto_commit', { root: true })
-
-      if (auto_commit) {
-        const auto_commit_interval = await context.dispatch('configuration/read', 'auto_commit_interval', { root: true })
-        if (auto_commit_interval === timeout) {
-          context.dispatch('log', { level: 'debug', message: `Auto-Commit Triggered for timer [${timeout}]` }, { root: true })
-          context.dispatch('perform', SystemPerformance.AutoCommit)
+        if (typeof flags[page] === 'boolean') {
+          this[page] = flags[page]
         }
+      }
+    },
+    timer: async function (timeout: SystemTimeout) {
+      const configuration = fetch_configuration_store()
+      const log = fetch_log_store()
+
+      await log.trace(`System Timer [${timeout}] Triggered`)
+
+      if (configuration.auto_commit && configuration.auto_commit_interval === timeout) {
+        await log.debug(`Auto-Commit Triggered for timer [${timeout}]`)
+        this.perform(SystemPerformance.AutoCommit)
       }
     },
   },
-}
+})

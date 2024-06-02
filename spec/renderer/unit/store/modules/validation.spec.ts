@@ -1,25 +1,13 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import _validation, { State as ValidationState } from '@/store/modules/validation'
-import { cloneDeep } from 'lodash'
-
-interface State {
-  validation: ValidationState
-}
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_validation_store } from '@/store/modules/validation'
 
 describe('store/modules/validation', () => {
   let validation
 
-  const factory = {
-    wrap: () => new Vuex.Store<State>({
-      modules: {
-        validation,
-      },
-    }),
-  }
-
   beforeEach(() => {
-    validation = cloneDeep(_validation)
+    setActivePinia(createPinia())
+    validation = fetch_validation_store()
   })
 
   afterEach(() => {
@@ -27,58 +15,50 @@ describe('store/modules/validation', () => {
   })
 
   it('should populate context on show dispatch', async () => {
-    const store = factory.wrap()
-
-    expect(store.state.validation.message).toEqual('')
-    expect(store.state.validation.element).toEqual(undefined)
+    expect(validation.message).toEqual('')
+    expect(validation.element).toEqual(undefined)
 
     const message = 'Error Message'
     const element = new HTMLElement()
 
-    await store.dispatch('validation/show', { message, element })
+    await validation.show(message, element)
 
-    expect(store.state.validation.message).toEqual(message)
-    expect(store.state.validation.element).toEqual(element)
+    expect(validation.message).toEqual(message)
+    expect(validation.element).toEqual(element)
   })
 
   it('should make visible on show dispatch', async () => {
-    const store = factory.wrap()
-
-    expect(store.state.validation.visible).toEqual(false)
+    expect(validation.visible).toEqual(false)
 
     const message = 'Error Message'
     const element = new HTMLElement()
 
-    await store.dispatch('validation/show', { message, element })
+    await validation.show(message, element)
 
-    expect(store.state.validation.visible).toEqual(true)
+    expect(validation.visible).toEqual(true)
   })
 
   it('should make hidden on hide dispatch when called with current HTMLElement', async () => {
-    const store = factory.wrap()
-
-    expect(store.state.validation.visible).toEqual(false)
+    expect(validation.visible).toEqual(false)
 
     const message = 'Error Message'
     const element = new HTMLElement()
 
-    await store.dispatch('validation/show', { message, element })
-    await store.dispatch('validation/hide', { element })
+    await validation.show(message, element)
+    await validation.hide(element)
 
-    expect(store.state.validation.visible).toEqual(false)
+    expect(validation.visible).toEqual(false)
   })
 
   it('should not make hidden on hide dispatch when called with different HTMLElement', async () => {
-    const store = factory.wrap()
-
-    expect(store.state.validation.visible).toEqual(false)
+    expect(validation.visible).toEqual(false)
 
     const message = 'Error Message'
     const element = new HTMLElement()
 
-    await store.dispatch('validation/show', { message, element })
-    await store.dispatch('validation/hide', { element: new HTMLElement() })
+    await validation.show(message, element)
+    await validation.hide(new HTMLElement())
 
-    expect(store.state.validation.visible).toEqual(true)
+    expect(validation.visible).toEqual(true)
   })
 })

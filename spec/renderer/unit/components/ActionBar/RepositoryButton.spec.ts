@@ -1,17 +1,15 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { stub_actions } from '?/builders/store'
 import VMenu from '?/stubs/VMenu.vue'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
+import { createTestingPinia } from '@pinia/testing'
 import RepositoryButton from '@/components/ActionBar/RepositoryButton.vue'
+import { fetch_files_store } from '@/store/modules/files'
 
 describe('components/RepositoryButton', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const properties = {
     authors: 'AUTHORS.md',
@@ -23,7 +21,7 @@ describe('components/RepositoryButton', () => {
   const factory = assemble(RepositoryButton, properties)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VBtn: BasicComponentStub,
           VCard: BasicComponentStub,
@@ -38,14 +36,10 @@ describe('components/RepositoryButton', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {},
-      actions: stub_actions([
-        'files/select',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -72,6 +66,8 @@ describe('components/RepositoryButton', () => {
   })
 
   it('should dispatch "files/select" action for authors file when authors button emits "click" event', async () => {
+    const files = fetch_files_store()
+
     const wrapper = factory.wrap()
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
@@ -82,10 +78,12 @@ describe('components/RepositoryButton', () => {
     authors_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: properties.authors })
+    expect(files.select).toHaveBeenCalledWith({ path: properties.authors })
   })
 
   it('should dispatch "files/select" action for contributors file when contributors button emits "click" event', async () => {
+    const files = fetch_files_store()
+
     const wrapper = factory.wrap()
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
@@ -96,10 +94,12 @@ describe('components/RepositoryButton', () => {
     contributors_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: properties.contributors })
+    expect(files.select).toHaveBeenCalledWith({ path: properties.contributors })
   })
 
   it('should dispatch "files/select" action for license file when license button emits "click" event', async () => {
+    const files = fetch_files_store()
+
     const wrapper = factory.wrap()
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
@@ -110,10 +110,12 @@ describe('components/RepositoryButton', () => {
     license_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: properties.license })
+    expect(files.select).toHaveBeenCalledWith({ path: properties.license })
   })
 
   it('should dispatch "files/select" action for readme file when readme button emits "click" event', async () => {
+    const files = fetch_files_store()
+
     const wrapper = factory.wrap()
     wrapper.vm.open = true
     await wrapper.vm.$nextTick()
@@ -124,6 +126,6 @@ describe('components/RepositoryButton', () => {
     readme_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: properties.readme })
+    expect(files.select).toHaveBeenCalledWith({ path: properties.readme })
   })
 })

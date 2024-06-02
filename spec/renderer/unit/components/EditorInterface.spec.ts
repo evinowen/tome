@@ -2,30 +2,25 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import SplitPaneComponentStub from '?/stubs/SplitPaneComponentStub'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { StateDefaults as FilesStateDefaults, File } from '@/store/modules/files'
+import { createTestingPinia } from '@pinia/testing'
+import File from '@/objects/File'
 import EditorInterface from '@/components/EditorInterface.vue'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_repository_store } from '@/store/modules/repository'
 
 describe('components/EditorInterface', () => {
   let vuetify
-  let store
+  let pinia
 
   const file_uuid = '1234-test-1234-test'
 
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration: ConfigurationStateDefaults(),
-        system: SystemStateDefaults(),
-        repository: RepositoryStateDefaults(),
-        files: {
-          ...FilesStateDefaults(),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'files': {
           directory: {
             [file_uuid]: new File({
               name: 'Name',
@@ -48,7 +43,7 @@ describe('components/EditorInterface', () => {
     .context(() => (
       {
         global: {
-          plugins: [ vuetify, [ store, key ] ],
+          plugins: [ vuetify, pinia ],
           stubs: {
             Explorer: true,
             FileEdit: true,
@@ -65,10 +60,13 @@ describe('components/EditorInterface', () => {
   })
 
   it('should assign selected file from files directory when active key is set', async () => {
+    const files = fetch_files_store()
+    const repository = fetch_repository_store()
+
     const wrapper = factory.wrap()
 
-    store.state.repository.path = '/path'
-    store.state.files.active = file_uuid
+    repository.path = '/path'
+    files.active = file_uuid
 
     await wrapper.vm.$nextTick()
 
@@ -76,16 +74,19 @@ describe('components/EditorInterface', () => {
   })
 
   it('should clear selected file from files directory when active key is unset', async () => {
+    const files = fetch_files_store()
+    const repository = fetch_repository_store()
+
     const wrapper = factory.wrap()
 
-    store.state.repository.path = '/path'
-    store.state.files.active = file_uuid
+    repository.path = '/path'
+    files.active = file_uuid
 
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.selected).not.toEqual(File.Empty)
 
-    store.state.files.active = ''
+    files.active = ''
 
     await wrapper.vm.$nextTick()
 

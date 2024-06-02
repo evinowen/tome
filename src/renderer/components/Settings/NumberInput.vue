@@ -45,7 +45,7 @@ export default {
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import { debounce } from 'lodash'
 
 interface Properties {
@@ -64,14 +64,14 @@ const properties = withDefaults(defineProps<Properties>(), {
   slider: undefined,
 })
 
-const store = fetchStore()
-const primary_model = computed<number>(() => store.state.configuration[properties.index])
+const configuration = fetch_configuration_store()
+const primary_model = computed<number>(() => configuration[properties.index])
 const slider_model = ref<number>(primary_model.value)
 
 watch(primary_model, (value) => slider_model.value = value)
 
 async function update (value: string | number) {
-  await store.dispatch('configuration/update', { [properties.index]: Number(value) })
+  await configuration.update({ [properties.index]: Number(value) })
 }
 
 const debounce_update = debounce(update, 100)

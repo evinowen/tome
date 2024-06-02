@@ -1,8 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, afterEach, it, expect } from '@jest/globals'
 import RepositoryManager from '@/objects/repository/RepositoryManager'
-import RepositoryFile from '@/objects/repository/RepositoryFile'
 import * as node_fs from 'node:fs'
-import * as node_path from 'node:path'
 import * as NodeGit from 'nodegit'
 import { mocked_repository } from '?/mocks/nodegit'
 import { RepositoryHeadDetachedError, RepositoryInaccessableError, RepositoryMergingError, RepositoryRebasingError } from '@/objects/repository/RepositoryErrors'

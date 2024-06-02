@@ -2,20 +2,17 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { stub_actions } from '?/builders/store'
-import { StateDefaults as ErrorStateDefaults } from '@/store/modules/error'
+import { createTestingPinia } from '@pinia/testing'
 import ConsoleDetailBox from '@/components/ConsoleDetailBox.vue'
 
 describe('components/ConsoleDetailBox', () => {
   let vuetify
-  let store
+  let pinia
 
   const factory = assemble(ConsoleDetailBox, { message: 'Example Message', level: 'trace' })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           OverlayBox: BasicComponentStub,
           VAvatar: BasicComponentStub,
@@ -33,14 +30,9 @@ describe('components/ConsoleDetailBox', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        error: ErrorStateDefaults(),
-      },
-      actions: stub_actions([
-        'error/help',
-        'error/hide',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
   })
 

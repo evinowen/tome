@@ -15,7 +15,7 @@
       >
         <message-input
           class="my-1"
-          :value="repository.committer.signature.message"
+          :value="repository_committer_signature.message"
           :signature_name="configuration.name"
           :signature_email="configuration.email"
           @update="sign_message"
@@ -147,7 +147,7 @@
       :visible="system.commit_confirm"
       :name="configuration.name"
       :email="configuration.email"
-      :message="repository.committer.signature.message"
+      :message="repository_committer_signature.message"
       :staging="staging"
       :waiting="working"
       :push="system.commit_push"
@@ -161,7 +161,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
+import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
 import CommitConfirm from '@/components/CommitConfirm.vue'
 import CommitList from '@/components/CommitList.vue'
 import UtilityPage from '@/components/UtilityPage.vue'
@@ -175,59 +179,56 @@ import {
   VRow,
 } from 'vuetify/components'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
+const system = fetch_system_store()
+const repository_comparator = fetch_repository_comparator_store()
+const repository_committer = fetch_repository_committer_store()
+const repository_committer_signature = fetch_repository_committer_signature_store()
 
-const system = computed(() => store.state.system)
-const repository = computed(() => store.state.repository)
-const staging = computed(() => store.state.repository.committer.staging > 0)
-const staged = computed(() => store.state.repository.committer.status.staged)
-const available = computed(() => store.state.repository.committer.status.available)
-const configuration = computed(() => store.state.configuration)
-const working = computed(() => store.state.repository.committer.working)
+const staging = computed(() => repository_committer.staging > 0)
+const staged = computed(() => repository_committer.status.staged)
+const available = computed(() => repository_committer.status.available)
+const working = computed(() => repository_committer.working)
 
 async function sign_name (value) {
-  await store.dispatch('repository/committer/signature/name', value)
+  await repository_committer_signature.sign_name(value)
 }
 
 async function sign_email (value) {
-  await store.dispatch('repository/committer/signature/email', value)
+  await repository_committer_signature.sign_email(value)
 }
 
 async function sign_message (value) {
-  await store.dispatch('repository/committer/signature/message', value)
+  await repository_committer_signature.sign_message(value)
 }
 
 async function close () {
-  await store.dispatch('system/commit', false)
+  await system.page({ commit: false })
 }
 
 async function confirm (value) {
-  await store.dispatch('system/commit_confirm', value)
+  await system.page({ commit_confirm: value })
 }
 
 async function push (value) {
-  await store.dispatch('system/commit_push', value)
-}
-
-async function message (message) {
-  await store.dispatch('repository/message', message)
+  await system.page({ commit_push: value })
 }
 
 async function diff (path) {
-  await store.dispatch('repository/comparator/diff', { path })
-  await store.dispatch('system/patch', true)
+  await repository_comparator.diff({ path })
+  await system.page({ patch: true })
 }
 
 async function stage (path) {
-  await store.dispatch('repository/committer/stage', path)
+  await repository_committer.stage(path)
 }
 
 async function reset (path) {
-  await store.dispatch('repository/committer/reset', path)
+  await repository_committer.reset(path)
 }
 
 async function commit () {
-  await store.dispatch('system/perform', 'commit')
+  await system.perform(SystemPerformance.Commit)
 }
 
 defineExpose({
@@ -235,7 +236,6 @@ defineExpose({
   commit,
   confirm,
   diff,
-  message,
   push,
   reset,
   sign_email,

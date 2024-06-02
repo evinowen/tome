@@ -2,27 +2,24 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 import UtilityPage from '?/stubs/UtilityPage.vue'
-import { stub_actions } from '?/builders/store'
 import { Settings as LuxonSettings } from 'luxon'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { StateDefaults as BranchesStateDefaults } from '@/store/modules/repository/branches'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { createTestingPinia } from '@pinia/testing'
 import Branches from '@/components/Branches.vue'
+import { fetch_clipboard_store } from '@/store/modules/clipboard'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_branches_store } from '@/store/modules/repository/branches'
 
 describe('components/Branches', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
   let value
 
   const factory = assemble(Branches, { value })
     .context(() => ({
       vuetify,
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           UtilityPage,
           VBtn: BasicComponent,
@@ -34,40 +31,21 @@ describe('components/Branches', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        repository: {
-          ...RepositoryStateDefaults(),
-          branches: {
-            ...BranchesStateDefaults(),
-            active: 'master',
-            list: [
-              {
-                name: 'master',
-                reference: 'refs/heads/master',
-                updated: new Date(),
-              },
-            ],
-          },
-        },
-        system: {
-          ...SystemStateDefaults(),
-          history: true,
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'repository-branches': {
+          active: 'master',
+          list: [
+            {
+              name: 'master',
+              reference: 'refs/heads/master',
+              updated: new Date(),
+            },
+          ],
         },
       },
-      actions: stub_actions([
-        'clipboard/text',
-        'repository/branches/create',
-        'repository/branches/rename',
-        'repository/branches/remove',
-        'repository/branches/select',
-        'system/branches',
-        'system/branches_remove_confirm',
-        'system/patch',
-      ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
 
     value = true
   })
@@ -77,21 +55,25 @@ describe('components/Branches', () => {
   })
 
   it('should dispatch "system/branches" with false upon call to close', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/branches', false)
+    expect(system.page).toHaveBeenCalledWith({ branches: false })
   })
 
   it('should dispatch "clipboard/text" with false upon call to copy', async () => {
+    const clipboard = fetch_clipboard_store()
+
     const wrapper = factory.wrap()
 
     const name = 'master'
 
     await wrapper.vm.copy(name)
 
-    expect(store_dispatch).toHaveBeenCalledWith('clipboard/text', name)
+    expect(clipboard.text).toHaveBeenCalledWith(name)
   })
 
   it('should set branch_create_target upon call to create_show with true', async () => {
@@ -107,13 +89,15 @@ describe('components/Branches', () => {
   })
 
   it('should dispatch "repository/branches/create" with branch name upon call to create', async () => {
+    const repository_branches = fetch_repository_branches_store()
+
     const wrapper = factory.wrap()
 
     const name = 'master'
 
     await wrapper.vm.create(name)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/branches/create', name)
+    expect(repository_branches.create).toHaveBeenCalledWith(name)
   })
 
   it('should set branch_rename_target upon call to rename_show with true', async () => {
@@ -129,6 +113,8 @@ describe('components/Branches', () => {
   })
 
   it('should dispatch "repository/branches/rename" with branch name and new value upon call to rename', async () => {
+    const repository_branches = fetch_repository_branches_store()
+
     const wrapper = factory.wrap()
 
     const name = 'master'
@@ -136,25 +122,29 @@ describe('components/Branches', () => {
 
     await wrapper.vm.rename(name, value)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/branches/rename', { name, value })
+    expect(repository_branches.rename).toHaveBeenCalledWith({ name, value })
   })
 
   it('should dispatch "repository/branches/select" with branch name upon call to select', async () => {
+    const repository_branches = fetch_repository_branches_store()
+
     const wrapper = factory.wrap()
 
     const name = 'master'
 
     await wrapper.vm.select(name)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/branches/select', name)
+    expect(repository_branches.select).toHaveBeenCalledWith(name)
   })
 
   it('should dispatch "system/branches_remove_confirm" with false upon call to remove_confirm with false', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.remove_confirm(false)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/branches_remove_confirm', false)
+    expect(system.page).toHaveBeenCalledWith({ branches_remove_confirm: false })
   })
 
   it('should set branch_remove_target upon call to remove_confirm with true', async () => {
@@ -170,23 +160,27 @@ describe('components/Branches', () => {
   })
 
   it('should dispatch "system/branches_remove_confirm" with false upon call to remove_confirm with true', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     const name = 'master'
 
     await wrapper.vm.remove_confirm(true, name)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/branches_remove_confirm', true)
+    expect(system.page).toHaveBeenCalledWith({ branches_remove_confirm: true })
   })
 
   it('should dispatch "repository/branches/remove" with branch name upon call to remove', async () => {
+    const repository_branches = fetch_repository_branches_store()
+
     const wrapper = factory.wrap()
 
     const name = 'master'
 
     await wrapper.vm.remove(name)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/branches/remove', name)
+    expect(repository_branches.remove).toHaveBeenCalledWith(name)
   })
 
   it('should format date string upon call to format_date', async () => {

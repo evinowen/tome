@@ -22,9 +22,9 @@ import Mark from 'mark.js'
 import MarkdownParser from '@/objects/parsers/MarkdownParser'
 import PlainTextParser from '@/objects/parsers/PlainTextParser'
 import CSVParser from '@/objects/parsers/CSVParser'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
 const element = ref<HTMLElement>()
 
 let mark: Mark
@@ -48,9 +48,9 @@ onMounted(() => {
 })
 
 const theme = computed(() => {
-  return store.state.configuration.dark_mode
-    ? store.state.configuration.themes.dark.rendered
-    : store.state.configuration.themes.light.rendered
+  return configuration.dark_mode
+    ? configuration.themes.dark.rendered
+    : configuration.themes.light.rendered
 })
 
 const rendered = ref<string>()

@@ -1,45 +1,34 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
 import api from '@/api'
 
 export interface State {
   visible: boolean
   title: string
   message: string
-  help: string
+  help_tag: string
 }
 
 export const StateDefaults = (): State => ({
   visible: false,
-  title: 'Default Title Message',
-  message: 'Default Error Message',
-  help: '',
+  title: '',
+  message: '',
+  help_tag: '',
 })
 
-export default {
-  namespaced: true,
+export const fetch_error_store = defineStore('error', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    show: function (state, { title, message, help }) {
-      state.title = title
-      state.message = message
-      state.help = help
-      state.visible = true
+  actions: {
+    show: async function (title, message, help?) {
+      this.title = title
+      this.message = message
+      this.help_tag = help
+      this.visible = true
     },
-    hide: function (state) {
-      state.visible = false
+    hide: async function () {
+      this.visible = false
     },
-  },
-  actions: <ActionTree<State, unknown>>{
-    show: async function (context, state) {
-      const { title, message, help } = state || {}
-
-      context.commit('show', { title, message, help })
-    },
-    hide: async function (context) {
-      context.commit('hide')
-    },
-    help: async function (context) {
-      api.file.open(`https://tome.evinowen.net/help.html#${context.state.help}`, false)
+    help: async function () {
+      api.file.open(`https://tome.evinowen.net/help.html#${this.help_tag}`, false)
     },
   },
-}
+})

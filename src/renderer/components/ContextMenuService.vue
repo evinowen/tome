@@ -31,15 +31,13 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { fetchStore } from '@/store'
+import { ref } from 'vue'
+import { fetch_context_store } from '@/store/modules/context'
 
-const store = fetchStore()
+const context = fetch_context_store()
 
 const window_x = ref(0)
 const window_y = ref(0)
-
-const context = computed(() => store.state.context)
 
 function resize () {
   window_x.value = window.innerWidth
@@ -47,7 +45,7 @@ function resize () {
 }
 
 async function close () {
-  await store.dispatch('context/close')
+  await context.close()
 }
 
 defineExpose({

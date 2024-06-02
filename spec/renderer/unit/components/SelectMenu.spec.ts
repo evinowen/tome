@@ -1,17 +1,14 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import VTextField from '?/stubs/VTextField.vue'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as InputSelectStateDefaults } from '@/store/modules/input/select'
+import { createTestingPinia } from '@pinia/testing'
 import SelectMenu, { Option } from '@/components/SelectMenu.vue'
+import { fetch_input_select_store } from '@/store/modules/input/select'
 
 describe('components/SelectMenu', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   let value: string
   let label: string
@@ -20,7 +17,7 @@ describe('components/SelectMenu', () => {
   const factory = assemble(SelectMenu)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VTextField,
         },
@@ -30,19 +27,10 @@ describe('components/SelectMenu', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        input: {
-          select: InputSelectStateDefaults(),
-        },
-      },
-      actions: stub_actions([
-        'input/select/show',
-        'input/select/filter',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
 
     value = ''
     label = 'example'
@@ -63,11 +51,13 @@ describe('components/SelectMenu', () => {
   })
 
   it('should dispatch "input/select/show" upon call to focus method', async () => {
+    const input_select = fetch_input_select_store()
+
     const wrapper = factory.wrap({ value, label, options })
 
     await wrapper.vm.focus(true)
 
-    expect(store_dispatch).toHaveBeenCalledWith('input/select/show', {
+    expect(input_select.show).toHaveBeenCalledWith({
       element: wrapper.vm.base,
       set: wrapper.vm.set,
       options,
@@ -75,6 +65,8 @@ describe('components/SelectMenu', () => {
   })
 
   it('should dispatch "input/select/filter" upon call to update method', async () => {
+    const input_select = fetch_input_select_store()
+
     const wrapper = factory.wrap({ value, label, options })
 
     await wrapper.vm.focus(true)
@@ -82,7 +74,7 @@ describe('components/SelectMenu', () => {
     const input = 'input'
     await wrapper.vm.update(input)
 
-    expect(store_dispatch).toHaveBeenCalledWith('input/select/filter', {
+    expect(input_select.filter).toHaveBeenCalledWith({
       identifier: wrapper.vm.identifier,
       value: input,
     })

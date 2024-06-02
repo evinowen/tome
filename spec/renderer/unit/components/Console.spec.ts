@@ -1,24 +1,21 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
 import { DateTime } from 'luxon'
-import { createStore } from 'vuex'
-import { State, StateDefaults, key } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { createTestingPinia } from '@pinia/testing'
 import Console from '@/components/Console.vue'
+import { fetch_system_store } from '@/store/modules/system'
 
 describe('components/Console', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
   let value = true
 
   const factory = assemble(Console, { value })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           ConsolePage: BasicComponentStub,
           VBtn: BasicComponentStub,
@@ -34,24 +31,20 @@ describe('components/Console', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        ...StateDefaults,
-        events: [
-          { level: 'info', message: 'Message 1', datetime: DateTime.now().minus({ minutes: 120 }), stack: '' },
-          { level: 'error', message: 'Message 2', datetime: DateTime.now().minus({ minutes: 60 }), stack: '' },
-          { level: 'info', message: 'Message 3', datetime: DateTime.now().minus({ minutes: 45 }), stack: '' },
-          { level: 'error', message: 'Message 4', datetime: DateTime.now().minus({ minutes: 30 }), stack: '' },
-          { level: 'error', message: 'Message 5', datetime: DateTime.now().minus({ minutes: 15 }), stack: '' },
-        ],
-        system: SystemStateDefaults(),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'log': {
+          events: [
+            { level: 'info', message: 'Message 1', datetime: DateTime.now().minus({ minutes: 120 }), stack: '' },
+            { level: 'error', message: 'Message 2', datetime: DateTime.now().minus({ minutes: 60 }), stack: '' },
+            { level: 'info', message: 'Message 3', datetime: DateTime.now().minus({ minutes: 45 }), stack: '' },
+            { level: 'error', message: 'Message 4', datetime: DateTime.now().minus({ minutes: 30 }), stack: '' },
+            { level: 'error', message: 'Message 5', datetime: DateTime.now().minus({ minutes: 15 }), stack: '' },
+          ],
+        },
       },
-      actions: stub_actions([
-        'system/console',
-      ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
 
     value = true
   })
@@ -61,13 +54,13 @@ describe('components/Console', () => {
   })
 
   it('should dispatch system/console with false when close is called', async () => {
-    const wrapper = factory.wrap()
+    const system = fetch_system_store()
 
-    expect(store.dispatch).toHaveBeenCalledTimes(0)
+    const wrapper = factory.wrap()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/console', false)
+    expect(system.page).toHaveBeenCalledWith({ console: false })
   })
 
   it('should set detail to true when show_detail is called with a message value', async () => {

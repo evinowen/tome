@@ -9,6 +9,19 @@ interface NodeGitRemoteHead {
 export interface RepositoryRemoteSimple {
   name: string
   url: string
+  branch?: RepositoryRemoteBranchSimple
+  pending?: RepositoryRemoteCommitSimple[]
+}
+
+export interface RepositoryRemoteBranchSimple {
+  name: string
+  short: string
+}
+
+export interface RepositoryRemoteCommitSimple {
+  oid: string
+  date: Date
+  message: string
 }
 
 export interface RepositoryRemoteBranch {
@@ -26,7 +39,7 @@ export default class RepositoryRemote {
   branch: RepositoryRemoteBranch
 
   ahead = false
-  pending: { oid: string, date: Date, message: string }[] = []
+  pending: RepositoryRemoteCommitSimple[] = []
 
   constructor (credential: () => RepositoryCredentials) {
     this.credential = credential

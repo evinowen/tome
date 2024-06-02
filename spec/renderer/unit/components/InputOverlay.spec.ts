@@ -1,12 +1,10 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponent from '?/stubs/BasicComponent.vue'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as InputSelectStateDefaults } from '@/store/modules/input/select'
+import { createTestingPinia } from '@pinia/testing'
 import SelectInputOverlay from '@/components/SelectInputOverlay.vue'
+import { fetch_input_select_store } from '@/store/modules/input/select'
 import { v4 as uuidv4 } from 'uuid'
 
 class MockHTMLElement {
@@ -22,13 +20,12 @@ class MockHTMLElement {
 
 describe('components/SelectInputOverlay', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(SelectInputOverlay)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VList: BasicComponent,
           VListItem: BasicComponent,
@@ -41,34 +38,26 @@ describe('components/SelectInputOverlay', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        input: {
-          select: {
-            ...InputSelectStateDefaults(),
-            identifier: uuidv4().toString(),
-            element: (new MockHTMLElement()) as HTMLElement,
-            visible: true,
-            options: [
-              { value: 'value-a', label: 'label-a', detail: 'detail-a' },
-              { value: 'value-b', label: 'label-b', detail: 'detail-b' },
-              { value: 'value-c', label: 'label-c', detail: 'detail-c' },
-            ],
-            active: [
-              { value: 'value-a', label: 'label-a', detail: 'detail-a' },
-              { value: 'value-b', label: 'label-b', detail: 'detail-b' },
-              { value: 'value-c', label: 'label-c', detail: 'detail-c' },
-            ],
-          },
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'input-select': {
+          identifier: uuidv4().toString(),
+          element: (new MockHTMLElement()) as HTMLElement,
+          visible: true,
+          options: [
+            { value: 'value-a', label: 'label-a', detail: 'detail-a' },
+            { value: 'value-b', label: 'label-b', detail: 'detail-b' },
+            { value: 'value-c', label: 'label-c', detail: 'detail-c' },
+          ],
+          active: [
+            { value: 'value-a', label: 'label-a', detail: 'detail-a' },
+            { value: 'value-b', label: 'label-b', detail: 'detail-b' },
+            { value: 'value-c', label: 'label-c', detail: 'detail-c' },
+          ],
         },
       },
-      actions: stub_actions([
-        'input/select/set',
-        'input/select/close',
-      ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -81,21 +70,25 @@ describe('components/SelectInputOverlay', () => {
   })
 
   it('should dispatch "input/select/set" upon call to select method', async () => {
+    const input_select = fetch_input_select_store()
+
     const wrapper = factory.wrap()
 
-    await wrapper.vm.select(store.state.input.select.identifier, store.state.input.select.options[0])
+    await wrapper.vm.select(input_select.identifier, input_select.options[0])
 
-    expect(store_dispatch).toHaveBeenCalledWith('input/select/set', {
-      identifier: store.state.input.select.identifier,
-      option: store.state.input.select.options[0],
+    expect(input_select.select).toHaveBeenCalledWith({
+      identifier: input_select.identifier,
+      option: input_select.options[0],
     })
   })
 
   it('should dispatch "input/select/filter" upon call to close method', async () => {
+    const input_select = fetch_input_select_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('input/select/close')
+    expect(input_select.close).toHaveBeenCalledWith()
   })
 })

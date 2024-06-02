@@ -1,4 +1,4 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
 import api, { RepositoryTag } from '@/api'
 
 export interface State {
@@ -9,26 +9,20 @@ export const StateDefaults = (): State => ({
   list: [],
 })
 
-export default {
-  namespaced: true,
+export const fetch_repository_tags_store = defineStore('repository-tags', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    load: function (state, { list }) {
-      state.list = list
-    },
-  },
-  actions: <ActionTree<State, unknown>>{
-    load: async function (context) {
+  actions: {
+    load: async function () {
       const { list } = await api.repository.tag_list()
-      context.commit('load', { list })
+      this.list = list
     },
-    create: async function (context, { name, oid }) {
+    create: async function ({ name, oid }) {
       await api.repository.tag_create(name, oid)
-      await context.dispatch('load')
+      await this.load()
     },
-    remove: async function (context, name) {
+    remove: async function (name) {
       await api.repository.tag_remove(name)
-      await context.dispatch('load')
+      await this.load()
     },
   },
-}
+})

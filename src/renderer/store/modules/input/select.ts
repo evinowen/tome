@@ -1,4 +1,4 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
 
 export interface Option {
@@ -25,24 +25,25 @@ export const StateDefaults = (): State => ({
   set: undefined,
 })
 
-export default {
-  namespaced: true,
+export const fetch_input_select_store = defineStore('input-select', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    show: function (state, { element, set, options }) {
-      state.identifier = uuidv4().toString()
-      state.element = element
-      state.set = set
-      state.options = options
-      state.active = options
-      state.visible = true
+  actions: {
+    show: async function ({ element, set, options }) {
+      this.identifier = uuidv4().toString()
+      this.element = element
+      this.set = set
+      this.options = options
+      this.active = options
+      this.visible = true
+
+      return this.identifier
     },
-    filter: function (state, { identifier, value }) {
-      if (state.identifier !== identifier) {
+    filter: async function ({ identifier, value }) {
+      if (this.identifier !== identifier) {
         return
       }
 
-      state.active = state.options.filter((option) => {
+      this.active = this.options.filter((option) => {
         if (typeof value !== 'string' || value === '') {
           return true
         }
@@ -60,42 +61,26 @@ export default {
         return false
       })
     },
-    hide: function (state, { identifier }) {
-      if (state.identifier !== identifier) {
-        return
-      }
-
-      state.identifier = ''
-      state.visible = false
-    },
-    close: function (state) {
-      state.identifier = ''
-      state.visible = false
-    },
-  },
-  actions: <ActionTree<State, unknown>>{
-    show: async function (context, state) {
-      context.commit('show', state)
-
-      return context.state.identifier
-    },
-    filter: async function (context, state) {
-      context.commit('filter', state)
-    },
-    set: async function (context, state) {
+    select: async function (state) {
       const { identifier, option }: { identifier: string, option: Option } = state
-      if (context.state.identifier !== identifier) {
+      if (this.identifier !== identifier) {
         return
       }
 
-      await context.state.set(option)
-      await context.dispatch('hide', state)
+      await this.set(option)
+      await this.hide(state)
     },
-    hide: async function (context, state) {
-      context.commit('hide', state)
+    hide: async function ({ identifier }) {
+      if (this.identifier !== identifier) {
+        return
+      }
+
+      this.identifier = ''
+      this.visible = false
     },
-    close: async function (context) {
-      context.commit('close')
+    close: async function () {
+      this.identifier = ''
+      this.visible = false
     },
   },
-}
+})

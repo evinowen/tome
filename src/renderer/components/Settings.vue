@@ -197,8 +197,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_system_store } from '@/store/modules/system'
 import logo from './logo.png'
 import CredentialSelector from '@/components/Settings/Credentials/CredentialSelector.vue'
 import BooleanInput from './Settings/BooleanInput.vue'
@@ -216,7 +216,8 @@ import {
   VRow,
 } from 'vuetify/components'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
+const system = fetch_system_store()
 
 const auto_commit_interval_options = [
   { value: 'quarter-hourly', label: 'Quarter Hourly' },
@@ -241,15 +242,12 @@ const explorer_position_options = [
   { value: 'right', icon: 'mdi-dock-right' },
 ] as SelectButtonOption[]
 
-const configuration = computed(() => store.state.configuration)
-const system = computed(() => store.state.system)
-
 async function close () {
-  await store.dispatch('system/settings', false)
+  await system.page({ settings: false })
 }
 
 async function edit_theme () {
-  await store.dispatch('system/theme_editor', true)
+  await system.page({ theme_editor: true })
 }
 
 defineExpose({

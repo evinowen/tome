@@ -58,17 +58,17 @@ export default component('repository')(
     handle('push', async () => await repository.remotes.active.push())
 
     handle('remote-status', async () => {
-      const result = {
-        remote: repository.remotes.active?.simple,
-        pending: repository.remotes.active?.pending,
-        branch: undefined,
-      }
+      const result = repository.remotes.active?.simple
 
       if (repository.remotes.active?.branch) {
         result.branch = {
           name: repository.remotes.active.branch.name,
           short: repository.remotes.active.branch.short,
         }
+      }
+
+      if (repository.remotes.active?.pending) {
+        result.pending = repository.remotes.active?.pending
       }
 
       return result

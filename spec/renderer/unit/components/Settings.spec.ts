@@ -1,23 +1,19 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { createTestingPinia } from '@pinia/testing'
+import { fetch_system_store } from '@/store/modules/system'
 import Settings from '@/components/Settings.vue'
 
 describe('components/Settings', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(Settings)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           KeyfileInput: true,
           KeyfileOutput: true,
@@ -40,20 +36,10 @@ describe('components/Settings', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration_path: '/home/config.json',
-        configuration: ConfigurationStateDefaults(),
-        system: SystemStateDefaults(),
-      },
-      actions: stub_actions([
-        'configuration/generate',
-        'configuration/write',
-        'system/settings',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -66,10 +52,12 @@ describe('components/Settings', () => {
   })
 
   it('should dispatch system/settings with false when close is called', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/settings', false)
+    expect(system.page).toHaveBeenCalledWith({ settings: false })
   })
 })

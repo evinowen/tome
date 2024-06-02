@@ -53,45 +53,47 @@ export default {
 
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue'
-import { fetchStore } from '@/store'
-import File from '@/store/modules/files/file'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_repository_store } from '@/store/modules/repository'
+import { fetch_system_store } from '@/store/modules/system'
+import File from '@/objects/File'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
+const files = fetch_files_store()
+const repository = fetch_repository_store()
+const system = fetch_system_store()
 
 const selected = ref(File.Empty)
 
 const active = computed(() => {
-  return store.state.repository.path && store.state.files.active
-})
-
-const system = computed(() => {
-  return store.state.system
+  return repository.path && files.active
 })
 
 const explore = computed(() => {
-  return !(store.state.system.commit || store.state.system.push)
+  return !(system.commit || system.push)
 })
 
 const explorer_position = computed(() => {
-  return store.state.configuration.explorer_position
+  return configuration.explorer_position
 })
 
 const explorer_width = computed(() => {
-  return store.state.repository.path ? store.state.configuration.explorer_width : 0
+  return repository.path ? configuration.explorer_width : 0
 })
 
 const explorer_resize_width = computed(() => {
-  return store.state.repository.path ? store.state.configuration.explorer_resize_width : 0
+  return repository.path ? configuration.explorer_resize_width : 0
 })
 
 async function update_explorer_width (value) {
-  await store.dispatch('configuration/update', { explorer_width: value })
+  await configuration.update({ explorer_width: value })
 }
 
 watch(active, (value) => {
   value === ''
     ? selected.value = File.Empty
-    : selected.value = store.state.files.directory[value]
+    : selected.value = files.directory[value]
 })
 
 defineExpose({

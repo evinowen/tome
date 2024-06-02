@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import RepositoryPatch from '@/objects/repository/RepositoryPatch'
 import * as NodeGit from 'nodegit'

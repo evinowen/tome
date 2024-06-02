@@ -1,35 +1,29 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
+import { createTestingPinia } from '@pinia/testing'
 import TimerService from '@/components/TimerService.vue'
 import { SystemTimeout } from '@/store/modules/system'
+import { fetch_system_store } from '@/store/modules/system'
 
 describe('components/TimerService', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(TimerService)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
       },
     }))
 
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {},
-      actions: stub_actions([
-        'system/timer',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -90,6 +84,8 @@ describe('components/TimerService', () => {
   })
 
   it('should dispatch system/timer for SystemTimeout.Minute after one minute has elapsed', async () => {
+    const system = fetch_system_store()
+
     vi.useFakeTimers()
 
     const wrapper = factory.wrap()
@@ -97,10 +93,12 @@ describe('components/TimerService', () => {
 
     vi.advanceTimersByTime(1000 * 60)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/timer', SystemTimeout.Minute)
+    expect(system.timer).toHaveBeenCalledWith(SystemTimeout.Minute)
   })
 
   it('should dispatch system/timer for SystemTimeout.QuarterHour after a quarter hour has elapsed', async () => {
+    const system = fetch_system_store()
+
     vi.useFakeTimers()
 
     const wrapper = factory.wrap()
@@ -108,10 +106,12 @@ describe('components/TimerService', () => {
 
     vi.advanceTimersByTime(1000 * 60 * 15)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/timer', SystemTimeout.QuarterHour)
+    expect(system.timer).toHaveBeenCalledWith(SystemTimeout.QuarterHour)
   })
 
   it('should dispatch system/timer for SystemTimeout.HalfHour after a half hour has elapsed', async () => {
+    const system = fetch_system_store()
+
     vi.useFakeTimers()
 
     const wrapper = factory.wrap()
@@ -119,10 +119,12 @@ describe('components/TimerService', () => {
 
     vi.advanceTimersByTime(1000 * 60 * 30)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/timer', SystemTimeout.HalfHour)
+    expect(system.timer).toHaveBeenCalledWith(SystemTimeout.HalfHour)
   })
 
   it('should dispatch system/timer for SystemTimeout.Hour after an hour has elapsed', async () => {
+    const system = fetch_system_store()
+
     vi.useFakeTimers()
 
     const wrapper = factory.wrap()
@@ -130,10 +132,12 @@ describe('components/TimerService', () => {
 
     vi.advanceTimersByTime(1000 * 60 * 60)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/timer', SystemTimeout.Hour)
+    expect(system.timer).toHaveBeenCalledWith(SystemTimeout.Hour)
   })
 
   it('should dispatch system/timer for SystemTimeout.QuarterDay after a quarter day has elapsed', async () => {
+    const system = fetch_system_store()
+
     vi.useFakeTimers()
 
     const wrapper = factory.wrap()
@@ -141,10 +145,12 @@ describe('components/TimerService', () => {
 
     vi.advanceTimersByTime(1000 * 60 * 60 * 6)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/timer', SystemTimeout.QuarterDay)
+    expect(system.timer).toHaveBeenCalledWith(SystemTimeout.QuarterDay)
   })
 
   it('should dispatch system/timer for SystemTimeout.HalfDay after a half day has elapsed', async () => {
+    const system = fetch_system_store()
+
     vi.useFakeTimers()
 
     const wrapper = factory.wrap()
@@ -152,10 +158,12 @@ describe('components/TimerService', () => {
 
     vi.advanceTimersByTime(1000 * 60 * 60 * 12)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/timer', SystemTimeout.HalfDay)
+    expect(system.timer).toHaveBeenCalledWith(SystemTimeout.HalfDay)
   })
 
   it('should dispatch system/timer for SystemTimeout.Day after a day has elapsed', async () => {
+    const system = fetch_system_store()
+
     vi.useFakeTimers()
 
     const wrapper = factory.wrap()
@@ -163,6 +171,6 @@ describe('components/TimerService', () => {
 
     vi.advanceTimersByTime(1000 * 60 * 60 * 24)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/timer', SystemTimeout.Day)
+    expect(system.timer).toHaveBeenCalledWith(SystemTimeout.Day)
   })
 })

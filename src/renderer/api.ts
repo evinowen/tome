@@ -72,10 +72,10 @@ export interface API {
     branch_remove: (name: string) => Promise<void>
     remote_add: (name: string, url: string) => Promise<void>
     remote_clear: () => Promise<void>
-    remote_list: () => Promise<{ name: string, url: string }[]>
+    remote_list: () => Promise<RepositoryRemote[]>
     remote_load: (name: string) => Promise<void>
     remote_remove: (name: string) => Promise<void>
-    remote_status: () => Promise<{ remote: { name: string, url: string }, branch: { name: string, short: string }, pending: { oid: string, date: Date, message: string }[] }>
+    remote_status: () => Promise<RepositoryRemote>
     reset: (query: string) => Promise<void>
     stage: (query: string) => Promise<void>
     history_list: (page: number) => Promise<RepositoryHistoricalCommit[]>
@@ -116,6 +116,12 @@ export interface SearchResult {
   matches: { index: number, line: string }[]
 }
 
+export interface RepositoryCommit {
+  oid: string
+  date: Date
+  message: string
+}
+
 export interface RepositoryFile {
   path: string
   type: number
@@ -131,6 +137,18 @@ export interface RepositoryTag {
   name: string
   oid: string
   date: Date
+}
+
+export interface RepositoryRemote {
+  name: string
+  url: string
+  branch?: RepositoryRemoteBranch
+  pending?: RepositoryCommit[]
+}
+
+export interface RepositoryRemoteBranch {
+  name: string
+  short: string
 }
 
 export interface RepositoryMetadata {

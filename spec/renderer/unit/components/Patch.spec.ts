@@ -2,25 +2,19 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 import UtilityPage from '?/stubs/UtilityPage.vue'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { StateDefaults as RepositoryComparatorStateDefaults } from '@/store/modules/repository/comparator'
+import { createTestingPinia } from '@pinia/testing'
 import Patch, { RepositoryPatchLineType } from '@/components/Patch.vue'
+import { fetch_system_store } from '@/store/modules/system'
 
 describe('components/Patch', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
   let height
-
   const factory = assemble(Patch, { height })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           UtilityPage,
           VCard: BasicComponent,
@@ -33,34 +27,27 @@ describe('components/Patch', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        system: SystemStateDefaults(),
-        repository: {
-          ...RepositoryStateDefaults(),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'repository': {
           path: './tome_path',
-          comparator: {
-            ...RepositoryComparatorStateDefaults(),
-            patches: [
-              {
-                name: 'Example.md',
-                path: '/project/example.md',
-                lines: [
-                  { type: RepositoryPatchLineType.HUNK_HDR, line: 'ABCabc123' },
-                  { type: RepositoryPatchLineType.ADDITION, line: 'ABCabc123' },
-                  { type: RepositoryPatchLineType.DELETION, line: 'ABCabc123' },
-                ],
-              },
-            ]
-          },
+        },
+        'repository-comparator': {
+          patches: [
+            {
+              name: 'Example.md',
+              path: '/project/example.md',
+              lines: [
+                { type: RepositoryPatchLineType.HUNK_HDR, line: 'ABCabc123' },
+                { type: RepositoryPatchLineType.ADDITION, line: 'ABCabc123' },
+                { type: RepositoryPatchLineType.DELETION, line: 'ABCabc123' },
+              ],
+            },
+          ],
         },
       },
-      actions: stub_actions([
-        'system/patch',
-      ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
 
     height = 100
   })
@@ -126,10 +113,12 @@ describe('components/Patch', () => {
   })
 
   it('should dispatch "system/patch" upon call to close method', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/patch', false)
+    expect(system.page).toHaveBeenCalledWith({ patch: false })
   })
 })

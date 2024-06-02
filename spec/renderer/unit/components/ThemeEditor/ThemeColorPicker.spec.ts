@@ -2,17 +2,13 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 import BooleanComponent from '?/stubs/BooleanComponent.vue'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
-import { StateDefaults as ApplicationStateDefaults } from '@/store/modules/configuration/themes/sections/application'
+import { createTestingPinia } from '@pinia/testing'
 import ThemeColorPicker, { Color } from '@/components/ThemeEditor/ThemeColorPicker.vue'
 
 describe('components/ThemeEditor/ThemeColorPicker', () => {
   let vuetify
-  let store
+  let pinia
 
   const section = 'application'
   const colors: Color[] = [
@@ -22,7 +18,7 @@ describe('components/ThemeEditor/ThemeColorPicker', () => {
   const factory = assemble(ThemeColorPicker, { section, colors })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VCard: BasicComponent,
           VCardTitle: BasicComponent,
@@ -35,20 +31,9 @@ describe('components/ThemeEditor/ThemeColorPicker', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration: {
-          ...ConfigurationStateDefaults(),
-          themes: {
-            light: {
-              application: ApplicationStateDefaults(),
-            },
-          },
-        },
-      },
-      actions: stub_actions([
-        'configuration/update',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
   })
 

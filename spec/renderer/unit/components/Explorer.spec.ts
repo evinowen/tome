@@ -1,27 +1,24 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
 import { v4 as uuidv4 } from 'uuid'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
-import { StateDefaults as FilesStateDefaults, File } from '@/store/modules/files'
+import { createTestingPinia } from '@pinia/testing'
+import File from '@/objects/File'
 import Explorer from '@/components/Explorer.vue'
+import { fetch_files_store } from '@/store/modules/files'
 
 describe('components/ExplorerNode', () => {
   let vuetify
-  let store
+  let pinia
 
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration: ConfigurationStateDefaults(),
-        files: {
-          ...FilesStateDefaults(),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'files': {
           base: '/project',
           path: '/project',
           active: '',
@@ -33,21 +30,6 @@ describe('components/ExplorerNode', () => {
           },
         },
       },
-      actions: stub_actions([
-        'actions/execute',
-        'actions/ghost',
-        'files/blur',
-        'files/delete',
-        'files/edit',
-        'files/ghost',
-        'files/move',
-        'files/open',
-        'files/toggle',
-        'files/select',
-        'files/submit',
-        'templates/execute',
-        'templates/ghost',
-      ]),
     })
 
     children.length = 0
@@ -115,7 +97,7 @@ describe('components/ExplorerNode', () => {
   const factory = assemble(Explorer, { enabled: true })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VIcon: true,
           VContainer: BasicComponentStub,
@@ -129,8 +111,10 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should set active file identifier from active store path', () => {
-    const file = store.state.files.directory['/project']
-    store.state.files.active = file.path
+    const files = fetch_files_store()
+
+    const file = files.directory['/project']
+    files.active = file.path
 
     const wrapper = factory.wrap()
 
@@ -138,7 +122,9 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should set blank active file identifier for blank active store path', () => {
-    store.state.files.active = ''
+    const files = fetch_files_store()
+
+    files.active = ''
 
     const wrapper = factory.wrap()
 
@@ -146,7 +132,9 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should set blank active file identifier for invalid active store path', () => {
-    store.state.files.active = '/fake'
+    const files = fetch_files_store()
+
+    files.active = '/fake'
 
     const wrapper = factory.wrap()
 
@@ -160,7 +148,9 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should set empty root file object for invalid base path in store', () => {
-    store.state.files.base = '/fake'
+    const files = fetch_files_store()
+
+    files.base = '/fake'
 
     const wrapper = factory.wrap()
 

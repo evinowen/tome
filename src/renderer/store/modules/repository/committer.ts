@@ -1,23 +1,17 @@
-import { MutationTree, ActionTree } from 'vuex'
-import signature, { State as SignatureState } from './committer/signature'
-import api from '@/api'
+import { defineStore } from 'pinia'
+import { fetch_repository_committer_signature_store } from './committer/signature'
+import api, { RepositoryFile } from '@/api'
+import { fetch_log_store } from '@/store/log'
 
 export interface State {
-  staging: number
+  staging_count: number
   status: RepositoryStatus
   working: boolean
-
-  signature?: SignatureState
 }
 
 export interface RepositoryStatus {
-  available: RepositoryFileState[]
-  staged: RepositoryFileState[]
-}
-
-export interface RepositoryFileState {
-  path: string
-  type: RepositoryFileStateType
+  available: RepositoryFile[]
+  staged: RepositoryFile[]
 }
 
 export enum RepositoryFileStateType {
@@ -29,96 +23,84 @@ export enum RepositoryFileStateType {
 }
 
 export const StateDefaults = (): State => ({
-  staging: 0,
+  staging_count: 0,
   status: { available: [], staged: [] },
   working: false,
 })
 
-export default {
-  namespaced: true,
+export const fetch_repository_committer_store = defineStore('repository-committer', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    refresh: function (state, data) {
-      const { available, staged } = data
-      state.status.available = available
-      state.status.staged = staged
-    },
-    staging: function (state, advance) {
-      if (advance) {
-        state.staging++
-      } else {
-        state.staging--
-      }
-    },
-    commit: function (state, flag) {
-      state.working = flag
-    },
-  },
-  actions: <ActionTree<State, unknown>>{
-    inspect: async function (context) {
-      const result = await api.repository.inspect()
+  actions: {
+    inspect: async function () {
+      const { available, staged } = await api.repository.inspect()
 
-      await context.commit('refresh', result)
+      this.status.available = available
+      this.status.staged = staged
     },
-    stage: async function (context, query) {
-      context.commit('staging', true)
+    stage: async function (query) {
+      const log = fetch_log_store()
+      this.staging_count++
 
       try {
-        await context.dispatch('log', { level: 'info', message: `Staging query ${query}` }, { root: true })
+        await log.info(`Staging query ${query}`)
         await api.repository.stage(query)
 
-        await context.dispatch('inspect')
-        await context.dispatch('log', { level: 'info', message: 'Stage complete' }, { root: true })
+        await this.inspect()
+        await log.info('Stage complete')
       } catch (error) {
-        await context.dispatch('log', { level: 'error', message: 'Stage failed' }, { root: true })
+        await log.error('Stage failed')
         throw error
       } finally {
-        context.commit('staging', false)
+        this.staging_count--
       }
     },
-    staged: async function (context) {
-      return context.state.status.staged.length > 0
+    staged: async function () {
+      return this.status.staged.length > 0
     },
-    staging: function (context, advance) {
-      context.commit('staging', advance)
+    staging: function (advance) {
+      if (advance) {
+        this.staging_count++
+      } else {
+        this.staging_count--
+      }
     },
-    reset: async function (context, query) {
-      context.commit('staging', true)
+    reset: async function (query) {
+      const log = fetch_log_store()
+      this.staging_count++
 
       try {
-        await context.dispatch('log', { level: 'info', message: `Reseting query ${query}` }, { root: true })
+        await log.info(`Reseting query ${query}`)
         await api.repository.reset(query)
 
-        await context.dispatch('inspect')
-        await context.dispatch('log', { level: 'info', message: 'Reset complete' }, { root: true })
+        await this.inspect()
+        await log.info('Reset complete')
       } catch (error) {
-        await context.dispatch('log', { level: 'error', message: 'Reset failed' }, { root: true })
+        await log.error('Reset failed')
         throw error
       } finally {
-        context.commit('staging', false)
+        this.staging_count--
       }
     },
-    commit: async function (context) {
-      context.commit('commit', true)
+    commit: async function () {
+      const log = fetch_log_store()
+      this.working = true
 
-      const { name, email, message } = context.state.signature
+      const signature = fetch_repository_committer_signature_store()
+      const { name, email, message } = signature
 
-      await context.dispatch('log', { level: 'info', message: `Creating commit "${message}" ...` }, { root: true })
+      await log.info(`Creating commit "${message}" ...`)
 
       const oid = await api.repository.commit(name, email, message)
 
-      await context.dispatch('log', { level: 'info', message: `Commit "${message}" ${oid} created` }, { root: true })
+      await log.info(`Commit "${message}" ${oid} created`)
 
-      await context.dispatch('inspect')
+      await this.inspect()
 
-      while (context.state.staging) {
-        context.commit('staging', false)
+      while (this.staging_count) {
+        this.staging_count--
       }
 
-      context.commit('commit', false)
+      this.working = false
     },
   },
-  modules: {
-    signature,
-  },
-}
+})

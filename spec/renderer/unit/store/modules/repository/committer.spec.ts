@@ -1,30 +1,32 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import committer, { State as CommitterState } from '@/store/modules/repository/committer'
-import { cloneDeep } from 'lodash'
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 import * as api_module from '@/api'
 import { reset_inspect } from '?/builders/api/repository'
 import builders from '?/builders'
 
+vi.mock('@/store/log', () => ({
+  fetch_log_store: vi.fn(() => ({
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  })),
+}))
+
 const mocked_api = builders.api()
 Object.assign(api_module, { default: mocked_api })
 
-interface State {
-  committer: CommitterState
-}
-
 describe('store/modules/repository/committer', () => {
-  let store
-
-  const log = vi.fn()
+  let repository_committer
 
   beforeEach(() => {
-    reset_inspect()
+    setActivePinia(createPinia())
+    repository_committer = fetch_repository_committer_store()
 
-    store = new Vuex.Store<State>(cloneDeep({
-      actions: { log },
-      modules: { committer },
-    }))
+    reset_inspect()
   })
 
   afterEach(() => {
@@ -38,15 +40,15 @@ describe('store/modules/repository/committer', () => {
       message: 'Test Commit',
     }
 
-    await store.dispatch('committer/commit', data)
+    await repository_committer.commit(data)
 
     expect(mocked_api.repository.commit).toHaveBeenCalledTimes(1)
   })
 
   it('should clear staging counter on dispatch of commit action', async () => {
-    await store.dispatch('committer/staging', true)
+    await repository_committer.staging(true)
 
-    expect(store.state.committer.staging).toBeGreaterThan(0)
+    expect(repository_committer.staging_count).toBeGreaterThan(0)
 
     const data = {
       name: 'Test',
@@ -54,43 +56,43 @@ describe('store/modules/repository/committer', () => {
       message: 'Test Commit',
     }
 
-    await store.dispatch('committer/commit', data)
+    await repository_committer.commit(data)
 
-    expect(store.state.committer.staging).toEqual(0)
+    expect(repository_committer.staging_count).toEqual(0)
   })
 
   it('should instruct the repository to stage the query on dispatch of stage', async () => {
-    await store.dispatch('committer/stage', '/test.file.1.md')
+    await repository_committer.stage('/test.file.1.md')
 
     expect(mocked_api.repository.stage).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the repository to reset the query on dispatch of reset', async () => {
-    await store.dispatch('committer/reset', '/test.file.1.md')
+    await repository_committer.reset('/test.file.1.md')
 
     expect(mocked_api.repository.reset).toHaveBeenCalledTimes(1)
   })
 
   it('should instruct the repository to run inspect cycle on dispatch of inspect', async () => {
-    await store.dispatch('committer/inspect')
+    await repository_committer.inspect()
 
     expect(mocked_api.repository.inspect).toHaveBeenCalledTimes(1)
   })
 
   it('should return false if staged is larger than zero upon dispatch of staged', async () => {
-    expect(store.state.committer.status.staged).toHaveLength(0)
+    expect(repository_committer.status.staged).toHaveLength(0)
 
-    const result = await store.dispatch('committer/staged')
+    const result = await repository_committer.staged()
 
     expect(result).toEqual(false)
   })
 
   it('should return true if staged is larger than zero upon dispatch of staged', async () => {
-    await store.dispatch('committer/stage', '/test.file.1.md')
+    await repository_committer.stage('/test.file.1.md')
 
-    expect(store.state.committer.status.staged).toHaveLength(1)
+    expect(repository_committer.status.staged).toHaveLength(1)
 
-    const result = await store.dispatch('committer/staged')
+    const result = await repository_committer.staged()
 
     expect(result).toEqual(true)
   })

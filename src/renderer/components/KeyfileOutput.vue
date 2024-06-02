@@ -45,9 +45,9 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { fetchStore } from '@/store'
+import { fetch_clipboard_store } from '@/store/modules/clipboard'
 
-const store = fetchStore()
+const clipboard = fetch_clipboard_store()
 
 interface Properties {
   label?: string
@@ -62,7 +62,7 @@ const properties = withDefaults(defineProps<Properties>(), {
 })
 
 async function copy () {
-  await store.dispatch('clipboard/text', properties.value)
+  await clipboard.text(properties.value)
 }
 
 defineExpose({

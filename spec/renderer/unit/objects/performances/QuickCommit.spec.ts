@@ -1,4 +1,9 @@
 import { describe, beforeEach, it, expect, vi } from 'vitest'
+import { setActivePinia } from 'pinia'
+import { createTestingPinia } from '@pinia/testing'
+import { fetch_error_store } from '@/store/modules/error'
+import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
+import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
 import QuickCommit from '@/objects/performances/QuickCommit'
 
 vi.mock('lodash', () => ({
@@ -6,49 +11,42 @@ vi.mock('lodash', () => ({
 }))
 
 describe('objects/performances/QuickCommit', () => {
-  let dispatch
-  let system_commit_confirm = vi.fn(() => false)
-  let error_show = vi.fn(() => false)
-
   beforeEach(() => {
-    dispatch = vi.fn(async (action) => {
-      switch (action) {
-        case 'system/commit_confirm':
-          return system_commit_confirm()
-
-        case 'error/show':
-          return error_show()
-
-        default:
-          return false
-      }
+    const pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
 
-    system_commit_confirm = vi.fn(() => false)
-    error_show = vi.fn(() => false)
+    setActivePinia(pinia)
   })
 
-  it('should show error when "system/commit_confirm" returns false upon call to QuickCommit.perform', async () => {
-    system_commit_confirm.mockReturnValue(false)
+  it('should show error when "repository_committer_signature.check" returns false upon call to QuickCommit.perform', async () => {
+    const error = fetch_error_store()
+    const repository_committer_signature = fetch_repository_committer_signature_store()
+    repository_committer_signature.check = vi.fn(() => false)
 
-    await QuickCommit.perform(dispatch)
+    await QuickCommit.perform()
 
-    expect(error_show).toHaveBeenCalled()
+    expect(error.show).toHaveBeenCalled()
   })
 
   it('should not trigger Commit performance when "system/commit_confirm" returns false upon call to QuickCommit.perform', async () => {
-    system_commit_confirm.mockReturnValue(false)
+    const system = fetch_system_store()
+    const repository_committer_signature = fetch_repository_committer_signature_store()
+    repository_committer_signature.check = vi.fn(() => false)
 
-    await QuickCommit.perform(dispatch)
+    await QuickCommit.perform()
 
-    expect(dispatch).not.toHaveBeenCalledWith('system/perform', 'commit')
+    expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.Commit)
   })
 
   it('should trigger Commit performance when "system/commit_confirm" returns true upon call to QuickCommit.perform', async () => {
-    system_commit_confirm.mockReturnValue(true)
+    const system = fetch_system_store()
+    const repository_committer_signature = fetch_repository_committer_signature_store()
+    repository_committer_signature.check = vi.fn(() => true)
 
-    await QuickCommit.perform(dispatch)
+    await QuickCommit.perform()
 
-    expect(dispatch).toHaveBeenCalledWith('system/perform', 'commit')
+    expect(system.perform).toHaveBeenCalledWith(SystemPerformance.Commit)
   })
 })

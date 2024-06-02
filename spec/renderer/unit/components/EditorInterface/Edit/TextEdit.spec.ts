@@ -1,14 +1,9 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ActionsStateDefaults } from '@/store/modules/actions'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
-import { StateDefaults as ComposeStateDefaults } from '@/store/modules/configuration/themes/sections/compose'
-import { StateDefaults as SearchStateDefaults } from '@/store/modules/search'
+import { createTestingPinia } from '@pinia/testing'
 import { File } from '@/store/modules/files'
 import TextEdit from '@/components/EditorInterface/Edit/TextEdit.vue'
+import { fetch_files_store } from '@/store/modules/files'
 
 import { Extension } from '@codemirror/state'
 
@@ -122,40 +117,20 @@ describe('components/EditorInterface/Edit/TextEdit', () => {
   const file = File.Empty
   file.path = './document.md'
 
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(TextEdit, { file })
     .context(() => ({
       global: {
-        plugins: [ [ store, key ] ],
+        plugins: [ pinia ],
       },
     }))
 
   beforeEach(() => {
-    store = createStore<State>({
-      state: {
-        actions: ActionsStateDefaults(),
-        configuration: {
-          ...ConfigurationStateDefaults(),
-          themes: {
-            light: {
-              compose: ComposeStateDefaults(),
-            },
-          },
-        },
-        search: SearchStateDefaults(),
-      },
-      actions: stub_actions([
-        'actions/execute',
-        'clipboard/text',
-        'context/open',
-        'files/debounce_save',
-        'search/navigate',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -167,7 +142,9 @@ describe('components/EditorInterface/Edit/TextEdit', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should dispatch file/debounce_save with document on call to save', async () => {
+  it('should dispatch file/save with document on call to save', async () => {
+    const files = fetch_files_store()
+
     const wrapper = factory.wrap()
 
     const path = './document.md'
@@ -175,10 +152,12 @@ describe('components/EditorInterface/Edit/TextEdit', () => {
 
     await wrapper.vm.save(path)
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/debounce_save', { path, content })
+    expect(files.save).toHaveBeenCalledWith({ path, content })
   })
 
-  it('should dispatch file/debounce_save with document on call to input', async () => {
+  it('should dispatch file/save with document on call to input', async () => {
+    const files = fetch_files_store()
+
     const wrapper = factory.wrap()
 
     const path = './document.md'
@@ -186,6 +165,6 @@ describe('components/EditorInterface/Edit/TextEdit', () => {
 
     await wrapper.vm.input()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/debounce_save', { path, content })
+    expect(files.save).toHaveBeenCalledWith({ path, content })
   })
 })

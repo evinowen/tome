@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, beforeEach, it, expect } from '@jest/globals'
 import * as node_fs from 'node:fs'
 import * as NodeGit from 'nodegit'

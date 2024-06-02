@@ -1,23 +1,17 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
-import { StateDefaults as ApplicationStateDefaults } from '@/store/modules/configuration/themes/sections/application'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
-
+import { createTestingPinia } from '@pinia/testing'
 import App from '@/components/App.vue'
 
 describe('components/App', () => {
   let vuetify
-  let store
+  let pinia
 
   const factory = assemble(App)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VApp: true,
           VMain: true,
@@ -39,30 +33,12 @@ describe('components/App', () => {
     }))
 
   beforeEach(() => {
-    store = createStore<State>({
-      state: {
-        configuration: {
-          ...ConfigurationStateDefaults(),
-          themes: {
-            dark: {},
-            light: {
-              application: ApplicationStateDefaults(),
-            },
-          },
-        },
-        repository: {
-          ...RepositoryStateDefaults(),
-          loaded: false,
-          path: '',
-        },
-        system: SystemStateDefaults(),
-      },
-      actions: {
-        'present': vi.fn(),
-      },
-    })
-
     vuetify = createVuetify()
+
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
+    })
   })
 
   afterEach(() => {

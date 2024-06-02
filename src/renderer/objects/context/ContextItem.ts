@@ -6,12 +6,12 @@ export default class ContextItem {
   command?: ContextCommand
   divider?: boolean = false
   active?: () => Promise<boolean>
-  action?: (target: string) => Promise<void>
+  action?: (target: string) => Promise<unknown>
   load?: () => Promise<ContextItem[]>
 
   items?: ContextItem[] = undefined
 
-  static action (title: string, action: (target: string) => Promise<void>, command?: ContextCommand): ContextItem {
+  static action (title: string, action: (target: string) => Promise<unknown>, command?: ContextCommand): ContextItem {
     const item = new ContextItem()
     item.title = title
     item.action = action

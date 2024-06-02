@@ -1,4 +1,4 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
 import api from '@/api'
 
 export interface State {
@@ -38,41 +38,28 @@ export const StateDefaults = (): State => ({
   message: '',
 })
 
-export default {
-  namespaced: true,
+export const fetch_repository_comparator_store = defineStore('repository-comparator', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    clear: function (state) {
-      Object.assign(state, StateDefaults())
-    },
-    update: function (state, data) {
-      const { type, reference, patches, message } = data
-
-      state.patches = patches
-      state.type = type
-      state.reference = reference
-      state.message = message
-    },
-  },
-  actions: <ActionTree<State, unknown>>{
-    diff: async function (context, data) {
+  actions: {
+    diff: async function (data) {
       const { path, commit } = data
 
-      let type = ''
-      let reference = ''
+      this.$reset()
 
       if (path) {
-        type = 'patch'
-        reference = path
+        this.type = 'patch'
+        this.reference = path
+
         const { patches } = await api.repository.diff_path(path)
-        context.commit('update', { type, reference, patches, message: '' })
+        this.patches = patches
       } else if (commit) {
-        type = 'commit'
-        reference = String(commit).toLowerCase()
+        this.type = 'commit'
+        this.reference = String(commit).toLowerCase()
 
         const { patches, message } = await api.repository.diff_commit(commit)
-        context.commit('update', { type, reference, patches, message })
+        this.patches = patches
+        this.message = message
       }
     },
   },
-}
+})

@@ -2,30 +2,25 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import UtilityPage from '?/stubs/UtilityPage.vue'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { StateDefaults as RepositoryCommitterStateDefaults } from '@/store/modules/repository/committer'
-import { StateDefaults as RepositoryCommitterSignatureStateDefaults } from '@/store/modules/repository/committer/signature'
-import { StateDefaults as RepositoryCredentialStateDefaults } from '@/store/modules/repository/credentials'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { createTestingPinia } from '@pinia/testing'
 import Commit from '@/components/Commit.vue'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
+import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
+import { fetch_system_store } from '@/store/modules/system'
 
 vi.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {} }))
 
 describe('components/Commit', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(Commit)
     .context(() => ({
       vuetify,
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           CommitList: true,
           CommitConfirm: true,
@@ -46,36 +41,10 @@ describe('components/Commit', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration: ConfigurationStateDefaults(),
-        repository: {
-          ...RepositoryStateDefaults(),
-          committer: {
-            ...RepositoryCommitterStateDefaults(),
-            signature: RepositoryCommitterSignatureStateDefaults(),
-          },
-          credentials: RepositoryCredentialStateDefaults(),
-        },
-        system: SystemStateDefaults(),
-      },
-      actions: stub_actions([
-        'repository/comparator/diff',
-        'repository/message',
-        'repository/committer/reset',
-        'repository/committer/signature/email',
-        'repository/committer/signature/message',
-        'repository/committer/signature/name',
-        'repository/committer/stage',
-        'system/commit_confirm',
-        'system/commit_push',
-        'system/commit',
-        'system/patch',
-        'system/perform',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -83,76 +52,83 @@ describe('components/Commit', () => {
   })
 
   it('should dispatch repository/committer/signature/name with new value when sign_name is called with a value', async () => {
+    const repository_committer_signature = fetch_repository_committer_signature_store()
+
     const wrapper = factory.wrap()
 
     const name = 'John Doe'
     await wrapper.vm.sign_name(name)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/committer/signature/name', name)
+    expect(repository_committer_signature.sign_name).toHaveBeenCalledWith(name)
   })
 
   it('should dispatch repository/committer/signature/email with new value when sign_email is called with a value', async () => {
+    const repository_committer_signature = fetch_repository_committer_signature_store()
+
     const wrapper = factory.wrap()
 
     const email = 'test@example.com'
     await wrapper.vm.sign_email(email)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/committer/signature/email', email)
+    expect(repository_committer_signature.sign_email).toHaveBeenCalledWith(email)
   })
 
   it('should dispatch repository/committer/signature/message with new value when sign_message is called with a value', async () => {
+    const repository_committer_signature = fetch_repository_committer_signature_store()
+
     const wrapper = factory.wrap()
 
     const message = 'Test Message'
     await wrapper.vm.sign_message(message)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/committer/signature/message', message)
+    expect(repository_committer_signature.sign_message).toHaveBeenCalledWith(message)
   })
 
   it('should dispatch system/commit with false when close is called', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.close()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/commit', false)
+    expect(system.page).toHaveBeenCalledWith({ commit: false })
   })
 
   it('should dispatch system/commit_confirm with new value when confirm is called with a value', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.confirm(true)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/commit_confirm', true)
+    expect(system.page).toHaveBeenCalledWith({ commit_confirm: true })
   })
 
   it('should dispatch system/commit_push with new value when push is called with a value', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.push(true)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/commit_push', true)
-  })
-
-  it('should dispatch repository/message with message when message is called with message', async () => {
-    const wrapper = factory.wrap()
-
-    const message = 'Test Message'
-    await wrapper.vm.message(message)
-
-    expect(store_dispatch).toHaveBeenCalledWith('repository/message', message)
+    expect(system.page).toHaveBeenCalledWith({ commit_push: true })
   })
 
   it('should dispatch repository/comparator/diff with path when diff is called with file', async () => {
+    const repository_comparator = fetch_repository_comparator_store()
+
     const wrapper = factory.wrap()
 
     const path = './file.md'
 
     await wrapper.vm.diff(path)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/comparator/diff', { path })
+    expect(repository_comparator.diff).toHaveBeenCalledWith({ path })
   })
 
   it('should dispatch system/patch with true when diff is called with file', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     const file = {
@@ -161,32 +137,38 @@ describe('components/Commit', () => {
 
     await wrapper.vm.diff(file)
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/patch', true)
+    expect(system.page).toHaveBeenCalledWith({ patch: true })
   })
 
   it('should dispatch repository/committer/stage with path when stage is called with path', async () => {
+    const repository_committer = fetch_repository_committer_store()
+
     const wrapper = factory.wrap()
 
     const path = './file.md'
     await wrapper.vm.stage(path)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/committer/stage', path)
+    expect(repository_committer.stage).toHaveBeenCalledWith(path)
   })
 
   it('should dispatch repository/committer/reset with path when reset is called with path', async () => {
+    const repository_committer = fetch_repository_committer_store()
+
     const wrapper = factory.wrap()
 
     const path = './file.md'
     await wrapper.vm.reset(path)
 
-    expect(store_dispatch).toHaveBeenCalledWith('repository/committer/reset', path)
+    expect(repository_committer.reset).toHaveBeenCalledWith(path)
   })
 
   it('should dispatch system/perform for commit when commit is called', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.commit()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/perform', 'commit')
+    expect(system.perform).toHaveBeenCalledWith('commit')
   })
 })

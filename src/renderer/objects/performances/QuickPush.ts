@@ -1,15 +1,22 @@
 import { delay } from 'lodash'
+import { fetch_log_store } from '@/store/log'
+import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
 
 export default class QuickPush {
-  static async perform (dispatch: (action: string, data?: unknown) => Promise<boolean>) {
-    await dispatch('log', { level: 'info', message: 'Perform Quick Push' })
+  static async perform () {
+    const log = fetch_log_store()
+    const system = fetch_system_store()
 
-    await dispatch('system/edit', true)
-    await dispatch('system/push', true)
-    await dispatch('system/push_confirm', true)
+    await log.info('Perform Quick Push')
+
+    await system.page({
+      edit: true,
+      push: true,
+      push_confirm: true,
+    })
 
     await new Promise((resolve) => delay(resolve, 500))
 
-    await dispatch('system/perform', 'push')
+    await system.perform(SystemPerformance.Push)
   }
 }

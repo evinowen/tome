@@ -5,7 +5,7 @@
       right
       title="Remotes"
       :layer="2"
-      :open="store.state.system.remotes"
+      :open="system.remotes"
       @close="close"
     >
       <v-card
@@ -20,7 +20,7 @@
         >
           <v-list class="pa-0">
             <v-list-item
-              v-for="remote in store.state.repository.remotes.list"
+              v-for="remote in repository_remotes.list"
               :key="remote.name"
               class="remote-list-item pa-1"
               :title="remote.name"
@@ -120,7 +120,8 @@ export enum RemoteUrlPlaceholderValues {
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 import UtilityPage from '@/components/UtilityPage.vue'
 import TextInput from '@/components/Input/TextInput.vue'
 import RemoteRemoveConfirm from '@/components/RemoteRemoveConfirm.vue'
@@ -137,7 +138,8 @@ import {
 } from 'vuetify/components'
 import { http as http_regex, git as git_regex } from '@/regex'
 
-const store = fetchStore()
+const system = fetch_system_store()
+const repository_remotes = fetch_repository_remotes_store()
 
 const remote_command = ref('')
 const remote_command_error = ref(false)
@@ -174,7 +176,7 @@ function update_remote_url_placeholder () {
 }
 
 async function close () {
-  await store.dispatch('system/remotes', false)
+  await system.page({ remotes: false })
 }
 
 async function add_command () {
@@ -206,7 +208,7 @@ async function add_command () {
     return
   }
 
-  await store.dispatch('repository/remotes/add', { name: remote_command_name, url: remote_command_url })
+  await repository_remotes.add({ name: remote_command_name, url: remote_command_url })
   remote_command.value = ''
 }
 
@@ -226,14 +228,14 @@ async function add_manual () {
     return
   }
 
-  await store.dispatch('repository/remotes/add', { name: remote_name.value, url: remote_url.value })
+  await repository_remotes.add({ name: remote_name.value, url: remote_url.value })
 
   remote_name.value = ''
   remote_url.value = ''
 }
 
 async function remove () {
-  await store.dispatch('repository/remotes/remove', { name: remote_remove_name.value })
+  await repository_remotes.remove({ name: remote_remove_name.value })
   remote_remove_confirm.value = false
 }
 

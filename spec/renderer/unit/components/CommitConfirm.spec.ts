@@ -1,7 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import DialogComponentStub from '?/stubs/DialogComponentStub'
 import { createVuetify } from 'vuetify'
 import CommitConfirm, { CommitConfirmMessages } from '@/components/CommitConfirm.vue'
 

@@ -1,6 +1,6 @@
 <template>
   <context
-    :load="async (store) => ExplorerContextMenu(store, file)"
+    :load="async (store) => ExplorerContextMenu(file)"
     :target="file.path"
     class="explorer-root"
   >
@@ -28,8 +28,8 @@ export default {
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { fetchStore } from '@/store'
-import File from '@/store/modules/files/file'
+import { fetch_files_store } from '@/store/modules/files'
+import File from '@/objects/File'
 import ExplorerContextMenu from '@/objects/context/menus/ExplorerContextMenu'
 
 export interface Properties {
@@ -40,14 +40,14 @@ withDefaults(defineProps<Properties>(), {
   enabled: false,
 })
 
-const store = fetchStore()
+const files = fetch_files_store()
 
 const active = computed(() => {
-  if (store.state.files.active === '') {
+  if (files.active === '') {
     return ''
   }
 
-  const selected = store.state.files.directory[store.state.files.active]
+  const selected = files.directory[files.active]
 
   if (selected) {
     return selected.uuid
@@ -57,7 +57,7 @@ const active = computed(() => {
 })
 
 const file = computed((): File => {
-  return store.state.files.directory[store.state.files.base] || File.Empty
+  return files.directory[files.base] || File.Empty
 })
 
 defineExpose({

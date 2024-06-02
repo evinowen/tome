@@ -32,8 +32,8 @@
 import { computed } from 'vue'
 import SelectMenu from '@/components/SelectMenu.vue'
 import { VBtn } from 'vuetify/components'
-import { fetchStore } from '@/store'
-import { RepositoryRemote } from '@/store/modules/repository'
+import { fetch_system_store } from '@/store/modules/system'
+import { RepositoryRemote } from '@/store/modules/repository/remotes'
 
 export interface Properties {
   value?: string
@@ -45,7 +45,7 @@ const properties = withDefaults(defineProps<Properties>(), {
   items: () => [],
 })
 
-const store = fetchStore()
+const system = fetch_system_store()
 const options = computed(() => properties.items.map((item) => ({
   value: item.name,
   label: item.name,
@@ -61,7 +61,7 @@ async function update (remote) {
 }
 
 async function remotes () {
-  await store.dispatch('system/remotes', true)
+  await system.page({ remotes: true })
 }
 
 defineExpose({

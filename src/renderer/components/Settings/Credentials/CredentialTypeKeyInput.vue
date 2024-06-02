@@ -11,7 +11,7 @@
     />
     <keyfile-output
       label="public key"
-      :value="store.state.configuration.public_key"
+      :value="configuration.public_key"
     />
   </div>
 </template>
@@ -20,8 +20,7 @@
 import KeyfileInput from '@/components/Settings/KeyfileInput.vue'
 import KeyfileOutput from '@/components/KeyfileOutput.vue'
 import TextInput from '@/components/Settings/TextInput.vue'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 
-import { fetchStore } from '@/store'
-
-const store = fetchStore()
+const configuration = fetch_configuration_store()
 </script>

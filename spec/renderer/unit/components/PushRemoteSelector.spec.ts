@@ -1,23 +1,21 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { RepositoryRemote } from '@/store/modules/repository'
+import { createTestingPinia } from '@pinia/testing'
+import { RepositoryRemote } from '@/api'
 import PushRemoteSelector from '@/components/PushRemoteSelector.vue'
+import { fetch_system_store } from '@/store/modules/system'
 
 describe('components/PushRemoteSelector', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
   let items: RepositoryRemote[]
 
   const factory = assemble(PushRemoteSelector)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           SelectMenu: BasicComponentStub,
           VBtn: BasicComponentStub,
@@ -28,14 +26,10 @@ describe('components/PushRemoteSelector', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {},
-      actions: stub_actions([
-        'system/remotes',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
 
     items = [ {
       name: 'repository',
@@ -66,6 +60,8 @@ describe('components/PushRemoteSelector', () => {
   })
 
   it('should dispatch "system/remotes" when remote-button is clicked', async () => {
+    const system = fetch_system_store()
+
     items = []
 
     const wrapper = factory.wrap({ items })
@@ -76,6 +72,6 @@ describe('components/PushRemoteSelector', () => {
     remote_button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/remotes', true)
+    expect(system.page).toHaveBeenCalledWith({ remotes: true })
   })
 })
