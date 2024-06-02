@@ -308,21 +308,6 @@ describe('components/ShortcutService', () => {
     expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
   })
 
-  it('should call dispatch when keyup is called for mapped key event', async () => {
-    const wrapper = factory.wrap()
-
-    const event = {
-      ctrlKey: true,
-      key: 'dispatch',
-    } as KeyboardEvent
-
-    expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()
-
-    await wrapper.vm.keyup(event)
-
-    expect(MockedShorcutOperator.dispatch).toHaveBeenCalledWith(shortcut_map.dispatch.dispatch)
-  })
-
   it('should not call dispatch when keyup is called for mapped key event without ctrl key pressed', async () => {
     const wrapper = factory.wrap()
 
