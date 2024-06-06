@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_files_store } from '@/store/modules/files'
 import api from '@/api'
 

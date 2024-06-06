@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { fetch_configuration_store } from '@/store/modules/configuration'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_repository_store } from '@/store/modules/repository'
 import api from '@/api'
 import Commit from '@/objects/performances/Commit'

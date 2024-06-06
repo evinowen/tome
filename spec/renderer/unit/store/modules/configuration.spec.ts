@@ -6,7 +6,7 @@ import { set_disk } from '?/builders/api/file'
 import * as api_module from '@/api'
 import builders from '?/builders'
 
-vi.mock('@/store/log', () => ({
+vi.mock('@/store/modules/log', () => ({
   fetch_log_store: vi.fn(() => ({
     trace: vi.fn(),
     debug: vi.fn(),

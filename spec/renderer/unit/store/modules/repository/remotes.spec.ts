@@ -4,7 +4,7 @@ import { fetch_repository_remotes_store } from '@/store/modules/repository/remot
 import * as api_module from '@/api'
 import builders from '?/builders'
 
-vi.mock('@/store/log', () => ({
+vi.mock('@/store/modules/log', () => ({
   fetch_log_store: vi.fn(() => ({
     trace: vi.fn(),
     debug: vi.fn(),

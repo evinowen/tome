@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import api from '@/api'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_actions_store } from '@/store/modules/actions'
 import { fetch_configuration_store } from '@/store/modules/configuration'
 import { fetch_templates_store } from '@/store/modules/templates'

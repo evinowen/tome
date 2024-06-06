@@ -20,7 +20,7 @@ import { computed, ref, watch } from 'vue'
 import Context from '@/components/Context.vue'
 import RenderedViewport from '@/components/RenderedViewport.vue'
 import File from '@/objects/File'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_search_store } from '@/store/modules/search'
 import RenderedViewportContextMenu from '@/objects/context/menus/RenderedViewportContextMenu'
 

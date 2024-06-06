@@ -1,5 +1,5 @@
 import { delay } from 'lodash'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
 
 export default class QuickPush {

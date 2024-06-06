@@ -1,6 +1,6 @@
 import { delay } from 'lodash'
 import { fetch_configuration_store } from '@/store/modules/configuration'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_error_store } from '@/store/modules/error'
 import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'

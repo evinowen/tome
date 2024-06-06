@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import File, { FileLoadContract } from '@/objects/File'
 import FileTree, { FileIdentity, FileIdentityContract } from '@/objects/FileTree'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_repository_metadata_store } from '@/store/modules/repository/metadata'
 
 export { default as File } from '@/objects/File'

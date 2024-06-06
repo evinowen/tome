@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { fetch_repository_committer_signature_store } from './committer/signature'
 import api, { RepositoryFile } from '@/api'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 
 export interface State {
   status: RepositoryStatus

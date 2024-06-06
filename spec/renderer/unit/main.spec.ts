@@ -1,6 +1,6 @@
 import { describe, afterEach, it, expect, vi } from 'vitest'
 import { createTestingPinia } from '@pinia/testing'
-import { fetch_application_store } from '@/store/application'
+import { fetch_application_store } from '@/store/modules/application'
 import * as api_module from '@/api'
 import builders from '?/builders'
 

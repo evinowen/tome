@@ -1,6 +1,6 @@
 import { createApp, h } from 'vue'
 import { createPinia } from 'pinia'
-import { fetch_application_store } from './store/application'
+import { fetch_application_store } from './store/modules/application'
 import vuetify from './vuetify'
 import api from '@/api'
 import App from '@/components/App.vue'

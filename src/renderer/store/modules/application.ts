@@ -1,12 +1,10 @@
 import { defineStore } from 'pinia'
 import api from '@/api'
-
 import { fetch_configuration_store } from '@/store/modules/configuration'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_library_store } from '@/store/modules/library'
 import { fetch_system_store } from '@/store/modules/system'
-
-export { File } from './modules/files'
+export { File } from '@/store/modules/files'
 
 export interface State {
   stages?: ApplicationStage[]

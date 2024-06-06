@@ -74,7 +74,7 @@ import {
 } from 'vuetify/components'
 
 import { computed, nextTick, onMounted, ref, watchEffect } from 'vue'
-import { fetch_application_store, ApplicationStage } from '@/store/application'
+import { fetch_application_store, ApplicationStage } from '@/store/modules/application'
 import { fetch_configuration_store } from '@/store/modules/configuration'
 import { fetch_repository_store } from '@/store/modules/repository'
 import { fetch_system_store } from '@/store/modules/system'

@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue'
 import { DateTime } from 'luxon'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_system_store } from '@/store/modules/system'
 import ConsolePage from './ConsolePage.vue'
 import ConsoleDetailBox from './ConsoleDetailBox.vue'

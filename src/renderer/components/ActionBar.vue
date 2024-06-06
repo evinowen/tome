@@ -118,7 +118,7 @@ export default {
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_system_store } from '@/store/modules/system'
 import { fetch_repository_store } from '@/store/modules/repository'
 import { fetch_repository_branches_store } from '@/store/modules/repository/branches'

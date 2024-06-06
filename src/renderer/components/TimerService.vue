@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_system_store, SystemTimeout } from '@/store/modules/system'
 
 const log = fetch_log_store()

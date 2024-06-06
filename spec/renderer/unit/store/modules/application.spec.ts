@@ -1,6 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { fetch_application_store } from '@/store/application'
+import { fetch_application_store } from '@/store/modules/application'
 import { fetch_configuration_store } from '@/store/modules/configuration'
 import { fetch_library_store } from '@/store/modules/library'
 import { fetch_system_store } from '@/store/modules/system'
@@ -13,7 +13,7 @@ vi.stubGlobal('document', {
   ],
 })
 
-vi.mock('@/store/log', () => ({
+vi.mock('@/store/modules/log', () => ({
   fetch_log_store: vi.fn(() => ({
     trace: vi.fn(),
     debug: vi.fn(),

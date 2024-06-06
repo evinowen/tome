@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import api, { RepositoryRemote } from '@/api'
-import { fetch_log_store } from '@/store/log'
+import { fetch_log_store } from '@/store/modules/log'
 import { fetch_repository_credentials_store } from '@/store/modules/repository/credentials'
 
 class RepositoryRemoteNotFoundError extends Error {}

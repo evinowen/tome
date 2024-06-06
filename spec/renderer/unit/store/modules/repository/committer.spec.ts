@@ -5,7 +5,7 @@ import * as api_module from '@/api'
 import { reset_inspect } from '?/builders/api/repository'
 import builders from '?/builders'
 
-vi.mock('@/store/log', () => ({
+vi.mock('@/store/modules/log', () => ({
   fetch_log_store: vi.fn(() => ({
     trace: vi.fn(),
     debug: vi.fn(),
