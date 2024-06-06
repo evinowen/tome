@@ -7,12 +7,13 @@ import TextInput from '@/components/Settings/TextInput.vue'
 import { fetch_configuration_store } from '@/store/modules/configuration'
 
 vi.mock('lodash', () => ({
-  debounce: (callback) => {
+  throttle: (callback) => {
     callback.cancel = vi.fn()
     callback.flush = vi.fn()
     return callback
   },
   cloneDeep: (value) => value,
+  get: vi.fn(),
 }))
 
 describe('components/Settings/TextInput', () => {
@@ -20,13 +21,14 @@ describe('components/Settings/TextInput', () => {
   let pinia
 
   const label = 'name'
-  const index = 'name'
+  const index = 'signature.name'
 
   const factory = assemble(TextInput, { label, index })
     .context(() => ({
       global: {
         plugins: [ vuetify, pinia ],
         stubs: {
+          SettingFrame: BasicComponentStub,
           TextInput: BasicComponentStub,
         },
       },
@@ -51,7 +53,7 @@ describe('components/Settings/TextInput', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should dispatch configuration/update with new value when input emits model update', async () => {
+  it('should call configuration.update with new value when input emits model update', async () => {
     const configuration = fetch_configuration_store()
 
     const wrapper = factory.wrap()
@@ -62,7 +64,6 @@ describe('components/Settings/TextInput', () => {
     const value = 'John Doe'
     input_field.vm.$emit('update', value)
 
-    const data = { [index]: value }
-    expect(configuration.update).toHaveBeenCalledWith(data)
+    expect(configuration.update).toHaveBeenCalledWith('global', index, value)
   })
 })

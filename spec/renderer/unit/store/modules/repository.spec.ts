@@ -20,7 +20,11 @@ vi.mock('@/store/modules/actions', () => ({
 }))
 
 vi.mock('@/store/modules/configuration', () => ({
-  fetch_configuration_store: vi.fn(() => ({ load: vi.fn() })),
+  fetch_configuration_store: vi.fn(() => ({
+    load: vi.fn(),
+    load_local: vi.fn(),
+    reset_local: vi.fn(),
+  })),
 }))
 
 vi.mock('@/store/modules/templates', () => ({

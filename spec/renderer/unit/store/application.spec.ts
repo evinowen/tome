@@ -55,7 +55,7 @@ describe('store', () => {
     application = fetch_application_store()
 
     configuration = {
-      load: vi.fn(),
+      load_global: vi.fn(),
     }
 
     mock_fetch_configuration_store.mockReturnValue(configuration)
@@ -80,7 +80,7 @@ describe('store', () => {
   it('should load configuration on dispatch of hydrate action', async () => {
     await application.hydrate()
 
-    expect(configuration.load).toHaveBeenCalled()
+    expect(configuration.load_global).toHaveBeenCalled()
   })
 
   it('should load library on dispatch of hydrate action', async () => {

@@ -3,16 +3,18 @@ import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
 import { DOMWrapper } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
+import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
+import SettingsStateDefaults from '@/store/state/configuration/settings'
 import KeyfileInput from '@/components/Settings/KeyfileInput.vue'
-import { fetch_configuration_store } from '@/store/modules/configuration'
 
 vi.mock('lodash', () => ({
-  debounce: (callback) => {
+  throttle: (callback) => {
     callback.cancel = vi.fn()
     callback.flush = vi.fn()
     return callback
   },
   cloneDeep: (value) => value,
+  get: vi.fn(),
 }))
 
 describe('components/Settings/KeyfileInput', () => {
@@ -37,11 +39,26 @@ describe('components/Settings/KeyfileInput', () => {
       createSpy: vi.fn,
       initialState: {
         'configuration': {
-          private_key: '/home/user/.ssh/id_rsa',
-          passphrase,
+          target: SettingsTarget.Global,
+          global: {
+            credentials: {
+              private_key: '/home/user/.ssh/id_rsa',
+              passphrase,
+            },
+          },
         },
       },
     })
+
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = {
+      ...SettingsStateDefaults(),
+      credentials: {
+        private_key: '/home/user/.ssh/id_rsa',
+        passphrase,
+      },
+    }
   })
 
   afterEach(() => {
@@ -63,8 +80,7 @@ describe('components/Settings/KeyfileInput', () => {
     input_field.element.files = files
     await input_field.trigger('change')
 
-    const data = { [index]: path }
-    expect(configuration.update).not.toHaveBeenCalledWith(data)
+    expect(configuration.update).not.toHaveBeenCalledWith(SettingsTarget.Global, index, path)
   })
 
   it('should dispatch configuration/update when update method is called and file is selected', async () => {
@@ -82,8 +98,7 @@ describe('components/Settings/KeyfileInput', () => {
     input_field.element.files = files
     await input_field.trigger('change')
 
-    const data = { [index]: path }
-    expect(configuration.update).toHaveBeenCalledWith(data)
+    expect(configuration.update).toHaveBeenCalledWith(SettingsTarget.Global, index, path)
   })
 
   it('should dispatch configuration/update with empty value when clear button emits click', async () => {
@@ -96,14 +111,17 @@ describe('components/Settings/KeyfileInput', () => {
     expect(clear_button.exists()).toBe(true)
     await clear_button.trigger('click')
 
-    const data = { [index]: '' }
-    expect(configuration.update).toHaveBeenCalledWith(data)
+    expect(configuration.update).toHaveBeenCalledWith(SettingsTarget.Global, index, '')
   })
 
   it('should dispatch configuration/generate when generate button is clicked', async () => {
     const configuration = fetch_configuration_store()
-
-    configuration.private_key = ''
+    // @ts-expect-error: Getter is read only
+    configuration.active = {
+      credentials: {
+        private_key: '',
+      },
+    }
 
     const wrapper = factory.wrap()
 
@@ -111,6 +129,6 @@ describe('components/Settings/KeyfileInput', () => {
     expect(generate_button.exists()).toBe(true)
     await generate_button.trigger('click')
 
-    expect(configuration.generate).toHaveBeenCalledWith(passphrase)
+    expect(configuration.generate).toHaveBeenCalledWith(SettingsTarget.Global, passphrase)
   })
 })

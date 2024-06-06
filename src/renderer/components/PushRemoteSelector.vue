@@ -6,7 +6,7 @@
     label="Remote"
     :value="value"
     :options="options"
-    @update="update"
+    @update="select"
   />
   <div
     v-else
@@ -30,42 +30,32 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import SelectMenu from '@/components/SelectMenu.vue'
+import SelectMenu from '@/components/Input/SelectMenu.vue'
 import { VBtn } from 'vuetify/components'
 import { fetch_system_store } from '@/store/modules/system'
-import { RepositoryRemote } from '@/store/modules/repository/remotes'
-
-export interface Properties {
-  value?: string
-  items?: RepositoryRemote[]
-}
-
-const properties = withDefaults(defineProps<Properties>(), {
-  value: '',
-  items: () => [],
-})
+import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 
 const system = fetch_system_store()
-const options = computed(() => properties.items.map((item) => ({
+const repository_remotes = fetch_repository_remotes_store()
+
+const value = computed(() => repository_remotes.active.name === '' ? undefined : repository_remotes.active.name)
+const options = computed(() => repository_remotes.list.map((item) => ({
   value: item.name,
   label: item.name,
   detail: item.url,
 })))
 
-const emit = defineEmits([
-  'update',
-])
-
-async function update (remote) {
-  emit('update', remote)
-}
-
 async function remotes () {
   await system.page({ remotes: true })
 }
 
+async function select (name) {
+  await repository_remotes.select(name)
+}
+
 defineExpose({
-  update,
+  remotes,
+  select,
 })
 </script>
 

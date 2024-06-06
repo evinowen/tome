@@ -1,16 +1,11 @@
 import { z } from 'zod'
-import ThemesSchema from './configuration/themes'
+import SignatureSchema from './settings/signature'
+import CredentialsSchema from './settings/credentials'
+import ThemesSchema from './settings/themes'
 
 export default z.object({
-  name: z.string(),
-  email: z.string(),
-
-  credential_type: z.string(),
-  username: z.string(),
-  password: z.string(),
-  private_key: z.string(),
-  public_key: z.string(),
-  passphrase: z.string(),
+  signature: SignatureSchema,
+  credentials: CredentialsSchema,
 
   default_remote: z.string(),
   auto_commit: z.boolean(),

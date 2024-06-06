@@ -58,9 +58,9 @@ const configuration = fetch_configuration_store()
 const language = ref('markdown')
 
 const theme = computed(() => {
-  return configuration.dark_mode
-    ? configuration.themes.dark.compose
-    : configuration.themes.light.compose
+  return configuration[configuration.target].dark_mode
+    ? configuration[configuration.target].themes.dark.compose
+    : configuration[configuration.target].themes.light.compose
 })
 
 const content = computed(() => {
@@ -111,7 +111,7 @@ onMounted(() => {
 })
 
 const line_numbers = computed((): boolean => {
-  return configuration.line_numbers
+  return configuration[configuration.target].line_numbers
 })
 
 watch(line_numbers, configure_line_numbers)

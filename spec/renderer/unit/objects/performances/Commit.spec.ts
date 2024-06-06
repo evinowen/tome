@@ -19,27 +19,27 @@ describe('objects/performances/Commit', () => {
     setActivePinia(pinia)
   })
 
-  it('should exit Commit performance when "repository/committer/staged" returns false upon call to Commit.perform', async () => {
+  it('should exit Commit performance when "repository_committer.status.staged" is empty upon call to Commit.perform', async () => {
     const repository_committer = fetch_repository_committer_store()
-    repository_committer.staged = vi.fn(async () => false)
+    repository_committer.status.staged.length = 0
 
     await Commit.perform()
 
     expect(repository_committer.commit).not.toHaveBeenCalledWith()
   })
 
-  it('should complete Commit performance when "repository/committer/staged" returns true upon call to Commit.perform', async () => {
+  it('should complete Commit performance when"repository_committer.status.staged" has at least one item upon call to Commit.perform', async () => {
     const repository_committer = fetch_repository_committer_store()
-    repository_committer.staged = vi.fn(async () => true)
+    repository_committer.status.staged.push({ path: '/example', type: 1 })
 
     await Commit.perform()
 
     expect(repository_committer.commit).toHaveBeenCalledWith()
   })
 
-  it('should not trigger QuickPush performance when "system/commit_push" returns false upon call to Commit.perform', async () => {
+  it('should not trigger QuickPush performance when "system.commit_push" is false upon call to Commit.perform', async () => {
     const repository_committer = fetch_repository_committer_store()
-    repository_committer.staged = vi.fn(async () => true)
+    repository_committer.status.staged.push({ path: '/example', type: 1 })
 
     const system = fetch_system_store()
     system.commit_push = false
@@ -49,9 +49,9 @@ describe('objects/performances/Commit', () => {
     expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.QuickPush)
   })
 
-  it('should trigger QuickPush performance when "system/commit_push" returns true upon call to Commit.perform', async () => {
+  it('should trigger QuickPush performance when "system.commit_push" is true upon call to Commit.perform', async () => {
     const repository_committer = fetch_repository_committer_store()
-    repository_committer.staged = vi.fn(async () => true)
+    repository_committer.status.staged.push({ path: '/example', type: 1 })
 
     const system = fetch_system_store()
     system.commit_push = true
@@ -63,7 +63,7 @@ describe('objects/performances/Commit', () => {
 
   it('should not trigger QuickPush performance when "system/commit_push" returns true if commit fails upon call to Commit.perform', async () => {
     const repository_committer = fetch_repository_committer_store()
-    repository_committer.staged = vi.fn(async () => true)
+    repository_committer.status.staged.push({ path: '/example', type: 1 })
 
     const system = fetch_system_store()
     system.commit_push = true

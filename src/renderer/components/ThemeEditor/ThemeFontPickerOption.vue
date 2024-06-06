@@ -57,15 +57,17 @@ const properties = withDefaults(defineProps<Properties>(), {
   index: '',
 })
 
-const theme = computed(() => configuration.dark_mode ? 'dark' : 'light')
-const family_value = computed(() => configuration.themes[theme.value][properties.section][`font_family_${properties.index}`] ?? '')
-const size_value = computed(() => configuration.themes[theme.value][properties.section][`font_size_${properties.index}`] ?? '')
+const theme = computed(() => configuration[configuration.target].dark_mode ? 'dark' : 'light')
+const family_value = computed(() => configuration[configuration.target].themes[theme.value][properties.section][`font_family_${properties.index}`] ?? '')
+const size_value = computed(() => configuration[configuration.target].themes[theme.value][properties.section][`font_size_${properties.index}`] ?? '')
 
 async function update_family (value) {
-  await configuration.update({ themes: { [theme.value]: { [properties.section]: { [`font_family_${properties.index}`]: value ?? '' } } } })
+  // await configuration.update(configuration.target, { themes: { [theme.value]: { [properties.section]: { [`font_family_${properties.index}`]: value ?? '' } } } })
+  await configuration.update(configuration.target, `themes.${theme.value}.${properties.section}.font_family_${properties.index}`, value ?? '')
 }
 
 async function update_size (value) {
-  await configuration.update({ themes: { [theme.value]: { [properties.section]: { [`font_size_${properties.index}`]: value ?? '' } } } })
+  // await configuration.update(configuration.target, { themes: { [theme.value]: { [properties.section]: { [`font_size_${properties.index}`]: value ?? '' } } } })
+  await configuration.update(configuration.target, `themes.${theme.value}.${properties.section}.font_size_${properties.index}`, value ?? '')
 }
 </script>

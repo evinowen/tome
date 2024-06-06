@@ -6,7 +6,6 @@ import { createVuetify } from 'vuetify'
 import { createTestingPinia } from '@pinia/testing'
 import Push from '@/components/Push.vue'
 import { fetch_system_store } from '@/store/modules/system'
-import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 
 describe('components/Push', () => {
@@ -111,17 +110,5 @@ describe('components/Push', () => {
     await wrapper.vm.remotes()
 
     expect(system.page).toHaveBeenCalledWith({ remotes: true })
-  })
-
-  it('should dispatch "repository/remote" with name upon call to select_remote method', async () => {
-    const repository_remotes = fetch_repository_remotes_store()
-
-    const wrapper = factory.wrap()
-
-    const remote = 'origin'
-
-    await wrapper.vm.select_remote(remote)
-
-    expect(repository_remotes.select).toHaveBeenCalledWith(remote)
   })
 })

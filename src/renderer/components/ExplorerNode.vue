@@ -9,7 +9,7 @@
     >
       <context
         ref="context"
-        :load="async (store) => ExplorerNodeContextMenu(file)"
+        :load="async () => ExplorerNodeContextMenu(file)"
         :target="file.path"
         :class="[
           'explorer-node',
@@ -121,7 +121,7 @@ const draggable = computed(() => {
     properties.root,
     system.value,
     files.editing,
-    !configuration.draggable_objects,
+    !configuration.active.draggable_objects,
   ].includes(true)
 })
 
@@ -154,7 +154,7 @@ const system = computed(() => {
   return relationships.has(file.value.relationship)
 })
 
-const title_formatted = computed(() => configuration.format_explorer_titles)
+const title_formatted = computed(() => configuration.active.format_explorer_titles)
 
 const display = computed(() => {
   let name = file.value.name
@@ -172,7 +172,7 @@ const display = computed(() => {
 })
 
 const visible = computed(() => {
-  if (!properties.root && system.value && !configuration.system_objects) {
+  if (!properties.root && system.value && !configuration.active.system_objects) {
     return false
   }
 

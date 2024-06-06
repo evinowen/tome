@@ -218,9 +218,9 @@ async function debounce_clear () {
   return await debounce_update('')
 }
 
-const search_height = computed(() => configuration.search_height)
-const search_resize_height = computed(() => configuration.search_resize_height)
-const search_opacity = computed(() => configuration.search_opacity)
+const search_height = computed(() => configuration.active.search_height)
+const search_resize_height = computed(() => configuration.active.search_resize_height)
+const search_opacity = computed(() => configuration.active.search_opacity)
 
 const resized = ref<HTMLElement>()
 const resizer = ref<HTMLElement>()
@@ -251,7 +251,7 @@ function resize_end (event: PointerEvent) {
   resizing.value = false
   resizer.value.releasePointerCapture(event.pointerId)
 
-  configuration.update({ search_height: height.value })
+  configuration.update(configuration.target, { search_height: height.value })
 }
 
 defineExpose({

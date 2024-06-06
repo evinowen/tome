@@ -45,7 +45,7 @@
         action-bar-edit
         :value="system.edit"
         :disabled="disabled_unless()"
-        @input="edit"
+        @update="edit"
       />
 
       <divider />

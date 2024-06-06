@@ -44,7 +44,7 @@ export const fetch_application_store = defineStore('application', {
 
       await system.load()
 
-      await configuration.load()
+      await configuration.load_global()
 
       await log.debug(`Library established at ${this.library_path}`)
       await library.load(this.library_path)

@@ -48,9 +48,9 @@ onMounted(() => {
 })
 
 const theme = computed(() => {
-  return configuration.dark_mode
-    ? configuration.themes.dark.rendered
-    : configuration.themes.light.rendered
+  return configuration.active.dark_mode
+    ? configuration.active.themes.dark.rendered
+    : configuration.active.themes.light.rendered
 })
 
 const rendered = ref<string>()

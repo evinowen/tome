@@ -17,7 +17,7 @@ export default class AutoCommit {
     await log.info('Perform Auto Commit')
 
     try {
-      await system.page({ commit_push: configuration.auto_push })
+      await system.page({ commit_push: configuration.active.auto_push })
 
       await repository_committer.inspect()
       await repository_committer.stage('*')

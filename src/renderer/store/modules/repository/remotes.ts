@@ -9,8 +9,9 @@ class RepositoryRemoteNotLoadedError extends Error {}
 export interface State {
   list: RepositoryRemote[]
   active: RepositoryRemote
-  push: {
-    working: boolean
+  process: {
+    push: boolean
+    select: boolean
   }
 }
 
@@ -25,8 +26,9 @@ export const StateDefaults = (): State => ({
     },
     pending: [],
   },
-  push: {
-    working: false,
+  process: {
+    push: false,
+    select: false,
   },
 })
 
@@ -37,6 +39,8 @@ export const fetch_repository_remotes_store = defineStore('repository-remotes', 
       this.list = await api.repository.remote_list()
     },
     select: async function (name) {
+      this.process.select = true
+
       await api.repository.remote_clear()
 
       this.active = StateDefaults().active
@@ -58,6 +62,7 @@ export const fetch_repository_remotes_store = defineStore('repository-remotes', 
       await api.repository.remote_load(remote.name)
 
       this.active = await api.repository.remote_status()
+      this.process.select = false
     },
     status: async function () {
       this.active = await api.repository.remote_status()
@@ -73,6 +78,8 @@ export const fetch_repository_remotes_store = defineStore('repository-remotes', 
       await this.load()
     },
     push: async function () {
+      this.process.push = true
+
       const log = fetch_log_store()
 
       if (this.active === undefined) {
@@ -82,15 +89,13 @@ export const fetch_repository_remotes_store = defineStore('repository-remotes', 
       const credentials = fetch_repository_credentials_store()
       await credentials.load()
 
-      this.push.working = true
-
       await log.info(`Pushing to remote ${this.active.name} ...`)
 
       await api.repository.push()
 
       await log.info(`Push to remote ${this.active.name} complete`)
 
-      this.push.working = false
+      this.process.push = false
     },
   },
 })

@@ -14,7 +14,7 @@ export default class Commit {
     await log.info('Perform Commit')
 
     try {
-      if (!await repository_committer.staged()) {
+      if (repository_committer.status.staged.length === 0) {
         await log.info('Commit has no changes staged')
         return
       }

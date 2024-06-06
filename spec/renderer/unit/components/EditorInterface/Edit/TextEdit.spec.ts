@@ -4,6 +4,8 @@ import { createTestingPinia } from '@pinia/testing'
 import { File } from '@/store/modules/files'
 import TextEdit from '@/components/EditorInterface/Edit/TextEdit.vue'
 import { fetch_files_store } from '@/store/modules/files'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import SettingsStateDefaults from '@/store/state/configuration/settings'
 
 import { Extension } from '@codemirror/state'
 
@@ -131,6 +133,10 @@ describe('components/EditorInterface/Edit/TextEdit', () => {
       createSpy: vi.fn,
       initialState: {},
     })
+
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = SettingsStateDefaults()
   })
 
   afterEach(() => {

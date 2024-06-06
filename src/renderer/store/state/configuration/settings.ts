@@ -1,15 +1,10 @@
-import ThemesStateDefaults, { State as ThemesState } from './configuration/themes'
+import ThemesStateDefaults, { State as ThemesState } from './settings/themes'
+import SignatureStateDefaults, { State as SignatureState } from './settings/signature'
+import CredentialsStateDefaults, { State as CredentialsState } from './settings/credentials'
 
 export interface State {
-  name: string
-  email: string
-
-  credential_type: string
-  username: string
-  password: string
-  private_key: string
-  public_key: string
-  passphrase: string
+  signature: SignatureState
+  credentials: CredentialsState
 
   default_remote: string
   auto_commit: boolean
@@ -37,15 +32,8 @@ export interface State {
 }
 
 export default (): State => ({
-  name: '',
-  email: '',
-
-  credential_type: 'key',
-  username: '',
-  password: '',
-  private_key: '',
-  public_key: '',
-  passphrase: '',
+  signature: SignatureStateDefaults(),
+  credentials: CredentialsStateDefaults(),
 
   default_remote: 'origin',
   auto_commit: false,

@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_configuration_store, CredentialType } from '@/store/modules/configuration'
 import api from '@/api'
 
 export interface State {
-  type?: string
+  type?: CredentialType
   username?: string
   password?: string
   key?: string
@@ -11,7 +11,7 @@ export interface State {
 }
 
 export const StateDefaults = (): State => ({
-  type: '',
+  type: undefined,
   username: undefined,
   password: undefined,
   key: undefined,
@@ -24,14 +24,14 @@ export const fetch_repository_credentials_store = defineStore('repository-creden
     load: async function () {
       const configuration = fetch_configuration_store()
 
-      this.type = configuration.credential_type
-      this.username = configuration.username
-      this.password = configuration.password
-      this.key = configuration.private_key
-      this.passphrase = configuration.passphrase
+      this.type = configuration.active.credentials.type
+      this.username = configuration.active.credentials.username
+      this.password = configuration.active.credentials.password
+      this.key = configuration.active.credentials.private_key
+      this.passphrase = configuration.active.credentials.passphrase
 
       switch (this.type) {
-        case 'password': {
+        case CredentialType.Password: {
           await api.repository.credential_password(
             this.username,
             this.password,
@@ -39,7 +39,7 @@ export const fetch_repository_credentials_store = defineStore('repository-creden
           break
         }
 
-        case 'key': {
+        case CredentialType.Key: {
           const { path: public_key } = await api.ssl.generate_public_key(
             this.key,
             this.passphrase,

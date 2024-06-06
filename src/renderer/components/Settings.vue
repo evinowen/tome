@@ -6,38 +6,49 @@
     :open="system.settings"
     @close="close"
   >
+    <v-tabs
+      :model-value="configuration.target"
+      align-tabs="center"
+      stacked
+      grow
+      @update:model-value="(value: SettingsTarget) => configuration.view(value)"
+    >
+      <v-tab
+        :value="SettingsTarget.Global"
+      >
+        <v-icon>mdi-earth</v-icon>
+        Global
+      </v-tab>
+      <v-tab
+        :value="SettingsTarget.Local"
+        :disabled="!repository.ready"
+      >
+        <v-icon>mdi-book</v-icon>
+        Local
+      </v-tab>
+    </v-tabs>
+    <v-card
+      :title="locality_title"
+      :subtitle="locality_subtitle"
+      class="my-3"
+      :color="locality_color"
+    >
+      <v-card-text v-if="configuration.target === SettingsTarget.Global">
+        Configuration is stored in the global configuration file for the current user, which is loaded each time Tome is started.
+        These settings will be applied whenever there is no override set by local configuration.
+      </v-card-text>
+      <v-card-text v-if="configuration.target === SettingsTarget.Local">
+        Configuration is stored in the repository <code>.tome</code> directory as <code>config.json</code> and loaded alongside the current repository.
+        The contents will be not be available for staging to a commit, keeping these settings local to the current machine.
+      </v-card-text>
+    </v-card>
     <v-card
       class="mb-3"
       color="surface"
       title="User Credentials"
       subtitle="Credentials provided here are used for Commits and for Pushing content to your remote repository"
     >
-      <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col
-          class="xs"
-          cols="12"
-          sm="6"
-        >
-          <text-input
-            label="name"
-            index="name"
-          />
-        </v-col>
-        <v-col
-          class="xs"
-          cols="12"
-          sm="6"
-        >
-          <text-input
-            label="e-mail"
-            index="email"
-          />
-        </v-col>
-      </v-row>
+      <signature-input />
       <credential-selector />
     </v-card>
     <v-card
@@ -45,6 +56,18 @@
       title="Commit Options"
       subtitle="Options for how Tome should handle or react to Commit operations"
     >
+      <div
+        v-if="configuration.target === 'global'"
+        class="mx-4 my-1"
+      >
+        <v-icon
+          color="warning"
+          class="mr-1"
+        >
+          mdi-alert-box
+        </v-icon>
+        Consider using local configuration when enabling Automatic Commit settings.
+      </div>
       <boolean-input
         label="Automatic Commit"
         detail="Create a commit on the current branch automatically when a change has been made at a configured time internal"
@@ -54,7 +77,7 @@
         label="Automatic Commit Interval"
         detail="How often to create automated commits"
         index="auto_commit_interval"
-        :disabled="!configuration.auto_commit"
+        :disabled="!configuration[configuration.target].auto_commit"
         :options="auto_commit_interval_options"
       />
       <boolean-input
@@ -72,14 +95,7 @@
       title="Interface Options"
       subtitle="Interface display and interaction options"
     >
-      <div class="ma-1">
-        <v-btn
-          block
-          @click="edit_theme"
-        >
-          Theme Editor
-        </v-btn>
-      </div>
+      <theme-button />
       <boolean-input
         label="Dark Mode"
         detail="Use a dark color scheme to reduce brightness level of the interface"
@@ -133,7 +149,7 @@
         detail="Specify the opacity/transparency of the search result interface"
         index="search_opacity"
         suffix="%"
-        :slider="[0, 100, 5]"
+        :slider="[ 0, 100, 5 ]"
       />
       <number-input
         label="Search Height"
@@ -197,27 +213,83 @@
 </template>
 
 <script setup lang="ts">
-import { fetch_configuration_store } from '@/store/modules/configuration'
+import { computed } from 'vue'
+import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
+import { fetch_repository_store } from '@/store/modules/repository'
 import { fetch_system_store } from '@/store/modules/system'
 import logo from './logo.png'
 import CredentialSelector from '@/components/Settings/Credentials/CredentialSelector.vue'
+import SignatureInput from '@/components/Settings/SignatureInput.vue'
 import BooleanInput from './Settings/BooleanInput.vue'
 import NumberInput from './Settings/NumberInput.vue'
 import SelectMenuInput, { Option as SelectMenuOption } from './Settings/SelectMenuInput.vue'
 import SelectButtonInput, { Option as SelectButtonOption } from './Settings/SelectButtonInput.vue'
 import TextInput from './Settings/TextInput.vue'
+import ThemeButton from './Settings/ThemeButton.vue'
 import UtilityPage from './UtilityPage.vue'
 import SeaGame from './SeaGame.vue'
 import {
-  VBtn,
   VCard,
+  VCardText,
   VCol,
   VDivider,
+  VIcon,
   VRow,
+  VTab,
+  VTabs,
 } from 'vuetify/components'
 
 const configuration = fetch_configuration_store()
+const repository = fetch_repository_store()
 const system = fetch_system_store()
+
+const locality_title = computed(() => {
+  switch (configuration.target) {
+    case 'global': {
+      return 'Global Settings'
+    }
+
+    case 'local': {
+      return 'Local Settings'
+    }
+
+    default: {
+      return ''
+    }
+  }
+})
+
+const locality_subtitle = computed(() => {
+  switch (configuration.target) {
+    case 'global': {
+      return 'Global configuration for all instances of Tome, that persist between different repositories.'
+    }
+
+    case 'local': {
+      return 'Local configuration for this instance of Tome, specific to the current repository only.'
+    }
+
+    default: {
+      return ''
+    }
+  }
+})
+
+const locality_color = computed(() => {
+  switch (configuration.target) {
+    case 'global': {
+      return 'primary'
+    }
+
+    case 'local': {
+      return 'secondary'
+    }
+
+    default: {
+      return ''
+    }
+  }
+})
 
 const auto_commit_interval_options = [
   { value: 'quarter-hourly', label: 'Quarter Hourly' },
@@ -244,10 +316,6 @@ const explorer_position_options = [
 
 async function close () {
   await system.page({ settings: false })
-}
-
-async function edit_theme () {
-  await system.page({ theme_editor: true })
 }
 
 defineExpose({

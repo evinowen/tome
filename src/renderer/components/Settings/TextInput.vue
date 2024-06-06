@@ -1,43 +1,39 @@
 <template>
-  <text-input
-    ref="input-field"
-    :value="value"
-    :label="label"
-    :obscureable="obscureable"
-    :placeholder="placeholder"
-    @update="debounce_update"
-  />
+  <setting-frame
+    :index="index"
+    :frame="frame"
+  >
+    <text-input
+      ref="input-field"
+      style="width: 100%"
+      :disabled="disabled"
+      :value="model"
+      :label="label"
+      :obscureable="obscureable"
+      :placeholder="placeholder"
+      @update="update"
+    />
+  </setting-frame>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { debounce } from 'lodash'
-import { fetch_configuration_store } from '@/store/modules/configuration'
 import TextInput from '@/components/Input/TextInput.vue'
+import SettingFrame from '@/components/Settings/SettingFrame.vue'
+import SettingSetup, { SettingProperties, SettingPropertiesDefaults } from '@/components/Settings/SettingSetup'
 
-const configuration = fetch_configuration_store()
-
-interface Properties {
-  label: string
-  index: string
+interface Properties extends SettingProperties {
   obscureable?: boolean
+  // eslint-disable-next-line vue/require-default-prop
   placeholder?: string
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
-  label: '',
-  index: '',
+  ...SettingPropertiesDefaults(),
   obscureable: false,
   placeholder: '',
 })
 
-const value = computed<string>(() => configuration[properties.index])
-
-async function update (value: string) {
-  await configuration.update({ [properties.index]: value })
-}
-
-const debounce_update = debounce(update, 500)
+const { model, disabled, update } = SettingSetup<string>(properties, 500)
 
 defineExpose({
   update,

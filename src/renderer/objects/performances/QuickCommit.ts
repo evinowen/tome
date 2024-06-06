@@ -41,7 +41,7 @@ export default class QuickCommit {
       await repository_committer.stage('*')
       await system.page({ commit_confirm: true })
 
-      await system.page({ commit_push: configuration.auto_push })
+      await system.page({ commit_push: configuration.active.auto_push })
 
       await new Promise((resolve) => delay(resolve, 500))
 

@@ -35,6 +35,9 @@ export const fetch_repository_store = defineStore('repository', {
   actions: {
     clear: async function () {
       this.$reset()
+
+      const configuration = fetch_configuration_store()
+      await configuration.reset_local()
     },
     open: async function (path) {
       this.path = path
@@ -78,8 +81,9 @@ export const fetch_repository_store = defineStore('repository', {
       await templates.load({ path: this.path })
 
       const configuration = fetch_configuration_store()
+      await configuration.load_local()
       try {
-        await remotes.select(configuration.default_remote)
+        await remotes.select(configuration.active.default_remote)
       } catch (error) {
         log.error('Error connecting to default remote', error)
       }

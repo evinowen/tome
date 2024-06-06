@@ -3,7 +3,7 @@ import { assemble } from '?/helpers'
 import VTextField from '?/stubs/VTextField.vue'
 import { createVuetify } from 'vuetify'
 import { createTestingPinia } from '@pinia/testing'
-import SelectMenu, { Option } from '@/components/SelectMenu.vue'
+import SelectMenu, { Option } from '@/components/Input/SelectMenu.vue'
 import { fetch_input_select_store } from '@/store/modules/input/select'
 
 describe('components/SelectMenu', () => {

@@ -151,7 +151,8 @@ describe('components/ExplorerNodeEditLabel', () => {
     const validation = fetch_validation_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_explorer_titles = false
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: false }
 
     const wrapper = factory.wrap()
 
@@ -170,7 +171,8 @@ describe('components/ExplorerNodeEditLabel', () => {
     const validation = fetch_validation_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_explorer_titles = true
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: true }
 
     const wrapper = factory.wrap()
 
@@ -189,7 +191,8 @@ describe('components/ExplorerNodeEditLabel', () => {
     const validation = fetch_validation_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_explorer_titles = false
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: false }
 
     const wrapper = factory.wrap()
 
@@ -208,7 +211,8 @@ describe('components/ExplorerNodeEditLabel', () => {
     const validation = fetch_validation_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_explorer_titles = false
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: false }
 
     const wrapper = factory.wrap()
 
@@ -227,7 +231,8 @@ describe('components/ExplorerNodeEditLabel', () => {
     const validation = fetch_validation_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_explorer_titles = false
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: false }
 
     const wrapper = factory.wrap()
 
@@ -245,7 +250,8 @@ describe('components/ExplorerNodeEditLabel', () => {
     const validation = fetch_validation_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_explorer_titles = true
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: true }
 
     const wrapper = factory.wrap()
 
@@ -263,7 +269,8 @@ describe('components/ExplorerNodeEditLabel', () => {
     const files = fetch_files_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_explorer_titles = false
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: false }
 
     const wrapper = factory.wrap()
 
@@ -276,7 +283,7 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     const context = {
       input: input.element.value,
-      title: configuration.format_explorer_titles,
+      title: configuration.active.format_explorer_titles,
     }
 
     expect(files.submit).toHaveBeenCalledWith(context)
@@ -286,7 +293,8 @@ describe('components/ExplorerNodeEditLabel', () => {
     const files = fetch_files_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_explorer_titles = false
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: false }
 
     const wrapper = factory.wrap()
 
@@ -299,7 +307,7 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     const context = {
       input: input.element.value,
-      title: configuration.format_explorer_titles,
+      title: configuration.active.format_explorer_titles,
     }
 
     expect(files.submit).not.toHaveBeenCalledWith(context)
@@ -309,7 +317,8 @@ describe('components/ExplorerNodeEditLabel', () => {
     const files = fetch_files_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_explorer_titles = true
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: true }
 
     const wrapper = factory.wrap()
 
@@ -322,7 +331,7 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     const context = {
       input: input.element.value,
-      title: configuration.format_explorer_titles,
+      title: configuration.active.format_explorer_titles,
     }
 
     expect(files.submit).toHaveBeenCalledWith(context)
@@ -332,7 +341,8 @@ describe('components/ExplorerNodeEditLabel', () => {
     const files = fetch_files_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_explorer_titles = true
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: true }
 
     const wrapper = factory.wrap()
 
@@ -345,7 +355,7 @@ describe('components/ExplorerNodeEditLabel', () => {
 
     const context = {
       input: input.element.value,
-      title: configuration.format_explorer_titles,
+      title: configuration.active.format_explorer_titles,
     }
 
     expect(files.submit).not.toHaveBeenCalledWith(context)

@@ -1,14 +1,14 @@
 <template>
   <overlay-box
-    :visible="visible"
+    :visible="system.commit_confirm"
     :secure="false"
-    @click="emit('close')"
+    @click="close"
   >
     <v-card style="min-width: 480px">
       <v-list-item class="my-2">
         <template #prepend>
           <v-progress-circular
-            v-if="staging"
+            v-if="repository_committer.process.staging"
             indeterminate
             :size="40"
             :width="6"
@@ -29,13 +29,7 @@
       </v-list-item>
 
       <v-card-text class="pa-0">
-        <message-input
-          class="my-1"
-          :value="message"
-          :signature_name="name"
-          :signature_email="email"
-          @update="(value) => emit('message', value)"
-        />
+        <commit-message-input class="my-1" />
       </v-card-text>
 
       <v-card-actions>
@@ -43,11 +37,11 @@
           ref="commit-button"
           color="warning"
           variant="text"
-          :disabled="staging || waiting"
-          @click="emit('commit')"
+          :disabled="repository_committer.process.staging || repository_committer.process.commit"
+          @click="commit"
         >
           <v-progress-circular
-            :indeterminate="waiting"
+            :indeterminate="repository_committer.process.commit"
             :size="12"
             :width="2"
             color="warning"
@@ -58,12 +52,12 @@
         <v-spacer />
         <v-btn
           ref="push-button"
-          :color="push ? 'warning' : ''"
+          :color="system.commit_push ? 'warning' : ''"
           variant="text"
-          @click="emit('push', !push)"
+          @click="commit_push(!system.commit_push)"
         >
           <v-icon class="mr-2">
-            {{ push ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+            {{ system.commit_push ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
           </v-icon>
           Push
         </v-btn>
@@ -71,8 +65,8 @@
           ref="return-button"
           color="darken-1"
           variant="text"
-          :disabled="waiting"
-          @click="emit('close', false)"
+          :disabled="repository_committer.process.commit"
+          @click="close"
         >
           <v-icon class="mr-2">
             mdi-exit-to-app
@@ -94,7 +88,7 @@ export const CommitConfirmMessages = {
 <script setup lang="ts">
 import { computed } from 'vue'
 import OverlayBox from '@/components/OverlayBox.vue'
-import MessageInput from '@/components/Input/MessageInput.vue'
+import CommitMessageInput from '@/components/Commit/CommitMessageInput.vue'
 import {
   VAvatar,
   VBtn,
@@ -108,43 +102,32 @@ import {
   VProgressCircular,
   VSpacer,
 } from 'vuetify/components'
+import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 
-export interface Properties {
-  visible?: boolean
-  name?: string
-  email?: string
-  message?: string
-  disabled?: boolean
-  staging?: boolean
-  waiting?: boolean
-  push?: boolean
-}
-
-const properties = withDefaults(defineProps<Properties>(), {
-  visible: false,
-  name: '',
-  email: '',
-  message: '',
-  disabled: false,
-  staging: false,
-  waiting: false,
-  push: false,
-})
-
-const emit = defineEmits([
-  'commit',
-  'close',
-  'message',
-  'push',
-])
+const system = fetch_system_store()
+const repository_committer = fetch_repository_committer_store()
 
 const status = computed(() => {
-  return properties.staging
+  return repository_committer.process.staging
     ? CommitConfirmMessages.Staging
     : CommitConfirmMessages.Ready
 })
 
+async function commit () {
+  await system.perform(SystemPerformance.Commit)
+}
+
+async function commit_push (value) {
+  await system.page({ commit_push: value })
+}
+
+async function close () {
+  await system.page({ commit_confirm: false })
+}
+
 defineExpose({
+  commit_push,
   status,
 })
 </script>

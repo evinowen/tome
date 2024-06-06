@@ -2,11 +2,11 @@ import { defineStore } from 'pinia'
 import { DateTime } from 'luxon'
 
 export interface State {
-  name?: string
-  name_error?: boolean
-  email?: string
-  email_error?: boolean
-  message?: string
+  name: string
+  name_error: boolean
+  email: string
+  email_error: boolean
+  message: string
 }
 
 export const StateDefaults = (): State => ({

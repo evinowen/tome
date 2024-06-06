@@ -7,6 +7,7 @@
         variant="solo"
         hide-details
         clearable
+        :disabled="disabled"
         :error="error"
         :placeholder="placeholder"
         :label="label"
@@ -49,19 +50,21 @@ import {
 } from 'vuetify/components'
 
 interface Properties {
-  label: string
-  value: string
+  disabled?: boolean
   error?: boolean
+  label: string
   obscureable?: boolean
   placeholder?: string
+  value: string
 }
 
 withDefaults(defineProps<Properties>(), {
-  label: '',
-  value: '',
+  disabled: false,
   error: false,
+  label: '',
   obscureable: false,
   placeholder: '',
+  value: '',
 })
 
 const emit = defineEmits([

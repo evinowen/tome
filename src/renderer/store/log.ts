@@ -36,7 +36,7 @@ export const StateDefaults = (): State => ({
 })
 
 const Log = (store, level, message, stack?) => {
-  // const threshold = LogLevelOrder.indexOf(context.state.configuration.log_level || LogLevel.Info)
+  // const threshold = LogLevelOrder.indexOf(context.state.configuration.active.log_level || LogLevel.Info)
   const threshold = LogLevelOrder.indexOf(LogLevel.Trace)
   const priority = LogLevelOrder.indexOf(level)
 

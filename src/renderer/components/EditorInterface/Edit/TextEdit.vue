@@ -77,13 +77,13 @@ const updated = ref(0)
 let view: EditorView
 
 const line_numbers = computed((): boolean => {
-  return configuration.line_numbers
+  return configuration.active.line_numbers
 })
 
 const theme = computed(() => {
-  return configuration.dark_mode
-    ? configuration.themes.dark.compose
-    : configuration.themes.light.compose
+  return configuration.active.dark_mode
+    ? configuration.active.themes.dark.compose
+    : configuration.active.themes.light.compose
 })
 
 const search_state = computed(() => {

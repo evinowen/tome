@@ -56,7 +56,7 @@ import Console from '@/components/Console.vue'
 import ContextMenuService from '@/components/ContextMenuService.vue'
 import EditorInterface from '@/components/EditorInterface.vue'
 import ErrorBox from '@/components/ErrorBox.vue'
-import SelectInputOverlay from '@/components/SelectInputOverlay.vue'
+import SelectInputOverlay from '@/components/Input/Overlays/SelectInputOverlay.vue'
 import Patch from '@/components/Patch.vue'
 import Push from '@/components/Push.vue'
 import Remotes from '@/components/Remotes.vue'
@@ -85,9 +85,9 @@ const repository = fetch_repository_store()
 const system = fetch_system_store()
 
 const theme = computed(() => {
-  return configuration.dark_mode
-    ? { name: 'dark', ...configuration.themes.dark }
-    : { name: 'light', ...configuration.themes.light }
+  return configuration.active.dark_mode
+    ? { name: 'dark', ...configuration.active.themes.dark }
+    : { name: 'light', ...configuration.active.themes.light }
 })
 
 const scroll = (event) => {

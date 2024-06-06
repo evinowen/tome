@@ -1,7 +1,7 @@
 <template>
   <div
     ref="base"
-    v-click-outside.prevent="{ handler: () => focus(false), include }"
+    v-click-outside.prevent="{ handler: blur, include }"
     style="position: relative;"
   >
     <v-text-field
@@ -16,7 +16,7 @@
       :append-inner-icon="open ? 'mdi-menu-up' : 'mdi-menu-down'"
       @click:clear="emit('update')"
       @update:model-value="update"
-      @update:focused="(value) => !value || focus(true)"
+      @update:focused="(value) => !value || focus()"
     />
   </div>
 </template>
@@ -29,7 +29,7 @@ export type Option = SelectOption
 </script>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { fetch_input_select_store } from '@/store/modules/input/select'
 import { VTextField } from 'vuetify/components'
 import { ClickOutside as vClickOutside } from 'vuetify/directives'
@@ -58,9 +58,9 @@ const input_select = fetch_input_select_store()
 const base = ref<HTMLElement>()
 const input = ref<HTMLElement>()
 const identifier = ref<string>()
-const model = ref('')
+const model = ref(properties.value)
 
-watchEffect(() => update(properties.value))
+watch(() => properties.value, () => update(properties.value))
 
 const open = computed(() => input_select.identifier === identifier.value)
 
@@ -68,10 +68,13 @@ function include () {
   return [ ...base.value.querySelectorAll('*') ]
 }
 
-async function focus (value) {
-  if (value) {
-    identifier.value = await input_select.show({ element: base.value, set, options: properties.options })
-  }
+async function focus () {
+  identifier.value = await input_select.show({ element: base.value, set, options: properties.options })
+}
+
+async function blur () {
+  base.value.blur()
+  identifier.value = ''
 }
 
 async function update (value) {
@@ -85,11 +88,13 @@ function set (option: Option) {
 }
 
 defineExpose({
-  identifier,
   base,
+  blur,
   focus,
-  update,
+  identifier,
+  open,
   set,
+  update,
 })
 </script>
 

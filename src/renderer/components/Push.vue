@@ -15,7 +15,18 @@
             title="Push Credentials"
             subtitle="Set credentials that will be used to push your commits to the selected remote repository"
           >
-            <credential-selector />
+            <template #append>
+              <select-button-input
+                :value="configuration.localized.credentials ? SettingsTarget.Local : SettingsTarget.Global"
+                :color="configuration.localized.credentials ? 'secondary' : 'primary'"
+                :options="credentials_locality_options"
+                @update="credentials_locality"
+              />
+            </template>
+            <credential-selector
+              :frame="false"
+              :target="configuration.localized.credentials ? SettingsTarget.Local : SettingsTarget.Global"
+            />
           </v-card>
 
           <v-card
@@ -32,11 +43,7 @@
                 Remotes
               </v-btn>
             </template>
-            <push-remote-selector
-              :value="repository_remotes.active.name !== '' ? repository_remotes.active.name : undefined"
-              :items="repository_remotes.list"
-              @update="select_remote"
-            />
+            <push-remote-selector />
           </v-card>
 
           <v-container fluid>
@@ -62,7 +69,7 @@
 
               <v-col>
                 <push-branch
-                  :loading="remote_loading"
+                  :loading="repository_remotes.process.select"
                   :disabled="repository_remotes.active.branch?.name === ''"
                   :url="repository_remotes.active.branch?.name === '' ? undefined : repository_remotes.active.branch?.name"
                   :name="repository_remotes.active.branch?.name === '' ? undefined : repository_remotes.active.branch?.short"
@@ -74,8 +81,8 @@
 
         <push-status
           class="flex-grow-1 mb-3"
-          :active="remote_loading || repository_remotes.active.name !== ''"
-          :loading="remote_loading"
+          :active="repository_remotes.process.select || repository_remotes.active.name !== ''"
+          :loading="repository_remotes.process.select"
           error=""
           :match="repository_remotes.active.pending && repository_remotes.active.pending.length <= 0"
           :history="repository_remotes.active.pending"
@@ -107,7 +114,7 @@
     </utility-page>
     <push-confirm
       :visible="system.push_confirm"
-      :waiting="repository_remotes.push.working"
+      :waiting="repository_remotes.process.push"
       :history="repository_remotes.active.pending"
       @close="confirm(false)"
       @inspect="(item) => { confirm(false); diff(item); }"
@@ -117,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
 import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
 import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 import { fetch_repository_branches_store } from '@/store/modules/repository/branches'
@@ -126,6 +133,7 @@ import PushBranch from './PushBranch.vue'
 import PushConfirm from './PushConfirm.vue'
 import PushRemoteSelector from './PushRemoteSelector.vue'
 import PushStatus from './PushStatus.vue'
+import SelectButtonInput, { Option as SelectButtonOption } from '@/components/Input/SelectButtonInput.vue'
 import UtilityPage from '@/components/UtilityPage.vue'
 import CredentialSelector from '@/components/Settings/Credentials/CredentialSelector.vue'
 import {
@@ -137,12 +145,11 @@ import {
   VRow,
 } from 'vuetify/components'
 
+const configuration = fetch_configuration_store()
 const system = fetch_system_store()
 const repository_remotes = fetch_repository_remotes_store()
 const repository_branches = fetch_repository_branches_store()
 const repository_comparator = fetch_repository_comparator_store()
-
-const remote_loading = ref<boolean>(false)
 
 async function close () {
   await system.page({ push: false })
@@ -150,12 +157,6 @@ async function close () {
 
 async function confirm (value) {
   await system.page({ push_confirm: value })
-}
-
-async function select_remote (name) {
-  remote_loading.value = true
-  await repository_remotes.select(name)
-  remote_loading.value = false
 }
 
 async function diff (commit) {
@@ -171,12 +172,20 @@ async function remotes () {
   await system.page({ remotes: true })
 }
 
+const credentials_locality_options: SelectButtonOption[] = [
+  { value: SettingsTarget.Global, icon: 'mdi-earth' },
+  { value: SettingsTarget.Local, icon: 'mdi-book' },
+]
+
+function credentials_locality (value) {
+  configuration.localize('credentials', value === SettingsTarget.Local)
+}
+
 defineExpose({
   close,
   confirm,
   diff,
   push,
   remotes,
-  select_remote,
 })
 </script>

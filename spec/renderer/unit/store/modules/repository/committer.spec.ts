@@ -45,10 +45,10 @@ describe('store/modules/repository/committer', () => {
     expect(mocked_api.repository.commit).toHaveBeenCalledTimes(1)
   })
 
-  it('should clear staging counter on dispatch of commit action', async () => {
-    await repository_committer.staging(true)
+  it('should clear commit process flag on dispatch of commit action', async () => {
+    repository_committer.process.commit = true
 
-    expect(repository_committer.staging_count).toBeGreaterThan(0)
+    expect(repository_committer.process.commit).toEqual(true)
 
     const data = {
       name: 'Test',
@@ -58,7 +58,7 @@ describe('store/modules/repository/committer', () => {
 
     await repository_committer.commit(data)
 
-    expect(repository_committer.staging_count).toEqual(0)
+    expect(repository_committer.process.commit).toEqual(false)
   })
 
   it('should instruct the repository to stage the query on dispatch of stage', async () => {
@@ -77,23 +77,5 @@ describe('store/modules/repository/committer', () => {
     await repository_committer.inspect()
 
     expect(mocked_api.repository.inspect).toHaveBeenCalledTimes(1)
-  })
-
-  it('should return false if staged is larger than zero upon dispatch of staged', async () => {
-    expect(repository_committer.status.staged).toHaveLength(0)
-
-    const result = await repository_committer.staged()
-
-    expect(result).toEqual(false)
-  })
-
-  it('should return true if staged is larger than zero upon dispatch of staged', async () => {
-    await repository_committer.stage('/test.file.1.md')
-
-    expect(repository_committer.status.staged).toHaveLength(1)
-
-    const result = await repository_committer.staged()
-
-    expect(result).toEqual(true)
   })
 })

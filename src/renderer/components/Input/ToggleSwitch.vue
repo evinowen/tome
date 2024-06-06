@@ -1,16 +1,22 @@
 <template>
-  <div class="d-flex align-center">
+  <div
+    class="d-flex align-center"
+    :style="{
+      'opacity': disabled ? 0.4 : 1,
+    }"
+  >
     <div
       :class="[
         'control',
-        value ? 'active' : '',
+        `color-${color}`,
+        (value && !disabled) ? 'active' : '',
         inset ? 'inset' : '',
       ]"
       :style="{
         'height': `${height}px`,
         'width': `${width}px`,
       }"
-      @click.stop="on_click"
+      @click.stop="click"
     >
       <div
         v-if="inset"
@@ -67,24 +73,28 @@
 import { computed } from 'vue'
 
 export interface Properties {
-  value?: boolean
-  inset?: boolean
+  disabled?: boolean
+  color?: string
   height?: number
-  width?: number
-  padding?: number
+  inset?: boolean
   label?: string
+  padding?: number
+  value?: boolean
+  width?: number
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
-  value: false,
-  inset: false,
+  disabled: false,
+  color: 'primary',
   height: 30,
-  width: 50,
-  padding: 4,
+  inset: false,
   label: '',
+  padding: 4,
+  value: false,
+  width: 50,
 })
 
-const emit = defineEmits([ 'input' ])
+const emit = defineEmits([ 'update' ])
 
 const button_size = computed(() => properties.height - (2 * properties.padding))
 
@@ -96,14 +106,26 @@ const track_width = computed(() => properties.width - (2 * properties.padding) -
 const track_offset_x = computed(() => (properties.width - track_width.value) / 2)
 const track_offset_y = computed(() => (properties.height - track_height.value) / 2)
 
-const on_click = () => {
-  emit('input', !properties.value)
+const click = () => {
+  emit('update', !properties.value)
 }
+
+defineExpose({
+  click,
+})
 </script>
 
 <style scoped>
 * {
   --tome-toggle-switch-transition-speed: 0.35s;
+}
+
+.color-primary {
+  --local-color: var(--v-theme-primary);
+}
+
+.color-secondary {
+  --local-color: var(--v-theme-secondary);
 }
 
 .control {
@@ -134,11 +156,11 @@ const on_click = () => {
 }
 
 .active .track {
-  background: rgba(var(--v-theme-primary), 0.7);
+  background: rgba(var(--local-color), 0.7);
 }
 
 .active:hover .track {
-  background: rgba(var(--v-theme-primary), 1.0);
+  background: rgba(var(--local-color), 1.0);
 }
 
 .transition {

@@ -72,22 +72,24 @@ const properties = withDefaults(defineProps<Properties>(), {
   index: '',
 })
 
-const theme = computed(() => configuration.dark_mode ? 'dark' : 'light')
+const theme = computed(() => configuration[configuration.target].dark_mode ? 'dark' : 'light')
 
-const value = computed(() => configuration.themes[theme.value][properties.section][properties.index])
+const value = computed(() => configuration[configuration.target].themes[theme.value][properties.section][properties.index])
 const enabled = computed(() => value.value !== '')
 const preset = computed(() => presets[theme.value][palette[properties.section][properties.index]])
 
 async function toggle () {
   // eslint-disable-next-line unicorn/prefer-ternary
   if (enabled.value) {
-    await configuration.update({ themes: { [theme.value]: { [properties.section]: { [properties.index]: '' } } } })
+    // await configuration.update(configuration.target, { themes: { [theme.value]: { [properties.section]: { [properties.index]: '' } } } })
+    await configuration.update(configuration.target, `themes.${theme.value}.${properties.section}.${properties.index}`, '')
   } else {
     await reset()
   }
 }
 
 async function reset () {
-  await configuration.update({ themes: { [theme.value]: { [properties.section]: { [properties.index]: preset.value } } } })
+  // await configuration.update(configuration.target, { themes: { [theme.value]: { [properties.section]: { [properties.index]: preset.value } } } })
+  await configuration.update(configuration.target, `themes.${theme.value}.${properties.section}.${properties.index}`, preset.value)
 }
 </script>

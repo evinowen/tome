@@ -169,7 +169,7 @@ export const fetch_system_store = defineStore('system', {
 
       await log.trace(`System Timer [${timeout}] Triggered`)
 
-      if (configuration.auto_commit && configuration.auto_commit_interval === timeout) {
+      if (configuration.active.auto_commit && configuration.active.auto_commit_interval === timeout) {
         await log.debug(`Auto-Commit Triggered for timer [${timeout}]`)
         this.perform(SystemPerformance.AutoCommit)
       }

@@ -6,6 +6,7 @@ import { createTestingPinia } from '@pinia/testing'
 import { RepositoryRemote } from '@/api'
 import PushRemoteSelector from '@/components/PushRemoteSelector.vue'
 import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 
 describe('components/PushRemoteSelector', () => {
   let vuetify
@@ -47,7 +48,13 @@ describe('components/PushRemoteSelector', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should emit "update" event when select input emits "update" event', async () => {
+  it('should call "repository_remotes.select" when select input emits "update" event', async () => {
+    const repository_remotes = fetch_repository_remotes_store()
+    repository_remotes.list.push({
+      name: 'origin',
+      url: 'git@example.com:/username/example.git',
+    })
+
     const wrapper = factory.wrap({ items })
 
     const input = wrapper.findComponent({ ref: 'input' })
@@ -56,7 +63,7 @@ describe('components/PushRemoteSelector', () => {
     input.vm.$emit('update')
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.emitted().update).toBeTruthy()
+    expect(repository_remotes.select).toHaveBeenCalled()
   })
 
   it('should dispatch "system/remotes" when remote-button is clicked', async () => {

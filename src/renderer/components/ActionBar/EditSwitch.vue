@@ -6,12 +6,12 @@
     :width="32"
     :padding="2"
     class="mx-1"
-    @input="emit('input', $event)"
+    @update="emit('update', $event)"
   />
 </template>
 
 <script lang="ts">
-import ToggleSwitch from '@/components/ToggleSwitch.vue'
+import ToggleSwitch from '@/components/Input/ToggleSwitch.vue'
 
 export default {
   components: {
@@ -30,6 +30,6 @@ withDefaults(defineProps<Properties>(), {
 })
 
 const emit = defineEmits([
-  'input',
+  'update',
 ])
 </script>

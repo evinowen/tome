@@ -43,10 +43,10 @@ describe('components/ThemeEditor/Sections/ApplicationThemePreview', () => {
     const error_switch = wrapper.findComponent({ ref: 'error-switch' })
     expect(error_switch.exists()).toBe(true)
 
-    error_switch.vm.$emit('input', !error)
+    error_switch.vm.$emit('update', !error)
     expect(wrapper.vm.error).toBe(!error)
 
-    error_switch.vm.$emit('input', error)
+    error_switch.vm.$emit('update', error)
     expect(wrapper.vm.error).toBe(error)
   })
 })

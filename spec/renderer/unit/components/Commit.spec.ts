@@ -1,14 +1,15 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
+import { createVuetify } from 'vuetify'
+import { createTestingPinia } from '@pinia/testing'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import UtilityPage from '?/stubs/UtilityPage.vue'
-import { createVuetify } from 'vuetify'
-import { createTestingPinia } from '@pinia/testing'
 import Commit from '@/components/Commit.vue'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
 import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 import { fetch_system_store } from '@/store/modules/system'
+import { fetch_error_store } from '@/store/modules/error'
 
 vi.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {} }))
 
@@ -51,40 +52,7 @@ describe('components/Commit', () => {
     vi.clearAllMocks()
   })
 
-  it('should dispatch repository/committer/signature/name with new value when sign_name is called with a value', async () => {
-    const repository_committer_signature = fetch_repository_committer_signature_store()
-
-    const wrapper = factory.wrap()
-
-    const name = 'John Doe'
-    await wrapper.vm.sign_name(name)
-
-    expect(repository_committer_signature.sign_name).toHaveBeenCalledWith(name)
-  })
-
-  it('should dispatch repository/committer/signature/email with new value when sign_email is called with a value', async () => {
-    const repository_committer_signature = fetch_repository_committer_signature_store()
-
-    const wrapper = factory.wrap()
-
-    const email = 'test@example.com'
-    await wrapper.vm.sign_email(email)
-
-    expect(repository_committer_signature.sign_email).toHaveBeenCalledWith(email)
-  })
-
-  it('should dispatch repository/committer/signature/message with new value when sign_message is called with a value', async () => {
-    const repository_committer_signature = fetch_repository_committer_signature_store()
-
-    const wrapper = factory.wrap()
-
-    const message = 'Test Message'
-    await wrapper.vm.sign_message(message)
-
-    expect(repository_committer_signature.sign_message).toHaveBeenCalledWith(message)
-  })
-
-  it('should dispatch system/commit with false when close is called', async () => {
+  it('should call "system.page" with false commit flag when close is called', async () => {
     const system = fetch_system_store()
 
     const wrapper = factory.wrap()
@@ -94,27 +62,35 @@ describe('components/Commit', () => {
     expect(system.page).toHaveBeenCalledWith({ commit: false })
   })
 
-  it('should dispatch system/commit_confirm with new value when confirm is called with a value', async () => {
+  it('should call "error.show" when confirm is called and "repository_committer_signature.check" returns false', async () => {
+    const repository_committer_signature = fetch_repository_committer_signature_store()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    repository_committer_signature.check = vi.fn(async () => false) as any
+
+    const error = fetch_error_store()
+
+    const wrapper = factory.wrap()
+
+    await wrapper.vm.confirm()
+
+    expect(error.show).toHaveBeenCalled()
+  })
+
+  it('should call "system.page" with true commit_confirm flag when confirm is called and "repository_committer_signature.check" returns true', async () => {
+    const repository_committer_signature = fetch_repository_committer_signature_store()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    repository_committer_signature.check = vi.fn(async () => true) as any
+
     const system = fetch_system_store()
 
     const wrapper = factory.wrap()
 
-    await wrapper.vm.confirm(true)
+    await wrapper.vm.confirm()
 
     expect(system.page).toHaveBeenCalledWith({ commit_confirm: true })
   })
 
-  it('should dispatch system/commit_push with new value when push is called with a value', async () => {
-    const system = fetch_system_store()
-
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.push(true)
-
-    expect(system.page).toHaveBeenCalledWith({ commit_push: true })
-  })
-
-  it('should dispatch repository/comparator/diff with path when diff is called with file', async () => {
+  it('should call "repository_comparator.diff" with path when diff is called with file', async () => {
     const repository_comparator = fetch_repository_comparator_store()
 
     const wrapper = factory.wrap()
@@ -126,7 +102,7 @@ describe('components/Commit', () => {
     expect(repository_comparator.diff).toHaveBeenCalledWith({ path })
   })
 
-  it('should dispatch system/patch with true when diff is called with file', async () => {
+  it('should call "system.page" with true patch flag when diff is called with file', async () => {
     const system = fetch_system_store()
 
     const wrapper = factory.wrap()
@@ -140,7 +116,21 @@ describe('components/Commit', () => {
     expect(system.page).toHaveBeenCalledWith({ patch: true })
   })
 
-  it('should dispatch repository/committer/stage with path when stage is called with path', async () => {
+  it('should call "repository_committer.stage" with asterisk when stage-button emits "click" event', async () => {
+    const repository_committer = fetch_repository_committer_store()
+
+    const wrapper = factory.wrap()
+
+    const stage_button = wrapper.findComponent({ ref: 'stage-button' })
+    expect(stage_button.exists()).toBe(true)
+
+    stage_button.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(repository_committer.stage).toHaveBeenCalledWith('*')
+  })
+
+  it('should call "repository_committer.stage" with path when stage is called with path', async () => {
     const repository_committer = fetch_repository_committer_store()
 
     const wrapper = factory.wrap()
@@ -151,7 +141,21 @@ describe('components/Commit', () => {
     expect(repository_committer.stage).toHaveBeenCalledWith(path)
   })
 
-  it('should dispatch repository/committer/reset with path when reset is called with path', async () => {
+  it('should call "repository_committer.reset" with asterisk when reset-button emits "click" event', async () => {
+    const repository_committer = fetch_repository_committer_store()
+
+    const wrapper = factory.wrap()
+
+    const reset_button = wrapper.findComponent({ ref: 'reset-button' })
+    expect(reset_button.exists()).toBe(true)
+
+    reset_button.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(repository_committer.reset).toHaveBeenCalledWith('*')
+  })
+
+  it('should call "repository_committer.reset" with path when reset is called with path', async () => {
     const repository_committer = fetch_repository_committer_store()
 
     const wrapper = factory.wrap()
@@ -160,15 +164,5 @@ describe('components/Commit', () => {
     await wrapper.vm.reset(path)
 
     expect(repository_committer.reset).toHaveBeenCalledWith(path)
-  })
-
-  it('should dispatch system/perform for commit when commit is called', async () => {
-    const system = fetch_system_store()
-
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.commit()
-
-    expect(system.perform).toHaveBeenCalledWith('commit')
   })
 })

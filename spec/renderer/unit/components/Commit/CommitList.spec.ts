@@ -2,9 +2,9 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import { createVuetify } from 'vuetify'
-import CommitList, { RepositoryFileType } from '@/components/CommitList.vue'
+import CommitList, { RepositoryFileType } from '@/components/Commit/CommitList.vue'
 
-describe('components/CommitList', async () => {
+describe('components/Commit/CommitList', async () => {
   let vuetify
   let height
 

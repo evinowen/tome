@@ -56,7 +56,7 @@
           inset
           class="mt-2"
           label="Error"
-          @input="error = !error"
+          @update="error = !error"
         />
       </v-card-text>
       <v-card-actions>
@@ -82,7 +82,7 @@
 </template>
 
 <script lang="ts">
-import ToggleSwitch from '@/components/ToggleSwitch.vue'
+import ToggleSwitch from '@/components/Input/ToggleSwitch.vue'
 import {
   VAvatar,
   VBtn,

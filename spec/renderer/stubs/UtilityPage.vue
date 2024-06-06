@@ -2,6 +2,7 @@
   <div>
     <slot />
     <slot name="actions" />
+    <slot name="overlays" />
   </div>
 </template>
 

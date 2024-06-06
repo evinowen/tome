@@ -4,9 +4,11 @@ import api, { RepositoryFile } from '@/api'
 import { fetch_log_store } from '@/store/log'
 
 export interface State {
-  staging_count: number
   status: RepositoryStatus
-  working: boolean
+  process: {
+    staging: boolean
+    commit: boolean
+  }
 }
 
 export interface RepositoryStatus {
@@ -23,9 +25,11 @@ export enum RepositoryFileStateType {
 }
 
 export const StateDefaults = (): State => ({
-  staging_count: 0,
   status: { available: [], staged: [] },
-  working: false,
+  process: {
+    staging: false,
+    commit: false,
+  },
 })
 
 export const fetch_repository_committer_store = defineStore('repository-committer', {
@@ -38,8 +42,9 @@ export const fetch_repository_committer_store = defineStore('repository-committe
       this.status.staged = staged
     },
     stage: async function (query) {
+      this.process.staging = true
+
       const log = fetch_log_store()
-      this.staging_count++
 
       try {
         await log.info(`Staging query ${query}`)
@@ -51,22 +56,13 @@ export const fetch_repository_committer_store = defineStore('repository-committe
         await log.error('Stage failed')
         throw error
       } finally {
-        this.staging_count--
-      }
-    },
-    staged: async function () {
-      return this.status.staged.length > 0
-    },
-    staging: function (advance) {
-      if (advance) {
-        this.staging_count++
-      } else {
-        this.staging_count--
+        this.process.staging = false
       }
     },
     reset: async function (query) {
+      this.process.staging = true
+
       const log = fetch_log_store()
-      this.staging_count++
 
       try {
         await log.info(`Reseting query ${query}`)
@@ -78,12 +74,13 @@ export const fetch_repository_committer_store = defineStore('repository-committe
         await log.error('Reset failed')
         throw error
       } finally {
-        this.staging_count--
+        this.process.staging = false
       }
     },
     commit: async function () {
+      this.process.commit = true
+
       const log = fetch_log_store()
-      this.working = true
 
       const signature = fetch_repository_committer_signature_store()
       const { name, email, message } = signature
@@ -96,11 +93,7 @@ export const fetch_repository_committer_store = defineStore('repository-committe
 
       await this.inspect()
 
-      while (this.staging_count) {
-        this.staging_count--
-      }
-
-      this.working = false
+      this.process.commit = false
     },
   },
 })

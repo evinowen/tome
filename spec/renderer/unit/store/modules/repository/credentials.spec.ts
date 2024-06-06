@@ -20,11 +20,15 @@ describe('store/modules/repository/credentials', () => {
     setActivePinia(createPinia())
 
     mocked_fetch_configuration = {
-      credential_type: 'password',
-      username: 'username',
-      password: 'password',
-      private_key: 'private_key',
-      passphrase: 'passphrase',
+      active: {
+        credentials: {
+          type: 'password',
+          username: 'username',
+          password: 'password',
+          private_key: 'private_key',
+          passphrase: 'passphrase',
+        },
+      },
     }
 
     mocked_fetch_configuration_store = vi.mocked(fetch_configuration_store)
@@ -37,16 +41,16 @@ describe('store/modules/repository/credentials', () => {
     vi.clearAllMocks()
   })
 
-  it('should trigger api.repository.credential_password when credential_type is set to "password" upon load dispatch', async () => {
-    mocked_fetch_configuration.credential_type = 'password'
+  it('should trigger api.repository.credential_password when credential type is set to "password" upon load dispatch', async () => {
+    mocked_fetch_configuration.active.credentials.type = 'password'
 
     await repository_credentials.load()
 
     expect(mocked_api.repository.credential_password).toHaveBeenCalledTimes(1)
   })
 
-  it('should trigger api.repository.credential_key when credential_type is set to "key" upon load dispatch', async () => {
-    mocked_fetch_configuration.credential_type = 'key'
+  it('should trigger api.repository.credential_key when credential type is set to "key" upon load dispatch', async () => {
+    mocked_fetch_configuration.active.credentials.type = 'key'
 
     await repository_credentials.load()
 

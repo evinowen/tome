@@ -120,7 +120,7 @@ async function validate (target: HTMLInputElement) {
       }
     }
 
-    if (configuration.format_explorer_titles) {
+    if (configuration.active.format_explorer_titles) {
       for (const rule of rules.formatted) {
         const result = rule(value)
         if (result !== true) {
@@ -159,7 +159,7 @@ async function submit () {
   if (await validate(input.value)) {
     await files.submit({
       input: input.value.value,
-      title: configuration.format_explorer_titles,
+      title: configuration.active.format_explorer_titles,
     })
   }
 }

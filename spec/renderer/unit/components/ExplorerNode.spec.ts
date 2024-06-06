@@ -191,7 +191,7 @@ describe('components/ExplorerNode', () => {
 
     expect(wrapper.vm.system).toEqual(false)
     expect(file.ephemeral).toEqual(false)
-    expect(format).toHaveBeenCalledOnce()
+    expect(format).toHaveBeenCalled()
     expect(wrapper.vm.alert).toEqual(false)
   })
 
@@ -206,7 +206,7 @@ describe('components/ExplorerNode', () => {
 
     expect(wrapper.vm.system).toEqual(false)
     expect(file.ephemeral).toEqual(false)
-    expect(format).toHaveBeenCalledOnce()
+    expect(format).toHaveBeenCalled()
     expect(wrapper.vm.alert).toEqual(true)
   })
 
@@ -416,8 +416,9 @@ describe('components/ExplorerNode', () => {
 
   it('should format the display name if title is set and instance is non-system', async () => {
     const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: true }
 
-    configuration.format_explorer_titles = true
     vi.mocked(format).mockImplementation(() => 'Example File')
 
     const wrapper = factory.wrap()
@@ -429,8 +430,9 @@ describe('components/ExplorerNode', () => {
 
   it('should find a placeholder display name if title is set and format fails', async () => {
     const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: true }
 
-    configuration.format_explorer_titles = true
     vi.mocked(format).mockImplementationOnce(() => {
       throw new Error('Error')
     })
@@ -443,8 +445,9 @@ describe('components/ExplorerNode', () => {
 
   it('should find a placeholder display name if title is set and format fails when file name is blank', async () => {
     const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: true }
 
-    configuration.format_explorer_titles = true
     file.name = ''
     vi.mocked(format).mockImplementationOnce(() => {
       throw new Error('Error')

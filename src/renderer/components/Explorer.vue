@@ -1,6 +1,6 @@
 <template>
   <context
-    :load="async (store) => ExplorerContextMenu(file)"
+    :load="async () => ExplorerContextMenu(file)"
     :target="file.path"
     class="explorer-root"
   >

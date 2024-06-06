@@ -76,7 +76,8 @@ describe('objects/context/menus/RenderedViewportContextMenu', () => {
     const actions = fetch_actions_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_interaction_titles = false
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_interaction_titles: false }
 
     const selection = ''
 
@@ -94,7 +95,8 @@ describe('objects/context/menus/RenderedViewportContextMenu', () => {
     const actions = fetch_actions_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_interaction_titles = true
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_interaction_titles: true }
 
     const selection = ''
 
@@ -112,7 +114,8 @@ describe('objects/context/menus/RenderedViewportContextMenu', () => {
     const actions = fetch_actions_store()
 
     const configuration = fetch_configuration_store()
-    configuration.format_interaction_titles = true
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_interaction_titles: true }
 
     const selection = ''
 

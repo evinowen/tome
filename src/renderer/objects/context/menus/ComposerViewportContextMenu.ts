@@ -15,7 +15,7 @@ export default function ComposerViewportContextMenu (selection: string, replace:
   const search = fetch_search_store()
   const system = fetch_system_store()
 
-  const format_interaction_titles = configuration.format_interaction_titles
+  const format_interaction_titles = configuration.active.format_interaction_titles
 
   return ContextMenu.define(undefined, () => [
     [

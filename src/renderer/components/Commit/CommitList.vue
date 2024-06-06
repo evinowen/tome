@@ -24,7 +24,7 @@
               rounded="0"
               variant="text"
               class="path-button"
-              @click.stop="$emit('click', item.path)"
+              @click.stop="emit('click', item.path)"
             >
               {{ item.path }}
             </v-btn>
@@ -51,7 +51,8 @@
               rounded="0"
               variant="text"
               icon
-              @click.stop="$emit('input', item.path)"
+              :disabled="disabled"
+              @click.stop="emit('input', item.path)"
             >
               <v-icon>{{ icon }}</v-icon>
             </v-btn>
@@ -63,26 +64,6 @@
 </template>
 
 <script lang="ts">
-import {
-  VBtn,
-  VIcon,
-} from 'vuetify/components'
-import { Resize } from 'vuetify/directives'
-
-export default {
-  components: {
-    VBtn,
-    VIcon,
-  },
-  directives: {
-    Resize,
-  },
-  emits: [
-    'click',
-    'input',
-  ],
-}
-
 export enum RepositoryFileType {
   New = 'new',
   Modified = 'modified',
@@ -93,19 +74,31 @@ export enum RepositoryFileType {
 </script>
 
 <script setup lang="ts">
+import {
+  VBtn,
+  VIcon,
+} from 'vuetify/components'
+
 export interface Properties {
-  title?: string
-  items?: any[]
-  icon?: string
+  disabled?: boolean
   height?: number
+  icon?: string
+  items?: any[]
+  title?: string
 }
 
 withDefaults(defineProps<Properties>(), {
-  title: 'List',
-  items: () => [],
-  icon: '',
+  disable: false,
   height: 320,
+  icon: '',
+  items: () => [],
+  title: 'List',
 })
+
+const emit = defineEmits([
+  'click',
+  'input',
+])
 
 function file_type (type) {
   switch (type) {

@@ -16,7 +16,7 @@ export default function ExplorerContextMenu (file: File) {
   const files = fetch_files_store()
   const templates = fetch_templates_store()
 
-  const format_interaction_titles = configuration.format_interaction_titles
+  const format_interaction_titles = configuration.active.format_interaction_titles
 
   return ContextMenu.define(file.path, () => [
     [

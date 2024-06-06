@@ -101,13 +101,14 @@ const properties = withDefaults(defineProps<Properties>(), {
   colors: () => [] as Color[],
 })
 
-const theme = computed(() => configuration.dark_mode ? 'dark' : 'light')
+const theme = computed(() => configuration[configuration.target].dark_mode ? 'dark' : 'light')
 const preset = computed(() => presets[theme.value][palette[properties.section][index.value]])
-const value = computed(() => configuration.themes[theme.value][properties.section][index.value] || preset.value)
+const value = computed(() => configuration[configuration.target].themes[theme.value][properties.section][index.value] || preset.value)
 
 async function change (value) {
   if (index.value !== '') {
-    await configuration.update({ themes: { [theme.value]: { [properties.section]: { [index.value]: value } } } })
+    // await configuration.update(configuration.target, { themes: { [theme.value]: { [properties.section]: { [index.value]: value } } } })
+    await configuration.update(configuration.target, `themes.${theme.value}.${properties.section}.${index.value}`, value)
   }
 }
 

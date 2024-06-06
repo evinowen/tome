@@ -3,7 +3,7 @@ import { assemble } from '?/helpers'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 import { createVuetify } from 'vuetify'
 import { createTestingPinia } from '@pinia/testing'
-import SelectInputOverlay from '@/components/SelectInputOverlay.vue'
+import SelectInputOverlay from '@/components/Input/Overlays/SelectInputOverlay.vue'
 import { fetch_input_select_store } from '@/store/modules/input/select'
 import { v4 as uuidv4 } from 'uuid'
 

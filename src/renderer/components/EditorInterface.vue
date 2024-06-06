@@ -75,19 +75,19 @@ const explore = computed(() => {
 })
 
 const explorer_position = computed(() => {
-  return configuration.explorer_position
+  return configuration.active.explorer_position
 })
 
 const explorer_width = computed(() => {
-  return repository.path ? configuration.explorer_width : 0
+  return repository.path ? configuration.active.explorer_width : 0
 })
 
 const explorer_resize_width = computed(() => {
-  return repository.path ? configuration.explorer_resize_width : 0
+  return repository.path ? configuration.active.explorer_resize_width : 0
 })
 
 async function update_explorer_width (value) {
-  await configuration.update({ explorer_width: value })
+  await configuration.update(configuration.target, { explorer_width: value })
 }
 
 watch(active, (value) => {
