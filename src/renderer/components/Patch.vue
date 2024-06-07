@@ -7,9 +7,12 @@
     :open="system.patch"
     @close="close"
   >
-    <div class="flex-grow-0">
+    <div class="flex-grow-0 patch-detail mb-2">
       <div class="patch-message">
         {{ repository_comparator.message }}
+      </div>
+      <div class="patch-signature">
+        {{ repository_comparator.signature }}
       </div>
     </div>
 
@@ -150,9 +153,17 @@ pre {
   color: rgb(var(--v-theme-success));
 }
 
-.patch-message {
+.patch-detail {
   font-family: var(--font-monospace), monospace !important;
   font-size: var(--font-monospace-size);
   overflow: auto;
+}
+
+.patch-message {
+  font-size: 1.2em;
+}
+
+.patch-signature {
+  font-size: 0.9em;
 }
 </style>

@@ -25,8 +25,9 @@ export default class RepositoryComparatorDelegate extends RepositoryDelegate {
 
     const patches = await AsyncIterableArray(RepositoryPatch.compile(diff))
     const message = commit.message()
+    const signature = commit.author().toString()
 
-    return { patches, message }
+    return { patches, message, signature }
   }
 
   async diff_path (path) {

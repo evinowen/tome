@@ -35,10 +35,6 @@ vi.mock('@/store/modules/repository/branches', () => ({
   fetch_repository_branches_store: vi.fn(() => ({ load: vi.fn() })),
 }))
 
-vi.mock('@/store/modules/repository/history', () => ({
-  fetch_repository_history_store: vi.fn(() => ({ load: vi.fn() })),
-}))
-
 vi.mock('@/store/modules/repository/tags', () => ({
   fetch_repository_tags_store: vi.fn(() => ({ load: vi.fn() })),
 }))

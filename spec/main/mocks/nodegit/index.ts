@@ -36,6 +36,9 @@ export const mocked_commit = {
   id: jest.fn(() => mocked_commit_id),
   date: jest.fn(),
   message: jest.fn(() => 'Commit Message'),
+  author: jest.fn(() => ({
+    toString: jest.fn(() => 'John Doe <example@example.com>'),
+  })),
   parentcount: jest.fn(() => 0),
   parent: jest.fn(),
   getParents: jest.fn(() => [ mocked_commit ]),

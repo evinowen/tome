@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { fetch_repository_committer_signature_store } from './committer/signature'
 import api, { RepositoryFile } from '@/api'
 import { fetch_log_store } from '@/store/modules/log'
+import { fetch_repository_history_store } from '@/store/modules/repository/history'
 
 export interface State {
   status: RepositoryStatus
@@ -92,6 +93,9 @@ export const fetch_repository_committer_store = defineStore('repository-committe
       await log.info(`Commit "${message}" ${oid} created`)
 
       await this.inspect()
+
+      const repository_history = fetch_repository_history_store()
+      await repository_history.unload()
 
       this.process.commit = false
     },

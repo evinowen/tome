@@ -63,6 +63,7 @@ export default {
     reset: vi.fn(reset),
     stage: vi.fn(stage),
     history_list: vi.fn(() => []),
+    history_clear: vi.fn(),
     tag_list: vi.fn(() => []),
     tag_create: vi.fn(),
     tag_remove: vi.fn(),

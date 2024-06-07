@@ -104,6 +104,10 @@ export default component('repository')(
       return repository.history.items
     })
 
+    handle('history-clear', async () => {
+      await repository.history.clear()
+    })
+
     handle('tag-list', async () => await repository.tags.fetch())
     handle('tag-create', async (name, oid) => await repository.tags.create(name, oid))
     handle('tag-remove', async (name) => await repository.tags.remove(name))

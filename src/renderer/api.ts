@@ -59,7 +59,7 @@ export interface API {
     commit: (name: string, email: string, message: string) => Promise<void>
     credential_key: (private_key: string, public_key: string, passphrase: string) => Promise<void>
     credential_password: (username: string, password: string) => Promise<void>
-    diff_commit: (commit: string) => Promise<{ patches: RepositoryPatch[], message: string }>
+    diff_commit: (commit: string) => Promise<{ patches: RepositoryPatch[], message: string, signature: string }>
     diff_path: (path: string) => Promise<{ patches: RepositoryPatch[] }>
     inspect: () => Promise<{ available: RepositoryFile[], staged: RepositoryFile[] }>
     load: (path: string) => Promise<{ name: string, path: string }>
@@ -79,6 +79,7 @@ export interface API {
     reset: (query: string) => Promise<void>
     stage: (query: string) => Promise<void>
     history_list: (page: number) => Promise<RepositoryHistoricalCommit[]>
+    history_clear: () => Promise<void>
     tag_list: () => Promise<{ list: RepositoryTag[] }>
     tag_create: (name: string, oid: string) => Promise<void>
     tag_remove: (name: string) => Promise<void>

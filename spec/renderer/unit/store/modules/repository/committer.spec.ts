@@ -1,6 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
+import { fetch_repository_history_store } from '@/store/modules/repository/history'
 import * as api_module from '@/api'
 import { reset_inspect } from '?/builders/api/repository'
 import builders from '?/builders'
@@ -16,15 +17,26 @@ vi.mock('@/store/modules/log', () => ({
   })),
 }))
 
+vi.mock('@/store/modules/repository/history')
+
 const mocked_api = builders.api()
 Object.assign(api_module, { default: mocked_api })
 
 describe('store/modules/repository/committer', () => {
   let repository_committer
 
+  let mocked_repository_history
+
   beforeEach(() => {
     setActivePinia(createPinia())
     repository_committer = fetch_repository_committer_store()
+
+    mocked_repository_history = {
+      unload: vi.fn(),
+    }
+
+    const mocked_fetch_repository_history_store = vi.mocked(fetch_repository_history_store)
+    mocked_fetch_repository_history_store.mockReturnValue(mocked_repository_history)
 
     reset_inspect()
   })
@@ -34,15 +46,15 @@ describe('store/modules/repository/committer', () => {
   })
 
   it('should instruct the repository to commit staged with details on dispatch of commit action', async () => {
-    const data = {
-      name: 'Test',
-      email: 'text@example.com',
-      message: 'Test Commit',
-    }
-
-    await repository_committer.commit(data)
+    await repository_committer.commit()
 
     expect(mocked_api.repository.commit).toHaveBeenCalledTimes(1)
+  })
+
+  it('should call repository_history.unload on dispatch of commit action', async () => {
+    await repository_committer.commit()
+
+    expect(mocked_repository_history.unload).toHaveBeenCalled()
   })
 
   it('should clear commit process flag on dispatch of commit action', async () => {
@@ -50,13 +62,7 @@ describe('store/modules/repository/committer', () => {
 
     expect(repository_committer.process.commit).toEqual(true)
 
-    const data = {
-      name: 'Test',
-      email: 'text@example.com',
-      message: 'Test Commit',
-    }
-
-    await repository_committer.commit(data)
+    await repository_committer.commit()
 
     expect(repository_committer.process.commit).toEqual(false)
   })

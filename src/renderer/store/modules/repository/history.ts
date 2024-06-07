@@ -20,6 +20,10 @@ export const StateDefaults = (): State => ({
 export const fetch_repository_history_store = defineStore('repository-history', {
   state: StateDefaults,
   actions: {
+    unload: async function () {
+      await api.repository.history_clear()
+      this.$reset()
+    },
     load: async function () {
       this.index = 1
       this.items = await api.repository.history_list(1)

@@ -128,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { fetch_system_store } from '@/store/modules/system'
 import { fetch_repository_history_store } from '@/store/modules/repository/history'
 import { fetch_repository_tags_store } from '@/store/modules/repository/tags'
@@ -160,6 +160,12 @@ onMounted(() => {
 onUnmounted(() => {
   if (ticker.value) {
     clearTimeout(ticker.value)
+  }
+})
+
+watch(() => system.history, async () => {
+  if (system.history && !repository_history.loaded) {
+    await repository_history.load()
   }
 })
 

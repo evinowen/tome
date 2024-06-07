@@ -5,7 +5,6 @@ import { fetch_actions_store } from '@/store/modules/actions'
 import { fetch_configuration_store } from '@/store/modules/configuration'
 import { fetch_templates_store } from '@/store/modules/templates'
 import { fetch_repository_branches_store } from '@/store/modules/repository/branches'
-import { fetch_repository_history_store } from '@/store/modules/repository/history'
 import { fetch_repository_tags_store } from '@/store/modules/repository/tags'
 import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 import { fetch_repository_credentials_store } from '@/store/modules/repository/credentials'
@@ -53,9 +52,6 @@ export const fetch_repository_store = defineStore('repository', {
 
       const branches = fetch_repository_branches_store()
       await branches.load()
-
-      const history = fetch_repository_history_store()
-      await history.load()
 
       const tags = fetch_repository_tags_store()
       await tags.load()

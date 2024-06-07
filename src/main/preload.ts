@@ -82,6 +82,7 @@ export const repository = {
   reset: invoke.repository('reset'),
   stage: invoke.repository('stage'),
   history_list: invoke.repository('history-list'),
+  history_clear: invoke.repository('history-clear'),
   tag_list: invoke.repository('tag-list'),
   tag_create: invoke.repository('tag-create'),
   tag_remove: invoke.repository('tag-remove'),

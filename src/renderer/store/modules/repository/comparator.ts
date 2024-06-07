@@ -6,6 +6,7 @@ export interface State {
   type: string
   reference: string
   message: string
+  signature: string
 }
 
 export interface RepositoryPatches {
@@ -36,6 +37,7 @@ export const StateDefaults = (): State => ({
   type: '',
   reference: '',
   message: '',
+  signature: '',
 })
 
 export const fetch_repository_comparator_store = defineStore('repository-comparator', {
@@ -56,9 +58,10 @@ export const fetch_repository_comparator_store = defineStore('repository-compara
         this.type = 'commit'
         this.reference = String(commit).toLowerCase()
 
-        const { patches, message } = await api.repository.diff_commit(commit)
+        const { patches, message, signature } = await api.repository.diff_commit(commit)
         this.patches = patches
         this.message = message
+        this.signature = signature
       }
     },
   },
