@@ -6,7 +6,7 @@ import SettingsStateDefaults from '@/store/state/configuration/settings'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import CommitMessageInput from '@/components/Commit/CommitMessageInput.vue'
-import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 
 vi.mock('lodash', () => ({
   throttle: (callback) => {
@@ -56,83 +56,95 @@ describe('components/Commit/CommitMessageInput', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should sync model when input emits focus event', async () => {
-    const repository_committer_signature = fetch_repository_committer_signature_store()
-    repository_committer_signature.message = 'example-a'
+  it('should sync model repository_committer.message updated and focused is false', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.message = 'example-a'
 
     const wrapper = factory.wrap()
     expect(wrapper.vm.model).toEqual('example-a')
+    expect(wrapper.vm.focused).toEqual(false)
 
-    repository_committer_signature.message = 'example-b'
+    repository_committer.message = 'example-b'
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.model).not.toEqual('example-b')
+    expect(wrapper.vm.model).toEqual('example-b')
+  })
+
+  it('should set focused true when input emits blur event', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.message = 'example-a'
+
+    const wrapper = factory.wrap()
+    expect(wrapper.vm.focused).toEqual(false)
 
     const input_field = wrapper.findComponent({ ref: 'input-field' })
     expect(input_field.exists()).toBe(true)
 
-    input_field.trigger('focus')
+    await input_field.trigger('focus')
 
-    expect(wrapper.vm.model).toEqual('example-b')
+    expect(wrapper.vm.focused).toEqual(true)
+  })
+
+  it('should not sync model repository_committer.message updated and focused is true', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.message = 'example-a'
+
+    const wrapper = factory.wrap()
+    expect(wrapper.vm.model).toEqual('example-a')
+
+    const input_field = wrapper.findComponent({ ref: 'input-field' })
+    expect(input_field.exists()).toBe(true)
+
+    await input_field.trigger('focus')
+    expect(wrapper.vm.focused).toEqual(true)
+
+    repository_committer.message = 'example-b'
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.model).not.toEqual('example-b')
   })
 
   it('should sync model when input emits blur event', async () => {
-    const repository_committer_signature = fetch_repository_committer_signature_store()
-    repository_committer_signature.message = 'example-a'
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.message = 'example-a'
 
     const wrapper = factory.wrap()
     expect(wrapper.vm.model).toEqual('example-a')
 
-    repository_committer_signature.message = 'example-b'
+    const input_field = wrapper.findComponent({ ref: 'input-field' })
+    expect(input_field.exists()).toBe(true)
+    await input_field.trigger('focus')
+
+    repository_committer.message = 'example-b'
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.model).not.toEqual('example-b')
 
-    const input_field = wrapper.findComponent({ ref: 'input-field' })
-    expect(input_field.exists()).toBe(true)
-
-    input_field.trigger('blur')
+    await input_field.trigger('blur')
 
     expect(wrapper.vm.model).toEqual('example-b')
   })
 
-  it('should sync model when input emits blur model update', async () => {
-    const repository_committer_signature = fetch_repository_committer_signature_store()
-    repository_committer_signature.message = 'example-a'
+  it('should call "repository_committer.compose" with new value when input emits blur model update', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.message = 'example-a'
 
     const wrapper = factory.wrap()
     expect(wrapper.vm.model).toEqual('example-a')
 
-    repository_committer_signature.message = 'example-b'
+    const input_field = wrapper.findComponent({ ref: 'input-field' })
+    expect(input_field.exists()).toBe(true)
+    await input_field.trigger('focus')
+
+    repository_committer.message = 'example-b'
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.model).not.toEqual('example-b')
 
-    const input_field = wrapper.findComponent({ ref: 'input-field' })
     expect(input_field.exists()).toBe(true)
 
     input_field.vm.$emit('update:model-value', 'example-c')
 
-    expect(wrapper.vm.model).toEqual('example-c')
-  })
-
-  it('should call "repository_committer_signature.sign_message" with new value when input emits blur model update', async () => {
-    const repository_committer_signature = fetch_repository_committer_signature_store()
-    repository_committer_signature.message = 'example-a'
-
-    const wrapper = factory.wrap()
-    expect(wrapper.vm.model).toEqual('example-a')
-
-    repository_committer_signature.message = 'example-b'
-    await wrapper.vm.$nextTick()
-
-    expect(wrapper.vm.model).not.toEqual('example-b')
-
-    const input_field = wrapper.findComponent({ ref: 'input-field' })
-    expect(input_field.exists()).toBe(true)
-
-    input_field.vm.$emit('update:model-value', 'example-c')
-
-    expect(repository_committer_signature.sign_message).toHaveBeenCalledWith('example-c')
+    expect(repository_committer.compose).toHaveBeenCalledWith('example-c')
   })
 })

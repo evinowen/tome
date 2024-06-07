@@ -71,7 +71,7 @@ const configuration = fetch_configuration_store()
 
 const input = ref<HTMLInputElement>()
 const passphrase = computed<string>(() => configuration[configuration.target].credentials.passphrase)
-const { disabled, update, model } = SettingSetup<string>(properties, 0)
+const { disabled, update, model } = SettingSetup<string>(properties, 0, '')
 
 async function select (event) {
   const files = event.target.files || event.dataTransfer.files

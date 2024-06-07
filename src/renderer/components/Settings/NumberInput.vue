@@ -54,7 +54,7 @@ const properties = withDefaults(defineProps<Properties>(), {
   slider: undefined,
 })
 
-const { model, disabled, update } = SettingSetup<number>(properties, 500)
+const { model, disabled, update } = SettingSetup<number>(properties, 500, 0)
 
 const slider_model = ref<number>(model.value)
 watch(model, (value) => slider_model.value = value)

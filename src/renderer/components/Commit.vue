@@ -12,14 +12,27 @@
       title="Commit Message"
       subtitle="Set the message that will be used for the new commit, this can be anything that describes what updates have been made since the last commit."
     >
+      <template #append>
+        <v-btn
+          ref="generate-button"
+          :disabled="repository_committer.message.length > 0"
+          @click="generate"
+        >
+          Generate
+        </v-btn>
+      </template>
       <commit-message-input class="my-1" />
     </v-card>
     <v-card
       class="mb-3"
       color="surface"
       title="Commit Signature"
-      subtitle="Set the Name and E-Mail address for the commit message &mdash; changes here will also be updated in the global settings."
     >
+      <template #subtitle>
+        Set the Name and E-Mail address for the commit message &mdash;
+        <span v-if="configuration.localized.signature">changes here will also be updated in local settings.</span>
+        <span v-else>changes here will also be updated in global settings.</span>
+      </template>
       <template #append>
         <select-button-input
           :value="configuration.localized.signature ? SettingsTarget.Local : SettingsTarget.Global"
@@ -31,41 +44,8 @@
       <signature-input
         :target="configuration.localized.signature ? SettingsTarget.Local : SettingsTarget.Global"
         :frame="false"
+        :error="true"
       />
-      <!-- <v-row
-        dense
-        no-gutters
-        class="mt-0"
-      >
-        <v-col
-          class="xs"
-          cols="12"
-          sm="6"
-        >
-          <text-input
-            label="name"
-            index="signature.name"
-            localizer="signature"
-            :target="configuration.localized.signature ? SettingsTarget.Local : SettingsTarget.Global"
-            :frame="false"
-            :error="repository_committer_signature.name_error"
-          />
-        </v-col>
-        <v-col
-          class="xs"
-          cols="12"
-          sm="6"
-        >
-          <text-input
-            label="e-mail"
-            index="signature.email"
-            localizer="signature"
-            :target="configuration.localized.signature ? SettingsTarget.Local : SettingsTarget.Global"
-            :frame="false"
-            :error="repository_committer_signature.email_error"
-          />
-        </v-col>
-      </v-row> -->
     </v-card>
     <v-card
       color="surface"
@@ -166,10 +146,9 @@
 <script setup lang="ts">
 import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
 import { fetch_system_store } from '@/store/modules/system'
-import { fetch_error_store } from '@/store/modules/error'
 import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
-import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
+import CommitError from '@/objects/errors/CommitError'
 import CommitConfirm from '@/components/Commit/CommitConfirm.vue'
 import CommitList from '@/components/Commit/CommitList.vue'
 import CommitMessageInput from '@/components/Commit/CommitMessageInput.vue'
@@ -186,22 +165,19 @@ import {
 
 const configuration = fetch_configuration_store()
 const system = fetch_system_store()
-const error = fetch_error_store()
 const repository_comparator = fetch_repository_comparator_store()
 const repository_committer = fetch_repository_committer_store()
-const repository_committer_signature = fetch_repository_committer_signature_store()
 
 async function close () {
   await system.page({ commit: false })
 }
 
+async function generate () {
+  await repository_committer.compose(undefined, true)
+}
+
 async function confirm () {
-  if (!await repository_committer_signature.check()) {
-    await error.show(
-      'Commit Error: Signature',
-      'Incomplete commit signature, missing valid Name or E-Mail address.',
-      'commit-error-signature',
-    )
+  if (await CommitError()) {
     return
   }
 
@@ -236,6 +212,7 @@ defineExpose({
   diff,
   reset,
   stage,
+  signature_locality,
 })
 </script>
 

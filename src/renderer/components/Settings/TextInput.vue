@@ -7,6 +7,7 @@
       ref="input-field"
       style="width: 100%"
       :disabled="disabled"
+      :error="error"
       :value="model"
       :label="label"
       :obscureable="obscureable"
@@ -22,6 +23,7 @@ import SettingFrame from '@/components/Settings/SettingFrame.vue'
 import SettingSetup, { SettingProperties, SettingPropertiesDefaults } from '@/components/Settings/SettingSetup'
 
 interface Properties extends SettingProperties {
+  error?: boolean
   obscureable?: boolean
   // eslint-disable-next-line vue/require-default-prop
   placeholder?: string
@@ -29,11 +31,12 @@ interface Properties extends SettingProperties {
 
 const properties = withDefaults(defineProps<Properties>(), {
   ...SettingPropertiesDefaults(),
+  error: false,
   obscureable: false,
   placeholder: '',
 })
 
-const { model, disabled, update } = SettingSetup<string>(properties, 500)
+const { model, disabled, update } = SettingSetup<string>(properties, 500, '')
 
 defineExpose({
   update,

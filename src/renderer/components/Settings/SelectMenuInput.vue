@@ -41,7 +41,7 @@ const properties = withDefaults(defineProps<Properties>(), {
   options: () => ([] as Option[]),
 })
 
-const { disabled, update, model } = SettingSetup<string>(properties, 0)
+const { disabled, update, model } = SettingSetup<string>(properties, 0, '')
 
 defineExpose({
   update,

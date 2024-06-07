@@ -4,7 +4,7 @@ import { createTestingPinia } from '@pinia/testing'
 import { fetch_configuration_store } from '@/store/modules/configuration'
 import SettingsStateDefaults from '@/store/state/configuration/settings'
 import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
-import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 import AutoCommit from '@/objects/performances/AutoCommit'
 
 vi.mock('lodash', () => ({
@@ -27,20 +27,20 @@ describe('objects/performances/AutoCommit', () => {
     setActivePinia(pinia)
   })
 
-  it('should not trigger Commit performance when "repository_committer_signature.check" returns false upon call to AutoCommit.perform', async () => {
+  it('should not trigger Commit performance when "repository_committer.check" returns false upon call to AutoCommit.perform', async () => {
     const system = fetch_system_store()
-    const repository_committer_signature = fetch_repository_committer_signature_store()
-    repository_committer_signature.check = vi.fn(() => false)
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.check = vi.fn(() => false)
 
     await AutoCommit.perform()
 
     expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.Commit)
   })
 
-  it('should trigger Commit performance when "repository_committer_signature.check" returns true upon call to AutoCommit.perform', async () => {
+  it('should trigger Commit performance when "repository_committer.check" returns true upon call to AutoCommit.perform', async () => {
     const system = fetch_system_store()
-    const repository_committer_signature = fetch_repository_committer_signature_store()
-    repository_committer_signature.check = vi.fn(() => true)
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.check = vi.fn(() => true)
 
     await AutoCommit.perform()
 

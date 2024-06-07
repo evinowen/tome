@@ -17,6 +17,7 @@
           label="name"
           index="signature.name"
           localizer="signature"
+          :error="error && repository_committer.error.name"
           :target="target"
           :frame="false"
         />
@@ -30,6 +31,7 @@
           label="e-mail"
           index="signature.email"
           localizer="signature"
+          :error="error && repository_committer.error.email"
           :target="target"
           :frame="false"
         />
@@ -40,6 +42,7 @@
 
 <script setup lang="ts">
 import { SettingsTarget } from '@/store/modules/configuration'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 import SettingFrame from '@/components/Settings/SettingFrame.vue'
 import TextInput from '@/components/Settings/TextInput.vue'
 import {
@@ -49,10 +52,13 @@ import {
 
 interface Properties {
   target?: SettingsTarget
+  error?: boolean
 }
 
 withDefaults(defineProps<Properties>(), {
   target: undefined,
+  error: false,
 })
 
+const repository_committer = fetch_repository_committer_store()
 </script>

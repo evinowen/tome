@@ -32,7 +32,7 @@ Object.assign(api_module, { default: mocked_api })
 describe('store/modules/system', () => {
   let system
 
-  const store_action_repository_signature_check = vi.fn()
+  const store_action_repository_check = vi.fn()
 
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -117,8 +117,8 @@ describe('store/modules/system', () => {
     })
   }
 
-  it('should set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/committer/signature/check returns true', async () => {
-    store_action_repository_signature_check.mockImplementation(() => true)
+  it('should set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/committer/check returns true', async () => {
+    store_action_repository_check.mockImplementation(() => true)
 
     expect(system.commit_confirm).toBe(false)
     await system.page({ commit_confirm: true })
@@ -126,7 +126,7 @@ describe('store/modules/system', () => {
   })
 
   it('should set commit_confirm flag to false on commit_confirm dispatch with falsey value', async () => {
-    store_action_repository_signature_check.mockImplementation(() => true)
+    store_action_repository_check.mockImplementation(() => true)
 
     expect(system.commit_confirm).toBe(false)
     await system.page({ commit_confirm: true })

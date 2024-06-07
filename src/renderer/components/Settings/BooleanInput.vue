@@ -23,7 +23,7 @@ import SettingSetup, { SettingProperties, SettingPropertiesDefaults } from '@/co
 
 const properties = withDefaults(defineProps<SettingProperties>(), SettingPropertiesDefaults())
 
-const { color, disabled, update, model } = SettingSetup<boolean>(properties, 0)
+const { color, disabled, update, model } = SettingSetup<boolean>(properties, 0, false)
 
 defineExpose({
   update,

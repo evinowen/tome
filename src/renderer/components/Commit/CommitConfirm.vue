@@ -4,7 +4,7 @@
     :secure="false"
     @click="close"
   >
-    <v-card style="min-width: 480px">
+    <v-card style="width: 480px; max-width: 95vw;">
       <v-list-item class="my-2">
         <template #prepend>
           <v-progress-circular
@@ -21,6 +21,16 @@
           >
             <v-icon>mdi-hammer-wrench</v-icon>
           </v-avatar>
+        </template>
+        <template #append>
+          <v-btn
+            ref="generate-button"
+            :disabled="repository_committer.message.length > 0"
+            size="small"
+            @click="generate"
+          >
+            Generate
+          </v-btn>
         </template>
         <v-list-item-title class="text-h5 title">
           Commit
@@ -104,6 +114,7 @@ import {
 } from 'vuetify/components'
 import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
+import CommitError from '@/objects/errors/CommitError'
 
 const system = fetch_system_store()
 const repository_committer = fetch_repository_committer_store()
@@ -114,7 +125,15 @@ const status = computed(() => {
     : CommitConfirmMessages.Ready
 })
 
+async function generate () {
+  await repository_committer.compose(undefined, true)
+}
+
 async function commit () {
+  if (await CommitError()) {
+    return
+  }
+
   await system.perform(SystemPerformance.Commit)
 }
 
@@ -128,6 +147,7 @@ async function close () {
 
 defineExpose({
   commit_push,
+  generate,
   status,
 })
 </script>

@@ -5,13 +5,17 @@ import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import UtilityPage from '?/stubs/UtilityPage.vue'
 import Commit from '@/components/Commit.vue'
+import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
-import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
 import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 import { fetch_system_store } from '@/store/modules/system'
-import { fetch_error_store } from '@/store/modules/error'
+import CommitError from '@/objects/errors/CommitError'
 
 vi.mock('nodegit', () => ({ Reset: {}, Reference: {}, Signature: {} }))
+
+vi.mock('@/objects/errors/CommitError', () => ({
+  default: vi.fn(async () => false),
+}))
 
 describe('components/Commit', () => {
   let vuetify
@@ -62,24 +66,54 @@ describe('components/Commit', () => {
     expect(system.page).toHaveBeenCalledWith({ commit: false })
   })
 
-  it('should call "error.show" when confirm is called and "repository_committer_signature.check" returns false', async () => {
-    const repository_committer_signature = fetch_repository_committer_signature_store()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    repository_committer_signature.check = vi.fn(async () => false) as any
+  it('should call "repository_committer.compose" with to trigger automatic commit message when generate button emits "click" event', async () => {
+    const repository_committer = fetch_repository_committer_store()
 
-    const error = fetch_error_store()
+    const wrapper = factory.wrap()
+
+    const generate_button = wrapper.findComponent({ ref: 'generate-button' })
+    expect(generate_button.exists()).toBe(true)
+
+    await generate_button.trigger('click')
+
+    expect(repository_committer.compose).toHaveBeenCalledWith(undefined, true)
+  })
+
+  it('should call "configuration.localize" disabling signature locality upon call to signature_locality with SettingsTarget.Global', async () => {
+    const configuration = fetch_configuration_store()
+
+    const wrapper = factory.wrap()
+    wrapper.vm.signature_locality(SettingsTarget.Global)
+
+    expect(configuration.localize).toHaveBeenCalledWith('signature', false)
+  })
+
+  it('should call "configuration.localize" enabling signature locality upon call to signature_locality with SettingsTarget.Local', async () => {
+    const configuration = fetch_configuration_store()
+
+    const wrapper = factory.wrap()
+    wrapper.vm.signature_locality(SettingsTarget.Local)
+
+    expect(configuration.localize).toHaveBeenCalledWith('signature', true)
+  })
+
+  it('should not call "system.page" with true commit_confirm flag when confirm is called and CommitError returns true', async () => {
+    const mocked_CommitError = vi.mocked(CommitError)
+    mocked_CommitError.mockImplementationOnce(async () => true)
+
+    const system = fetch_system_store()
 
     const wrapper = factory.wrap()
 
     await wrapper.vm.confirm()
 
-    expect(error.show).toHaveBeenCalled()
+    expect(system.page).not.toHaveBeenCalledWith({ commit_confirm: true })
   })
 
-  it('should call "system.page" with true commit_confirm flag when confirm is called and "repository_committer_signature.check" returns true', async () => {
-    const repository_committer_signature = fetch_repository_committer_signature_store()
+  it('should call "system.page" with true commit_confirm flag when confirm is called and CommitError returns false', async () => {
+    const repository_committer = fetch_repository_committer_store()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    repository_committer_signature.check = vi.fn(async () => true) as any
+    repository_committer.check = vi.fn(async () => true) as any
 
     const system = fetch_system_store()
 

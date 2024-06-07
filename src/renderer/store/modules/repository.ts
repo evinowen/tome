@@ -9,7 +9,6 @@ import { fetch_repository_tags_store } from '@/store/modules/repository/tags'
 import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 import { fetch_repository_credentials_store } from '@/store/modules/repository/credentials'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
-import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
 
 export interface RepositoryCommit {
   oid: string
@@ -64,11 +63,7 @@ export const fetch_repository_store = defineStore('repository', {
 
       const committer = fetch_repository_committer_store()
       await committer.inspect()
-
-      const committer_signature = fetch_repository_committer_signature_store()
-      await committer_signature.sign_name()
-      await committer_signature.sign_email()
-      await committer_signature.sign_message()
+      await committer.compose(undefined, true)
 
       const actions = fetch_actions_store()
       await actions.load({ path: this.path })

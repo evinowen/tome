@@ -20,7 +20,7 @@ export const SettingPropertiesDefaults = () => ({
   target: undefined,
 })
 
-export default function SettingSetup<T> (properties, timeout) {
+export default function SettingSetup<T> (properties, timeout, empty: T) {
   const configuration = fetch_configuration_store()
 
   const target = computed<SettingsTarget>(() => properties.target || configuration.target)
@@ -30,7 +30,7 @@ export default function SettingSetup<T> (properties, timeout) {
   const disabled = computed(() => local.value && !get(configuration.localized, properties.localizer || properties.index))
 
   const update = throttle(async (value: T) => {
-    await configuration.update(target.value, properties.index, value)
+    await configuration.update(target.value, properties.index, value ?? empty)
   }, timeout)
 
   return {

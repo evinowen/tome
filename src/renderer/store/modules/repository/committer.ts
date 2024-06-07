@@ -1,14 +1,21 @@
 import { defineStore } from 'pinia'
-import { fetch_repository_committer_signature_store } from './committer/signature'
+import { DateTime } from 'luxon'
 import api, { RepositoryFile } from '@/api'
 import { fetch_log_store } from '@/store/modules/log'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import { fetch_repository_history_store } from '@/store/modules/repository/history'
 
 export interface State {
   status: RepositoryStatus
+  message: string
   process: {
     staging: boolean
     commit: boolean
+  }
+  error: {
+    name: boolean
+    email: boolean
+    message: boolean
   }
 }
 
@@ -27,11 +34,27 @@ export enum RepositoryFileStateType {
 
 export const StateDefaults = (): State => ({
   status: { available: [], staged: [] },
+  message: '',
   process: {
     staging: false,
     commit: false,
   },
+  error: {
+    name: false,
+    email: false,
+    message: false,
+  },
 })
+
+const SignatureMessageDateString = () =>
+  DateTime.now().toLocaleString({
+    weekday: 'short',
+    month: 'long',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  })
 
 export const fetch_repository_committer_store = defineStore('repository-committer', {
   state: StateDefaults,
@@ -78,19 +101,28 @@ export const fetch_repository_committer_store = defineStore('repository-committe
         this.process.staging = false
       }
     },
+    compose: function (value?, populate = false) {
+      if (value !== undefined) {
+        this.message = value
+      }
+
+      if (this.message === '' && populate) {
+        this.message = `Update for ${SignatureMessageDateString()}`
+      }
+    },
     commit: async function () {
       this.process.commit = true
 
       const log = fetch_log_store()
 
-      const signature = fetch_repository_committer_signature_store()
-      const { name, email, message } = signature
+      const configuration = fetch_configuration_store()
+      const { name, email } = configuration.active.signature
 
-      await log.info(`Creating commit "${message}" ...`)
+      await log.info(`Creating commit "${this.message}" ...`)
 
-      const oid = await api.repository.commit(name, email, message)
+      const oid = await api.repository.commit(name, email, this.message)
 
-      await log.info(`Commit "${message}" ${oid} created`)
+      await log.info(`Commit "${this.message}" ${oid} created`)
 
       await this.inspect()
 
@@ -98,6 +130,35 @@ export const fetch_repository_committer_store = defineStore('repository-committe
       await repository_history.unload()
 
       this.process.commit = false
+    },
+    uncheck: function () {
+      this.error.name = false
+      this.error.email = false
+      this.error.message = false
+    },
+    check: function () {
+      const configuration = fetch_configuration_store()
+      this.uncheck()
+
+      const name = configuration.active.signature.name
+      if (name.length === 0) {
+        this.error.name = true
+      }
+
+      const email = configuration.active.signature.email
+      if (email.length === 0) {
+        this.error.email = true
+      }
+
+      if (this.message.length === 0) {
+        this.error.message = true
+      }
+
+      if (this.error.name || this.error.email || this.error.message) {
+        return false
+      }
+
+      return true
     },
   },
 })

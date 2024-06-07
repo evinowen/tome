@@ -51,14 +51,9 @@ vi.mock('@/store/modules/repository/credentials', () => ({
 }))
 
 vi.mock('@/store/modules/repository/committer', () => ({
-  fetch_repository_committer_store: vi.fn(() => ({ inspect: vi.fn() })),
-}))
-
-vi.mock('@/store/modules/repository/committer/signature', () => ({
-  fetch_repository_committer_signature_store: vi.fn(() => ({
-    sign_name: vi.fn(),
-    sign_email: vi.fn(),
-    sign_message: vi.fn(),
+  fetch_repository_committer_store: vi.fn(() => ({
+    inspect: vi.fn(),
+    compose: vi.fn(),
   })),
 }))
 

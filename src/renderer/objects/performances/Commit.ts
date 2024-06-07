@@ -2,14 +2,12 @@ import { delay } from 'lodash'
 import { fetch_log_store } from '@/store/modules/log'
 import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
-import { fetch_repository_committer_signature_store } from '@/store/modules/repository/committer/signature'
 
 export default class Commit {
   static async perform () {
     const log = fetch_log_store()
     const system = fetch_system_store()
     const repository_committer = fetch_repository_committer_store()
-    const repository_committer_signature = fetch_repository_committer_signature_store()
 
     await log.info('Perform Commit')
 
@@ -20,7 +18,7 @@ export default class Commit {
       }
 
       await repository_committer.commit()
-      await repository_committer_signature.sign_message()
+      await repository_committer.compose('')
 
       await log.info('Commit done')
     } catch {
