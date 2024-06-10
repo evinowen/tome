@@ -77,7 +77,6 @@
         label="Automatic Commit Interval"
         detail="How often to create automated commits"
         index="auto_commit_interval"
-        :disabled="!configuration[configuration.target].auto_commit"
         :options="auto_commit_interval_options"
       />
       <boolean-input
@@ -212,6 +211,23 @@
   </utility-page>
 </template>
 
+<script lang="ts">
+export enum LocalityTitle {
+  Global = 'Global Settings',
+  Local = 'Local Settings',
+}
+
+export enum LocalitySubtitle {
+  Global = 'Global configuration for all instances of Tome, that persist between different repositories.',
+  Local = 'Local configuration for this instance of Tome, specific to the current repository only.',
+}
+
+export enum LocalityColor {
+  Global = 'primary',
+  Local = 'secondary',
+}
+</script>
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
@@ -245,12 +261,12 @@ const system = fetch_system_store()
 
 const locality_title = computed(() => {
   switch (configuration.target) {
-    case 'global': {
-      return 'Global Settings'
+    case SettingsTarget.Global: {
+      return LocalityTitle.Global
     }
 
-    case 'local': {
-      return 'Local Settings'
+    case SettingsTarget.Local: {
+      return LocalityTitle.Local
     }
 
     default: {
@@ -261,12 +277,12 @@ const locality_title = computed(() => {
 
 const locality_subtitle = computed(() => {
   switch (configuration.target) {
-    case 'global': {
-      return 'Global configuration for all instances of Tome, that persist between different repositories.'
+    case SettingsTarget.Global: {
+      return LocalitySubtitle.Global
     }
 
-    case 'local': {
-      return 'Local configuration for this instance of Tome, specific to the current repository only.'
+    case SettingsTarget.Local: {
+      return LocalitySubtitle.Local
     }
 
     default: {
@@ -277,12 +293,12 @@ const locality_subtitle = computed(() => {
 
 const locality_color = computed(() => {
   switch (configuration.target) {
-    case 'global': {
-      return 'primary'
+    case SettingsTarget.Global: {
+      return LocalityColor.Global
     }
 
-    case 'local': {
-      return 'secondary'
+    case SettingsTarget.Local: {
+      return LocalityColor.Local
     }
 
     default: {
@@ -320,6 +336,9 @@ async function close () {
 
 defineExpose({
   close,
+  locality_title,
+  locality_subtitle,
+  locality_color,
 })
 </script>
 

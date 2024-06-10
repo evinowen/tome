@@ -2,10 +2,12 @@
   <v-container fluid>
     <slot />
     <theme-font-picker
+      :theme="theme"
       :section="section"
       :fonts="fonts"
     />
     <theme-color-picker
+      :theme="theme"
       :section="section"
       :colors="colors"
     />
@@ -13,32 +15,30 @@
 </template>
 
 <script lang="ts">
+import { Font as ThemeFontPickerFont } from './ThemeFontPicker.vue'
+export type Font = ThemeFontPickerFont
+
+import { Color as ThemeColorPickerColor } from './ThemeColorPicker.vue'
+export type Color = ThemeColorPickerColor
+
+</script>
+
+<script setup lang="ts">
 import ThemeFontPicker from './ThemeFontPicker.vue'
 import ThemeColorPicker from './ThemeColorPicker.vue'
 import {
   VContainer,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    ThemeFontPicker,
-    ThemeColorPicker,
-    VContainer,
-  },
-}
-</script>
-
-<script setup lang="ts">
-import { Font } from './ThemeFontPicker.vue'
-import { Color } from './ThemeColorPicker.vue'
-
 interface Properties {
   section: string
+  theme: string
   fonts: Font[]
   colors: Color[]
 }
 
 withDefaults(defineProps<Properties>(), {
+  theme: 'light',
   fonts: () => [] as Font[],
   colors: () => [] as Color[],
 })

@@ -1,28 +1,27 @@
 <template>
   <theme-editor-section
+    :theme="theme"
     section="rendered"
     :fonts="fonts"
     :colors="colors"
   >
-    <rendered-theme-preview />
+    <rendered-theme-preview :theme="theme" />
   </theme-editor-section>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import RenderedThemePreview from './RenderedThemePreview.vue'
 import ThemeEditorSection from '../ThemeEditorSection.vue'
-
-export default {
-  components: {
-    RenderedThemePreview,
-    ThemeEditorSection,
-  },
-}
-</script>
-
-<script setup lang="ts">
 import { Font } from '../ThemeFontPicker.vue'
 import { Color } from '../ThemeColorPicker.vue'
+
+export interface Properties {
+  theme: string
+}
+
+withDefaults(defineProps<Properties>(), {
+  theme: 'light',
+})
 
 const fonts: Font[] = [
   { label: 'Header', index: 'header' },

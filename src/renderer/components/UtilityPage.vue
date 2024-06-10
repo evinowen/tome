@@ -28,6 +28,15 @@
           <v-icon>mdi-window-close</v-icon>
         </v-btn>
       </div>
+      <div
+        v-if="!!$slots.options"
+        class="options"
+      >
+        <div>
+          <slot name="options" />
+        </div>
+        <v-divider class="ma-0" />
+      </div>
       <div :class="['mx-2', 'content', fixed ? 'fixed' : undefined ]">
         <div
           class="d-flex flex-column"
@@ -201,6 +210,14 @@ defineExpose({
   min-width: 0;
   height: 36px;
   width: 36px;
+}
+
+.options {
+  backdrop-filter: blur(2px);
+  top: 0;
+  flex-grow: 0;
+  position: sticky;
+  z-index: 1;
 }
 
 .actions {

@@ -3,14 +3,20 @@
     id="app"
     class="app-root"
     :style="{
-      '--font-title': theme.application.font_family_title,
-      '--font-title-size': `${theme.application.font_size_title}em`,
-      '--font-content': theme.application.font_family_content,
-      '--font-content-size': `${theme.application.font_size_content}em`,
-      '--font-monospace': theme.application.font_family_monospace || 'monospace',
-      '--font-monospace-size': `${theme.application.font_size_monospace}em`,
+      '--font-application-title': computed_theme.application.font_family_title,
+      '--font-application-title-size': `${computed_theme.application.font_size_title}em`,
+      '--font-application-content': computed_theme.application.font_family_content,
+      '--font-application-content-size': `${computed_theme.application.font_size_content}em`,
+      '--font-application-monospace': computed_theme.application.font_family_monospace || 'monospace',
+      '--font-application-monospace-size': `${computed_theme.application.font_size_monospace}em`,
+      '--font-rendered-header': computed_theme.rendered.font_family_header,
+      '--font-rendered-header-size': `${computed_theme.rendered.font_size_header}em`,
+      '--font-rendered-content': computed_theme.rendered.font_family_content,
+      '--font-rendered-content-size': `${computed_theme.rendered.font_size_content}em`,
+      '--font-compose': computed_theme.compose.font_family_compose || 'monospace',
+      '--font-compose-size': `${computed_theme.compose.font_size_compose || 1}em`,
     }"
-    :theme="theme.name"
+    :theme="theme"
     @scroll.self="scroll"
   >
     <system-bar title="tome" />
@@ -84,11 +90,8 @@ const configuration = fetch_configuration_store()
 const repository = fetch_repository_store()
 const system = fetch_system_store()
 
-const theme = computed(() => {
-  return configuration.active.dark_mode
-    ? { name: 'dark', ...configuration.active.themes.dark }
-    : { name: 'light', ...configuration.active.themes.light }
-})
+const theme = computed(() => configuration.active.dark_mode ? 'dark' : 'light')
+const computed_theme = computed(() => configuration.active.themes[theme.value])
 
 const scroll = (event) => {
   event.target.scrollTop = 0
@@ -131,18 +134,18 @@ defineExpose({
 }
 
 .app-root {
-  font-family: var(--font-content);
-  font-size: var(--font-content-size);
+  font-family: var(--font-application-content);
+  font-size: var(--font-application-content-size);
 }
 
 .app-root :deep(.title) {
-  font-family: var(--font-title) !important;
-  font-size: var(--font-title-size);
+  font-family: var(--font-application-title) !important;
+  font-size: var(--font-application-title-size);
 }
 
 .app-root :deep(pre) {
-  font-family: var(--font-monospace);
-  font-size: var(--font-monospace-size);
+  font-family: var(--font-application-monospace);
+  font-size: var(--font-application-monospace-size);
 }
 
 .app-main {

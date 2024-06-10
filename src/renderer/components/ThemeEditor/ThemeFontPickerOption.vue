@@ -46,28 +46,32 @@ const fonts = fetch_fonts_store()
 const ticks = [ '0.25', '0.50', '0.75', '1.00', '1.25', '1.50', '1.75', '2.00' ]
 
 interface Properties {
+  theme: string
   section: string
   label: string
   index: string
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
+  theme: 'light',
   section: '',
   label: '',
   index: '',
 })
 
-const theme = computed(() => configuration[configuration.target].dark_mode ? 'dark' : 'light')
-const family_value = computed(() => configuration[configuration.target].themes[theme.value][properties.section][`font_family_${properties.index}`] ?? '')
-const size_value = computed(() => configuration[configuration.target].themes[theme.value][properties.section][`font_size_${properties.index}`] ?? '')
+const family_value = computed(() => configuration[configuration.target].themes[properties.theme][properties.section][`font_family_${properties.index}`] ?? '')
+const size_value = computed(() => configuration[configuration.target].themes[properties.theme][properties.section][`font_size_${properties.index}`] ?? '')
 
 async function update_family (value) {
-  // await configuration.update(configuration.target, { themes: { [theme.value]: { [properties.section]: { [`font_family_${properties.index}`]: value ?? '' } } } })
-  await configuration.update(configuration.target, `themes.${theme.value}.${properties.section}.font_family_${properties.index}`, value ?? '')
+  await configuration.update(configuration.target, `themes.${properties.theme}.${properties.section}.font_family_${properties.index}`, value ?? '')
 }
 
 async function update_size (value) {
-  // await configuration.update(configuration.target, { themes: { [theme.value]: { [properties.section]: { [`font_size_${properties.index}`]: value ?? '' } } } })
-  await configuration.update(configuration.target, `themes.${theme.value}.${properties.section}.font_size_${properties.index}`, value ?? '')
+  await configuration.update(configuration.target, `themes.${properties.theme}.${properties.section}.font_size_${properties.index}`, value ?? '')
 }
+
+defineExpose({
+  update_family,
+  update_size,
+})
 </script>

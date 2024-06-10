@@ -6,6 +6,47 @@
     :open="system.theme_editor"
     @close="close"
   >
+    <template #options>
+      <div class="d-flex ma-2">
+        <div
+          v-if="configuration.target === SettingsTarget.Global"
+          class="target-badge-global px-4 d-flex align-center"
+        >
+          <v-icon class="mr-1">
+            mdi-earth
+          </v-icon>
+          Global
+        </div>
+        <div
+          v-if="configuration.target === SettingsTarget.Local"
+          class="target-badge-local px-4 d-flex align-center"
+        >
+          <v-icon class="mr-1">
+            mdi-book
+          </v-icon>
+          Local
+        </div>
+        <div class="flex-grow-1" />
+        <div class="active-checkbox d-flex align-center mx-3 pr-3">
+          <div
+            class="mr-2"
+            @click="active = !active"
+          >
+            <v-icon v-if="active">mdi-checkbox-marked</v-icon>
+            <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+          </div>
+          Active Theme
+        </div>
+        <div class="d-flex align-center">
+          <select-button-input
+            :disabled="active"
+            :options="theme_select_options"
+            :value="theme_select"
+            @update="(value) => theme_select = value"
+          />
+        </div>
+      </div>
+    </template>
     <v-tabs
       v-model="tab"
       align-tabs="center"
@@ -29,19 +70,24 @@
       class="flex-grow-1"
     >
       <v-window-item value="application">
-        <application-theme-editor />
+        <application-theme-editor :theme="theme" />
       </v-window-item>
       <v-window-item value="rendered">
-        <rendered-theme-editor />
+        <rendered-theme-editor :theme="theme" />
       </v-window-item>
       <v-window-item value="compose">
-        <compose-theme-editor />
+        <compose-theme-editor :theme="theme" />
       </v-window-item>
     </v-window>
   </utility-page>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
+import { fetch_fonts_store } from '@/store/modules/fonts'
+import { fetch_system_store } from '@/store/modules/system'
+import SelectButtonInput from '@/components/Input/SelectButtonInput.vue'
 import ApplicationThemeEditor from './ThemeEditor/Sections/ApplicationThemeEditor.vue'
 import RenderedThemeEditor from './ThemeEditor/Sections/RenderedThemeEditor.vue'
 import ComposeThemeEditor from './ThemeEditor/Sections/ComposeThemeEditor.vue'
@@ -54,34 +100,35 @@ import {
   VWindowItem,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    ApplicationThemeEditor,
-    RenderedThemeEditor,
-    ComposeThemeEditor,
-    UtilityPage,
-    VIcon,
-    VTab,
-    VTabs,
-    VWindow,
-    VWindowItem,
-  },
-}
-</script>
-
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import { fetch_fonts_store } from '@/store/modules/fonts'
-import { fetch_system_store } from '@/store/modules/system'
-
+const configuration = fetch_configuration_store()
 const fonts = fetch_fonts_store()
 const system = fetch_system_store()
 
+const theme_select_options = [
+  { value: 'dark', icon: 'mdi-weather-night' },
+  { value: 'light', icon: 'mdi-weather-sunny' },
+]
+
 const tab = ref<string>('interface')
+const theme_select = ref(configuration.active.dark_mode ? 'dark' : 'light')
+const active = ref(true)
+
+const theme = computed(() => {
+  return active.value
+    ? (configuration.active.dark_mode ? 'dark' : 'light')
+    : theme_select.value
+})
 
 watch(() => system.theme_editor, async (value) => {
   if (value) {
     await fonts.hydrate()
+    active.value = true
+  }
+})
+
+watch(() => active.value, async (value) => {
+  if (value) {
+    theme_select.value = configuration.active.dark_mode ? 'dark' : 'light'
   }
 })
 
@@ -90,6 +137,9 @@ async function close () {
 }
 
 defineExpose({
+  active,
+  theme,
+  theme_select,
   close,
 })
 </script>
@@ -109,6 +159,23 @@ defineExpose({
 :deep(v-color-picker__controls) {
   flex-grow: 0;
   flex-shrink: 0;
+}
+
+.target-badge-global {
+  border-radius: 2px;
+  background: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
+}
+
+.target-badge-local {
+  display: inline;
+  border-radius: 2px;
+  background: rgb(var(--v-theme-secondary));
+  color: rgb(var(--v-theme-on-secondary));
+}
+
+.active-checkbox {
+  border-right: 1px solid rgba(var(--v-theme-on-surface), 0.2);
 }
 
 .tome-badge {

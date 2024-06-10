@@ -1,5 +1,6 @@
 <template>
   <div>
+    <slot name="options" />
     <slot />
     <slot name="actions" />
     <slot name="overlays" />

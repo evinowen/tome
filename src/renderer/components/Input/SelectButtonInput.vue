@@ -8,6 +8,8 @@
       'opacity': disabled ? 0.4 : 1,
     }"
     :disabled="disabled"
+    divided
+    elevation="2"
     @update:model-value="(value) => emit('update', value)"
   >
     <v-btn

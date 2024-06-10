@@ -9,7 +9,8 @@
       :class="[
         'control',
         `color-${color}`,
-        (value && !disabled) ? 'active' : '',
+        { 'enabled': !disabled },
+        { 'active': value && !disabled },
         inset ? 'inset' : '',
       ]"
       :style="{
@@ -107,7 +108,9 @@ const track_offset_x = computed(() => (properties.width - track_width.value) / 2
 const track_offset_y = computed(() => (properties.height - track_height.value) / 2)
 
 const click = () => {
-  emit('update', !properties.value)
+  if (!properties.disabled) {
+    emit('update', !properties.value)
+  }
 }
 
 defineExpose({
@@ -151,7 +154,7 @@ defineExpose({
   background: rgba(var(--v-theme-on-surface), 0.2);
 }
 
-.control:hover .track {
+.enabled:hover .track {
   background: rgba(var(--v-theme-on-surface), 0.5);
 }
 

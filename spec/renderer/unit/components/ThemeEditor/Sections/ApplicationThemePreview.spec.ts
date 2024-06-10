@@ -8,16 +8,25 @@ import ApplicationThemePreview from '@/components/ThemeEditor/Sections/Applicati
 describe('components/ThemeEditor/Sections/ApplicationThemePreview', () => {
   let vuetify
 
-  const factory = assemble(ApplicationThemePreview)
+  const factory = assemble(ApplicationThemePreview, { theme: 'light' })
     .context(() => ({
       global: {
         plugins: [ vuetify ],
         stubs: {
+          ToggleSwitch: BasicComponent,
+          ThemeProvider: BasicComponent,
+          VAvatar: BasicComponent,
+          VBtn: BasicComponent,
           VCard: BasicComponent,
+          VCardActions: BasicComponent,
           VCardText: BasicComponent,
+          VIcon: BasicComponent,
           VListItem: BasicComponent,
+          VListItemTitle: BasicComponent,
+          VListItemSubtitle: BasicComponent,
           VSheet: BasicComponent,
           VSwitch: BooleanComponent,
+          VTextField: BooleanComponent,
         },
       },
     }))

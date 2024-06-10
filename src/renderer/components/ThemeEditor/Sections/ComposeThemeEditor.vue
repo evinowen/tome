@@ -1,28 +1,27 @@
 <template>
   <theme-editor-section
+    :theme="theme"
     section="compose"
     :fonts="fonts"
     :colors="colors"
   >
-    <compose-theme-preview />
+    <compose-theme-preview :theme="theme" />
   </theme-editor-section>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ComposeThemePreview from './ComposeThemePreview.vue'
 import ThemeEditorSection from '../ThemeEditorSection.vue'
-
-export default {
-  components: {
-    ComposeThemePreview,
-    ThemeEditorSection,
-  },
-}
-</script>
-
-<script setup lang="ts">
 import { Font } from '../ThemeFontPicker.vue'
 import { Color } from '../ThemeColorPicker.vue'
+
+export interface Properties {
+  theme: string
+}
+
+withDefaults(defineProps<Properties>(), {
+  theme: 'light',
+})
 
 const fonts: Font[] = [
   { label: 'Compose', index: 'compose' },

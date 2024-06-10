@@ -6,12 +6,6 @@
       'rendered',
       `rendered-${type}`,
     ]"
-    :style="{
-      '--font-family-header': theme.font_family_header,
-      '--font-size-header': `${theme.font_size_header}em`,
-      '--font-family-content': theme.font_family_content,
-      '--font-size-content': `${theme.font_size_content}em`,
-    }"
     v-html="rendered"
   />
 </template>
@@ -142,8 +136,8 @@ defineExpose({
 
 .rendered :deep(p) {
   color: rgb(var(--v-theme-rendered-content));
-  font-family: var(--font-family-content);
-  font-size: var(--font-size-content);
+  font-family: var(--font-rendered-content);
+  font-size: var(--font-rendered-content-size);
 }
 
 .rendered :deep(a) {
@@ -151,8 +145,8 @@ defineExpose({
 }
 
 .rendered :deep(.rendered-header) {
-  font-family: var(--font-family-header);
-  font-size: var(--font-size-header);
+  font-family: var(--font-rendered-header);
+  font-size: var(--font-rendered-header-size);
 }
 
 .rendered :deep(h1) {

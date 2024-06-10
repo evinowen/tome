@@ -13,6 +13,7 @@ export default mergeConfig(config, defineConfig({
     coverage: {
       all: true,
       enabled: true,
+      clean: false,
       provider: 'istanbul',
       reporter: 'html',
       reportsDirectory: '../../reports/renderer/coverage',
