@@ -3,8 +3,8 @@
     v-show="visible"
     ref="input"
     v-model="model"
-    @blur="emit('update', model)"
-    @keydown.enter="emit('update', model)"
+    @blur="emit('submit', model)"
+    @keydown.enter="emit('submit', model)"
   >
 </template>
 
@@ -22,7 +22,7 @@ const properties = withDefaults(defineProps<Properties>(), {
 })
 
 const emit = defineEmits([
-  'update',
+  'submit',
 ])
 
 const model = ref('')

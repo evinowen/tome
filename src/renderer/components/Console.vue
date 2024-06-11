@@ -1,7 +1,7 @@
 <template>
   <div>
     <console-page
-      :layer="8"
+      :layer="12"
       :open="system.console"
       @close="close"
     >

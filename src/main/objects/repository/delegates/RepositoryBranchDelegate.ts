@@ -14,6 +14,39 @@ export interface RepositoryBranch {
   updated: Date
 }
 
+export enum RepositoryBranchError {
+  Conflict = 'conflict',
+  Exists = 'exists',
+  Invalid = 'invalid',
+  Unknown = 'unknown',
+}
+
+export class RepositoryBranchErrorFactory {
+  static make (error: { errno: number, message: string }) {
+    switch (error.errno) {
+      case NodeGit.Error.CODE.ECONFLICT: {
+        return RepositoryBranchErrorFactory.result(error, RepositoryBranchError.Conflict)
+      }
+
+      case NodeGit.Error.CODE.EEXISTS: {
+        return RepositoryBranchErrorFactory.result(error, RepositoryBranchError.Exists)
+      }
+
+      case NodeGit.Error.CODE.EINVALIDSPEC: {
+        return RepositoryBranchErrorFactory.result(error, RepositoryBranchError.Invalid)
+      }
+
+      default: {
+        return RepositoryBranchErrorFactory.result(error, RepositoryBranchError.Unknown)
+      }
+    }
+  }
+
+  static result (error, reason: RepositoryBranchError) {
+    return { error: error.message, reason, code: error.errno }
+  }
+}
+
 export default class RepositoryBranchDelegate extends RepositoryDelegate {
   static regex_head = /^(?:ref: )?refs\/heads\/(.*)$/m
 
@@ -31,23 +64,54 @@ export default class RepositoryBranchDelegate extends RepositoryDelegate {
     const branch = this.list.find((branch) => branch.name === this.active)
     const reference = await NodeGit.Reference.lookup(this.repository, branch.reference)
     const commit = await this.repository.getReferenceCommit(reference)
-    await NodeGit.Branch.create(this.repository, name, commit, 0)
+
+    try {
+      await NodeGit.Branch.create(this.repository, name, commit, 0)
+    } catch (error) {
+      return RepositoryBranchErrorFactory.make(error)
+    }
+
+    return { success: true }
   }
 
   async select (name: string) {
+    const options = new NodeGit.CheckoutOptions()
+    options.checkoutStrategy = NodeGit.Checkout.STRATEGY.SAFE
+
     const branch = this.list.find((branch) => branch.name === name)
-    await this.repository.setHead(branch.reference)
+
+    try {
+      await this.repository.checkoutBranch(branch.reference, options)
+    } catch (error) {
+      return RepositoryBranchErrorFactory.make(error)
+    }
+
+    return { success: true }
   }
 
   async rename (name: string, value: string) {
     const reference = await NodeGit.Branch.lookup(this.repository, name, NodeGit.Branch.BRANCH.LOCAL)
-    await NodeGit.Branch.move(reference, value, 0)
+
+    try {
+      await NodeGit.Branch.move(reference, value, 0)
+    } catch (error) {
+      return RepositoryBranchErrorFactory.make(error)
+    }
+
+    return { success: true }
   }
 
   async remove (name: string) {
     const branch = this.list.find((branch) => branch.name === name)
     const reference = await NodeGit.Reference.lookup(this.repository, branch.reference)
-    await NodeGit.Branch.delete(reference)
+
+    try {
+      await NodeGit.Branch.delete(reference)
+    } catch (error) {
+      return RepositoryBranchErrorFactory.make(error)
+    }
+
+    return { success: true }
   }
 
   async fetch_branch_list () {

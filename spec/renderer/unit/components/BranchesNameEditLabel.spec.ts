@@ -26,7 +26,7 @@ describe('components/BranchesNameEditLabel', () => {
     vi.clearAllMocks()
   })
 
-  it('should emit "update" event when "blur" event is emitted from input', async () => {
+  it('should emit "submit" event when "blur" event is emitted from input', async () => {
     const value = 'master'
 
     const wrapper = factory.wrap({ value, visible: true })
@@ -34,10 +34,10 @@ describe('components/BranchesNameEditLabel', () => {
     const input = wrapper.find({ ref: 'input' })
     await input.trigger('blur')
 
-    expect(wrapper.emitted().update).toBeTruthy()
+    expect(wrapper.emitted().submit).toBeTruthy()
   })
 
-  it('should emit "update" event when "keydown" event for enter is emitted from input', async () => {
+  it('should emit "submit" event when "keydown" event for enter is emitted from input', async () => {
     const value = 'master'
 
     const wrapper = factory.wrap({ value, visible: true })
@@ -45,7 +45,7 @@ describe('components/BranchesNameEditLabel', () => {
     const input = wrapper.find({ ref: 'input' })
     await input.trigger('keydown', { key: 'enter' })
 
-    expect(wrapper.emitted().update).toBeTruthy()
+    expect(wrapper.emitted().submit).toBeTruthy()
   })
 
   it('should update model value to value property when visibility flag property is set true', async () => {

@@ -25,7 +25,7 @@
       <history-button
         :branch="repository_branches.active"
         :error="!repository_branches.active ? 'error' : ''"
-        :disabled="disabled_unless(system.history)"
+        :disabled="disabled_unless(system.history && !(system.branches || system.tags))"
         @click.stop="history"
       />
 
@@ -35,7 +35,6 @@
     <console-button
       :status="log.status"
       :message="log.message"
-      :disabled="disabled_unless(system.console || system.commit || system.push)"
     />
 
     <template v-if="repository.path">

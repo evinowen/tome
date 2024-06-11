@@ -1,34 +1,48 @@
 <template>
   <overlay-box
-    :visible="error.visible"
+    :visible="option.visible"
   >
     <v-card>
       <v-card-item>
         <template #prepend>
-          <v-avatar color="error">
-            <v-icon>mdi-alert-circle</v-icon>
+          <v-avatar color="info">
+            <v-icon>mdi-help-circle</v-icon>
           </v-avatar>
         </template>
         <v-card-title>
-          {{ error.title }}
+          {{ option.title }}
         </v-card-title>
       </v-card-item>
       <v-card-text>
-        {{ error.message }}
+        <div>{{ option.message }}</div>
+        <div><strong>{{ option.question }}</strong></div>
       </v-card-text>
       <v-card-actions>
         <v-btn
           ref="confirm-button"
+          color="success"
+          class="px-2"
           @click="confirm"
         >
           <v-icon class="mr-2">
-            mdi-exit-to-app
+            mdi-check
           </v-icon>
-          Confirm
+          Yes
+        </v-btn>
+        <v-btn
+          ref="close-button"
+          color="warning"
+          class="px-4"
+          @click="close"
+        >
+          <v-icon class="mr-2">
+            mdi-cancel
+          </v-icon>
+          No
         </v-btn>
         <v-spacer />
         <v-btn
-          v-if="error.help_tag"
+          v-if="option.help_tag"
           ref="help-button"
           @click="help"
         >
@@ -55,20 +69,24 @@ import {
   VIcon,
   VSpacer,
 } from 'vuetify/components'
-import { fetch_error_store } from '@/store/modules/error'
+import { fetch_option_store } from '@/store/modules/option'
 
-const error = fetch_error_store()
+const option = fetch_option_store()
 
 async function confirm () {
-  await error.hide()
+  await option.confirm()
+}
+
+async function close () {
+  await option.hide()
 }
 
 async function help () {
-  await error.help()
+  await option.help()
 }
 
 defineExpose({
-  confirm,
+  close,
   help,
 })
 </script>

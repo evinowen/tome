@@ -4,7 +4,7 @@
       ref="page"
       right
       title="Remotes"
-      :layer="2"
+      :layer="4"
       :open="system.remotes"
       @close="close"
     >

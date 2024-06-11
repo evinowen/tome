@@ -24,6 +24,14 @@ jest.mock('nodegit', () => ({
       LOCAL: 1,
     },
   },
+  Checkout: {
+    STRATEGY: {
+      SAFE: 0,
+    },
+  },
+  CheckoutOptions: jest.fn(() => ({
+    checkoutStrategy: 0,
+  })),
   Reference: {
     list: jest.fn(() => [
       'refs/heads/master',
@@ -47,7 +55,7 @@ describe('objects/repository/delegates/RepositoryBranchDelegate', () => {
       head: jest.fn(() => ({
         shorthand: jest.fn(() => 'master'),
       })),
-      setHead: jest.fn(),
+      checkoutBranch: jest.fn(),
     }
   })
 
@@ -104,7 +112,7 @@ describe('objects/repository/delegates/RepositoryBranchDelegate', () => {
     expect(NodeGit.Branch.create).toHaveBeenCalled()
   })
 
-  it('should should call to Repository.setHead upon call to create', async () => {
+  it('should should call to Repository.checkoutBranch upon call to select', async () => {
     repository.headUnborn.mockReturnValue(true)
 
     const branch = 'dev'
@@ -114,7 +122,7 @@ describe('objects/repository/delegates/RepositoryBranchDelegate', () => {
 
     await repository_branch_delegate.select(branch)
 
-    expect(repository.setHead).toHaveBeenCalledWith(`refs/heads/${branch}`)
+    expect(repository.checkoutBranch).toHaveBeenCalled()
   })
 
   it('should should call to NodeGit.Branch.move upon call to rename', async () => {

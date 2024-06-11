@@ -66,10 +66,10 @@ export interface API {
     push: () => Promise<void>
     refresh: () => Promise<void>
     branch_status: () => Promise<{ active: string, list: RepositoryBranch[] }>
-    branch_create: (name: string) => Promise<void>
-    branch_select: (name: string) => Promise<void>
-    branch_rename: (name: string, value: string) => Promise<void>
-    branch_remove: (name: string) => Promise<void>
+    branch_create: (name: string) => Promise<Result>
+    branch_select: (name: string) => Promise<Result>
+    branch_rename: (name: string, value: string) => Promise<Result>
+    branch_remove: (name: string) => Promise<Result>
     remote_add: (name: string, url: string) => Promise<void>
     remote_clear: () => Promise<void>
     remote_list: () => Promise<RepositoryRemote[]>
@@ -98,6 +98,13 @@ export interface API {
     minimize: () => Promise<void>
     close: () => Promise<void>
   }
+}
+
+export interface Result {
+  error?: string
+  reason?: string
+  code?: number
+  success?: true
 }
 
 export interface SearchCriteria {
@@ -181,6 +188,6 @@ export interface RepositoryHistoricalCommit {
   root: boolean
 }
 
-const api = window.api as API
+export const request = () => window.api as API
 
-export default api
+export default request()

@@ -2,7 +2,7 @@
   <utility-page
     right
     title="Commit"
-    :layer="1"
+    :layer="3"
     :open="system.commit"
     @close="close"
   >
@@ -144,6 +144,7 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue'
 import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
 import { fetch_system_store } from '@/store/modules/system'
 import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
@@ -167,6 +168,12 @@ const configuration = fetch_configuration_store()
 const system = fetch_system_store()
 const repository_comparator = fetch_repository_comparator_store()
 const repository_committer = fetch_repository_committer_store()
+
+watch(() => system.commit, async () => {
+  if (system.commit) {
+    await repository_committer.inspect()
+  }
+})
 
 async function close () {
   await system.page({ commit: false })

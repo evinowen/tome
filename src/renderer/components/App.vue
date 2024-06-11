@@ -41,6 +41,7 @@
 
         <password-box />
         <error-box />
+        <option-box />
         <validation-box />
 
         <context-menu-service />
@@ -63,6 +64,7 @@ import ContextMenuService from '@/components/ContextMenuService.vue'
 import EditorInterface from '@/components/EditorInterface.vue'
 import ErrorBox from '@/components/ErrorBox.vue'
 import History from '@/components/History.vue'
+import OptionBox from '@/components/OptionBox.vue'
 import PasswordBox from '@/components/PasswordBox.vue'
 import Patch from '@/components/Patch.vue'
 import Push from '@/components/Push.vue'

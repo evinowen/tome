@@ -29,7 +29,7 @@
                 <branches-name-edit-label
                   :visible="branch.name === branch_rename_target"
                   :value="branch.name"
-                  @update="(value) => rename(branch.name, value)"
+                  @submit="(value) => rename(branch.name, value)"
                 />
                 <div
                   v-show="branch.name !== branch_rename_target"
@@ -105,7 +105,7 @@
                 <branches-name-edit-label
                   :visible="branch_create_target !== ''"
                   :value="branch_create_name"
-                  @update="(value) => create(value)"
+                  @submit="(value) => create(value)"
                 />
               </div>
             </div>
@@ -180,7 +180,10 @@ async function create_show (name) {
 
 async function create (name) {
   branch_create_target.value = ''
-  await repository_branches.create(name)
+
+  if (name !== '') {
+    await repository_branches.create(name)
+  }
 }
 
 async function rename_show (name) {
@@ -188,8 +191,11 @@ async function rename_show (name) {
 }
 
 async function rename (name, value) {
-  branch_rename_target.value = undefined
-  await repository_branches.rename({ name, value })
+  branch_rename_target.value = ''
+
+  if (name !== value) {
+    await repository_branches.rename({ name, value })
+  }
 }
 
 async function select (name) {
