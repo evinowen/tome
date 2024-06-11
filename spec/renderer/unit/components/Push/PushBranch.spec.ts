@@ -8,6 +8,7 @@ Component('components/Push/PushBranch', PushBranch)
   .stub({
     VCard: BasicComponentStub,
     VCardText: BasicComponentStub,
+    VIcon: BasicComponentStub,
   })
   .run(async (factory) => {
     it('should mount into test scafolding without error', async () => {
@@ -80,6 +81,7 @@ Component('components/Push/PushBranch (Remote)', PushBranch, { remote: true })
   })
   .store({
     'repository-remotes': {
+      selected: 'origin',
       active: {
         branch: {
           name: 'remote-reference',

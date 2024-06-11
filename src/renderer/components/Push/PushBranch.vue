@@ -6,7 +6,13 @@
   >
     <v-card-text>
       <div class="text-h6 text--primary">
-        {{ reference || '&mdash;' }}
+        <v-icon
+          v-if="create"
+          color="warning"
+        >
+          mdi-new-box
+        </v-icon>
+        <span v-else>{{ reference || '&mdash;' }}</span>
       </div>
       <hr>
       <div class="text-h4 text--primary">
@@ -23,6 +29,7 @@ import { fetch_repository_branches_store } from '@/store/modules/repository/bran
 import {
   VCard,
   VCardText,
+  VIcon,
 } from 'vuetify/components'
 
 export interface Properties {
@@ -38,9 +45,23 @@ const properties = withDefaults(defineProps<Properties>(), {
 const repository_branches = fetch_repository_branches_store()
 const repository_remotes = fetch_repository_remotes_store()
 
+const loading = computed(() => {
+  if (properties.remote) {
+    return repository_remotes.process.select
+  }
+
+  return false
+})
+
 const reference = computed(() => {
   if (properties.remote) {
-    return repository_remotes.active.branch.name
+    if (loading.value || repository_remotes.error) {
+      return ''
+    }
+
+    if (repository_remotes.selected) {
+      return repository_remotes.active.branch?.name
+    }
   }
 
   return ''
@@ -52,23 +73,41 @@ const name = computed(() => {
   }
 
   if (properties.remote) {
-    return repository_remotes.active.branch.short
+    if (loading.value || repository_remotes.error) {
+      return ''
+    }
+
+    if (repository_remotes.selected) {
+      return repository_remotes.active.branch?.short || repository_branches.active
+    }
   }
 
   return ''
 })
 
-const loading = computed(() => {
+const create = computed(() => {
   if (properties.remote) {
-    return repository_remotes.process.select
+    if (loading.value || repository_remotes.error) {
+      return ''
+    }
+
+    if (repository_remotes.selected) {
+      return !repository_remotes.active.branch
+    }
   }
 
-  return false
+  return ''
 })
 
 const disabled = computed(() => {
   if (properties.remote) {
-    return repository_remotes.active.branch.name === ''
+    if (loading.value || repository_remotes.error) {
+      return false
+    }
+
+    if (repository_remotes.selected) {
+      return repository_remotes.active.branch?.name === ''
+    }
   }
 
   return false
