@@ -21,4 +21,10 @@ defineEmits([
   'update:model-value',
   'click:append',
 ])
+
+function blur () { /* Empty */ }
+
+defineExpose({
+  blur,
+})
 </script>

@@ -4,11 +4,11 @@ import BasicComponentStub from '?/stubs/BasicComponentStub'
 import { createVuetify } from 'vuetify'
 import { createTestingPinia } from '@pinia/testing'
 import { RepositoryRemote } from '@/api'
-import PushRemoteSelector from '@/components/PushRemoteSelector.vue'
+import PushRemoteSelector from '@/components/Push/PushRemoteSelector.vue'
 import { fetch_system_store } from '@/store/modules/system'
 import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 
-describe('components/PushRemoteSelector', () => {
+describe('components/Push/PushRemoteSelector', () => {
   let vuetify
   let pinia
   let items: RepositoryRemote[]
@@ -48,7 +48,7 @@ describe('components/PushRemoteSelector', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should call "repository_remotes.select" when select input emits "update" event', async () => {
+  it('should call "repository_remotes.clear" when select input emits "update" event with no value', async () => {
     const repository_remotes = fetch_repository_remotes_store()
     repository_remotes.list.push({
       name: 'origin',
@@ -61,6 +61,24 @@ describe('components/PushRemoteSelector', () => {
     expect(input.exists()).toBe(true)
 
     input.vm.$emit('update')
+    await wrapper.vm.$nextTick()
+
+    expect(repository_remotes.clear).toHaveBeenCalled()
+  })
+
+  it('should call "repository_remotes.select" when select input emits "update" event with a value', async () => {
+    const repository_remotes = fetch_repository_remotes_store()
+    repository_remotes.list.push({
+      name: 'origin',
+      url: 'git@example.com:/username/example.git',
+    })
+
+    const wrapper = factory.wrap({ items })
+
+    const input = wrapper.findComponent({ ref: 'input' })
+    expect(input.exists()).toBe(true)
+
+    input.vm.$emit('update', 'origin')
     await wrapper.vm.$nextTick()
 
     expect(repository_remotes.select).toHaveBeenCalled()

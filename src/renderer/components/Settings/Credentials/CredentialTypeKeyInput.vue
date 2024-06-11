@@ -2,21 +2,22 @@
   <div>
     <keyfile-input
       label="private key"
-      index="credentials.private_key"
+      index="credentials.key"
       localizer="credentials"
       :target="target"
     />
-    <text-input
+    <secret-input
       label="passphrase"
       index="credentials.passphrase"
+      prompt_index="credentials.prompt_passphrase"
       localizer="credentials"
       :frame="false"
       :target="target"
-      obscureable
     />
     <keyfile-output
       label="public key"
-      :value="configuration[target || configuration.target].credentials.public_key"
+      :error="public_key[target || configuration.target].error"
+      :value="public_key[target || configuration.target].data"
     />
   </div>
 </template>
@@ -25,9 +26,12 @@
 import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
 import KeyfileInput from '@/components/Settings/KeyfileInput.vue'
 import KeyfileOutput from '@/components/KeyfileOutput.vue'
-import TextInput from '@/components/Settings/TextInput.vue'
+import SecretInput from '@/components/Settings/SecretInput.vue'
+import PublicKey from '@/composables/PublicKey'
 
 const configuration = fetch_configuration_store()
+
+const public_key = PublicKey()
 
 interface Properties {
   disabled?: boolean

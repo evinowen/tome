@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, beforeEach, afterEach, expect, it, vi } from 'vitest'
 import { createVuetify } from 'vuetify'
 import { createTestingPinia } from '@pinia/testing'

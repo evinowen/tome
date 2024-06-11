@@ -32,8 +32,12 @@
             class="mr-2"
             @click="active = !active"
           >
-            <v-icon v-if="active">mdi-checkbox-marked</v-icon>
-            <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+            <v-icon v-if="active">
+              mdi-checkbox-marked
+            </v-icon>
+            <v-icon v-else>
+              mdi-checkbox-blank-outline
+            </v-icon>
           </div>
           Active Theme
         </div>

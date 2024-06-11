@@ -22,7 +22,6 @@
 </template>
 
 <script lang="ts">
-// Unable to use 'export { Option }' without error in this case
 import { Option as SelectOption } from '@/store/modules/input/select'
 export type Option = SelectOption
 
@@ -56,7 +55,7 @@ const emit = defineEmits([
 const input_select = fetch_input_select_store()
 
 const base = ref<HTMLElement>()
-const input = ref<HTMLElement>()
+const input = ref<InstanceType<typeof VTextField>>()
 const identifier = ref<string>()
 const model = ref(properties.value)
 
@@ -73,7 +72,7 @@ async function focus () {
 }
 
 async function blur () {
-  base.value.blur()
+  input.value.blur()
   identifier.value = ''
 }
 

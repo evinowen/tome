@@ -1,6 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import BasicComponentStub from '?/stubs/BasicComponentStub'
+import VTextField from '?/stubs/VTextField.vue'
 import { createVuetify } from 'vuetify'
 import { createTestingPinia } from '@pinia/testing'
 import SelectMenu from '@/components/Input/SelectMenu.vue'
@@ -33,7 +33,7 @@ describe('components/Settings/SelectMenu', () => {
       global: {
         plugins: [ vuetify, pinia ],
         stubs: {
-          VTextField: BasicComponentStub,
+          VTextField,
         },
       },
     }))

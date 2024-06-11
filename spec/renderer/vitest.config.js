@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { defineConfig, mergeConfig } from 'vitest/config'
+import { defineConfig, mergeConfig, configDefaults } from 'vitest/config'
 import config from '../../src/renderer/vite.config.js'
 
 export default mergeConfig(config, defineConfig({
@@ -10,6 +10,10 @@ export default mergeConfig(config, defineConfig({
   },
   test: {
     environment: 'happy-dom',
+    exclude: [
+      ...configDefaults.exclude,
+      'renderer/components/ThemeEditor/Sections/Content',
+    ],
     coverage: {
       all: true,
       enabled: true,

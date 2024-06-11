@@ -7,16 +7,18 @@ export interface State {
   type: CredentialType
   username: string
   password: string
-  private_key: string
-  public_key: string
+  prompt_password: boolean
+  key: string
   passphrase: string
+  prompt_passphrase: boolean
 }
 
 export default (): State => ({
   type: CredentialType.Key,
   username: '',
   password: '',
-  private_key: '',
-  public_key: '',
+  prompt_password: false,
+  key: '',
   passphrase: '',
+  prompt_passphrase: false,
 })

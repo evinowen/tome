@@ -3,11 +3,12 @@ import api, { RepositoryRemote } from '@/api'
 import { fetch_log_store } from '@/store/modules/log'
 import { fetch_repository_credentials_store } from '@/store/modules/repository/credentials'
 
-class RepositoryRemoteNotFoundError extends Error {}
 class RepositoryRemoteNotLoadedError extends Error {}
 
 export interface State {
   list: RepositoryRemote[]
+  selected: string
+  error: string
   active: RepositoryRemote
   process: {
     push: boolean
@@ -17,6 +18,8 @@ export interface State {
 
 export const StateDefaults = (): State => ({
   list: [],
+  selected: '',
+  error: '',
   active: {
     name: '',
     url: '',
@@ -38,34 +41,48 @@ export const fetch_repository_remotes_store = defineStore('repository-remotes', 
     load: async function () {
       this.list = await api.repository.remote_list()
     },
+    clear: async function () {
+      this.selected = ''
+      this.active = StateDefaults().active
+    },
     select: async function (name) {
+      const log = fetch_log_store()
+
       this.process.select = true
 
-      await api.repository.remote_clear()
-
+      this.selected = name
+      this.error = ''
       this.active = StateDefaults().active
 
-      if (!name) {
-        return
+      try {
+        await api.repository.remote_clear()
+
+        const credentials = fetch_repository_credentials_store()
+        await credentials.load()
+
+        const result = await api.repository.remote_load(this.selected)
+        if (result.error && result.error != '') {
+          this.error = result.error
+        } else {
+          await this.status()
+        }
+      } catch (error) {
+        log.error(error, error.stack)
       }
 
-      const credentials = fetch_repository_credentials_store()
-      await credentials.load()
-
-      const repository_remotes = fetch_repository_remotes_store()
-      const remote = repository_remotes.list.find((remote) => remote.name === name)
-
-      if (!remote) {
-        throw new RepositoryRemoteNotFoundError()
-      }
-
-      await api.repository.remote_load(remote.name)
-
-      this.active = await api.repository.remote_status()
       this.process.select = false
     },
     status: async function () {
-      this.active = await api.repository.remote_status()
+      const result = await api.repository.remote_status()
+
+      if (result.error) {
+        this.error = result.error
+      } else {
+        this.active = result
+      }
+    },
+    reselect: async function () {
+      await this.select(this.selected)
     },
     add: async function (state) {
       const { name, url } = state
@@ -78,9 +95,9 @@ export const fetch_repository_remotes_store = defineStore('repository-remotes', 
       await this.load()
     },
     push: async function () {
-      this.process.push = true
-
       const log = fetch_log_store()
+
+      this.process.push = true
 
       if (this.active === undefined) {
         throw new RepositoryRemoteNotLoadedError()

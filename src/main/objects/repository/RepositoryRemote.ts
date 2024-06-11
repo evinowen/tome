@@ -47,7 +47,9 @@ export default class RepositoryRemote {
 
   async select_branch (branch: string) {
     this.branch = await this.match_branch(branch)
+  }
 
+  async load_difference (branch: string) {
     const { ahead, diff } = await this.diff_reference(branch)
     this.ahead = ahead
     this.pending = diff

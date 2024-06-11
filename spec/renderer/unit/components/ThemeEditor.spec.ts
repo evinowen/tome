@@ -1,8 +1,8 @@
-import { it, expect, vi } from 'vitest'
+import { it, expect } from 'vitest'
 import Component from '?/helpers/component'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import UtilityPage from '?/stubs/UtilityPage.vue'
-import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import { fetch_system_store } from '@/store/modules/system'
 import ThemeEditor from '@/components/ThemeEditor.vue'
 

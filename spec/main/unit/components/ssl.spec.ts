@@ -1,79 +1,71 @@
 import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals'
 import { cloneDeep } from 'lodash'
-import Disk from '../../mocks/support/disk'
-import * as forge from 'node-forge'
-import * as tmp from 'tmp-promise'
-import helpers from '../../helpers'
-import _component from '@/components/ssl'
-import fs_meta from '../../meta/node/fs'
+import _component, { ErrorFactory } from '@/components/ssl'
 import { ssl as preload } from '@/preload'
-import * as fs_mock from '../../mocks/node/fs'
 import * as electron_meta from '?/meta/electron'
-import * as electron_mock from '?/mocks/electron'
 
-jest.doMock('node:fs', () => fs_mock)
-jest.doMock('electron', () => electron_mock)
+/* node:fs */
+import * as node_fs from 'node:fs'
+jest.mock('node:fs', () => ({
+  promises: {
+    readFile: jest.fn(async () => ({} as Buffer)),
+    writeFile: jest.fn(async () => ({})),
+  },
+}))
 
-const { random_string, expect_call_parameters_to_return } = helpers(expect)
+/* node:path */
+jest.mock('node:path', () => ({
+  join: jest.fn((...parameters: string[]) => parameters.join('/')),
+}))
 
+/* node:crypto */
+import * as node_crypto from 'node:crypto'
+jest.mock('node:crypto', () => ({
+  createPrivateKey: jest.fn(() => ({} as node_crypto.KeyObject)),
+  createPublicKey: jest.fn(() => ({
+    export: jest.fn(() => ''),
+  } as unknown as node_crypto.KeyObject)),
+}))
+
+/* node-forge */
+import * as node_forge from 'node-forge'
 jest.mock('node-forge', () => ({
   pki: {
-    decryptRsaPrivateKey: jest.fn(),
-    privateKeyFromPem: jest.fn(),
+    publicKeyFromPem: jest.fn(),
     rsa: {
-      setPublicKey: jest.fn(),
       generateKeyPair: jest.fn(),
     },
   },
   ssh: {
-    privateKeyToOpenSSH: jest.fn(),
-    publicKeyToOpenSSH: jest.fn(),
+    privateKeyToOpenSSH: jest.fn(() => 'private-key-string'),
+    publicKeyToOpenSSH: jest.fn(() => 'public-key-string'),
   },
 }))
-
-const mocked_forge = jest.mocked(forge)
-mocked_forge.pki.decryptRsaPrivateKey.mockImplementation(() => ({ n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PrivateKey))
-mocked_forge.pki.privateKeyFromPem.mockImplementation(() => ({ n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PrivateKey))
-mocked_forge.pki.rsa.generateKeyPair.mockImplementation((options?, callback?) => {
+jest.mocked(node_forge).pki.rsa.generateKeyPair.mockImplementation((options?, callback?) => {
   const keypair = {
-    publicKey: { n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PublicKey,
-    privateKey: { n: Math.random(), e: Math.random() } as unknown as forge.pki.rsa.PrivateKey,
+    publicKey: { n: Math.random(), e: Math.random() } as unknown as node_forge.pki.rsa.PublicKey,
+    privateKey: { n: Math.random(), e: Math.random() } as unknown as node_forge.pki.rsa.PrivateKey,
   }
 
   callback(undefined, keypair)
   return keypair
 })
 
-jest.mock('node:path', () => ({
-  join: jest.fn(),
-}))
-
+/* tmp-promise */
+import * as tmp from 'tmp-promise'
 jest.mock('tmp-promise', () => ({
   file: jest.fn(),
 }))
-
-const mocked_temporary = jest.mocked(tmp)
-mocked_temporary.file.mockImplementation(() => Promise.resolve({ path: random_string(16, true), fd: 0, cleanup: () => Promise.resolve() }))
+jest.mocked(tmp).file.mockImplementation(async () => ({
+  path: 'public-key-path',
+} as unknown as tmp.FileResult))
 
 describe('components/ssl', () => {
   let component
-  let win
   let log
-  const disk = new Disk()
 
   beforeEach(() => {
     electron_meta.ipc_reset()
-
-    fs_meta.set_disk(disk)
-    disk.reset_disk()
-
-    win = {
-      isMaximized: jest.fn(() => true),
-      minimize: jest.fn(),
-      maximize: jest.fn(),
-      restore: jest.fn(),
-      close: jest.fn(),
-    }
 
     log = {
       trace: jest.fn(),
@@ -85,7 +77,7 @@ describe('components/ssl', () => {
     }
 
     component = cloneDeep(_component)
-    component.register(win, log)
+    component.register({}, log)
   })
 
   afterEach(() => {
@@ -94,40 +86,128 @@ describe('components/ssl', () => {
 
   it('should return empty object if no target is provided upon call to generate_public_key', async () => {
     const result = await preload.generate_public_key()
-    expect(result).toEqual({ path: '', data: '' })
 
-    expect(forge.pki.decryptRsaPrivateKey).not.toHaveBeenCalled()
-    expect(forge.pki.privateKeyFromPem).not.toHaveBeenCalled()
+    expect(result.path).toEqual('')
+    expect(result.data).toEqual('')
   })
 
-  it('should generate public key without decryption if no passphrase is provided upon call to generate_public_key', async () => {
+  it('should return public key path and string upon successfull call to generate_public_key', async () => {
     const target = '/home/user/.ssh/id_rsa'
-    await preload.generate_public_key(target)
+    const result = await preload.generate_public_key(target)
 
-    expect(forge.pki.decryptRsaPrivateKey).not.toHaveBeenCalled()
-    expect(forge.pki.privateKeyFromPem).toHaveBeenCalled()
-
-    expect_call_parameters_to_return(tmp.file, [], Promise.resolve({}))
+    expect(result.path).toEqual('public-key-path')
+    expect(result.data).toEqual('public-key-string')
   })
 
-  it('should generate public key after decryption if passphrase is provided upon call to generate_public_key', async () => {
+  it('should generate ErrorFactory.ReadFileError if error occurs reading private key file upon call to generate_public_key', async () => {
+    jest.mocked(node_fs).promises.readFile.mockImplementationOnce(() => {
+      throw new Error('Error')
+    })
+
     const target = '/home/user/.ssh/id_rsa'
-    const passphrase = 'password'
-    await preload.generate_public_key(target, passphrase)
+    const result = await preload.generate_public_key(target)
 
-    expect(forge.pki.decryptRsaPrivateKey).toHaveBeenCalled()
-    expect(forge.pki.privateKeyFromPem).not.toHaveBeenCalled()
-
-    expect_call_parameters_to_return(tmp.file, [], Promise.resolve({}))
+    expect(result.path).toBeUndefined()
+    expect(result.data).toBeUndefined()
+    expect(result.error).toEqual(ErrorFactory.ReadFileError())
   })
 
-  it('should generate key upon call to generate_private_key', async () => {
+  it('should generate ErrorFactory.CreatePrivateKeyError if error occurs loading private key upon call to generate_public_key', async () => {
+    jest.mocked(node_crypto).createPrivateKey.mockImplementationOnce(() => {
+      throw new Error('Error')
+    })
+
+    const target = '/home/user/.ssh/id_rsa'
+    const result = await preload.generate_public_key(target)
+
+    expect(result.path).toBeUndefined()
+    expect(result.data).toBeUndefined()
+    expect(result.error).toEqual(ErrorFactory.CreatePrivateKeyError())
+  })
+
+  it('should generate ErrorFactory.CreatePublicKeyError if error occurs loading public key upon call to generate_public_key', async () => {
+    jest.mocked(node_crypto).createPublicKey.mockImplementationOnce(() => {
+      throw new Error('Error')
+    })
+
+    const target = '/home/user/.ssh/id_rsa'
+    const result = await preload.generate_public_key(target)
+
+    expect(result.path).toBeUndefined()
+    expect(result.data).toBeUndefined()
+    expect(result.error).toEqual(ErrorFactory.CreatePublicKeyError())
+  })
+
+  it('should generate ErrorFactory.CreatePublicKeyError if error occurs loading public key upon call to generate_public_key', async () => {
+    jest.mocked(node_crypto).createPublicKey.mockImplementationOnce(() => {
+      throw new Error('Error')
+    })
+
+    const target = '/home/user/.ssh/id_rsa'
+    const result = await preload.generate_public_key(target)
+
+    expect(result.path).toBeUndefined()
+    expect(result.data).toBeUndefined()
+    expect(result.error).toEqual(ErrorFactory.CreatePublicKeyError())
+  })
+
+  it('should generate ErrorFactory.NodeForgeCovertPublicKeyToOpenSSHError if error occurs converting private key to OpenSSH format upon call to generate_public_key', async () => {
+    jest.mocked(node_forge).ssh.publicKeyToOpenSSH.mockImplementationOnce(() => {
+      throw new Error('Error')
+    })
+
+    const target = '/home/user/.ssh/id_rsa'
+    const result = await preload.generate_public_key(target)
+
+    expect(result.path).toBeUndefined()
+    expect(result.data).toBeUndefined()
+    expect(result.error).toEqual(ErrorFactory.NodeForgeCovertPublicKeyToOpenSSHError())
+  })
+
+  it('should generate ErrorFactory.TemporaryFileGenerationError if error occurs generating temporary file for public key upon call to generate_public_key', async () => {
+    jest.mocked(tmp).file.mockImplementationOnce(() => {
+      throw new Error('Error')
+    })
+
+    const target = '/home/user/.ssh/id_rsa'
+    const result = await preload.generate_public_key(target)
+
+    expect(result.path).toBeUndefined()
+    expect(result.data).toBeUndefined()
+    expect(result.error).toEqual(ErrorFactory.TemporaryFileGenerationError())
+  })
+
+  it('should generate ErrorFactory.WritePublicKeyFileError if error occurs writing file for public key upon call to generate_public_key', async () => {
+    jest.mocked(node_fs).promises.writeFile.mockImplementationOnce(() => {
+      throw new Error('Error')
+    })
+
+    const target = '/home/user/.ssh/id_rsa'
+    const result = await preload.generate_public_key(target)
+
+    expect(result.path).toBeUndefined()
+    expect(result.data).toBeUndefined()
+    expect(result.error).toEqual(ErrorFactory.WritePublicKeyFileError('public-key-path'))
+  })
+
+  it('should return private key path and string upon successfull call generate_private_key', async () => {
     const passphrase = 'password'
     const result = await preload.generate_private_key(passphrase)
 
-    expect(forge.pki.rsa.generateKeyPair).toHaveBeenCalled()
-    expect(forge.ssh.privateKeyToOpenSSH).toHaveBeenCalled()
+    expect(result.path).toEqual('/home/user/.config/tome/id_rsa')
+    expect(result.data).toEqual('private-key-string')
+  })
 
-    expect(result).toBeDefined()
+  it('should generate ErrorFactory.WritePrivateKeyFileError if error occurs writing file for public key upon call to generate_private_key', async () => {
+    jest.mocked(node_fs).promises.writeFile.mockImplementationOnce(() => {
+      throw new Error('Error')
+    })
+
+    const passphrase = 'password'
+    const result = await preload.generate_private_key(passphrase)
+
+    expect(result.path).toBeUndefined()
+    expect(result.data).toBeUndefined()
+    expect(result.error).toEqual(ErrorFactory.WritePrivateKeyFileError('/home/user/.config/tome/id_rsa'))
   })
 })

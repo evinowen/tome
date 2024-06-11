@@ -1,8 +1,14 @@
 <template>
   <div class="d-flex">
+    <div
+      v-if="!!$slots.prepend"
+      class="flex-grow-0 pa-1"
+    >
+      <slot name="prepend" />
+    </div>
     <div class="flex-grow-1 pa-1">
       <v-text-field
-        ref="input-field"
+        ref="input"
         density="compact"
         variant="solo"
         hide-details
@@ -14,6 +20,7 @@
         :model-value="value"
         :type="(obscureable && obscured) ? 'password' : 'text'"
         @update:model-value="update"
+        @keyup.enter="submit"
       />
     </div>
     <div
@@ -52,7 +59,7 @@ import {
 interface Properties {
   disabled?: boolean
   error?: boolean
-  label: string
+  label?: string
   obscureable?: boolean
   placeholder?: string
   value: string
@@ -67,17 +74,29 @@ withDefaults(defineProps<Properties>(), {
   value: '',
 })
 
+const input = ref<InstanceType<typeof VTextField>>()
+
 const emit = defineEmits([
   'update',
+  'submit',
 ])
 
 const obscured = ref(true)
+
+async function focus () {
+  input.value.focus()
+}
 
 async function update (value: string) {
   emit('update', value)
 }
 
+async function submit () {
+  emit('submit')
+}
+
 defineExpose({
+  focus,
   update,
   obscured,
 })

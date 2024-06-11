@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { it, expect, vi } from 'vitest'
 import Component from '?/helpers/component'
 import BasicComponent from '?/stubs/BasicComponent.vue'

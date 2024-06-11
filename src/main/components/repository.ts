@@ -3,6 +3,10 @@ import RepositoryManager from '@/objects/repository/RepositoryManager'
 
 let repository: RepositoryManager
 
+export class ErrorFactory {
+  static RemoteHistoryDifferenceError = (remote_name, branch_name) => `Unable to load Commit history for Remote "${remote_name} Branch "${branch_name}".`
+}
+
 export default component('repository')(
   ({ handle, log }) => {
     handle('load', async (path) => {
@@ -57,23 +61,6 @@ export default component('repository')(
 
     handle('push', async () => await repository.remotes.active.push())
 
-    handle('remote-status', async () => {
-      const result = repository.remotes.active?.simple
-
-      if (repository.remotes.active?.branch) {
-        result.branch = {
-          name: repository.remotes.active.branch.name,
-          short: repository.remotes.active.branch.short,
-        }
-      }
-
-      if (repository.remotes.active?.pending) {
-        result.pending = repository.remotes.active?.pending
-      }
-
-      return result
-    })
-
     handle('branch-status', async () => await repository.branch.status())
     handle('branch-create', async (name) => await repository.branch.create(name))
     handle('branch-select', async (name) => await repository.branch.select(name))
@@ -96,6 +83,32 @@ export default component('repository')(
     })
 
     handle('remote-load', async (name) => await repository.remotes.select(name, repository.branch.active))
+
+    handle('remote-status', async () => {
+      if (!repository.remotes.active) {
+        return { error: 'Remote has not been selected.' }
+      }
+
+      const result = repository.remotes.active.simple
+      if (repository.remotes.active.branch) {
+        result.branch = {
+          name: repository.remotes.active.branch.name,
+          short: repository.remotes.active.branch.short,
+        }
+      }
+
+      try {
+        await repository.remotes.active.load_difference(repository.branch.active)
+      } catch {
+        return { error: ErrorFactory.RemoteHistoryDifferenceError(repository.remotes.active.simple.name, repository.branch.active) }
+      }
+
+      if (repository.remotes.active.pending) {
+        result.pending = repository.remotes.active.pending
+      }
+
+      return result
+    })
 
     handle('remote-clear', async () => repository.remotes.close())
 

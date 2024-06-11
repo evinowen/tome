@@ -203,7 +203,7 @@ const signature_locality_options: SelectButtonOption[] = [
 ]
 
 async function signature_locality (value) {
-  configuration.localize('signature', value === SettingsTarget.Local)
+  await configuration.localize('signature', value === SettingsTarget.Local)
 }
 
 defineExpose({

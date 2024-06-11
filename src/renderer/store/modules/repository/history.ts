@@ -33,6 +33,10 @@ export const fetch_repository_history_store = defineStore('repository-history', 
         this.rooted = true
       }
     },
+    reload: async function () {
+      await this.unload()
+      await this.load()
+    },
     page: async function () {
       if (!this.loaded) {
         return

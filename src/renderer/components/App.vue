@@ -39,6 +39,7 @@
 
         <editor-interface />
 
+        <password-box />
         <error-box />
         <validation-box />
 
@@ -55,22 +56,23 @@
 
 <script setup lang="ts">
 import ActionBar from '@/components/ActionBar.vue'
-import History from '@/components/History.vue'
 import Branches from '@/components/Branches.vue'
 import Commit from '@/components/Commit.vue'
 import Console from '@/components/Console.vue'
 import ContextMenuService from '@/components/ContextMenuService.vue'
 import EditorInterface from '@/components/EditorInterface.vue'
 import ErrorBox from '@/components/ErrorBox.vue'
-import SelectInputOverlay from '@/components/Input/Overlays/SelectInputOverlay.vue'
+import History from '@/components/History.vue'
+import PasswordBox from '@/components/PasswordBox.vue'
 import Patch from '@/components/Patch.vue'
 import Push from '@/components/Push.vue'
 import Remotes from '@/components/Remotes.vue'
-import Tags from '@/components/Tags.vue'
 import SearchService from '@/components/SearchService.vue'
+import SelectInputOverlay from '@/components/Input/Overlays/SelectInputOverlay.vue'
 import Settings from '@/components/Settings.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
 import SystemBar from '@/components/SystemBar.vue'
+import Tags from '@/components/Tags.vue'
 import ThemeEditor from '@/components/ThemeEditor.vue'
 import TimerService from '@/components/TimerService.vue'
 import ValidationBox from '@/components/ValidationBox.vue'

@@ -80,7 +80,7 @@ describe('objects/repository/RepositoryRemote', () => {
     expect(repository_remote.branch.object).toEqual(branch_object)
   })
 
-  it('should populate all commits upon call to select_branch when head commit is not found', async () => {
+  it('should populate all commits upon call to load_difference when head commit is not found', async () => {
     repository.getCommit.mockReturnValue()
     reference_commit.parent.mockImplementationOnce(() => reference_commit)
     reference_commit.parent.mockImplementationOnce(() => reference_commit)
@@ -94,11 +94,12 @@ describe('objects/repository/RepositoryRemote', () => {
     repository_remote.simple = remote_simple
 
     await repository_remote.select_branch(branch_name)
+    await repository_remote.load_difference(branch_name)
 
     expect(repository_remote.pending).toHaveLength(3)
   })
 
-  it('should populate all commits upon call to select_branch when head commit has no match', async () => {
+  it('should populate all commits upon call to load_difference when head commit has no match', async () => {
     head_commit_id.cmp.mockReturnValue(1)
     reference_commit.parent.mockImplementationOnce(() => reference_commit)
     reference_commit.parent.mockImplementationOnce(() => reference_commit)
@@ -112,11 +113,12 @@ describe('objects/repository/RepositoryRemote', () => {
     repository_remote.simple = remote_simple
 
     await repository_remote.select_branch(branch_name)
+    await repository_remote.load_difference(branch_name)
 
     expect(repository_remote.pending).toHaveLength(3)
   })
 
-  it('should populate commits until match is found upon call to select_branch when head commit has a match', async () => {
+  it('should populate commits until match is found upon call to load_difference when head commit has a match', async () => {
     head_commit_id.cmp.mockReturnValueOnce(1)
     head_commit_id.cmp.mockReturnValueOnce(1)
     reference_commit.parent.mockImplementationOnce(() => reference_commit)
@@ -131,6 +133,7 @@ describe('objects/repository/RepositoryRemote', () => {
     repository_remote.simple = remote_simple
 
     await repository_remote.select_branch(branch_name)
+    await repository_remote.load_difference(branch_name)
 
     expect(repository_remote.pending).toHaveLength(2)
   })

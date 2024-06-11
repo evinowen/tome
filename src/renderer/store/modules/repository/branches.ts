@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import api, { RepositoryBranch } from '@/api'
+import { fetch_repository_history_store } from '@/store/modules/repository/history'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 
 export interface State {
   list: RepositoryBranch[]
@@ -26,6 +28,12 @@ export const fetch_repository_branches_store = defineStore('repository-branches'
     select: async function (name) {
       await api.repository.branch_select(name)
       await this.load()
+
+      const repository_history = fetch_repository_history_store()
+      await repository_history.reload()
+
+      const repository_committer = fetch_repository_committer_store()
+      await repository_committer.inspect()
     },
     rename: async function ({ name, value }) {
       await api.repository.branch_rename(name, value)

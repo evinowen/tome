@@ -1,4 +1,3 @@
-import { it, expect } from 'vitest'
 import Component from '?/helpers/component'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import ApplicationThemeEditor from '@/components/ThemeEditor/Sections/ApplicationThemeEditor.vue'
@@ -8,4 +7,4 @@ Component('components/ThemeEditor/Sections/ApplicationThemeEditor', ApplicationT
     ApplicationThemePreview: BasicComponentStub,
     ThemeEditorSection: BasicComponentStub,
   })
-  .run(async (factory) => { /* Empty */ })
+  .run(async () => { /* Empty */ })

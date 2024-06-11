@@ -2,7 +2,12 @@ import * as NodeGit from 'nodegit'
 import RepositoryCredentials from '@/objects/repository/RepositoryCredentials'
 import RepositoryRemote, { RepositoryRemoteSimple } from '@/objects/repository/RepositoryRemote'
 import RepositoryDelegate from '@/objects/repository/RepositoryDelegate'
-import { RepositoryRemoteNotFoundError } from '@/objects/repository/RepositoryErrors'
+
+export class ErrorFactory {
+  static RemoteNotConfiguredError = (name) => `Remote name "${name}" not found in configuraiton.`
+  static RemoteUnableToLoadError = (name) => `Remote object "${name}" could not be loaded.`
+  static RemoteUnableToConnectError = (name) => `Connection to Remote "${name}" could not be established.`
+}
 
 export default class RepositoryRemoteDelegate extends RepositoryDelegate {
   credential: () => RepositoryCredentials
@@ -43,17 +48,22 @@ export default class RepositoryRemoteDelegate extends RepositoryDelegate {
 
     remote.simple = this.list.find((remote) => remote.name === name)
     if (remote.simple === undefined) {
-      throw new RepositoryRemoteNotFoundError()
+      return { error: ErrorFactory.RemoteNotConfiguredError(name) }
     }
 
     remote.object = this.map.get(remote.simple.name)
     if (remote.object === undefined) {
-      throw new RepositoryRemoteNotFoundError()
+      return { error: ErrorFactory.RemoteUnableToLoadError(name) }
     }
 
-    await remote.select_branch(branch)
+    try {
+      await remote.select_branch(branch)
+    } catch {
+      return { error: ErrorFactory.RemoteUnableToConnectError(name) }
+    }
 
     this.active = remote
+    return { success: true }
   }
 
   close () {

@@ -35,7 +35,7 @@ describe('store/modules/configuration', () => {
   disk.set_content_default(JSON.stringify({
     name: 'Test User',
     email: 'testuser@example.com',
-    private_key: 'id_rsa',
+    key: 'id_rsa',
     passphrase: 'password',
     format_explorer_titles: false,
     dark_mode: true,
@@ -56,13 +56,13 @@ describe('store/modules/configuration', () => {
   it('should populate empty values when initalized', async () => {
     expect(configuration.global.signature.name).toBe('')
     expect(configuration.global.signature.email).toBe('')
-    expect(configuration.global.credentials.private_key).toBe('')
+    expect(configuration.global.credentials.key).toBe('')
     expect(configuration.global.credentials.passphrase).toBe('')
     expect(configuration.global.format_explorer_titles).toBe(true)
 
     expect(configuration.local.signature.name).toBe('')
     expect(configuration.local.signature.email).toBe('')
-    expect(configuration.local.credentials.private_key).toBe('')
+    expect(configuration.local.credentials.key).toBe('')
     expect(configuration.local.credentials.passphrase).toBe('')
     expect(configuration.local.format_explorer_titles).toBe(true)
 
@@ -77,7 +77,7 @@ describe('store/modules/configuration', () => {
         email: 'testuser@example.com',
       },
       credentials: {
-        private_key: 'id_rsa',
+        key: 'id_rsa',
         passphrase: 'password',
       },
       format_explorer_titles: false,
@@ -90,7 +90,7 @@ describe('store/modules/configuration', () => {
 
     expect(configuration.global.signature.name).toBe('Test User')
     expect(configuration.global.signature.email).toBe('testuser@example.com')
-    expect(configuration.global.credentials.private_key).toBe('id_rsa')
+    expect(configuration.global.credentials.key).toBe('id_rsa')
     expect(configuration.global.credentials.passphrase).toBe('password')
     expect(configuration.global.format_explorer_titles).toBe(false)
   })
@@ -103,7 +103,7 @@ describe('store/modules/configuration', () => {
         email: 'testuser@example.com',
       },
       credentials: {
-        private_key: 'id_rsa',
+        key: 'id_rsa',
         passphrase: 'password',
       },
       format_explorer_titles: false,
@@ -116,7 +116,7 @@ describe('store/modules/configuration', () => {
 
     expect(configuration.local.signature.name).toBe('Test User')
     expect(configuration.local.signature.email).toBe('testuser@example.com')
-    expect(configuration.local.credentials.private_key).toBe('id_rsa')
+    expect(configuration.local.credentials.key).toBe('id_rsa')
     expect(configuration.local.credentials.passphrase).toBe('password')
     expect(configuration.local.format_explorer_titles).toBe(false)
   })
@@ -130,7 +130,7 @@ describe('store/modules/configuration', () => {
 
     expect(configuration.global.signature.name).toBe('')
     expect(configuration.global.signature.email).toBe('')
-    expect(configuration.global.credentials.private_key).toBe('')
+    expect(configuration.global.credentials.key).toBe('')
     expect(configuration.global.credentials.passphrase).toBe('')
     expect(configuration.global.format_explorer_titles).toBe(true)
   })
@@ -144,7 +144,7 @@ describe('store/modules/configuration', () => {
 
     expect(configuration.local.signature.name).toBe('')
     expect(configuration.local.signature.email).toBe('')
-    expect(configuration.local.credentials.private_key).toBe('')
+    expect(configuration.local.credentials.key).toBe('')
     expect(configuration.local.credentials.passphrase).toBe('')
     expect(configuration.local.format_explorer_titles).toBe(true)
   })
@@ -158,7 +158,7 @@ describe('store/modules/configuration', () => {
 
     expect(configuration.global.signature.name).toBe('')
     expect(configuration.global.signature.email).toBe('')
-    expect(configuration.global.credentials.private_key).toBe('')
+    expect(configuration.global.credentials.key).toBe('')
     expect(configuration.global.credentials.passphrase).toBe('')
     expect(configuration.global.format_explorer_titles).toBe(true)
   })
@@ -172,7 +172,7 @@ describe('store/modules/configuration', () => {
 
     expect(configuration.local.signature.name).toBe('')
     expect(configuration.local.signature.email).toBe('')
-    expect(configuration.local.credentials.private_key).toBe('')
+    expect(configuration.local.credentials.key).toBe('')
     expect(configuration.local.credentials.passphrase).toBe('')
     expect(configuration.local.format_explorer_titles).toBe(true)
   })
@@ -186,7 +186,7 @@ describe('store/modules/configuration', () => {
 
     expect(configuration.global.signature.name).toBe('New Name')
     expect(configuration.global.signature.email).toBe('')
-    expect(configuration.global.credentials.private_key).toBe('')
+    expect(configuration.global.credentials.key).toBe('')
     expect(configuration.global.credentials.passphrase).toBe('q1h7$u*3~y:}l$:akiKUa&z%:VhDP|')
   })
 
@@ -199,7 +199,7 @@ describe('store/modules/configuration', () => {
 
     expect(configuration.local.signature.name).toBe('New Name')
     expect(configuration.local.signature.email).toBe('')
-    expect(configuration.local.credentials.private_key).toBe('')
+    expect(configuration.local.credentials.key).toBe('')
     expect(configuration.local.credentials.passphrase).toBe('q1h7$u*3~y:}l$:akiKUa&z%:VhDP|')
   })
 
@@ -275,7 +275,7 @@ describe('store/modules/configuration', () => {
         email: 'testuser@example.com',
       },
       credentials: {
-        private_key: 'id_rsa',
+        key: 'id_rsa',
         passphrase: 'password',
       },
       format_explorer_titles: false,
@@ -290,7 +290,7 @@ describe('store/modules/configuration', () => {
 
     expect(configuration.local.signature.name).toBe('')
     expect(configuration.local.signature.email).toBe('')
-    expect(configuration.local.credentials.private_key).toBe('')
+    expect(configuration.local.credentials.key).toBe('')
     expect(configuration.local.credentials.passphrase).toBe('')
     expect(configuration.local.format_explorer_titles).toBe(true)
 

@@ -1,4 +1,3 @@
-import { it, expect, vi } from 'vitest'
 import Component from '?/helpers/component'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 import ThemeFontPicker, { Font } from '@/components/ThemeEditor/ThemeFontPicker.vue'
@@ -14,4 +13,4 @@ Component('components/ThemeEditor/ThemeFontPicker', ThemeFontPicker, { theme, se
     ThemeFontPickerOption: BasicComponent,
     VContainer: BasicComponent,
   })
-  .run(async (factory) => { /* Empty */ })
+  .run(async () => { /* Empty */ })

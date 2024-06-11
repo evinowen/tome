@@ -1,4 +1,4 @@
-import { it, expect, vi } from 'vitest'
+import { it, expect } from 'vitest'
 import Component from '?/helpers/component'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 import BooleanComponent from '?/stubs/BooleanComponent.vue'

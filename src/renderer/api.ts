@@ -73,7 +73,7 @@ export interface API {
     remote_add: (name: string, url: string) => Promise<void>
     remote_clear: () => Promise<void>
     remote_list: () => Promise<RepositoryRemote[]>
-    remote_load: (name: string) => Promise<void>
+    remote_load: (name: string) => Promise<{ error?: string, success: true }>
     remote_remove: (name: string) => Promise<void>
     remote_status: () => Promise<RepositoryRemote>
     reset: (query: string) => Promise<void>
@@ -85,8 +85,8 @@ export interface API {
     tag_remove: (name: string) => Promise<void>
   }
   ssl: {
-    generate_public_key: (target: string, passphrase?: string) => Promise<{ path: string, data: string }>
-    generate_private_key: (passphrase?: string) => Promise<{ path: string, data: string }>
+    generate_public_key: (target: string, passphrase?: string) => Promise<{ error?: string, path?: string, data?: string }>
+    generate_private_key: (passphrase?: string) => Promise<{ error?: string, path?: string, data?: string }>
   }
   template: {
     invoke: (source: string, target: string) => Promise<{ success: boolean, result: string }>
@@ -141,8 +141,9 @@ export interface RepositoryTag {
 }
 
 export interface RepositoryRemote {
-  name: string
-  url: string
+  error?: string
+  name?: string
+  url?: string
   branch?: RepositoryRemoteBranch
   pending?: RepositoryCommit[]
 }

@@ -7,7 +7,6 @@ import { fetch_templates_store } from '@/store/modules/templates'
 import { fetch_repository_branches_store } from '@/store/modules/repository/branches'
 import { fetch_repository_tags_store } from '@/store/modules/repository/tags'
 import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
-import { fetch_repository_credentials_store } from '@/store/modules/repository/credentials'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 
 export interface RepositoryCommit {
@@ -58,12 +57,8 @@ export const fetch_repository_store = defineStore('repository', {
       const remotes = fetch_repository_remotes_store()
       await remotes.load()
 
-      const credentials = fetch_repository_credentials_store()
-      await credentials.load()
-
       const committer = fetch_repository_committer_store()
       await committer.inspect()
-      await committer.compose(undefined, true)
 
       const actions = fetch_actions_store()
       await actions.load({ path: this.path })
@@ -73,11 +68,6 @@ export const fetch_repository_store = defineStore('repository', {
 
       const configuration = fetch_configuration_store()
       await configuration.load_local()
-      try {
-        await remotes.select(configuration.active.default_remote)
-      } catch (error) {
-        log.error('Error connecting to default remote', error)
-      }
 
       this.ready = true
       await log.info(`Repository ${repository.name} ready`)

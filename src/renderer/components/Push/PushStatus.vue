@@ -36,7 +36,7 @@
         </v-list-item>
         <v-divider />
         <v-card-text class="text-center">
-          <v-btn @click.stop="$emit('reload')">
+          <v-btn @click.stop="reselect">
             <v-icon class="mr-2">
               mdi-reload
             </v-icon>
@@ -73,12 +73,12 @@
           <v-list-item-title class="text-h5">
             Compare
           </v-list-item-title>
-          <v-list-item-subtitle>View the commit history difference below</v-list-item-subtitle>
+          <v-list-item-subtitle>View commits that have not yet been pushed in the list below</v-list-item-subtitle>
         </v-list-item>
         <div class="commit-box">
           <div class="commit-list">
             <div
-              v-for="item in history"
+              v-for="item in pending"
               :key="item.oid"
               class="commit-list-row"
             >
@@ -88,7 +88,7 @@
                   variant="text"
                   color="success"
                   style="width: 100%;"
-                  @click.stop="emit('commit', item)"
+                  @click.stop="inspect(item.oid)"
                 >
                   {{ item.oid.substring(0, 7) }}
                 </v-btn>
@@ -125,6 +125,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 import {
   VAvatar,
   VBtn,
@@ -137,26 +141,34 @@ import {
   VListItemTitle,
 } from 'vuetify/components'
 
-export interface Properties {
-  active?: boolean
-  loading?: boolean
-  match?: boolean
-  error?: string
-  history?: any[]
+const system = fetch_system_store()
+const repository_comparator = fetch_repository_comparator_store()
+const repository_remotes = fetch_repository_remotes_store()
+
+const active = computed(() => repository_remotes.process.select || repository_remotes.selected !== '')
+const loading = computed(() => repository_remotes.process.select)
+const error = computed(() => repository_remotes.error)
+const match = computed(() => repository_remotes.active.pending && repository_remotes.active.pending.length <= 0)
+const pending = computed(() => repository_remotes.active.pending)
+
+async function reselect () {
+  await repository_remotes.reselect()
 }
 
-withDefaults(defineProps<Properties>(), {
-  active: false,
-  loading: false,
-  match: false,
-  error: '',
-  history: () => [],
-})
+async function inspect (oid) {
+  await repository_comparator.diff({ commit: oid })
+  await system.page({ patch: true })
+}
 
-const emit = defineEmits([
-  'commit',
-  'reload',
-])
+defineExpose({
+  active,
+  loading,
+  error,
+  match,
+  pending,
+  reselect,
+  inspect,
+})
 </script>
 
 <style scoped>

@@ -11,14 +11,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watchEffect } from 'vue'
+import { onMounted, ref, watchEffect } from 'vue'
 import Mark from 'mark.js'
 import MarkdownParser from '@/objects/parsers/MarkdownParser'
 import PlainTextParser from '@/objects/parsers/PlainTextParser'
 import CSVParser from '@/objects/parsers/CSVParser'
-import { fetch_configuration_store } from '@/store/modules/configuration'
 
-const configuration = fetch_configuration_store()
 const element = ref<HTMLElement>()
 
 let mark: Mark
@@ -39,12 +37,6 @@ const properties = withDefaults(defineProps<Properties>(), {
 
 onMounted(() => {
   mark = new Mark(element.value)
-})
-
-const theme = computed(() => {
-  return configuration.active.dark_mode
-    ? configuration.active.themes.dark.rendered
-    : configuration.active.themes.light.rendered
 })
 
 const rendered = ref<string>()

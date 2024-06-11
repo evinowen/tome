@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex key-border align-center">
+  <div class="d-flex key-border align-center my-1">
     <div
       v-if="frame"
       class="flex-shrink-0 pa-2 pl-4 mr-2"
@@ -38,10 +38,7 @@
         { 'flex-grow-1': !(label || detail) }
       ]"
     >
-      <div
-        class="pa-1 mr-2"
-        style="min-width: 160px"
-      >
+      <div style="min-width: 160px">
         <div :class="[ {'float-box': float } ]">
           <slot />
         </div>
@@ -49,7 +46,7 @@
     </div>
     <div
       v-if="(label || detail)"
-      class="flex-grow-1 pa-1 d-flex flex-column"
+      class="flex-grow-1 ml-2 d-flex flex-column"
       :style="{ 'opacity': disabled ? 0.6 : 1 }"
     >
       <strong>{{ label }}</strong>

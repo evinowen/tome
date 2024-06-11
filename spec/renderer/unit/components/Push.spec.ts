@@ -1,12 +1,11 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
+import { createTestingPinia } from '@pinia/testing'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
 import UtilityPage from '?/stubs/UtilityPage.vue'
 import { createVuetify } from 'vuetify'
-import { createTestingPinia } from '@pinia/testing'
-import Push from '@/components/Push.vue'
 import { fetch_system_store } from '@/store/modules/system'
-import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
+import Push from '@/components/Push.vue'
 
 describe('components/Push', () => {
   let vuetify
@@ -62,17 +61,7 @@ describe('components/Push', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should call store to load commit OID into patch when diff is called', async () => {
-    const repository_comparator = fetch_repository_comparator_store()
-
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.diff({ oid: 1 })
-
-    expect(repository_comparator.diff).toHaveBeenCalledWith({ commit: 1 })
-  })
-
-  it('should dispatch "system/push" upon call to close method', async () => {
+  it('should call system.page with push flag set false upon call to close method', async () => {
     const system = fetch_system_store()
 
     const wrapper = factory.wrap()
@@ -82,27 +71,17 @@ describe('components/Push', () => {
     expect(system.page).toHaveBeenCalledWith({ push: false })
   })
 
-  it('should dispatch "system/push_confirm" upon call to confirm method', async () => {
+  it('should dispatch system.page with push_confirm flag set true upon call to confirm method', async () => {
     const system = fetch_system_store()
 
     const wrapper = factory.wrap()
 
-    await wrapper.vm.confirm(false)
+    await wrapper.vm.confirm()
 
-    expect(system.page).toHaveBeenCalledWith({ push_confirm: false })
+    expect(system.page).toHaveBeenCalledWith({ push_confirm: true })
   })
 
-  it('should dispatch "system/perform" upon call to push method', async () => {
-    const system = fetch_system_store()
-
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.push()
-
-    expect(system.perform).toHaveBeenCalledWith('push')
-  })
-
-  it('should dispatch "system/remotes" upon call to remotes method', async () => {
+  it('should dispatch system.page with remotes flag set true upon call to remotes method', async () => {
     const system = fetch_system_store()
 
     const wrapper = factory.wrap()

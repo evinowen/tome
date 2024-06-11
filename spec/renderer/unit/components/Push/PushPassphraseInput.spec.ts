@@ -1,10 +1,10 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
-import PushPassphraseInput from '@/components/PushPassphraseInput.vue'
+import PushPassphraseInput from '@/components/Push/PushPassphraseInput.vue'
 import BasicComponentStub from '?/stubs/BasicComponent.vue'
 
-describe('components/PushPassphraseInput', () => {
+describe('components/Push/PushPassphraseInput', () => {
   let vuetify
 
   const factory = assemble(PushPassphraseInput)

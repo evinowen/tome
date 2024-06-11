@@ -25,6 +25,7 @@ export const StateDefaults = (): State => ({
 })
 
 export enum SettingsTarget {
+  Active = 'active',
   Global = 'global',
   Local = 'local',
 }
@@ -61,7 +62,7 @@ export const fetch_configuration_store = defineStore('configuration', {
 
       merge(this.$state.global, data)
 
-      await this.present()
+      await this.present(SettingsTarget.Global)
     },
     load_local: async function () {
       const log = fetch_log_store()
@@ -98,7 +99,7 @@ export const fetch_configuration_store = defineStore('configuration', {
 
       merge(this.$state.local, data)
 
-      await this.present()
+      await this.present(SettingsTarget.Local)
     },
     reset_local: async function () {
       this.local = SettingsStateDefaults()
@@ -132,8 +133,12 @@ export const fetch_configuration_store = defineStore('configuration', {
     view: function (target: SettingsTarget) {
       this.target = target
     },
-    localize: function (path, value) {
+    localize: async function (path, value) {
       set(this.localized, path, value)
+
+      if (path.indexOf('themes') === 0) {
+        await this.present(SettingsTarget.Local)
+      }
     },
     set: function (target: SettingsTarget, path, value) {
       switch (target) {
@@ -149,22 +154,22 @@ export const fetch_configuration_store = defineStore('configuration', {
       }
     },
     generate: async function (target: SettingsTarget, passphrase) {
-      const { path: private_key } = await api.ssl.generate_private_key(passphrase)
+      const { path } = await api.ssl.generate_private_key(passphrase)
 
-      await this.set(target, 'credentials.private_key', private_key)
+      await this.set(target, 'credentials.key', path)
       await this.update(target, 'credentials.passphrase', passphrase)
     },
-    update: async function (target: SettingsTarget, path, value) {
+    update: async function (target: SettingsTarget, path: string, value) {
       this.set(target, path, value)
 
-      const { data: public_key } = await api.ssl.generate_public_key(
-        this[target].credentials.private_key,
-        this[target].credentials.passphrase,
-      )
+      if (path.indexOf('themes.light.') === 0) {
+        await this.present(target, 'light')
+      }
 
-      await this.set(target, 'credentials.public_key', public_key)
+      if (path.indexOf('themes.dark.') === 0) {
+        await this.present(target, 'dark')
+      }
 
-      await this.present()
       await this.write(target)
     },
     write: async function (target: SettingsTarget) {
@@ -198,21 +203,38 @@ export const fetch_configuration_store = defineStore('configuration', {
       const json = JSON.stringify(config)
       await api.file.write(configuration_path, json)
     },
-    present: async function () {
-      const theme = this.active.dark_mode ? 'dark' : 'light'
-      for (const section in palette) {
-        for (const color in palette[section]) {
-          const key = palette[section][color]
-          const value = this.active.themes[theme][section][color]
-          if (value !== undefined && value !== '') {
-            vuetify.theme.themes.value[theme].colors[key] = value
-          } else {
-            const preset = presets[theme][key]
-            if (preset !== undefined && preset !== '') {
-              vuetify.theme.themes.value[theme].colors[key] = preset
+    present: async function (target: SettingsTarget, theme?: string) {
+      // eslint-disable-next-line unicorn/consistent-function-scoping
+      const reconfigure = (target, theme) => {
+        let vuetify_theme = theme
+        if (target !== SettingsTarget.Active) {
+          vuetify_theme = `${theme}-${target}`
+        }
+
+        for (const section in palette) {
+          for (const color in palette[section]) {
+            const key = palette[section][color]
+            const value = this[target].themes[theme][section][color]
+            if (value !== undefined && value !== '') {
+              vuetify.theme.themes.value[vuetify_theme].colors[key] = value
+            } else {
+              const preset = presets[theme][key]
+              if (preset !== undefined && preset !== '') {
+                vuetify.theme.themes.value[vuetify_theme].colors[key] = preset
+              }
             }
           }
         }
+      }
+
+      if (theme === undefined) {
+        for (const theme of [ 'light', 'dark' ]) {
+          reconfigure(target, theme)
+          reconfigure(SettingsTarget.Active, theme)
+        }
+      } else {
+        reconfigure(target, theme)
+        reconfigure(SettingsTarget.Active, theme)
       }
     },
   },

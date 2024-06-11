@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, beforeEach, it, expect } from '@jest/globals'
 import * as NodeGit from 'nodegit'
-import RepositoryRemoteDelegate from '@/objects/repository/delegates/RepositoryRemoteDelegate'
-import { RepositoryRemoteNotFoundError } from '@/objects/repository/RepositoryErrors'
+import RepositoryRemoteDelegate, { ErrorFactory } from '@/objects/repository/delegates/RepositoryRemoteDelegate'
 
 jest.mock('nodegit')
 jest.mock('@/objects/repository/RepositoryRemote')
@@ -95,7 +94,7 @@ describe('objects/repository/delegates/RepositoryRemoteDelegate', () => {
     expect(repository_remote_delegate.active.object).not.toBeUndefined()
   })
 
-  it('should throw RepositoryRemoteNotFoundError when provided remote is not found upon call to select', async () => {
+  it('should generate ErrorFactory.RemoteNotConfiguredError when provided remote is not found upon call to select', async () => {
     const repository_remote_delegate = new RepositoryRemoteDelegate(repository)
     repository_remote_delegate.credential = () => ({} as any)
 
@@ -113,7 +112,9 @@ describe('objects/repository/delegates/RepositoryRemoteDelegate', () => {
     const remote_name = 'remote-d'
     const branch_name = 'master'
 
-    await expect(repository_remote_delegate.select(remote_name, branch_name)).rejects.toThrowError(RepositoryRemoteNotFoundError)
+    const result = await repository_remote_delegate.select(remote_name, branch_name)
+
+    expect(result.error).toEqual(ErrorFactory.RemoteNotConfiguredError(remote_name))
   })
 
   it('should delete active RepositoryRemote upon call to close', async () => {

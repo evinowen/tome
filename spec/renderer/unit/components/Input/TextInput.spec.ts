@@ -49,7 +49,7 @@ describe('components/Input/TextInput', () => {
   it('should emit "update" event when input emits model update', async () => {
     const wrapper = factory.wrap()
 
-    const input_field = wrapper.findComponent({ ref: 'input-field' })
+    const input_field = wrapper.findComponent({ ref: 'input' })
     expect(input_field.exists()).toBe(true)
 
     const value = 'John Doe'

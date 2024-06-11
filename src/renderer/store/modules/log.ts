@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { DateTime } from 'luxon'
 import api from '@/api'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 
 enum LogLevel {
   Trace = 'trace',
@@ -23,7 +24,7 @@ const LogLevelOrder = [
 export interface LogEvent {
   level: LogLevel
   message: string
-  stack: string
+  stack?: string
   datetime: DateTime
 }
 
@@ -35,9 +36,9 @@ export const StateDefaults = (): State => ({
   events: [],
 })
 
-const Log = (store, level, message, stack?) => {
-  // const threshold = LogLevelOrder.indexOf(context.state.configuration.active.log_level || LogLevel.Info)
-  const threshold = LogLevelOrder.indexOf(LogLevel.Trace)
+const Log = (store, level, message, stack = '') => {
+  const configuration = fetch_configuration_store()
+  const threshold = LogLevelOrder.indexOf(configuration.active.log_level || LogLevel.Info)
   const priority = LogLevelOrder.indexOf(level)
 
   if (priority < threshold) {

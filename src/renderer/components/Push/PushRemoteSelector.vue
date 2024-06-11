@@ -50,7 +50,9 @@ async function remotes () {
 }
 
 async function select (name) {
-  await repository_remotes.select(name)
+  name === undefined
+    ? repository_remotes.clear()
+    : await repository_remotes.select(name)
 }
 
 defineExpose({

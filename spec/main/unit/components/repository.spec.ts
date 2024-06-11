@@ -33,6 +33,7 @@ jest.mock('@/objects/repository/RepositoryManager', () => ({
       remotes: {
         active: {
           push: jest.fn(),
+          load_difference: jest.fn(),
         },
         select: jest.fn(),
         load: jest.fn(),

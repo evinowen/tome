@@ -19,6 +19,7 @@
 <script lang="ts">
 import { Option as SelectButtonInputOption } from '@/components/Input/SelectButtonInput.vue'
 export type Option = SelectButtonInputOption
+
 </script>
 
 <script setup lang="ts">
