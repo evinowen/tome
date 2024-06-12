@@ -19,10 +19,13 @@
 import { computed, ref, watch } from 'vue'
 import Context from '@/components/Context.vue'
 import RenderedViewport from '@/components/RenderedViewport.vue'
-import { fetchStore, File } from '@/store'
+import File from '@/objects/File'
+import { fetch_log_store } from '@/store/modules/log'
+import { fetch_search_store } from '@/store/modules/search'
 import RenderedViewportContextMenu from '@/objects/context/menus/RenderedViewportContextMenu'
 
-const store = fetchStore()
+const log = fetch_log_store()
+const search = fetch_search_store()
 
 export interface Properties {
   file?: File
@@ -34,16 +37,12 @@ const properties = withDefaults(defineProps<Properties>(), {
 
 const viewport = ref<InstanceType<typeof RenderedViewport>>()
 
-const search = computed(() => {
-  return store.state.search
-})
-
 const search_state = computed(() => {
   return [
-    store.state.search.query,
-    store.state.search.regex_query,
-    store.state.search.case_sensitive,
-    store.state.search.navigation.target,
+    search.query,
+    search.regex_query,
+    search.case_sensitive,
+    search.navigation.target,
   ]
 })
 
@@ -56,7 +55,7 @@ const content = computed((): string => {
 })
 
 async function context_load () {
-  return RenderedViewportContextMenu(store, document.getSelection().toString())
+  return RenderedViewportContextMenu(document.getSelection().toString())
 }
 
 watch(search_state, async () => {
@@ -65,18 +64,18 @@ watch(search_state, async () => {
   let regex: RegExp
   try {
     regex = new RegExp(
-      search.value.regex_query ? search.value.query : String(search.value.query).replaceAll(/[$()*+./?[\\\]^{|}-]/g, '\\$&'),
-      String('g').concat(search.value.case_sensitive ? '' : 'i'),
+      search.regex_query ? search.query : String(search.query).replaceAll(/[$()*+./?[\\\]^{|}-]/g, '\\$&'),
+      String('g').concat(search.case_sensitive ? '' : 'i'),
     )
   } catch (error) {
-    await store.dispatch('log', { level: 'error', message: error.message, stack: error.stack })
+    await log.error(error.message, error.stack)
     return
   }
 
   const total = await viewport.value.selection.highlight(regex)
-  store.dispatch('search/navigate', { total, target: undefined })
+  search.navigate({ total, target: undefined })
 
-  await viewport.value.selection.focus(search.value.navigation.target - 1)
+  await viewport.value.selection.focus(search.navigation.target - 1)
 })
 </script>
 

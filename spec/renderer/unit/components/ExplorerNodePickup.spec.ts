@@ -1,27 +1,21 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
+import { createTestingPinia } from '@pinia/testing'
 import ExplorerNodePickup from '@/components/ExplorerNodePickup.vue'
+import { fetch_files_store } from '@/store/modules/files'
 
 describe('components/ExplorerNodePickup', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      actions: stub_actions([
-        'files/drag',
-        'files/drop',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -31,7 +25,7 @@ describe('components/ExplorerNodePickup', () => {
   const factory = assemble(ExplorerNodePickup)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
       },
     }))
 
@@ -42,6 +36,8 @@ describe('components/ExplorerNodePickup', () => {
   })
 
   it('should dispatch files/drag with path property when dragstart event is emited from draggable', async () => {
+    const files = fetch_files_store()
+
     const path = '/example'
 
     const wrapper = factory.wrap({ path, enabled: true })
@@ -54,10 +50,12 @@ describe('components/ExplorerNodePickup', () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/drag', path)
+    expect(files.drag).toHaveBeenCalledWith(path)
   })
 
   it('should not dispatch files/drag when dragstart event is emited from draggable while enabled is false', async () => {
+    const files = fetch_files_store()
+
     const path = '/example'
 
     const wrapper = factory.wrap({ path, enabled: false })
@@ -70,7 +68,7 @@ describe('components/ExplorerNodePickup', () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/drag', path)
+    expect(files.drag).not.toHaveBeenCalledWith(path)
   })
 
   it('should lower opacity of draggable when dragstart event is emited from draggable', async () => {
@@ -92,12 +90,14 @@ describe('components/ExplorerNodePickup', () => {
   })
 
   it('should dispatch files/drop with path property when drop event is emited from draggable', async () => {
+    const files = fetch_files_store()
+
     const path = '/example'
 
     const wrapper = factory.wrap({ path, enabled: true })
     await wrapper.vm.$nextTick()
 
-    store_dispatch.mockClear()
+    // store_dispatch.mockClear()
 
     const draggable = wrapper.find({ ref: 'draggable' })
     await draggable.trigger('drop', {
@@ -107,7 +107,7 @@ describe('components/ExplorerNodePickup', () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/drop', path)
+    expect(files.drop).toHaveBeenCalledWith(path)
   })
 
   // it('should dispatch file move action when drop is triggered for a node', async () => {

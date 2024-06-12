@@ -1,27 +1,30 @@
 <template>
   <utility-page
     right
-    :title="repository.patches_reference"
-    :subtitle="repository.patches_type"
-    :layer="2"
+    :title="repository_comparator.reference"
+    :subtitle="repository_comparator.type"
+    :layer="5"
     :open="system.patch"
     @close="close"
   >
-    <div class="flex-grow-0">
+    <div class="flex-grow-0 patch-detail mb-2">
       <div class="patch-message">
-        {{ repository.patches_message }}
+        {{ repository_comparator.message }}
+      </div>
+      <div class="patch-signature">
+        {{ repository_comparator.signature }}
       </div>
     </div>
 
     <div class="flex-grow-1 mb-3">
       <div
-        v-if="patches.length === 0"
+        v-if="repository_comparator.patches.length === 0"
         class="patches-empty"
       >
         No Content
       </div>
       <div
-        v-for="(file, file_index) in patches"
+        v-for="(file, file_index) in repository_comparator.patches"
         :key="file_index"
         :class="[ file_index ? 'mt-4' : '']"
       >
@@ -48,6 +51,13 @@
 </template>
 
 <script lang="ts">
+import { RepositoryPatchLineType } from '@/store/modules/repository/comparator'
+export { RepositoryPatchLineType } from '@/store/modules/repository/comparator'
+</script>
+
+<script setup lang="ts">
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
 import UtilityPage from '@/components/UtilityPage.vue'
 import {
   VCard,
@@ -55,51 +65,20 @@ import {
   VCardTitle,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    UtilityPage,
-    VCard,
-    VCardText,
-    VCardTitle,
-  },
-}
-</script>
-
-<script setup lang="ts">
-import { computed } from 'vue'
-import { fetchStore } from '@/store'
-
-class RepositoryPatch {
-  static LineType = {
-    CONTEXT: 32,
-    ADDITION: 43,
-    DELETION: 45,
-    CONTEXT_EOFNL: 61,
-    ADD_EOFNL: 62,
-    DEL_EOFNL: 60,
-    FILE_HDR: 70,
-    HUNK_HDR: 72,
-    BINARY: 66,
-  }
-}
-
-const store = fetchStore()
-
-const system = computed(() => store.state.system)
-const repository = computed(() => store.state.repository)
-const patches = computed(() => store.state.repository.patches)
+const system = fetch_system_store()
+const repository_comparator = fetch_repository_comparator_store()
 
 async function close () {
-  await store.dispatch('system/patch', false)
+  await system.page({ patch: false })
 }
 
 function line_color (type) {
   switch (type) {
-    case RepositoryPatch.LineType.HUNK_HDR:
+    case RepositoryPatchLineType.HUNK_HDR:
       return 'blue--text'
-    case RepositoryPatch.LineType.ADDITION:
+    case RepositoryPatchLineType.ADDITION:
       return 'green--text'
-    case RepositoryPatch.LineType.DELETION:
+    case RepositoryPatchLineType.DELETION:
       return 'red--text'
     default:
       return ''
@@ -108,11 +87,11 @@ function line_color (type) {
 
 function line_prefix (type) {
   switch (type) {
-    case RepositoryPatch.LineType.HUNK_HDR:
+    case RepositoryPatchLineType.HUNK_HDR:
       return ''
-    case RepositoryPatch.LineType.ADDITION:
+    case RepositoryPatchLineType.ADDITION:
       return '+ '
-    case RepositoryPatch.LineType.DELETION:
+    case RepositoryPatchLineType.DELETION:
       return '- '
     default:
       return '  '
@@ -122,6 +101,7 @@ function line_prefix (type) {
 defineExpose({
   line_color,
   line_prefix,
+  close,
 })
 </script>
 
@@ -153,15 +133,37 @@ pre {
 
 .patch-content {
   clear: both;
+  color: rgb(var(--v-theme-on-background));
+  background: rgb(var(--v-theme-background));
   font-size: 1.15em;
   font-family: var(--font-monospace), monospace !important;
   font-size: var(--font-monospace-size);
   margin-bottom: 6px;
 }
 
-.patch-message {
+.patch-content :deep(.blue--text) {
+  color: rgb(var(--v-theme-info));
+}
+
+.patch-content :deep(.red--text) {
+  color: rgb(var(--v-theme-error));
+}
+
+.patch-content :deep(.green--text) {
+  color: rgb(var(--v-theme-success));
+}
+
+.patch-detail {
   font-family: var(--font-monospace), monospace !important;
   font-size: var(--font-monospace-size);
   overflow: auto;
+}
+
+.patch-message {
+  font-size: 1.2em;
+}
+
+.patch-signature {
+  font-size: 0.9em;
 }
 </style>

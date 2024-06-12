@@ -14,8 +14,8 @@
           ref="multifile-button"
           size="small"
           rounded="0"
-          :color="multifile ? 'primary' : undefined"
-          @click="flag('multifile', !multifile)"
+          :color="search.multifile ? 'primary' : undefined"
+          @click="flag('multifile', !search.multifile)"
         >
           <v-icon>mdi-file-multiple</v-icon>
         </v-btn>
@@ -23,8 +23,8 @@
           ref="case-sensitive-button"
           size="small"
           rounded="0"
-          :color="case_sensitive ? 'primary' : ''"
-          @click="flag('case_sensitive', !case_sensitive)"
+          :color="search.case_sensitive ? 'primary' : ''"
+          @click="flag('case_sensitive', !search.case_sensitive)"
         >
           <v-icon>mdi-format-letter-case</v-icon>
         </v-btn>
@@ -32,8 +32,8 @@
           ref="regex-query-button"
           size="small"
           rounded="0"
-          :color="regex_query ? 'primary' : ''"
-          @click="flag('regex_query', !regex_query)"
+          :color="search.regex_query ? 'primary' : ''"
+          @click="flag('regex_query', !search.regex_query)"
         >
           <v-icon>mdi-regex</v-icon>
         </v-btn>
@@ -42,14 +42,14 @@
         <v-text-field
           ref="input"
           class="pa-0"
-          :model-value="query"
+          :model-value="search.query"
           rows="1"
-          :messages="status"
+          :messages="search.status"
           clearable
           single-line
           hide-details
-          :prepend-icon="regex_query ? 'mdi-slash-forward' : undefined"
-          :append-icon="regex_query ? 'mdi-slash-forward' : undefined"
+          :prepend-icon="search.regex_query ? 'mdi-slash-forward' : undefined"
+          :append-icon="search.regex_query ? 'mdi-slash-forward' : undefined"
           @update:model-value="debounce_update"
           @click:clear="debounce_clear"
           @keydown.enter="next"
@@ -57,7 +57,7 @@
         />
       </div>
       <div
-        v-if="navigation"
+        v-if="search.navigation"
         class="search-navigation"
       >
         <v-item-group
@@ -68,7 +68,7 @@
           <v-btn
             size="small"
             rounded="0"
-            :disabled="!query"
+            :disabled="!search.query"
             @click="previous"
           >
             <v-icon>mdi-chevron-left</v-icon>
@@ -76,18 +76,18 @@
           <v-btn
             size="small"
             rounded="0"
-            :disabled="!query"
+            :disabled="!search.query"
             @click="next"
           >
             <v-icon>mdi-chevron-right</v-icon>
           </v-btn>
         </v-item-group>
-        <div><small>{{ navigation.total ? navigation.target : '-' }} / {{ navigation.total }}</small></div>
+        <div><small>{{ search.navigation.total ? search.navigation.target : '-' }} / {{ search.navigation.total }}</small></div>
       </div>
     </v-toolbar>
     <v-expand-transition>
       <div
-        v-show="multifile"
+        v-show="search.multifile"
         class="search-results-box"
         :style="{ opacity: search_opacity / 100.0 }"
       >
@@ -105,7 +105,7 @@
           :style="{ height: `${height}px` }"
         >
           <div
-            v-for="result in results"
+            v-for="result in search.results"
             :key="result.path.relative"
           >
             <div
@@ -169,70 +169,48 @@ export default {
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { debounce, throttle } from 'lodash'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_repository_store } from '@/store/modules/repository'
+import { fetch_search_store } from '@/store/modules/search'
 
-const store = fetchStore()
-
-const status = computed(() => {
-  return store.state.search.status
-})
-
-const results = computed(() => {
-  return store.state.search.results
-})
-
-const navigation = computed(() => {
-  return store.state.search.navigation
-})
-
-const query = computed(() => {
-  return store.state.search.query
-})
-
-const multifile = computed(() => {
-  return store.state.search.multifile
-})
-
-const regex_query = computed(() => {
-  return store.state.search.regex_query
-})
-
-const case_sensitive = computed(() => {
-  return store.state.search.case_sensitive
-})
+const configuration = fetch_configuration_store()
+const files = fetch_files_store()
+const repository = fetch_repository_store()
+const search = fetch_search_store()
 
 const state = computed(() => {
-  return [ multifile.value, regex_query.value, case_sensitive.value ]
+  return [ search.multifile, search.regex_query, search.case_sensitive ]
 })
 
 watch(state, () => {
-  debounce_update(query.value)
+  debounce_update(search.query)
 })
 
 async function update (query) {
-  const path = store.state.repository.path
-  await store.dispatch('search/query', { path, query })
+  const path = repository.path
+  await search.execute({ path, query })
 }
 
 const debounce_update = debounce(update, 500)
 
 async function next () {
-  await store.dispatch('search/next')
+  await search.next()
 }
 
 async function previous () {
-  await store.dispatch('search/previous')
+  await search.previous()
 }
 
 async function flag (key, value) {
-  await store.dispatch(`search/${key}`, value)
+  await search.flags({ [key]: value })
 }
 
 async function select (path, target = 0, total = 0) {
-  await store.dispatch('files/select', { path })
+  await files.select({ path })
 
   if (target > 0) {
-    await store.dispatch('search/navigate', { target, total })
+    await search.navigate({ target, total })
   }
 }
 
@@ -240,9 +218,9 @@ async function debounce_clear () {
   return await debounce_update('')
 }
 
-const search_height = computed(() => store.state.configuration.search_height)
-const search_resize_height = computed(() => store.state.configuration.search_resize_height)
-const search_opacity = computed(() => store.state.configuration.search_opacity)
+const search_height = computed(() => configuration.active.search_height)
+const search_resize_height = computed(() => configuration.active.search_resize_height)
+const search_opacity = computed(() => configuration.active.search_opacity)
 
 const resized = ref<HTMLElement>()
 const resizer = ref<HTMLElement>()
@@ -273,7 +251,7 @@ function resize_end (event: PointerEvent) {
   resizing.value = false
   resizer.value.releasePointerCapture(event.pointerId)
 
-  store.dispatch('configuration/update', { search_height: height.value })
+  configuration.update(configuration.target, { search_height: height.value })
 }
 
 defineExpose({

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as node_path from 'node:path'
 import * as node_fs from 'node:fs'
 
@@ -97,6 +98,7 @@ export class Logger {
       '\u001B[2m', JSON.stringify(context),
       '\u001B[0m',
     ]
+
     console.log(data.join(''))
   }
 

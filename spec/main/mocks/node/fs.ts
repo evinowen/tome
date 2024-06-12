@@ -115,3 +115,9 @@ export const unlink = jest.fn((path, callback: NoParamCallback) => {
 
   callback(error)
 })
+
+export const promises = {
+  access: jest.fn((path: string): Promise<void> => new Promise((resolve) => access(path, () => resolve()))),
+  readFile: jest.fn(async () => ({} as Buffer)),
+  writeFile: jest.fn(async () => ({})),
+}

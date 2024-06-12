@@ -1,59 +1,42 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import system, { State as SystemState } from '@/store/modules/system'
-import Commit from '@/store/modules/system/commit'
-import QuickCommit from '@/store/modules/system/quick_commit'
-import Push from '@/store/modules/system/push'
-import QuickPush from '@/store/modules/system/quick_push'
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_system_store, SystemPages, SystemPerformance } from '@/store/modules/system'
+import Commit from '@/objects/performances/Commit'
+import QuickCommit from '@/objects/performances/QuickCommit'
+import AutoCommit from '@/objects/performances/AutoCommit'
+import Push from '@/objects/performances/Push'
+import QuickPush from '@/objects/performances/QuickPush'
 import * as api_module from '@/api'
 import builders from '?/builders'
-import { scafold as store_scafold } from '?/builders/store'
+
+vi.mock('@/store/modules/log', () => ({
+  fetch_log_store: vi.fn(() => ({
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  })),
+}))
+
+vi.mock('@/store/modules/repository', () => ({
+  fetch_repository_store: vi.fn(() => ({
+    ready: true,
+  })),
+}))
 
 const mocked_api = builders.api()
 Object.assign(api_module, { default: mocked_api })
 
-interface State {
-  system: SystemState
-}
-
 describe('store/modules/system', () => {
-  let store
+  let system
+
+  const store_action_repository_check = vi.fn()
 
   beforeEach(() => {
-    store = new Vuex.Store<State>(store_scafold({
-      modules: {
-        system,
-        configuration: {
-          namespaced: true,
-          actions: {
-            read: vi.fn(),
-          },
-        },
-        files: {
-          namespaced: true,
-          actions: {
-            debounce_flush: vi.fn(),
-            reselect: vi.fn(),
-          },
-        },
-        repository: {
-          namespaced: true,
-          actions: {
-            commit: vi.fn(),
-            push: vi.fn(),
-            stage: vi.fn(),
-          },
-          modules: {
-            signature: {
-              namespaced: true,
-              actions: {
-                message: vi.fn(),
-              },
-            },
-          },
-        },
-      },
-    }))
+    setActivePinia(createPinia())
+    system = fetch_system_store()
   })
 
   afterEach(() => {
@@ -61,7 +44,7 @@ describe('store/modules/system', () => {
   })
 
   it('should load system metadata on load dispatch', async () => {
-    await store.dispatch('system/load')
+    await system.load()
 
     expect(mocked_api.app.getVersion).toHaveBeenCalled()
     expect(mocked_api.app.getProcess).toHaveBeenCalled()
@@ -69,102 +52,96 @@ describe('store/modules/system', () => {
   })
 
   it('should return current state for key on read dispatch', async () => {
-    const result = await store.dispatch('system/read', 'settings')
+    const result = await system.read('settings')
 
     expect(result).toBe(false)
   })
 
   it('should call for minimize and set maximize flag on minimize dispatch', async () => {
-    await store.dispatch('system/minimize')
+    await system.minimize()
 
     expect(mocked_api.window.minimize).toHaveBeenCalled()
-    expect(store.state.system.maximized).toBe(false)
+    expect(system.maximized).toBe(false)
   })
 
   it('should call for restore and set maximize flag on minimize dispatch', async () => {
-    await store.dispatch('system/restore')
+    await system.restore()
 
     expect(mocked_api.window.restore).toHaveBeenCalled()
-    expect(store.state.system.maximized).toBe(false)
+    expect(system.maximized).toBe(false)
   })
 
   it('should call for maximize and set maximize flag on maximize dispatch', async () => {
-    await store.dispatch('system/maximize')
+    await system.maximize()
 
     expect(mocked_api.window.maximize).toHaveBeenCalled()
-    expect(store.state.system.maximized).toBe(true)
+    expect(system.maximized).toBe(true)
   })
 
   it('should call to exit on exit dispatch', async () => {
-    await store.dispatch('system/exit')
+    await system.exit()
 
     expect(mocked_api.window.close).toHaveBeenCalled()
   })
 
   const flags = [
-    'branch',
+    'branches',
+    'branches_remove_confirm',
     'commit',
-    'commit_confirm',
-    'commit_push',
     'console',
     'edit',
+    'history',
     'patch',
     'push',
     'push_confirm',
     'search',
     'settings',
+    'tags',
+    'tags_remove_confirm',
   ]
 
-  for (const flag of flags) {
-    it(`should set ${flag} flag on ${flag} dispatch with non-undefined value`, async () => {
-      expect(store.state.system[flag]).toBe(false)
-      await store.dispatch(`system/${flag}`, true)
-      expect(store.state.system[flag]).toBe(true)
+  for (const page of SystemPages) {
+    it(`should set ${page} page flag on call to page with truthy value for ${page}`, async () => {
+      expect(system[page]).toBe(false)
+      await system.page({ [page]: true })
+      expect(system[page]).toBe(true)
     })
 
-    it(`should not set ${flag} flag on ${flag} dispatch with no value`, async () => {
-      expect(store.state.system[flag]).toBe(false)
-      await store.dispatch(`system/${flag}`, true)
-      expect(store.state.system[flag]).toBe(true)
-      await store.dispatch(`system/${flag}`)
-      expect(store.state.system[flag]).toBe(true)
+    it(`should set ${page} page flag on call to page with falsey value for ${page}`, async () => {
+      expect(system[page]).toBe(false)
+      await system.page({ [page]: true })
+      expect(system[page]).toBe(true)
+      await system.page({ [page]: false })
+      expect(system[page]).toBe(false)
     })
   }
 
-  // const signature = [
-  //   'name',
-  //   'email',
-  //   'message'
-  // ]
+  it('should set commit_confirm flag true on commit_confirm dispatch with truthy value when repository/committer/check returns true', async () => {
+    store_action_repository_check.mockImplementation(() => true)
 
-  // for (const item of signature) {
-  //   it(`should set ${item} flag on ${item} signature dispatch with non-undefined value`, async () => {
-  //     expect(store.state.system.signature[item]).toBe(undefined)
-  //     await store.dispatch(`system/signature/${item}`, item)
-  //     expect(store.state.system.signature[item]).toBe(item)
-  //   })
-  // }
+    expect(system.commit_confirm).toBe(false)
+    await system.page({ commit_confirm: true })
+    expect(system.commit_confirm).toBe(true)
+  })
 
-  // const credentials = [
-  //   'key',
-  //   'passphrase'
-  // ]
+  it('should set commit_confirm flag to false on commit_confirm dispatch with falsey value', async () => {
+    store_action_repository_check.mockImplementation(() => true)
 
-  // for (const item of credentials) {
-  //   it(`should set ${item} flag on ${item} credentials dispatch with non-undefined value`, async () => {
-  //     expect(store.state.system.credentials[item]).toBe(undefined)
-  //     await store.dispatch(`system/credentials/${item}`, item)
-  //     expect(store.state.system.credentials[item]).toBe(item)
-  //   })
-  // }
+    expect(system.commit_confirm).toBe(false)
+    await system.page({ commit_confirm: true })
+    expect(system.commit_confirm).toBe(true)
+
+    await system.page({ commit_confirm: false })
+    expect(system.commit_confirm).toBe(false)
+  })
 
   it('should call Commit performance on perform dispatch', async () => {
     const spy = vi.spyOn(Commit, 'perform')
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/commit_push', true)
-    await store.dispatch('system/perform', 'commit')
+    await system.page({ commit_push: true })
+    await system.perform(SystemPerformance.Commit)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -174,7 +151,17 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/perform', 'quick-commit')
+    await system.perform(SystemPerformance.QuickCommit)
+
+    expect(spy).toHaveBeenCalled()
+  })
+
+  it('should call AutoCommit performance on perform dispatch', async () => {
+    const spy = vi.spyOn(AutoCommit, 'perform')
+
+    expect(spy).not.toHaveBeenCalled()
+
+    await system.perform(SystemPerformance.AutoCommit)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -184,7 +171,7 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/perform', 'push')
+    await system.perform(SystemPerformance.Push)
 
     expect(spy).toHaveBeenCalled()
   })
@@ -194,7 +181,7 @@ describe('store/modules/system', () => {
 
     expect(spy).not.toHaveBeenCalled()
 
-    await store.dispatch('system/perform', 'quick-push')
+    await system.perform(SystemPerformance.QuickPush)
 
     expect(spy).toHaveBeenCalled()
   })

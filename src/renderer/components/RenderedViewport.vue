@@ -6,25 +6,17 @@
       'rendered',
       `rendered-${type}`,
     ]"
-    :style="{
-      '--font-family-header': theme.font_family_header,
-      '--font-size-header': `${theme.font_size_header}em`,
-      '--font-family-content': theme.font_family_content,
-      '--font-size-content': `${theme.font_size_content}em`,
-    }"
     v-html="rendered"
   />
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watchEffect } from 'vue'
+import { onMounted, ref, watchEffect } from 'vue'
 import Mark from 'mark.js'
 import MarkdownParser from '@/objects/parsers/MarkdownParser'
 import PlainTextParser from '@/objects/parsers/PlainTextParser'
 import CSVParser from '@/objects/parsers/CSVParser'
-import { fetchStore } from '@/store'
 
-const store = fetchStore()
 const element = ref<HTMLElement>()
 
 let mark: Mark
@@ -45,12 +37,6 @@ const properties = withDefaults(defineProps<Properties>(), {
 
 onMounted(() => {
   mark = new Mark(element.value)
-})
-
-const theme = computed(() => {
-  return store.state.configuration.dark_mode
-    ? store.state.configuration.themes.dark.rendered
-    : store.state.configuration.themes.light.rendered
 })
 
 const rendered = ref<string>()
@@ -142,8 +128,8 @@ defineExpose({
 
 .rendered :deep(p) {
   color: rgb(var(--v-theme-rendered-content));
-  font-family: var(--font-family-content);
-  font-size: var(--font-size-content);
+  font-family: var(--font-rendered-content);
+  font-size: var(--font-rendered-content-size);
 }
 
 .rendered :deep(a) {
@@ -151,8 +137,8 @@ defineExpose({
 }
 
 .rendered :deep(.rendered-header) {
-  font-family: var(--font-family-header);
-  font-size: var(--font-size-header);
+  font-family: var(--font-rendered-header);
+  font-size: var(--font-rendered-header-size);
 }
 
 .rendered :deep(h1) {

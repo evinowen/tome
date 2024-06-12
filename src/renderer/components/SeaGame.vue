@@ -1,7 +1,5 @@
 <template>
-  <div
-    style="height: 100%; overflow: visible;"
-  >
+  <div class="box">
     <div class="pa-0 sea grow">
       <div
         ref="sea"
@@ -43,20 +41,11 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref, reactive } from 'vue'
 import {
   VIcon,
 } from 'vuetify/components'
-
-export default {
-  components: {
-    VIcon,
-  },
-}
-</script>
-
-<script setup lang="ts">
-import { onMounted, onUnmounted, ref, reactive } from 'vue'
 
 const boat = ref<HTMLElement>(undefined)
 const cannon_ball = ref<HTMLElement>(undefined)
@@ -104,6 +93,10 @@ onUnmounted(() => {
 })
 
 function click (event) {
+  if (!cannon.ball.sunk) {
+    return
+  }
+
   const sea_rect = sea.value.getBoundingClientRect()
   const boat_rect = boat.value.getBoundingClientRect()
 
@@ -216,6 +209,12 @@ defineExpose({
 </script>
 
 <style scoped>
+.box {
+  height: 100%;
+  overflow: visible;
+  cursor: crosshair;
+}
+
 .sea {
   position: relative;
   overflow: visible;

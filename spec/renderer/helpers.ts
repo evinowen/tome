@@ -33,7 +33,7 @@ interface FactoryGenerated {
   context?: Record<string, any>
 }
 
-class Factory<T> {
+export class Factory<T> {
   base: FactoryBase<T>
   component: FactoryComponent<T>
   generated: FactoryGenerated

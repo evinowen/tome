@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { fetchStore } from '@/store'
+import { fetch_files_store } from '@/store/modules/files'
 
 export interface Properties {
   path: string
@@ -27,7 +27,7 @@ const properties = withDefaults(defineProps<Properties>(), {
   enabled: false,
 })
 
-const store = fetchStore()
+const files = fetch_files_store()
 
 async function start (event) {
   if (!properties.enabled) {
@@ -38,7 +38,7 @@ async function start (event) {
   event.dataTransfer.dropEffect = 'move'
   event.target.style.opacity = 0.2
 
-  await store.dispatch('files/drag', properties.path)
+  await files.drag(properties.path)
 }
 
 function end (event) {
@@ -57,7 +57,7 @@ function leave (event) {
 
 async function drop (event) {
   leave(event)
-  await store.dispatch('files/drop', properties.path)
+  await files.drop(properties.path)
 }
 
 defineExpose({

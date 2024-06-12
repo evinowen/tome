@@ -1,13 +1,23 @@
-import { Store, State } from '@/store'
+import { fetch_actions_store } from '@/store/modules/actions'
+import { fetch_clipboard_store } from '@/store/modules/clipboard'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_templates_store } from '@/store/modules/templates'
 import ContextMenu from '@/objects/context/ContextMenu'
 import ContextItem from '@/objects/context/ContextItem'
 import ContextSection from '@/objects/context/ContextSection'
 import ContextCommand from '@/objects/context/ContextCommand'
-import File, { FileRelationshipType } from '@/store/modules/files/file'
+import File, { FileRelationshipType } from '@/objects/File'
 import { format } from '@/modules/Titles'
 
-export default function ExplorerNodeContextMenu (store: Store<State>, file: File) {
-  const format_interaction_titles = store.state.configuration.format_interaction_titles
+export default function ExplorerNodeContextMenu (file: File) {
+  const actions = fetch_actions_store()
+  const clipboard = fetch_clipboard_store()
+  const configuration = fetch_configuration_store()
+  const files = fetch_files_store()
+  const templates = fetch_templates_store()
+
+  const format_interaction_titles = configuration.active.format_interaction_titles
   const system = new Set([
     FileRelationshipType.Root,
     FileRelationshipType.Git,
@@ -21,11 +31,11 @@ export default function ExplorerNodeContextMenu (store: Store<State>, file: File
       file.expanded
         ? ContextItem.action(
           'Collapse',
-          async () => await store.dispatch('files/toggle', { path: file.path }),
+          async () => await files.toggle({ path: file.path }),
         )
         : ContextItem.action(
           'Expand',
-          async () => await store.dispatch('files/toggle', { path: file.path }),
+          async () => await files.toggle({ path: file.path }),
         ),
     ],
     ContextMenu.if(system) || new ContextSection()
@@ -37,7 +47,7 @@ export default function ExplorerNodeContextMenu (store: Store<State>, file: File
         ].includes(file.relationship),
         ContextItem.action(
           'New Template',
-          async () => await store.dispatch('templates/ghost'),
+          async () => await templates.ghost(),
         ),
       )
       .add(
@@ -48,26 +58,26 @@ export default function ExplorerNodeContextMenu (store: Store<State>, file: File
         ].includes(file.relationship),
         ContextItem.action(
           'New Action',
-          async () => await store.dispatch('actions/ghost'),
+          async () => await actions.ghost(),
         ),
       )
       .items,
     ContextMenu.if(!system || file.relationship === FileRelationshipType.Root) || [
       ContextItem.menu(
         'Template',
-        async () => store.state.templates.options.map((name) => {
+        async () => templates.options.map((name) => {
           return ContextItem.action(
             format_interaction_titles ? format(name, true) : name,
-            async (path) => await store.dispatch('templates/execute', { name, target: path }),
+            async (path) => await templates.execute({ name, target: path }),
           )
         }),
       ),
       ContextItem.menu(
         'Action',
-        async () => store.state.actions.options.map((name) => {
+        async () => actions.options.map((name) => {
           return ContextItem.action(
             format_interaction_titles ? format(name, true) : name,
-            async (path) => await store.dispatch('actions/execute', { name, target: path }),
+            async (path) => await actions.execute({ name, target: path }),
           )
         }),
       ),
@@ -75,49 +85,49 @@ export default function ExplorerNodeContextMenu (store: Store<State>, file: File
     [
       ContextItem.action(
         'Open',
-        async (path) => await store.dispatch('files/open', { path, container: false }),
+        async (path) => await files.open({ path, container: false }),
       ),
       ContextItem.action(
         'Open Folder',
-        async (path) => await store.dispatch('files/open', { path, container: true }),
+        async (path) => await files.open({ path, container: true }),
         ContextCommand.shift().alt().key('R'),
       ),
       ContextItem.action(
         'New File',
-        async (path) => await store.dispatch('files/ghost', { path, directory: false }),
+        async (path) => await files.haunt({ path, directory: false }),
         ContextCommand.control().key('N'),
       ),
       ContextItem.action(
         'New Folder',
-        async (path) => await store.dispatch('files/ghost', { path, directory: true }),
+        async (path) => await files.haunt({ path, directory: true }),
       ),
     ],
     [
       ContextItem.action(
         'Cut',
-        async (path) => await store.dispatch('clipboard/cut', { type: 'file', target: path }),
+        async (path) => await clipboard.cut({ type: 'file', target: path }),
         ContextCommand.control().key('X'),
       ).when(async () => !system),
       ContextItem.action(
         'Copy',
-        async (path) => await store.dispatch('clipboard/copy', { type: 'file', target: path }),
+        async (path) => await clipboard.copy({ type: 'file', target: path }),
         ContextCommand.control().key('C'),
       ).when(async () => !system),
       ContextItem.action(
         'Paste',
-        async (path) => await store.dispatch('clipboard/paste', { type: 'file', target: path }),
+        async (path) => await clipboard.paste({ type: 'file', target: path }),
         ContextCommand.control().key('V'),
-      ).when(async () => Boolean(store.state.clipboard.content)),
+      ).when(async () => Boolean(clipboard.content.target)),
     ],
     [
       ContextItem.action(
         'Rename',
-        async (path) => await store.dispatch('files/edit', { path }),
+        async (path) => await files.edit({ path }),
         ContextCommand.key('F2'),
       ).when(async () => !system),
       ContextItem.action(
         'Delete',
-        async (path) => await store.dispatch('files/delete', { path }),
+        async (path) => await files.delete({ path }),
         ContextCommand.key('Delete'),
       ).when(async () => !system),
     ],

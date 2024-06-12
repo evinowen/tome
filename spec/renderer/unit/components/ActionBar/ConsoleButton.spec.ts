@@ -1,22 +1,19 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { stub_actions } from '?/builders/store'
-import { createStore } from 'vuex'
 import { createVuetify } from 'vuetify'
-import { State, key } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
+import { createTestingPinia } from '@pinia/testing'
 import ConsoleButton from '@/components/ActionBar/ConsoleButton.vue'
+import { fetch_system_store } from '@/store/modules/system'
 
 describe('components/ActionBar/ConsoleButton', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(ConsoleButton)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VBtn: BasicComponentStub,
           VIcon: BasicComponentStub,
@@ -27,19 +24,10 @@ describe('components/ActionBar/ConsoleButton', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        system: SystemStateDefaults(),
-      },
-      actions: stub_actions([
-        'library/select',
-        'library/open',
-        'library/close',
-        'system/console',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -53,6 +41,8 @@ describe('components/ActionBar/ConsoleButton', () => {
   })
 
   it('should dispatch "system/console" action when button is clicked', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     const button = wrapper.findComponent({ ref: 'button' })
@@ -61,8 +51,8 @@ describe('components/ActionBar/ConsoleButton', () => {
     button.trigger('click')
     await wrapper.vm.$nextTick()
 
-    const open = store.state.system.console
+    const open = system.console
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/console', !open)
+    expect(system.page).toHaveBeenCalledWith({ console: !open })
   })
 })

@@ -56,24 +56,37 @@ export interface API {
     sep: () => Promise<string>
   }
   repository: {
-    load: (path: string) => Promise<{ name: string, path: string, history: string, branch: string, remotes: string, available: string, staged: string }>
-    refresh: () => Promise<void>
-    refresh_patches: () => Promise<{ patches: { name: string, path: string, lines: { type: number, line: string }[] }[] }>
-    remote: () => Promise<{ remote: { name: string, url: string }, branch: { name: string, short: string }, pending: { oid: string, date: Date, message: string }[] }>
-    inspect: () => Promise<void>
-    diff_path: (path: string) => Promise<void>
-    diff_commit: (commit: string) => Promise<void>
-    credential: (private_key: string, public_key: string, passphrase: string) => Promise<void>
-    stage: (query: string) => Promise<void>
-    reset: (query: string) => Promise<void>
-    push: () => Promise<void>
-    clear_remote: () => Promise<void>
-    load_remote_url: (url: string) => Promise<void>
     commit: (name: string, email: string, message: string) => Promise<void>
+    credential_key: (private_key: string, public_key: string, passphrase: string) => Promise<void>
+    credential_password: (username: string, password: string) => Promise<void>
+    diff_commit: (commit: string) => Promise<{ patches: RepositoryPatch[], message: string, signature: string }>
+    diff_path: (path: string) => Promise<{ patches: RepositoryPatch[] }>
+    inspect: () => Promise<{ available: RepositoryFile[], staged: RepositoryFile[] }>
+    load: (path: string) => Promise<{ name: string, path: string }>
+    push: () => Promise<void>
+    refresh: () => Promise<void>
+    branch_status: () => Promise<{ active: string, list: RepositoryBranch[] }>
+    branch_create: (name: string) => Promise<Result>
+    branch_select: (name: string) => Promise<Result>
+    branch_rename: (name: string, value: string) => Promise<Result>
+    branch_remove: (name: string) => Promise<Result>
+    remote_add: (name: string, url: string) => Promise<void>
+    remote_clear: () => Promise<void>
+    remote_list: () => Promise<RepositoryRemote[]>
+    remote_load: (name: string) => Promise<{ error?: string, success: boolean }>
+    remote_remove: (name: string) => Promise<void>
+    remote_status: () => Promise<RepositoryRemote>
+    reset: (query: string) => Promise<void>
+    stage: (query: string) => Promise<void>
+    history_list: (page: number) => Promise<RepositoryHistoricalCommit[]>
+    history_clear: () => Promise<void>
+    tag_list: () => Promise<{ list: RepositoryTag[] }>
+    tag_create: (name: string, oid: string) => Promise<void>
+    tag_remove: (name: string) => Promise<void>
   }
   ssl: {
-    generate_public_key: (target: string, passphrase?: string) => Promise<{ path: string, data: string }>
-    generate_private_key: (passphrase?: string) => Promise<{ path: string, data: string }>
+    generate_public_key: (target: string, passphrase?: string) => Promise<{ error?: string, path?: string, data?: string }>
+    generate_private_key: (passphrase?: string) => Promise<{ error?: string, path?: string, data?: string }>
   }
   template: {
     invoke: (source: string, target: string) => Promise<{ success: boolean, result: string }>
@@ -85,6 +98,13 @@ export interface API {
     minimize: () => Promise<void>
     close: () => Promise<void>
   }
+}
+
+export interface Result {
+  error?: string
+  reason?: string
+  code?: number
+  success?: boolean
 }
 
 export interface SearchCriteria {
@@ -104,16 +124,70 @@ export interface SearchResult {
   matches: { index: number, line: string }[]
 }
 
+export interface RepositoryCommit {
+  oid: string
+  date: Date
+  message: string
+}
+
+export interface RepositoryFile {
+  path: string
+  type: number
+}
+
+export interface RepositoryBranch {
+  reference: string
+  name: string
+  updated: Date
+}
+
+export interface RepositoryTag {
+  name: string
+  oid: string
+  date: Date
+}
+
+export interface RepositoryRemote {
+  error?: string
+  name?: string
+  url?: string
+  branch?: RepositoryRemoteBranch
+  pending?: RepositoryCommit[]
+}
+
+export interface RepositoryRemoteBranch {
+  name: string
+  short: string
+}
+
 export interface RepositoryMetadata {
   name: string
   path: string
   history: { oid: string, date: Date, message: string }[]
   branch?: string
   remotes: { name: string, url: string }[]
-  available: { path: string, type: number }[]
-  staged: { path: string, type: number }[]
+  available: RepositoryFile[]
+  staged: RepositoryFile[]
 }
 
-const api = window.api as API
+export interface RepositoryPatch {
+  name: string
+  path: string
+  lines: RepositoryPatchLine[]
+}
 
-export default api
+export interface RepositoryPatchLine {
+  type: number
+  line: string
+}
+
+export interface RepositoryHistoricalCommit {
+  oid: string
+  date: Date
+  message: string
+  root: boolean
+}
+
+export const request = () => window.api as API
+
+export default request()

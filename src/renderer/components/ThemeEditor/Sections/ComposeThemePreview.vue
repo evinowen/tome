@@ -2,45 +2,29 @@
 
 <template>
   <div>
-    <v-sheet
-      color="background"
-      style="height: 320px"
-    >
-      <div
-        ref="root"
-        class="root"
-        :style="{
-          '--font-family-compose': theme.font_family_compose || 'monospace',
-          '--font-size-compose': `${theme.font_size_compose || 1}em`,
-        }"
-      />
-    </v-sheet>
+    <theme-provider :theme="theme">
+      <v-sheet
+        color="background"
+        style="height: 320px"
+      >
+        <div
+          ref="root"
+          class="root"
+        />
+      </v-sheet>
+    </theme-provider>
     <v-select
       v-model="language"
-      class="mt-1"
+      class="mt-3"
       density="compact"
       :items="['markdown', 'javascript', 'html']"
     />
   </div>
 </template>
 
-<script lang="ts">
-import {
-  VSheet,
-  VSelect,
-} from 'vuetify/components'
-
-export default {
-  components: {
-    VSheet,
-    VSelect,
-  },
-}
-</script>
-
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import { syntaxHighlighting } from '@codemirror/language'
 import { Compartment, Extension } from '@codemirror/state'
 import { EditorView, lineNumbers } from '@codemirror/view'
@@ -49,19 +33,26 @@ import { javascript } from '@codemirror/lang-javascript'
 import { html } from '@codemirror/lang-html'
 import EditorTheme from '@/composer/EditorTheme'
 import HighlightStyleDefinition from '@/composer/HighlightStyleDefinition'
+import ThemeProvider from '@/components/ThemeProvider.vue'
+import {
+  VSheet,
+  VSelect,
+} from 'vuetify/components'
 
 import ExampleMarkdown from './Content/Example.md?raw'
 import ExampleJavaScript from './Content/Example.js?raw'
 import ExampleHTML from './Content/Example.html?raw'
 
-const store = fetchStore()
-const language = ref('markdown')
+export interface Properties {
+  theme: string
+}
 
-const theme = computed(() => {
-  return store.state.configuration.dark_mode
-    ? store.state.configuration.themes.dark.compose
-    : store.state.configuration.themes.light.compose
+withDefaults(defineProps<Properties>(), {
+  theme: 'light',
 })
+
+const configuration = fetch_configuration_store()
+const language = ref('markdown')
 
 const content = computed(() => {
   switch (language.value) {
@@ -111,7 +102,7 @@ onMounted(() => {
 })
 
 const line_numbers = computed((): boolean => {
-  return store.state.configuration.line_numbers
+  return configuration[configuration.target].line_numbers
 })
 
 watch(line_numbers, configure_line_numbers)
@@ -150,6 +141,12 @@ function configure_content () {
     },
   })
 }
+
+defineExpose({
+  language,
+  content,
+  compartments,
+})
 </script>
 
 <style scoped>

@@ -2,7 +2,7 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
 import { DOMWrapper } from '@vue/test-utils'
-import { File } from '@/store'
+import File from '@/objects/File'
 import ImageView from '@/components/EditorInterface/View/ImageView.vue'
 import BasicComponent from '?/stubs/BasicComponent.vue'
 

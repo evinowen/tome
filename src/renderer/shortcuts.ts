@@ -5,7 +5,6 @@ export const map = {
   'S': { perform: 'quick-commit' },
   'p': { layer: 'push' },
   'f': { layer: 'search' },
-  'o': { dispatch: 'library/select' },
 }
 
 export const shortcuts = (key) => (map[key] ?? undefined)

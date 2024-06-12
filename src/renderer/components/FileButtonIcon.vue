@@ -21,7 +21,7 @@ export default {
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import File, { FileRelationshipType } from '@/store/modules/files/file'
+import File, { FileRelationshipType } from '@/objects/File'
 
 export interface Properties {
   alert?: boolean

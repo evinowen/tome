@@ -2,39 +2,48 @@
   <utility-page
     right
     title="Push"
-    :layer="1"
+    :layer="3"
     :open="system.push"
     @close="close"
   >
-    <div style="display: flex; flex-direction: column; height: 100%;">
+    <div style="display: flex; flex-direction: column; flex-grow: 1; height: 100%;">
       <div class="flex-grow-0">
         <v-card
-          dense
-          class="my-2"
+          class="mb-3"
+          color="surface"
+          title="Push Credentials"
+          subtitle="Set credentials that will be used to push your commits to the selected remote repository"
         >
-          <v-card-title class="pa-2">
-            Credentials
-          </v-card-title>
-          <keyfile-input
-            :value="repository.credentials.key"
-            :stored="configuration.private_key"
-            @input="credential_key"
-          />
-          <push-passphrase-input
-            size="small"
-            storable
-            :value="repository.credentials.passphrase"
-            :stored="configuration.passphrase"
-            @input="credential_passphrase"
+          <template #append>
+            <select-button-input
+              :value="configuration.localized.credentials ? SettingsTarget.Local : SettingsTarget.Global"
+              :color="configuration.localized.credentials ? 'secondary' : 'primary'"
+              :options="credentials_locality_options"
+              @update="credentials_locality"
+            />
+          </template>
+          <credential-selector
+            :frame="false"
+            :target="configuration.localized.credentials ? SettingsTarget.Local : SettingsTarget.Global"
           />
         </v-card>
 
-        <push-remote-selector
-          :value="repository.remote.name !== '' ? repository.remote.name : undefined"
-          :items="repository.remotes"
-          @input="select_remote"
-          @create="add_remote"
-        />
+        <v-card
+          class="mb-3"
+          color="surface"
+          title="Push Remote"
+          subtitle="Select which remote repository to target for this push"
+        >
+          <template #append>
+            <v-btn @click="remotes">
+              <v-icon class="mr-2">
+                mdi-web
+              </v-icon>
+              Remotes
+            </v-btn>
+          </template>
+          <push-remote-selector />
+        </v-card>
 
         <v-container fluid>
           <v-row
@@ -42,7 +51,7 @@
             justify="center"
           >
             <v-col>
-              <push-branch :name="repository.branch" />
+              <push-branch local />
             </v-col>
 
             <v-col
@@ -58,40 +67,26 @@
             </v-col>
 
             <v-col>
-              <push-branch
-                :loading="remote_loading"
-                :disabled="repository.remote.branch.name === ''"
-                :url="repository.remote.branch.name === '' ? undefined : repository.remote.branch.name"
-                :name="repository.remote.branch.name === '' ? undefined : repository.remote.branch.short"
-              />
+              <push-branch remote />
             </v-col>
           </v-row>
         </v-container>
-
-        <v-divider class="mt-4 mb-2" />
       </div>
 
-      <div class="flex-grow-1 mb-3">
-        <push-status
-          :active="remote_loading || repository.remote.name !== ''"
-          :loading="remote_loading"
-          error=""
-          :match="repository.pending && repository.pending.length <= 0"
-          :history="repository.pending"
-          @commit="diff"
-        />
-      </div>
+      <push-status class="flex-grow-1 mb-3" />
     </div>
 
     <template #actions>
-      <push-confirm
-        :value="system.push_confirm"
-        :disabled="repository.pending.length === 0"
-        :waiting="repository.push_working"
-        :history="repository.pending"
-        @input="confirm"
-        @push="push"
-      />
+      <v-btn
+        class="mr-4"
+        :disabled="repository_remotes.active.pending.length === 0"
+        @click.stop="confirm"
+      >
+        <v-icon class="mr-2">
+          mdi-upload-multiple
+        </v-icon>
+        Push
+      </v-btn>
       <v-btn
         color="warning"
         @click.stop="close"
@@ -102,100 +97,67 @@
         Cancel
       </v-btn>
     </template>
+    <template #overlays>
+      <push-confirm />
+    </template>
   </utility-page>
 </template>
 
-<script lang="ts">
-import KeyfileInput from './KeyfileInput.vue'
-import PushBranch from './PushBranch.vue'
-import PushConfirm from './PushConfirm.vue'
-import PushPassphraseInput from './PushPassphraseInput.vue'
-import PushRemoteSelector from './PushRemoteSelector.vue'
-import PushStatus from './PushStatus.vue'
+<script setup lang="ts">
+import { watch } from 'vue'
+import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
+import PushBranch from './Push/PushBranch.vue'
+import PushConfirm from './Push/PushConfirm.vue'
+import PushRemoteSelector from './Push/PushRemoteSelector.vue'
+import PushStatus from './Push/PushStatus.vue'
+import SelectButtonInput, { Option as SelectButtonOption } from '@/components/Input/SelectButtonInput.vue'
 import UtilityPage from '@/components/UtilityPage.vue'
+import CredentialSelector from '@/components/Settings/Credentials/CredentialSelector.vue'
 import {
   VBtn,
   VCard,
-  VCardTitle,
   VCol,
   VContainer,
-  VDivider,
   VIcon,
   VRow,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    KeyfileInput,
-    PushBranch,
-    PushConfirm,
-    PushPassphraseInput,
-    PushRemoteSelector,
-    PushStatus,
-    UtilityPage,
-    VBtn,
-    VCard,
-    VCardTitle,
-    VCol,
-    VContainer,
-    VDivider,
-    VIcon,
-    VRow,
-  },
-}
-</script>
+const configuration = fetch_configuration_store()
+const system = fetch_system_store()
+const repository_remotes = fetch_repository_remotes_store()
 
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-import { fetchStore } from '@/store'
-
-const store = fetchStore()
-
-const remote_loading = ref<boolean>(false)
-
-const system = computed(() => store.state.system)
-const repository = computed(() => store.state.repository)
-const configuration = computed(() => store.state.configuration)
+watch(() => system.push, () => {
+  if (!system.push) {
+    repository_remotes.clear()
+  }
+})
 
 async function close () {
-  await store.dispatch('system/push', false)
+  await system.page({ push: false })
 }
 
-async function credential_key (value) {
-  await store.dispatch('repository/credentials/key', value)
+async function confirm () {
+  await system.page({ push_confirm: true })
 }
 
-async function credential_passphrase (value) {
-  await store.dispatch('repository/credentials/passphrase', value)
+async function remotes () {
+  await system.page({ remotes: true })
 }
 
-async function confirm (value) {
-  await store.dispatch('system/push_confirm', value)
-}
+const credentials_locality_options: SelectButtonOption[] = [
+  { value: SettingsTarget.Global, icon: 'mdi-earth' },
+  { value: SettingsTarget.Local, icon: 'mdi-book' },
+]
 
-async function add_remote (name, url) {
-  await store.dispatch('repository/create-remote', { name, url })
-}
-
-async function select_remote (name) {
-  remote_loading.value = true
-  await store.dispatch('repository/remote', name)
-  remote_loading.value = false
-}
-
-async function diff (commit) {
-  await store.dispatch('repository/diff', { commit: commit.oid })
-  await store.dispatch('system/patch', true)
-}
-
-async function push () {
-  await store.dispatch('system/perform', 'push')
+async function credentials_locality (value) {
+  await configuration.localize('credentials', value === SettingsTarget.Local)
 }
 
 defineExpose({
-  add_remote,
-  diff,
-  push,
-  select_remote,
+  close,
+  confirm,
+  remotes,
 })
 </script>

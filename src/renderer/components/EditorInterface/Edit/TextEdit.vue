@@ -18,7 +18,11 @@ export default {}
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { fetchStore, File } from '@/store'
+import File from '@/objects/File'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_search_store } from '@/store/modules/search'
+import { fetch_context_store } from '@/store/modules/context'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { syntaxHighlighting } from '@codemirror/language'
 import { Compartment, EditorSelection, Extension, RangeSetBuilder, EditorState } from '@codemirror/state'
@@ -31,7 +35,10 @@ import EditorTheme from '@/composer/EditorTheme'
 import HighlightStyleDefinition from '@/composer/HighlightStyleDefinition'
 import ComposerViewportContextMenu from '@/objects/context/menus/ComposerViewportContextMenu'
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
+const files = fetch_files_store()
+const search = fetch_search_store()
+const context = fetch_context_store()
 
 interface Properties {
   file?: File
@@ -70,25 +77,21 @@ const updated = ref(0)
 let view: EditorView
 
 const line_numbers = computed((): boolean => {
-  return store.state.configuration.line_numbers
+  return configuration.active.line_numbers
 })
 
 const theme = computed(() => {
-  return store.state.configuration.dark_mode
-    ? store.state.configuration.themes.dark.compose
-    : store.state.configuration.themes.light.compose
-})
-
-const search = computed(() => {
-  return store.state.search
+  return configuration.active.dark_mode
+    ? configuration.active.themes.dark.compose
+    : configuration.active.themes.light.compose
 })
 
 const search_state = computed(() => {
   return [
-    search.value.query,
-    search.value.regex_query,
-    search.value.case_sensitive,
-    search.value.navigation.target,
+    search.query,
+    search.regex_query,
+    search.case_sensitive,
+    search.navigation.target,
   ]
 })
 
@@ -102,9 +105,10 @@ function configure_line_numbers () {
 watch(() => properties.file, load)
 
 async function context_commands () {
-  const load = async () => ComposerViewportContextMenu(store, selection_fetch(), selection_replace)
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  const stage = async () => ComposerViewportContextMenu(selection_fetch(), selection_replace)
 
-  await store.dispatch('context/set', load)
+  await context.set(stage)
 }
 
 async function context_menu (event) {
@@ -113,7 +117,7 @@ async function context_menu (event) {
     y: event.clientY,
   }
 
-  await store.dispatch('context/open', { position })
+  await context.open({ position })
 }
 
 onMounted(() => {
@@ -212,7 +216,7 @@ function selection_replace (value) {
 }
 
 function search_cursor (text, from, to) {
-  const { query, regex_query, case_sensitive } = search.value
+  const { query, regex_query, case_sensitive } = search
   return regex_query
     ? new RegExpCursor(text, query, { ignoreCase: !case_sensitive }, from, to)
     : new SearchCursor(text, query, from, to, case_sensitive ? undefined : (x) => x.toLowerCase())
@@ -224,8 +228,8 @@ async function select () {
     return
   }
 
-  if (search.value.query.length === 0) {
-    await store.dispatch('search/navigate', { total: 0, target: 0 })
+  if (search.query.length === 0) {
+    await search.navigate({ total: 0, target: 0 })
 
     view.dispatch({
       effects: [
@@ -296,7 +300,7 @@ async function search_navigate () {
         break
       }
 
-      if (index + 1 === search.value.navigation.target) {
+      if (index + 1 === search.navigation.target) {
         selection = { anchor: cursor.value.from, head: cursor.value.to }
         decoration_builder.add(
           selection.anchor,
@@ -330,7 +334,7 @@ async function search_navigate () {
     effects: compartments.search_target.reconfigure(search_target_view_plugin),
   })
 
-  await store.dispatch('search/navigate', { total, target: undefined })
+  await search.navigate({ total, target: undefined })
 
   if (selection === undefined) {
     return
@@ -355,7 +359,7 @@ watch(updated, input)
 async function save (path) {
   const content = view.state.doc.toString()
 
-  await store.dispatch('files/debounce_save', { path, content })
+  await files.save({ path, content })
 }
 
 const debounce_save = debounce(save, 1000)

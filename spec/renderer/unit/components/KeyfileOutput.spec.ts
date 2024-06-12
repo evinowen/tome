@@ -1,34 +1,28 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
+import { createTestingPinia } from '@pinia/testing'
 import KeyfileOutput from '@/components/KeyfileOutput.vue'
+import { fetch_clipboard_store } from '@/store/modules/clipboard'
 
 describe('components/KeyfileOutput', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(KeyfileOutput)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
       },
     }))
 
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {},
-      actions: stub_actions([
-        'clipboard/text',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -36,11 +30,13 @@ describe('components/KeyfileOutput', () => {
   })
 
   it('should dispatch clipboard/text with the component value when copy is called', async () => {
+    const clipboard = fetch_clipboard_store()
+
     const value = 'ssh-rsa 1245'
     const wrapper = factory.wrap({ value })
 
     await wrapper.vm.copy()
 
-    expect(store_dispatch).toHaveBeenCalledWith('clipboard/text', value)
+    expect(clipboard.text).toHaveBeenCalledWith(value)
   })
 })

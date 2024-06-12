@@ -1,58 +1,73 @@
 <template>
-  <div
-    :style="{ 'z-index': 100 + layer }"
-    :class="[
-      'pa-2',
-      'pb-0',
-      'page',
-      location,
-      open ? 'open' : undefined,
-      scroll ? 'scroll' : undefined,
-    ]"
-  >
-    <div class="title-box mb-2">
-      <div class="title">
-        <div class="text-h6 text-sm-h5 text-md-h4">
-          <span class="title">{{ title }}</span>
+  <div>
+    <div
+      :style="{ 'z-index': 100 + layer }"
+      :class="[
+        'pb-0',
+        'page',
+        location,
+        open ? 'open' : undefined,
+        scroll ? 'scroll' : undefined,
+      ]"
+    >
+      <div class="title-box ma-2">
+        <div class="title">
+          <div class="text-h6 text-sm-h5 text-md-h4">
+            <span class="title">{{ title }}</span>
+          </div>
+          <div class="text-subtitle-1">
+            <span class="title">{{ subtitle }}</span>
+          </div>
         </div>
-        <div class="text-subtitle-1">
-          <span class="title">{{ subtitle }}</span>
-        </div>
-      </div>
-      <v-btn
-        ref="close-button"
-        variant="flat"
-        class="close-button"
-        @click.stop="$emit('close')"
-      >
-        <v-icon>mdi-window-close</v-icon>
-      </v-btn>
-    </div>
-    <div :class="['mb-2', 'content', fixed ? 'fixed' : undefined ]">
-      <div
-        class="d-flex flex-column"
-        style="min-height: 100%"
-      >
-        <div class="flex-grow-1 flex-shrink-0">
-          <slot />
-        </div>
-        <div class="flex-grow-0 flex-shrink-0">
-          <slot name="footer" />
-        </div>
-      </div>
-    </div>
-    <div class="pb-2 actions">
-      <v-divider class="mt-0 mb-2" />
-      <slot name="actions">
         <v-btn
-          ref="close-action-button"
-          size="small"
-          color="primary"
+          ref="close-button"
+          variant="flat"
+          class="close-button"
           @click.stop="$emit('close')"
         >
-          Done
+          <v-icon>mdi-window-close</v-icon>
         </v-btn>
-      </slot>
+      </div>
+      <div
+        v-if="!!$slots.options"
+        class="options"
+      >
+        <div>
+          <slot name="options" />
+        </div>
+        <v-divider class="ma-0" />
+      </div>
+      <div :class="['mx-2', 'content', fixed ? 'fixed' : undefined ]">
+        <div
+          class="d-flex flex-column"
+          style="min-height: 100%"
+        >
+          <div class="flex-grow-1 flex-shrink-0 d-flex flex-column">
+            <slot />
+          </div>
+          <div class="flex-grow-0 flex-shrink-0">
+            <slot name="footer" />
+          </div>
+        </div>
+      </div>
+      <div class="mt-2 actions">
+        <v-divider class="ma-0" />
+        <div class="pa-2">
+          <slot name="actions">
+            <v-btn
+              ref="close-action-button"
+              size="small"
+              color="primary"
+              @click.stop="$emit('close')"
+            >
+              Done
+            </v-btn>
+          </slot>
+        </div>
+      </div>
+    </div>
+    <div>
+      <slot name="overlays" />
     </div>
   </div>
 </template>
@@ -195,6 +210,14 @@ defineExpose({
   min-width: 0;
   height: 36px;
   width: 36px;
+}
+
+.options {
+  backdrop-filter: blur(2px);
+  top: 0;
+  flex-grow: 0;
+  position: sticky;
+  z-index: 1;
 }
 
 .actions {

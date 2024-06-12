@@ -34,7 +34,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { File } from '@/store'
+import File from '@/objects/File'
 
 export interface Properties {
   file?: File

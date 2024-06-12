@@ -9,7 +9,7 @@
     >
       <context
         ref="context"
-        :load="async (store) => ExplorerNodeContextMenu(store, file)"
+        :load="async () => ExplorerNodeContextMenu(file)"
         :target="file.path"
         :class="[
           'explorer-node',
@@ -83,8 +83,10 @@ export default {
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { fetchStore } from '@/store'
-import File, { FileRelationshipType } from '@/store/modules/files/file'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_repository_store } from '@/store/modules/repository'
+import File, { FileRelationshipType } from '@/objects/File'
 import ExplorerNodeContextMenu from '@/objects/context/menus/ExplorerNodeContextMenu'
 import { format } from '@/modules/Titles'
 
@@ -104,24 +106,27 @@ const properties = withDefaults(defineProps<Properties>(), {
   depth: 0,
 })
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
+const files = fetch_files_store()
+const repository = fetch_repository_store()
+
 const context = ref<typeof Context>()
 
 const file = computed((): File => {
-  return store.state.files.directory[properties.uuid] || File.Empty
+  return files.directory[properties.uuid] || File.Empty
 })
 
 const draggable = computed(() => {
   return ![
     properties.root,
     system.value,
-    store.state.files.editing,
-    !store.state.configuration.draggable_objects,
+    files.editing,
+    !configuration.active.draggable_objects,
   ].includes(true)
 })
 
 const edit = computed(() => {
-  return selected.value && store.state.files.editing
+  return selected.value && files.editing
 })
 
 const selected = computed(() => {
@@ -149,12 +154,12 @@ const system = computed(() => {
   return relationships.has(file.value.relationship)
 })
 
-const title_formatted = computed(() => store.state.configuration.format_explorer_titles)
+const title_formatted = computed(() => configuration.active.format_explorer_titles)
 
 const display = computed(() => {
   let name = file.value.name
   if (file.value.relationship === FileRelationshipType.Root) {
-    name = store.state.repository.name
+    name = repository.name
   }
 
   if (title_formatted.value && (!system.value || (file.value.relationship === FileRelationshipType.Root))) {
@@ -167,7 +172,7 @@ const display = computed(() => {
 })
 
 const visible = computed(() => {
-  if (!properties.root && system.value && !store.state.configuration.system_objects) {
+  if (!properties.root && system.value && !configuration.active.system_objects) {
     return false
   }
 
@@ -233,11 +238,11 @@ async function activate () {
 }
 
 async function toggle () {
-  await store.dispatch('files/toggle', { path: file.value.path })
+  await files.toggle({ path: file.value.path })
 }
 
 async function select () {
-  await store.dispatch('files/select', { path: file.value.path })
+  await files.select({ path: file.value.path })
 }
 
 defineExpose({

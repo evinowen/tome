@@ -1,36 +1,35 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
-import VTextField from '?/stubs/VTextField.vue'
+import BasicComponentStub from '?/stubs/BasicComponentStub'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { createTestingPinia } from '@pinia/testing'
 import TextInput from '@/components/Settings/TextInput.vue'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 
 vi.mock('lodash', () => ({
-  debounce: (callback) => {
+  throttle: (callback) => {
     callback.cancel = vi.fn()
     callback.flush = vi.fn()
     return callback
   },
   cloneDeep: (value) => value,
+  get: vi.fn(),
 }))
 
 describe('components/Settings/TextInput', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const label = 'name'
-  const index = 'name'
+  const index = 'signature.name'
 
   const factory = assemble(TextInput, { label, index })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
-          VTextField,
+          SettingFrame: BasicComponentStub,
+          TextInput: BasicComponentStub,
         },
       },
     }))
@@ -38,16 +37,10 @@ describe('components/Settings/TextInput', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        configuration: ConfigurationStateDefaults(),
-      },
-      actions: stub_actions([
-        'configuration/update',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
@@ -60,29 +53,17 @@ describe('components/Settings/TextInput', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should dispatch configuration/update with new value when input emits model update', async () => {
+  it('should call configuration.update with new value when input emits model update', async () => {
+    const configuration = fetch_configuration_store()
+
     const wrapper = factory.wrap()
 
     const input_field = wrapper.findComponent({ ref: 'input-field' })
     expect(input_field.exists()).toBe(true)
 
     const value = 'John Doe'
-    input_field.vm.$emit('update:model-value', value)
+    input_field.vm.$emit('update', value)
 
-    const data = { [index]: value }
-    expect(store_dispatch).toHaveBeenCalledWith('configuration/update', data)
-  })
-
-  it('should invert obscured when display button emits click event', async () => {
-    const wrapper = factory.wrap({ obscureable: true })
-
-    const obscured = wrapper.vm.obscured
-
-    const obscure_button = wrapper.findComponent({ ref: 'obscure-button' })
-    expect(obscure_button.exists()).toBe(true)
-
-    obscure_button.vm.$emit('click')
-
-    expect(wrapper.vm.obscured).toBe(!obscured)
+    expect(configuration.update).toHaveBeenCalledWith('global', index, value)
   })
 })

@@ -1,12 +1,8 @@
 /* eslint-disable unicorn/consistent-function-scoping */
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ActionsStateDefaults } from '@/store/modules/actions'
-import { StateDefaults as SearchStateDefaults } from '@/store/modules/search'
+import { createTestingPinia } from '@pinia/testing'
 import { File } from '@/store/modules/files'
 import TextView from '@/components/EditorInterface/View/TextView.vue'
 
@@ -21,12 +17,12 @@ vi.mock('mark.js', () => {
 
 describe('components/EditorInterface/View/TextView', () => {
   const file = File.Empty
-  let store
+  let pinia
 
   const factory = assemble(TextView, { file })
     .context(() => ({
       global: {
-        plugins: [ [ store, key ] ],
+        plugins: [ pinia ],
         stubs: {
           RenderedViewport: BasicComponentStub,
         },
@@ -34,18 +30,9 @@ describe('components/EditorInterface/View/TextView', () => {
     }))
 
   beforeEach(() => {
-    store = createStore<State>({
-      state: {
-        actions: ActionsStateDefaults(),
-        search: SearchStateDefaults(),
-      },
-      actions: stub_actions([
-        'actions/execute',
-        'clipboard/text',
-        'context/open',
-        'error',
-        'search/navigate',
-      ]),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
   })
 

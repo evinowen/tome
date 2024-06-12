@@ -40,7 +40,9 @@ export default {
 
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_validation_store } from '@/store/modules/validation'
 
 export interface Properties {
   path: string
@@ -55,7 +57,9 @@ const properties = withDefaults(defineProps<Properties>(), {
   value: '',
 })
 
-const store = fetchStore()
+const configuration = fetch_configuration_store()
+const files = fetch_files_store()
+const validation = fetch_validation_store()
 
 const input = ref<HTMLInputElement>()
 const model = ref<string>('')
@@ -78,11 +82,9 @@ function keyup (event: KeyboardEvent) {
 }
 
 async function blur () {
-  await store.dispatch('validation/hide', {
-    element: input.value,
-  })
+  await validation.hide(input.value)
 
-  await store.dispatch('files/blur', { path: properties.path })
+  await files.blur({ path: properties.path })
 }
 
 async function update () {
@@ -118,7 +120,7 @@ async function validate (target: HTMLInputElement) {
       }
     }
 
-    if (store.state.configuration.format_explorer_titles) {
+    if (configuration.active.format_explorer_titles) {
       for (const rule of rules.formatted) {
         const result = rule(value)
         if (result !== true) {
@@ -143,26 +145,21 @@ async function validate (target: HTMLInputElement) {
       }
     }
   } catch (error) {
-    await store.dispatch('validation/show', {
-      message: error.message,
-      element: target,
-    })
+    await validation.show(error.message, target)
 
     return false
   }
 
-  await store.dispatch('validation/hide', {
-    element: target,
-  })
+  await validation.hide(target)
 
   return true
 }
 
 async function submit () {
   if (await validate(input.value)) {
-    await store.dispatch('files/submit', {
+    await files.submit({
       input: input.value.value,
-      title: store.state.configuration.format_explorer_titles,
+      title: configuration.active.format_explorer_titles,
     })
   }
 }

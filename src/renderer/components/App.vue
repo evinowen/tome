@@ -3,14 +3,20 @@
     id="app"
     class="app-root"
     :style="{
-      '--font-title': theme.application.font_family_title,
-      '--font-title-size': `${theme.application.font_size_title}em`,
-      '--font-content': theme.application.font_family_content,
-      '--font-content-size': `${theme.application.font_size_content}em`,
-      '--font-monospace': theme.application.font_family_monospace || 'monospace',
-      '--font-monospace-size': `${theme.application.font_size_monospace}em`,
+      '--font-application-title': computed_theme.application.font_family_title,
+      '--font-application-title-size': `${computed_theme.application.font_size_title}em`,
+      '--font-application-content': computed_theme.application.font_family_content,
+      '--font-application-content-size': `${computed_theme.application.font_size_content}em`,
+      '--font-application-monospace': computed_theme.application.font_family_monospace || 'monospace',
+      '--font-application-monospace-size': `${computed_theme.application.font_size_monospace}em`,
+      '--font-rendered-header': computed_theme.rendered.font_family_header,
+      '--font-rendered-header-size': `${computed_theme.rendered.font_size_header}em`,
+      '--font-rendered-content': computed_theme.rendered.font_family_content,
+      '--font-rendered-content-size': `${computed_theme.rendered.font_size_content}em`,
+      '--font-compose': computed_theme.compose.font_family_compose || 'monospace',
+      '--font-compose-size': `${computed_theme.compose.font_size_compose || 1}em`,
     }"
-    :theme="theme.name"
+    :theme="theme"
     @scroll.self="scroll"
   >
     <system-bar title="tome" />
@@ -21,82 +27,75 @@
         <theme-editor />
         <console />
 
-        <template v-if="repository.loaded">
-          <branch />
-          <push />
+        <template v-if="repository.ready">
+          <branches />
           <commit />
+          <history />
           <patch />
+          <push />
+          <remotes />
+          <tags />
         </template>
 
         <editor-interface />
 
-        <context-menu-service />
+        <password-box />
+        <error-box />
+        <option-box />
         <validation-box />
 
+        <context-menu-service />
         <search-service v-show="system.search" />
         <shortcut-service />
+        <timer-service />
+
+        <select-input-overlay />
       </div>
     </v-main>
   </v-app>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ActionBar from '@/components/ActionBar.vue'
-import Branch from '@/components/Branch.vue'
+import Branches from '@/components/Branches.vue'
 import Commit from '@/components/Commit.vue'
 import Console from '@/components/Console.vue'
 import ContextMenuService from '@/components/ContextMenuService.vue'
 import EditorInterface from '@/components/EditorInterface.vue'
+import ErrorBox from '@/components/ErrorBox.vue'
+import History from '@/components/History.vue'
+import OptionBox from '@/components/OptionBox.vue'
+import PasswordBox from '@/components/PasswordBox.vue'
 import Patch from '@/components/Patch.vue'
 import Push from '@/components/Push.vue'
+import Remotes from '@/components/Remotes.vue'
 import SearchService from '@/components/SearchService.vue'
+import SelectInputOverlay from '@/components/Input/Overlays/SelectInputOverlay.vue'
 import Settings from '@/components/Settings.vue'
 import ShortcutService from '@/components/ShortcutService.vue'
 import SystemBar from '@/components/SystemBar.vue'
+import Tags from '@/components/Tags.vue'
 import ThemeEditor from '@/components/ThemeEditor.vue'
+import TimerService from '@/components/TimerService.vue'
 import ValidationBox from '@/components/ValidationBox.vue'
 import {
   VApp,
   VMain,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    ActionBar,
-    Branch,
-    Commit,
-    Console,
-    ContextMenuService,
-    EditorInterface,
-    Patch,
-    Push,
-    SearchService,
-    Settings,
-    ShortcutService,
-    SystemBar,
-    ThemeEditor,
-    ValidationBox,
-    VApp,
-    VMain,
-  },
-}
-</script>
-
-<script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watchEffect } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_application_store, ApplicationStage } from '@/store/modules/application'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_repository_store } from '@/store/modules/repository'
+import { fetch_system_store } from '@/store/modules/system'
 
-const store = fetchStore()
+const application = fetch_application_store()
+const configuration = fetch_configuration_store()
+const repository = fetch_repository_store()
+const system = fetch_system_store()
 
-const repository = computed(() => store.state.repository)
-
-const system = computed(() => store.state.system)
-
-const theme = computed(() => {
-  return store.state.configuration.dark_mode
-    ? { name: 'dark', ...store.state.configuration.themes.dark }
-    : { name: 'light', ...store.state.configuration.themes.light }
-})
+const theme = computed(() => configuration.active.dark_mode ? 'dark' : 'light')
+const computed_theme = computed(() => configuration.active.themes[theme.value])
 
 const scroll = (event) => {
   event.target.scrollTop = 0
@@ -110,7 +109,7 @@ onMounted(async () => {
 
 watchEffect(async () => {
   if (ready.value) {
-    await store.dispatch('present', 'application')
+    await application.present(ApplicationStage.Application)
   }
 })
 
@@ -139,18 +138,18 @@ defineExpose({
 }
 
 .app-root {
-  font-family: var(--font-content);
-  font-size: var(--font-content-size);
+  font-family: var(--font-application-content);
+  font-size: var(--font-application-content-size);
 }
 
 .app-root :deep(.title) {
-  font-family: var(--font-title) !important;
-  font-size: var(--font-title-size) !important;
+  font-family: var(--font-application-title) !important;
+  font-size: var(--font-application-title-size);
 }
 
 .app-root :deep(pre) {
-  font-family: var(--font-monospace);
-  font-size: var(--font-monospace-size);
+  font-family: var(--font-application-monospace);
+  font-size: var(--font-application-monospace-size);
 }
 
 .app-main {

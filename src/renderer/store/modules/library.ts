@@ -1,4 +1,7 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_repository_store } from '@/store/modules/repository'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 import api from '@/api'
 
 export interface State {
@@ -11,32 +14,10 @@ export const StateDefaults = (): State => ({
   history: [],
 })
 
-export default {
-  namespaced: true,
+export const fetch_library_store = defineStore('library', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    set: function (state, data) {
-      const { path, history } = data
-      state.path = path
-      state.history.push(...history)
-    },
-    add: function (state, path) {
-      const index = state.history.indexOf(path)
-
-      if (index < 0) {
-        state.history.push(path)
-      }
-    },
-    remove: function (state, path) {
-      const index = state.history.indexOf(path)
-
-      if (index >= 0) {
-        state.history.splice(index, 1)
-      }
-    },
-  },
-  actions: <ActionTree<State, unknown>>{
-    load: async function (context, path) {
+  actions: {
+    load: async function (path) {
       const history = []
 
       if (await api.file.exists(path)) {
@@ -53,9 +34,10 @@ export default {
         }
       }
 
-      context.commit('set', { path, history })
+      this.path = path
+      this.history.push(...history)
     },
-    select: async function (context) {
+    select: async function () {
       const result = await api.file.select_directory()
 
       if (result.canceled) {
@@ -63,29 +45,47 @@ export default {
       }
 
       const path = result.filePaths.shift()
-      await context.dispatch('open', path)
+      await this.open(path)
     },
-    open: async function (context, path) {
-      await context.dispatch('add', path)
+    open: async function (path) {
+      await this.add(path)
 
-      await context.dispatch('repository/load', path, { root: true })
-      await context.dispatch('files/initialize', { path: path }, { root: true })
-      await context.dispatch('repository/inspect', undefined, { root: true })
+      const repository = fetch_repository_store()
+      await repository.open(path)
+
+      const files = fetch_files_store()
+      await files.initialize({ path })
+
+      const repository_committer = fetch_repository_committer_store()
+      await repository_committer.inspect()
     },
-    close: async function (context) {
-      await context.dispatch('repository/clear', undefined, { root: true })
-      await context.dispatch('files/clear', undefined, { root: true })
+    close: async function () {
+      const repository = fetch_repository_store()
+      await repository.clear()
+
+      const files = fetch_files_store()
+      await files.clear()
     },
-    add: async function (context, path) {
-      context.commit('add', path)
-      await context.dispatch('record')
+    add: async function (path) {
+      const index = this.history.indexOf(path)
+
+      if (index < 0) {
+        this.history.push(path)
+      }
+
+      await this.record()
     },
-    remove: async function (context, path) {
-      context.commit('remove', path)
-      await context.dispatch('record')
+    remove: async function (path) {
+      const index = this.history.indexOf(path)
+
+      if (index >= 0) {
+        this.history.splice(index, 1)
+      }
+
+      await this.record()
     },
-    record: async function (context) {
-      await api.file.write_library(context.state.path, [ ...context.state.history ])
+    record: async function () {
+      await api.file.write_library(this.path, [ ...this.history ])
     },
   },
-}
+})

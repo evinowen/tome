@@ -31,16 +31,16 @@ describe('components/ActionBar/EditSwitch', () => {
     expect(wrapper).toBeDefined()
   })
 
-  it('should emit "input" event when switch emits "input" event', async () => {
+  it('should emit "update" event when switch emits "update" event', async () => {
     const wrapper = factory.wrap()
     await wrapper.vm.$nextTick()
 
     const toggle_switch = wrapper.findComponent({ ref: 'switch' })
     expect(toggle_switch.exists()).toBe(true)
 
-    toggle_switch.vm.$emit('input', true)
+    toggle_switch.vm.$emit('update', true)
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.emitted().input).toBeTruthy()
+    expect(wrapper.emitted().update).toBeTruthy()
   })
 })

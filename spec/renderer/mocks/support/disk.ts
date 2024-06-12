@@ -72,6 +72,8 @@ export default class Disk {
       'project': file({
         '.git': file({}),
         '.tome': file({
+          'config.json': file(),
+          '.gitignore': file(),
           'actions': file({
             'example.action.a': file({ 'index.js': file() }),
             'example.action.b': file({ 'index.js': file() }),

@@ -1,21 +1,33 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import Vuex from 'vuex'
-import configuration, { State as ConfigurationState } from '@/store/modules/configuration'
+import { setActivePinia, createPinia } from 'pinia'
+import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
 import Disk from '../../../mocks/support/disk'
 import { set_disk } from '?/builders/api/file'
 import * as api_module from '@/api'
 import builders from '?/builders'
-import { scafold as store_scafold } from '?/builders/store'
+
+vi.mock('@/store/modules/log', () => ({
+  fetch_log_store: vi.fn(() => ({
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  })),
+}))
+
+vi.mock('@/store/modules/repository', () => ({
+  fetch_repository_store: vi.fn(() => ({
+    path: '/project',
+  })),
+}))
 
 const mocked_api = builders.api()
 Object.assign(api_module, { default: mocked_api })
 
-interface State {
-  configuration: ConfigurationState
-}
-
 describe('store/modules/configuration', () => {
-  let store
+  let configuration
 
   const disk = new Disk()
   set_disk(disk)
@@ -23,20 +35,18 @@ describe('store/modules/configuration', () => {
   disk.set_content_default(JSON.stringify({
     name: 'Test User',
     email: 'testuser@example.com',
-    private_key: 'id_rsa',
+    key: 'id_rsa',
     passphrase: 'password',
     format_explorer_titles: false,
     dark_mode: true,
   }))
 
   beforeEach(() => {
+    setActivePinia(createPinia())
+
     disk.reset_disk()
 
-    store = new Vuex.Store<State>(store_scafold({
-      modules: {
-        configuration,
-      },
-    }))
+    configuration = fetch_configuration_store()
   })
 
   afterEach(() => {
@@ -44,125 +54,248 @@ describe('store/modules/configuration', () => {
   })
 
   it('should populate empty values when initalized', async () => {
-    expect(store.state.configuration.name).toBe('')
-    expect(store.state.configuration.email).toBe('')
-    expect(store.state.configuration.private_key).toBe('')
-    expect(store.state.configuration.passphrase).toBe('')
-    expect(store.state.configuration.format_explorer_titles).toBe(true)
+    expect(configuration.global.signature.name).toBe('')
+    expect(configuration.global.signature.email).toBe('')
+    expect(configuration.global.credentials.key).toBe('')
+    expect(configuration.global.credentials.passphrase).toBe('')
+    expect(configuration.global.format_explorer_titles).toBe(true)
 
-    expect(store.state.configuration.undefined).toBeUndefined()
+    expect(configuration.local.signature.name).toBe('')
+    expect(configuration.local.signature.email).toBe('')
+    expect(configuration.local.credentials.key).toBe('')
+    expect(configuration.local.credentials.passphrase).toBe('')
+    expect(configuration.local.format_explorer_titles).toBe(true)
+
+    expect(configuration.undefined).toBeUndefined()
   })
 
-  it('should load json from provided file when load is dispatched', async () => {
-    await store.dispatch('configuration/load', 'config.json')
+  it('should load json from provided file when load_global is dispatched', async () => {
+    mocked_api.file.exists.mockReturnValue(Promise.resolve(true))
+    mocked_api.file.contents.mockReturnValue(Promise.resolve(JSON.stringify({
+      signature: {
+        name: 'Test User',
+        email: 'testuser@example.com',
+      },
+      credentials: {
+        key: 'id_rsa',
+        passphrase: 'password',
+      },
+      format_explorer_titles: false,
+      dark_mode: true,
+    })))
+
+    await configuration.load_global()
 
     expect(mocked_api.file.contents).toHaveBeenCalledTimes(1)
 
-    expect(store.state.configuration.name).toBe('Test User')
-    expect(store.state.configuration.email).toBe('testuser@example.com')
-    expect(store.state.configuration.private_key).toBe('id_rsa')
-    expect(store.state.configuration.passphrase).toBe('password')
-    expect(store.state.configuration.format_explorer_titles).toBe(false)
+    expect(configuration.global.signature.name).toBe('Test User')
+    expect(configuration.global.signature.email).toBe('testuser@example.com')
+    expect(configuration.global.credentials.key).toBe('id_rsa')
+    expect(configuration.global.credentials.passphrase).toBe('password')
+    expect(configuration.global.format_explorer_titles).toBe(false)
   })
 
-  it('should load when input file is not able to be parsed when load is dispatched', async () => {
+  it('should load json from provided file when load_local is dispatched', async () => {
+    mocked_api.file.exists.mockReturnValue(Promise.resolve(true))
+    mocked_api.file.contents.mockReturnValue(Promise.resolve(JSON.stringify({
+      signature: {
+        name: 'Test User',
+        email: 'testuser@example.com',
+      },
+      credentials: {
+        key: 'id_rsa',
+        passphrase: 'password',
+      },
+      format_explorer_titles: false,
+      dark_mode: true,
+    })))
+
+    await configuration.load_local()
+
+    expect(mocked_api.file.contents).toHaveBeenCalledTimes(1)
+
+    expect(configuration.local.signature.name).toBe('Test User')
+    expect(configuration.local.signature.email).toBe('testuser@example.com')
+    expect(configuration.local.credentials.key).toBe('id_rsa')
+    expect(configuration.local.credentials.passphrase).toBe('password')
+    expect(configuration.local.format_explorer_titles).toBe(false)
+  })
+
+  it('should load when input file is not able to be parsed when load_global is dispatched', async () => {
     mocked_api.file.contents.mockImplementationOnce(() => Promise.resolve(''))
 
-    await store.dispatch('configuration/load', 'config.json')
+    await configuration.load_global()
 
     expect(mocked_api.file.contents).toHaveBeenCalledTimes(1)
 
-    expect(store.state.configuration.name).toBe('')
-    expect(store.state.configuration.email).toBe('')
-    expect(store.state.configuration.private_key).toBe('')
-    expect(store.state.configuration.passphrase).toBe('')
-    expect(store.state.configuration.format_explorer_titles).toBe(true)
+    expect(configuration.global.signature.name).toBe('')
+    expect(configuration.global.signature.email).toBe('')
+    expect(configuration.global.credentials.key).toBe('')
+    expect(configuration.global.credentials.passphrase).toBe('')
+    expect(configuration.global.format_explorer_titles).toBe(true)
   })
 
-  it('should set values from object when update is dispatched', async () => {
-    const update = {
-      name: 'New Name',
-      passphrase: 'q1h7$u*3~y:}l$:akiKUa&z%:VhDP|',
-    }
+  it('should load when input file is not able to be parsed when load_local is dispatched', async () => {
+    mocked_api.file.contents.mockImplementationOnce(() => Promise.resolve(''))
 
-    await store.dispatch('configuration/update', update)
+    await configuration.load_local()
 
-    expect(store.state.configuration.name).toBe('New Name')
-    expect(store.state.configuration.email).toBe('')
-    expect(store.state.configuration.private_key).toBe('')
-    expect(store.state.configuration.passphrase).toBe('q1h7$u*3~y:}l$:akiKUa&z%:VhDP|')
+    expect(mocked_api.file.contents).toHaveBeenCalledTimes(1)
+
+    expect(configuration.local.signature.name).toBe('')
+    expect(configuration.local.signature.email).toBe('')
+    expect(configuration.local.credentials.key).toBe('')
+    expect(configuration.local.credentials.passphrase).toBe('')
+    expect(configuration.local.format_explorer_titles).toBe(true)
+  })
+
+  it('should create new file when file does not exist when load_global is dispatched', async () => {
+    mocked_api.file.exists.mockReturnValue(Promise.resolve(false))
+
+    await configuration.load_global()
+
+    expect(mocked_api.file.write).toHaveBeenCalledTimes(1)
+
+    expect(configuration.global.signature.name).toBe('')
+    expect(configuration.global.signature.email).toBe('')
+    expect(configuration.global.credentials.key).toBe('')
+    expect(configuration.global.credentials.passphrase).toBe('')
+    expect(configuration.global.format_explorer_titles).toBe(true)
+  })
+
+  it('should create new file when file does not exist when load_local is dispatched', async () => {
+    mocked_api.file.exists.mockReturnValue(Promise.resolve(false))
+
+    await configuration.load_local()
+
+    expect(mocked_api.file.write).toHaveBeenCalledTimes(2)
+
+    expect(configuration.local.signature.name).toBe('')
+    expect(configuration.local.signature.email).toBe('')
+    expect(configuration.local.credentials.key).toBe('')
+    expect(configuration.local.credentials.passphrase).toBe('')
+    expect(configuration.local.format_explorer_titles).toBe(true)
+  })
+
+  it('should set global values from object when update is dispatched with SettingsTarget.Global', async () => {
+    const name = 'New Name'
+    const passphrase = 'q1h7$u*3~y:}l$:akiKUa&z%:VhDP|'
+
+    await configuration.update(SettingsTarget.Global, 'signature.name', name)
+    await configuration.update(SettingsTarget.Global, 'credentials.passphrase', passphrase)
+
+    expect(configuration.global.signature.name).toBe('New Name')
+    expect(configuration.global.signature.email).toBe('')
+    expect(configuration.global.credentials.key).toBe('')
+    expect(configuration.global.credentials.passphrase).toBe('q1h7$u*3~y:}l$:akiKUa&z%:VhDP|')
+  })
+
+  it('should set global values from object when update is dispatched with SettingsTarget.Global', async () => {
+    const name = 'New Name'
+    const passphrase = 'q1h7$u*3~y:}l$:akiKUa&z%:VhDP|'
+
+    await configuration.update(SettingsTarget.Local, 'signature.name', name)
+    await configuration.update(SettingsTarget.Local, 'credentials.passphrase', passphrase)
+
+    expect(configuration.local.signature.name).toBe('New Name')
+    expect(configuration.local.signature.email).toBe('')
+    expect(configuration.local.credentials.key).toBe('')
+    expect(configuration.local.credentials.passphrase).toBe('q1h7$u*3~y:}l$:akiKUa&z%:VhDP|')
   })
 
   it('should save json from provided file when configuration write is dispatched', async () => {
-    await store.dispatch('configuration/write', 'config.json')
+    await configuration.write(SettingsTarget.Global)
 
     expect(mocked_api.file.write).toHaveBeenCalledTimes(1)
   })
 
-  it('should return value requested when configuration read is dispatched', async () => {
-    const string_keys = [
-      'name',
-      'email',
-      'private_key',
-      'public_key',
-      'passphrase',
-      'default_remote',
-    ]
-
-    for (const key of string_keys) {
-      await store.dispatch('configuration/update', { [key]: 'value' })
-      const read = await store.dispatch('configuration/read', key)
-
-      if (key === 'public_key') {
-        expect(read).toBe('ssh-rsa 1234')
-      } else {
-        expect(read).toBe('value')
-      }
-    }
-
-    const boolean_keys = [
-      'format_explorer_titles',
-      'dark_mode',
-      'auto_push',
-    ]
-
-    for (const key of boolean_keys) {
-      await store.dispatch('configuration/update', { [key]: true })
-      const read_true = await store.dispatch('configuration/read', key)
-      expect(read_true).toBe(true)
-
-      await store.dispatch('configuration/update', { [key]: false })
-      const read_false = await store.dispatch('configuration/read', key)
-      expect(read_false).toBe(false)
-    }
-
-    const read_undefined = await store.dispatch('configuration/read', 'not_real_key')
-    expect(read_undefined).toBeUndefined()
-  })
-
   it('should request new ssl key when configuration generate is dispatched', async () => {
-    await store.dispatch('configuration/generate', 'passphrase')
+    await configuration.generate(SettingsTarget.Global, 'passphrase')
 
     expect(mocked_api.ssl.generate_private_key).toHaveBeenCalledTimes(1)
   })
 
   it('should present with light mode colors when update is dispatched and dark_mode is false', async () => {
-    const update = { dark_mode: false, light_primary_enabled: true, light_primary: '#FFFFFF' }
+    const dark_mode = false
+    const light_primary_enabled = true
+    const light_primary = '#FFFFFF'
 
-    await store.dispatch('configuration/update', update)
+    await configuration.update(SettingsTarget.Global, 'dark_mode', dark_mode)
+    await configuration.update(SettingsTarget.Global, 'light_primary_enabled', light_primary_enabled)
+    await configuration.update(SettingsTarget.Global, 'light_primary', light_primary)
 
-    expect(store.state.configuration.dark_mode).toBe(false)
-    expect(store.state.configuration.light_primary_enabled).toBe(true)
-    expect(store.state.configuration.light_primary).toBe('#FFFFFF')
+    expect(configuration.global.dark_mode).toBe(false)
+    expect(configuration.global.light_primary_enabled).toBe(true)
+    expect(configuration.global.light_primary).toBe('#FFFFFF')
   })
 
   it('should present with dark mode colors when update is dispatched and dark_mode is true', async () => {
-    const update = { dark_mode: true, dark_primary_enabled: true, dark_primary: '#000000' }
+    const dark_mode = true
+    const dark_primary_enabled = true
+    const dark_primary = '#000000'
 
-    await store.dispatch('configuration/update', update)
+    await configuration.update(SettingsTarget.Global, 'dark_mode', dark_mode)
+    await configuration.update(SettingsTarget.Global, 'dark_primary_enabled', dark_primary_enabled)
+    await configuration.update(SettingsTarget.Global, 'dark_primary', dark_primary)
 
-    expect(store.state.configuration.dark_mode).toBe(true)
-    expect(store.state.configuration.dark_primary_enabled).toBe(true)
-    expect(store.state.configuration.dark_primary).toBe('#000000')
+    expect(configuration.global.dark_mode).toBe(true)
+    expect(configuration.global.dark_primary_enabled).toBe(true)
+    expect(configuration.global.dark_primary).toBe('#000000')
+  })
+
+  it('should set target upon call to view method', async () => {
+    expect(configuration.target).toBe(SettingsTarget.Global)
+
+    configuration.view(SettingsTarget.Local)
+
+    expect(configuration.target).toBe(SettingsTarget.Local)
+
+    configuration.view(SettingsTarget.Global)
+
+    expect(configuration.target).toBe(SettingsTarget.Global)
+  })
+
+  it('should update localized flag upon call to localize method', async () => {
+    expect(configuration.localized.signature).toEqual(false)
+
+    configuration.localize('signature', true)
+
+    expect(configuration.localized.signature).toEqual(true)
+
+    configuration.localize('signature', false)
+
+    expect(configuration.localized.signature).toEqual(false)
+  })
+
+  it('should clear local settings upon call to reset_local method', async () => {
+    mocked_api.file.exists.mockReturnValue(Promise.resolve(true))
+    mocked_api.file.contents.mockReturnValue(Promise.resolve(JSON.stringify({
+      signature: {
+        name: 'Test User',
+        email: 'testuser@example.com',
+      },
+      credentials: {
+        key: 'id_rsa',
+        passphrase: 'password',
+      },
+      format_explorer_titles: false,
+      dark_mode: true,
+    })))
+
+    await configuration.load_local()
+    configuration.localize('signature', true)
+    configuration.view(SettingsTarget.Local)
+
+    await configuration.reset_local()
+
+    expect(configuration.local.signature.name).toBe('')
+    expect(configuration.local.signature.email).toBe('')
+    expect(configuration.local.credentials.key).toBe('')
+    expect(configuration.local.credentials.passphrase).toBe('')
+    expect(configuration.local.format_explorer_titles).toBe(true)
+
+    configuration.localize('signature', false)
+
+    expect(configuration.target).toEqual(SettingsTarget.Global)
   })
 })

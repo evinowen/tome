@@ -10,24 +10,16 @@
     <v-icon>
       mdi-alert-circle
     </v-icon>
-    {{ store.state.validation.message }}
+    {{ validation.message }}
   </div>
 </template>
 
 <script setup lang="ts">
 import { onUnmounted, watch, ref } from 'vue'
 import { VIcon } from 'vuetify/components'
-import { fetchStore } from '@/store'
+import { fetch_validation_store } from '@/store/modules/validation'
 
-export interface Properties {
-  error?: string
-}
-
-withDefaults(defineProps<Properties>(), {
-  error: 'TEST',
-})
-
-const store = fetchStore()
+const validation = fetch_validation_store()
 const ticker = ref<ReturnType<typeof setTimeout>>()
 
 const visible = ref<boolean>(false)
@@ -40,7 +32,7 @@ onUnmounted(() => {
   }
 })
 
-watch(() => store.state.validation.visible, (value) => {
+watch(() => validation.visible, (value) => {
   if (ticker.value) {
     clearInterval(ticker.value)
   }
@@ -53,7 +45,7 @@ watch(() => store.state.validation.visible, (value) => {
 })
 
 function tick () {
-  const rect = store.state.validation.element.getBoundingClientRect()
+  const rect = validation.element.getBoundingClientRect()
   visible.value = true
   position_x.value = rect.x
   position_y.value = rect.y

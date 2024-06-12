@@ -2,13 +2,13 @@ import { EditorView } from '@codemirror/view'
 
 export default EditorView.theme({
   '&': {
-    fontFamily: 'var(--font-family-compose)',
-    fontSize: 'var(--font-size-compose)',
+    fontFamily: 'var(--font-compose)',
+    fontSize: 'var(--font-compose-size)',
     color: 'rgb(var(--v-theme-compose-content))',
     backgroundColor: 'rgb(var(--v-theme-compose-background))',
   },
   '.cm-content': {
-    fontFamily: 'var(--font-family-compose)',
+    fontFamily: 'var(--font-compose)',
     caretColor: 'rgb(var(--v-theme-compose-content))',
   },
   '&.cm-focused .cm-cursor': {
@@ -20,7 +20,7 @@ export default EditorView.theme({
     color: 'rgb(var(--v-theme-on-compose-selection))',
   },
   '.cm-gutters': {
-    fontFamily: 'var(--font-family-compose)',
+    fontFamily: 'var(--font-compose)',
     backgroundColor: 'rgb(var(--v-theme-compose-gutters))',
     color: 'rgb(var(--v-theme-compose-line-numbers))',
     border: 'none',

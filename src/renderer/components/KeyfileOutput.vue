@@ -4,7 +4,11 @@
       <v-text-field
         :model-value="value || ' '"
         :label="label"
-        class="key-output"
+        :error="error"
+        :class="[
+          'key-output',
+          { 'key-output-error': error },
+        ]"
         readonly
         density="compact"
         variant="solo"
@@ -45,24 +49,26 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { fetchStore } from '@/store'
+import { fetch_clipboard_store } from '@/store/modules/clipboard'
 
-const store = fetchStore()
+const clipboard = fetch_clipboard_store()
 
 interface Properties {
+  error?: boolean
   label?: string
   small?: boolean
   value: string
 }
 
 const properties = withDefaults(defineProps<Properties>(), {
+  error: false,
   label: '',
   small: false,
   value: '',
 })
 
 async function copy () {
-  await store.dispatch('clipboard/text', properties.value)
+  await clipboard.text(properties.value)
 }
 
 defineExpose({
@@ -73,5 +79,9 @@ defineExpose({
 <style scoped>
 .key-output :deep(input) {
   font-family: var(--font-monospace), monospace !important;
+}
+
+.key-output-error :deep(input) {
+  color: rgb(var(--v-theme-error));
 }
 </style>

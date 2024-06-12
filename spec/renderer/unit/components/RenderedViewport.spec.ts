@@ -1,9 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
-import { StateDefaults as RenderedStateDefaults } from '@/store/modules/configuration/themes/sections/rendered'
+import { createTestingPinia } from '@pinia/testing'
 import TextView from '@/components/RenderedViewport.vue'
 
 vi.mock('marked', () => ({
@@ -19,28 +16,19 @@ describe('components/RenderedViewport', () => {
     # Header
     Example content.
   `
-  let store
+  let pinia
 
   const factory = assemble(TextView, { content, type })
     .context(() => ({
       global: {
-        plugins: [ [ store, key ] ],
+        plugins: [ pinia ],
       },
     }))
 
   beforeEach(() => {
-    store = createStore<State>({
-      state: {
-        configuration: {
-          ...ConfigurationStateDefaults(),
-          themes: {
-            dark: {},
-            light: {
-              rendered: RenderedStateDefaults(),
-            },
-          },
-        },
-      },
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
   })
 

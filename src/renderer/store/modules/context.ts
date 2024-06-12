@@ -1,16 +1,16 @@
-import { MutationTree, ActionTree } from 'vuex'
+import { defineStore } from 'pinia'
 import ContextMenu from '@/objects/context/ContextMenu'
 
 export interface State {
   visible: boolean
-  load?: () => Promise<ContextMenu>
+  stage?: () => Promise<ContextMenu>
   menu?: ContextMenu
   position: { x: number, y: number }
 }
 
 export const StateDefaults = (): State => ({
   visible: false,
-  load: undefined,
+  stage: undefined,
   menu: undefined,
   position: {
     x: 0,
@@ -18,44 +18,28 @@ export const StateDefaults = (): State => ({
   },
 })
 
-export default {
-  namespaced: true,
+export const fetch_context_store = defineStore('context', {
   state: StateDefaults,
-  mutations: <MutationTree<State>>{
-    set: function (state, load) {
-      state.load = load
+  actions: {
+    set: async function (stage) {
+      this.stage = stage
     },
-    fill: function (state, menu) {
-      state.menu = menu
-      state.visible = false
-    },
-    show: function (state, { position }) {
-      state.position.x = position?.x || 0
-      state.position.y = position?.y || 0
-      state.visible = true
-    },
-    hide: function (state) {
-      state.visible = false
-    },
-  },
-  actions: <ActionTree<State, unknown>>{
-    set: async function (context, load) {
-      context.commit('set', load)
-    },
-    load: async function (context) {
-      if (context.state.load !== undefined) {
-        const menu = await context.state.load()
-        context.commit('fill', menu)
+    load: async function () {
+      if (this.stage !== undefined) {
+        this.menu = await this.stage()
+        this.visible = false
       }
     },
-    open: async function (context, state) {
+    open: async function (state) {
       const { position } = state || {}
 
-      await context.dispatch('load')
-      context.commit('show', { position })
+      await this.load()
+      this.position.x = position?.x || 0
+      this.position.y = position?.y || 0
+      this.visible = true
     },
-    close: async function (context) {
-      context.commit('hide')
+    close: async function () {
+      this.visible = false
     },
   },
-}
+})

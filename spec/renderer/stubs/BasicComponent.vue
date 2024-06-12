@@ -19,6 +19,7 @@ withDefaults(defineProps<Properties>(), {
 
 defineEmits([
   'click',
+  'update',
   'update:model-value',
 ])
 </script>

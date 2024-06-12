@@ -93,7 +93,7 @@ export default {
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_files_store } from '@/store/modules/files'
 
 export interface Properties {
   name?: string
@@ -115,12 +115,13 @@ withDefaults(defineProps<Properties>(), {
   disabled: false,
 })
 
-const store = fetchStore()
+const files = fetch_files_store()
+
 const open = ref(false)
 
 async function select (path) {
   open.value = false
-  await store.dispatch('files/select', { path })
+  await files.select({ path })
 }
 
 defineExpose({

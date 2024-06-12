@@ -1,23 +1,19 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
+import { createTestingPinia } from '@pinia/testing'
 import ActionBar from '@/components/ActionBar.vue'
+import { fetch_system_store } from '@/store/modules/system'
 
 describe('components/ActionBar', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const factory = assemble(ActionBar)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VFooter: BasicComponentStub,
           VExpandXTransition: BasicComponentStub,
@@ -35,106 +31,71 @@ describe('components/ActionBar', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        system: SystemStateDefaults(),
-        repository: {
-          ...RepositoryStateDefaults(),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'repository': {
           path: './tome_path',
           name: 'Name',
-          branch: 'master',
-          metadata: {
-            readme: undefined,
-            license: undefined,
-            authors: undefined,
-            contributors: undefined,
-          },
+        },
+        'repository-branches': {
+          active: 'master',
         },
       },
-      actions: stub_actions([
-        'system/open',
-        'system/close',
-        'system/edit',
-        'system/branch',
-        'system/commit',
-        'system/push',
-        'system/search',
-      ]),
     })
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
   })
 
   afterEach(() => {
     vi.clearAllMocks()
   })
 
-  it('should dispatch system/open with path when open is called with path', async () => {
-    const wrapper = factory.wrap()
-
-    const path = './file_path'
-    await wrapper.vm.open(path)
-
-    expect(store_dispatch).toHaveBeenCalledWith('system/open', path)
-  })
-
-  it('should close library when open is called', async () => {
-    const wrapper = factory.wrap()
-    wrapper.vm.library = true
-
-    expect(wrapper.vm.library).toBe(true)
-
-    const path = './file_path'
-    await wrapper.vm.open(path)
-
-    expect(wrapper.vm.library).toBe(false)
-  })
-
-  it('should dispatch system/close when close is called', async () => {
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.close()
-
-    expect(store_dispatch).toHaveBeenCalledWith('system/close')
-  })
-
   it('should dispatch system/edit with inverse of current system edit when edit is called', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.edit()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/edit', true)
+    expect(system.page).toHaveBeenCalledWith({ edit: true })
   })
 
-  it('should dispatch system/branch with inverse of current system branch when branch is called', async () => {
+  it('should dispatch system/history with inverse of current system branch when branch is called', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
-    await wrapper.vm.branch()
+    await wrapper.vm.history()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/branch', true)
+    expect(system.page).toHaveBeenCalledWith({ history: true })
   })
 
   it('should dispatch system/commit with inverse of current system commit when commit is called', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.commit()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/commit', true)
+    expect(system.page).toHaveBeenCalledWith({ commit: true })
   })
 
   it('should dispatch system/push with inverse of current system push when push is called', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.push()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/push', true)
+    expect(system.page).toHaveBeenCalledWith({ push: true })
   })
 
   it('should dispatch system/search with inverse of current system search when search is called', async () => {
+    const system = fetch_system_store()
+
     const wrapper = factory.wrap()
 
     await wrapper.vm.search()
 
-    expect(store_dispatch).toHaveBeenCalledWith('system/search', true)
+    expect(system.page).toHaveBeenCalledWith({ search: true })
   })
 })

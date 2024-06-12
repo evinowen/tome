@@ -1,62 +1,46 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
-import { createStore } from 'vuex'
-import { State } from '@/store'
-import { StateDefaults as ClipboardStateDefaults } from '@/store/modules/clipboard'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
-import { StateDefaults as TemplatesStateDefaults } from '@/store/modules/templates'
-import { StateDefaults as ActionsStateDefaults } from '@/store/modules/actions'
-import { stub_actions } from '?/builders/store'
-import File, { FileRelationshipType } from '@/store/modules/files/file'
+import { setActivePinia } from 'pinia'
+import { createTestingPinia } from '@pinia/testing'
+import File, { FileRelationshipType } from '@/objects/File'
 import ContextItem from '@/objects/context/ContextItem'
 import ContextMenu from '@/objects/context/ContextMenu'
 import ExplorerNodeContextMenu from '@/objects/context/menus/ExplorerNodeContextMenu'
 import { format } from '@/modules/Titles'
+import { fetch_actions_store } from '@/store/modules/actions'
+import { fetch_clipboard_store } from '@/store/modules/clipboard'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_templates_store } from '@/store/modules/templates'
 
 vi.mock('@/modules/Titles', () => ({
   format: vi.fn(),
 }))
 
 describe('objects/context/menus/ExplorerNodeContextMenu', () => {
-  let store
-  let store_dispatch
+  let pinia
 
   beforeEach(() => {
-    store = createStore<State>({
-      state: {
-        clipboard: ClipboardStateDefaults(),
-        configuration: ConfigurationStateDefaults(),
-        templates: TemplatesStateDefaults(),
-        actions: ActionsStateDefaults(),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        templates: {
+          options: [
+            'template.a',
+            'template.b',
+            'template.c',
+          ],
+        },
+        actions: {
+          options: [
+            'action.a',
+            'action.b',
+            'action.c',
+          ],
+        },
       },
-      actions: stub_actions([
-        'clipboard/cut',
-        'clipboard/copy',
-        'clipboard/paste',
-        'templates/execute',
-        'templates/ghost',
-        'actions/execute',
-        'actions/ghost',
-        'files/delete',
-        'files/edit',
-        'files/open',
-        'files/ghost',
-        'files/toggle',
-      ]),
     })
 
-    store.state.templates.options = [
-      'template.a',
-      'template.b',
-      'template.c',
-    ]
-
-    store.state.actions.options = [
-      'action.a',
-      'action.b',
-      'action.c',
-    ]
-
-    store_dispatch = vi.spyOn(store, 'dispatch')
+    setActivePinia(pinia)
   })
 
   afterEach(() => {
@@ -66,7 +50,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   it('should return generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     expect(menu).not.toBeUndefined()
     expect(menu instanceof ContextMenu).toBe(true)
@@ -77,7 +61,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.directory = false
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const expand_option = menu.items.find((item) => item.title === 'Expand')
     expect(expand_option).toBeUndefined()
@@ -88,7 +72,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     file.directory = true
     file.expanded = true
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const expand_option = menu.items.find((item) => item.title === 'Expand')
     expect(expand_option).toBeUndefined()
@@ -99,24 +83,26 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     file.directory = true
     file.expanded = false
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const expand_option = menu.items.find((item) => item.title === 'Expand')
     expect(expand_option instanceof ContextItem).toBe(true)
   })
 
   it('should dispatch files/toggle when Expand option is actioned in generated ContextMenu', async () => {
+    const files = fetch_files_store()
+
     const file = new File({})
     file.directory = true
     file.expanded = false
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const expand_option = menu.items.find((item) => item.title === 'Expand')
     expect(expand_option instanceof ContextItem).toBe(true)
 
     await expand_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(files.toggle).toHaveBeenCalledWith({ path: file.path })
   })
 
   /* Collapse */
@@ -124,7 +110,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.directory = false
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const collapse_option = menu.items.find((item) => item.title === 'Collapse')
     expect(collapse_option).toBeUndefined()
@@ -135,7 +121,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     file.directory = true
     file.expanded = false
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const collapse_option = menu.items.find((item) => item.title === 'Collapse')
     expect(collapse_option).toBeUndefined()
@@ -146,24 +132,26 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     file.directory = true
     file.expanded = true
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const collapse_option = menu.items.find((item) => item.title === 'Collapse')
     expect(collapse_option instanceof ContextItem).toBe(true)
   })
 
   it('should dispatch files/toggle when Collapse option is actioned in generated ContextMenu', async () => {
+    const files = fetch_files_store()
+
     const file = new File({})
     file.directory = true
     file.expanded = true
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const collapse_option = menu.items.find((item) => item.title === 'Collapse')
     expect(collapse_option instanceof ContextItem).toBe(true)
 
     await collapse_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('files/toggle', { path: file.path })
+    expect(files.toggle).toHaveBeenCalledWith({ path: file.path })
   })
 
   /* New Template */
@@ -171,7 +159,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.None
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_template_option = menu.items.find((item) => item.title === 'New Template')
     expect(new_template_option).toBeUndefined()
@@ -181,7 +169,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Root
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_template_option = menu.items.find((item) => item.title === 'New Template')
     expect(new_template_option instanceof ContextItem).toBe(true)
@@ -191,7 +179,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Tome
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_template_option = menu.items.find((item) => item.title === 'New Template')
     expect(new_template_option instanceof ContextItem).toBe(true)
@@ -201,23 +189,25 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.TomeFeatureTemplates
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_template_option = menu.items.find((item) => item.title === 'New Template')
     expect(new_template_option instanceof ContextItem).toBe(true)
   })
 
   it('should dispatch templates/ghost when New Template option is actioned in generated ContextMenu', async () => {
+    const templates = fetch_templates_store()
+
     const file = new File({})
     file.relationship = FileRelationshipType.Root
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_template_option = menu.items.find((item) => item.title === 'New Template')
     expect(new_template_option instanceof ContextItem).toBe(true)
 
     await new_template_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('templates/ghost')
+    expect(templates.ghost).toHaveBeenCalledWith()
   })
 
   /* New Action */
@@ -225,7 +215,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.None
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_action_option = menu.items.find((item) => item.title === 'New Action')
     expect(new_action_option).toBeUndefined()
@@ -235,7 +225,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Root
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_action_option = menu.items.find((item) => item.title === 'New Action')
     expect(new_action_option instanceof ContextItem).toBe(true)
@@ -245,7 +235,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Tome
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_action_option = menu.items.find((item) => item.title === 'New Action')
     expect(new_action_option instanceof ContextItem).toBe(true)
@@ -255,93 +245,109 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.TomeFeatureActions
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_action_option = menu.items.find((item) => item.title === 'New Action')
     expect(new_action_option instanceof ContextItem).toBe(true)
   })
 
   it('should dispatch actions/ghost when New Action option is actioned in generated ContextMenu', async () => {
+    const actions = fetch_actions_store()
+
     const file = new File({})
     file.relationship = FileRelationshipType.Root
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_action_option = menu.items.find((item) => item.title === 'New Action')
     expect(new_action_option instanceof ContextItem).toBe(true)
 
     await new_action_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('actions/ghost')
+    expect(actions.ghost).toHaveBeenCalledWith()
   })
 
   /* Template */
   it('should contain Template option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const template_option = menu.items.find((item) => item.title === 'Template')
     expect(template_option instanceof ContextItem).toBe(true)
   })
 
   it('should load Template items when Template option is loaded in generated ContextMenu', async () => {
+    const templates = fetch_templates_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const template_option = menu.items.find((item) => item.title === 'Template')
     expect(template_option instanceof ContextItem).toBe(true)
 
     const items = await template_option.load()
-    expect(items).toHaveLength(store.state.templates.options.length)
+    expect(items).toHaveLength(templates.options.length)
   })
 
   it('should not format Template item titles when Template option is loaded in generated ContextMenu and format_interaction_titles is false', async () => {
-    store.state.configuration.format_interaction_titles = false
+    const templates = fetch_templates_store()
+
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_interaction_titles: false }
 
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const template_option = menu.items.find((item) => item.title === 'Template')
     expect(template_option instanceof ContextItem).toBe(true)
 
     const items = await template_option.load()
-    expect(items).toHaveLength(store.state.templates.options.length)
+    expect(items).toHaveLength(templates.options.length)
     expect(vi.mocked(format)).toHaveBeenCalledTimes(0)
   })
 
   it('should format Template item titles when Template option is loaded in generated ContextMenu and format_interaction_titles is true', async () => {
-    store.state.configuration.format_interaction_titles = true
+    const templates = fetch_templates_store()
+
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_interaction_titles: true }
 
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const template_option = menu.items.find((item) => item.title === 'Template')
     expect(template_option instanceof ContextItem).toBe(true)
 
     const items = await template_option.load()
-    expect(items).toHaveLength(store.state.templates.options.length)
-    expect(vi.mocked(format)).toHaveBeenCalledTimes(store.state.templates.options.length)
+    expect(items).toHaveLength(templates.options.length)
+    expect(vi.mocked(format)).toHaveBeenCalledTimes(templates.options.length)
   })
 
   it('should dispatch templates/execute when an Template option is actioned in generated ContextMenu', async () => {
-    store.state.configuration.format_interaction_titles = true
+    const templates = fetch_templates_store()
+
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_interaction_titles: false }
 
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const template_option = menu.items.find((item) => item.title === 'Template')
     expect(template_option instanceof ContextItem).toBe(true)
 
     const items = await template_option.load()
-    expect(items).toHaveLength(store.state.templates.options.length)
+    expect(items).toHaveLength(templates.options.length)
 
     await items[0].action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('templates/execute', {
-      name: store.state.templates.options[0],
+    expect(templates.execute).toHaveBeenCalledWith({
+      name: templates.options[0],
       target: menu.target,
     })
   })
@@ -350,70 +356,84 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   it('should contain Action option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const action_option = menu.items.find((item) => item.title === 'Action')
     expect(action_option instanceof ContextItem).toBe(true)
   })
 
   it('should load Action items when Action option is loaded in generated ContextMenu', async () => {
+    const actions = fetch_actions_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const action_option = menu.items.find((item) => item.title === 'Action')
     expect(action_option instanceof ContextItem).toBe(true)
 
     const items = await action_option.load()
-    expect(items).toHaveLength(store.state.actions.options.length)
+    expect(items).toHaveLength(actions.options.length)
   })
 
   it('should not format Action item titles when Action option is loaded in generated ContextMenu and format_interaction_titles is false', async () => {
-    store.state.configuration.format_interaction_titles = false
+    const actions = fetch_actions_store()
+
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_interaction_titles: false }
 
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const action_option = menu.items.find((item) => item.title === 'Action')
     expect(action_option instanceof ContextItem).toBe(true)
 
     const items = await action_option.load()
-    expect(items).toHaveLength(store.state.actions.options.length)
+    expect(items).toHaveLength(actions.options.length)
     expect(vi.mocked(format)).toHaveBeenCalledTimes(0)
   })
 
   it('should format Action item titles when Action option is loaded in generated ContextMenu and format_interaction_titles is true', async () => {
-    store.state.configuration.format_interaction_titles = true
+    const actions = fetch_actions_store()
+
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_interaction_titles: true }
 
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const action_option = menu.items.find((item) => item.title === 'Action')
     expect(action_option instanceof ContextItem).toBe(true)
 
     const items = await action_option.load()
-    expect(items).toHaveLength(store.state.actions.options.length)
-    expect(vi.mocked(format)).toHaveBeenCalledTimes(store.state.actions.options.length)
+    expect(items).toHaveLength(actions.options.length)
+    expect(vi.mocked(format)).toHaveBeenCalledTimes(actions.options.length)
   })
 
   it('should dispatch actions/execute when an Action option is actions in generated ContextMenu', async () => {
-    store.state.configuration.format_interaction_titles = true
+    const actions = fetch_actions_store()
+
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_interaction_titles: false }
 
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const action_option = menu.items.find((item) => item.title === 'Action')
     expect(action_option instanceof ContextItem).toBe(true)
 
     const items = await action_option.load()
-    expect(items).toHaveLength(store.state.actions.options.length)
+    expect(items).toHaveLength(actions.options.length)
 
     await items[0].action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('actions/execute', {
-      name: store.state.actions.options[0],
+    expect(actions.execute).toHaveBeenCalledWith({
+      name: actions.options[0],
       target: menu.target,
       selection: undefined,
     })
@@ -423,95 +443,103 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   it('should contain Open option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const open_option = menu.items.find((item) => item.title === 'Open')
     expect(open_option instanceof ContextItem).toBe(true)
   })
 
   it('should dispatch files/open when Open option is actioned in generated ContextMenu', async () => {
+    const files = fetch_files_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const open_option = menu.items.find((item) => item.title === 'Open')
     expect(open_option instanceof ContextItem).toBe(true)
 
     await open_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('files/open', { path: menu.target, container: false })
+    expect(files.open).toHaveBeenCalledWith({ path: menu.target, container: false })
   })
 
   /* Open Folder */
   it('should contain Open Folder option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const open_folder_option = menu.items.find((item) => item.title === 'Open Folder')
     expect(open_folder_option instanceof ContextItem).toBe(true)
   })
 
   it('should dispatch files/open when Open Folder option is actioned in generated ContextMenu', async () => {
+    const files = fetch_files_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const open_folder_option = menu.items.find((item) => item.title === 'Open Folder')
     expect(open_folder_option instanceof ContextItem).toBe(true)
 
     await open_folder_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('files/open', { path: menu.target, container: true })
+    expect(files.open).toHaveBeenCalledWith({ path: menu.target, container: true })
   })
 
   /* New File */
   it('should contain New File option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_file_option = menu.items.find((item) => item.title === 'New File')
     expect(new_file_option instanceof ContextItem).toBe(true)
   })
 
-  it('should dispatch files/ghost when New File option is actioned in generated ContextMenu', async () => {
+  it('should dispatch files/haunt when New File option is actioned in generated ContextMenu', async () => {
+    const files = fetch_files_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_file_option = menu.items.find((item) => item.title === 'New File')
     expect(new_file_option instanceof ContextItem).toBe(true)
 
     await new_file_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('files/ghost', { path: menu.target, directory: false })
+    expect(files.haunt).toHaveBeenCalledWith({ path: menu.target, directory: false })
   })
 
   /* New Folder */
   it('should contain New Folder option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_folder_option = menu.items.find((item) => item.title === 'New Folder')
     expect(new_folder_option instanceof ContextItem).toBe(true)
   })
 
-  it('should dispatch files/ghost when New File option is actioned in generated ContextMenu', async () => {
+  it('should dispatch files/haunt when New File option is actioned in generated ContextMenu', async () => {
+    const files = fetch_files_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const new_folder_option = menu.items.find((item) => item.title === 'New Folder')
     expect(new_folder_option instanceof ContextItem).toBe(true)
 
     await new_folder_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('files/ghost', { path: menu.target, directory: true })
+    expect(files.haunt).toHaveBeenCalledWith({ path: menu.target, directory: true })
   })
 
   /* Cut */
   it('should contain Cut option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const cut_option = menu.items.find((item) => item.title === 'Cut')
     expect(cut_option instanceof ContextItem).toBe(true)
@@ -521,7 +549,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Root
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const cut_option = menu.items.find((item) => item.title === 'Cut')
     expect(cut_option instanceof ContextItem).toBe(true)
@@ -532,7 +560,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Git
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const cut_option = menu.items.find((item) => item.title === 'Cut')
     expect(cut_option instanceof ContextItem).toBe(true)
@@ -543,7 +571,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Tome
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const cut_option = menu.items.find((item) => item.title === 'Cut')
     expect(cut_option instanceof ContextItem).toBe(true)
@@ -554,7 +582,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.TomeFeatureActions
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const cut_option = menu.items.find((item) => item.title === 'Cut')
     expect(cut_option instanceof ContextItem).toBe(true)
@@ -565,7 +593,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.TomeFeatureTemplates
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const cut_option = menu.items.find((item) => item.title === 'Cut')
     expect(cut_option instanceof ContextItem).toBe(true)
@@ -575,7 +603,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   it('should enable Cut option in generated ContextMenu when file has FileRelationshipType.None', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const cut_option = menu.items.find((item) => item.title === 'Cut')
     expect(cut_option instanceof ContextItem).toBe(true)
@@ -583,22 +611,24 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   })
 
   it('should dispatch clipboard/copy when Cut option is actioned in generated ContextMenu', async () => {
+    const clipboard = fetch_clipboard_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const cut_option = menu.items.find((item) => item.title === 'Cut')
     expect(cut_option instanceof ContextItem).toBe(true)
 
     await cut_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('clipboard/cut', { type: 'file', target: menu.target })
+    expect(clipboard.cut).toHaveBeenCalledWith({ type: 'file', target: menu.target })
   })
 
   /* Copy */
   it('should contain Copy option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const copy_option = menu.items.find((item) => item.title === 'Copy')
     expect(copy_option instanceof ContextItem).toBe(true)
@@ -608,7 +638,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Root
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const copy_option = menu.items.find((item) => item.title === 'Copy')
     expect(copy_option instanceof ContextItem).toBe(true)
@@ -619,7 +649,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Git
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const copy_option = menu.items.find((item) => item.title === 'Copy')
     expect(copy_option instanceof ContextItem).toBe(true)
@@ -630,7 +660,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Tome
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const copy_option = menu.items.find((item) => item.title === 'Copy')
     expect(copy_option instanceof ContextItem).toBe(true)
@@ -641,7 +671,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.TomeFeatureActions
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const copy_option = menu.items.find((item) => item.title === 'Copy')
     expect(copy_option instanceof ContextItem).toBe(true)
@@ -652,7 +682,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.TomeFeatureTemplates
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const copy_option = menu.items.find((item) => item.title === 'Copy')
     expect(copy_option instanceof ContextItem).toBe(true)
@@ -662,7 +692,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   it('should enable Copy option in generated ContextMenu when file has FileRelationshipType.None', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const copy_option = menu.items.find((item) => item.title === 'Copy')
     expect(copy_option instanceof ContextItem).toBe(true)
@@ -670,33 +700,37 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   })
 
   it('should dispatch clipboard/copy when Copy option is actioned in generated ContextMenu', async () => {
+    const clipboard = fetch_clipboard_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const copy_option = menu.items.find((item) => item.title === 'Copy')
     expect(copy_option instanceof ContextItem).toBe(true)
 
     await copy_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('clipboard/copy', { type: 'file', target: menu.target })
+    expect(clipboard.copy).toHaveBeenCalledWith({ type: 'file', target: menu.target })
   })
 
   /* Paste */
   it('should contain Paste option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const paste_option = menu.items.find((item) => item.title === 'Paste')
     expect(paste_option instanceof ContextItem).toBe(true)
   })
 
   it('should disable Paste option in generated ContextMenu when store has no clipboard content', async () => {
+    const clipboard = fetch_clipboard_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
-    store.state.clipboard.content = ''
+    clipboard.content = { type: '', target: '' }
 
     const paste_option = menu.items.find((item) => item.title === 'Paste')
     expect(paste_option instanceof ContextItem).toBe(true)
@@ -704,11 +738,13 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   })
 
   it('should enable Paste option in generated ContextMenu when store has clipboard content', async () => {
+    const clipboard = fetch_clipboard_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
-    store.state.clipboard.content = 'Clipboard Content'
+    clipboard.content = { type: 'type', target: 'target' }
 
     const paste_option = menu.items.find((item) => item.title === 'Paste')
     expect(paste_option instanceof ContextItem).toBe(true)
@@ -716,25 +752,27 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   })
 
   it('should dispatch clipboard/paste when Paste option is actioned in generated ContextMenu when store has clipboard content', async () => {
+    const clipboard = fetch_clipboard_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
-    store.state.clipboard.content = 'Clipboard Content'
+    clipboard.content = { type: 'type', target: 'target' }
 
     const paste_option = menu.items.find((item) => item.title === 'Paste')
     expect(paste_option instanceof ContextItem).toBe(true)
     expect(await paste_option.active()).toBe(true)
 
     await paste_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('clipboard/paste', { target: menu.target, type: 'file' })
+    expect(clipboard.paste).toHaveBeenCalledWith({ target: menu.target, type: 'file' })
   })
 
   /* Rename */
   it('should contain Rename option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const rename_option = menu.items.find((item) => item.title === 'Rename')
     expect(rename_option instanceof ContextItem).toBe(true)
@@ -744,7 +782,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Root
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const rename_option = menu.items.find((item) => item.title === 'Rename')
     expect(rename_option instanceof ContextItem).toBe(true)
@@ -755,7 +793,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Git
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const rename_option = menu.items.find((item) => item.title === 'Rename')
     expect(rename_option instanceof ContextItem).toBe(true)
@@ -766,7 +804,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Tome
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const rename_option = menu.items.find((item) => item.title === 'Rename')
     expect(rename_option instanceof ContextItem).toBe(true)
@@ -777,7 +815,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.TomeFeatureActions
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const rename_option = menu.items.find((item) => item.title === 'Rename')
     expect(rename_option instanceof ContextItem).toBe(true)
@@ -788,7 +826,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.TomeFeatureTemplates
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const rename_option = menu.items.find((item) => item.title === 'Rename')
     expect(rename_option instanceof ContextItem).toBe(true)
@@ -798,7 +836,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   it('should enable Rename option in generated ContextMenu when file has FileRelationshipType.None', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const rename_option = menu.items.find((item) => item.title === 'Rename')
     expect(rename_option instanceof ContextItem).toBe(true)
@@ -806,22 +844,24 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   })
 
   it('should dispatch files/ghost when Rename option is actioned in generated ContextMenu', async () => {
+    const files = fetch_files_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const rename_option = menu.items.find((item) => item.title === 'Rename')
     expect(rename_option instanceof ContextItem).toBe(true)
 
     await rename_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('files/edit', { path: menu.target })
+    expect(files.edit).toHaveBeenCalledWith({ path: menu.target })
   })
 
   /* Delete */
   it('should contain Delete option in generated ContextMenu', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const delete_option = menu.items.find((item) => item.title === 'Delete')
     expect(delete_option instanceof ContextItem).toBe(true)
@@ -831,7 +871,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Root
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const delete_option = menu.items.find((item) => item.title === 'Delete')
     expect(delete_option instanceof ContextItem).toBe(true)
@@ -842,7 +882,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Git
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const delete_option = menu.items.find((item) => item.title === 'Delete')
     expect(delete_option instanceof ContextItem).toBe(true)
@@ -853,7 +893,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.Tome
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const delete_option = menu.items.find((item) => item.title === 'Delete')
     expect(delete_option instanceof ContextItem).toBe(true)
@@ -864,7 +904,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.TomeFeatureActions
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const delete_option = menu.items.find((item) => item.title === 'Delete')
     expect(delete_option instanceof ContextItem).toBe(true)
@@ -875,7 +915,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
     const file = new File({})
     file.relationship = FileRelationshipType.TomeFeatureTemplates
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const delete_option = menu.items.find((item) => item.title === 'Delete')
     expect(delete_option instanceof ContextItem).toBe(true)
@@ -885,7 +925,7 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   it('should enable Delete option in generated ContextMenu when file has FileRelationshipType.None', async () => {
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const delete_option = menu.items.find((item) => item.title === 'Delete')
     expect(delete_option instanceof ContextItem).toBe(true)
@@ -893,14 +933,16 @@ describe('objects/context/menus/ExplorerNodeContextMenu', () => {
   })
 
   it('should dispatch files/ghost when Delete option is actioned in generated ContextMenu', async () => {
+    const files = fetch_files_store()
+
     const file = new File({})
 
-    const menu = ExplorerNodeContextMenu(store, file)
+    const menu = ExplorerNodeContextMenu(file)
 
     const delete_option = menu.items.find((item) => item.title === 'Delete')
     expect(delete_option instanceof ContextItem).toBe(true)
 
     await delete_option.action(menu.target)
-    expect(store_dispatch).toHaveBeenCalledWith('files/delete', { path: menu.target })
+    expect(files.delete).toHaveBeenCalledWith({ path: menu.target })
   })
 })

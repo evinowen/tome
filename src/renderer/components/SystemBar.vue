@@ -20,7 +20,7 @@
       <svg
         :class="[
           'settings',
-          rotate ? 'rotate' : '',
+          system.settings ? 'spin' : '',
         ]"
         width="12"
         height="12"
@@ -75,7 +75,7 @@
       system-bar-maximize
       @click.stop="maximize"
     >
-      <v-icon>{{ maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
+      <v-icon>{{ system.maximized ? "mdi-window-restore" : "mdi-window-maximize" }}</v-icon>
     </v-btn>
     <v-btn
       rounded="0"
@@ -110,39 +110,33 @@ export default {
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { fetchStore } from '@/store'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_store } from '@/store/modules/repository'
 
-const store = fetchStore()
-
-const maximized = computed(() => {
-  return store.state.system.maximized
-})
-
-const rotate = computed(() => {
-  return store.state.system.settings
-})
+const system = fetch_system_store()
+const repository = fetch_repository_store()
 
 const title = computed(() => {
-  return store.state.repository?.name || undefined
+  return repository.name || undefined
 })
 
 async function settings () {
-  await store.dispatch('system/theme_editor', false)
-  await store.dispatch('system/settings', !store.state.system.settings)
+  await system.page({ theme_editor: false })
+  await system.page({ settings: !system.settings })
 }
 
 async function minimize () {
-  await store.dispatch('system/minimize')
+  await system.minimize()
 }
 
 async function maximize () {
-  maximized.value
-    ? await store.dispatch('system/restore')
-    : await store.dispatch('system/maximize')
+  system.maximized
+    ? await system.restore()
+    : await system.maximize()
 }
 
 async function exit () {
-  await store.dispatch('system/exit')
+  await system.exit()
 }
 
 defineExpose({
@@ -180,13 +174,13 @@ defineExpose({
   min-width: 30px;
 }
 
-@keyframes rotating {
+@keyframes spinning {
   from{ transform: rotate(0deg); }
   to{ transform: rotate(360deg); }
 }
 
 .settings  {
-  animation: rotating 2s linear infinite;
+  animation: spinning 2s linear infinite;
   animation-play-state: paused;
 }
 
@@ -194,7 +188,7 @@ defineExpose({
   fill: rgb(var(--v-theme-on-surface));
 }
 
-.settings.rotate  {
+.settings.spin  {
   animation-play-state: running;
 }
 </style>

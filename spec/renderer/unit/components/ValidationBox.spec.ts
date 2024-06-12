@@ -2,19 +2,18 @@ import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
 import BasicComponentStub from '?/stubs/BasicComponentStub'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as ValidationStateDefaults } from '@/store/modules/validation'
+import { createTestingPinia } from '@pinia/testing'
 import ValidationBox from '@/components/ValidationBox.vue'
+import { fetch_validation_store } from '@/store/modules/validation'
 
 describe('components/ValidationBox', () => {
   let vuetify
-  let store
+  let pinia
 
   const factory = assemble(ValidationBox)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           VBtn: BasicComponentStub,
           VIcon: BasicComponentStub,
@@ -25,10 +24,9 @@ describe('components/ValidationBox', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        validation: ValidationStateDefaults(),
-      },
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {},
     })
   })
 
@@ -43,14 +41,16 @@ describe('components/ValidationBox', () => {
   })
 
   it('should set internal visible flag timer ticks', async () => {
+    const validation = fetch_validation_store()
+
     vi.useFakeTimers()
 
     const wrapper = factory.wrap()
     expect(wrapper).toBeDefined()
     expect(wrapper.vm.visible).toEqual(false)
 
-    store.state.validation.visible = true
-    store.state.validation.element = new HTMLElement()
+    validation.visible = true
+    validation.element = new HTMLElement()
     await wrapper.vm.$nextTick()
 
     vi.advanceTimersByTime(1000)
@@ -59,11 +59,13 @@ describe('components/ValidationBox', () => {
   })
 
   it('should set timer when validation state visible becomes true', async () => {
+    const validation = fetch_validation_store()
+
     const wrapper = factory.wrap()
     expect(wrapper).toBeDefined()
 
-    store.state.validation.visible = true
-    store.state.validation.element = new HTMLElement()
+    validation.visible = true
+    validation.element = new HTMLElement()
     await wrapper.vm.$nextTick()
 
     wrapper.unmount()
@@ -72,31 +74,35 @@ describe('components/ValidationBox', () => {
   })
 
   it('should clear timer when validation state visible becomes false', async () => {
+    const validation = fetch_validation_store()
+
     const mocked_clearInterval = vi.spyOn(global, 'clearInterval')
 
     const wrapper = factory.wrap()
     expect(wrapper).toBeDefined()
 
-    store.state.validation.visible = true
-    store.state.validation.element = new HTMLElement()
+    validation.visible = true
+    validation.element = new HTMLElement()
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.ticker).toBeTruthy()
 
-    store.state.validation.visible = false
+    validation.visible = false
     await wrapper.vm.$nextTick()
 
     expect(mocked_clearInterval).toHaveBeenCalledWith(wrapper.vm.ticker)
   })
 
   it('should clear timer on component unmount', async () => {
+    const validation = fetch_validation_store()
+
     const mocked_clearInterval = vi.spyOn(global, 'clearInterval')
 
     const wrapper = factory.wrap()
     expect(wrapper).toBeDefined()
 
-    store.state.validation.visible = true
-    store.state.validation.element = new HTMLElement()
+    validation.visible = true
+    validation.element = new HTMLElement()
     await wrapper.vm.$nextTick()
 
     wrapper.unmount()

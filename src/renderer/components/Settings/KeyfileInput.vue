@@ -8,11 +8,12 @@
         @change="select"
       >
       <v-text-field
-        :model-value="value || ' '"
+        :model-value="model || ' '"
+        :disabled="disabled"
         :label="label"
-        :class="[ value ? 'v-text-field-green' : 'v-text-field-red' ]"
-        :color="value ? 'green' : 'red'"
-        :prepend-inner-icon="value ? 'mdi-lock-open' : 'mdi-lock'"
+        :class="[ model ? 'v-text-field-green' : 'v-text-field-red' ]"
+        :color="model ? 'green' : 'red'"
+        :prepend-inner-icon="model ? 'mdi-lock-open' : 'mdi-lock'"
         readonly
         variant="solo"
         hide-details
@@ -26,7 +27,7 @@
         rounded="0"
         icon
         style="height: 100%;"
-        :disabled="value === ''"
+        :disabled="disabled || model === ''"
         @click="clear"
       >
         <v-icon size="small">
@@ -40,7 +41,7 @@
         rounded="0"
         icon
         style="height: 100%;"
-        :disabled="value !== ''"
+        :disabled="disabled || model !== ''"
         @click.stop="generate"
       >
         <v-icon size="small">
@@ -51,44 +52,26 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import {
   VBtn,
   VIcon,
   VTextField,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    VBtn,
-    VIcon,
-    VTextField,
-  },
-}
-</script>
-
-<script setup lang="ts">
 import { computed, ref } from 'vue'
-import { fetchStore } from '@/store'
-import { debounce } from 'lodash'
+import { fetch_configuration_store } from '@/store/modules/configuration'
+import SettingSetup, { SettingProperties, SettingPropertiesDefaults } from '@/components/Settings/SettingSetup'
 
-const store = fetchStore()
-
-interface Properties {
-  label: string
-  index: string
-}
-
-const properties = withDefaults(defineProps<Properties>(), {
-  label: '',
-  index: '',
-})
+const properties = withDefaults(defineProps<SettingProperties>(), SettingPropertiesDefaults())
 
 defineEmits([ 'input', 'forge' ])
 
-const input = ref<HTMLInputElement>(undefined)
-const value = computed<string>(() => store.state.configuration[properties.index])
-const passphrase = computed<string>(() => store.state.configuration.passphrase)
+const configuration = fetch_configuration_store()
+
+const input = ref<HTMLInputElement>()
+const passphrase = computed<string>(() => configuration[configuration.target].credentials.passphrase)
+const { disabled, update, model } = SettingSetup<string>(properties, 0, '')
 
 async function select (event) {
   const files = event.target.files || event.dataTransfer.files
@@ -98,27 +81,21 @@ async function select (event) {
     return
   }
 
-  await debounce_update(file.path)
+  await update(file.path)
   input.value.value = ''
 }
 
 async function clear () {
-  await debounce_update('')
+  await update('')
 }
-
-async function update (path) {
-  await store.dispatch('configuration/update', { [properties.index]: path })
-}
-
-const debounce_update = debounce(update, 300)
 
 async function generate () {
-  await store.dispatch('configuration/generate', passphrase.value)
+  await configuration.generate(configuration.target, passphrase.value)
 }
 
 defineExpose({
   update,
-  value,
+  model,
 })
 </script>
 

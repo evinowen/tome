@@ -1,11 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as SystemStateDefaults } from '@/store/modules/system'
-import { StateDefaults as ContextStateDefaults } from '@/store/modules/context'
-import { stub_actions } from '?/builders/store'
+import { createTestingPinia } from '@pinia/testing'
 import ShortcutService from '@/components/ShortcutService.vue'
 import { operate as operate_shortcuts } from '@/modules/Shortcuts'
 import { shortcuts } from '@/shortcuts'
@@ -83,28 +79,25 @@ vi.mocked(shortcuts, true).mockImplementation((key) => (shortcut_map[key] ?? und
 
 describe('components/ShortcutService', () => {
   let vuetify
-  let store
+  let pinia
 
   const factory = assemble(ShortcutService)
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
       },
     }))
 
   beforeEach(() => {
     vuetify = createVuetify()
-    store = createStore<State>({
-      state: {
-        system: SystemStateDefaults(),
-        context: {
-          ...ContextStateDefaults(),
+
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'context': {
           menu: new ContextMenu(),
         },
       },
-      actions: stub_actions([
-        'context/load',
-      ]),
     })
   })
 
@@ -313,21 +306,6 @@ describe('components/ShortcutService', () => {
     await wrapper.vm.keyup(event)
 
     expect(MockedShorcutOperator.perform).not.toHaveBeenCalled()
-  })
-
-  it('should call dispatch when keyup is called for mapped key event', async () => {
-    const wrapper = factory.wrap()
-
-    const event = {
-      ctrlKey: true,
-      key: 'dispatch',
-    } as KeyboardEvent
-
-    expect(MockedShorcutOperator.dispatch).not.toHaveBeenCalled()
-
-    await wrapper.vm.keyup(event)
-
-    expect(MockedShorcutOperator.dispatch).toHaveBeenCalledWith(shortcut_map.dispatch.dispatch)
   })
 
   it('should not call dispatch when keyup is called for mapped key event without ctrl key pressed', async () => {

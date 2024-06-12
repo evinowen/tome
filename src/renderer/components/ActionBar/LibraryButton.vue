@@ -90,12 +90,9 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { fetchStore } from '@/store'
-
-const store = fetchStore()
-
-const show = ref(false)
+import { ref } from 'vue'
+import { fetch_library_store } from '@/store/modules/library'
+import { fetch_repository_store } from '@/store/modules/repository'
 
 export interface Properties {
   disabled?: boolean
@@ -105,24 +102,21 @@ withDefaults(defineProps<Properties>(), {
   disabled: false,
 })
 
-const repository = computed(() => {
-  return store.state.repository
-})
+const library = fetch_library_store()
+const repository = fetch_repository_store()
 
-const library = computed(() => {
-  return store.state.library
-})
+const show = ref(false)
 
 async function select () {
-  await store.dispatch('library/select')
+  await library.select()
 }
 
 async function open (item) {
-  await store.dispatch('library/open', item)
+  await library.open(item)
 }
 
 async function close () {
-  await store.dispatch('library/close')
+  await library.close()
 }
 
 defineExpose({

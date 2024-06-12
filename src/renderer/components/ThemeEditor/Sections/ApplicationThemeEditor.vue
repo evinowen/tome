@@ -1,28 +1,27 @@
 <template>
   <theme-editor-section
+    :theme="theme"
     section="application"
     :fonts="fonts"
     :colors="colors"
   >
-    <application-theme-preview />
+    <application-theme-preview :theme="theme" />
   </theme-editor-section>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ApplicationThemePreview from './ApplicationThemePreview.vue'
 import ThemeEditorSection from '../ThemeEditorSection.vue'
-
-export default {
-  components: {
-    ApplicationThemePreview,
-    ThemeEditorSection,
-  },
-}
-</script>
-
-<script setup lang="ts">
 import { Font } from '../ThemeFontPicker.vue'
 import { Color } from '../ThemeColorPicker.vue'
+
+export interface Properties {
+  theme: string
+}
+
+withDefaults(defineProps<Properties>(), {
+  theme: 'light',
+})
 
 const fonts: Font[] = [
   { label: 'Title', index: 'title' },

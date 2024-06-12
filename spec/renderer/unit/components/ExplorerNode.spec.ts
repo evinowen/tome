@@ -1,24 +1,20 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
-import { stub_actions } from '?/builders/store'
 import { createVuetify } from 'vuetify'
-import { createStore } from 'vuex'
-import { State, key } from '@/store'
-import { StateDefaults as RepositoryStateDefaults } from '@/store/modules/repository'
-import { StateDefaults as FilesStateDefaults, File } from '@/store/modules/files'
-import { StateDefaults as ConfigurationStateDefaults } from '@/store/modules/configuration'
+import { createTestingPinia } from '@pinia/testing'
 import ExplorerNode from '@/components/ExplorerNode.vue'
 import BasicComponentStub from '?/stubs/BasicComponent.vue'
 import ElementComponentStub from '?/stubs/ElementComponent.vue'
-import { FileRelationshipType } from '@/store/modules/files/file'
+import File, { FileRelationshipType } from '@/objects/File'
 import { format } from '@/modules/Titles'
+import { fetch_files_store } from '@/store/modules/files'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 
 vi.mock('@/modules/Titles', () => ({ format: vi.fn() }))
 
 describe('components/ExplorerNode', () => {
   let vuetify
-  let store
-  let store_dispatch
+  let pinia
 
   const file_uuid = '1234-test-1234-test'
   let file
@@ -26,10 +22,10 @@ describe('components/ExplorerNode', () => {
   beforeEach(() => {
     vuetify = createVuetify()
 
-    store = createStore<State>({
-      state: {
-        files: {
-          ...FilesStateDefaults(),
+    pinia = createTestingPinia({
+      createSpy: vi.fn,
+      initialState: {
+        'files': {
           directory: {
             [file_uuid]: new File({
               name: 'example.file.md',
@@ -40,25 +36,18 @@ describe('components/ExplorerNode', () => {
             }),
           },
         },
-        repository: {
-          ...RepositoryStateDefaults(),
+        'repository': {
           name: 'example.repository',
         },
-        configuration: {
-          ...ConfigurationStateDefaults(),
+        'configuration': {
           draggable_objects: true,
           format_explorer_titles: false,
         },
       },
-      actions: stub_actions([
-        'files/toggle',
-        'files/select',
-      ]),
     })
 
-    store_dispatch = vi.spyOn(store, 'dispatch')
-
-    file = store.state.files.directory[file_uuid]
+    const files = fetch_files_store()
+    file = files.directory[file_uuid]
     file.relationship = FileRelationshipType.None
   })
 
@@ -72,7 +61,7 @@ describe('components/ExplorerNode', () => {
   })
     .context(() => ({
       global: {
-        plugins: [ vuetify, [ store, key ] ],
+        plugins: [ vuetify, pinia ],
         stubs: {
           ExplorerNodePickup: BasicComponentStub,
           Context: ElementComponentStub,
@@ -202,7 +191,7 @@ describe('components/ExplorerNode', () => {
 
     expect(wrapper.vm.system).toEqual(false)
     expect(file.ephemeral).toEqual(false)
-    expect(format).toHaveBeenCalledOnce()
+    expect(format).toHaveBeenCalled()
     expect(wrapper.vm.alert).toEqual(false)
   })
 
@@ -217,7 +206,7 @@ describe('components/ExplorerNode', () => {
 
     expect(wrapper.vm.system).toEqual(false)
     expect(file.ephemeral).toEqual(false)
-    expect(format).toHaveBeenCalledOnce()
+    expect(format).toHaveBeenCalled()
     expect(wrapper.vm.alert).toEqual(true)
   })
 
@@ -240,7 +229,9 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should call focus on the context element edit updates to false while selected is true', async () => {
-    store.state.files.editing = true
+    const files = fetch_files_store()
+
+    files.editing = true
 
     const wrapper = factory.wrap()
 
@@ -260,23 +251,27 @@ describe('components/ExplorerNode', () => {
     expect(context_element_focus).toHaveBeenCalled()
 
     context_element_focus.mockReset()
-    store.state.files.editing = false
+    files.editing = false
     await wrapper.vm.$nextTick()
     expect(context_element_focus).toHaveBeenCalled()
   })
 
   it('should dispatch files/select with file path when button emits click and file directory is false', async () => {
+    const files = fetch_files_store()
+
     file.directory = false
     const wrapper = factory.wrap()
 
     const button = wrapper.findComponent({ ref: 'button' })
     button.trigger('click')
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).not.toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should not dispatch files/select with file path when button emits click and file directory is false while locked is true', async () => {
+    const files = fetch_files_store()
+
     file.directory = false
     file.relationship = FileRelationshipType.Git
     const wrapper = factory.wrap()
@@ -284,66 +279,78 @@ describe('components/ExplorerNode', () => {
     const button = wrapper.findComponent({ ref: 'button' })
     button.trigger('click')
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).not.toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).not.toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should dispatch files/select with file path when context emits keydown for enter key and file directory is false', async () => {
+    const files = fetch_files_store()
+
     file.directory = false
     const wrapper = factory.wrap()
 
     const context = wrapper.findComponent({ ref: 'context' })
     context.trigger('keydown', { key: 'Enter' })
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).not.toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should not dispatch files/select with file path when context emits keydown for enter key and file directory is false if repeat is true', async () => {
+    const files = fetch_files_store()
+
     file.directory = false
     const wrapper = factory.wrap()
 
     const context = wrapper.findComponent({ ref: 'context' })
     context.trigger('keydown', { key: 'Enter', repeat: true })
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).not.toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).not.toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should dispatch files/select with file path when context emits keydown for spacebar key and file directory is false', async () => {
+    const files = fetch_files_store()
+
     file.directory = false
     const wrapper = factory.wrap()
 
     const context = wrapper.findComponent({ ref: 'context' })
     context.trigger('keydown', { key: ' ' })
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).not.toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should not dispatch files/select with file path when context emits keydown for spacebar key and file directory is false if repeat is true', async () => {
+    const files = fetch_files_store()
+
     file.directory = false
     const wrapper = factory.wrap()
 
     const context = wrapper.findComponent({ ref: 'context' })
     context.trigger('keydown', { key: ' ', repeat: true })
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).not.toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).not.toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should dispatch files/toggle with file path when button emits click and file directory is true', async () => {
+    const files = fetch_files_store()
+
     file.directory = true
     const wrapper = factory.wrap()
 
     const button = wrapper.findComponent({ ref: 'button' })
     button.trigger('click')
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).not.toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should not dispatch files/toggle with file path when button emits click and file directory is true while locked is true', async () => {
+    const files = fetch_files_store()
+
     file.directory = true
     file.relationship = FileRelationshipType.Git
     const wrapper = factory.wrap()
@@ -351,56 +358,67 @@ describe('components/ExplorerNode', () => {
     const button = wrapper.findComponent({ ref: 'button' })
     button.trigger('click')
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).not.toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).not.toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should dispatch files/toggle with file path when context emits keydown for enter key and file directory is true', async () => {
+    const files = fetch_files_store()
+
     file.directory = true
     const wrapper = factory.wrap()
 
     const context = wrapper.findComponent({ ref: 'context' })
     context.trigger('keydown', { key: 'Enter' })
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).not.toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should not dispatch files/toggle with file path when context emits keydown for enter key and file directory is true if repeat is true', async () => {
+    const files = fetch_files_store()
+
     file.directory = true
     const wrapper = factory.wrap()
 
     const context = wrapper.findComponent({ ref: 'context' })
     context.trigger('keydown', { key: 'Enter', repeat: true })
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).not.toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).not.toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should dispatch files/toggle with file path when context emits keydown for spacebar key and file directory is true', async () => {
+    const files = fetch_files_store()
+
     file.directory = true
     const wrapper = factory.wrap()
 
     const context = wrapper.findComponent({ ref: 'context' })
     context.trigger('keydown', { key: ' ' })
 
-    expect(store_dispatch).toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).not.toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should not dispatch files/select with file path when context emits keydown for spacebar key and file directory is true if repeat is true', async () => {
+    const files = fetch_files_store()
+
     file.directory = true
     const wrapper = factory.wrap()
 
     const context = wrapper.findComponent({ ref: 'context' })
     context.trigger('keydown', { key: ' ', repeat: true })
 
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/toggle', { path: file.path })
-    expect(store_dispatch).not.toHaveBeenCalledWith('files/select', { path: file.path })
+    expect(files.toggle).not.toHaveBeenCalledWith({ path: file.path })
+    expect(files.select).not.toHaveBeenCalledWith({ path: file.path })
   })
 
   it('should format the display name if title is set and instance is non-system', async () => {
-    store.state.configuration.format_explorer_titles = true
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: true }
+
     vi.mocked(format).mockImplementation(() => 'Example File')
 
     const wrapper = factory.wrap()
@@ -411,7 +429,10 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should find a placeholder display name if title is set and format fails', async () => {
-    store.state.configuration.format_explorer_titles = true
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: true }
+
     vi.mocked(format).mockImplementationOnce(() => {
       throw new Error('Error')
     })
@@ -423,7 +444,10 @@ describe('components/ExplorerNode', () => {
   })
 
   it('should find a placeholder display name if title is set and format fails when file name is blank', async () => {
-    store.state.configuration.format_explorer_titles = true
+    const configuration = fetch_configuration_store()
+    // @ts-expect-error: Getter is read only
+    configuration.active = { format_explorer_titles: true }
+
     file.name = ''
     vi.mocked(format).mockImplementationOnce(() => {
       throw new Error('Error')

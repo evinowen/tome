@@ -2,121 +2,131 @@
   <utility-page
     right
     title="Commit"
-    :layer="1"
+    :layer="3"
     :open="system.commit"
     @close="close"
   >
-    <div style="display: flex; flex-direction: column; height: 100%;">
-      <div class="flex-grow-0">
-        <v-text-field
-          :model-value="repository.signature.name"
-          :placeholder="configuration.name"
-          label="Name"
-          required
-          density="compact"
-          persistent-placeholder
-          @update:model-value="sign_name"
+    <v-card
+      class="mb-3"
+      color="surface"
+      title="Commit Message"
+      subtitle="Set the message that will be used for the new commit, this can be anything that describes what updates have been made since the last commit."
+    >
+      <template #append>
+        <v-btn
+          ref="generate-button"
+          :disabled="repository_committer.message.length > 0"
+          @click="generate"
+        >
+          Generate
+        </v-btn>
+      </template>
+      <commit-message-input class="my-1" />
+    </v-card>
+    <v-card
+      class="mb-3"
+      color="surface"
+      title="Commit Signature"
+    >
+      <template #subtitle>
+        Set the Name and E-Mail address for the commit message &mdash;
+        <span v-if="configuration.localized.signature">changes here will also be updated in local settings.</span>
+        <span v-else>changes here will also be updated in global settings.</span>
+      </template>
+      <template #append>
+        <select-button-input
+          :value="configuration.localized.signature ? SettingsTarget.Local : SettingsTarget.Global"
+          :color="configuration.localized.signature ? 'secondary' : 'primary'"
+          :options="signature_locality_options"
+          @update="signature_locality"
         />
-        <v-text-field
-          :model-value="repository.signature.email"
-          :placeholder="configuration.email"
-          label="E-mail"
-          required
-          density="compact"
-          persistent-placeholder
-          @update:model-value="sign_email"
-        />
-        <v-textarea
-          persistent-placeholder
-          :model-value="repository.signature.message"
-          :counter="50"
-          label="Message"
-          required
-          clearable
-          auto-grow
-          rows="3"
-          class="message"
-          @update:model-value="sign_message"
-        />
-      </div>
-
-      <commit-list-container class="mb-2">
-        <template #left>
-          Available
-        </template>
-        <template #right>
-          Staged
-        </template>
-      </commit-list-container>
-
-      <commit-list-container
-        grow
-        :height="320"
+      </template>
+      <signature-input
+        :target="configuration.localized.signature ? SettingsTarget.Local : SettingsTarget.Global"
+        :frame="false"
+        :error="true"
+      />
+    </v-card>
+    <v-card
+      color="surface"
+      title="Commit Changes"
+      subtitle="Select from the available updates what changes should be added to this commit."
+      class="d-flex flex-grow-1 flex-column"
+    >
+      <v-row
+        dense
+        class="d-flex flex-grow-1 flex-shrink-1 px-2"
+        style="min-height: 320px; "
       >
-        <template #left>
+        <v-col
+          class="d-flex flex-column"
+          cols="12"
+          sm="6"
+        >
+          <div class="text-h6 text-center pt-3">
+            Available
+          </div>
           <commit-list
             style="flex-grow: 1;"
             title="Available"
-            :items="available"
+            :items="repository_committer.status.available"
+            :disabled="repository_committer.process.staging"
             icon="mdi-plus-thick"
             :height="320"
             @input="stage"
             @click="diff"
           />
-        </template>
-        <template #right>
+          <v-btn
+            ref="stage-button"
+            class="ma-2"
+            rounded="0"
+            :disabled="repository_committer.process.staging || repository_committer.status.available.length === 0"
+            @click.stop="stage('*')"
+          >
+            Stage All
+          </v-btn>
+        </v-col>
+        <v-col
+          class="d-flex flex-column"
+          cols="12"
+          sm="6"
+        >
+          <div class="text-h6 text-center pt-3">
+            Staged
+          </div>
           <commit-list
             style="flex-grow: 1;"
             title="Staged"
-            :items="staged"
+            :items="repository_committer.status.staged"
+            :disabled="repository_committer.process.staging"
             icon="mdi-cancel"
             :height="320"
             @input="reset"
             @click="diff"
           />
-        </template>
-      </commit-list-container>
-
-      <commit-list-container>
-        <template #left>
-          <v-btn
-            ref="stage-button"
-            class="ma-2"
-            rounded="0"
-            :disabled="available.length === 0"
-            @click.stop="stage('*')"
-          >
-            Stage All
-          </v-btn>
-        </template>
-        <template #right>
           <v-btn
             ref="reset-button"
             class="ma-2"
             rounded="0"
-            :disabled="staged.length === 0"
+            :disabled="repository_committer.process.staging || repository_committer.status.staged.length === 0"
             @click.stop="reset('*')"
           >
             Reset All
           </v-btn>
-        </template>
-      </commit-list-container>
-    </div>
+        </v-col>
+      </v-row>
+    </v-card>
     <template #actions>
-      <commit-confirm
-        :value="system.commit_confirm"
-        :name="repository.signature.name"
-        :email="repository.signature.email"
-        :message="repository.signature.message"
-        :disabled="staged.length === 0"
-        :staging="staging"
-        :waiting="working"
-        :push="system.commit_push"
-        @input="confirm"
-        @commit="commit"
-        @push="push"
-        @message="sign_message"
-      />
+      <v-btn
+        class="mr-4"
+        :disabled="repository_committer.status.staged.length === 0"
+        @click.stop="confirm"
+      >
+        <v-icon class="mr-2">
+          mdi-content-save
+        </v-icon>
+        Save
+      </v-btn>
       <v-btn
         color="warning"
         @click.stop="close"
@@ -127,106 +137,89 @@
         Cancel
       </v-btn>
     </template>
+    <template #overlays>
+      <commit-confirm />
+    </template>
   </utility-page>
 </template>
 
-<script lang="ts">
-import CommitConfirm from '@/components/CommitConfirm.vue'
-import CommitList from '@/components/CommitList.vue'
-import CommitListContainer from '@/components/CommitListContainer.vue'
+<script setup lang="ts">
+import { watch } from 'vue'
+import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
+import { fetch_system_store } from '@/store/modules/system'
+import { fetch_repository_comparator_store } from '@/store/modules/repository/comparator'
+import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
+import CommitError from '@/objects/errors/CommitError'
+import CommitConfirm from '@/components/Commit/CommitConfirm.vue'
+import CommitList from '@/components/Commit/CommitList.vue'
+import CommitMessageInput from '@/components/Commit/CommitMessageInput.vue'
+import SelectButtonInput, { Option as SelectButtonOption } from '@/components/Input/SelectButtonInput.vue'
 import UtilityPage from '@/components/UtilityPage.vue'
+import SignatureInput from '@/components/Settings/SignatureInput.vue'
 import {
   VIcon,
+  VCard,
+  VCol,
   VBtn,
-  VTextField,
-  VTextarea,
+  VRow,
 } from 'vuetify/components'
 
-export default {
-  components: {
-    CommitConfirm,
-    CommitList,
-    CommitListContainer,
-    UtilityPage,
-    VBtn,
-    VIcon,
-    VTextarea,
-    VTextField,
-  },
-}
-</script>
+const configuration = fetch_configuration_store()
+const system = fetch_system_store()
+const repository_comparator = fetch_repository_comparator_store()
+const repository_committer = fetch_repository_committer_store()
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { fetchStore } from '@/store'
-
-const store = fetchStore()
-
-const system = computed(() => store.state.system)
-const repository = computed(() => store.state.repository)
-const staging = computed(() => store.state.repository.staging > 0)
-const staged = computed(() => store.state.repository.status.staged)
-const available = computed(() => store.state.repository.status.available)
-const configuration = computed(() => store.state.configuration)
-const working = computed(() => store.state.repository.commit_working)
-
-async function sign_name (value) {
-  await store.dispatch('system/signature/name', value)
-}
-
-async function sign_email (value) {
-  await store.dispatch('system/signature/email', value)
-}
-
-async function sign_message (value) {
-  await store.dispatch('system/signature/message', value)
-}
+watch(() => system.commit, async () => {
+  if (system.commit) {
+    await repository_committer.inspect()
+  }
+})
 
 async function close () {
-  await store.dispatch('system/commit', false)
+  await system.page({ commit: false })
 }
 
-async function confirm (value) {
-  await store.dispatch('system/commit_confirm', value)
+async function generate () {
+  await repository_committer.compose(undefined, true)
 }
 
-async function push (value) {
-  await store.dispatch('system/commit_push', value)
-}
+async function confirm () {
+  if (await CommitError()) {
+    return
+  }
 
-async function message (message) {
-  await store.dispatch('repository/message', message)
+  await system.page({ commit_confirm: true })
 }
 
 async function diff (path) {
-  await store.dispatch('repository/diff', { path })
-  await store.dispatch('system/patch', true)
+  await repository_comparator.diff({ path })
+  await system.page({ patch: true })
 }
 
 async function stage (path) {
-  await store.dispatch('repository/stage', path)
+  await repository_committer.stage(path)
 }
 
 async function reset (path) {
-  await store.dispatch('repository/reset', path)
+  await repository_committer.reset(path)
 }
 
-async function commit () {
-  await store.dispatch('system/perform', 'commit')
+const signature_locality_options: SelectButtonOption[] = [
+  { value: SettingsTarget.Global, icon: 'mdi-earth' },
+  { value: SettingsTarget.Local, icon: 'mdi-book' },
+]
+
+async function signature_locality (value) {
+  await configuration.localize('signature', value === SettingsTarget.Local)
 }
 
 defineExpose({
   close,
-  commit,
   confirm,
   diff,
-  message,
-  push,
   reset,
-  sign_email,
-  sign_message,
-  sign_name,
   stage,
+  signature_locality,
 })
 </script>
 

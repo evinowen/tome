@@ -1,7 +1,7 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { assemble } from '?/helpers'
 import { createVuetify } from 'vuetify'
-import File, { FileRelationshipType } from '@/store/modules/files/file'
+import File, { FileRelationshipType } from '@/objects/File'
 import FileButtonIcon from '@/components/FileButtonIcon.vue'
 
 describe('components/FileButtonIcon', () => {
