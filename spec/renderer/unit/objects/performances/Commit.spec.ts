@@ -37,43 +37,27 @@ describe('objects/performances/Commit', () => {
     expect(repository_committer.commit).toHaveBeenCalledWith()
   })
 
-  it('should not trigger QuickPush performance when "system.commit_push" is false upon call to Commit.perform', async () => {
+  it('should return false if repository_committer.commit throws error upon call to Commit.perform', async () => {
     const repository_committer = fetch_repository_committer_store()
     repository_committer.status.staged.push({ path: '/example', type: 1 })
-
-    const system = fetch_system_store()
-    system.commit_push = false
-
-    await Commit.perform()
-
-    expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.QuickPush)
-  })
-
-  it('should trigger QuickPush performance when "system.commit_push" is true upon call to Commit.perform', async () => {
-    const repository_committer = fetch_repository_committer_store()
-    repository_committer.status.staged.push({ path: '/example', type: 1 })
-
-    const system = fetch_system_store()
-    system.commit_push = true
-
-    await Commit.perform()
-
-    expect(system.perform).toHaveBeenCalledWith(SystemPerformance.QuickPush)
-  })
-
-  it('should not trigger QuickPush performance when "system/commit_push" returns true if commit fails upon call to Commit.perform', async () => {
-    const repository_committer = fetch_repository_committer_store()
-    repository_committer.status.staged.push({ path: '/example', type: 1 })
-
-    const system = fetch_system_store()
-    system.commit_push = true
-
-    repository_committer.commit = vi.fn(() => {
+    repository_committer.commit = vi.fn(async () => {
       throw new Error('Error')
     })
 
-    await Commit.perform()
+    const result = await Commit.perform()
 
-    expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.QuickPush)
+    expect(repository_committer.commit).toHaveBeenCalledWith()
+    expect(result).toEqual(false)
+  })
+
+  it('should return true if repository_committer.commit exits without throwing error upon call to Commit.perform', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.status.staged.push({ path: '/example', type: 1 })
+    repository_committer.commit = vi.fn()
+
+    const result = await Commit.perform()
+
+    expect(repository_committer.commit).toHaveBeenCalledWith()
+    expect(result).toEqual(true)
   })
 })

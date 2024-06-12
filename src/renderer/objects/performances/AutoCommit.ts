@@ -1,4 +1,3 @@
-import { delay } from 'lodash'
 import { fetch_configuration_store } from '@/store/modules/configuration'
 import { fetch_log_store } from '@/store/modules/log'
 import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
@@ -15,8 +14,6 @@ export default class AutoCommit {
     await log.info('Perform Auto Commit')
 
     try {
-      await system.page({ commit_push: configuration.active.auto_push })
-
       await repository_committer.inspect()
       await repository_committer.stage('*')
 
@@ -24,15 +21,25 @@ export default class AutoCommit {
 
       if (!await repository_committer.check()) {
         await log.error('Auto Commit cannot complete without valid signature')
-        return
+        return false
       }
 
-      await system.perform(SystemPerformance.Commit)
+      const commit_success = await system.perform(SystemPerformance.Commit)
+      if (!commit_success) {
+        return false
+      }
+
+      if (configuration.active.auto_push) {
+        const push_success = await system.perform(SystemPerformance.AutoPush)
+        if (!push_success) {
+          return false
+        }
+      }
     } catch {
       await log.error('Auto Commit failed')
-      return
+      return false
     }
 
-    await new Promise((resolve) => delay(resolve, 200))
+    return true
   }
 }

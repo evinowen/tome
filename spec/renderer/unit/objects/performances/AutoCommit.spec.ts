@@ -28,9 +28,10 @@ describe('objects/performances/AutoCommit', () => {
   })
 
   it('should not trigger Commit performance when "repository_committer.check" returns false upon call to AutoCommit.perform', async () => {
-    const system = fetch_system_store()
     const repository_committer = fetch_repository_committer_store()
     repository_committer.check = vi.fn(() => false)
+
+    const system = fetch_system_store()
 
     await AutoCommit.perform()
 
@@ -38,12 +39,153 @@ describe('objects/performances/AutoCommit', () => {
   })
 
   it('should trigger Commit performance when "repository_committer.check" returns true upon call to AutoCommit.perform', async () => {
-    const system = fetch_system_store()
     const repository_committer = fetch_repository_committer_store()
     repository_committer.check = vi.fn(() => true)
+
+    const system = fetch_system_store()
 
     await AutoCommit.perform()
 
     expect(system.perform).toHaveBeenCalledWith(SystemPerformance.Commit)
+  })
+
+  it('should return false if error is thrown upon call to AutoCommit.perform', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.check = vi.fn(() => true)
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async () => {
+      throw new Error('Error')
+    })
+
+    const result = await AutoCommit.perform()
+
+    expect(result).toEqual(false)
+  })
+
+  it('should return false if triggered Commit performance returns false upon call to AutoCommit.perform', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.check = vi.fn(() => true)
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async (performance) => {
+      switch (performance) {
+        case SystemPerformance.Commit:
+          return false
+      }
+
+      return true
+    })
+
+    const result = await AutoCommit.perform()
+
+    expect(system.perform).toHaveBeenCalledWith(SystemPerformance.Commit)
+    expect(result).toEqual(false)
+  })
+
+  it('should return true if triggered Commit performance returns true upon call to AutoCommit.perform', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.check = vi.fn(() => true)
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async (performance) => {
+      switch (performance) {
+        case SystemPerformance.Commit:
+          return true
+      }
+
+      return false
+    })
+
+    const result = await AutoCommit.perform()
+
+    expect(system.perform).toHaveBeenCalledWith(SystemPerformance.Commit)
+    expect(result).toEqual(true)
+  })
+
+  it('should return true if triggered Commit performance returns true upon call to AutoCommit.perform', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.check = vi.fn(() => true)
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async (performance) => {
+      switch (performance) {
+        case SystemPerformance.Commit:
+          return true
+      }
+
+      return false
+    })
+
+    const result = await AutoCommit.perform()
+
+    expect(result).toEqual(true)
+  })
+
+  it('should trigger AutoPush performance after succssful Commit performance when "configuration.active.auto_push" is true upon call to AutoCommit.perform', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.check = vi.fn(() => true)
+
+    const configuration = fetch_configuration_store()
+    configuration.active.auto_push = true
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async () => true)
+
+    await AutoCommit.perform()
+
+    expect(system.perform).toHaveBeenCalledWith(SystemPerformance.AutoPush)
+  })
+
+  it('should return false if triggered AutoPush performance returns false upon call to AutoCommit.perform', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.check = vi.fn(() => true)
+
+    const configuration = fetch_configuration_store()
+    configuration.active.auto_push = true
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async (performance) => {
+      switch (performance) {
+        case SystemPerformance.Commit:
+          return true
+
+        case SystemPerformance.AutoPush:
+          return false
+      }
+
+      return false
+    })
+
+    const result = await AutoCommit.perform()
+
+    expect(system.perform).toHaveBeenCalledWith(SystemPerformance.AutoPush)
+    expect(result).toEqual(false)
+  })
+
+  it('should return true if triggered AutoPush performance returns true upon call to AutoCommit.perform', async () => {
+    const repository_committer = fetch_repository_committer_store()
+    repository_committer.check = vi.fn(() => true)
+
+    const configuration = fetch_configuration_store()
+    configuration.active.auto_push = true
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async (performance) => {
+      switch (performance) {
+        case SystemPerformance.Commit:
+          return true
+
+        case SystemPerformance.AutoPush:
+          return true
+      }
+
+      return false
+    })
+
+    const result = await AutoCommit.perform()
+
+    expect(system.perform).toHaveBeenCalledWith(SystemPerformance.AutoPush)
+    expect(result).toEqual(true)
   })
 })

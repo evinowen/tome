@@ -111,49 +111,27 @@ describe('components/Commit/CommitConfirm', () => {
     expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.Commit)
   })
 
-  it('should call "system.page" with inverted commit_push flag when push button emits "click" event', async () => {
-    const system = fetch_system_store()
-
+  it('should invert push flag when push button emits "click" event', async () => {
     const wrapper = factory.wrap()
 
     const push_button = wrapper.findComponent({ ref: 'push-button' })
     expect(push_button.exists()).toBe(true)
 
     {
-      const commit_push = system.commit_push
+      const commit_push = wrapper.vm.push
 
       await push_button.trigger('click')
 
-      expect(system.page).toHaveBeenCalledWith({ commit_push: !commit_push })
+      expect(wrapper.vm.push).toEqual(!commit_push)
     }
 
     {
-      const commit_push = system.commit_push
+      const commit_push = wrapper.vm.push
 
       await push_button.trigger('click')
 
-      expect(system.page).toHaveBeenCalledWith({ commit_push: !commit_push })
+      expect(wrapper.vm.push).toEqual(!commit_push)
     }
-  })
-
-  it('should call "system.page" with false commit_push flag when commit_push is called with false', async () => {
-    const system = fetch_system_store()
-
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.commit_push(false)
-
-    expect(system.page).toHaveBeenCalledWith({ commit_push: false })
-  })
-
-  it('should call "system.page" with false commit_push flag when commit_push is called with true', async () => {
-    const system = fetch_system_store()
-
-    const wrapper = factory.wrap()
-
-    await wrapper.vm.commit_push(true)
-
-    expect(system.page).toHaveBeenCalledWith({ commit_push: true })
   })
 
   it('should call "system.page" with false commit_confirm flag when return button emits "click" event', async () => {

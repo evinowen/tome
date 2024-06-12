@@ -1,6 +1,6 @@
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
+import { fetch_system_store, SystemPages, SystemPerformance } from '@/store/modules/system'
 import Commit from '@/objects/performances/Commit'
 import QuickCommit from '@/objects/performances/QuickCommit'
 import AutoCommit from '@/objects/performances/AutoCommit'
@@ -88,7 +88,6 @@ describe('store/modules/system', () => {
     'branches',
     'branches_remove_confirm',
     'commit',
-    'commit_push',
     'console',
     'edit',
     'history',
@@ -101,19 +100,19 @@ describe('store/modules/system', () => {
     'tags_remove_confirm',
   ]
 
-  for (const flag of flags) {
-    it(`should set ${flag} flag on ${flag} dispatch with truthy value`, async () => {
-      expect(system[flag]).toBe(false)
-      await system.page({ [flag]: true })
-      expect(system[flag]).toBe(true)
+  for (const page of SystemPages) {
+    it(`should set ${page} page flag on call to page with truthy value for ${page}`, async () => {
+      expect(system[page]).toBe(false)
+      await system.page({ [page]: true })
+      expect(system[page]).toBe(true)
     })
 
-    it(`should set ${flag} flag on ${flag} dispatch with falsey value`, async () => {
-      expect(system[flag]).toBe(false)
-      await system.page({ [flag]: true })
-      expect(system[flag]).toBe(true)
-      await system.page({ [flag]: false })
-      expect(system[flag]).toBe(false)
+    it(`should set ${page} page flag on call to page with falsey value for ${page}`, async () => {
+      expect(system[page]).toBe(false)
+      await system.page({ [page]: true })
+      expect(system[page]).toBe(true)
+      await system.page({ [page]: false })
+      expect(system[page]).toBe(false)
     })
   }
 

@@ -3,13 +3,18 @@ import { setActivePinia } from 'pinia'
 import { createTestingPinia } from '@pinia/testing'
 import { fetch_configuration_store } from '@/store/modules/configuration'
 import SettingsStateDefaults from '@/store/state/configuration/settings'
-import { fetch_error_store } from '@/store/modules/error'
 import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
-import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 import QuickCommit from '@/objects/performances/QuickCommit'
 
+/* lodash */
 vi.mock('lodash', () => ({
   delay: (callback) => callback(),
+}))
+
+/* CommitError */
+import CommitError from '@/objects/errors/CommitError'
+vi.mock('@/objects/errors/CommitError', () => ({
+  default: vi.fn(async () => false),
 }))
 
 describe('objects/performances/QuickCommit', () => {
@@ -26,33 +31,167 @@ describe('objects/performances/QuickCommit', () => {
     setActivePinia(pinia)
   })
 
-  it('should show error when "repository_committer.check" returns false upon call to QuickCommit.perform', async () => {
-    const error = fetch_error_store()
-    const repository_committer = fetch_repository_committer_store()
-    repository_committer.check = vi.fn(() => false)
+  it('should not trigger Commit performance when "repository_committer.check" returns true upon call to QuickCommit.perform', async () => {
+    const mocked_CommitError = vi.mocked(CommitError)
+    mocked_CommitError.mockImplementationOnce(async () => true)
 
-    await QuickCommit.perform()
-
-    expect(error.show).toHaveBeenCalled()
-  })
-
-  it('should not trigger Commit performance when "repository_committer.check" returns false upon call to QuickCommit.perform', async () => {
     const system = fetch_system_store()
-    const repository_committer = fetch_repository_committer_store()
-    repository_committer.check = vi.fn(() => false)
 
     await QuickCommit.perform()
 
     expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.Commit)
   })
 
-  it('should trigger Commit performance when "repository_committer.check" returns true upon call to QuickCommit.perform', async () => {
+  it('should trigger Commit performance when "repository_committer.check" returns false upon call to QuickCommit.perform', async () => {
+    const mocked_CommitError = vi.mocked(CommitError)
+    mocked_CommitError.mockImplementationOnce(async () => false)
+
     const system = fetch_system_store()
-    const repository_committer = fetch_repository_committer_store()
-    repository_committer.check = vi.fn(() => true)
 
     await QuickCommit.perform()
 
     expect(system.perform).toHaveBeenCalledWith(SystemPerformance.Commit)
+  })
+
+  it('should return true if performance completes successfully upon call to QuickCommit.perform', async () => {
+    const mocked_CommitError = vi.mocked(CommitError)
+    mocked_CommitError.mockImplementationOnce(async () => false)
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async () => true)
+
+    const result = await QuickCommit.perform()
+
+    expect(result).toEqual(true)
+  })
+
+  it('should return false if error is thrown upon call to QuickCommit.perform', async () => {
+    const mocked_CommitError = vi.mocked(CommitError)
+    mocked_CommitError.mockImplementationOnce(async () => false)
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async () => {
+      throw new Error('Error')
+    })
+
+    const result = await QuickCommit.perform()
+
+    expect(result).toEqual(false)
+  })
+
+  it('should not trigger QuickPush performance when trigger configuration.active.auto_push is false upon call to QuickCommit.perform', async () => {
+    const configuration = fetch_configuration_store()
+    configuration.active.auto_push = false
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async (performance) => {
+      switch (performance) {
+        case SystemPerformance.Commit:
+          return true
+      }
+
+      return true
+    })
+
+    const mocked_CommitError = vi.mocked(CommitError)
+    mocked_CommitError.mockImplementationOnce(async () => false)
+
+    await QuickCommit.perform()
+
+    expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.QuickPush)
+  })
+
+  it('should not trigger QuickPush performance when trigger Commit performance returns false upon call to QuickCommit.perform', async () => {
+    const configuration = fetch_configuration_store()
+    configuration.active.auto_push = true
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async (performance) => {
+      switch (performance) {
+        case SystemPerformance.Commit:
+          return false
+      }
+
+      return true
+    })
+
+    const mocked_CommitError = vi.mocked(CommitError)
+    mocked_CommitError.mockImplementationOnce(async () => false)
+
+    await QuickCommit.perform()
+
+    expect(system.perform).not.toHaveBeenCalledWith(SystemPerformance.QuickPush)
+  })
+
+  it('should trigger QuickPush performance when trigger Commit performance returns true and configuration.active.auto_push is true upon call to QuickCommit.perform', async () => {
+    const configuration = fetch_configuration_store()
+    configuration.active.auto_push = true
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async (performance) => {
+      switch (performance) {
+        case SystemPerformance.Commit:
+          return true
+      }
+
+      return true
+    })
+
+    const mocked_CommitError = vi.mocked(CommitError)
+    mocked_CommitError.mockImplementationOnce(async () => false)
+
+    await QuickCommit.perform()
+
+    expect(system.perform).toHaveBeenCalledWith(SystemPerformance.QuickPush)
+  })
+
+  it('should return false when triggered QuickPush performance returns false upon call to QuickCommit.perform', async () => {
+    const configuration = fetch_configuration_store()
+    configuration.active.auto_push = true
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async (performance) => {
+      switch (performance) {
+        case SystemPerformance.Commit:
+          return true
+
+        case SystemPerformance.QuickPush:
+          return false
+      }
+
+      return true
+    })
+
+    const mocked_CommitError = vi.mocked(CommitError)
+    mocked_CommitError.mockImplementationOnce(async () => false)
+
+    const result = await QuickCommit.perform()
+
+    expect(result).toEqual(false)
+  })
+
+  it('should return true when triggered QuickPush performance returns true upon call to QuickCommit.perform', async () => {
+    const configuration = fetch_configuration_store()
+    configuration.active.auto_push = true
+
+    const system = fetch_system_store()
+    system.perform = vi.fn(async (performance) => {
+      switch (performance) {
+        case SystemPerformance.Commit:
+          return true
+
+        case SystemPerformance.QuickPush:
+          return true
+      }
+
+      return true
+    })
+
+    const mocked_CommitError = vi.mocked(CommitError)
+    mocked_CommitError.mockImplementationOnce(async () => false)
+
+    const result = await QuickCommit.perform()
+
+    expect(result).toEqual(true)
   })
 })

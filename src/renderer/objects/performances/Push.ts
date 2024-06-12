@@ -1,21 +1,29 @@
-import { delay } from 'lodash'
 import { fetch_log_store } from '@/store/modules/log'
-import { fetch_system_store } from '@/store/modules/system'
 import { fetch_repository_remotes_store } from '@/store/modules/repository/remotes'
 
 export default class Push {
   static async perform () {
     const log = fetch_log_store()
-    const system = fetch_system_store()
     const repository_remotes = fetch_repository_remotes_store()
 
-    await log.info('Perform Push')
+    const count = repository_remotes.active.pending.length
 
-    await repository_remotes.push()
+    if (count <= 0) {
+      await log.info('Push has no pending commits')
+      return false
+    }
 
-    await new Promise((resolve) => delay(resolve, 500))
+    try {
+      await log.info(`Perform Push for ${count} commit${count === 1 ? '' : 's'}...`)
 
-    await system.page({ push_confirm: false })
-    await system.page({ push: false })
+      await repository_remotes.push()
+
+      await log.info('Push Complete')
+    } catch {
+      await log.error('Push Failed')
+      return false
+    }
+
+    return true
   }
 }

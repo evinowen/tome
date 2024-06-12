@@ -62,12 +62,12 @@
         <v-spacer />
         <v-btn
           ref="push-button"
-          :color="system.commit_push ? 'warning' : ''"
+          :color="push ? 'warning' : ''"
           variant="text"
-          @click="commit_push(!system.commit_push)"
+          @click="push = !push"
         >
           <v-icon class="mr-2">
-            {{ system.commit_push ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+            {{ push ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
           </v-icon>
           Push
         </v-btn>
@@ -96,7 +96,7 @@ export const CommitConfirmMessages = {
 </script>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import OverlayBox from '@/components/OverlayBox.vue'
 import CommitMessageInput from '@/components/Commit/CommitMessageInput.vue'
 import {
@@ -112,12 +112,22 @@ import {
   VProgressCircular,
   VSpacer,
 } from 'vuetify/components'
+import { fetch_configuration_store } from '@/store/modules/configuration'
 import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 import CommitError from '@/objects/errors/CommitError'
 
+const configuration = fetch_configuration_store()
 const system = fetch_system_store()
 const repository_committer = fetch_repository_committer_store()
+
+const push = ref(false)
+
+watch(() => system.commit_confirm, () => {
+  if (system.commit_confirm) {
+    push.value = configuration.active.auto_push
+  }
+})
 
 const status = computed(() => {
   return repository_committer.process.staging
@@ -134,11 +144,16 @@ async function commit () {
     return
   }
 
-  await system.perform(SystemPerformance.Commit)
-}
+  if (!await system.perform(SystemPerformance.Commit)) {
+    return
+  }
 
-async function commit_push (value) {
-  await system.page({ commit_push: value })
+  await system.page({ commit_confirm: false })
+  await system.page({ commit: false })
+
+  if (push.value) {
+    await system.perform(SystemPerformance.QuickPush)
+  }
 }
 
 async function close () {
@@ -146,7 +161,7 @@ async function close () {
 }
 
 defineExpose({
-  commit_push,
+  push,
   generate,
   status,
 })

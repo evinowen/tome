@@ -8,6 +8,7 @@ import QuickCommit from '@/objects/performances/QuickCommit'
 import AutoCommit from '@/objects/performances/AutoCommit'
 import Push from '@/objects/performances/Push'
 import QuickPush from '@/objects/performances/QuickPush'
+import AutoPush from '@/objects/performances/AutoPush'
 
 export enum SystemPerformance {
   Commit = 'commit',
@@ -15,6 +16,7 @@ export enum SystemPerformance {
   AutoCommit = 'auto-commit',
   Push = 'push',
   QuickPush = 'quick-push',
+  AutoPush = 'auto-push',
 }
 
 export enum SystemTimeout {
@@ -38,7 +40,6 @@ export interface State {
   branches_remove_confirm: boolean
   commit: boolean
   commit_confirm: boolean
-  commit_push: boolean
   console: boolean
   edit: boolean
   history: boolean
@@ -59,7 +60,6 @@ export const SystemPages = new Set([
   'branches_remove_confirm',
   'commit',
   'commit_confirm',
-  'commit_push',
   'console',
   'edit',
   'history',
@@ -81,7 +81,6 @@ export const StateDefaults = (): State => ({
   branches_remove_confirm: false,
   commit: false,
   commit_confirm: false,
-  commit_push: false,
   console: false,
   edit: false,
   history: false,
@@ -132,24 +131,25 @@ export const fetch_system_store = defineStore('system', {
 
       switch (performance) {
         case SystemPerformance.Commit:
-          await Commit.perform()
-          break
+          return await Commit.perform()
 
         case SystemPerformance.QuickCommit:
-          await QuickCommit.perform()
-          break
+          return await QuickCommit.perform()
 
         case SystemPerformance.AutoCommit:
-          await AutoCommit.perform()
-          break
+          return await AutoCommit.perform()
 
         case SystemPerformance.Push:
-          await Push.perform()
-          break
+          return await Push.perform()
 
         case SystemPerformance.QuickPush:
-          await QuickPush.perform()
-          break
+          return await QuickPush.perform()
+
+        case SystemPerformance.AutoPush:
+          return await AutoPush.perform()
+
+        default:
+          return false
       }
     },
     page: async function (flags) {

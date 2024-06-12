@@ -1,40 +1,28 @@
-import { delay } from 'lodash'
 import { fetch_log_store } from '@/store/modules/log'
-import { fetch_system_store, SystemPerformance } from '@/store/modules/system'
 import { fetch_repository_committer_store } from '@/store/modules/repository/committer'
 
 export default class Commit {
   static async perform () {
     const log = fetch_log_store()
-    const system = fetch_system_store()
     const repository_committer = fetch_repository_committer_store()
 
-    await log.info('Perform Commit')
+    const count = repository_committer.status.staged.length
+    if (count === 0) {
+      await log.info('Commit has no changes staged')
+      return false
+    }
 
     try {
-      if (repository_committer.status.staged.length === 0) {
-        await log.info('Commit has no changes staged')
-        return
-      }
+      await log.info(`Perform Commit from ${count} staged change${count === 1 ? '' : 's'}...`)
 
       await repository_committer.commit()
-      await repository_committer.compose('')
 
-      await log.info('Commit done')
+      await log.info('Commit Complete')
     } catch {
-      await log.error('Commit failed')
-      return
-    } finally {
-      await system.page({ commit_confirm: false })
-      await system.page({ commit: false })
+      await log.error('Commit Failed')
+      return false
     }
 
-    if (system.commit_push) {
-      await new Promise((resolve) => delay(resolve, 100))
-
-      await system.perform(SystemPerformance.QuickPush)
-    }
-
-    await new Promise((resolve) => delay(resolve, 200))
+    return true
   }
 }

@@ -232,7 +232,7 @@ export enum LocalityColor {
 import { computed } from 'vue'
 import { fetch_configuration_store, SettingsTarget } from '@/store/modules/configuration'
 import { fetch_repository_store } from '@/store/modules/repository'
-import { fetch_system_store } from '@/store/modules/system'
+import { fetch_system_store, SystemTimeout } from '@/store/modules/system'
 import logo from './logo.png'
 import CredentialSelector from '@/components/Settings/Credentials/CredentialSelector.vue'
 import SignatureInput from '@/components/Settings/SignatureInput.vue'
@@ -308,12 +308,12 @@ const locality_color = computed(() => {
 })
 
 const auto_commit_interval_options = [
-  { value: 'quarter-hourly', label: 'Quarter Hourly' },
-  { value: 'half-hourly', label: 'Half Hourly' },
-  { value: 'hourly', label: 'Hourly' },
-  { value: 'quarter-daily', label: 'Quarter Daily' },
-  { value: 'half-daily', label: 'Half Daily' },
-  { value: 'daily', label: 'Daily' },
+  { value: SystemTimeout.QuarterHour, label: 'Quarter Hourly' },
+  { value: SystemTimeout.HalfHour, label: 'Half Hourly' },
+  { value: SystemTimeout.Hour, label: 'Hourly' },
+  { value: SystemTimeout.QuarterDay, label: 'Quarter Daily' },
+  { value: SystemTimeout.HalfDay, label: 'Half Daily' },
+  { value: SystemTimeout.Day, label: 'Daily' },
 ] as SelectMenuOption[]
 
 const log_level_options = [

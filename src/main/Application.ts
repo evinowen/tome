@@ -155,6 +155,7 @@ class Application {
       webPreferences: {
         webSecurity: !development,
         preload: path.join(__dirname, 'preload.js'),
+        backgroundThrottling: false,
       },
     })
 

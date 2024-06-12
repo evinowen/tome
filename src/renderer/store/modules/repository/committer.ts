@@ -123,6 +123,7 @@ export const fetch_repository_committer_store = defineStore('repository-committe
       const oid = await api.repository.commit(name, email, this.message)
 
       await log.info(`Commit "${this.message}" ${oid} created`)
+      this.message = ''
 
       await this.inspect()
 

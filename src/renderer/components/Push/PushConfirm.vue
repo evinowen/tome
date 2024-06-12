@@ -113,6 +113,8 @@ async function inspect (oid) {
 
 async function push () {
   await system.perform(SystemPerformance.Push)
+  await system.page({ push_confirm: false })
+  await system.page({ push: false })
 }
 
 async function close () {

@@ -4,7 +4,6 @@ import BasicComponentStub from '?/stubs/BasicComponentStub'
 import { createVuetify } from 'vuetify'
 import { createTestingPinia } from '@pinia/testing'
 import SignatureInput from '@/components/Settings/SignatureInput.vue'
-import { fetch_configuration_store } from '@/store/modules/configuration'
 
 vi.mock('lodash', () => ({
   throttle: (callback) => {
