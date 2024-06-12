@@ -99,18 +99,16 @@ export const fetch_repository_remotes_store = defineStore('repository-remotes', 
 
       this.process.push = true
 
-      if (this.active === undefined) {
-        throw new RepositoryRemoteNotLoadedError()
+      if (this.active.name !== '') {
+        const repository_credentials = fetch_repository_credentials_store()
+        await repository_credentials.load()
+
+        await log.info(`Pushing to remote ${this.active.name} ...`)
+
+        await api.repository.push()
+
+        await log.info(`Push to remote ${this.active.name} complete`)
       }
-
-      const credentials = fetch_repository_credentials_store()
-      await credentials.load()
-
-      await log.info(`Pushing to remote ${this.active.name} ...`)
-
-      await api.repository.push()
-
-      await log.info(`Push to remote ${this.active.name} complete`)
 
       this.process.push = false
     },

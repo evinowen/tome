@@ -41,7 +41,7 @@ describe('store/modules/repository/credentials', () => {
     vi.clearAllMocks()
   })
 
-  it('should trigger api.repository.credential_password when credential type is set to "password" upon load dispatch', async () => {
+  it('should trigger api.repository.credential_password when credential type is set to "password" upon call to load', async () => {
     mocked_fetch_configuration.active.credentials.type = 'password'
 
     await repository_credentials.load()
@@ -49,11 +49,41 @@ describe('store/modules/repository/credentials', () => {
     expect(mocked_api.repository.credential_password).toHaveBeenCalledTimes(1)
   })
 
-  it('should trigger api.repository.credential_key when credential type is set to "key" upon load dispatch', async () => {
+  it('should trigger api.repository.credential_key when credential type is set to "key" upon call to load', async () => {
     mocked_fetch_configuration.active.credentials.type = 'key'
 
     await repository_credentials.load()
 
     expect(mocked_api.repository.credential_key).toHaveBeenCalledTimes(1)
+  })
+
+  it('should set visible true upon call to prompt', async () => {
+    repository_credentials.visible = false
+
+    repository_credentials.prompt()
+
+    expect(repository_credentials.visible).toEqual(true)
+  })
+
+  it('should return Prmoise for awaiting input upon call to prompt', async () => {
+    const result = repository_credentials.prompt()
+
+    expect(result instanceof Promise).toEqual(true)
+  })
+
+  it('should set visible false upon call to cancel', async () => {
+    repository_credentials.visible = true
+
+    await repository_credentials.cancel()
+
+    expect(repository_credentials.visible).toEqual(false)
+  })
+
+  it('should call reject when set upon call to cancel', async () => {
+    repository_credentials.reject = vi.fn()
+
+    await repository_credentials.cancel()
+
+    expect(repository_credentials.reject).toHaveBeenCalled()
   })
 })

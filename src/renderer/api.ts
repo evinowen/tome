@@ -73,7 +73,7 @@ export interface API {
     remote_add: (name: string, url: string) => Promise<void>
     remote_clear: () => Promise<void>
     remote_list: () => Promise<RepositoryRemote[]>
-    remote_load: (name: string) => Promise<{ error?: string, success: true }>
+    remote_load: (name: string) => Promise<{ error?: string, success: boolean }>
     remote_remove: (name: string) => Promise<void>
     remote_status: () => Promise<RepositoryRemote>
     reset: (query: string) => Promise<void>
@@ -104,7 +104,7 @@ export interface Result {
   error?: string
   reason?: string
   code?: number
-  success?: true
+  success?: boolean
 }
 
 export interface SearchCriteria {
