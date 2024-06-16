@@ -1,4 +1,9 @@
-![tome](/assets/icon/tome.github.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/assets/icon/tome.github.dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/assets/icon/tome.github.light.png">
+  <img alt="Tome" src="/assets/icon/tome.github.light.png">
+</picture>
+
 Git integrated cross-platform markdown editor, built leveraging Electron (https://github.com/electron/electron), Vue (https://github.com/vuejs/vue), and NodeGit (https://github.com/nodegit/nodegit).
 
 Tome is intended as a general markdown editor and note taking application.

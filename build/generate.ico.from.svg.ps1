@@ -12,19 +12,37 @@ magick convert -background none $Root\..\assets\icon\tome.svg -resize 1024x1024 
 
 magick convert -background none $Root\..\assets\icon\tome.svg $Root\..\docs\logo.png
 
-magick $Root\..\assets\icon\tome.512.png `
+magick $Root\..\assets\icon\tome.1024.png `
   -background none `
-  -gravity west -extent 1024x512 `
+  -gravity west -extent 2048x1024 `
   -weight Bold -fill white -stroke white `
-  -pointsize 200 -strokewidth 0 -annotate +512+0 'tome' `
+  -pointsize 400 -strokewidth 0 -annotate +1024+0 'tome' `
   -weight Medium -fill white -stroke white `
-  -pointsize 24 -strokewidth 0 -annotate +526+100 'git integrated cross-platform markdown editor' `
+  -pointsize 48 -strokewidth 0 -annotate +1052+200 'git integrated cross-platform markdown editor' `
+  -resize 50% `
   -compress zip $Root\..\assets\icon\tome.github.tmp.png
 
 magick $Root\..\assets\icon\tome.github.tmp.png `
   -background none `
   -gravity center -extent 1280x640 `
-  -compress zip $Root\..\assets\icon\tome.github.png
+  -compress zip $Root\..\assets\icon\tome.github.dark.png
+
+rm $Root\..\assets\icon\tome.github.tmp.png
+
+magick $Root\..\assets\icon\tome.1024.png `
+  -background none `
+  -gravity west -extent 2048x1024 `
+  -weight Bold -fill black -stroke black `
+  -pointsize 400 -strokewidth 0 -annotate +1024+0 'tome' `
+  -weight Medium -fill black -stroke black `
+  -pointsize 48 -strokewidth 0 -annotate +1052+200 'git integrated cross-platform markdown editor' `
+  -resize 50% `
+  -compress zip $Root\..\assets\icon\tome.github.tmp.png
+
+magick $Root\..\assets\icon\tome.github.tmp.png `
+  -background none `
+  -gravity center -extent 1280x640 `
+  -compress zip $Root\..\assets\icon\tome.github.light.png
 
 rm $Root\..\assets\icon\tome.github.tmp.png
 
